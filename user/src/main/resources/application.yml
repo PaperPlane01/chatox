@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: user-service
+  data:
+    mongodb:
+      repositories:
+        type: reactive
+      database: chatox-users
+      host: localhost
+      port: 27017
+server:
+  port: 8083
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: http://localhost:8081/eureka/
+    register-with-eureka: false
+    fetch-registry: false
+  instance:
+    prefer-ip-address: true
+    appname: 'users'
+    instance-id: 'users-${server.port}'
+ribbon:
+  eureka:
+    enabled: true

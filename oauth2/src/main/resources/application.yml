@@ -1,0 +1,46 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: oauth2
+  datasource:
+    url: jdbc:postgresql://localhost:5432/chatox-oauth2-service
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 50
+      initialization-fail-timeout: 50000
+      connection-timeout: 6000
+      jdbc-url: jdbc:postgresql://localhost:5432/chatox-oauth2-service
+    username: admin
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL94Dialect
+        merge:
+          entity_copy_observer: allow
+    show-sql: true
+  rabbitmq:
+    listener:
+      simple:
+        default-requeue-rejected: false
+    host: localhost
+    port: 5072
+    username: guest
+    password: guest
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: http://localhost:8081/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    appname: 'oauth2'
+    instance-id: 'oauth2-${server.port}'
+ribbon:
+  eureka:
+    enabled: true

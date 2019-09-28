@@ -1,0 +1,50 @@
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      globalcors:
+        cors-configurations:
+          '[/api/v1/notification/handshake/**]':
+            allowedOrigins: '*'
+            allowedMethods: '*'
+            allowedHeaders: '*'
+            allowCredentials: true
+          '[/**]':
+            allowedOrigins: '*'
+            allowedMethods: '*'
+            allowedHeaders: '*'
+            allowCredentials: true
+      routes:
+        - id: oauth2
+          uri: lb://oauth2
+          predicates:
+            - Path=/oauth/**
+        - id: chat
+          uri: lb://chat
+          predicates:
+            - Path=/api/v1/chat/**
+        - id: user
+          uri: lb://user
+          predicates:
+            - Path=/api/v1/user/**
+        - id: registration
+          uri: lb://registration
+          predicates:
+            - Path=/api/v1/registration/**
+        - id: notifications
+          uri: lb:ws//notification
+          predicates:
+            - Path=/api/v1/notification/**
+eureka:
+  client:
+    enabled: true
+    service-url.defaultZone: http://localhost:8081/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    appname: chatox-gateway
+    instance-id: chatox-gateway-${server.port}
+server:
+  port: 8080
