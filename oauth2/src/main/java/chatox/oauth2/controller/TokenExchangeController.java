@@ -32,8 +32,6 @@ public class TokenExchangeController {
         defaultTokenServices.setTokenStore(tokenStore);
         OAuth2Authentication oAuth2Authentication = defaultTokenServices.loadAuthentication(exchangeTokenRequest.getAccessToken());
 
-        System.out.println(oAuth2Authentication);
-
         TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
         tokenEnhancerChain.setTokenEnhancers(Arrays.asList(customTokenEnhancer, jwtAccessTokenConverter));
 

@@ -18,15 +18,20 @@ public class OAuth2TokenExchangingFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange serverWebExchange, WebFilterChain webFilterChain) {
-        System.out.println("Here in filter");
         var path = serverWebExchange.getRequest().getPath().toString();
-        System.out.println(serverWebExchange.getRequest().getHeaders().get("Authorization"));
 
         if (!path.startsWith(OAUTH2_SERVICE_URL)) {
             if (serverWebExchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                 var accessToken = serverWebExchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
-                var jwt = tokenExchanger.exchangeAccessTokenToJwtToken(accessToken);
-                serverWebExchange.getRequest().getHeaders().set(HttpHeaders.AUTHORIZATION, "Bearer " + jwt);
+                var jwt = tokenExchanger.exchangeAccessTokenToJwtToken(accessToken.replace("Bearer ", ""));
+                var request = serverWebExchange.getRequest()
+                        .mutate()
+                        .headers(httpHeaders -> httpHeaders.set(HttpHeaders.AUTHORIZATION, "Bearer " + jwt))
+                        .build();
+                var exchange = serverWebExchange.mutate()
+                        .request(request)
+                        .build();
+                return webFilterChain.filter(exchange);
             }
         }
 

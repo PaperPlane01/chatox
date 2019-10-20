@@ -2,7 +2,7 @@ server:
   port: 8082
 spring:
   application:
-    name: oauth2
+    name: oauth2-service
   datasource:
     url: jdbc:postgresql://localhost:5432/chatox-oauth2-service
     hikari:
@@ -39,8 +39,8 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: true
-    appname: 'oauth2'
-    instance-id: 'oauth2-${server.port}'
+    appname: 'oauth2-service'
+    instance-id: 'oauth2-service-${server.port}'
 ribbon:
   eureka:
     enabled: true

@@ -15,8 +15,8 @@ import org.springframework.web.client.RestTemplate;
 public class TokenExchanger {
     private final LoadBalancerClient loadBalancerClient;
 
-    private static final String OAUTH2_SERVICE_ID = "oauth2";
-    private static final String EXCHANGE_TOKEN = "exchangeToken";
+    private static final String OAUTH2_SERVICE_ID = "oauth2-service";
+    private static final String EXCHANGE_TOKEN = "oauth/exchangeToken";
 
     public String exchangeAccessTokenToJwtToken(String accessToken) {
         var oauth2ServiceInstance = loadBalancerClient.choose(OAUTH2_SERVICE_ID);
