@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono
 
 interface UserRepository : ReactiveCrudRepository<User, String> {
     fun save(user: User): Mono<User>
+    override fun findById(id: String): Mono<User>
     fun findByIdOrSlug(id: String, slug: String): Mono<User>
     fun findByAccountId(accountId: String): Flux<User>
 }

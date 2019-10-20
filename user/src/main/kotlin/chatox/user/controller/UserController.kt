@@ -2,6 +2,7 @@ package chatox.user.controller
 
 import chatox.user.api.request.CreateUserRequest
 import chatox.user.api.request.UpdateUserRequest
+import chatox.user.security.AuthenticationFacade
 import chatox.user.service.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -18,24 +19,29 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/user")
-class UserController(private val userService: UserService) {
+class UserController(private val userService: UserService,
+                     private val authenticationFacade: AuthenticationFacade) {
 
-    @PreAuthorize("#oauth2.hasScope('internal_create_user')")
+    @PreAuthorize("hasAuthority('SCOPE_internal_create_user')")
     @PostMapping
     fun createUser(@RequestBody @Valid createUserRequest: CreateUserRequest) = userService.createUser(createUserRequest)
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("authentication.details.id == #id")
     @PutMapping("/{id}")
-    fun updateUser(@PathVariable idOrSlug: String,
-                   @RequestBody @Valid updateUserRequest: UpdateUserRequest) = userService.updateUser(idOrSlug, updateUserRequest)
+    fun updateUser(@PathVariable id: String,
+                   @RequestBody @Valid updateUserRequest: UpdateUserRequest) = userService.updateUser(id, updateUserRequest)
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN') || authentication.details.id == #id")
     @DeleteMapping("/{id}")
-    fun deleteUser(@PathVariable idOrSlug: String): Mono<ResponseEntity<Void>> {
-        return userService.deleteUser(idOrSlug)
+    fun deleteUser(@PathVariable id: String): Mono<ResponseEntity<Void>> {
+        return userService.deleteUser(id)
                 .map { ResponseEntity.noContent().build<Void>() }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{idOrSlug}")
     fun findUserByIdOrSlug(@PathVariable idOrSlug: String) = userService.findUserByIdOrSlug(idOrSlug)
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/current")
+    fun getCurrentUser() = authenticationFacade.getCurrentUser()
 }

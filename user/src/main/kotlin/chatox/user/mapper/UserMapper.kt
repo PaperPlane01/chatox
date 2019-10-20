@@ -26,7 +26,7 @@ class UserMapper {
             lastName = createUserRequest.lastName,
             createdAt = Date.from(Instant.now()),
             lastSeen = Date.from(Instant.now()),
-            slug = createUserRequest.slug,
+            slug = createUserRequest.slug ?: createUserRequest.id,
             accountId = createUserRequest.accountId,
             avatarUri = null,
             bio = null,

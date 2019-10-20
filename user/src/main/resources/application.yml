@@ -5,7 +5,7 @@ spring:
     mongodb:
       repositories:
         type: reactive
-      database: chatox-users
+      database: chatox_user_service
       host: localhost
       port: 27017
 server:
@@ -15,12 +15,16 @@ eureka:
     enabled: true
     service-url:
       defaultZone: http://localhost:8081/eureka/
-    register-with-eureka: false
-    fetch-registry: false
+    register-with-eureka: true
+    fetch-registry: true
   instance:
     prefer-ip-address: true
-    appname: 'users'
-    instance-id: 'users-${server.port}'
+    appname: 'user-service'
+    instance-id: 'user-service-${server.port}'
 ribbon:
   eureka:
     enabled: true
+jwt:
+  public:
+    key:
+      location: jwt_public_key.txt
