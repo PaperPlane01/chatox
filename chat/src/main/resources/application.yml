@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: chat-service
+  data:
+    mongodb:
+      repositories:
+        type: reactive
+      database: chatox_chat_service
+      host: localhost
+      port: 27017
+server:
+  port: 8084
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: http://localhost:8081/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    appname: 'chat-service'
+    instance-id: 'chat-service-${server.port}'
+ribbon:
+  eureka:
+    enabled: true
+jwt:
+  public:
+    key:
+      location: jwt_public_key.txt
