@@ -14,6 +14,6 @@ interface ChatService {
     fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse>
     fun deleteChat(id: String): Mono<Void>
     fun findChatBySlugOrId(slugOrId: String): Mono<ChatResponse>
-    fun searchChats(query: String, paginationRequest: PaginationRequest): Flux<PagedResponse<ChatResponse>>
+    fun searchChats(query: String, paginationRequest: PaginationRequest): Flux<ChatResponse>
     fun getChatsOfCurrentUser(): Flux<ChatOfCurrentUserResponse>
 }

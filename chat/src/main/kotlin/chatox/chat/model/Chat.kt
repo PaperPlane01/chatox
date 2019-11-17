@@ -22,5 +22,9 @@ data class Chat(
         var deleted: Boolean,
         @DBRef
         var deletedBy: User?,
-        var type: ChatType
+        var type: ChatType,
+        var numberOfParticipants: Int,
+        @DBRef
+        var lastMessage: Message?,
+        var lastMessageDate: Date
 )

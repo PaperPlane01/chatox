@@ -13,7 +13,8 @@ interface ChatParticipationRepository : ReactiveMongoRepository<ChatParticipatio
     fun save(chatParticipation: ChatParticipation): Mono<ChatParticipation>
     override fun findById(id: String): Mono<ChatParticipation>
     fun findAllByUser(user: User): Flux<ChatParticipation>
-    fun findByChat(chat: Chat, pageable: Pageable): Mono<Page<ChatParticipation>>
-    fun findByChatAndUserFirstNameContains(chat: Chat, username: String, pageable: Pageable): Mono<Page<ChatParticipation>>
+    fun findByChat(chat: Chat, pageable: Pageable): Flux<ChatParticipation>
+    fun findByChatAndUser(chat: Chat, user: User): Mono<ChatParticipation>
+    fun findByChatAndUserFirstNameContains(chat: Chat, username: String, pageable: Pageable): Flux<ChatParticipation>
     fun countAllByChat(chat: Chat): Mono<Int>
 }

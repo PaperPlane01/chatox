@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: registration-service
+  security:
+    oauth2:
+      client:
+        provider:
+          registration-service:
+            token-uri: http://localhost:8080/oauth/token
+        registration:
+          registration-service:
+            client-id: 9e6f556f-0321-4b11-b6b0-ddb7da2ead16
+            client-secret: secret
+            authorization-grant-type: client_credentials
+server:
+  port: 8084
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: http://localhost:8081/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    appname: 'registration-service'
+    instance-id: 'registration-service-${server.port}'
+ribbon:
+  eureka:
+    enabled: true
+gateway:
+  base:
+    url: http://localhost:8080

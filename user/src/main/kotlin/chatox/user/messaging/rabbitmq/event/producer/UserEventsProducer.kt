@@ -6,19 +6,19 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserEventsProducer(private val rabbitTemplate: RabbitTemplate) {
-    fun sendUserCreatedEvent(userResponse: UserResponse) = rabbitTemplate.convertAndSend(
+    fun userCreated(userResponse: UserResponse) = rabbitTemplate.convertAndSend(
             "user.events",
             "user.created.#",
             userResponse
     )
 
-    fun sendUserUpdatedEvent(userResponse: UserResponse) = rabbitTemplate.convertAndSend(
+    fun userUpdated(userResponse: UserResponse) = rabbitTemplate.convertAndSend(
             "user.events",
             "user.updated.#",
             userResponse
     )
 
-    fun sendUserDeletedEvent(id: String) = rabbitTemplate.convertAndSend(
+    fun userDeleted(id: String) = rabbitTemplate.convertAndSend(
             "user.events",
             "user.deleted.#",
             hashMapOf(Pair("id", id))

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.core.publisher.switchIfEmpty
 
 @Service
 @Transactional
@@ -31,10 +30,10 @@ class UserServiceImpl(private val userRepository: UserRepository,
         val user = userMapper.fromCreateUserRequest(createUserRequest)
 
         return userRepository.save(user)
-                .map { userMapper.toUserResponse(it) }
+                .map { userMapper.toUserResponse(it, mapAccountId = true) }
                 .map {
-                    userEventsProducer.sendUserCreatedEvent(it)
-                    it
+                    userEventsProducer.userCreated(it)
+                    it.copy(accountId = null)
                 }
     }
 
@@ -45,7 +44,7 @@ class UserServiceImpl(private val userRepository: UserRepository,
                 .flatMap { user -> user }
                 .map { user -> userMapper.toUserResponse(user) }
                 .map {
-                    userEventsProducer.sendUserUpdatedEvent(it)
+                    userEventsProducer.userUpdated(it)
                     it
                 }
     }
@@ -55,7 +54,7 @@ class UserServiceImpl(private val userRepository: UserRepository,
                 .map { user -> user.copy(deleted = true) }
                 .map { user -> userRepository.save(user) }
                 .flatMap {
-                    userEventsProducer.sendUserDeletedEvent(id)
+                    userEventsProducer.userDeleted(id)
                     Mono.empty<Void>()
                 }
     }
@@ -71,9 +70,9 @@ class UserServiceImpl(private val userRepository: UserRepository,
     }
 
     private fun findById(id: String) = userRepository.findById(id)
-            .switchIfEmpty { Mono.error(UserNotFoundException("Could not find user with id $id")) }
+            .switchIfEmpty(Mono.error(UserNotFoundException("Could not find user with id $id")))
 
     private fun findByIdOrSlug(idOrSlug: String) = userRepository.findByIdOrSlug(idOrSlug, idOrSlug)
-            .switchIfEmpty { Mono.error(UserNotFoundException("Could not find user with id or slug $idOrSlug")) }
+            .switchIfEmpty(Mono.error(UserNotFoundException("Could not find user with id or slug $idOrSlug")))
 
 }

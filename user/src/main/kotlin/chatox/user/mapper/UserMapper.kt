@@ -10,19 +10,21 @@ import java.util.Date
 
 @Component
 class UserMapper {
-    fun toUserResponse(user: User) = UserResponse(
+    fun toUserResponse(user: User, mapAccountId: Boolean = false) = UserResponse(
             id = user.id,
             slug = user.slug,
+            accountId = if (mapAccountId) user.accountId else null,
             lastName = user.lastName,
             firstName = user.firstName,
             bio = user.bio,
             createdAt = user.createdAt,
-            lastSeen = user.lastSeen
+            lastSeen = user.lastSeen,
+            avatarUri = user.avatarUri
     )
 
     fun fromCreateUserRequest(createUserRequest: CreateUserRequest) = User(
             id = createUserRequest.id,
-            firstName = createUserRequest.fistName,
+            firstName = createUserRequest.firstName,
             lastName = createUserRequest.lastName,
             createdAt = Date.from(Instant.now()),
             lastSeen = Date.from(Instant.now()),

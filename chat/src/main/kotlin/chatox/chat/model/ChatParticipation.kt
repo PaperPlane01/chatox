@@ -16,5 +16,5 @@ data class ChatParticipation(
         var createdAt: Date,
         var role: ChatRole,
         @DBRef
-        var lastReadMessage: Message?
+        var lastMessageRead: MessageRead?
 )

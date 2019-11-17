@@ -2,6 +2,7 @@ package chatox.chat.model
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
+import java.util.Date
 
 @Document(collection = "user")
 data class User(
@@ -12,5 +13,6 @@ data class User(
         var accountId: String,
         var avatarUri: String?,
         var slug: String?,
-        var deleted: Boolean
+        var deleted: Boolean,
+        var lastSeen: Date?
 )

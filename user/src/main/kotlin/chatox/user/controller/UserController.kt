@@ -42,6 +42,6 @@ class UserController(private val userService: UserService,
     fun findUserByIdOrSlug(@PathVariable idOrSlug: String) = userService.findUserByIdOrSlug(idOrSlug)
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping("/current")
+    @GetMapping("/me")
     fun getCurrentUser() = authenticationFacade.getCurrentUser()
 }

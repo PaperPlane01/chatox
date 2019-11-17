@@ -9,7 +9,7 @@ spring:
       host: localhost
       port: 27017
 server:
-  port: 8084
+  port: 8085
 eureka:
   client:
     enabled: true
@@ -28,3 +28,11 @@ jwt:
   public:
     key:
       location: jwt_public_key.txt
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              ReactiveMongoTemplate: DEBUG

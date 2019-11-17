@@ -22,7 +22,7 @@ spring:
           predicates:
             - Path=/oauth/**
         - id: chat-service
-          uri: lb://user-service
+          uri: lb://chat-service
           predicates:
             - Path=/api/v1/chat/**
         - id: user-service

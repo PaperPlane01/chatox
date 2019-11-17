@@ -7,5 +7,6 @@ data class ChatOfCurrentUserResponse(
         val name: String,
         val avatarUri: String?,
         val chatParticipation: ChatParticipationMinifiedResponse,
-        val unreadMessagesCount: Int
+        val unreadMessagesCount: Int,
+        val lastMessage: MessageResponse?
 )

@@ -19,8 +19,8 @@ data class Message(
         var createdAt: Date,
         var updatedAt: Date?,
         var deleted: Boolean,
-        var deletedAt: Date,
+        var deletedAt: Date?,
         @DBRef
-        var deletedBy: User,
+        var deletedBy: User?,
         var attachments: List<MessageAttachment> = arrayListOf()
 )

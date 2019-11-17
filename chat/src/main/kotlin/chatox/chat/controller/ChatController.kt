@@ -30,7 +30,7 @@ class ChatController(private val chatService: ChatService) {
     @DeleteMapping("/api/v1/chat/{id}")
     fun deleteChat(@PathVariable id: String) = chatService.deleteChat(id)
 
-    @GetMapping("/api/v1/chat/mine")
+    @GetMapping("/api/v1/chat/my")
     fun getChatsOfCurrentUser() = chatService.getChatsOfCurrentUser()
 
     @GetMapping("/api/v1/chat/{idOrSlug}")
