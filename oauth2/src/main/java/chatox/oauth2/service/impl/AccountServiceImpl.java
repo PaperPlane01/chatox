@@ -29,7 +29,6 @@ import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,6 +65,7 @@ public class AccountServiceImpl implements AccountService {
                 .roles(new ArrayList<>(Arrays.asList(userRoleRepository.findByRole(Role.ROLE_USER))))
                 .passwordHash(passwordEncoder.encode(createAccountRequest.getPassword()))
                 .username(createAccountRequest.getUsername())
+                .userIds(new ArrayList<>(Arrays.asList(createAccountRequest.getUserId())))
                 .build();
 
         accountRepository.save(account);
@@ -91,6 +91,7 @@ public class AccountServiceImpl implements AccountService {
                 .roles(new ArrayList<>(Arrays.asList(userRoleRepository.findByRole(Role.ROLE_ANONYMOUS_USER))))
                 .passwordHash(null)
                 .username("account-" + UUID.randomUUID().toString())
+                .userIds(new ArrayList<>(Arrays.asList(createAnonymousAccountRequest.getUserId())))
                 .build();
 
         accountRepository.save(account);

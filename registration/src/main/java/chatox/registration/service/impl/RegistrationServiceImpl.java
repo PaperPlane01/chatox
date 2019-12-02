@@ -10,6 +10,7 @@ import chatox.registration.service.RegistrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.UUID;
 
@@ -27,6 +28,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         var createAccountRequest = CreateAccountRequest
                 .builder()
                 .id(accountId)
+                .userId(userId)
                 .password(registrationRequest.getPassword())
                 .username(registrationRequest.getUsername())
                 .clientId(registrationRequest.getClientId())
@@ -43,10 +45,6 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         return oAuthServiceClient.createAccount(createAccountRequest)
                 .zipWith(userServiceClient.createUser(createUserRequest))
-                .map(tuple -> {
-                    oAuthServiceClient.addUserToAccount(accountId, userId);
-                    return tuple;
-                })
                 .map(tuple -> RegistrationResponse.builder()
                         .userId(tuple.getT2().getId())
                         .firstName(tuple.getT2().getFirstName())

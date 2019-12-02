@@ -28,7 +28,7 @@ public class OAuthServiceClientImpl implements OAuthServiceClient {
     @Override
     public Mono<Void> addUserToAccount(String accountId, String userId) {
         return webClient.put()
-                .uri("/oauth/accounts/" + accountId + "/users/" + userId)
+                .uri("/oauth/account/" + accountId + "/users/" + userId)
                 .retrieve()
                 .bodyToMono(Void.class);
     }

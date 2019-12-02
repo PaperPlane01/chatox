@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CreateAccountRequest {
     private String id;
+    private String userId;
     private String username;
     private String password;
     private String clientId;

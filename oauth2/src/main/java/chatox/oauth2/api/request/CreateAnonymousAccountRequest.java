@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CreateAnonymousAccountRequest {
     private String id;
+    private String userId;
     private String clientId;
 }
