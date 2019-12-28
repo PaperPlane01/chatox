@@ -4,6 +4,7 @@ import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.service.MessageService
 import chatox.chat.support.pagination.PaginationRequest
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -17,17 +18,20 @@ import javax.validation.Valid
 class MessageController(private val messageService: MessageService) {
 
     @PostMapping("/api/v1/chat/{chatId}/messages")
+    @PreAuthorize("hasRole('USER') and #messagePermissions.canCreateMessage(#chatId)")
     fun createMessage(@PathVariable chatId: String,
                       @RequestBody @Valid createMessageRequest: CreateMessageRequest
     ) = messageService.createMessage(chatId, createMessageRequest)
 
     @PutMapping("/api/v1/chat/{chatId}/messages/{messageId}")
+    @PreAuthorize("hasRole('USER') and #messagePermissions.canUpdateMessage(#messageId, #chatId)")
     fun updateMessage(@PathVariable chatId: String,
                       @PathVariable messageId: String,
                       @RequestBody @Valid updateMessageRequest: UpdateMessageRequest
     ) = messageService.updateMessage(messageId, updateMessageRequest)
 
     @DeleteMapping("/api/v1/chat/{chatId}/messages/{messageId}")
+    @PreAuthorize("hasRole('USER') and #messagePermissions.canDeleteMessage(#messageId, #chatId)")
     fun deleteMessage(@PathVariable chatId: String,
                       @PathVariable messageId: String
     ) = messageService.deleteMessage(messageId)

@@ -7,6 +7,7 @@ import chatox.chat.support.pagination.PaginationRequest
 import chatox.chat.support.pagination.annotation.PageSize
 import chatox.chat.support.pagination.annotation.PaginationConfig
 import chatox.chat.support.pagination.annotation.SortBy
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -20,16 +21,20 @@ import javax.validation.Valid
 @RestController
 class ChatController(private val chatService: ChatService) {
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/api/v1/chat")
     fun createChat(@RequestBody @Valid createChatRequest: CreateChatRequest) = chatService.createChat(createChatRequest)
 
+    @PreAuthorize("hasRole('USER') and #chatPermissions.canUpdateChat(#id)")
     @PutMapping("/api/v1/chat/{id}")
     fun updateChat(@PathVariable id: String,
                    @RequestBody @Valid updateChatRequest: UpdateChatRequest) = chatService.updateChat(id, updateChatRequest)
 
+    @PreAuthorize("hasRole('USER') and #chatPermissions.canDeleteChat(#id)")
     @DeleteMapping("/api/v1/chat/{id}")
     fun deleteChat(@PathVariable id: String) = chatService.deleteChat(id)
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/api/v1/chat/my")
     fun getChatsOfCurrentUser() = chatService.getChatsOfCurrentUser()
 

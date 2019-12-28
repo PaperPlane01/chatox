@@ -6,13 +6,14 @@ import java.lang.IllegalArgumentException
 enum class ChatRole {
     USER,
     MODERATOR,
-    ADMIN;
+    ADMIN,
+    NOT_PARTICIPANT;
 
     companion object {
         @JsonCreator
         fun fromJsonValue(value: String): ChatRole {
             for (role: ChatRole in values()) {
-                if (role.name.contentEquals(value)) {
+                if (role !== NOT_PARTICIPANT && role.name.contentEquals(value)) {
                     return role
                 }
             }

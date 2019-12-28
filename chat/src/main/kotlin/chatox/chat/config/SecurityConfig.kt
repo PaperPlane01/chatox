@@ -26,7 +26,8 @@ class SecurityConfig {
 
     @Bean
     fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        http.authorizeExchange()
+        http.csrf().disable()
+                .authorizeExchange()
                 .pathMatchers("/**").permitAll()
                 .and()
                 .oauth2ResourceServer()

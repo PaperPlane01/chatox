@@ -9,6 +9,7 @@ import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
+import chatox.chat.model.User
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
 import chatox.chat.security.AuthenticationFacade
@@ -100,4 +101,18 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 .flatMapMany { it }
     }
 
+    override fun getRoleOfUserInChat(chatId: String, user: User): Mono<ChatRole> {
+        return chatRepository.findById(chatId)
+                .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
+                .map { chatParticipationRepository.findByChatAndUser(chat = it, user = user) }
+                .switchIfEmpty(Mono.empty())
+                .flatMap { it }
+                .map { it.role }
+    }
+
+    override fun findChatParticipationById(participationId: String): Mono<ChatParticipationResponse> {
+        return chatParticipationRepository.findById(participationId)
+                .switchIfEmpty(Mono.error(ChatParticipationNotFoundException("Could not find chat participation with id $participationId")))
+                .map { chatParticipationMapper.toChatParticipationResponse(it) }
+    }
 }

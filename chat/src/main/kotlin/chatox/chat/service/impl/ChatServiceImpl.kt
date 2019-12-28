@@ -97,4 +97,10 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                         chatParticipation = it
                 ) }
     }
+
+    override fun isChatCreatedByUser(chatId: String, userId: String): Mono<Boolean> {
+        return chatRepository.findById(chatId)
+                .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
+                .map { it.createdBy.id == userId }
+    }
 }

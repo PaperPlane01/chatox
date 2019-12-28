@@ -16,4 +16,5 @@ interface ChatService {
     fun findChatBySlugOrId(slugOrId: String): Mono<ChatResponse>
     fun searchChats(query: String, paginationRequest: PaginationRequest): Flux<ChatResponse>
     fun getChatsOfCurrentUser(): Flux<ChatOfCurrentUserResponse>
+    fun isChatCreatedByUser(chatId: String, userId: String): Mono<Boolean>
 }
