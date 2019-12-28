@@ -86,7 +86,7 @@ class ChatMapper(
                 type = ChatType.GROUP,
                 deleted = false,
                 createdBy = currentUser,
-                tags = arrayListOf(),
+                tags = createChatRequest.tags,
                 avatarUri = null,
                 deletedAt = null,
                 description = createChatRequest.description,
