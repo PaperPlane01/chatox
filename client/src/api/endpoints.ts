@@ -1,0 +1,17 @@
+export const API_ROOT = "api/v1";
+export const REGISTRATION = "registration";
+export const USER = "user";
+export const ME = "me";
+export const OAUTH = "oauth";
+export const TOKEN = "token";
+export const REVOKE = "revoke";
+export const ACCOUNT = "account";
+export const CHAT = "chat";
+export const MESSAGES = "messages";
+export const MY = "my";
+export const JOIN = "join";
+export const LEAVE = "leave";
+export const PARTICIPANTS = "participants";
+export const USERNAME = "username";
+export const SLUG = "slug";
+export const IS_AVAILABLE = "isAvailable";

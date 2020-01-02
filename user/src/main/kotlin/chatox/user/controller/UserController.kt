@@ -44,4 +44,7 @@ class UserController(private val userService: UserService,
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/me")
     fun getCurrentUser() = authenticationFacade.getCurrentUser()
+
+    @GetMapping("/slug/{slug}/isAvailable")
+    fun isSlugAvailable(@PathVariable slug: String) = userService.isSlugAvailable(slug)
 }

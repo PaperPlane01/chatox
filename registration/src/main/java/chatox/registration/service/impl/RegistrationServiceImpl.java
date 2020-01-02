@@ -10,7 +10,6 @@ import chatox.registration.service.RegistrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 import java.util.UUID;
 
@@ -55,6 +54,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                         .roles(tuple.getT1().getAccount().getRoles())
                         .username(tuple.getT1().getAccount().getUsername())
                         .slug(tuple.getT2().getSlug())
+                        .accountId(tuple.getT1().getAccount().getId())
                         .build()
                 );
     }

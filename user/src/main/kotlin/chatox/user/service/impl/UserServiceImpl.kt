@@ -2,6 +2,7 @@ package chatox.user.service.impl
 
 import chatox.user.api.request.CreateUserRequest
 import chatox.user.api.request.UpdateUserRequest
+import chatox.user.api.response.SlugAvailabilityResponse
 import chatox.user.api.response.UserResponse
 import chatox.user.exception.UserNotFoundException
 import chatox.user.mapper.UserMapper
@@ -67,6 +68,12 @@ class UserServiceImpl(private val userRepository: UserRepository,
     override fun findUsersByAccount(accountId: String): Flux<UserResponse> {
         return userRepository.findByAccountId(accountId)
                 .map { user -> userMapper.toUserResponse(user) }
+    }
+
+    override fun isSlugAvailable(slug: String): Mono<SlugAvailabilityResponse> {
+        return userRepository.findBySlug(slug)
+                .map { SlugAvailabilityResponse(available = true) }
+                .switchIfEmpty(Mono.just(SlugAvailabilityResponse(available = false)))
     }
 
     private fun findById(id: String) = userRepository.findById(id)

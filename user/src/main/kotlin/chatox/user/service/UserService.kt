@@ -2,6 +2,7 @@ package chatox.user.service
 
 import chatox.user.api.request.CreateUserRequest
 import chatox.user.api.request.UpdateUserRequest
+import chatox.user.api.response.SlugAvailabilityResponse
 import chatox.user.api.response.UserResponse
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -13,4 +14,5 @@ interface UserService {
     fun deleteUsersByAccount(accountId: String): Flux<Void>
     fun findUserByIdOrSlug(idOrSlug: String): Mono<UserResponse>
     fun findUsersByAccount(accountId: String): Flux<UserResponse>
+    fun isSlugAvailable(slug: String): Mono<SlugAvailabilityResponse>
 }

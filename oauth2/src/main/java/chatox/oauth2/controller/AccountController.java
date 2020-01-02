@@ -5,6 +5,7 @@ import chatox.oauth2.api.request.CreateAnonymousAccountRequest;
 import chatox.oauth2.api.request.UpdatePasswordRequest;
 import chatox.oauth2.api.response.AccountResponse;
 import chatox.oauth2.api.response.CreateAccountResponse;
+import chatox.oauth2.api.response.UsernameAvailabilityResponse;
 import chatox.oauth2.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,11 @@ public class AccountController {
     @GetMapping("/{id}")
     public AccountResponse findAccountById(@PathVariable String id) {
         return accountService.findAccountById(id);
+    }
+
+    @GetMapping("/username/{username}/isAvailable")
+    public UsernameAvailabilityResponse isUsernameAvailable(@PathVariable String username) {
+        return accountService.isUsernameAvailable(username);
     }
 
     @PreAuthorize("#oauth2.hasScope('internal_update_account')")

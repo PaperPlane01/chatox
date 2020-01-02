@@ -10,4 +10,5 @@ interface UserRepository : ReactiveCrudRepository<User, String> {
     override fun findById(id: String): Mono<User>
     fun findByIdOrSlug(id: String, slug: String): Mono<User>
     fun findByAccountId(accountId: String): Flux<User>
+    fun findBySlug(slug: String): Mono<User>
 }

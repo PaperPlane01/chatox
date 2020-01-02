@@ -21,4 +21,5 @@ public class RegistrationResponse {
     private String lastName;
     private String slug;
     private String avatarUri;
+    private String accountId;
 }

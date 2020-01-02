@@ -5,6 +5,7 @@ import chatox.oauth2.api.request.CreateAnonymousAccountRequest;
 import chatox.oauth2.api.request.UpdatePasswordRequest;
 import chatox.oauth2.api.response.AccountResponse;
 import chatox.oauth2.api.response.CreateAccountResponse;
+import chatox.oauth2.api.response.UsernameAvailabilityResponse;
 import chatox.oauth2.domain.Account;
 import chatox.oauth2.domain.Client;
 import chatox.oauth2.domain.Role;
@@ -18,7 +19,7 @@ import chatox.oauth2.security.CustomClientDetails;
 import chatox.oauth2.security.CustomUserDetails;
 import chatox.oauth2.service.AccountService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -50,9 +51,19 @@ public class AccountServiceImpl implements AccountService {
     private final ClientRepository clientRepository;
     private final UserRoleRepository userRoleRepository;
     private final AccountMapper accountMapper;
-    @Lazy
-    private final JdbcTokenStore tokenStore;
-    private final PasswordEncoder passwordEncoder;
+
+    private JdbcTokenStore tokenStore;
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public void setTokenStore(JdbcTokenStore tokenStore) {
+        this.tokenStore = tokenStore;
+    }
+
+    @Autowired
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public CreateAccountResponse createAccount(CreateAccountRequest createAccountRequest) {
@@ -159,6 +170,13 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountResponse findAccountById(String id) {
         return accountMapper.toAccountResponse(findById(id));
+    }
+
+    @Override
+    public UsernameAvailabilityResponse isUsernameAvailable(String username) {
+        return UsernameAvailabilityResponse.builder()
+                .available(accountRepository.findByUsername(username).isEmpty())
+                .build();
     }
 
     @Override

@@ -29,7 +29,7 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     ) = chatParticipationService.deleteChatParticipation(participationId)
 
     @PutMapping("/api/v1/chat/{chatId}/participants/{participationId}")
-    @PreAuthorize("hasRole('USER') and #chatParticipationPermissions.canUpdateChatParticipant(#chatId)")
+    @PreAuthorize("hasRole('USER') and #chatParticipationPermissions.canUpdateChatParticipant(#chatId, #participationId)")
     fun updateChatParticipant(@PathVariable chatId: String,
                               @PathVariable participationId: String,
                               @RequestBody @Valid updateChatParticipationRequest: UpdateChatParticipationRequest
