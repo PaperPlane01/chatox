@@ -1,8 +1,8 @@
-import React, {Component, ComponentType, FunctionComponent} from "react";
+import React, {ComponentType, FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
 import {Labels} from "../types";
-import {IAppState} from "../../store";
 import {replacePlaceholder} from "../utils";
+import {IAppState} from "../../store";
 
 export interface Localized {
     l: (label: keyof Labels, bindings?: any) => string

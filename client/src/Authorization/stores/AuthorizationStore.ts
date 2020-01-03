@@ -1,5 +1,5 @@
-import {observable, action, reaction} from "mobx";
-import {UserApi, ApiError} from "../../api";
+import {action, observable} from "mobx";
+import {UserApi} from "../../api";
 import {CurrentUser} from "../../api/types/response";
 
 export class AuthorizationStore {
@@ -7,7 +7,10 @@ export class AuthorizationStore {
     currentUser?: CurrentUser = undefined;
 
     @observable
-    pending: boolean = false;
+    fetchingCurrentUser: boolean = false;
+
+    @observable
+    loggingOut: boolean = false;
 
     @action
     setCurrentUser = (currentUser: CurrentUser): void => {
@@ -22,10 +25,33 @@ export class AuthorizationStore {
 
     @action
     fetchCurrentUser = (): void => {
-        this.pending = true;
+        this.fetchingCurrentUser = true;
 
         UserApi.getCurrentUser()
             .then(({data}) => this.currentUser = data)
-            .finally(() => this.pending = false);
+            .finally(() => this.fetchingCurrentUser = false);
+    };
+
+    @action
+    logOut = (): void =>  {
+        const accessToken = localStorage.getItem("accessToken");
+        const refreshToken = localStorage.getItem("refreshToken");
+
+        if (accessToken) {
+            this.loggingOut = true;
+            UserApi.revokeToken({
+                accessToken,
+                refreshToken
+            })
+                .finally(() => {
+                    this.currentUser = undefined;
+                    this.loggingOut = false;
+                    localStorage.removeItem("accessToken");
+                    localStorage.removeItem("refreshToken");
+                })
+
+        } else {
+            this.currentUser = undefined;
+        }
     }
 }

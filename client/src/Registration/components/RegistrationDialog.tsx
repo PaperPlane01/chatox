@@ -157,7 +157,7 @@ const _RegistrationDialog: FunctionComponent<RegistrationDialogProps> = ({
             </DialogContent>
         </Dialog>
     )
-}
+};
 
 const mapMobxToProps = (state: IAppState): RegistrationDialogMobxProps => ({
     checkingSlugAvailability: state.userRegistration.checkingSlugAvailability,

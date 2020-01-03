@@ -1,13 +1,18 @@
 export interface Labels {
+    "cancel": string,
+    "close": string,
     "error.unknown": string,
     "firstName": string,
     "firstName.empty": string,
     "firstName.too-long": string,
     "firstName.too-short": string,
+    "language.english": string,
+    "language.russian": string,
     "lastName": string,
     "lastName.too-long": string
     "lastName.too-short": string,
     "login": string,
+    "login.error.incorrect-username-or-password": string
     "logout": string,
     "password": string,
     "password.do-not-match": string,
@@ -19,6 +24,7 @@ export interface Labels {
     "registration.success": string,
     "repeatedPassword": string,
     "server.unreachable": string
+    "settings": string,
     "signIn": string,
     "singUp": string,
     "slug": string,
@@ -32,6 +38,4 @@ export interface Labels {
     "username.has-already-been-taken": string
     "username.too-long": string,
     "username.too-short": string,
-    "close": string,
-    "cancel": string
 }
