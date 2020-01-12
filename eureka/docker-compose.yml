@@ -1,0 +1,8 @@
+version: "3.7"
+services:
+  eureka:
+    build:
+      context: .
+    restart: always
+    ports:
+      - "8081:8081"

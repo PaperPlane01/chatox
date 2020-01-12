@@ -4,15 +4,15 @@ spring:
   application:
     name: oauth2-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/chatox-oauth2-service
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/chatox-oauth2-service}
     hikari:
       minimum-idle: 10
       maximum-pool-size: 50
       initialization-fail-timeout: 50000
       connection-timeout: 6000
-      jdbc-url: jdbc:postgresql://localhost:5432/chatox-oauth2-service
-    username: admin
-    password: root
+      jdbc-url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/chatox-oauth2-service}
+    username: ${POSTGRES_USER:admin}
+    password: ${POSTGRES_PASSWORD:root}
   jpa:
     hibernate:
       ddl-auto: update
@@ -34,7 +34,7 @@ eureka:
   client:
     enabled: true
     service-url:
-      defaultZone: http://localhost:8081/eureka/
+      defaultZone: ${EUREKA_URL:http://localhost:8081/eureka/}
     register-with-eureka: true
     fetch-registry: true
   instance:
