@@ -1,10 +1,10 @@
 import axios, {AxiosRequestConfig} from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 import queryString from "query-string";
-import {OAUTH, TOKEN} from "./endpoints";
+import {API_ROOT, OAUTH, TOKEN} from "./endpoints";
 
 const _axiosInstance = axios.create({
-    baseURL: process.env.REACT_APP_API_BASE_URL,
+    baseURL: `${process.env.REACT_APP_API_BASE_URL}/${API_ROOT}`,
     headers: {
         contentType: "application/json"
     }

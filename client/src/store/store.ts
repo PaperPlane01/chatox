@@ -1,16 +1,19 @@
 import {IAppState} from "./IAppState";
+import {AppBarStore} from "../AppBar";
 import {LoginStore, AuthorizationStore} from "../Authorization";
 import {UserRegistrationStore} from "../Registration";
-import {LocaleStore} from "../localization/stores";
+import {LocaleStore} from "../localization";
 
 const authorization = new AuthorizationStore();
 const login = new LoginStore(authorization);
 const userRegistration = new UserRegistrationStore(authorization);
 const language = new LocaleStore();
+const appBar = new AppBarStore();
 
 export const store: IAppState = {
     authorization,
     login,
     userRegistration,
-    language
+    language,
+    appBar
 };

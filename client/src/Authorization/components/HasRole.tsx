@@ -9,7 +9,7 @@ interface HasRoleMobxProps {
 
 interface HasRoleOwnProps {
     role: "ROLE_ADMIN" | "ROLE_USER" | "ROLE_ANONYMOUS_USER" | "ROLE_NOT_LOGGED_IN",
-    additionalCondition: boolean | undefined
+    additionalCondition?: boolean
 }
 
 type HasRoleProps = HasRoleMobxProps & HasRoleOwnProps;

@@ -14,6 +14,7 @@ export interface Labels {
     "login": string,
     "login.error.incorrect-username-or-password": string
     "logout": string,
+    "page.not-found": string,
     "password": string,
     "password.do-not-match": string,
     "password.empty": string,

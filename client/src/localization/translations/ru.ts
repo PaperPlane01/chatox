@@ -16,6 +16,7 @@ export const ru: Labels = {
     "login": "Войти",
     "login.error.incorrect-username-or-password": "Имя пользователя или пароль были указаны неверно",
     "logout": "Выйти",
+    "page.not-found": "Запрашиваемая страница не найдена",
     "password": "Пароль",
     "password.do-not-match": "Пароли не совпадают",
     "password.empty": "Пароль не должен быть пустым",

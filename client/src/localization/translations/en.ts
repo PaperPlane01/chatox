@@ -16,6 +16,7 @@ export const en: Labels = {
     "login": "Log in",
     "login.error.incorrect-username-or-password": "Incorrect username or password",
     "logout": "Log out",
+    "page.not-found": "Seems like the page you requested doesn't exist",
     "password": "Password",
     "password.do-not-match": "Passwords do not match",
     "password.empty": "Password can't be empty",
