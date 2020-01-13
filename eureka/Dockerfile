@@ -9,7 +9,6 @@ COPY src src
 RUN ./mvnw dependency:resolve
 RUN ./mvnw package -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
-RUN cd target/dependency
 
 FROM openjdk:12
 VOLUME /tmp
