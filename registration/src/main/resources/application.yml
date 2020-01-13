@@ -6,11 +6,11 @@ spring:
       client:
         provider:
           registration-service:
-            token-uri: http://localhost:8080/oauth/token
+            token-uri: ${TOKEN_URL:http://localhost:8080/oauth/token}
         registration:
           registration-service:
-            client-id: 9e6f556f-0321-4b11-b6b0-ddb7da2ead16
-            client-secret: secret
+            client-id: ${REGISTRATION_SERVICE_CLIENT_ID:9e6f556f-0321-4b11-b6b0-ddb7da2ead16}
+            client-secret: ${REGISTRATION_SERVICE_CLIENT_SECRET:secret}
             authorization-grant-type: client_credentials
 server:
   port: 8084
@@ -18,7 +18,7 @@ eureka:
   client:
     enabled: true
     service-url:
-      defaultZone: http://localhost:8081/eureka/
+      defaultZone: ${EUREKA_URL:http://localhost:8081/eureka/}
     register-with-eureka: true
     fetch-registry: true
   instance:
@@ -30,4 +30,4 @@ ribbon:
     enabled: true
 gateway:
   base:
-    url: http://localhost:8080
+    url: ${GATEWAY_URL:http://localhost:8080}

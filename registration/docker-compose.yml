@@ -1,0 +1,14 @@
+version: "3.7"
+services:
+  registration:
+    build:
+      context: .
+    restart: always
+    ports:
+      - "8084:8084"
+    environment:
+      - EUREKA_URL=http://172.17.0.1:8081/eureka/
+      - TOKEN_URL=http://172.17.0.1:8080/oauth/token
+      - GATEWAY_URL=http://172.17.0.1:8080
+      - REGISTRATION_SERVICE_CLIENT_ID=9e6f556f-0321-4b11-b6b0-ddb7da2ead16
+      - REGISTRATION_SERVICE_CLIENT_SECRET=secret
