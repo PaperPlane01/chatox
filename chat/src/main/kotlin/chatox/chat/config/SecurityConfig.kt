@@ -21,8 +21,8 @@ import java.util.Base64
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
 class SecurityConfig {
-    @Value("\${jwt.public.key.location}")
-    private lateinit var publicKeyLocation: String
+    @Value("\${jwt.public.key}")
+    private lateinit var jwtPublicKey: String
 
     @Bean
     fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
@@ -43,9 +43,7 @@ class SecurityConfig {
     }
 
     fun rsaPublicKey(): RSAPublicKey {
-        val classPathResource = ClassPathResource(publicKeyLocation)
-        var publicKey = Files.readString(classPathResource.file.toPath())
-        publicKey = publicKey.replace("-----BEGIN PUBLIC KEY-----", "")
+        val publicKey = jwtPublicKey.replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")
                 .replace("\n", "")
                 .replace("\r", "")

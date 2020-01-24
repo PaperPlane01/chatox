@@ -1,0 +1,23 @@
+version: "3.7"
+services:
+  mongo:
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_DATABASE=chatox_chat_service
+    ports:
+      - 27017
+    restart: unless-stopped
+  chat-service:
+    build:
+      context: .
+    restart: always
+    ports:
+      - "8085:8085"
+    environment:
+      - MONGODB_HOST=mongo
+      - MONGODB_PORT=27017
+      - EUREKA_URL=http://172.17.0.1:8081/eureka/
+    depends_on:
+      - mongo
+    links:
+      - mongo
