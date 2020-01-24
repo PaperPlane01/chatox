@@ -1,5 +1,6 @@
 import React, {FunctionComponent, Fragment} from "react";
 import {inject, observer} from "mobx-react";
+import Headroom from "react-headroom";
 import {AppBar as MuiAppBar, Toolbar, Typography, IconButton, createStyles, makeStyles} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import {NavigationalDrawer} from "./NavigationalDrawer";
@@ -24,6 +25,10 @@ const useClasses = makeStyles(() => createStyles({
     appBarTitle: {
         flexGrow: 1,
         display: "flex"
+    },
+    headroom: {
+        position: "fixed",
+        zIndex: 1300
     }
 }));
 
@@ -34,26 +39,26 @@ const _AppBar: FunctionComponent<AppBarMobxProps> = ({
 
     return (
         <Fragment>
-            <MuiAppBar position="sticky"
-                       classes={{
-                           root: classes.root,
-                           grow: classes.grow
-                       }}
-            >
-                <Toolbar>
-
-                    <IconButton className={classes.drawerButton}
-                                onClick={() => setDrawerOpen(false)}
-                    >
-                        <MenuIcon/>
-                    </IconButton>
-                    <div className={classes.appBarTitle}>
-                        <Typography variant="h6">
-                            Chatox
-                        </Typography>
-                    </div>
-                </Toolbar>
-            </MuiAppBar>
+            <Headroom className={classes.headroom}>
+                <MuiAppBar position="sticky"
+                           classes={{
+                               root: classes.root,
+                           }}
+                >
+                    <Toolbar>
+                        <IconButton className={classes.drawerButton}
+                                    onClick={() => setDrawerOpen(false)}
+                        >
+                            <MenuIcon/>
+                        </IconButton>
+                        <div className={classes.appBarTitle}>
+                            <Typography variant="h6">
+                                Chatox
+                            </Typography>
+                        </div>
+                    </Toolbar>
+                </MuiAppBar>
+            </Headroom>
             <NavigationalDrawer/>
         </Fragment>
     )

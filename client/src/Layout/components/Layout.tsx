@@ -13,7 +13,7 @@ export const Layout: FunctionComponent<{}> = ({children}) => {
     const classes = useStyles();
 
     return (
-        <Grid containder className={classes.defaultLayout}>
+        <Grid container className={classes.defaultLayout}>
             <Grid item xs={12}>
                 {children}
             </Grid>
