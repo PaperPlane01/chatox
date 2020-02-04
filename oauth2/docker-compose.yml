@@ -11,6 +11,8 @@ services:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=chatox-oauth2-service
+    ports:
+    - "5433:5432"
     restart: unless-stopped
   oauth2:
     build:
@@ -19,13 +21,12 @@ services:
     ports:
       - "8082:8082"
     environment:
-      - EUREKA_URL=http://172.17.0.1:8081/eureka/
-      - POSTGRES_URL=jdbc:postgresql://postgres/chatox-oauth2-service
+      - EUREKA_URL=http://localhost:8081/eureka
+      - POSTGRES_URL=jdbc:postgresql://localhost:5433/chatox-oauth2-service
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin
     depends_on:
       - postgres
-    links:
-      - postgres
+    network_mode: host
 volumes:
   pg-data: {}
