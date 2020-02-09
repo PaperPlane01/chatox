@@ -1,4 +1,4 @@
 export interface OAuth2Response {
-    accessToken: string,
-    refreshToken: string
+    access_token: string,
+    refresh_token: string
 }

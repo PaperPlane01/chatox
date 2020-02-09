@@ -51,7 +51,10 @@ export class LoginStore {
 
     @action
     updateLoginFormValue = (key: keyof LoginFormData, value: string): void => {
-        this.loginForm[key] = value;
+        this.loginForm = {
+            ...this.loginForm,
+            [key]: value
+        };
     };
 
     @action
@@ -63,7 +66,7 @@ export class LoginStore {
 
                 UserApi.doLogin(this.loginForm.username, this.loginForm.password)
                     .then(({data}) => {
-                        this.authorizationStore.setTokens(data.accessToken, data.refreshToken);
+                        this.authorizationStore.setTokens(data.access_token, data.refresh_token);
                         this.authorizationStore.fetchCurrentUser();
                     })
                     .catch((error: AxiosError) => {
@@ -90,7 +93,7 @@ export class LoginStore {
             this.loginFormErrors.username = validateUsername(this.loginForm.username);
             this.loginFormErrors.password = validatePassword(this.loginForm.password);
 
-            const {username, password} = this.loginForm;
+            const {username, password} = this.loginFormErrors;
 
             resolve(!Boolean(username && password));
         })
