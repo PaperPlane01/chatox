@@ -69,7 +69,7 @@ const _RegistrationDialog: FunctionComponent<RegistrationDialogProps> = ({
                                endAdornment: checkingUsernameAvailability
                                    ? (
                                        <InputAdornment position="end">
-                                           <CircularProgress color="primary"/>
+                                           <CircularProgress color="primary" size={20}/>
                                        </InputAdornment>
                                    )
                                    : null
@@ -120,7 +120,7 @@ const _RegistrationDialog: FunctionComponent<RegistrationDialogProps> = ({
                                endAdornment: checkingSlugAvailability
                                    ? (
                                        <InputAdornment position="end">
-                                           <CircularProgress color="primary"/>
+                                           <CircularProgress color="primary" size={20}/>
                                        </InputAdornment>
                                    )
                                    : null
