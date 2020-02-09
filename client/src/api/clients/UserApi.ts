@@ -56,6 +56,9 @@ export class UserApi {
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json"
+            },
+            data: {
+                ...revokeTokenRequest
             }
         })
     }
