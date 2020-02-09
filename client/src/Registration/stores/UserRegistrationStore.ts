@@ -177,6 +177,7 @@ export class UserRegistrationStore {
                     this.registrationFormErrors.slug = "slug.has-already-been-taken";
                 }
             })
+            .finally(() => this.checkingSlugAvailability = false)
     };
 
     @action
