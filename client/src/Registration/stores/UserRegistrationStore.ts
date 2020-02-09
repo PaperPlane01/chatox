@@ -128,6 +128,7 @@ export class UserRegistrationStore {
                     clientId: process.env.REACT_APP_CLIENT_ID as string
                 })
                     .then(({data}) => {
+                        this.registrationDialogOpen = false;
                         this.registrationResponse = data;
                         this.authorizationStore.setCurrentUser({
                             id: data.userId,
@@ -138,6 +139,7 @@ export class UserRegistrationStore {
                             roles: data.roles,
                             slug: data.slug
                         });
+                        this.authorizationStore.setTokens(data.accessToken, data.refreshToken);
                     })
                     .catch(error => {
                         const apiError = getInitialApiErrorFromResponse(error);
