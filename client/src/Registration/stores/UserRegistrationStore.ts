@@ -156,15 +156,18 @@ export class UserRegistrationStore {
 
     @action
     checkUsernameAvailability = (username: string): void => {
-        this.checkingSlugAvailability = true;
+        this.checkingUsernameAvailability = true;
 
         UserApi.isUsernameAvailable(username)
             .then(({data}) => {
                 if (!data.available) {
-                    this.registrationFormErrors.username = "username.has-already-been-taken";
+                    this.registrationFormErrors = {
+                        ...this.registrationFormErrors,
+                        username: "username.has-already-been-taken"
+                    }
                 }
             })
-            .finally(() => this.checkingSlugAvailability = false);
+            .finally(() => this.checkingUsernameAvailability = false);
     };
 
     @action
@@ -174,7 +177,10 @@ export class UserRegistrationStore {
         UserApi.isSlugAvailable(slug)
             .then(({data}) => {
                 if (!data.available) {
-                    this.registrationFormErrors.slug = "slug.has-already-been-taken";
+                    this.registrationFormErrors = {
+                        ...this.registrationFormErrors,
+                        slug: "slug.has-already-been-taken"
+                    }
                 }
             })
             .finally(() => this.checkingSlugAvailability = false)
