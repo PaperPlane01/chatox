@@ -39,15 +39,18 @@ const _AppBar: FunctionComponent<AppBarMobxProps> = ({
 
     return (
         <Fragment>
-            <Headroom className={classes.headroom}>
+            <Headroom style={{
+                position: "fixed",
+                zIndex: 1300
+            }}>
                 <MuiAppBar position="sticky"
                            classes={{
-                               root: classes.root,
+                               root: classes.root
                            }}
                 >
                     <Toolbar>
                         <IconButton className={classes.drawerButton}
-                                    onClick={() => setDrawerOpen(false)}
+                                    onClick={() => setDrawerOpen(true)}
                         >
                             <MenuIcon/>
                         </IconButton>
