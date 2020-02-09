@@ -1,8 +1,8 @@
 import {isStringEmpty} from "../../utils/string-utils";
 import {Labels} from "../../localization";
 
-const USERNAME_REGEXP = /[A-Za-z0-9]/;
-const SLUG_REGEXP = /[A-Za-z0-9]/;
+const USERNAME_REGEXP =  /^[a-zA-Z0-9]+$/;
+const SLUG_REGEXP =  /^[a-zA-Z0-9]+$/;
 
 export const validateUsername = (username: string): keyof Labels | undefined => {
     if (isStringEmpty(username)) {
