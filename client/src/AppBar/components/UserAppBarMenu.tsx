@@ -21,8 +21,8 @@ const _UserAppBarMenu: FunctionComponent<UserAppBarMenuMobxProps> = ({currentUse
     if (fetchingCurrentUser) {
         return (
             <Fragment>
-                <Skeleton variant="circle"/>
-                <Skeleton variant="text"/>
+                <Skeleton variant="circle" height={40} width={40}/>
+                <Skeleton variant="text" height={20} width={50}/>
             </Fragment>
         )
     } else if (currentUser) {
