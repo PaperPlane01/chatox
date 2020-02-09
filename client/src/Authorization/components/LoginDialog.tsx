@@ -75,11 +75,17 @@ const _LoginDialog: FunctionComponent<LoginDialogProps> = ({
             )}
             <Button variant="contained"
                     color="primary"
-                    style={{width: "100%"}}
+                    style={{
+                        width: "100%",
+                        marginBottom: 10
+                    }}
                     disabled={pending}
                     onClick={doLogin}
             >
-                {pending && <CircularProgress size={15} color="primary"/>}
+                {pending && <CircularProgress size={15}
+                                              color="primary"
+                                              style={{marginRight: 5}}
+                />}
                 {l("login")}
             </Button>
             <Button variant="outlined"

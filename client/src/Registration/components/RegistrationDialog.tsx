@@ -126,13 +126,6 @@ const _RegistrationDialog: FunctionComponent<RegistrationDialogProps> = ({
                                    : null
                            }}
                 />
-                {registrationResponse && (
-                    <Typography variant="body1"
-                                style={{color: "green"}}
-                    >
-                        {l("registration.success")}
-                    </Typography>
-                )}
                 {registrationError && (
                     <Typography variant="body1"
                                 style={{color: "red"}}
@@ -142,17 +135,27 @@ const _RegistrationDialog: FunctionComponent<RegistrationDialogProps> = ({
                 )}
                 <Button variant="contained"
                         color="primary"
-                        disabled={pending || checkingUsernameAvailability || checkingSlugAvailability || Boolean(registrationResponse)}
+                        disabled={pending || checkingUsernameAvailability || checkingSlugAvailability}
                         onClick={registerUser}
-                        style={{width: "100%"}}
+                        style={{
+                            width: "100%",
+                            marginBottom: 10
+                        }}
                 >
+                    {pending && <CircularProgress size={15}
+                                                  color="primary"
+                                                  style={{marginRight: 5}}
+                    />}
                     {l("register")}
                 </Button>
                 <Button variant="outlined"
                         color="secondary"
                         onClick={() => setRegistrationDialogOpen(false)}
+                        style={{
+                            width: "100%"
+                        }}
                 >
-                    {l("cancel")}
+                    {l("close")}
                 </Button>
             </DialogContent>
         </Dialog>
