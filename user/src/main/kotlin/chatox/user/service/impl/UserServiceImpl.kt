@@ -72,8 +72,8 @@ class UserServiceImpl(private val userRepository: UserRepository,
 
     override fun isSlugAvailable(slug: String): Mono<SlugAvailabilityResponse> {
         return userRepository.findBySlug(slug)
-                .map { SlugAvailabilityResponse(available = true) }
-                .switchIfEmpty(Mono.just(SlugAvailabilityResponse(available = false)))
+                .map { SlugAvailabilityResponse(available = false) }
+                .switchIfEmpty(Mono.just(SlugAvailabilityResponse(available = true)))
     }
 
     private fun findById(id: String) = userRepository.findById(id)
