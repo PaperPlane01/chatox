@@ -26,8 +26,8 @@ const _NavigationalDrawer: FunctionComponent<NavigationalDrawerMobxProps> = ({
             >
                 <List>
                     <HasRole role="ROLE_NOT_LOGGED_IN">
-                        <LoginMenuItem/>
-                        <RegistrationMenuItem/>
+                        <LoginMenuItem onClick={closeDrawer}/>
+                        <RegistrationMenuItem onClick={closeDrawer}/>
                     </HasRole>
                     <HasRole role="ROLE_USER">
                         <LogOutMenuItem/>
