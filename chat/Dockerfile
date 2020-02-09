@@ -2,9 +2,11 @@ FROM openjdk:12 as build
 WORKDIR /workspace/app
 
 COPY mvnw .
+COPY .mvn .mvn
 COPY pom.xml .
 COPY src .
 
+RUN ./mvnw dependency:resolve
 RUN ./mvnw package -DskipTests
 
 RUN mkdir target/dependencies && (cd target/dependencies; jar -xf ../*.jar)

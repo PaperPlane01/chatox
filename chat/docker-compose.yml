@@ -14,10 +14,9 @@ services:
     ports:
       - "8085:8085"
     environment:
-      - MONGODB_HOST=mongo
+      - MONGODB_HOST=localhost
       - MONGODB_PORT=27017
-      - EUREKA_URL=http://172.17.0.1:8081/eureka/
+      - EUREKA_URL=http://localhost:8081/eureka/
     depends_on:
       - mongo
-    links:
-      - mongo
+    network_mode: host
