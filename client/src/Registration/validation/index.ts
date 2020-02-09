@@ -1,8 +1,8 @@
 import {isStringEmpty} from "../../utils/string-utils";
 import {Labels} from "../../localization";
 
-const USERNAME_REGEXP =  /^[a-zA-Z0-9]+$/;
-const SLUG_REGEXP =  /^[a-zA-Z0-9]+$/;
+const USERNAME_REGEXP = /^[a-zA-Z0-9]+$/;
+const SLUG_REGEXP = /^[a-zA-Z0-9]+$/;
 
 export const validateUsername = (username: string): keyof Labels | undefined => {
     if (isStringEmpty(username)) {
@@ -58,7 +58,7 @@ export const validateSlug = (slug: string | undefined): keyof Labels | undefined
             return "slug.too-long";
         }
 
-        if (SLUG_REGEXP.test(slug!)) {
+        if (!SLUG_REGEXP.test(slug!)) {
             return "slug.contains-invalid-characters";
         }
 
