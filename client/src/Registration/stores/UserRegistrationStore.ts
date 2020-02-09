@@ -111,7 +111,10 @@ export class UserRegistrationStore {
 
     @action
     updateFormValue = (key: keyof RegisterUserFormData, value: string): void => {
-        this.registrationForm[key] = value;
+        this.registrationForm = {
+            ...this.registrationForm,
+            [key]: value
+        }
     };
 
     @action
