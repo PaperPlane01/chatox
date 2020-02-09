@@ -68,6 +68,7 @@ export class LoginStore {
                     .then(({data}) => {
                         this.authorizationStore.setTokens(data.access_token, data.refresh_token);
                         this.authorizationStore.fetchCurrentUser();
+                        this.loginDialogOpen = false;
                     })
                     .catch((error: AxiosError) => {
                         const apiError = getInitialApiErrorFromResponse(error);

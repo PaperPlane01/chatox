@@ -4,6 +4,7 @@ import Headroom from "react-headroom";
 import {AppBar as MuiAppBar, Toolbar, Typography, IconButton, createStyles, makeStyles} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import {NavigationalDrawer} from "./NavigationalDrawer";
+import {UserAppBarMenu} from "./UserAppBarMenu";
 import {IAppState} from "../../store";
 
 interface AppBarMobxProps {
@@ -59,6 +60,7 @@ const _AppBar: FunctionComponent<AppBarMobxProps> = ({
                                 Chatox
                             </Typography>
                         </div>
+                        <UserAppBarMenu/>
                     </Toolbar>
                 </MuiAppBar>
             </Headroom>
