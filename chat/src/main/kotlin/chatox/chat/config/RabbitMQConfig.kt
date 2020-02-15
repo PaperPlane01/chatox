@@ -1,5 +1,7 @@
 package chatox.chat.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.core.TopicExchange
@@ -8,6 +10,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 
 @Configuration
 class RabbitMQConfig {
@@ -19,7 +22,12 @@ class RabbitMQConfig {
     }
 
     @Bean
-    fun jackson2JsonMessageConverter() = Jackson2JsonMessageConverter()
+    fun jackson2JsonMessageConverter(): Jackson2JsonMessageConverter {
+        val objectMapper = Jackson2ObjectMapperBuilder()
+                .modules(KotlinModule())
+                .build<ObjectMapper>()
+        return Jackson2JsonMessageConverter(objectMapper)
+    }
 
     @Bean
     fun userEvents() = TopicExchange("user.events")
