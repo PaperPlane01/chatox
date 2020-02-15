@@ -73,7 +73,7 @@ export class LoginStore {
                         const apiError = getInitialApiErrorFromResponse(error);
 
                         if (apiError.status !== API_UNREACHABLE_STATUS) {
-                            if (apiError.status === 401) {
+                            if (apiError.status === 400) {
                                 apiError.message = "login.error.incorrect-username-or-password";
                             } else {
                                 apiError.message = "error.unknown";
