@@ -1,4 +1,4 @@
-import {action, observable, reaction} from "mobx";
+import {action, observable} from "mobx";
 import {AxiosError} from "axios";
 import {AuthorizationStore} from "./AuthorizationStore";
 import {API_UNREACHABLE_STATUS, ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
@@ -28,6 +28,9 @@ export class LoginStore {
     @observable
     loginDialogOpen: boolean = false;
 
+    @observable
+    displayPassword: boolean = false;
+
     private readonly authorizationStore: AuthorizationStore;
 
     constructor(authorizationStore: AuthorizationStore) {
@@ -37,6 +40,11 @@ export class LoginStore {
     @action
     setLoginDialogOpen = (loginDialogOpen: boolean): void => {
         this.loginDialogOpen = loginDialogOpen;
+    };
+
+    @action
+    setDisplayPassword = (displayPassword: boolean): void => {
+        this.displayPassword = displayPassword;
     };
 
     @action

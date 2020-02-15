@@ -1,20 +1,24 @@
 import React, {FunctionComponent} from "react";
+import {inject, observer} from "mobx-react";
 import {
+    Button,
+    CircularProgress,
     Dialog,
     DialogContent,
     DialogTitle,
-    Button,
+    IconButton,
+    InputAdornment,
     TextField,
-    CircularProgress,
     Typography
 } from "@material-ui/core";
 import withMobileDialog, {WithMobileDialog} from "@material-ui/core/withMobileDialog";
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import {LoginFormData} from "../types";
 import {localized, Localized} from "../../localization";
 import {IAppState} from "../../store";
 import {ApiError} from "../../api";
 import {FormErrors} from "../../utils/types";
-import {inject, observer} from "mobx-react";
 
 interface LoginDialogMobxProps {
     loginForm: LoginFormData,
@@ -22,9 +26,11 @@ interface LoginDialogMobxProps {
     pending: boolean,
     error?: ApiError,
     loginDialogOpen: boolean,
+    displayPassword: boolean,
     setLoginFormValue: (key: keyof LoginFormData, value: string) => void,
     doLogin: () => void,
-    setLoginDialogOpen: (loginDialogOpen: boolean) => void
+    setLoginDialogOpen: (loginDialogOpen: boolean) => void,
+    setDisplayPassword: (displayPassword: boolean) => void
 }
 
 type LoginDialogProps = LoginDialogMobxProps & Localized & WithMobileDialog;
@@ -36,9 +42,11 @@ const _LoginDialog: FunctionComponent<LoginDialogProps> = ({
     errors,
     loginDialogOpen,
     fullScreen,
+    displayPassword,
     setLoginDialogOpen,
     setLoginFormValue,
     doLogin,
+    setDisplayPassword,
     l
 }) => (
     <Dialog open={loginDialogOpen}
@@ -64,7 +72,19 @@ const _LoginDialog: FunctionComponent<LoginDialogProps> = ({
                        helperText={errors.password && l(errors.password)}
                        fullWidth
                        margin="dense"
-                       type="password"
+                       type={displayPassword ? "text" : "password"}
+                       InputProps={{
+                           endAdornment: (
+                               <InputAdornment position="end">
+                                   <IconButton onClick={() => setDisplayPassword(!displayPassword)}>
+                                       {displayPassword
+                                           ? <VisibilityOffIcon/>
+                                           : <VisibilityIcon/>
+                                       }
+                                   </IconButton>
+                               </InputAdornment>
+                           )
+                       }}
             />
             {error && (
                 <Typography variant="body1"
@@ -105,9 +125,11 @@ const mapMobxToProps = (state: IAppState): LoginDialogMobxProps => ({
     error: state.login.error,
     pending: state.login.pending,
     loginDialogOpen: state.login.loginDialogOpen,
+    displayPassword: state.login.displayPassword,
     doLogin: state.login.doLogin,
     setLoginDialogOpen: state.login.setLoginDialogOpen,
-    setLoginFormValue: state.login.updateLoginFormValue
+    setLoginFormValue: state.login.updateLoginFormValue,
+    setDisplayPassword: state.login.setDisplayPassword
 });
 
 export const LoginDialog = withMobileDialog()(
