@@ -58,13 +58,15 @@ export class UserRegistrationStore {
     constructor(authorizationStore: AuthorizationStore) {
         this.authorizationStore = authorizationStore;
 
+        this.checkUsernameAvailability = _.throttle(this.checkUsernameAvailability, 1000);
+        this.checkSlugAvailability = _.throttle(this.checkSlugAvailability, 1000);
+
         reaction(
             () => this.registrationForm.username,
             username => {
                 this.registrationFormErrors.username = validateUsername(username);
                 if (!this.registrationFormErrors.username) {
-                    const checkUsernameAvailabilityDebounced = _.debounce(this.checkUsernameAvailability, 300);
-                    checkUsernameAvailabilityDebounced(username);
+                    this.checkUsernameAvailability(username);
                 }
             }
         );
@@ -74,8 +76,7 @@ export class UserRegistrationStore {
             slug => {
                 this.registrationFormErrors.slug = validateSlug(slug);
                 if (!this.registrationFormErrors.slug) {
-                    const checkSlugAvailabilityDebounced = _.debounce(this.checkSlugAvailability, 300);
-                    checkSlugAvailabilityDebounced(slug!);
+                    this.checkSlugAvailability(slug!);
                 }
             }
         );
