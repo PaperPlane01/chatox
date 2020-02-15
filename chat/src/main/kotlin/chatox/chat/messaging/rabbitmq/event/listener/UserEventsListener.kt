@@ -37,10 +37,10 @@ class UserEventsListener(private val userRepository: UserRepository) {
         log.debug("Updated user is $userUpdated")
         return userRepository.findById(userUpdated.id)
                 .map { userRepository.save(it.copy(
-                            avatarUri = userUpdated.avatarUri,
-                            firstName = userUpdated.firstName,
-                            lastName = userUpdated.lastName,
-                            slug = userUpdated.slug
+                        avatarUri = userUpdated.avatarUri,
+                        firstName = userUpdated.firstName,
+                        lastName = userUpdated.lastName,
+                        slug = userUpdated.slug
                 )) }
                 .flatMap { it }
                 .flatMap { Mono.empty<Void>() }
