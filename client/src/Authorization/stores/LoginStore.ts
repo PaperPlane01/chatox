@@ -69,6 +69,7 @@ export class LoginStore {
                         this.authorizationStore.setTokens(data.access_token, data.refresh_token);
                         this.authorizationStore.fetchCurrentUser();
                         this.loginDialogOpen = false;
+                        this.reset();
                     })
                     .catch((error: AxiosError) => {
                         const apiError = getInitialApiErrorFromResponse(error);
@@ -98,5 +99,21 @@ export class LoginStore {
 
             resolve(!Boolean(username && password));
         })
+    };
+
+    @action
+    reset = (): void => {
+        this.loginForm =  {
+            username: "",
+            password: ""
+        };
+        this.pending = false;
+        this.error = undefined;
+        setTimeout(() => {
+            this.loginFormErrors =  {
+                username: undefined,
+                password: undefined
+            };
+        });
     }
 }
