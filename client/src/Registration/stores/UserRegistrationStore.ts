@@ -53,6 +53,9 @@ export class UserRegistrationStore {
     @observable
     registrationDialogOpen: boolean = false;
 
+    @observable
+    displayPassword: boolean = false;
+
     private readonly authorizationStore: AuthorizationStore;
 
     constructor(authorizationStore: AuthorizationStore) {
@@ -108,6 +111,11 @@ export class UserRegistrationStore {
     @action
     setRegistrationDialogOpen = (registrationDialogOpen: boolean): void => {
         this.registrationDialogOpen = registrationDialogOpen;
+    };
+
+    @action
+    setDisplayPassword = (displayPassword: boolean): void => {
+        this.displayPassword = displayPassword;
     };
 
     @action

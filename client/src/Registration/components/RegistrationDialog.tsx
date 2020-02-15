@@ -1,16 +1,19 @@
 import React, {FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
 import {
+    Button,
+    CircularProgress,
     Dialog,
     DialogContent,
     DialogTitle,
+    IconButton,
+    InputAdornment,
     TextField,
-    Button,
-    CircularProgress,
-    Typography,
-    InputAdornment
+    Typography
 } from "@material-ui/core";
-import withMobileDialog, {WithMobileDialog} from "@material-ui/core/withMobileDialog"
+import withMobileDialog, {WithMobileDialog} from "@material-ui/core/withMobileDialog";
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import {RegisterUserFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {IAppState} from "../../store";
@@ -27,9 +30,11 @@ interface RegistrationDialogMobxProps {
     pending: boolean,
     registrationResponse?: RegistrationResponse,
     registrationError?: ApiError,
+    displayPassword: boolean,
     setFormValue: (key: keyof RegisterUserFormData, value: string) => void,
     setRegistrationDialogOpen: (registrationDialogOpen: boolean) => void,
-    registerUser: () => void
+    registerUser: () => void,
+    setDisplayPassword: (displayPassword: boolean) => void
 }
 
 type RegistrationDialogProps = RegistrationDialogMobxProps & Localized & WithMobileDialog;
@@ -44,9 +49,11 @@ const _RegistrationDialog: FunctionComponent<RegistrationDialogProps> = ({
     errors,
     registrationError,
     pending,
+    displayPassword,
     registerUser,
     setFormValue,
     setRegistrationDialogOpen,
+    setDisplayPassword,
     l
 }) => {
     return (
@@ -82,7 +89,19 @@ const _RegistrationDialog: FunctionComponent<RegistrationDialogProps> = ({
                            helperText={errors.password && l(errors.password)}
                            fullWidth
                            margin="dense"
-                           type="password"
+                           type={displayPassword ? "text" : "password"}
+                           InputProps={{
+                               endAdornment: (
+                                   <InputAdornment position="end">
+                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)}>
+                                           {displayPassword
+                                               ? <VisibilityOffIcon/>
+                                               : <VisibilityIcon/>
+                                           }
+                                       </IconButton>
+                                   </InputAdornment>
+                               )
+                           }}
                 />
                 <TextField label={l("repeatedPassword")}
                            value={registerUserForm.repeatedPassword}
@@ -91,7 +110,19 @@ const _RegistrationDialog: FunctionComponent<RegistrationDialogProps> = ({
                            helperText={errors.repeatedPassword && l(errors.repeatedPassword)}
                            fullWidth
                            margin="dense"
-                           type="password"
+                           type={displayPassword ? "text" : "password"}
+                           InputProps={{
+                               endAdornment: (
+                                   <InputAdornment position="end">
+                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)}>
+                                           {displayPassword
+                                               ? <VisibilityOffIcon/>
+                                               : <VisibilityIcon/>
+                                           }
+                                       </IconButton>
+                                   </InputAdornment>
+                               )
+                           }}
                 />
                 <TextField label={l("firstName")}
                            value={registerUserForm.firstName}
@@ -170,10 +201,12 @@ const mapMobxToProps = (state: IAppState): RegistrationDialogMobxProps => ({
     registrationDialogOpen: state.userRegistration.registrationDialogOpen,
     setFormValue: state.userRegistration.updateFormValue,
     pending: state.userRegistration.pending,
+    displayPassword: state.userRegistration.displayPassword,
     setRegistrationDialogOpen: state.userRegistration.setRegistrationDialogOpen,
     registerUser: state.userRegistration.registerUser,
     registrationResponse: state.userRegistration.registrationResponse,
-    registrationError: state.userRegistration.submissionError
+    registrationError: state.userRegistration.submissionError,
+    setDisplayPassword: state.userRegistration.setDisplayPassword
 });
 
 export const RegistrationDialog = withMobileDialog()(
