@@ -140,6 +140,7 @@ export class UserRegistrationStore {
                             slug: data.slug
                         });
                         this.authorizationStore.setTokens(data.accessToken, data.refreshToken);
+                        this.reset();
                     })
                     .catch(error => {
                         const apiError = getInitialApiErrorFromResponse(error);
@@ -205,5 +206,30 @@ export class UserRegistrationStore {
 
             resolve(!Boolean(username && password && repeatedPassword && firstName && lastName && slug));
         });
+    };
+
+    @action
+    reset = (): void => {
+        this.registrationForm =  {
+            username: "",
+            password: "",
+            repeatedPassword: "",
+            firstName: "",
+            lastName: undefined,
+            slug: undefined
+        };
+        this.pending = false;
+        this.submissionError = undefined;
+        this.registrationResponse = undefined;
+        setTimeout(() => {
+            this.registrationFormErrors = {
+                username: undefined,
+                password: undefined,
+                repeatedPassword: undefined,
+                slug: undefined,
+                firstName: undefined,
+                lastName: undefined
+            }
+        })
     }
 }
