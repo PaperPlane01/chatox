@@ -1,8 +1,8 @@
 import {isStringEmpty} from "../../utils/string-utils";
 import {Labels} from "../../localization";
 
-const USERNAME_REGEXP = /^[a-zA-Z0-9]+$/;
-const SLUG_REGEXP = /^[a-zA-Z0-9]+$/;
+const USERNAME_REGEXP = /^[a-zA-Z0-9_.]+$/;
+const SLUG_REGEXP = /^[a-zA-Z0-9_.]+$/;
 
 export const validateUsername = (username: string): keyof Labels | undefined => {
     if (isStringEmpty(username)) {
@@ -50,11 +50,11 @@ export const validateRepeatedPassword = (repeatedPassword: string, originalPassw
 
 export const validateSlug = (slug: string | undefined): keyof Labels | undefined => {
     if (!isStringEmpty(slug)) {
-        if (slug!.trim().length < 4) {
+        if (slug!.trim().length < 3) {
             return "slug.too-short";
         }
 
-        if (slug!.trim().length > 10) {
+        if (slug!.trim().length > 30) {
             return "slug.too-long";
         }
 
