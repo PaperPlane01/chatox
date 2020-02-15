@@ -32,16 +32,6 @@ export class LoginStore {
 
     constructor(authorizationStore: AuthorizationStore) {
         this.authorizationStore = authorizationStore;
-
-        reaction(
-            () => this.loginForm.username,
-            username => this.loginFormErrors.username = validateUsername(username)
-        );
-
-        reaction(
-            () => this.loginForm.password,
-            password => this.loginFormErrors.password = validatePassword(password)
-        )
     }
 
     @action
@@ -92,12 +82,15 @@ export class LoginStore {
     @action
     validateForm = (): Promise<boolean> => {
         return new Promise<boolean>(resolve => {
-            this.loginFormErrors.username = validateUsername(this.loginForm.username);
-            this.loginFormErrors.password = validatePassword(this.loginForm.password);
+            this.loginFormErrors = {
+                ...this.loginFormErrors,
+                username: validateUsername(this.loginForm.username),
+                password: validatePassword(this.loginForm.password)
+            };
 
             const {username, password} = this.loginFormErrors;
 
-            resolve(!Boolean(username && password));
+            resolve(!Boolean(username || password));
         })
     };
 

@@ -192,19 +192,19 @@ export class UserRegistrationStore {
     @action
     validateForm = (): Promise<boolean> => {
         return new Promise(resolve => {
-            this.registrationFormErrors.username = validateUsername(this.registrationForm.username);
-            this.registrationFormErrors.password = validatePassword(this.registrationForm.password);
-            this.registrationFormErrors.repeatedPassword = validateRepeatedPassword(
-                this.registrationForm.repeatedPassword,
-                this.registrationForm.password
-            );
-            this.registrationFormErrors.firstName = validateFirstName(this.registrationForm.firstName);
-            this.registrationFormErrors.lastName = validateLastName(this.registrationForm.lastName);
-            this.registrationFormErrors.slug = validateSlug(this.registrationForm.slug);
+            this.registrationFormErrors = {
+                ...this.registrationFormErrors,
+                username: validateUsername(this.registrationForm.username),
+                password: validatePassword(this.registrationForm.password),
+                repeatedPassword: validateRepeatedPassword(this.registrationForm.repeatedPassword, this.registrationForm.password),
+                firstName: validateFirstName(this.registrationForm.firstName),
+                lastName: validateLastName(this.registrationForm.lastName),
+                slug: validateSlug(this.registrationForm.slug),
+            };
 
             const {username, password, repeatedPassword, firstName, lastName, slug} = this.registrationFormErrors;
 
-            resolve(!Boolean(username && password && repeatedPassword && firstName && lastName && slug));
+            resolve(!Boolean(username || password || repeatedPassword || firstName || lastName || slug));
         });
     };
 
