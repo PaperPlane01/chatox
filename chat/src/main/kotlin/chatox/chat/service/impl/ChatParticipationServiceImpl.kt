@@ -45,7 +45,10 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 ) }
                 .map { chatParticipationRepository.save(it) }
                 .flatMap { it }
-                .map { chatParticipationMapper.toMinifiedChatParticipationResponse(it) }
+                .map {
+                    chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(it))
+                    chatParticipationMapper.toMinifiedChatParticipationResponse(it)
+                }
     }
 
     override fun leaveChat(chatId: String): Mono<Void> {
@@ -57,8 +60,13 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                         user = it.t2
                 ) }
                 .flatMap { it }
-                .map { chatParticipationRepository.delete(it) }
+                .map {
+                    chatParticipationRepository.delete(it)
+                    Mono.just(it)
+                }
                 .flatMap { it }
+                .map { chatEventsPublisher.userLeftChat(it.chat.id, it.id) }
+                .then()
     }
 
     override fun updateChatParticipation(id: String, updateChatParticipationRequest: UpdateChatParticipationRequest): Mono<ChatParticipationResponse> {
@@ -69,12 +77,21 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 ) }
                 .flatMap { chatParticipationRepository.save(it) }
                 .map { chatParticipationMapper.toChatParticipationResponse(it) }
+                .map {
+                    chatEventsPublisher.chatParticipationUpdated(it)
+                    it
+                }
     }
 
     override fun deleteChatParticipation(id: String): Mono<Void> {
         return chatParticipationRepository.findById(id)
                 .switchIfEmpty(Mono.error(ChatParticipationNotFoundException("Could not find chat participation with id $id")))
-                .flatMap { chatParticipationRepository.delete(it) }
+                .flatMap {
+                    chatParticipationRepository.delete(it)
+                    Mono.just(it)
+                }
+                .map { chatEventsPublisher.chatParticipationDeleted(it.chat.id, it.id) }
+                .then()
     }
 
     override fun findParticipantsOfChat(chatId: String, paginationRequest: PaginationRequest): Flux<ChatParticipationResponse> {
