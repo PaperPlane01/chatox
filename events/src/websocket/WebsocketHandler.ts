@@ -10,7 +10,7 @@ import {JwtService} from "@nestjs/jwt";
 import {AmqpConnection, RabbitSubscribe} from "@nestjs-plus/rabbitmq";
 import {Socket} from "socket.io";
 import {parse} from "querystring";
-import {ChatSubscription, ChatUnsubscription, EventType, JwtPayload, WebsocketEvent} from "./types";
+import {ChatSubscription, ChatUnsubscription, EventType, JwtPayload, MessageDeleted, WebsocketEvent} from "./types";
 import {ChatMessage} from "../common/types";
 import {ChatParticipationService} from "../chat";
 
@@ -115,7 +115,7 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
         queue: "events_service_message_created",
         routingKey: "chat.message.created.#"
     })
-    public async onNewMessage(message: ChatMessage) {
+    public async onMessageCreated(message: ChatMessage) {
         const messageCreatedEvent: WebsocketEvent<ChatMessage> = {
             type: EventType.MESSAGE_CREATED,
             payload: message
@@ -136,6 +136,20 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
         };
         await this.publishEventToChatParticipants(message.chatId, messageUpdatedEvent);
         await this.publishEventToUsersSubscribedToChat(message.chatId, messageUpdatedEvent);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: "events_service_message_deleted",
+        routingKey: "chat.message.deleted.#"
+    })
+    public async onMessageDeleted(messageDeleted: MessageDeleted) {
+        const messageDeletedEvent: WebsocketEvent<MessageDeleted> = {
+            type: EventType.MESSAGE_DELETED,
+            payload: messageDeleted
+        };
+        await this.publishEventToChatParticipants(messageDeleted.chatId, messageDeletedEvent);
+        await this.publishEventToUsersSubscribedToChat(messageDeleted.chatId, messageDeletedEvent);
     }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {

@@ -3,3 +3,4 @@ export * from "./JwtPayload";
 export * from "./WebsocketEvent";
 export * from "./ChatSubscription";
 export * from "./ChatUnsubscription";
+export * from "./MessageDeleted";
