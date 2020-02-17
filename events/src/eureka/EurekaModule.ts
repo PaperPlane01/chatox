@@ -9,19 +9,25 @@ import {EurekaRegistrationHandler} from "./EurekaRegistrationHandler";
             useValue: new Eureka({
                 instance: {
                     app: process.env.EUREKA_APP_NAME,
-                    instanceId: `${process.env.EUREKA_APP_NAME}:${process.env.SERVER_PORT}`,
+                    instanceId: `${process.env.EUREKA_APP_NAME}-${process.env.SERVER_PORT}`,
                     ipAddr: "127.0.0.1",
                     hostName: "localhost",
                     dataCenterInfo: {
+                        "@class": "com.netflix.appinfo.MyDataCenterInfo",
                         name: "MyOwn"
                     },
-                    vipAddress: process.env.EUREKA_APP_NAME
+                    vipAddress: process.env.EUREKA_APP_NAME,
+                    port: {
+                        $: Number(process.env.SERVER_PORT),
+                        "@enabled": true
+                    }
                 },
                 eureka: {
                     preferIpAddress: true,
                     fetchRegistry: false,
                     host: process.env.EUREKA_HOST,
                     port: Number(process.env.EUREKA_PORT),
+                    servicePath: "/eureka/apps"
                 }
             })
         },
