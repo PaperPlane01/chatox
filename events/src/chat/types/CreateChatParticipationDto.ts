@@ -1,10 +1,9 @@
-import {Document} from "mongoose";
 import {ChatRole} from "./ChatRole";
 import {User} from "../../common/types";
 
-export interface ChatParticipation extends Document {
+export interface CreateChatParticipationDto {
     id: string,
     chatId: string,
-    userId: string,
+    user: User,
     role: ChatRole
 }

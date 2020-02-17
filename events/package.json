@@ -29,6 +29,7 @@
     "@nestjs/platform-socket.io": "^6.11.7",
     "@nestjs/websockets": "^6.11.7",
     "@types/eureka-js-client": "^4.5.2",
+    "@types/mongoose": "^5.7.1",
     "@types/socket.io": "^2.1.4",
     "dotenv": "^8.2.0",
     "eureka-js-client": "^4.5.0",

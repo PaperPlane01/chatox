@@ -1,20 +1,30 @@
-import {OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway} from "@nestjs/websockets";
+import {
+    ConnectedSocket,
+    MessageBody,
+    OnGatewayConnection,
+    OnGatewayDisconnect,
+    SubscribeMessage,
+    WebSocketGateway
+} from "@nestjs/websockets";
 import {JwtService} from "@nestjs/jwt";
 import {AmqpConnection, RabbitSubscribe} from "@nestjs-plus/rabbitmq";
 import {Socket} from "socket.io";
 import {parse} from "querystring";
-import {EventType, JwtPayload, WebsocketEvent} from "./types";
+import {ChatSubscription, ChatUnsubscription, EventType, JwtPayload, WebsocketEvent} from "./types";
 import {ChatMessage} from "../common/types";
+import {ChatParticipationService} from "../chat";
 
 @WebSocketGateway({
     path: "/api/v1/events"
 })
 export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnect {
     private usersAndClientsMap: {[userId: string]: Socket[]} = {};
+    private chatSubscriptionsMap: {[chatId: string]: Socket[]} = {};
     private connectedClients: Socket[] = [];
 
     constructor(private readonly jwtService: JwtService,
-                private readonly amqpConnection: AmqpConnection) {}
+                private readonly amqpConnection: AmqpConnection,
+                private readonly chatParticipationService: ChatParticipationService) {}
 
     public handleConnection(client: Socket, ...args: any[]): void {
         const queryParameters = client.handshake.query
@@ -73,16 +83,76 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
         }
     }
 
+    @SubscribeMessage(EventType.CHAT_SUBSCRIPTION)
+    public handleChatSubscription(@MessageBody() message: WebsocketEvent<ChatSubscription>,
+                                  @ConnectedSocket() client: Socket): void {
+        const chatId = message.payload.chatId;
+
+        if (this.chatSubscriptionsMap[chatId] !== undefined) {
+            this.chatSubscriptionsMap[chatId].push(client);
+        } else {
+            this.chatSubscriptionsMap[chatId] = [client];
+        }
+    }
+
+    @SubscribeMessage(EventType.CHAT_UNSUBSCRIPTION)
+    public handleChatUnsubscription(@MessageBody() message: WebsocketEvent<ChatUnsubscription>,
+                                    @ConnectedSocket() client: Socket): void {
+        const chatId = message.payload.chatId;
+
+        if (this.chatSubscriptionsMap[chatId] !== undefined) {
+            this.chatSubscriptionsMap[chatId] = this.chatSubscriptionsMap[chatId]
+                .filter(connectedClient => connectedClient.id !== chatId);
+
+            if (this.chatSubscriptionsMap[chatId].length === 0) {
+                delete this.chatSubscriptionsMap[chatId];
+            }
+        }
+    }
+
     @RabbitSubscribe({
         exchange: "chat.events",
         queue: "events_service_message_created",
         routingKey: "chat.message.created.#"
     })
-    public handleNewChatMessage(message: ChatMessage) {
+    public async onNewMessage(message: ChatMessage) {
         const messageCreatedEvent: WebsocketEvent<ChatMessage> = {
             type: EventType.MESSAGE_CREATED,
             payload: message
         };
-        this.connectedClients.forEach(client => client.emit(EventType.MESSAGE_CREATED, messageCreatedEvent));
+        await this.publishEventToChatParticipants(message.chatId, messageCreatedEvent);
+        await this.publishEventToUsersSubscribedToChat(message.chatId, messageCreatedEvent);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: "events_service_message_updated",
+        routingKey: "chat.message.updated.#"
+    })
+    public async onMessageUpdated(message: ChatMessage) {
+        const messageUpdatedEvent: WebsocketEvent<ChatMessage> = {
+            type: EventType.MESSAGE_UPDATED,
+            payload: message
+        };
+        await this.publishEventToChatParticipants(message.chatId, messageUpdatedEvent);
+        await this.publishEventToUsersSubscribedToChat(message.chatId, messageUpdatedEvent);
+    }
+
+    private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {
+        const chatParticipants = await this.chatParticipationService.findByChatId(chatId);
+
+        chatParticipants.forEach(participant => {
+            if (this.usersAndClientsMap[participant.userId] !== undefined) {
+                this.usersAndClientsMap[participant.userId].forEach(client => {
+                    client.emit(event.type, event);
+                })
+            }
+        });
+    }
+
+    private async publishEventToUsersSubscribedToChat(chatId: string, event: WebsocketEvent<any>): Promise<void> {
+        if (this.chatSubscriptionsMap[chatId] !== undefined) {
+            this.chatSubscriptionsMap[chatId].forEach(client => client.emit(event.type, event));
+        }
     }
 }
