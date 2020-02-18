@@ -13,9 +13,11 @@ import {parse} from "querystring";
 import {ChatSubscription, ChatUnsubscription, EventType, JwtPayload, MessageDeleted, WebsocketEvent} from "./types";
 import {ChatMessage} from "../common/types";
 import {ChatParticipationService} from "../chat";
+import {CreateChatParticipationDto} from "../chat/types";
 
 @WebSocketGateway({
-    path: "/api/v1/events"
+    path: "/api/v1/events",
+    transports: ["websocket"]
 })
 export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnect {
     private usersAndClientsMap: {[userId: string]: Socket[]} = {};
@@ -150,6 +152,21 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
         };
         await this.publishEventToChatParticipants(messageDeleted.chatId, messageDeletedEvent);
         await this.publishEventToUsersSubscribedToChat(messageDeleted.chatId, messageDeletedEvent);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        routingKey: "user.joined.#",
+        queue: "events_service_user_joined"
+    })
+    public async onUserJoinedChat(createChatParticipationDto: CreateChatParticipationDto) {
+        await this.chatParticipationService.saveChatParticipation(createChatParticipationDto);
+        const userJoinedEvent: WebsocketEvent<CreateChatParticipationDto> = {
+            type: EventType.USER_JOINED_CHAT,
+            payload: createChatParticipationDto
+        };
+        await this.publishEventToChatParticipants(createChatParticipationDto.chatId, userJoinedEvent);
+        await this.publishEventToUsersSubscribedToChat(createChatParticipationDto.chatId, userJoinedEvent);
     }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {
