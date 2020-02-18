@@ -6,7 +6,7 @@ spring:
           enabled: true
       globalcors:
         cors-configurations:
-          '[/api/v1/notification/handshake/**]':
+          '[/api/v1/events/handshake/**]':
             allowedOrigins: '*'
             allowedMethods: '*'
             allowedHeaders: '*'
@@ -34,9 +34,9 @@ spring:
           predicates:
             - Path=/api/v1/registration/**
         - id: notification-service
-          uri: lb:ws//notification-service
+          uri: lb:ws//events-service
           predicates:
-            - Path=/api/v1/notification/**
+            - Path=/api/v1/events/**
 eureka:
   client:
     enabled: true
