@@ -12,8 +12,8 @@ import {Socket} from "socket.io";
 import {parse} from "querystring";
 import {ChatSubscription, ChatUnsubscription, EventType, JwtPayload, MessageDeleted, WebsocketEvent} from "./types";
 import {ChatMessage} from "../common/types";
-import {ChatParticipationService} from "../chat";
-import {CreateChatParticipationDto} from "../chat/types";
+import {ChatParticipationService} from "../chat-participation";
+import {CreateChatParticipationDto} from "../chat-participation/types";
 
 @WebSocketGateway({
     path: "/api/v1/events",
@@ -29,6 +29,7 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
                 private readonly chatParticipationService: ChatParticipationService) {}
 
     public handleConnection(client: Socket, ...args: any[]): void {
+        console.log(client.handshake.query);
         const queryParameters = client.handshake.query
             ? typeof client.handshake.query === "object" ? client.handshake.query : parse(client.handshake.query)
             : {};
@@ -114,7 +115,7 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
 
     @RabbitSubscribe({
         exchange: "chat.events",
-        queue: "events_service_message_created",
+        queue: `events_service_message_created-${process.env.SERVER_PORT}`,
         routingKey: "chat.message.created.#"
     })
     public async onMessageCreated(message: ChatMessage) {
@@ -128,7 +129,7 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
 
     @RabbitSubscribe({
         exchange: "chat.events",
-        queue: "events_service_message_updated",
+        queue: `events_service_message_updated-${process.env.SERVER_PORT}`,
         routingKey: "chat.message.updated.#"
     })
     public async onMessageUpdated(message: ChatMessage) {
@@ -142,7 +143,7 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
 
     @RabbitSubscribe({
         exchange: "chat.events",
-        queue: "events_service_message_deleted",
+        queue: `events_service_message_deleted-${process.env.SERVER_PORT}`,
         routingKey: "chat.message.deleted.#"
     })
     public async onMessageDeleted(messageDeleted: MessageDeleted) {
@@ -157,7 +158,7 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
     @RabbitSubscribe({
         exchange: "chat.events",
         routingKey: "user.joined.#",
-        queue: "events_service_user_joined"
+        queue: `events_service_user_joined-${process.env.SERVER_PORT}`
     })
     public async onUserJoinedChat(createChatParticipationDto: CreateChatParticipationDto) {
         await this.chatParticipationService.saveChatParticipation(createChatParticipationDto);

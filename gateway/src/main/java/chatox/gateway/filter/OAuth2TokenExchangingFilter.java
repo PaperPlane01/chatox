@@ -36,11 +36,23 @@ public class OAuth2TokenExchangingFilter implements WebFilter {
             }
         } else if (path.startsWith(EVENTS_SERVICE_URL)) {
             if (serverWebExchange.getRequest().getQueryParams().containsKey("accessToken")) {
-                var accessToken = serverWebExchange.getRequest().getQueryParams().getFirst("accessToken");
+                var queryParameters = serverWebExchange.getRequest().getQueryParams();
+                var accessToken = queryParameters.getFirst("accessToken");
                 var jwt = tokenExchanger.exchangeAccessTokenToJwtToken(accessToken);
+                var queryString = queryParameters.entrySet().stream()
+                        .map(entry -> {
+                            if (entry.getKey().equals("accessToken")) {
+                                return "accessToken=" + jwt;
+                            } else {
+                                return entry.getKey() + "=" + entry.getValue().get(0);
+                            }
+                        })
+                        .reduce((left, right) -> left + right)
+                        .orElse("");
+                queryString = "?" + queryString;
                 var request = serverWebExchange.getRequest()
                         .mutate()
-                        .contextPath(EVENTS_SERVICE_URL + "?accessToken=" + jwt)
+                        .path(path + queryString)
                         .build();
                 var exchange = serverWebExchange.mutate()
                         .request(request)
