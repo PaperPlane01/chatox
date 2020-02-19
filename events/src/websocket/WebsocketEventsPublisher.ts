@@ -7,7 +7,7 @@ import {
     WebSocketGateway
 } from "@nestjs/websockets";
 import {JwtService} from "@nestjs/jwt";
-import {AmqpConnection, RabbitSubscribe} from "@nestjs-plus/rabbitmq";
+import {AmqpConnection} from "@nestjs-plus/rabbitmq";
 import {Socket} from "socket.io";
 import {parse} from "querystring";
 import {ChatSubscription, ChatUnsubscription, EventType, JwtPayload, MessageDeleted, WebsocketEvent} from "./types";
@@ -17,9 +17,9 @@ import {CreateChatParticipationDto} from "../chat-participation/types";
 
 @WebSocketGateway({
     path: "/api/v1/events",
-    transports: ["websocket"]
+    transports: ["websocket", "polling"]
 })
-export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnect {
+export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayDisconnect {
     private usersAndClientsMap: {[userId: string]: Socket[]} = {};
     private chatSubscriptionsMap: {[chatId: string]: Socket[]} = {};
     private connectedClients: Socket[] = [];
@@ -29,7 +29,6 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
                 private readonly chatParticipationService: ChatParticipationService) {}
 
     public handleConnection(client: Socket, ...args: any[]): void {
-        console.log(client.handshake.query);
         const queryParameters = client.handshake.query
             ? typeof client.handshake.query === "object" ? client.handshake.query : parse(client.handshake.query)
             : {};
@@ -113,12 +112,7 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
         }
     }
 
-    @RabbitSubscribe({
-        exchange: "chat.events",
-        queue: `events_service_message_created-${process.env.SERVER_PORT}`,
-        routingKey: "chat.message.created.#"
-    })
-    public async onMessageCreated(message: ChatMessage) {
+    public async publishMessageCreated(message: ChatMessage) {
         const messageCreatedEvent: WebsocketEvent<ChatMessage> = {
             type: EventType.MESSAGE_CREATED,
             payload: message
@@ -127,12 +121,7 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
         await this.publishEventToUsersSubscribedToChat(message.chatId, messageCreatedEvent);
     }
 
-    @RabbitSubscribe({
-        exchange: "chat.events",
-        queue: `events_service_message_updated-${process.env.SERVER_PORT}`,
-        routingKey: "chat.message.updated.#"
-    })
-    public async onMessageUpdated(message: ChatMessage) {
+    public async publishMessageUpdated(message: ChatMessage) {
         const messageUpdatedEvent: WebsocketEvent<ChatMessage> = {
             type: EventType.MESSAGE_UPDATED,
             payload: message
@@ -141,12 +130,7 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
         await this.publishEventToUsersSubscribedToChat(message.chatId, messageUpdatedEvent);
     }
 
-    @RabbitSubscribe({
-        exchange: "chat.events",
-        queue: `events_service_message_deleted-${process.env.SERVER_PORT}`,
-        routingKey: "chat.message.deleted.#"
-    })
-    public async onMessageDeleted(messageDeleted: MessageDeleted) {
+    public async publishMessageDeleted(messageDeleted: MessageDeleted) {
         const messageDeletedEvent: WebsocketEvent<MessageDeleted> = {
             type: EventType.MESSAGE_DELETED,
             payload: messageDeleted
@@ -155,13 +139,7 @@ export class WebsocketHandler implements OnGatewayConnection, OnGatewayDisconnec
         await this.publishEventToUsersSubscribedToChat(messageDeleted.chatId, messageDeletedEvent);
     }
 
-    @RabbitSubscribe({
-        exchange: "chat.events",
-        routingKey: "user.joined.#",
-        queue: `events_service_user_joined-${process.env.SERVER_PORT}`
-    })
-    public async onUserJoinedChat(createChatParticipationDto: CreateChatParticipationDto) {
-        await this.chatParticipationService.saveChatParticipation(createChatParticipationDto);
+    public async publishUserJoinedChat(createChatParticipationDto: CreateChatParticipationDto) {
         const userJoinedEvent: WebsocketEvent<CreateChatParticipationDto> = {
             type: EventType.USER_JOINED_CHAT,
             payload: createChatParticipationDto

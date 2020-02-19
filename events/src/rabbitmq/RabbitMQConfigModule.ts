@@ -8,7 +8,7 @@ import {RabbitMQModule} from "@nestjs-plus/rabbitmq";
             exchanges: [
                 {
                     name: "websocket.events",
-                    type: "topic"
+                    type: "topic",
                 }
             ],
         })

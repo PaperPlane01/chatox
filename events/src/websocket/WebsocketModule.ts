@@ -1,11 +1,11 @@
 import {Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
 import {RabbitMQConfigModule} from "../rabbitmq";
-import {WebsocketHandler} from "./WebsocketHandler";
-import {ChatParticipationModule} from "../chat";
+import {WebsocketEventsPublisher} from "./WebsocketEventsPublisher";
+import {ChatParticipationModule} from "../chat-participation";
 
 @Module({
-    providers: [WebsocketHandler],
+    providers: [WebsocketEventsPublisher],
     imports: [
         RabbitMQConfigModule,
         ChatParticipationModule,
