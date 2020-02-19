@@ -33,10 +33,14 @@ spring:
           uri: lb://registration-service
           predicates:
             - Path=/api/v1/registration/**
-        - id: notification-service
-          uri: lb:ws//events-service
+        - id: events-service
+          uri: lb://events-service
           predicates:
             - Path=/api/v1/events/**
+        - id: events-service-websocket
+          uri: lb:ws//events-service
+          predicates:
+            - Path=/**
 eureka:
   client:
     enabled: true
