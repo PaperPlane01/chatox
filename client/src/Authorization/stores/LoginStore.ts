@@ -1,8 +1,8 @@
 import {action, observable} from "mobx";
 import {AxiosError} from "axios";
 import {AuthorizationStore} from "./AuthorizationStore";
-import {API_UNREACHABLE_STATUS, ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {LoginFormData} from "../types";
+import {API_UNREACHABLE_STATUS, ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {FormErrors} from "../../utils/types";
 import {validatePassword, validateUsername} from "../../Registration/validation";
 
@@ -49,10 +49,7 @@ export class LoginStore {
 
     @action
     updateLoginFormValue = (key: keyof LoginFormData, value: string): void => {
-        this.loginForm = {
-            ...this.loginForm,
-            [key]: value
-        };
+        this.loginForm[key] = value;
     };
 
     @action

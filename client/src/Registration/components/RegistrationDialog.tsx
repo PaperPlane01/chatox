@@ -31,7 +31,7 @@ interface RegistrationDialogMobxProps {
     registrationResponse?: RegistrationResponse,
     registrationError?: ApiError,
     displayPassword: boolean,
-    setFormValue: (key: keyof RegisterUserFormData, value: string) => void,
+    setFormValue: <Key extends keyof RegisterUserFormData>(key: Key, value: RegisterUserFormData[Key]) => void,
     setRegistrationDialogOpen: (registrationDialogOpen: boolean) => void,
     registerUser: () => void,
     setDisplayPassword: (displayPassword: boolean) => void
@@ -210,5 +210,5 @@ const mapMobxToProps = (state: IAppState): RegistrationDialogMobxProps => ({
 });
 
 export const RegistrationDialog = withMobileDialog()(
-    inject(mapMobxToProps)(observer(localized(_RegistrationDialog) as FunctionComponent<{}>))
+    localized(inject(mapMobxToProps)(observer(_RegistrationDialog))) as FunctionComponent
 );

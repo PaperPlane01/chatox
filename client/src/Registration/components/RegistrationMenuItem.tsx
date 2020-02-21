@@ -44,4 +44,6 @@ const mapMobxToProps = (state: IAppState): RegistrationMenuItemMobxProps => ({
     setRegistrationDialogOpen: state.userRegistration.setRegistrationDialogOpen
 });
 
-export const RegistrationMenuItem = inject(mapMobxToProps)(observer(localized(_RegistrationMenuItem)) as FunctionComponent<RegistrationMenuItemOwnProps>);
+export const RegistrationMenuItem = localized(
+    inject(mapMobxToProps)(observer(_RegistrationMenuItem))
+) as FunctionComponent<RegistrationMenuItemOwnProps>;
