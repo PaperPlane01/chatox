@@ -2,6 +2,7 @@ package chatox.chat.service
 
 import chatox.chat.api.request.CreateChatRequest
 import chatox.chat.api.request.UpdateChatRequest
+import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.support.pagination.PagedResponse
@@ -17,4 +18,5 @@ interface ChatService {
     fun searchChats(query: String, paginationRequest: PaginationRequest): Flux<ChatResponse>
     fun getChatsOfCurrentUser(): Flux<ChatOfCurrentUserResponse>
     fun isChatCreatedByUser(chatId: String, userId: String): Mono<Boolean>
+    fun checkChatSlugAvailability(slug: String): Mono<AvailabilityResponse>
 }

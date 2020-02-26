@@ -2,6 +2,7 @@ package chatox.chat.service.impl
 
 import chatox.chat.api.request.CreateChatRequest
 import chatox.chat.api.request.UpdateChatRequest
+import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.exception.ChatNotFoundException
@@ -102,5 +103,10 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         return chatRepository.findById(chatId)
                 .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
                 .map { it.createdBy.id == userId }
+    }
+
+    override fun checkChatSlugAvailability(slug: String): Mono<AvailabilityResponse> {
+        return chatRepository.existsBySlug(slug)
+                .map { AvailabilityResponse(available = !it) }
     }
 }
