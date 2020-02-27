@@ -8,11 +8,14 @@ import {WebsocketModule} from "../websocket";
 @Module({
     imports: [
         MongooseModule.forFeature([
-            {name: "chatParticipation", schema: ChatParticipationSchema}
+            {
+                name: "chatParticipation",
+                schema: ChatParticipationSchema
+            }
         ]),
         forwardRef(() => WebsocketModule)
     ],
-    providers: [ChatParticipationService, ChatParticipationController],
+    providers: [ChatParticipationController, ChatParticipationService],
     exports: [ChatParticipationService]
 })
 export class ChatParticipationModule {}
