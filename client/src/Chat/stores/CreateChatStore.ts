@@ -1,4 +1,4 @@
-import {observable, action, reaction} from "mobx";
+import {observable, action, reaction, toJS} from "mobx";
 import _ from "lodash";
 import {CreateChatFormData} from "../types";
 import {
@@ -9,8 +9,9 @@ import {
     validateChatTags
 } from "../validation";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {FormErrors} from "../../utils/types";
 import {ChatResponse} from "../../api/types/response";
+import {FormErrors} from "../../utils/types";
+import {countMotUndefinedValues} from "../../utils/object-utils";
 
 interface TagErrorsMap {
     [tag: string]: string | undefined
@@ -133,6 +134,7 @@ export class CreateChatStore {
                     .catch(error => {
                         this.submissionError = getInitialApiErrorFromResponse(error);
                     })
+                    .finally(() => this.pending = false)
             }
         })
     };
@@ -158,7 +160,7 @@ export class CreateChatStore {
                 name ||
                 slug ||
                 tags ||
-                !(Object.keys(tagErrorsMap).length === 0)
+                countMotUndefinedValues(tagErrorsMap) !== 0
             ))
         })
     };
@@ -175,4 +177,27 @@ export class CreateChatStore {
             })
             .finally(() => this.checkingSlugAvailability = false);
     };
+
+    @action
+    reset = (): void => {
+        this.createdChat = undefined;
+        this.createChatForm = {
+            name: "",
+            tags: [],
+            description: "",
+            slug: undefined
+        };
+        this.pending = false;
+        this.createChatDialogOpen = false;
+        this.currentTag = "";
+        setTimeout(() => {
+            this.formErrors = {
+                name: undefined,
+                tags: undefined,
+                slug: undefined,
+                description: undefined,
+                tagErrorsMap: {}
+            };
+        })
+    }
 }
