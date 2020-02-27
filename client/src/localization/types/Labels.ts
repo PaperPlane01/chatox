@@ -1,5 +1,19 @@
 export interface Labels {
     "cancel": string,
+    "chat.description": string,
+    "chat.description.too-long": string,
+    "chat.name": string,
+    "chat.name.empty": string,
+    "chat.name.too-long": string,
+    "chat.name.too-short": string,
+    "chat.slug": string,
+    "chat.slug.contains-invalid-characters": string,
+    "chat.slug.has-already-been-taken": string,
+    "chat.slug.too-long": string,
+    "chat.slug.too-short": string,
+    "chat.tag.too-long": string,
+    "chat.tags": string,
+    "chat.tags.too-many": string,
     "close": string,
     "error.unknown": string,
     "firstName": string,
@@ -39,4 +53,5 @@ export interface Labels {
     "username.has-already-been-taken": string
     "username.too-long": string,
     "username.too-short": string,
+    "chat.create-chat": string
 }

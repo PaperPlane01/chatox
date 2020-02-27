@@ -2,6 +2,20 @@ import {Labels} from "../types";
 
 export const en: Labels = {
     "cancel": "Cancel",
+    "chat.description": "Description",
+    "chat.description.too-long": "Description is too long",
+    "chat.name": "Name",
+    "chat.name.empty": "Chat name can't be empty",
+    "chat.name.too-long": "Name is too long",
+    "chat.name.too-short": "Name is too short",
+    "chat.slug": "Slug",
+    "chat.slug.contains-invalid-characters": "Slug contains invalid characters",
+    "chat.slug.has-already-been-taken": "This slug has already been taken by another chat",
+    "chat.slug.too-long": "Slug is too long",
+    "chat.slug.too-short": "Slug is too short",
+    "chat.tag.too-long": "Tag {tag} is too long",
+    "chat.tags": "Tags",
+    "chat.tags.too-many": "Too many tags",
     "close": "Close",
     "error.unknown": "Unknown error occurred",
     "firstName": "First name",
@@ -41,4 +55,5 @@ export const en: Labels = {
     "username.has-already-been-taken": "This username is already taken",
     "username.too-long": "Username is too long",
     "username.too-short": "Username is too short",
+    "chat.create-chat": "Create chat"
 };

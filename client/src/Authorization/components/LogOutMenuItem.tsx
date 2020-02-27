@@ -44,4 +44,6 @@ const mapMobxToProps = (state: IAppState): LogOutMenuItemMobxProps => ({
     logOut: state.authorization.logOut
 });
 
-export const LogOutMenuItem = inject(mapMobxToProps)(observer(localized(_LogOutMenuItem)) as FunctionComponent<LogOutMenuItemOwnProps>);
+export const LogOutMenuItem = localized(
+    inject(mapMobxToProps)(observer(_LogOutMenuItem))
+) as FunctionComponent<LogOutMenuItemOwnProps>;

@@ -44,4 +44,6 @@ const mapMobxToProps = (state: IAppState): LoginMenuItemMobxProps => ({
     setLoginDialogOpen: state.login.setLoginDialogOpen
 });
 
-export const LoginMenuItem = inject(mapMobxToProps)(observer(localized(_LoginMenuItem)) as FunctionComponent<LoginMenuItemOwnProps>);
+export const LoginMenuItem = localized(
+    inject(mapMobxToProps)(observer(_LoginMenuItem))
+) as FunctionComponent<LoginMenuItemOwnProps>;

@@ -133,5 +133,5 @@ const mapMobxToProps = (state: IAppState): LoginDialogMobxProps => ({
 });
 
 export const LoginDialog = withMobileDialog()(
-    inject(mapMobxToProps)(observer(localized(_LoginDialog) as FunctionComponent<{}>))
+    localized(inject(mapMobxToProps)(observer(_LoginDialog))) as FunctionComponent
 );

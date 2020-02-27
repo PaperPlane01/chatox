@@ -9,7 +9,7 @@ import {
     validateUsername
 } from "../validation";
 import {RegisterUserFormData} from "../types";
-import {UserApi, ApiError, getInitialApiErrorFromResponse, API_UNREACHABLE_STATUS} from "../../api";
+import {API_UNREACHABLE_STATUS, ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {RegistrationResponse} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {AuthorizationStore} from "../../Authorization";
@@ -119,11 +119,8 @@ export class UserRegistrationStore {
     };
 
     @action
-    updateFormValue = (key: keyof RegisterUserFormData, value: string): void => {
-        this.registrationForm = {
-            ...this.registrationForm,
-            [key]: value
-        }
+    updateFormValue = <Key extends keyof RegisterUserFormData>(key: Key, value: RegisterUserFormData[Key]): void => {
+        this.registrationForm[key] = value;
     };
 
     @action
@@ -173,10 +170,7 @@ export class UserRegistrationStore {
         UserApi.isUsernameAvailable(username)
             .then(({data}) => {
                 if (!data.available) {
-                    this.registrationFormErrors = {
-                        ...this.registrationFormErrors,
-                        username: "username.has-already-been-taken"
-                    }
+                    this.registrationFormErrors.username = "username.has-already-been-taken";
                 }
             })
             .finally(() => this.checkingUsernameAvailability = false);

@@ -2,16 +2,17 @@ package chatox.chat.service.impl
 
 import chatox.chat.api.request.CreateChatRequest
 import chatox.chat.api.request.UpdateChatRequest
+import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.mapper.ChatMapper
+import chatox.chat.mapper.ChatParticipationMapper
+import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
-import chatox.chat.repository.MessageReadRepository
-import chatox.chat.repository.MessageRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatService
 import chatox.chat.support.pagination.PaginationRequest
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.util.function.Tuples
 import java.time.Instant
 import java.util.Date
 import java.util.UUID
@@ -28,9 +28,9 @@ import java.util.UUID
 @Transactional
 class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationRepository: ChatParticipationRepository,
-                      private val messageRepository: MessageRepository,
-                      private val messageReadRepository: MessageReadRepository,
+                      private val chatParticipationMapper: ChatParticipationMapper,
                       private val chatMapper: ChatMapper,
+                      private val chatEventsPublisher: ChatEventsPublisher,
                       private val authenticationFacade: AuthenticationFacade) : ChatService {
 
     override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatResponse> {
@@ -47,7 +47,10 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                         lastMessageRead = null
                 ))) }
                 .flatMap { it }
-                .map { it.t1 }
+                .map {
+                    chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(it.t2))
+                    it.t1
+                }
                 .map { chatMapper.toChatResponse(
                         chat = it,
                         currentUserId = it.createdBy.id
@@ -102,5 +105,10 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         return chatRepository.findById(chatId)
                 .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
                 .map { it.createdBy.id == userId }
+    }
+
+    override fun checkChatSlugAvailability(slug: String): Mono<AvailabilityResponse> {
+        return chatRepository.existsBySlug(slug)
+                .map { AvailabilityResponse(available = !it) }
     }
 }

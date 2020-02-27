@@ -47,4 +47,7 @@ class ChatController(private val chatService: ChatService) {
     @GetMapping("/api/v1/chat")
     fun searchChats(@RequestParam query: String,
                     paginationRequest: PaginationRequest) = chatService.searchChats(query, paginationRequest)
+
+    @GetMapping("/api/v1/chat/slug/{slug}/isAvailable")
+    fun isChatSlugAvailable(@PathVariable slug: String) = chatService.checkChatSlugAvailability(slug);
 }

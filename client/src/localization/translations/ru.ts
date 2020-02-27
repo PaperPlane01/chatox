@@ -2,6 +2,20 @@ import {Labels} from "../types";
 
 export const ru: Labels = {
     "cancel": "Отменить",
+    "chat.description": "Описание",
+    "chat.description.too-long": "Описание слишком длинное",
+    "chat.name": "Название",
+    "chat.name.empty": "Название не должно быть пустым",
+    "chat.name.too-long": "Название слишком длинное",
+    "chat.name.too-short": "Название слишком короткое",
+    "chat.slug": "URL чата",
+    "chat.slug.contains-invalid-characters": "URL содержит недопустимые символы",
+    "chat.slug.has-already-been-taken": "Данный URL уже занят",
+    "chat.slug.too-long": "URL слишком длинный",
+    "chat.slug.too-short": "URL слишком кототкий",
+    "chat.tag.too-long": "Тег {tag} слишком длинный",
+    "chat.tags": "Теги",
+    "chat.tags.too-many": "Слишком много тегов",
     "close": "Закрыть",
     "error.unknown": "Произошла неизвестная ошибка",
     "firstName": "Имя",
@@ -41,4 +55,5 @@ export const ru: Labels = {
     "username.has-already-been-taken": "Имя пользователя уже используется",
     "username.too-long": "Имя пользователя слишком длинное",
     "username.too-short": "Имя пользователя слишком короткое",
+    "chat.create-chat": "Создать чат"
 };
