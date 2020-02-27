@@ -1,5 +1,5 @@
 import React from "react";
-import {HomePage, NotFoundPage} from "../pages";
+import {HomePage, NotFoundPage, ChatPage} from "../pages";
 
 const {Route} = require("mobx-router");
 
@@ -11,5 +11,9 @@ export const Routes = {
     notFound: new Route({
         path: "/404",
         component: <NotFoundPage/>
+    }),
+    chatPage: new Route({
+        path: "/chat/:slug",
+        component: <ChatPage/>
     })
 };

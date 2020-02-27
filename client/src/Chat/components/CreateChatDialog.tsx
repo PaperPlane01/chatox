@@ -19,8 +19,10 @@ import {
 import {CreateChatFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {ApiError} from "../../api";
+import {ChatResponse} from "../../api/types/response";
 import {localized, Localized} from "../../localization";
 import {MapMobxToProps} from "../../store";
+import {Routes} from "../../router";
 
 interface CreateChatDialogMobxProps {
     createChatForm: CreateChatFormData,
@@ -30,12 +32,15 @@ interface CreateChatDialogMobxProps {
     submissionError?: ApiError,
     checkingSlugAvailability: boolean,
     createChatDialogOpen: boolean,
+    createdChat?: ChatResponse,
     createChat: () => void,
     setCreateChatDialogOpen: (createChatDialogOpen: boolean) => void,
     setFormValue: <Key extends keyof CreateChatFormData>(key: Key, value: CreateChatFormData[Key]) => void,
     addTag: (tag: string) => void,
     removeTagByIndex: (index: number) => void,
-    setCurrentTag: (tag: string) => void
+    setCurrentTag: (tag: string) => void,
+    reset: () => void,
+    routerStore?: any
 }
 
 type CreateChatDialogProps = CreateChatDialogMobxProps & WithMobileDialog & Localized;
@@ -54,16 +59,30 @@ const _CreateChatDialog: FunctionComponent<CreateChatDialogProps> = ({
     pending,
     createChatDialogOpen,
     checkingSlugAvailability,
+    createdChat,
     createChat,
     setCreateChatDialogOpen,
     setFormValue,
     addTag,
     removeTagByIndex,
     setCurrentTag,
+    reset,
     fullScreen,
-    l
+    l,
+    routerStore
 }) => {
     const classes = useStyles();
+
+    if (createdChat) {
+        setCreateChatDialogOpen(false);
+        reset();
+        routerStore.router.goTo(
+            Routes.chatPage,
+            {slug: createdChat.slug || createdChat.id},
+            routerStore,
+            {}
+        );
+    }
 
     const handleTagsInputKeydown = (event: KeyboardEvent) => {
         if (currentTag.trim().length !== 0) {
@@ -173,11 +192,12 @@ const _CreateChatDialog: FunctionComponent<CreateChatDialogProps> = ({
     );
 };
 
-const mapMobxToProps: MapMobxToProps<CreateChatDialogMobxProps> = ({chatCreation}) => ({
+const mapMobxToProps: MapMobxToProps<CreateChatDialogMobxProps> = ({chatCreation, store}) => ({
     createChatForm: chatCreation.createChatForm,
     formErrors: chatCreation.formErrors,
     pending: chatCreation.pending,
     createChatDialogOpen: chatCreation.createChatDialogOpen,
+    createdChat: chatCreation.createdChat,
     checkingSlugAvailability: chatCreation.checkingSlugAvailability,
     setFormValue: chatCreation.setFormValue,
     createChat: chatCreation.createChat,
@@ -186,7 +206,9 @@ const mapMobxToProps: MapMobxToProps<CreateChatDialogMobxProps> = ({chatCreation
     currentTag: chatCreation.currentTag,
     addTag: chatCreation.addTag,
     removeTagByIndex: chatCreation.removeTagByIndex,
-    setCurrentTag: chatCreation.setCurrentTag
+    setCurrentTag: chatCreation.setCurrentTag,
+    reset: chatCreation.reset,
+    routerStore: store
 });
 
 export const CreateChatDialog = withMobileDialog()(

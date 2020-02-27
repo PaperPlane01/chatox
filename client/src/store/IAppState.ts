@@ -10,5 +10,6 @@ export interface IAppState {
     userRegistration: UserRegistrationStore,
     login: LoginStore,
     appBar: AppBarStore,
-    chatCreation: CreateChatStore
+    chatCreation: CreateChatStore,
+    store?: any
 }
