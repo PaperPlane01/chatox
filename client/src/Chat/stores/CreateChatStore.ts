@@ -1,6 +1,6 @@
-import {observable, action, reaction, toJS} from "mobx";
+import {action, observable, reaction} from "mobx";
 import _ from "lodash";
-import {CreateChatFormData} from "../types";
+import {CreateChatFormData, TagErrorsMapContainer} from "../types";
 import {
     validateChatDescription,
     validateChatName,
@@ -12,14 +12,6 @@ import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {ChatResponse} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {countMotUndefinedValues} from "../../utils/object-utils";
-
-interface TagErrorsMap {
-    [tag: string]: string | undefined
-}
-
-interface TagErrorsMapContainer {
-    tagErrorsMap: TagErrorsMap
-}
 
 export class CreateChatStore {
     @observable

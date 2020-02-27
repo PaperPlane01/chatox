@@ -16,17 +16,18 @@ import {
     withMobileDialog,
     WithMobileDialog
 } from "@material-ui/core";
-import {CreateChatFormData} from "../types";
+import {CreateChatFormData, TagErrorsMapContainer} from "../types";
 import {FormErrors} from "../../utils/types";
 import {ApiError} from "../../api";
 import {ChatResponse} from "../../api/types/response";
 import {localized, Localized} from "../../localization";
 import {MapMobxToProps} from "../../store";
 import {Routes} from "../../router";
+import {containsNotUndefinedValues} from "../../utils/object-utils";
 
 interface CreateChatDialogMobxProps {
     createChatForm: CreateChatFormData,
-    formErrors: FormErrors<CreateChatFormData>,
+    formErrors: FormErrors<CreateChatFormData> & TagErrorsMapContainer,
     pending: boolean,
     currentTag: string,
     submissionError?: ApiError,
@@ -146,8 +147,24 @@ const _CreateChatDialog: FunctionComponent<CreateChatDialogProps> = ({
                            onChange={event => setCurrentTag(event.target.value)}
                            fullWidth
                            margin="dense"
-                           error={Boolean(formErrors.tags)}
-                           helperText={formErrors.tags && l(formErrors.tags)}
+                           error={Boolean(
+                               formErrors.tags || containsNotUndefinedValues(formErrors.tagErrorsMap)
+                           )}
+                           helperText={
+                               formErrors.tags ? l(formErrors.tags)
+                                   : containsNotUndefinedValues(formErrors.tagErrorsMap)
+                                   ? (
+                                       <Fragment>
+                                           {Object.keys(formErrors.tagErrorsMap).map(key => (
+                                               <Typography>
+                                                   {formErrors.tagErrorsMap[key]
+                                                   && l(formErrors.tagErrorsMap[key]!, {tag: key})}
+                                               </Typography>
+                                           ))}
+                                       </Fragment>
+                                   )
+                                   : null
+                           }
                            InputProps={{
                                startAdornment: (
                                    <InputAdornment position="start">

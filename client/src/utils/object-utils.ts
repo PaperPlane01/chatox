@@ -9,3 +9,7 @@ export const countMotUndefinedValues = <T extends object>(object: T): number => 
 
     return notUndefinedValues;
 };
+
+export const containsNotUndefinedValues = <T extends object>(object: T): boolean => {
+    return countMotUndefinedValues(object) !== 0;
+};
