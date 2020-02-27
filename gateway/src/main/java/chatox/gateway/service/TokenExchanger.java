@@ -1,13 +1,16 @@
 package chatox.gateway.service;
 
+import chatox.gateway.exception.AccessTokenExpiredException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -25,13 +28,23 @@ public class TokenExchanger {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        ResponseEntity<ExchangeTokenResponse> response = restTemplate.postForEntity(
-                url + "/" + EXCHANGE_TOKEN,
-                exchangeTokenRequest,
-                ExchangeTokenResponse.class
-        );
+        try {
+            ResponseEntity<ExchangeTokenResponse> response = restTemplate.postForEntity(
+                    url + "/" + EXCHANGE_TOKEN,
+                    exchangeTokenRequest,
+                    ExchangeTokenResponse.class
+            );
 
-        return response.getBody().getJwt();
+            return response.getBody().getJwt();
+        } catch (HttpClientErrorException exception) {
+
+            if (exception.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+                throw new AccessTokenExpiredException("Access token is either invalid or expired");
+            }
+
+            exception.printStackTrace();
+            throw exception;
+        }
     }
 
     @Data
