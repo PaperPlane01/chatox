@@ -14,6 +14,7 @@ import {ChatSubscription, ChatUnsubscription, EventType, JwtPayload, MessageDele
 import {ChatMessage} from "../common/types";
 import {ChatParticipationService} from "../chat-participation";
 import {CreateChatParticipationDto} from "../chat-participation/types";
+import {forwardRef, Inject} from "@nestjs/common";
 
 @WebSocketGateway({
     path: "/api/v1/events",
@@ -26,7 +27,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
 
     constructor(private readonly jwtService: JwtService,
                 private readonly amqpConnection: AmqpConnection,
-                private readonly chatParticipationService: ChatParticipationService) {}
+                @Inject(forwardRef(() => ChatParticipationService)) private readonly chatParticipationService: ChatParticipationService) {}
 
     public handleConnection(client: Socket, ...args: any[]): void {
         const queryParameters = client.handshake.query

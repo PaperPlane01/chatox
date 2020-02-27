@@ -1,11 +1,13 @@
-import {Injectable} from "@nestjs/common";
+import {forwardRef, Inject, Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
 import {ChatParticipation, CreateChatParticipationDto} from "./types";
+import {WebsocketEventsPublisher} from "../websocket";
 
 @Injectable()
 export class ChatParticipationService {
-    constructor(@InjectModel("chatParticipation") private readonly chatParticipationModel: Model<ChatParticipation>) {}
+    constructor(@InjectModel("chatParticipation") private readonly chatParticipationModel: Model<ChatParticipation>,
+                @Inject(forwardRef(() => WebsocketEventsPublisher)) private readonly websocketEventsPublisher: WebsocketEventsPublisher) {}
 
     public async saveChatParticipation(createChatParticipationDto: CreateChatParticipationDto): Promise<void> {
         const chatParticipation = new this.chatParticipationModel({
@@ -15,6 +17,7 @@ export class ChatParticipationService {
             userId: createChatParticipationDto.user.id
         });
         await chatParticipation.save();
+        await this.websocketEventsPublisher.publishUserJoinedChat(createChatParticipationDto);
     }
 
     public async deleteChatParticipation(id: string): Promise<{deletedCount?: number}> {

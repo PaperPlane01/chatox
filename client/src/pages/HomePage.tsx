@@ -2,6 +2,8 @@ import React, {FunctionComponent} from "react";
 import {Card, CardContent, CardHeader, Grid, Typography} from "@material-ui/core";
 import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
+import {HasRole} from "../Authorization";
+import {CreateChatDialog, CreateChatFloatingActionButton} from "../Chat";
 
 export const HomePage: FunctionComponent<{}> = () => (
     <Grid container>
@@ -21,6 +23,10 @@ export const HomePage: FunctionComponent<{}> = () => (
                     </CardContent>
                 </Card>
             </Layout>
+            <HasRole role="ROLE_USER">
+                <CreateChatDialog/>
+                <CreateChatFloatingActionButton/>
+            </HasRole>
         </Grid>
     </Grid>
 );

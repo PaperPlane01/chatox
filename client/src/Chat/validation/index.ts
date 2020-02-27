@@ -1,6 +1,8 @@
 import {Labels} from "../../localization/types";
 import {isStringEmpty} from "../../utils/string-utils";
 
+const SLUG_REGEXP = /^[a-zA-Z0-9_.]+$/;
+
 export const validateChatName = (name?: string): keyof Labels | undefined => {
     if (isStringEmpty(name)) {
         return "chat.name.empty";
@@ -37,9 +39,25 @@ export const validateChatTag = (tag?: string): keyof Labels | undefined => {
     return undefined;
 };
 
-export const validateTags = (tags: string[]): keyof Labels | undefined => {
+export const validateChatTags = (tags: string[]): keyof Labels | undefined => {
     if (tags.length > 15) {
         return "chat.tags.too-many";
+    }
+
+    return undefined;
+};
+
+export const validateChatSlug = (slug?: string): keyof Labels | undefined => {
+    if (isStringEmpty(slug)) {
+        return;
+    }
+
+    if (!SLUG_REGEXP.test(slug!)) {
+        return "chat.slug.contains-invalid-characters";
+    }
+
+    if (slug!.length > 25) {
+        return "chat.slug.too-long";
     }
 
     return undefined;

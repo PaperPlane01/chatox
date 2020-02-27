@@ -55,4 +55,5 @@ export const ru: Labels = {
     "username.has-already-been-taken": "Имя пользователя уже используется",
     "username.too-long": "Имя пользователя слишком длинное",
     "username.too-short": "Имя пользователя слишком короткое",
+    "chat.create-chat": "Создать чат"
 };
