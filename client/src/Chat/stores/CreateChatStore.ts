@@ -1,7 +1,14 @@
 import {observable, action, reaction} from "mobx";
 import _ from "lodash";
 import {CreateChatFormData} from "../types";
-import {ApiError, ChatApi} from "../../api";
+import {
+    validateChatDescription,
+    validateChatName,
+    validateChatSlug,
+    validateChatTag,
+    validateChatTags
+} from "../validation";
+import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {FormErrors} from "../../utils/types";
 import {ChatResponse} from "../../api/types/response";
 
@@ -23,6 +30,9 @@ export class CreateChatStore {
     };
 
     @observable
+    currentTag: string = "";
+
+    @observable
     formErrors: FormErrors<CreateChatFormData> & TagErrorsMapContainer = {
         description: undefined,
         name: undefined,
@@ -39,4 +49,130 @@ export class CreateChatStore {
 
     @observable
     pending: boolean = false;
+
+    @observable
+    checkingSlugAvailability: boolean = false;
+
+    @observable
+    createChatDialogOpen: boolean = false;
+
+    constructor() {
+        this.checkSlugAvailability = _.throttle(this.checkSlugAvailability, 300);
+
+        reaction(
+            () => this.createChatForm.name,
+            name => this.formErrors.name = validateChatName(name)
+        );
+
+        reaction(
+            () => this.createChatForm.slug,
+            slug => {
+                this.formErrors.slug = validateChatSlug(slug);
+
+                if (!this.formErrors.slug) {
+                    this.checkSlugAvailability(slug!);
+                }
+            }
+        );
+
+        reaction(
+            () => this.createChatForm.description,
+            description => this.formErrors.description = validateChatDescription(description)
+        )
+    }
+
+    @action
+    setFormValue = <Key extends keyof CreateChatFormData>(key: Key, value: CreateChatFormData[Key]): void => {
+        this.createChatForm[key] = value;
+    };
+
+    @action
+    setCreateChatDialogOpen = (createChatDialogOpen: boolean) => {
+        this.createChatDialogOpen = createChatDialogOpen;
+    };
+
+    @action
+    setCurrentTag = (currentTag: string): void => {
+        this.currentTag = currentTag;
+    };
+
+    @action
+    addTag = (tag: string) => {
+        if (tag.trim().length !== 0) {
+            if (this.createChatForm.tags.includes(tag)) {
+                const newTags = this.createChatForm.tags.filter(currentTag => currentTag !== tag);
+                newTags.push(tag);
+                this.createChatForm.tags = newTags;
+            } else {
+                this.createChatForm.tags.push(tag);
+            }
+        }
+    };
+
+    @action
+    removeTagByIndex = (index: number) => {
+        this.createChatForm.tags = this.createChatForm.tags.filter((tag, tagIndex) => tagIndex !== index);
+    };
+
+    @action
+    createChat = (): void => {
+        this.validateForm().then(formValid => {
+            if (formValid) {
+                this.pending = true;
+                this.submissionError = undefined;
+
+                ChatApi.createChat({
+                    name: this.createChatForm.name!,
+                    description: this.createChatForm.description,
+                    slug: this.createChatForm.slug,
+                    tags: this.createChatForm.tags || []
+                })
+                    .then(({data}) => {
+                        this.createdChat = data;
+                    })
+                    .catch(error => {
+                        this.submissionError = getInitialApiErrorFromResponse(error);
+                    })
+            }
+        })
+    };
+
+    @action
+    validateForm = (): Promise<boolean> => {
+        return new Promise<boolean>(resolve => {
+            this.formErrors = {
+                ...this.formErrors,
+                description: validateChatDescription(this.createChatForm.description),
+                name: validateChatName(this.createChatForm.name),
+                slug: validateChatSlug(this.createChatForm.slug),
+                tags: validateChatTags(this.createChatForm.tags)
+            };
+            this.createChatForm.tags.forEach(tag => {
+                this.formErrors.tagErrorsMap[tag] = validateChatTag(tag);
+            });
+
+            const {description, name, slug, tagErrorsMap, tags} = this.formErrors;
+
+            resolve(!Boolean(
+                description ||
+                name ||
+                slug ||
+                tags ||
+                !(Object.keys(tagErrorsMap).length === 0)
+            ))
+        })
+    };
+
+    @action
+    checkSlugAvailability = (slug: string): void => {
+        this.checkingSlugAvailability = true;
+
+        ChatApi.checkChatSlugAvailability(slug)
+            .then(({data}) => {
+                if (!data.available) {
+                    this.formErrors.slug = "chat.slug.has-already-been-taken";
+                }
+            })
+            .finally(() => this.checkingSlugAvailability = false);
+    };
 }
