@@ -1,4 +1,4 @@
-import {Module} from "@nestjs/common";
+import {forwardRef, Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
 import {RabbitMQConfigModule} from "../rabbitmq";
 import {WebsocketEventsPublisher} from "./WebsocketEventsPublisher";
@@ -8,10 +8,11 @@ import {ChatParticipationModule} from "../chat-participation";
     providers: [WebsocketEventsPublisher],
     imports: [
         RabbitMQConfigModule,
-        ChatParticipationModule,
+        forwardRef(() => ChatParticipationModule),
         JwtModule.register({
             publicKey: process.env.JWT_PUBLIC_KEY
         })
-    ]
+    ],
+    exports: [WebsocketEventsPublisher]
 })
 export class WebsocketModule {}
