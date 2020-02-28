@@ -1,4 +1,4 @@
-import axios, {AxiosRequestConfig} from "axios";
+import axios from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
 import queryString from "query-string";
 import {API_ROOT, OAUTH, TOKEN} from "./endpoints";
@@ -20,7 +20,7 @@ _axiosInstance.interceptors.request.use(config => {
     return config;
 });
 
-const refreshAccessToken = (originalRequest: AxiosRequestConfig): Promise<void> => {
+const refreshAccessToken = (originalRequest: any): Promise<void> => {
     if (localStorage.getItem("refreshToken")) {
         return axios({
             baseURL: process.env.REACT_APP_API_BASE_URL,
@@ -40,13 +40,14 @@ const refreshAccessToken = (originalRequest: AxiosRequestConfig): Promise<void> 
                 const {access_token, refresh_token} = response.data;
                 localStorage.setItem("accessToken", access_token);
                 localStorage.setItem("refreshToken", refresh_token);
-                originalRequest.headers.Authoruzation = `Bearer ${access_token}`;
+                originalRequest.response.config.headers.Authoruzation = `Bearer ${access_token}`;
                 return Promise.resolve();
             })
             .catch(error => {
+                console.log(error);
                 localStorage.removeItem("accessToken");
                 localStorage.removeItem("refreshToken");
-                delete originalRequest.headers.Authorization;
+                delete originalRequest.response.config.headers.Authorization;
                 return Promise.resolve();
             })
     } else {
