@@ -55,5 +55,7 @@ export const en: Labels = {
     "username.has-already-been-taken": "This username is already taken",
     "username.too-long": "Username is too long",
     "username.too-short": "Username is too short",
-    "chat.create-chat": "Create chat"
+    "chat.create-chat": "Create chat",
+    "markdown.preview": "Preview",
+    "markdown.preview.show": "Show preview"
 };

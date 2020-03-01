@@ -24,6 +24,7 @@ import {localized, Localized} from "../../localization";
 import {MapMobxToProps} from "../../store";
 import {Routes} from "../../router";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
+import {MakrdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 
 interface CreateChatDialogMobxProps {
     createChatForm: CreateChatFormData,
@@ -124,6 +125,14 @@ const _CreateChatDialog: FunctionComponent<CreateChatDialogProps> = ({
                            helperText={formErrors.description && l(formErrors.description)}
                            multiline
                            rows={4}
+                           rowsMax={20}
+                           InputProps={{
+                               endAdornment: (
+                                   <InputAdornment position="end">
+                                       <OpenMarkdownPreviewDialogButton/>
+                                   </InputAdornment>
+                               )
+                           }}
                 />
                 <TextField label={l("chat.slug")}
                            value={createChatForm.slug}
@@ -205,6 +214,7 @@ const _CreateChatDialog: FunctionComponent<CreateChatDialogProps> = ({
                     {l("chat.create-chat")}
                 </Button>
             </DialogActions>
+            <MakrdownPreviewDialog text={createChatForm.description || ""}/>
         </Dialog>
     );
 };

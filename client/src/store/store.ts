@@ -3,6 +3,7 @@ import {AppBarStore} from "../AppBar";
 import {LoginStore, AuthorizationStore} from "../Authorization";
 import {UserRegistrationStore} from "../Registration";
 import {CreateChatStore} from "../Chat";
+import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
 
 const authorization = new AuthorizationStore();
@@ -11,6 +12,7 @@ const userRegistration = new UserRegistrationStore(authorization);
 const language = new LocaleStore();
 const appBar = new AppBarStore();
 const chatCreation = new CreateChatStore();
+const markdownPreviewDialog = new MarkdownPreviewDialogStore();
 
 export const store: IAppState = {
     authorization,
@@ -18,7 +20,8 @@ export const store: IAppState = {
     userRegistration,
     language,
     appBar,
-    chatCreation
+    chatCreation,
+    markdownPreviewDialog
 };
 
 export interface MapMobxToProps<ComponentProps = {}> {

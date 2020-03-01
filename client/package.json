@@ -30,6 +30,7 @@
     "react-headroom": "^3.0.0",
     "react-markdown": "^4.3.1",
     "react-scripts": "3.3.0",
+    "remark-breaks": "^1.0.3",
     "typescript": "~3.7.2"
   },
   "scripts": {

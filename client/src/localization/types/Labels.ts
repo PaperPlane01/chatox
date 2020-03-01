@@ -53,5 +53,7 @@ export interface Labels {
     "username.has-already-been-taken": string
     "username.too-long": string,
     "username.too-short": string,
-    "chat.create-chat": string
+    "chat.create-chat": string,
+    "markdown.preview": string,
+    "markdown.preview.show": string
 }
