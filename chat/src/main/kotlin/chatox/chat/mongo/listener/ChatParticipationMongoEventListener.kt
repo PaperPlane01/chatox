@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent
 import org.springframework.stereotype.Component
 
 @Component
-class ChatParticipationMongoEventsListener : AbstractMongoEventListener<ChatParticipation>() {
+class ChatParticipationMongoEventListener : AbstractMongoEventListener<ChatParticipation>() {
     @Autowired
     private lateinit var chatEventsPublisher: ChatEventsPublisher
 
