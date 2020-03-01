@@ -18,7 +18,7 @@ class ChatParticipationMapper(private val userMapper: UserMapper) {
             id = chatParticipation.id,
             user = userMapper.toUserResponse(chatParticipation.user),
             role = chatParticipation.role,
-            chatId = chatParticipation.id
+            chatId = chatParticipation.chat.id
     )
 
     fun mapChatParticipationUpdate(updateChatParticipationRequest: UpdateChatParticipationRequest,

@@ -29,7 +29,7 @@ class MessageMapper(private val userMapper: UserMapper) {
                 readByCurrentUser = readByCurrentUser,
                 referredMessage = referredMessage,
                 updatedAt = message.updatedAt,
-                chatId = message.chat.id
+                chatId = message.chat.id!!
         )
     }
 

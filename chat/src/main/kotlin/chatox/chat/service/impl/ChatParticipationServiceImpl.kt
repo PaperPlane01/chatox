@@ -65,7 +65,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                     Mono.just(it)
                 }
                 .flatMap { it }
-                .map { chatEventsPublisher.userLeftChat(it.chat.id, it.id) }
+                .map { chatEventsPublisher.userLeftChat(it.chat.id, it.id!!) }
                 .then()
     }
 
@@ -90,7 +90,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                     chatParticipationRepository.delete(it)
                     Mono.just(it)
                 }
-                .map { chatEventsPublisher.chatParticipationDeleted(it.chat.id, it.id) }
+                .map { chatEventsPublisher.chatParticipationDeleted(it.chat.id, it.id!!) }
                 .then()
     }
 

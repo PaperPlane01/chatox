@@ -1,7 +1,7 @@
 package chatox.chat.api.response
 
 data class ChatOfCurrentUserResponse(
-        val id: String,
+        val id: String?,
         val slug: String,
         val lastReadMessage: MessageResponse?,
         val name: String,

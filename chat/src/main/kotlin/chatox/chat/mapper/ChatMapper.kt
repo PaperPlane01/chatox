@@ -90,18 +90,18 @@ class ChatMapper(
                 avatarUri = null,
                 deletedAt = null,
                 description = createChatRequest.description,
-                updatedAt = null,
+                updatedAt = createdAt,
                 deletedBy = null,
                 numberOfParticipants = 1,
                 lastMessage = null,
                 lastMessageDate = createdAt
         )
     }
-    
+
     fun mapChatUpdate(updateChatRequest: UpdateChatRequest, originalChat: Chat) = originalChat.copy(
             name = updateChatRequest.name ?: originalChat.name,
             avatarUri = updateChatRequest.avatarUri,
-            slug = updateChatRequest.slug ?: originalChat.id,
+            slug = updateChatRequest.slug ?: originalChat.id!!,
             description = updateChatRequest.description,
             tags = updateChatRequest.tags ?: originalChat.tags
     )

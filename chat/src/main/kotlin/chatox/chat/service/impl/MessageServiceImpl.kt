@@ -6,7 +6,6 @@ import chatox.chat.api.response.MessageResponse
 import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.exception.MessageNotFoundException
 import chatox.chat.mapper.MessageMapper
-import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Message
 import chatox.chat.model.MessageRead
 import chatox.chat.repository.ChatParticipationRepository
@@ -33,7 +32,6 @@ class MessageServiceImpl(
         private val chatRepository: ChatRepository,
         private val messageReadRepository: MessageReadRepository,
         private val chatParticipationRepository: ChatParticipationRepository,
-        private val chatEventsPublisher: ChatEventsPublisher,
         private val authenticationFacade: AuthenticationFacade,
         private val messageMapper: MessageMapper) : MessageService {
 
@@ -52,10 +50,6 @@ class MessageServiceImpl(
                     ) }
                     .map { messageRepository.save(it) }
                     .flatMap { it }
-                    .map {
-                        chatRepository.save(it.chat.copy(lastMessage = it, lastMessageDate = it.createdAt))
-                        it
-                    }
         } else {
             savedMessage =  chat.zipWith(authenticationFacade.getCurrentUser())
                     .map { messageMapper.fromCreateMessageRequest(
@@ -66,10 +60,6 @@ class MessageServiceImpl(
                     ) }
                     .map { messageRepository.save(it) }
                     .flatMap { it }
-                    .map {
-                        chatRepository.save(it.chat.copy(lastMessage = it, lastMessageDate = it.createdAt))
-                        it
-                    }
         }
 
         return savedMessage.map { messageMapper.toMessageResponse(
@@ -77,10 +67,6 @@ class MessageServiceImpl(
                 mapReferredMessage = true,
                 readByCurrentUser = true
         ) }
-                .map {
-                    chatEventsPublisher.messageCreated(it)
-                    it
-                }
     }
 
     override fun updateMessage(id: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
@@ -92,10 +78,6 @@ class MessageServiceImpl(
                         mapReferredMessage = true,
                         readByCurrentUser = true
                 ) }
-                .map {
-                    chatEventsPublisher.messageUpdated(it)
-                    it
-                }
     }
 
     override fun deleteMessage(id: String): Mono<Void> {
@@ -107,10 +89,6 @@ class MessageServiceImpl(
                         deletedBy = it.t2
                 ) }
                 .flatMap { messageRepository.save(it) }
-                .map {
-                    chatEventsPublisher.messageDeleted(it.chat.id, it.id)
-                    it
-                }
                 .flatMap { Mono.empty<Void>() }
     }
 

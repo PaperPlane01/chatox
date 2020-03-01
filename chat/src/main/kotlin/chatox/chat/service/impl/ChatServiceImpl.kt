@@ -7,10 +7,6 @@ import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.mapper.ChatMapper
-import chatox.chat.mapper.ChatParticipationMapper
-import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
-import chatox.chat.model.ChatParticipation
-import chatox.chat.model.ChatRole
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
 import chatox.chat.security.AuthenticationFacade
@@ -22,15 +18,12 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Instant
 import java.util.Date
-import java.util.UUID
 
 @Service
 @Transactional
 class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationRepository: ChatParticipationRepository,
-                      private val chatParticipationMapper: ChatParticipationMapper,
                       private val chatMapper: ChatMapper,
-                      private val chatEventsPublisher: ChatEventsPublisher,
                       private val authenticationFacade: AuthenticationFacade) : ChatService {
 
     override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatResponse> {
@@ -38,19 +31,6 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 .map { user -> chatMapper.fromCreateChatRequest(createChatRequest, user) }
                 .map { chatRepository.save(it) }
                 .flatMap { it }
-                .map { Mono.just(it).zipWith(chatParticipationRepository.save(ChatParticipation(
-                        id = UUID.randomUUID().toString(),
-                        chat = it,
-                        user = it.createdBy,
-                        role = ChatRole.ADMIN,
-                        createdAt = Date.from(Instant.now()),
-                        lastMessageRead = null
-                ))) }
-                .flatMap { it }
-                .map {
-                    chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(it.t2))
-                    it.t1
-                }
                 .map { chatMapper.toChatResponse(
                         chat = it,
                         currentUserId = it.createdBy.id
