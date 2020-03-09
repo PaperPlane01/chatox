@@ -12,6 +12,9 @@ class UserMapper {
             avatarUri = user.avatarUri,
             firstName = user.firstName,
             lastName = user.lastName,
-            deleted = user.deleted
+            deleted = user.deleted,
+            lastSeen = user.lastSeen,
+            bio = user.bio,
+            dateOfBirth = user.dateOfBirth
     )
 }

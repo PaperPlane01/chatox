@@ -1,16 +1,32 @@
 import {AxiosPromise} from "axios";
 import {axiosInstance} from "../axios-instance";
 import {CreateChatRequest} from "../types/request";
-import {AvailabilityResponse, ChatResponse} from "../types/response";
-import {CHAT, IS_AVAILABLE, SLUG} from "../endpoints";
+import {AvailabilityResponse, Chat, ChatOfCurrentUser, ChatParticipation} from "../types/response";
+import {CHAT, IS_AVAILABLE, JOIN, LEAVE, MY, SLUG} from "../endpoints";
 
 export class ChatApi {
 
-    public static createChat(createChatRequest: CreateChatRequest): AxiosPromise<ChatResponse> {
+    public static createChat(createChatRequest: CreateChatRequest): AxiosPromise<ChatOfCurrentUser> {
         return axiosInstance.post(`/${CHAT}`, createChatRequest);
     }
 
     public static checkChatSlugAvailability(slug: string): AxiosPromise<AvailabilityResponse> {
         return axiosInstance.get(`/${CHAT}/${SLUG}/${slug}/${IS_AVAILABLE}`);
+    }
+
+    public static getChatsOfCurrentUser(): AxiosPromise<ChatOfCurrentUser[]> {
+        return axiosInstance.get(`/${CHAT}/${MY}`);
+    }
+
+    public static joinChat(chatId: string): AxiosPromise<ChatParticipation> {
+        return axiosInstance.post(`/${CHAT}/${chatId}/${JOIN}`);
+    }
+
+    public static leaveChat(chatId: string): AxiosPromise<void> {
+        return axiosInstance.delete(`/${CHAT}/${chatId}/${LEAVE}`);
+    }
+
+    public static findChatByIdOrSlug(idOrSlug: string): AxiosPromise<Chat> {
+        return axiosInstance.get(`/${CHAT}/${idOrSlug}`);
     }
 }

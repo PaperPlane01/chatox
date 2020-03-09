@@ -57,5 +57,8 @@ export const en: Labels = {
     "username.too-short": "Username is too short",
     "chat.create-chat": "Create chat",
     "markdown.preview": "Preview",
-    "markdown.preview.show": "Show preview"
+    "markdown.preview.show": "Show preview",
+    "chat.select-chat": "Select chat to start messaging",
+    "chat.login-to-see-list": "You need too log in to see list of your chats",
+    "chat.my-chats": "My chats"
 };

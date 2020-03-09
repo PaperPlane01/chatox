@@ -9,9 +9,12 @@ import {
     validateChatTags
 } from "../validation";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {ChatResponse} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {countMotUndefinedValues} from "../../utils/object-utils";
+import {ChatOfCurrentUser} from "../../api/types/response/ChatOfCurrentUser";
+import {ChatsOfCurrentUserEntitiesStore} from "./ChatsOfCurrentUserEntitiesStore";
+import {ChatsOfCurrentUserStore} from "./ChatsOfCurrentUserStore";
+import {EntitiesStore} from "../../entities-store";
 
 export class CreateChatStore {
     @observable
@@ -35,7 +38,7 @@ export class CreateChatStore {
     };
 
     @observable
-    createdChat?: ChatResponse = undefined;
+    createdChat?: ChatOfCurrentUser = undefined;
 
     @observable
     submissionError?: ApiError = undefined;
@@ -49,7 +52,7 @@ export class CreateChatStore {
     @observable
     createChatDialogOpen: boolean = false;
 
-    constructor() {
+    constructor(private readonly entities: EntitiesStore) {
         this.checkSlugAvailability = _.throttle(this.checkSlugAvailability, 300);
 
         reaction(
@@ -122,6 +125,8 @@ export class CreateChatStore {
                 })
                     .then(({data}) => {
                         this.createdChat = data;
+                        console.log(data);
+                        this.entities.insertChatOfCurrentUser(data);
                     })
                     .catch(error => {
                         this.submissionError = getInitialApiErrorFromResponse(error);

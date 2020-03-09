@@ -55,5 +55,8 @@ export interface Labels {
     "username.too-short": string,
     "chat.create-chat": string,
     "markdown.preview": string,
-    "markdown.preview.show": string
+    "markdown.preview.show": string,
+    "chat.select-chat": string,
+    "chat.login-to-see-list": string,
+    "chat.my-chats": string
 }

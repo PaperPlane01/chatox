@@ -1,8 +1,9 @@
+import {EntitiesStore} from "../entities-store";
 import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore} from "../Authorization";
 import {UserRegistrationStore} from "../Registration";
-import {CreateChatStore} from "../Chat";
+import {ChatsOfCurrentUserStore, CreateChatStore} from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 
 export interface IAppState {
@@ -13,5 +14,7 @@ export interface IAppState {
     appBar: AppBarStore,
     chatCreation: CreateChatStore,
     markdownPreviewDialog: MarkdownPreviewDialogStore,
+    entities: EntitiesStore,
+    chatsOfCurrentUser: ChatsOfCurrentUserStore,
     store?: any
 }

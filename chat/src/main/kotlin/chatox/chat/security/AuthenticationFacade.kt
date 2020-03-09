@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
+import java.time.Instant
+import java.util.Date
 
 @Component
 class AuthenticationFacade {
@@ -14,7 +16,19 @@ class AuthenticationFacade {
     @Autowired
     private lateinit var userRepository: UserRepository
 
-    public val EMPTY_USER = User(id = "", firstName = "anon", lastName = null, slug = null, avatarUri = null, accountId = "", deleted = true, lastSeen = null)
+    val EMPTY_USER = User(
+            id = "",
+            firstName = "anon",
+            lastName = null,
+            slug = null,
+            avatarUri = null,
+            accountId = "",
+            deleted = true,
+            lastSeen = null,
+            bio = null,
+            createdAt = Date.from(Instant.now()),
+            dateOfBirth = null
+    )
 
     fun getCurrentAuthentication() = ReactiveSecurityContextHolder.getContext()
             .map { it.authentication }

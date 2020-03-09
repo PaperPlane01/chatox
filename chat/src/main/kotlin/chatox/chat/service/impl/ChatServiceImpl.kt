@@ -7,6 +7,8 @@ import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.mapper.ChatMapper
+import chatox.chat.model.ChatParticipation
+import chatox.chat.model.ChatRole
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
 import chatox.chat.security.AuthenticationFacade
@@ -26,14 +28,28 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatMapper: ChatMapper,
                       private val authenticationFacade: AuthenticationFacade) : ChatService {
 
-    override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatResponse> {
+    override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatOfCurrentUserResponse> {
         return authenticationFacade.getCurrentUser()
                 .map { user -> chatMapper.fromCreateChatRequest(createChatRequest, user) }
                 .map { chatRepository.save(it) }
                 .flatMap { it }
-                .map { chatMapper.toChatResponse(
-                        chat = it,
-                        currentUserId = it.createdBy.id
+                .map {
+                    chatParticipationRepository.save(
+                            chatParticipation = ChatParticipation(
+                                    user = it.createdBy,
+                                    chat = it,
+                                    role = ChatRole.ADMIN,
+                                    lastMessageRead = null
+                            )
+                    )
+                }
+                .flatMap { it }
+                .map { chatMapper.toChatOfCurrentUserResponse(
+                        chat = it.chat,
+                        chatParticipation = it,
+                        unreadMessagesCount = 0,
+                        lastMessage = null,
+                        lastReadMessage = null
                 ) }
     }
 
@@ -71,7 +87,6 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         return authenticationFacade.getCurrentUser()
                 .map { chatParticipationRepository.findAllByUser(it) }
                 .flatMapMany { it }
-                .sort { first, second -> first.chat.lastMessageDate.compareTo(second.chat.lastMessageDate) }
                 .map { chatMapper.toChatOfCurrentUserResponse(
                         chat = it.chat,
                         lastMessage = it.chat.lastMessage,

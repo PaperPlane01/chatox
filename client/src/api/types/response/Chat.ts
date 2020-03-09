@@ -1,4 +1,4 @@
-export interface ChatResponse {
+export interface Chat {
     avatarUri?: string,
     createdByCurrentUser: boolean,
     description?: string,

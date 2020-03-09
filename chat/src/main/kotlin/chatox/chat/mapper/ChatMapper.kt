@@ -70,7 +70,11 @@ class ChatMapper(
                 lastReadMessage = lastReadMessageMapped,
                 lastMessage = lastMessageMapped,
                 chatParticipation = chatParticipationMapper.toMinifiedChatParticipationResponse(chatParticipation),
-                unreadMessagesCount = unreadMessagesCount
+                unreadMessagesCount = unreadMessagesCount,
+                createdAt = chat.createdAt,
+                description = chat.description,
+                tags = chat.tags,
+                participantsCount = chat.numberOfParticipants
         )
     }
 

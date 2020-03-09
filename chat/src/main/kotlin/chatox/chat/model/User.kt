@@ -14,5 +14,8 @@ data class User(
         var avatarUri: String?,
         var slug: String?,
         var deleted: Boolean,
-        var lastSeen: Date?
+        var lastSeen: Date?,
+        var bio: String?,
+        var createdAt: Date?,
+        var dateOfBirth: Date?
 )

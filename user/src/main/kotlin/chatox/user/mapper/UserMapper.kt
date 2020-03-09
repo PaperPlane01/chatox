@@ -19,7 +19,8 @@ class UserMapper {
             bio = user.bio,
             createdAt = user.createdAt,
             lastSeen = user.lastSeen,
-            avatarUri = user.avatarUri
+            avatarUri = user.avatarUri,
+            dateOfBirth = null
     )
 
     fun fromCreateUserRequest(createUserRequest: CreateUserRequest) = User(
@@ -32,7 +33,8 @@ class UserMapper {
             accountId = createUserRequest.accountId,
             avatarUri = null,
             bio = null,
-            deleted = false
+            deleted = false,
+            dateOfBirth = null
     )
 
     fun mapUserUpdate(originalUser: User, updateUserRequest: UpdateUserRequest): User = originalUser.copy(

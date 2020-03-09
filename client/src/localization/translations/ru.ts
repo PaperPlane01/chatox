@@ -57,5 +57,8 @@ export const ru: Labels = {
     "username.too-short": "Имя пользователя слишком короткое",
     "chat.create-chat": "Создать чат",
     "markdown.preview": "Превью",
-    "markdown.preview.show": "Показать превью"
+    "markdown.preview.show": "Показать превью",
+    "chat.select-chat": "Выберите чат",
+    "chat.login-to-see-list": "Войдите в аккаунт, чтобы увидеть список ваших чатов",
+    "chat.my-chats": "Мои чаты"
 };
