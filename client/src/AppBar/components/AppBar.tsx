@@ -4,6 +4,7 @@ import Headroom from "react-headroom";
 import {AppBar as MuiAppBar, Toolbar, Typography, IconButton, createStyles, makeStyles} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import {NavigationalDrawer} from "./NavigationalDrawer";
+import {OpenDrawerButton} from "./OpenDrawerButton";
 import {AppBarMenu} from "./AppBarMenu";
 import {UserAppBarMenu} from "./UserAppBarMenu";
 import {IAppState} from "../../store";
@@ -12,7 +13,6 @@ import {Routes} from "../../router";
 const {Link} = require("mobx-router");
 
 interface AppBarMobxProps {
-    setDrawerOpen: (drawerOpen: boolean) => void,
     routerStore?: any
 }
 
@@ -22,11 +22,6 @@ const useClasses = makeStyles(() => createStyles({
     },
     grow: {
         flexGrow: 1
-    },
-    drawerButton: {
-        marginLeft: -12,
-        marginRight: 20,
-        color: "inherit"
     },
     appBarTitle: {
         flexGrow: 1,
@@ -43,7 +38,6 @@ const useClasses = makeStyles(() => createStyles({
 }));
 
 const _AppBar: FunctionComponent<AppBarMobxProps> = ({
-    setDrawerOpen,
     routerStore
 }) => {
     const classes = useClasses();
@@ -60,11 +54,7 @@ const _AppBar: FunctionComponent<AppBarMobxProps> = ({
                            }}
                 >
                     <Toolbar>
-                        <IconButton className={classes.drawerButton}
-                                    onClick={() => setDrawerOpen(true)}
-                        >
-                            <MenuIcon/>
-                        </IconButton>
+                        <OpenDrawerButton/>
                         <div className={classes.appBarTitle}>
                             <Link view={Routes.home}
                                   store={routerStore}
@@ -86,7 +76,6 @@ const _AppBar: FunctionComponent<AppBarMobxProps> = ({
 };
 
 const mapMobxToProps = (state: IAppState): AppBarMobxProps => ({
-    setDrawerOpen: state.appBar.setDrawerExpanded,
     routerStore: state.store
 });
 

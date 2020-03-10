@@ -3,14 +3,20 @@ import {inject, observer} from "mobx-react";
 import {Badge, CardHeader, createStyles, Divider, ListItem, makeStyles, Typography} from "@material-ui/core";
 import randomColor from "randomcolor";
 import {ChatOfCurrentUserEntity, MessageEntity} from "../types";
+import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
 import {UserEntity} from "../../User/types";
 import {MapMobxToProps} from "../../store";
+import {Routes} from "../../router";
+
+const {Link} = require("mobx-router");
 
 interface ChatsOfCurrentUserListItemMobxProps {
+    selectedChat?: string,
     findChat: (id: string) => ChatOfCurrentUserEntity,
     findUser: (id: string) => UserEntity,
-    findMessage: (id: string) => MessageEntity
+    findMessage: (id: string) => MessageEntity,
+    routerStore?: any
 }
 
 interface ChatsOfCurrentUserListItemOwnProps {
@@ -40,7 +46,7 @@ const useStyles = makeStyles(theme => createStyles({
             whiteSpace: "nowrap",
             textOverflow: "ellipsis",
             overflow: "hidden",
-            width: 120
+            width: 140
         },
         [theme.breakpoints.down("md")]: {
             width: "100%"
@@ -55,64 +61,81 @@ const useStyles = makeStyles(theme => createStyles({
         [theme.breakpoints.down("md")]: {
             top: "50%"
         }
+    },
+    undecoratedLink: {
+        textDecoration: "none",
+        color: "inherit"
     }
 }));
 
 const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemProps> = ({
     chatId,
+    selectedChat,
     onChatSelected,
     findChat,
     findUser,
-    findMessage
+    findMessage,
+    routerStore
 }) => {
     const classes = useStyles();
     const chat = findChat(chatId);
     const lastMessage = chat.lastMessage && findMessage(chat.lastMessage);
     const lastMessageSender = lastMessage && findUser(lastMessage.sender);
 
+    const style = selectedChat === chatId ? {color: "primary"} : {};
+
     return (
-        <ListItem onClick={() => onChatSelected(chatId)}
-                  className={classes.chatsOfCurrentUserListItem}
-                  classes={{
-                      gutters: classes.chatsOfCurrentUserListItemGutters
-                  }}
+        <Link store={routerStore}
+              view={Routes.chatPage}
+              params={{slug: chat.slug || chat.id}}
+              className={classes.undecoratedLink}
         >
-            <Badge badgeContent={chat.unreadMessagesCount}
-                   color="secondary"
-                   classes={{
-                       root: classes.unreadMessagesBadgeRoot,
-                       anchorOriginTopRightRectangle: classes.unreadMessagesBadgeTopRightRectangle
-                   }}
-                   hidden={chat.unreadMessagesCount === 0}
+            <ListItem onClick={() => onChatSelected(chatId)}
+                      className={classes.chatsOfCurrentUserListItem}
+                      classes={{
+                          gutters: classes.chatsOfCurrentUserListItemGutters
+                      }}
+                      style={style}
             >
-                <CardHeader title={
-                    <Typography className={classes.chatsOfCurrentUserListItemTitle}>
-                        {chat.name}
-                    </Typography>
-                }
-                            subheader={lastMessage && lastMessageSender && (
-                                <div>
-                                    {lastMessageSender.firstName}: {lastMessage.text}
-                                </div>
-                            )}
-                            avatar={<Avatar avatarLetter={chat.name[0]}
-                                            avatarColor={randomColor({seed: chatId})}
-                                            avatarUri={chat.avatarUri}
-                            />}
-                            classes={{
-                                root: classes.chatsOfCurrentUserListItemHeaderRoot
-                            }}
-                />
-                <Divider/>
-            </Badge>
-        </ListItem>
+                <Badge badgeContent={chat.unreadMessagesCount}
+                       color="secondary"
+                       classes={{
+                           root: classes.unreadMessagesBadgeRoot,
+                           anchorOriginTopRightRectangle: classes.unreadMessagesBadgeTopRightRectangle
+                       }}
+                       hidden={chat.unreadMessagesCount === 0}
+                >
+                    <CardHeader title={
+                        <Typography className={classes.chatsOfCurrentUserListItemTitle}>
+                            {chat.name}
+                        </Typography>
+                    }
+                                subheader={lastMessage && lastMessageSender && (
+                                    <div>
+                                        {lastMessageSender.firstName}: {lastMessage.text}
+                                    </div>
+                                )}
+                                avatar={<Avatar avatarLetter={getAvatarLabel(chat.name)}
+                                                avatarColor={randomColor({seed: chatId})}
+                                                avatarUri={chat.avatarUri}
+                                />}
+                                classes={{
+                                    root: classes.chatsOfCurrentUserListItemHeaderRoot
+                                }}
+                    />
+                    <Divider/>
+                </Badge>
+            </ListItem>
+        </Link>
     )
 };
 
-const mapMobxToProps: MapMobxToProps<ChatsOfCurrentUserListItemMobxProps> = ({entities}) => ({
-    findChat: entities.chatsOfCurrentUser.findById,
+const mapMobxToProps: MapMobxToProps<ChatsOfCurrentUserListItemMobxProps> = ({entities, chat, store}) => ({
+    findChat: entities.chats.findById,
+    selectedChat: chat.selectedChatId,
     findMessage: entities.messages.findById,
-    findUser: entities.users.findById
+    findUser: entities.users.findById,
+    routerStore: store
 });
 
 export const ChatsOfCurrentUserListItem = inject(mapMobxToProps)(observer(_ChatsOfCurrentUserListItem) as FunctionComponent<ChatsOfCurrentUserListItemOwnProps>);

@@ -1,6 +1,7 @@
 import {action, observable} from "mobx";
 import {UserApi} from "../../api";
 import {CurrentUser} from "../../api/types/response";
+import {EntitiesStore} from "../../entities-store";
 
 export class AuthorizationStore {
     @observable
@@ -12,9 +13,15 @@ export class AuthorizationStore {
     @observable
     loggingOut: boolean = false;
 
+    constructor(private readonly entities: EntitiesStore) {}
+
     @action
     setCurrentUser = (currentUser: CurrentUser): void => {
         this.currentUser = currentUser;
+        this.entities.users.insert({
+            ...currentUser,
+            deleted: false
+        });
     };
 
     @action
@@ -24,11 +31,11 @@ export class AuthorizationStore {
     };
 
     @action
-    fetchCurrentUser = (): void => {
+    fetchCurrentUser = (): Promise<void> => {
         this.fetchingCurrentUser = true;
 
-        UserApi.getCurrentUser()
-            .then(({data}) => this.currentUser = data)
+        return UserApi.getCurrentUser()
+            .then(({data}) => this.setCurrentUser(data))
             .finally(() => this.fetchingCurrentUser = false);
     };
 

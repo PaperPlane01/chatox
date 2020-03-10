@@ -8,5 +8,7 @@ export interface ChatOfCurrentUserEntity {
     createdAt: Date,
     messages: string[],
     unreadMessagesCount: number,
-    participantsCount: number
+    participantsCount: number,
+    participants: string[],
+    currentUserParticipationId?: string
 }

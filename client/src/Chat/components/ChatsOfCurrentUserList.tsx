@@ -1,7 +1,9 @@
-import React, {FunctionComponent, Fragment} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import {CircularProgress, createStyles, List, makeStyles, Hidden, Divider, Drawer, Toolbar} from "@material-ui/core";
+import {CircularProgress, createStyles, Divider, Hidden, List, makeStyles} from "@material-ui/core";
 import {ChatsOfCurrentUserListItem} from "./ChatsOfCurrentUserListItem";
+import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
+import {CreateChatDialog} from "./CreateChatDialog";
 import {MapMobxToProps} from "../../store";
 
 interface ChatsOfCurrentUserListMobxProps {
@@ -16,12 +18,18 @@ const useStyles = makeStyles(theme => createStyles({
         justifyContent: "center",
         height: "100%"
     },
-    chatListDrawer: {
-        flexShrink: 0,
-        width: 260,
+    chatListWrapper: {
+        [theme.breakpoints.up("lg")]: {
+            height: "calc(100vh - 64px)",
+            width: 280,
+            display: "flex"
+        }
     },
-    chatListDrawerPaper: {
-        width: 260,
+    chatList: {
+        [theme.breakpoints.up("lg")]: {
+            flex: 1,
+            overflowY: "auto"
+        },
     }
 }));
 
@@ -43,39 +51,25 @@ const _ChatsOfCurrentUserList: FunctionComponent<ChatsOfCurrentUserListMobxProps
         )
     }
 
-    const chatList = (
-        <List>
-            {chatIds.map(chatId => (
-                <Fragment>
-                    <ChatsOfCurrentUserListItem chatId={chatId}
-                                                onChatSelected={handleChatSelect}
-                                                key={chatId}
-                    />
-                    <Divider variant="inset"/>
-                </Fragment>
-            ))}
-        </List>
-    );
-
-    return (
-        <Fragment>
-            <Hidden mdDown>
-                <Drawer variant="permanent"
-                        open
-                        className={classes.chatListDrawer}
-                        classes={{
-                            paper: classes.chatListDrawerPaper
-                        }}
-                >
-                    <Toolbar/>
-                    {chatList}
-                </Drawer>
-            </Hidden>
-            <Hidden lgUp>
-                {chatList}
-            </Hidden>
-        </Fragment>
-    );
+   return (
+       <div className={classes.chatListWrapper}>
+           <List className={classes.chatList}>
+               {chatIds.map(chatId => (
+                   <Fragment>
+                       <ChatsOfCurrentUserListItem chatId={chatId}
+                                                   onChatSelected={handleChatSelect}
+                                                   key={chatId}
+                       />
+                       <Divider variant="inset"/>
+                   </Fragment>
+               ))}
+           </List>
+           <Hidden mdUp>
+               <CreateChatFloatingActionButton/>
+           </Hidden>
+           <CreateChatDialog/>
+       </div>
+   )
 };
 
 const mapMobxToProps: MapMobxToProps<ChatsOfCurrentUserListMobxProps> = ({chatsOfCurrentUser}) => ({

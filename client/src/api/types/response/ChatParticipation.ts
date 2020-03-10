@@ -4,5 +4,6 @@ import {User} from "./User";
 export interface ChatParticipation {
     id: string,
     role: ChatRole,
-    user: User
+    user: User,
+    chatId: string
 }

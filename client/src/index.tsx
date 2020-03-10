@@ -26,8 +26,7 @@ ReactDOM.render(
 );
 
 if (localStorage.getItem("accessToken")) {
-    store.authorization.fetchCurrentUser();
-    store.chatsOfCurrentUser.fetchChatsOfCurrentUser();
+    store.authorization.fetchCurrentUser().then(() => store.chatsOfCurrentUser.fetchChatsOfCurrentUser());
 }
 
 // If you want your app to work offline and load faster, you can change

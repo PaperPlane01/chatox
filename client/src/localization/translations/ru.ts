@@ -60,5 +60,7 @@ export const ru: Labels = {
     "markdown.preview.show": "Показать превью",
     "chat.select-chat": "Выберите чат",
     "chat.login-to-see-list": "Войдите в аккаунт, чтобы увидеть список ваших чатов",
-    "chat.my-chats": "Мои чаты"
+    "chat.my-chats": "Мои чаты",
+    "chat.number-of-participants": "{numberOfParticipants} участников",
+    "home": "На главную"
 };

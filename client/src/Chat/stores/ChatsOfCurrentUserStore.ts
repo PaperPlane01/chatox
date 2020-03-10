@@ -17,39 +17,41 @@ export class ChatsOfCurrentUserStore {
 
     @computed
     get chatsOfCurrentUser(): string[] {
-        let chatIds = this.entities.chatsOfCurrentUser.ids;
-        chatIds = chatIds.sort((left, right) => {
-            const leftLastMessageId = this.entities.chatsOfCurrentUser.findById(right).lastMessage;
-            const lastRightMessageId = this.entities.chatsOfCurrentUser.findById(left).lastMessage;
+        return this.entities.chats.ids
+            .map(chatId => this.entities.chats.findById(chatId))
+            .filter(chat => Boolean(chat.currentUserParticipationId))
+            .sort((left, right) => {
+                const leftLastMessageId = left.lastMessage;
+                const rightLastMessageId = right.lastMessage;
 
-            const leftDate = leftLastMessageId
-                ? this.entities.messages.findById(leftLastMessageId).createdAt
-                : this.entities.chatsOfCurrentUser.findById(left).createdAt;
-            const rightDate = lastRightMessageId
-                ? this.entities.messages.findById(lastRightMessageId).createdAt
-                : this.entities.chatsOfCurrentUser.findById(right).createdAt;
+                const leftDate = leftLastMessageId
+                    ? this.entities.messages.findById(leftLastMessageId).createdAt
+                    : left.createdAt;
+                const rightDate = rightLastMessageId
+                    ? this.entities.messages.findById(rightLastMessageId).createdAt
+                    : right.createdAt;
 
-            return rightDate.getTime() - leftDate.getTime();
-        });
-
-        return chatIds;
+                return rightDate.getTime() - leftDate.getTime();
+            })
+            .map(chat => chat.id)
     }
 
     @computed
     get totalUnreadMessagesCount(): number {
-        return this.entities.chatsOfCurrentUser.ids
-            .map(chatId => this.entities.chatsOfCurrentUser.findById(chatId))
+        return this.entities.chats.ids
+            .map(chatId => this.entities.chats.findById(chatId))
+            .filter(chat => Boolean(chat.currentUserParticipationId))
             .map(chat => chat.unreadMessagesCount)
             .reduce((left, right) => left + right)
     }
 
     @action
     fetchChatsOfCurrentUser = (): void => {
-        this.pending = false;
+        this.pending = true;
         this.error = undefined;
 
         ChatApi.getChatsOfCurrentUser()
-            .then(({data}) => this.entities.insertChatsOfCurrentUser(data))
+            .then(({data}) => this.entities.insertChats(data))
             .catch(error => this.error = getInitialApiErrorFromResponse(error))
             .finally(() => this.pending = false)
     };

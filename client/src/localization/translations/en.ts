@@ -60,5 +60,7 @@ export const en: Labels = {
     "markdown.preview.show": "Show preview",
     "chat.select-chat": "Select chat to start messaging",
     "chat.login-to-see-list": "You need too log in to see list of your chats",
-    "chat.my-chats": "My chats"
+    "chat.my-chats": "My chats",
+    "chat.number-of-participants": "{numberOfParticipants} participants",
+    "home": "Home"
 };

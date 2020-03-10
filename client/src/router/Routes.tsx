@@ -19,6 +19,12 @@ export const Routes = {
     }),
     chatPage: new Route({
         path: "/chat/:slug",
-        component: <ChatPage/>
+        component: <ChatPage/>,
+        onEnter: (view: any, params: any) => {
+            store.chat.setSelectedChat(params.slug)
+        },
+        onParamsChange: (view: any, params: any) => {
+            store.chat.setSelectedChat(params.slug);
+        }
     })
 };

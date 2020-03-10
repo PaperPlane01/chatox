@@ -4,7 +4,8 @@ export interface Chat {
     description?: string,
     id: string,
     name: string,
-    numberOfParticipants: number,
-    slug?: number,
-    tags: string[]
+    participantsCount: number,
+    slug?: string,
+    tags: string[],
+    createdAt: string
 }

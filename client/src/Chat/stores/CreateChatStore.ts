@@ -12,7 +12,7 @@ import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {FormErrors} from "../../utils/types";
 import {countMotUndefinedValues} from "../../utils/object-utils";
 import {ChatOfCurrentUser} from "../../api/types/response/ChatOfCurrentUser";
-import {ChatsOfCurrentUserEntitiesStore} from "./ChatsOfCurrentUserEntitiesStore";
+import {ChatsStore} from "./ChatsStore";
 import {ChatsOfCurrentUserStore} from "./ChatsOfCurrentUserStore";
 import {EntitiesStore} from "../../entities-store";
 
@@ -126,7 +126,7 @@ export class CreateChatStore {
                     .then(({data}) => {
                         this.createdChat = data;
                         console.log(data);
-                        this.entities.insertChatOfCurrentUser(data);
+                        this.entities.insertChat(data);
                     })
                     .catch(error => {
                         this.submissionError = getInitialApiErrorFromResponse(error);

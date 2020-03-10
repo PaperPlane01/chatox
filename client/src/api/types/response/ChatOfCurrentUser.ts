@@ -1,4 +1,5 @@
 import {Message} from "./Message";
+import {ChatParticipationWithoutUser} from "./ChatParticipationWithoutUser";
 
 export interface ChatOfCurrentUser {
     id: string,
@@ -8,10 +9,7 @@ export interface ChatOfCurrentUser {
     lastMessage?: Message,
     lastReadMessage?: Message,
     createdAt: string,
-    chatParticipation: {
-        id: string,
-        role: "ADMIN" | "MODERATOR" | "USER"
-    },
+    chatParticipation?: ChatParticipationWithoutUser,
     unreadMessagesCount: number,
     participantsCount: number
 }

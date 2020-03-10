@@ -41,7 +41,8 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
     public insert(denormalizedEntity: DenormalizedEntity): Entity {
         const entity = this.convertToNormalizedForm(denormalizedEntity);
         this.entities[denormalizedEntity.id] = entity;
-        this.ids.push(denormalizedEntity.id);
+        // To ensure uniqueness of IDs
+        this.ids = Array.from(new Set([...this.ids, denormalizedEntity.id]));
         return entity;
     };
 

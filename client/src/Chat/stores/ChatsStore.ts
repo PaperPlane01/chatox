@@ -4,7 +4,7 @@ import {ChatOfCurrentUserEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {ChatOfCurrentUser} from "../../api/types/response";
 
-export class ChatsOfCurrentUserEntitiesStore extends AbstractEntityStore<ChatOfCurrentUserEntity, ChatOfCurrentUser> {
+export class ChatsStore extends AbstractEntityStore<ChatOfCurrentUserEntity, ChatOfCurrentUser> {
     constructor() {
         super();
     }
@@ -53,7 +53,10 @@ export class ChatsOfCurrentUserEntitiesStore extends AbstractEntityStore<ChatOfC
             createdAt: new Date(denormalizedEntity.createdAt),
             messages: denormalizedEntity.lastMessage ? [denormalizedEntity.lastMessage.id] : [],
             unreadMessagesCount: denormalizedEntity.unreadMessagesCount,
-            participantsCount: denormalizedEntity.participantsCount
+            participantsCount: denormalizedEntity.participantsCount,
+            participants: [],
+            currentUserParticipationId: denormalizedEntity.chatParticipation
+                && denormalizedEntity.chatParticipation.id
         }
     }
 }

@@ -58,5 +58,7 @@ export interface Labels {
     "markdown.preview.show": string,
     "chat.select-chat": string,
     "chat.login-to-see-list": string,
-    "chat.my-chats": string
+    "chat.my-chats": string,
+    "chat.number-of-participants": string,
+    "home": string
 }
