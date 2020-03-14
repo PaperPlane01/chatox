@@ -3,7 +3,13 @@ import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore} from "../Authorization";
 import {UserRegistrationStore} from "../Registration";
-import {ChatsOfCurrentUserStore, CreateChatStore, ChatStore, ChatParticipationsStore} from "../Chat";
+import {
+    ChatsOfCurrentUserStore,
+    CreateChatStore,
+    ChatStore,
+    ChatParticipationsStore,
+    ChatParticipantsStore
+} from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 
 export interface IAppState {
@@ -17,6 +23,6 @@ export interface IAppState {
     entities: EntitiesStore,
     chatsOfCurrentUser: ChatsOfCurrentUserStore,
     chat: ChatStore,
-    chatParticipations: ChatParticipationsStore,
+    chatParticipants: ChatParticipantsStore,
     store?: any
 }

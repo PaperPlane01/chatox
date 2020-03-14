@@ -74,8 +74,16 @@ export class EntitiesStore {
     };
 
     @action
+    insertChatParticipations = (chatParticipations: ChatParticipation[]): void => {
+        chatParticipations.forEach(chatParticipation => this.insertChatParticipation(chatParticipation));
+    };
+
+    @action
     insertChatParticipation = (chatParticipation: ChatParticipation): void => {
+        this.users.insert(chatParticipation.user);
         this.chatParticipations.insert(chatParticipation);
-        this.chats.findById(chatParticipation.chatId).participants.push(chatParticipation.id);
+        const chat = this.chats.findById(chatParticipation.chatId);
+        chat.participants = Array.from(new Set([...chat.participants, chatParticipation.id]));
+        this.chats.insertEntity(chat);
     }
 }

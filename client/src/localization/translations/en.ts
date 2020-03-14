@@ -62,5 +62,6 @@ export const en: Labels = {
     "chat.login-to-see-list": "You need too log in to see list of your chats",
     "chat.my-chats": "My chats",
     "chat.number-of-participants": "{numberOfParticipants} participants",
+    "chat.no-description": "No description provided",
     "home": "Home"
 };

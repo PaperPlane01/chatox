@@ -60,5 +60,6 @@ export interface Labels {
     "chat.login-to-see-list": string,
     "chat.my-chats": string,
     "chat.number-of-participants": string,
+    "chat.no-description": string,
     "home": string
 }

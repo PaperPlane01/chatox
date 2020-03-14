@@ -11,5 +11,6 @@ export interface ChatOfCurrentUser {
     createdAt: string,
     chatParticipation?: ChatParticipationWithoutUser,
     unreadMessagesCount: number,
-    participantsCount: number
+    participantsCount: number,
+    description?: string
 }

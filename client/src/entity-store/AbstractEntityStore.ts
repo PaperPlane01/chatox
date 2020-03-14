@@ -65,7 +65,7 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
     @action
     public insertEntity(entity: Entity): Entity {
         this.entities[entity.id] = entity;
-        this.ids.push(entity.id);
+        this.ids = Array.from(new Set([...this.ids, entity.id]));
         return entity;
     };
 

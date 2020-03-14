@@ -62,5 +62,6 @@ export const ru: Labels = {
     "chat.login-to-see-list": "Войдите в аккаунт, чтобы увидеть список ваших чатов",
     "chat.my-chats": "Мои чаты",
     "chat.number-of-participants": "{numberOfParticipants} участников",
+    "chat.no-description": "Описание не указано",
     "home": "На главную"
 };

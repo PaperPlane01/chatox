@@ -5,3 +5,4 @@ export * from "./MessagesStore";
 export * from "./ChatsOfCurrentUserStore";
 export * from "./ChatStore";
 export * from "./ChatParticipationsStore";
+export * from "./ChatParticipantsStore";
