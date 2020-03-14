@@ -20,8 +20,7 @@ interface ChatsOfCurrentUserListItemMobxProps {
 }
 
 interface ChatsOfCurrentUserListItemOwnProps {
-    chatId: string,
-    onChatSelected: (chatId: string) => void
+    chatId: string
 }
 
 type ChatsOfCurrentUserListItemProps = ChatsOfCurrentUserListItemMobxProps & ChatsOfCurrentUserListItemOwnProps;
@@ -31,17 +30,21 @@ const useStyles = makeStyles(theme => createStyles({
         cursor: "pointer",
         overflow: "hide"
     },
-    chatsOfCurrentUserListItemGutters: {
+    gutters: {
         paddingLeft: 0,
         paddingRight: 16
     },
-    chatsOfCurrentUserListItemHeaderRoot: {
+    selected: {
+        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.getContrastText(theme.palette.primary.main)
+    },
+    listItemHeaderRoot: {
         [theme.breakpoints.down("md")]: {
             padding: 16,
             paddingLeft: 0
         }
     },
-    chatsOfCurrentUserListItemTitle: {
+    listItemTitle: {
         [theme.breakpoints.up("lg")]: {
             whiteSpace: "nowrap",
             textOverflow: "ellipsis",
@@ -60,6 +63,9 @@ const useStyles = makeStyles(theme => createStyles({
     unreadMessagesBadgeTopRightRectangle: {
         [theme.breakpoints.down("md")]: {
             top: "50%"
+        },
+        [theme.breakpoints.up("lg")]: {
+            "top": "100%"
         }
     },
     undecoratedLink: {
@@ -71,7 +77,6 @@ const useStyles = makeStyles(theme => createStyles({
 const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemProps> = ({
     chatId,
     selectedChat,
-    onChatSelected,
     findChat,
     findUser,
     findMessage,
@@ -81,8 +86,7 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
     const chat = findChat(chatId);
     const lastMessage = chat.lastMessage && findMessage(chat.lastMessage);
     const lastMessageSender = lastMessage && findUser(lastMessage.sender);
-
-    const style = selectedChat === chatId ? {color: "primary"} : {};
+    const selected = selectedChat === chatId;
 
     return (
         <Link store={routerStore}
@@ -90,12 +94,10 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
               params={{slug: chat.slug || chat.id}}
               className={classes.undecoratedLink}
         >
-            <ListItem onClick={() => onChatSelected(chatId)}
-                      className={classes.chatsOfCurrentUserListItem}
+            <ListItem className={`${classes.chatsOfCurrentUserListItem} ${selected && classes.selected}`}
                       classes={{
-                          gutters: classes.chatsOfCurrentUserListItemGutters
+                          gutters: classes.gutters
                       }}
-                      style={style}
             >
                 <Badge badgeContent={chat.unreadMessagesCount}
                        color="secondary"
@@ -106,7 +108,7 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
                        hidden={chat.unreadMessagesCount === 0}
                 >
                     <CardHeader title={
-                        <Typography className={classes.chatsOfCurrentUserListItemTitle}>
+                        <Typography className={classes.listItemTitle}>
                             {chat.name}
                         </Typography>
                     }
@@ -120,7 +122,7 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
                                                 avatarUri={chat.avatarUri}
                                 />}
                                 classes={{
-                                    root: classes.chatsOfCurrentUserListItemHeaderRoot
+                                    root: classes.listItemHeaderRoot
                                 }}
                     />
                     <Divider/>

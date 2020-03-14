@@ -23,13 +23,19 @@ const useStyles = makeStyles(theme => createStyles({
             height: "calc(100vh - 64px)",
             width: 280,
             display: "flex"
+        },
+        [theme.breakpoints.down("md")]: {
+            width: "100%"
         }
     },
     chatList: {
         [theme.breakpoints.up("lg")]: {
             flex: 1,
             overflowY: "auto"
-        },
+        }
+    },
+    padding: {
+        paddingTop: 0
     }
 }));
 
@@ -38,10 +44,6 @@ const _ChatsOfCurrentUserList: FunctionComponent<ChatsOfCurrentUserListMobxProps
     pending
 }) => {
     const classes = useStyles();
-
-    const handleChatSelect = (chatId: string): void => {
-
-    };
 
     if (pending) {
         return (
@@ -53,11 +55,14 @@ const _ChatsOfCurrentUserList: FunctionComponent<ChatsOfCurrentUserListMobxProps
 
    return (
        <div className={classes.chatListWrapper}>
-           <List className={classes.chatList}>
+           <List className={classes.chatList}
+                 classes={{
+                     padding: classes.padding
+                 }}
+           >
                {chatIds.map(chatId => (
                    <Fragment>
                        <ChatsOfCurrentUserListItem chatId={chatId}
-                                                   onChatSelected={handleChatSelect}
                                                    key={chatId}
                        />
                        <Divider variant="inset"/>
