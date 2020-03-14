@@ -2,8 +2,14 @@ package chatox.chat.controller
 
 import chatox.chat.api.request.UpdateChatParticipationRequest
 import chatox.chat.service.ChatParticipationService
+import chatox.chat.support.pagination.PaginationRequest
+import chatox.chat.support.pagination.annotation.PageSize
+import chatox.chat.support.pagination.annotation.PaginationConfig
+import chatox.chat.support.pagination.annotation.SortBy
+import chatox.chat.support.pagination.annotation.SortDirection
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -34,4 +40,13 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
                               @PathVariable participationId: String,
                               @RequestBody @Valid updateChatParticipationRequest: UpdateChatParticipationRequest
     ) = chatParticipationService.updateChatParticipation(participationId, updateChatParticipationRequest)
+
+    @PaginationConfig(
+            sortBy = SortBy(allowed = ["createdAt"], default = "createdAt"),
+            sortingDirection = SortDirection(default = "asc")
+    )
+    @GetMapping("/api/v1/chat/{chatId}/participants")
+    fun getChatParticipants(@PathVariable chatId: String,
+                            paginationRequest: PaginationRequest
+    ) = chatParticipationService.findParticipantsOfChat(chatId, paginationRequest);
 }
