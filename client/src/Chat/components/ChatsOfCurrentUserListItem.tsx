@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import {Badge, CardHeader, createStyles, Divider, ListItem, makeStyles, Typography} from "@material-ui/core";
+import {Badge, CardHeader, createStyles, Divider, ListItem, makeStyles, Theme, Typography} from "@material-ui/core";
 import randomColor from "randomcolor";
 import {ChatOfCurrentUserEntity, MessageEntity} from "../types";
 import {getAvatarLabel} from "../utils";
@@ -25,7 +25,7 @@ interface ChatsOfCurrentUserListItemOwnProps {
 
 type ChatsOfCurrentUserListItemProps = ChatsOfCurrentUserListItemMobxProps & ChatsOfCurrentUserListItemOwnProps;
 
-const useStyles = makeStyles(theme => createStyles({
+const useStyles = makeStyles((theme: Theme) => createStyles({
     chatsOfCurrentUserListItem: {
         cursor: "pointer",
         overflow: "hide"
@@ -35,8 +35,10 @@ const useStyles = makeStyles(theme => createStyles({
         paddingRight: 16
     },
     selected: {
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.getContrastText(theme.palette.primary.main)
+        [theme.breakpoints.up("lg")]: {
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.getContrastText(theme.palette.primary.main)
+        }
     },
     listItemHeaderRoot: {
         [theme.breakpoints.down("md")]: {
