@@ -63,5 +63,9 @@ export const en: Labels = {
     "chat.my-chats": "My chats",
     "chat.number-of-participants": "{numberOfParticipants} participants",
     "chat.no-description": "No description provided",
-    "home": "Home"
+    "home": "Home",
+    "message.text-is-too-long": "Message text is too long",
+    "message.text-must-be-present": "Please type some text",
+    "message.type-something": "Type something...",
+    "feature.not-available": "This feature is not yet available"
 };

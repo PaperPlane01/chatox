@@ -12,7 +12,9 @@ export class MessagesStore extends AbstractEntityStore<MessageEntity, Message> {
             referredMessage: denormalizedEntity.referredMessage && denormalizedEntity.referredMessage.id,
             sender: denormalizedEntity.sender.id,
             text: denormalizedEntity.text,
-            updatedAt: denormalizedEntity.updatedAt ? new Date(denormalizedEntity.updatedAt) : undefined
+            updatedAt: denormalizedEntity.updatedAt ? new Date(denormalizedEntity.updatedAt) : undefined,
+            previousMessageId: denormalizedEntity.previousMessageId,
+            nextMessageId: denormalizedEntity.nextMessageId
         };
     }
 }

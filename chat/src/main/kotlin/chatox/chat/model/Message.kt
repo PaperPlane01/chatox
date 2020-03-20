@@ -14,7 +14,7 @@ data class Message(
         var referredMessage: Message?,
         @DBRef
         var sender: User,
-        @DBRef
+        @DBRef(lazy = true)
         val chat: Chat,
         var createdAt: Date,
         var updatedAt: Date?,

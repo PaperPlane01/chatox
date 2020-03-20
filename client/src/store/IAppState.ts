@@ -11,6 +11,7 @@ import {
     ChatParticipantsStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
+import {CreateMessageStore} from "../Message";
 
 export interface IAppState {
     language: LocaleStore,
@@ -24,5 +25,6 @@ export interface IAppState {
     chatsOfCurrentUser: ChatsOfCurrentUserStore,
     chat: ChatStore,
     chatParticipants: ChatParticipantsStore,
+    messageCreation: CreateMessageStore,
     store?: any
 }

@@ -9,5 +9,7 @@ export interface Message {
     createdAt: string,
     updatedAt?: string,
     readByCurrentUser: boolean,
-    chatId: string
+    chatId: string,
+    previousMessageId?: string,
+    nextMessageId?: string
 }

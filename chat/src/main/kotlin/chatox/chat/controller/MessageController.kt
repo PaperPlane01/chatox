@@ -22,20 +22,20 @@ import javax.validation.Valid
 class MessageController(private val messageService: MessageService) {
 
     @PostMapping("/api/v1/chat/{chatId}/messages")
-    @PreAuthorize("hasRole('USER') and #messagePermissions.canCreateMessage(#chatId)")
+    @PreAuthorize("hasRole('USER')")
     fun createMessage(@PathVariable chatId: String,
                       @RequestBody @Valid createMessageRequest: CreateMessageRequest
     ) = messageService.createMessage(chatId, createMessageRequest)
 
     @PutMapping("/api/v1/chat/{chatId}/messages/{messageId}")
-    @PreAuthorize("hasRole('USER') and #messagePermissions.canUpdateMessage(#messageId, #chatId)")
+    @PreAuthorize("hasRole('USER') and @messagePermissions.canUpdateMessage(#messageId, #chatId)")
     fun updateMessage(@PathVariable chatId: String,
                       @PathVariable messageId: String,
                       @RequestBody @Valid updateMessageRequest: UpdateMessageRequest
     ) = messageService.updateMessage(messageId, updateMessageRequest)
 
     @DeleteMapping("/api/v1/chat/{chatId}/messages/{messageId}")
-    @PreAuthorize("hasRole('USER') and #messagePermissions.canDeleteMessage(#messageId, #chatId)")
+    @PreAuthorize("hasRole('USER')")
     fun deleteMessage(@PathVariable chatId: String,
                       @PathVariable messageId: String
     ) = messageService.deleteMessage(messageId)

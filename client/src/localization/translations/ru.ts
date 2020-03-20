@@ -63,5 +63,9 @@ export const ru: Labels = {
     "chat.my-chats": "Мои чаты",
     "chat.number-of-participants": "{numberOfParticipants} участников",
     "chat.no-description": "Описание не указано",
-    "home": "На главную"
+    "home": "На главную",
+    "message.text-is-too-long": "Текст сообщения слишком длинный",
+    "message.text-must-be-present": "Напечатайте что-нибудь",
+    "message.type-something": "Напишите сообщение...",
+    "feature.not-available": "Данный функционал пока недоступен"
 };

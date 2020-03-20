@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => createStyles({
     },
     chatListWrapper: {
         [theme.breakpoints.up("lg")]: {
-            height: "calc(100vh - 64px)",
+            height: "calc(100vh - 80px)",
             width: 280,
             display: "flex"
         },

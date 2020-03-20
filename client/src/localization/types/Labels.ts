@@ -61,5 +61,9 @@ export interface Labels {
     "chat.my-chats": string,
     "chat.number-of-participants": string,
     "chat.no-description": string,
-    "home": string
+    "home": string,
+    "message.text-is-too-long": string,
+    "message.text-must-be-present": string,
+    "message.type-something": string,
+    "feature.not-available": string
 }

@@ -54,12 +54,13 @@ class ChatMapper(
             )
         }
 
-        if (lastReadMessage != null) {
+        if (lastMessage != null) {
             lastMessageMapped = messageMapper.toMessageResponse(
-                    lastReadMessage,
-                    readByCurrentUser = lastReadMessage.id == lastMessage?.id,
+                    lastMessage,
+                    readByCurrentUser = lastReadMessage ?: lastReadMessage?.id == lastMessage.id,
                     mapReferredMessage = false
             )
+
         }
 
         return ChatOfCurrentUserResponse(

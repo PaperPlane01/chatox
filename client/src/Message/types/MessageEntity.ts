@@ -6,5 +6,7 @@ export interface MessageEntity {
     deleted: boolean,
     createdAt: Date,
     updatedAt?: Date,
-    readByCurrentUser: boolean
+    readByCurrentUser: boolean,
+    previousMessageId?: string,
+    nextMessageId?: string
 }

@@ -5,17 +5,24 @@ import chatox.chat.model.User
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.service.MessageService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class MessagePermissions(private val messageService: MessageService,
-                         private val chatParticipationService: ChatParticipationService,
+class MessagePermissions(private val chatParticipationService: ChatParticipationService,
                          private val authenticationFacade: AuthenticationFacade) {
 
+    private lateinit var messageService: MessageService
+
+    @Autowired
+    fun setMessageService(messageService: MessageService) {
+        this.messageService = messageService
+    }
+
     fun canCreateMessage(chatId: String): Mono<Boolean> {
-        return authenticationFacade.getCurrentUser()
-                .map { chatParticipationService.getRoleOfUserInChat(chatId = chatId, user = it) }
+        return authenticationFacade.getCurrentUserDetails()
+                .map { chatParticipationService.getRoleOfUserInChat(chatId = chatId, userId = it.id) }
                 .flatMap { it }
                 .switchIfEmpty(Mono.just(ChatRole.NOT_PARTICIPANT))
                 .map { it != ChatRole.NOT_PARTICIPANT }

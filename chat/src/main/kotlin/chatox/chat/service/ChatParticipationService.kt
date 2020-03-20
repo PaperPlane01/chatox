@@ -17,5 +17,6 @@ interface ChatParticipationService {
     fun findParticipantsOfChat(chatId: String, paginationRequest: PaginationRequest): Flux<ChatParticipationResponse>
     fun searchChatParticipants(chatId: String, query: String, paginationRequest: PaginationRequest): Flux<ChatParticipationResponse>
     fun getRoleOfUserInChat(chatId: String, user: User): Mono<ChatRole>
+    fun getRoleOfUserInChat(chatId: String, userId: String): Mono<ChatRole>
     fun findChatParticipationById(participationId: String): Mono<ChatParticipationResponse>
 }

@@ -1,6 +1,7 @@
-import React, {FunctionComponent, Fragment} from "react";
+import React, {FunctionComponent} from "react";
 import {Grid, Hidden} from "@material-ui/core";
-import {ChatAppBar, ChatsOfCurrentUserList, MessagesList, ChatInfoContainer} from "../Chat";
+import {ChatAppBar, ChatInfoContainer, ChatsOfCurrentUserList, MessagesList} from "../Chat";
+import {CreateMessageForm} from "../Message";
 
 const ScrollLock = require("react-scrolllock").default;
 
@@ -20,6 +21,7 @@ export const ChatPage: FunctionComponent = () => (
                     <Grid container>
                         <Grid item xs={12} lg={9}>
                             <MessagesList/>
+                            <CreateMessageForm/>
                         </Grid>
                         <Hidden mdDown>
                             <Grid item lg={3}>

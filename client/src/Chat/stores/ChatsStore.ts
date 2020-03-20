@@ -38,7 +38,8 @@ export class ChatsStore extends AbstractEntityStore<ChatOfCurrentUserEntity, Cha
     @action
     addMessageToChat = (chatId: string, messageId: string): void => {
         const chat = this.findById(chatId);
-        chat.messages.push(messageId);
+        chat.messages = Array.from(new Set([...chat.messages, messageId]));
+        chat.lastMessage = messageId;
         this.insertEntity(chat);
     };
 

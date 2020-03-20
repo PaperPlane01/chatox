@@ -2,7 +2,7 @@ import {action, computed} from "mobx";
 import {ChatsStore, ChatParticipationsStore, MessagesStore} from "../Chat";
 import {UsersStore} from "../User/stores";
 import {ChatOfCurrentUser, ChatParticipation, CurrentUser, Message} from "../api/types/response";
-import {AuthorizationStore} from "../Authorization/stores";
+import {AuthorizationStore} from "../Authorization";
 
 export class EntitiesStore {
     private authorizationStore: AuthorizationStore;
@@ -26,7 +26,17 @@ export class EntitiesStore {
 
     @action
     insertMessages = (messages: Message[]): void => {
-        messages.forEach(message => this.insertMessage(message));
+        messages.forEach((message, index, messagesArray) => {
+            if (index !== 0) {
+                message.previousMessageId = messagesArray[index - 1].id;
+            }
+
+            if (index !== messages.length - 1) {
+                message.nextMessageId = messagesArray[index + 1].id;
+            }
+
+            this.insertMessage(message);
+        });
     };
 
     @action
@@ -48,7 +58,7 @@ export class EntitiesStore {
 
     @action
     insertChat = (chatOfCurrentUser: ChatOfCurrentUser): void => {
-        this.chats.insert(chatOfCurrentUser);
+        const chat = this.chats.insert(chatOfCurrentUser);
 
         if (chatOfCurrentUser.lastMessage) {
             this.insertMessage(chatOfCurrentUser.lastMessage);
@@ -67,9 +77,10 @@ export class EntitiesStore {
                 },
                 chatId: chatOfCurrentUser.id
             });
-            this.chats.findById(chatOfCurrentUser.id)
-                .participants
-                .push(chatOfCurrentUser.chatParticipation.id);
+            chat.participants = Array.from(new Set([
+                ...chat.participants,
+                chatOfCurrentUser.chatParticipation.id
+            ]))
         }
     };
 

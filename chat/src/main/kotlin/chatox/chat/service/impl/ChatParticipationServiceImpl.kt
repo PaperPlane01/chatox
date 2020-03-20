@@ -12,6 +12,7 @@ import chatox.chat.model.ChatRole
 import chatox.chat.model.User
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
+import chatox.chat.repository.UserRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.support.pagination.PaginationRequest
@@ -27,6 +28,7 @@ import java.util.UUID
 @Transactional
 class ChatParticipationServiceImpl(private val chatParticipationRepository: ChatParticipationRepository,
                                    private val chatRepository: ChatRepository,
+                                   private val userRepository: UserRepository,
                                    private val chatParticipationMapper: ChatParticipationMapper,
                                    private val chatEventsPublisher: ChatEventsPublisher,
                                    private val authenticationFacade: AuthenticationFacade): ChatParticipationService {
@@ -124,6 +126,18 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 .map { chatParticipationRepository.findByChatAndUser(chat = it, user = user) }
                 .switchIfEmpty(Mono.empty())
                 .flatMap { it }
+                .map { it.role }
+    }
+
+    override fun getRoleOfUserInChat(chatId: String, userId: String): Mono<ChatRole> {
+        return chatRepository.findById(chatId)
+                .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
+                .zipWith(userRepository.findById(userId))
+                .map { chatParticipationRepository.findByChatAndUser(it.t1, it.t2) }
+                .flatMap {
+                    println("Found chat participation $it")
+                    it
+                }
                 .map { it.role }
     }
 

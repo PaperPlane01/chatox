@@ -23,6 +23,7 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
     @action
     public deleteAllById(ids: string[]): void {
         this.ids = this.ids.filter(id => !ids.includes(id));
+        ids.forEach(id => delete this.entities[id]);
     };
 
     @action
@@ -50,7 +51,7 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
     insertAll(entities: DenormalizedEntity[]): void {
         entities.forEach(entity => {
             this.entities[entity.id] = this.convertToNormalizedForm(entity);
-            this.ids.push(entity.id);
+            this.ids = Array.from(new Set([...this.ids, entity.id]));
         })
     };
 
@@ -58,7 +59,7 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
     public insertAllEntities(entities: Entity[]): void {
         entities.forEach(entity => {
             this.entities[entity.id] = entity;
-            this.ids.push(entity.id);
+            this.ids = Array.from(new Set([...this.ids, entity.id]));
         })
     };
 

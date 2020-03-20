@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Lazy
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
 import java.time.Instant
 import java.util.Date
 
 @Component
+@Transactional
 class AuthenticationFacade {
     @Lazy
     @Autowired
@@ -32,11 +34,14 @@ class AuthenticationFacade {
 
     fun getCurrentAuthentication() = ReactiveSecurityContextHolder.getContext()
             .map { it.authentication }
-            .filter { it is CustomAuthentication }
+            .filter { it.javaClass == CustomAuthentication::class.java }
+            .map { it }
             .cast(CustomAuthentication::class.java)
 
-    fun getCurrentUserDetails() = getCurrentAuthentication()
-            .map { it.customUserDetails }
+    fun getCurrentUserDetails(): Mono<CustomUserDetails> {
+        return getCurrentAuthentication()
+                .map { it.customUserDetails }
+    }
 
     fun getCurrentUser() = getCurrentUserDetails()
             .map { userRepository.findById(it.id) }
