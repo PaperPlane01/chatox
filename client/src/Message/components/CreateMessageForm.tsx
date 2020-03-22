@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import {TextField, IconButton, InputAdornment, Tooltip, createStyles, makeStyles} from "@material-ui/core";
-import {Send, AttachFile, InsertEmoticon, KeyboardVoice} from "@material-ui/icons";
+import {createStyles, Divider, IconButton, InputAdornment, makeStyles, TextField, Tooltip} from "@material-ui/core";
+import {AttachFile, InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
 import {CreateMessageFormData} from "../types";
 import {localized, Localized} from "../../localization";
 import {FormErrors} from "../../utils/types";
@@ -38,6 +38,7 @@ const _CreateMessageForm: FunctionComponent<CreateMessageFormMobxProps & Localiz
 
     return (
         <div className={classes.createMessageForm}>
+            <Divider/>
             <TextField fullWidth
                        placeholder={l("message.type-something")}
                        onChange={event => setFormValue("text", event.target.value)}

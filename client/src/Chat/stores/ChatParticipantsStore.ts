@@ -1,7 +1,7 @@
 import {observable, action, computed, reaction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatStore} from "./ChatStore";
-import {PaginationState} from "../types";
+import {PaginationState} from "../../utils/types";
 import {ChatApi} from "../../api/clients";
 import {EntitiesStore} from "../../entities-store";
 
@@ -31,6 +31,16 @@ export class ChatParticipantsStore {
         }
     }
 
+    constructor(
+        private readonly entities: EntitiesStore,
+        private readonly chatStore: ChatStore
+    ) {
+        reaction(
+            () => this.selectedChat,
+            () => this.fetchChatParticipants({abortIfInitiallyFetched: true})
+        )
+    }
+
     getPaginationState = createTransformer((chatId: string) => {
         if (this.paginationStateMap[chatId]) {
             return this.paginationStateMap[chatId];
@@ -43,16 +53,6 @@ export class ChatParticipantsStore {
             }
         }
     });
-
-    constructor(
-        private readonly entities: EntitiesStore,
-        private readonly chatStore: ChatStore
-    ) {
-        reaction(
-            () => this.selectedChat,
-            () => this.fetchChatParticipants({abortIfInitiallyFetched: true})
-        )
-    }
 
     @action
     fetchChatParticipants = (options: FetchChatParticipantsOptions = {abortIfInitiallyFetched: false}): void => {

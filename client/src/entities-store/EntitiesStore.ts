@@ -1,7 +1,8 @@
 import {action, computed} from "mobx";
-import {ChatsStore, ChatParticipationsStore, MessagesStore} from "../Chat";
-import {UsersStore} from "../User/stores";
+import {ChatsStore, ChatParticipationsStore} from "../Chat";
+import {UsersStore} from "../User";
 import {ChatOfCurrentUser, ChatParticipation, CurrentUser, Message} from "../api/types/response";
+import {MessagesStore} from "../Message";
 import {AuthorizationStore} from "../Authorization";
 
 export class EntitiesStore {

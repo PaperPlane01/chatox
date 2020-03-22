@@ -7,11 +7,10 @@ import {
     ChatsOfCurrentUserStore,
     CreateChatStore,
     ChatStore,
-    ChatParticipationsStore,
     ChatParticipantsStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
-import {CreateMessageStore} from "../Message";
+import {CreateMessageStore, MessagesOfChatStore} from "../Message";
 
 export interface IAppState {
     language: LocaleStore,
@@ -26,5 +25,6 @@ export interface IAppState {
     chat: ChatStore,
     chatParticipants: ChatParticipantsStore,
     messageCreation: CreateMessageStore,
+    messagesOfChat: MessagesOfChatStore,
     store?: any
 }

@@ -29,7 +29,7 @@ type ChatsOfCurrentUserListItemProps = ChatsOfCurrentUserListItemMobxProps & Cha
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatsOfCurrentUserListItem: {
         cursor: "pointer",
-        overflow: "hide"
+        overflow: "hidden"
     },
     gutters: {
         paddingLeft: 0,
@@ -57,6 +57,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         [theme.breakpoints.down("md")]: {
             width: "100%"
         }
+    },
+    listItemSubheader: {
+        [theme.breakpoints.up("lg")]: {
+            whiteSpace: "nowrap",
+            textOverflow: "ellipsis",
+            overflow: "hidden",
+            width: 140
+        },
     },
     unreadMessagesBadgeRoot: {
         [theme.breakpoints.down("md")]: {
@@ -112,13 +120,13 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
                 >
                     <CardHeader title={
                         <Typography className={classes.listItemTitle}>
-                            {chat.name}
+                            <strong>{chat.name}</strong>
                         </Typography>
                     }
                                 subheader={lastMessage && lastMessageSender && (
-                                    <div>
+                                    <Typography className={`${classes.listItemSubheader} ${selected && classes.selected}`}>
                                         {lastMessageSender.firstName}: {lastMessage.text}
-                                    </div>
+                                    </Typography>
                                 )}
                                 avatar={<Avatar avatarLetter={getAvatarLabel(chat.name)}
                                                 avatarColor={randomColor({seed: chatId})}

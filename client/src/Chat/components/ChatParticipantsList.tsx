@@ -3,9 +3,10 @@ import {inject, observer} from "mobx-react";
 import {Card, CardContent, CardHeader, createStyles, makeStyles, Typography} from "@material-ui/core";
 import GroupOutlinedIcon from "@material-ui/icons/GroupOutlined";
 import {ChatParticipantsListItem} from "./ChatParticipantsListItem";
-import {ChatOfCurrentUserEntity, PaginationState} from "../types"
+import {ChatOfCurrentUserEntity} from "../types"
 import {localized, Localized} from "../../localization";
 import {MapMobxToProps} from "../../store";
+import {PaginationState} from "../../utils/types";
 
 interface ChatParticipantsListMobxProps {
     participants: string[],
@@ -24,7 +25,7 @@ const useStyles = makeStyles(() => createStyles({
     titleWrapper: {
         display: "flex"
     }
-}))
+}));
 
 const _ChatParticipangsList: FunctionComponent<ChatParticipantsListProps> = ({
     participants,

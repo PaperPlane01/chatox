@@ -1,23 +1,55 @@
-import React, {FunctionComponent} from "react";
-import {Typography, createStyles, makeStyles, Theme} from "@material-ui/core";
+import React, {FunctionComponent, useState, useEffect, useRef} from "react";
+import {inject, observer} from "mobx-react";
+import {createStyles, makeStyles} from "@material-ui/core";
+import {MessagesListItem} from "./MessagesListItem";
+import {MapMobxToProps} from "../../store";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+interface MessagesListMobxProps {
+    messagesOfChat: string[]
+}
+
+const useStyles = makeStyles(() => createStyles({
     messagesList: {
         height: "calc(100vh - 166px)",
         overflowY: "auto"
     }
 }));
 
-export const MessagesList: FunctionComponent = () => {
+const _MessagesList: FunctionComponent<MessagesListMobxProps> = ({messagesOfChat}) => {
+    const messagesListBottomRef = useRef<HTMLDivElement>(null);
+    const [reachedBottom, setReachedBottom] = useState(true);
+
+    const scrollToBottom = (): void => {
+        if (reachedBottom && messagesListBottomRef && messagesListBottomRef.current) {
+            messagesListBottomRef.current.scrollIntoView();
+        }
+    };
+
+    const handleScroll = (event: React.UIEvent<HTMLElement>): void => {
+        const reachedBottom = event.currentTarget.scrollHeight - event.currentTarget.scrollTop === event.currentTarget.clientHeight;
+        setReachedBottom(reachedBottom);
+    };
+
+    useEffect(scrollToBottom, [messagesOfChat]);
+
     const classes = useStyles();
 
     return (
-        <div className={classes.messagesList}>
-            <Typography variant="body1"
-                        color="textSecondary"
-            >
-                Messages list is under development
-            </Typography>
+        <div className={classes.messagesList}
+             onScroll={handleScroll}
+        >
+            {messagesOfChat.map(messageId => (
+                <MessagesListItem messageId={messageId}
+                                  key={messageId}
+                />
+            ))}
+            <div id="messagesListBottom" ref={messagesListBottomRef}/>
         </div>
     );
 };
+
+const mapMobxToProps: MapMobxToProps<MessagesListMobxProps> = ({messagesOfChat}) => ({
+    messagesOfChat: messagesOfChat.messagesOfChat
+});
+
+export const MessagesList = inject(mapMobxToProps)(observer(_MessagesList) as FunctionComponent);

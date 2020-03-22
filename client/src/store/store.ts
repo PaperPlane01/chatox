@@ -7,14 +7,13 @@ import {
     ChatsOfCurrentUserStore,
     ChatStore,
     CreateChatStore,
-    MessagesStore,
     ChatParticipationsStore, ChatParticipantsStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
 import {EntitiesStore} from "../entities-store";
 import {UsersStore} from "../User/stores";
-import {CreateMessageStore} from "../Message/stores";
+import {CreateMessageStore, MessagesOfChatStore, MessagesStore} from "../Message/stores";
 
 
 const messages = new MessagesStore();
@@ -41,6 +40,7 @@ const chatCreation = new CreateChatStore(entities);
 const chat = new ChatStore(entities);
 const chatParticipants = new ChatParticipantsStore(entities, chat);
 const messageCreation = new CreateMessageStore(chat, entities);
+const messagesOfChat = new MessagesOfChatStore(entities, chat);
 
 export const store: IAppState = {
     authorization,
@@ -54,7 +54,8 @@ export const store: IAppState = {
     chatsOfCurrentUser,
     chat,
     chatParticipants,
-    messageCreation
+    messageCreation,
+    messagesOfChat
 };
 
 export interface MapMobxToProps<ComponentProps = {}> {

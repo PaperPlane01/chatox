@@ -43,8 +43,8 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
 
     if (pending) {
         appBarContent = (
-            <CardHeader title={<Skeleton width="60%"/>}
-                        subheader={<Skeleton width="40"/>}
+            <CardHeader title={<Skeleton width={90}/>}
+                        subheader={<Skeleton width={60}/>}
                         avatar={<Skeleton variant="circle" width={40} height={40}/>}
             />
         )
@@ -72,7 +72,7 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
     } else if (error) {
         appBarContent = (
             <Typography>
-                {getLabelFromError(error)}
+                {l(getLabelFromError(error))}
             </Typography>
         )
     } else {
