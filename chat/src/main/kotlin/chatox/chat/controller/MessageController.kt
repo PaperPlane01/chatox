@@ -40,6 +40,10 @@ class MessageController(private val messageService: MessageService) {
                       @PathVariable messageId: String
     ) = messageService.deleteMessage(messageId)
 
+    @PaginationConfig(
+            pageSize = PageSize(default = 200, max = 300),
+            sortBy = SortBy(default = "createdAt", allowed = ["createdAt"])
+    )
     @GetMapping("/api/v1/chat/{chatId}/messages")
     fun findMessagesByChat(@PathVariable chatId: String,
                            paginationRequest: PaginationRequest

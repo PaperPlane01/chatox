@@ -69,17 +69,9 @@ class MessageServiceImpl(
                                         referredMessage = null,
                                         chat = it.t1
                                 ) }
-                                .map {
-                                    messageRepository.save(it)
-                                }
+                                .map { messageRepository.save(it) }
                                 .flatMap { it }
                     }
-                }
-                .map {
-                    it.chat.lastMessage = it
-                    it.chat.lastMessageDate = it.createdAt
-                    chatRepository.save(it.chat).subscribe()
-                    it
                 }
                 .map { messageMapper.toMessageResponse(
                         message = it,
