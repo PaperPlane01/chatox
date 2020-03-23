@@ -11,12 +11,14 @@ import {UserEntity} from "../../User";
 import {localized, Localized} from "../../localization";
 import {Language} from "../../localization/types";
 import {MapMobxToProps} from "../../store";
+import {CurrentUser} from "../../api/types/response";
 
 const breaks = require("remark-breaks");
 
 interface MessagesListItemMobxProps {
     findMessage: (id: string) => MessageEntity,
-    findUser: (id: string) => UserEntity
+    findUser: (id: string) => UserEntity,
+    currentUser?: CurrentUser
 }
 
 interface MessagesListItemOwnProps {
@@ -43,6 +45,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         display: "flex",
         marginBottom: theme.spacing(1)
     },
+    messageOfCurrentUserListItemWrapper: {
+        [theme.breakpoints.down("md")]: {
+            flexDirection: "row-reverse"
+        }
+    },
     messageCard: {
         borderRadius: 8,
         marginLeft: theme.spacing(1),
@@ -50,11 +57,15 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             maxWidth: "50%"
         },
         [theme.breakpoints.down("md")]: {
-            maxWidth: "70%"
+            maxWidth: "60%"
         },
         [theme.breakpoints.down("sm")]: {
-            maxWidth: "90%"
+            maxWidth: "70%"
         }
+    },
+    messageOfCurrentUserCard: {
+        backgroundColor: theme.palette.primary.light,
+        color: theme.palette.getContrastText(theme.palette.primary.light)
     },
     cardHeaderRoot: {
         paddingBottom: 0
@@ -71,6 +82,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
     messageId,
+    currentUser,
     findMessage,
     findUser,
     locale
@@ -81,16 +93,17 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
     const createAtLabel = getCreatedAtLabel(message.createdAt, locale);
     const color = randomColor({seed: sender.id});
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
+    const sentByCurrentUser = currentUser && currentUser.id === sender.id;
 
     return (
-        <div className={classes.messageListItemWrapper}
+        <div className={`${classes.messageListItemWrapper} ${sentByCurrentUser && classes.messageOfCurrentUserListItemWrapper}`}
              id={`message-${messageId}`}
         >
             <Avatar avatarLetter={avatarLetter}
                     avatarColor={color}
                     avatarUri={sender.avatarUri}
             />
-            <Card className={classes.messageCard}>
+            <Card className={`${classes.messageCard} ${sentByCurrentUser && classes.messageOfCurrentUserCard}`}>
                 <CardHeader title={
                     <Typography variant="body1" style={{color}}>
                         <strong>{sender.firstName} {sender.lastName && sender.lastName}</strong>
@@ -119,9 +132,10 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
     )
 };
 
-const mapMobxToProps: MapMobxToProps<MessagesListItemMobxProps> = ({entities}) => ({
+const mapMobxToProps: MapMobxToProps<MessagesListItemMobxProps> = ({entities, authorization}) => ({
     findMessage: entities.messages.findById,
-    findUser: entities.users.findById
+    findUser: entities.users.findById,
+    currentUser: authorization.currentUser
 });
 
 export const MessagesListItem = localized(
