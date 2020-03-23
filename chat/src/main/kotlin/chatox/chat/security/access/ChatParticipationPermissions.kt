@@ -4,13 +4,19 @@ import chatox.chat.model.ChatRole
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.service.ChatService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class ChatParticipationPermissions(private val chatParticipationService: ChatParticipationService,
-                                   private val chatService: ChatService,
+class ChatParticipationPermissions(private val chatService: ChatService,
                                    private val authenticationFacade: AuthenticationFacade) {
+    private lateinit var chatParticipationService: ChatParticipationService
+
+    @Autowired
+    fun setChatParticipationService(chatParticipationService: ChatParticipationService) {
+        this.chatParticipationService = chatParticipationService
+    }
 
     fun canJoinChat(chatId: String): Mono<Boolean> {
         return authenticationFacade.getCurrentUser()

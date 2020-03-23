@@ -19,7 +19,7 @@ class AuthenticationFacade {
     private lateinit var userRepository: UserRepository
 
     val EMPTY_USER = User(
-            id = "",
+            id = "EMPTY_ID",
             firstName = "anon",
             lastName = null,
             slug = null,

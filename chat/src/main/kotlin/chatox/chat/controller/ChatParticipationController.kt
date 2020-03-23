@@ -21,7 +21,7 @@ import javax.validation.Valid
 class ChatParticipationController(private val chatParticipationService: ChatParticipationService) {
 
     @PostMapping("/api/v1/chat/{chatId}/join")
-    @PreAuthorize("hasRole('USER') and #chatParticipationPermissions.canJoinChat(#chatId)")
+    @PreAuthorize("hasRole('USER')")
     fun joinChat(@PathVariable chatId: String) = chatParticipationService.joinChat(chatId)
 
     @DeleteMapping("/api/v1/chat/{chatId}/leave")
