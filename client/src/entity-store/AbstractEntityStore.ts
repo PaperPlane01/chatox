@@ -1,5 +1,6 @@
 import {action, observable} from "mobx";
 import {createTransformer} from "mobx-utils";
+import {merge} from "lodash";
 import {EntityMap, EntityStore} from "./EntityStore";
 
 export abstract class AbstractEntityStore<Entity extends {id: string}, DenormalizedEntity extends {id: string}>
@@ -40,33 +41,29 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
 
     @action
     public insert(denormalizedEntity: DenormalizedEntity): Entity {
-        const entity = this.convertToNormalizedForm(denormalizedEntity);
-        this.entities[denormalizedEntity.id] = entity;
-        // To ensure uniqueness of IDs
-        this.ids = Array.from(new Set([...this.ids, denormalizedEntity.id]));
+        let entity = this.convertToNormalizedForm(denormalizedEntity);
+        entity = this.insertEntity(entity);
         return entity;
     };
 
     @action
     insertAll(entities: DenormalizedEntity[]): void {
-        entities.forEach(entity => {
-            this.entities[entity.id] = this.convertToNormalizedForm(entity);
-            this.ids = Array.from(new Set([...this.ids, entity.id]));
-        })
+        entities.forEach(entity => this.insert(entity));
     };
 
     @action
     public insertAllEntities(entities: Entity[]): void {
-        entities.forEach(entity => {
-            this.entities[entity.id] = entity;
-            this.ids = Array.from(new Set([...this.ids, entity.id]));
-        })
+        entities.forEach(entity => this.insertEntity(entity))
     };
 
     @action
     public insertEntity(entity: Entity): Entity {
-        this.entities[entity.id] = entity;
-        this.ids = Array.from(new Set([...this.ids, entity.id]));
+        if (this.entities[entity.id]) {
+            this.entities[entity.id] = merge(this.entities[entity.id], entity);
+        } else {
+            this.entities[entity.id] = entity;
+            this.ids = Array.from(new Set([...this.ids, entity.id]));
+        }
         return entity;
     };
 
