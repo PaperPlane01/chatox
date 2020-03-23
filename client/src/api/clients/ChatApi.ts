@@ -1,7 +1,7 @@
 import {AxiosPromise} from "axios";
 import {axiosInstance} from "../axios-instance";
 import {CreateChatRequest} from "../types/request";
-import {AvailabilityResponse, Chat, ChatOfCurrentUser, ChatParticipation} from "../types/response";
+import {AvailabilityResponse, Chat, ChatOfCurrentUser, ChatParticipation, ChatParticipationWithoutUser} from "../types/response";
 import {CHAT, IS_AVAILABLE, JOIN, LEAVE, MY, PARTICIPANTS, SLUG} from "../endpoints";
 
 export class ChatApi {
@@ -18,7 +18,7 @@ export class ChatApi {
         return axiosInstance.get(`/${CHAT}/${MY}`);
     }
 
-    public static joinChat(chatId: string): AxiosPromise<ChatParticipation> {
+    public static joinChat(chatId: string): AxiosPromise<ChatParticipationWithoutUser> {
         return axiosInstance.post(`/${CHAT}/${chatId}/${JOIN}`);
     }
 

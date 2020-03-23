@@ -65,5 +65,8 @@ export interface Labels {
     "message.text-is-too-long": string,
     "message.text-must-be-present": string,
     "message.type-something": string,
-    "feature.not-available": string
+    "feature.not-available": string,
+    "chat.join": string,
+    "chat.leave": string,
+    "chat.join.error": string
 }

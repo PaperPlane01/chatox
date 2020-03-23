@@ -6,3 +6,4 @@ export * from "../../Message/components/MessagesList";
 export * from "./ChatAppBar";
 export * from "./ChatDescription";
 export * from "./ChatInfoContainer";
+export * from "./JoinChatButton";

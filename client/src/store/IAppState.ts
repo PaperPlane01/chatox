@@ -7,7 +7,8 @@ import {
     ChatsOfCurrentUserStore,
     CreateChatStore,
     ChatStore,
-    ChatParticipantsStore
+    ChatParticipantsStore,
+    JoinChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {CreateMessageStore, MessagesOfChatStore} from "../Message";
@@ -26,5 +27,6 @@ export interface IAppState {
     chatParticipants: ChatParticipantsStore,
     messageCreation: CreateMessageStore,
     messagesOfChat: MessagesOfChatStore,
+    joinChat: JoinChatStore,
     store?: any
 }

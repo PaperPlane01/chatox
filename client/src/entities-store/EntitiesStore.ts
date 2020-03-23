@@ -91,11 +91,15 @@ export class EntitiesStore {
     };
 
     @action
-    insertChatParticipation = (chatParticipation: ChatParticipation): void => {
+    insertChatParticipation = (chatParticipation: ChatParticipation, currentUser: boolean = false): void => {
         this.users.insert(chatParticipation.user);
         this.chatParticipations.insert(chatParticipation);
         const chat = this.chats.findById(chatParticipation.chatId);
         chat.participants = Array.from(new Set([...chat.participants, chatParticipation.id]));
+        if (currentUser) {
+            chat.currentUserParticipationId = chatParticipation.id;
+            chat.participantsCount += 1;
+        }
         this.chats.insertEntity(chat);
     }
 }

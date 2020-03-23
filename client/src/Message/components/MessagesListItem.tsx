@@ -1,7 +1,16 @@
 import React, {FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import {Card, CardHeader, CardContent, CardActions, Typography, createStyles, makeStyles, Theme} from "@material-ui/core";
-import {format, differenceInDays, differenceInYears} from "date-fns";
+import {
+    Card,
+    CardActions,
+    CardContent,
+    CardHeader,
+    createStyles,
+    makeStyles,
+    Theme,
+    Typography
+} from "@material-ui/core";
+import {format, isSameDay, isSameYear} from "date-fns";
 import {enUS, ru} from "date-fns/locale";
 import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
@@ -31,12 +40,12 @@ const getCreatedAtLabel = (createdAt: Date, currentLocale: Language): string => 
     const currentDate = new Date();
     const locale = currentLocale === "ru" ? ru : enUS;
 
-    if (differenceInDays(createdAt, currentDate) < 1) {
+    if (isSameDay(createdAt, currentDate)) {
         return format(createdAt, "HH:mm", {locale});
-    } else if (differenceInYears(createdAt, currentDate) < 1) {
-        return format(createdAt, "D MMM HH:mm", {locale});
+    } else if (isSameYear(createdAt, currentDate)) {
+        return format(createdAt, "d MMM HH:mm", {locale});
     } else {
-        return format(createdAt, "D MMM YYYY HH:mm", {locale});
+        return format(createdAt, "d MMM YYYY HH:mm", {locale});
     }
 };
 

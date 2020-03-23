@@ -67,5 +67,8 @@ export const en: Labels = {
     "message.text-is-too-long": "Message text is too long",
     "message.text-must-be-present": "Please type some text",
     "message.type-something": "Type something...",
-    "feature.not-available": "This feature is not yet available"
+    "feature.not-available": "This feature is not yet available",
+    "chat.join": "Join chat",
+    "chat.leave": "Leave chat",
+    "chat.join.error": "Error occurred when tried to join chat"
 };

@@ -67,5 +67,8 @@ export const ru: Labels = {
     "message.text-is-too-long": "Текст сообщения слишком длинный",
     "message.text-must-be-present": "Напечатайте что-нибудь",
     "message.type-something": "Напишите сообщение...",
-    "feature.not-available": "Данный функционал пока недоступен"
+    "feature.not-available": "Данный функционал пока недоступен",
+    "chat.join": "Стать участником чата",
+    "chat.leave": "Покинуть чат",
+    "chat.join.error": "Во время попытки стать участником чата произошла ошибка"
 };
