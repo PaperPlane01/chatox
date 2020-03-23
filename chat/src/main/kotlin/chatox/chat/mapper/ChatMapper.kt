@@ -26,7 +26,7 @@ class ChatMapper(
             name = chat.name,
             slug = chat.slug,
             avatarUri = chat.avatarUri,
-            numberOfParticipants = chat.numberOfParticipants,
+            participantsCount = chat.numberOfParticipants,
             createdByCurrentUser = null,
             tags = chat.tags
     )
@@ -37,7 +37,7 @@ class ChatMapper(
             name = chat.name,
             slug = chat.slug,
             avatarUri = chat.avatarUri,
-            numberOfParticipants = chat.numberOfParticipants,
+            participantsCount = chat.numberOfParticipants,
             createdByCurrentUser = currentUserId ?: currentUserId === chat.createdBy.id,
             tags = chat.tags
     )
