@@ -26,7 +26,11 @@ ReactDOM.render(
 );
 
 if (localStorage.getItem("accessToken")) {
-    store.authorization.fetchCurrentUser().then(() => store.chatsOfCurrentUser.fetchChatsOfCurrentUser());
+    store.authorization.fetchCurrentUser()
+        .then(() => store.chatsOfCurrentUser.fetchChatsOfCurrentUser())
+        .then(() => store.websocket.startListening());
+} else {
+    store.websocket.startListening();
 }
 
 // If you want your app to work offline and load faster, you can change

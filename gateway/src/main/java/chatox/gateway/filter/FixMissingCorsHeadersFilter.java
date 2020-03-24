@@ -20,9 +20,11 @@ public class FixMissingCorsHeadersFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         var responseHeaders = exchange.getResponse().getHeaders();
-
         if (StringUtils.isEmpty(responseHeaders.getAccessControlAllowOrigin())) {
-            exchange.getResponse().getHeaders().setAccessControlAllowOrigin("*");
+            if (!exchange.getRequest().getPath().toString().startsWith("/api/v1/events")) {
+                exchange.getResponse().getHeaders().setAccessControlAllowOrigin("*");
+            }
+
             exchange.getResponse().getHeaders().setAccessControlAllowMethods(Arrays.asList(
                     HttpMethod.GET,
                     HttpMethod.POST,

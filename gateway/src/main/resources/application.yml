@@ -4,18 +4,37 @@ spring:
       discovery:
         locator:
           enabled: true
+      filter:
+        remove-non-proxy-headers:
+          headers:
+            - connection
+            - keep-alive
+            - transfer-encoding
+            - te
+            - trailer
+            - proxy-authorization
+            - proxy-authenticate
+            - x-application-context
+        remove-hop-by-hop:
+          headers:
+            - connection
+            - keep-alive
+            - transfer-encoding
+            - te
+            - trailer
+            - proxy-authorization
+            - proxy-authenticate
+            - x-application-context
       globalcors:
         cors-configurations:
-          '[/api/v1/events/handshake/**]':
-            allowedOrigins: '*'
-            allowedMethods: '*'
-            allowedHeaders: '*'
-            allowCredentials: true
           '[/**]':
             allowedOrigins: '*'
             allowedMethods: '*'
             allowedHeaders: '*'
             allowCredentials: true
+          '[/api/v1/events/**]':
+            allowedMethods: '*'
+            allowedHeaders: '*'
       routes:
         - id: oauth2
           uri: lb://oauth2-service
@@ -38,7 +57,7 @@ spring:
           predicates:
             - Path=/api/v1/events/**
         - id: events-service-websocket
-          uri: lb:ws//events-service
+          uri: lb:ws://events-service
           predicates:
             - Path=/**
 eureka:

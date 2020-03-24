@@ -4,6 +4,7 @@ import {EurekaModule} from "./eureka";
 import {RabbitMQConfigModule} from "./rabbitmq";
 import {WebsocketModule} from "./websocket";
 import {ChatParticipationModule} from "./chat-participation";
+import {MessagesModule} from "./messages";
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import {ChatParticipationModule} from "./chat-participation";
       RabbitMQConfigModule,
       WebsocketModule,
       ChatParticipationModule,
+      MessagesModule,
       MongooseModule.forRoot(`mongodb://${process.env.MONGODB_HOST}:${process.env.MONGODB_PORT}/${process.env.MONGODB_DATABASE_NAME}`)
   ]
 })

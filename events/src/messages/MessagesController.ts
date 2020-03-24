@@ -10,8 +10,8 @@ export class MessagesController {
 
     @RabbitSubscribe({
         exchange: "chat.events",
-        queue: `events_service_message_created-${process.env.SERVER_PORT}`,
-        routingKey: "chat.message.created.#"
+        routingKey: "chat.message.created.#",
+        queue: `events_service_message_created-${process.env.SERVER_PORT}`
     })
     public async onMessageCreated(chatMessage: ChatMessage): Promise<void> {
         await this.websocketEventsPublisher.publishMessageCreated(chatMessage);

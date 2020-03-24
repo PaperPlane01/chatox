@@ -17,8 +17,11 @@ import {CreateChatParticipationDto} from "../chat-participation/types";
 import {forwardRef, Inject} from "@nestjs/common";
 
 @WebSocketGateway({
-    path: "/api/v1/events",
-    transports: ["websocket", "polling"]
+    path: "/api/v1/events/",
+    transports: [
+        "websocket",
+        "polling"
+    ]
 })
 export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayDisconnect {
     private usersAndClientsMap: {[userId: string]: Socket[]} = {};
@@ -118,6 +121,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.MESSAGE_CREATED,
             payload: message
         };
+        console.log("publishing new message");
         await this.publishEventToChatParticipants(message.chatId, messageCreatedEvent);
         await this.publishEventToUsersSubscribedToChat(message.chatId, messageCreatedEvent);
     }

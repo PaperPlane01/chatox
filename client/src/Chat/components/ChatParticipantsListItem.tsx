@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import {ListItem, ListItemText, MenuItem, createStyles, makeStyles, Theme} from "@material-ui/core";
+import {createStyles, ListItemText, makeStyles, MenuItem, Theme, Typography} from "@material-ui/core";
 import randomColor from "randomcolor";
 import {ChatParticipationEntity} from "../types";
 import {Avatar} from "../../Avatar";

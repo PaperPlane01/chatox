@@ -11,6 +11,7 @@ import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
+import chatox.chat.repository.MessageRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatService
 import chatox.chat.support.pagination.PaginationRequest
@@ -25,6 +26,7 @@ import java.util.Date
 @Transactional
 class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationRepository: ChatParticipationRepository,
+                      private val messageRepository: MessageRepository,
                       private val chatMapper: ChatMapper,
                       private val authenticationFacade: AuthenticationFacade) : ChatService {
 
@@ -87,13 +89,35 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         return authenticationFacade.getCurrentUser()
                 .map { chatParticipationRepository.findAllByUser(it) }
                 .flatMapMany { it }
+                .map { Mono.just(it) }
+                .parallel()
+                .map { it.zipWith(countUnreadMessages(it)) }
+                .flatMap { it }
+                .sequential()
                 .map { chatMapper.toChatOfCurrentUserResponse(
-                        chat = it.chat,
-                        lastMessage = it.chat.lastMessage,
-                        lastReadMessage = if (it.lastMessageRead != null) it.lastMessageRead!!.message else null,
-                        unreadMessagesCount = 0,
-                        chatParticipation = it
+                        chat = it.t1.chat,
+                        lastMessage = it.t1.chat.lastMessage,
+                        lastReadMessage = if (it.t1.lastMessageRead != null) it.t1.lastMessageRead!!.message else null,
+                        unreadMessagesCount = it.t2,
+                        chatParticipation = it.t1
                 ) }
+    }
+
+    private fun countUnreadMessages(chatParticipation: Mono<ChatParticipation>): Mono<Int> {
+        return chatParticipation.map {
+            if (it.lastMessageRead != null) {
+                val message = it.lastMessageRead!!.message
+
+                if (message != message.chat.lastMessage) {
+                    messageRepository.countByChatAndCreatedAtAfter(message.chat, message.createdAt)
+                } else {
+                    Mono.just(0)
+                }
+            } else {
+                Mono.just(0)
+            }
+        }
+                .flatMap { it }
     }
 
     override fun isChatCreatedByUser(chatId: String, userId: String): Mono<Boolean> {

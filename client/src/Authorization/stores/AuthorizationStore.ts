@@ -1,7 +1,8 @@
-import {action, observable} from "mobx";
+import {action, observable, computed} from "mobx";
 import {UserApi} from "../../api";
 import {CurrentUser} from "../../api/types/response";
 import {EntitiesStore} from "../../entities-store";
+import {tokenRefreshState} from "../../api/axios-instance";
 
 export class AuthorizationStore {
     @observable
@@ -12,6 +13,11 @@ export class AuthorizationStore {
 
     @observable
     loggingOut: boolean = false;
+
+    @computed
+    get refreshingToken(): boolean {
+        return tokenRefreshState.refreshingToken;
+    }
 
     constructor(private readonly entities: EntitiesStore) {}
 

@@ -98,6 +98,7 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
     const lastMessage = chat.lastMessage && findMessage(chat.lastMessage);
     const lastMessageSender = lastMessage && findUser(lastMessage.sender);
     const selected = selectedChat === chatId;
+    console.log("111")
 
     return (
         <Link store={routerStore}

@@ -11,9 +11,7 @@ import {
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {FormErrors} from "../../utils/types";
 import {countMotUndefinedValues} from "../../utils/object-utils";
-import {ChatOfCurrentUser} from "../../api/types/response/ChatOfCurrentUser";
-import {ChatsStore} from "./ChatsStore";
-import {ChatsOfCurrentUserStore} from "./ChatsOfCurrentUserStore";
+import {ChatOfCurrentUser} from "../../api/types/response";
 import {EntitiesStore} from "../../entities-store";
 
 export class CreateChatStore {
