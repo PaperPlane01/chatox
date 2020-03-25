@@ -55,7 +55,10 @@ export class CreateMessageStore {
                     MessageApi.createMessage(chatId, {
                         text: this.createMessageForm.text
                     })
-                        .then(({data}) => this.entitiesStore.insertMessage(data))
+                        .then(({data}) => {
+                            this.entitiesStore.insertMessage(data);
+                            this.resetForm();
+                        })
                         .catch(error => this.submissionError = getInitialApiErrorFromResponse(error))
                         .finally(() => this.pending = false)
                 }
@@ -67,8 +70,19 @@ export class CreateMessageStore {
     validateForm = (): Promise<boolean> => {
         return new Promise<boolean>(resolve => {
             this.formErrors.text = validateMessageText(this.createMessageForm.text);
-
             resolve(!Boolean(this.formErrors.text));
         });
+    };
+
+    @action
+    resetForm = (): void => {
+        this.createMessageForm = {
+            text: ""
+        };
+        setTimeout(() => {
+            this.formErrors = {
+                text: undefined
+            }
+        })
     }
 }

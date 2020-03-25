@@ -69,7 +69,10 @@ const _CreateMessageForm: FunctionComponent<CreateMessageFormMobxProps & Localiz
                                        </Tooltip>
                                        {formValues.text.length
                                            ? (
-                                               <IconButton onClick={createMessage}>
+                                               <IconButton onClick={createMessage}
+                                                           color="primary"
+                                                           disabled={pending}
+                                               >
                                                    <Send/>
                                                </IconButton>
                                            )
