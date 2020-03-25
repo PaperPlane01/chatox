@@ -45,31 +45,29 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         [theme.breakpoints.down("md")]: {
             padding: 16,
             paddingLeft: 0
-        }
-    },
-    listItemTitle: {
-        [theme.breakpoints.up("lg")]: {
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-            overflow: "hidden",
-            width: 140
         },
-        [theme.breakpoints.down("md")]: {
-            width: "100%"
-        }
+        maxWidth: "100%"
     },
-    listItemSubheader: {
-        [theme.breakpoints.up("lg")]: {
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-            overflow: "hidden",
-            width: 140
-        },
+    listItemHeaderContent: {
+        maxWidth: "80%"
+    },
+    flexWrapper: {
+        display: "flex",
+    },
+    flexTruncatedTextContainer: {
+        flex: 1,
+        minWidth: 0
+    },
+    flexTruncatedText: {
+        whiteSpace: "nowrap",
+        textOverflow: "ellipsis",
+        overflow: "hidden"
     },
     unreadMessagesBadgeRoot: {
         [theme.breakpoints.down("md")]: {
             width: "100%"
-        }
+        },
+        maxWidth: "100%"
     },
     unreadMessagesBadgeTopRightRectangle: {
         [theme.breakpoints.down("md")]: {
@@ -98,7 +96,6 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
     const lastMessage = chat.lastMessage && findMessage(chat.lastMessage);
     const lastMessageSender = lastMessage && findUser(lastMessage.sender);
     const selected = selectedChat === chatId;
-    console.log("111")
 
     return (
         <Link store={routerStore}
@@ -120,21 +117,31 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
                        hidden={chat.unreadMessagesCount === 0}
                 >
                     <CardHeader title={
-                        <Typography className={classes.listItemTitle}>
-                            <strong>{chat.name}</strong>
-                        </Typography>
+                        <div className={classes.flexWrapper}>
+                            <div className={classes.flexTruncatedTextContainer}>
+                                <Typography className={classes.flexTruncatedText}>
+                                    <strong>{chat.name}</strong>
+                                </Typography>
+                            </div>
+                        </div>
+
                     }
                                 subheader={lastMessage && lastMessageSender && (
-                                    <Typography className={`${classes.listItemSubheader} ${selected && classes.selected}`}>
-                                        {lastMessageSender.firstName}: {lastMessage.text}
-                                    </Typography>
+                                    <div className={classes.flexWrapper}>
+                                        <div className={classes.flexTruncatedTextContainer}>
+                                            <Typography className={`${classes.flexTruncatedText} ${selected && classes.selected}`}>
+                                                {lastMessageSender.firstName}: {lastMessage.text}
+                                            </Typography>
+                                        </div>
+                                    </div>
                                 )}
                                 avatar={<Avatar avatarLetter={getAvatarLabel(chat.name)}
                                                 avatarColor={randomColor({seed: chatId})}
                                                 avatarUri={chat.avatarUri}
                                 />}
                                 classes={{
-                                    root: classes.listItemHeaderRoot
+                                    root: classes.listItemHeaderRoot,
+                                    content: classes.listItemHeaderContent
                                 }}
                     />
                     <Divider/>
