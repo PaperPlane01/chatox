@@ -1,4 +1,4 @@
-import {observable, action, reaction, computed} from "mobx";
+import {action, computed, reaction} from "mobx";
 import SocketIo from "socket.io-client";
 import {AuthorizationStore} from "../../Authorization/stores";
 import {EntitiesStore} from "../../entities-store";
@@ -48,12 +48,16 @@ export class WebsocketStore {
         if (this.socketIoClient) {
             this.socketIoClient.on(
                 WebsocketEventType.MESSAGE_CREATED,
-                (event: WebsocketEvent<Message>) => this.entities.insertMessage(event.payload)
+                (event: WebsocketEvent<Message>) => {
+                    const message = event.payload;
+                    message.previousMessageId = this.entities.chats.findById(message.chatId).lastMessage;
+                    this.entities.insertMessage(message);
+                }
             );
             this.socketIoClient.on(
                 WebsocketEventType.MESSAGE_UPDATED,
                 (event: WebsocketEvent<Message>) => this.entities.insertMessage(event.payload)
-            )
+            );
         }
     };
 
