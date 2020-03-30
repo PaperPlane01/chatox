@@ -11,7 +11,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 interface ChatService {
-    fun createChat(createChatRequest: CreateChatRequest): Mono<ChatResponse>
+    fun createChat(createChatRequest: CreateChatRequest): Mono<ChatOfCurrentUserResponse>
     fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse>
     fun deleteChat(id: String): Mono<Void>
     fun findChatBySlugOrId(slugOrId: String): Mono<ChatResponse>

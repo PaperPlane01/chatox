@@ -1,7 +1,12 @@
 import axios from "axios";
 import createAuthRefreshInterceptor from "axios-auth-refresh";
+import {observable} from "mobx";
 import queryString from "query-string";
 import {API_ROOT, OAUTH, TOKEN} from "./endpoints";
+
+export const tokenRefreshState = observable({
+    refreshingToken: false
+});
 
 const _axiosInstance = axios.create({
     baseURL: `${process.env.REACT_APP_API_BASE_URL}/${API_ROOT}`,
@@ -22,6 +27,7 @@ _axiosInstance.interceptors.request.use(config => {
 
 const refreshAccessToken = (originalRequest: any): Promise<void> => {
     if (localStorage.getItem("refreshToken")) {
+        tokenRefreshState.refreshingToken = true;
         return axios({
             baseURL: process.env.REACT_APP_API_BASE_URL,
             url: `/${OAUTH}/${TOKEN}?${queryString.stringify({
@@ -50,6 +56,7 @@ const refreshAccessToken = (originalRequest: any): Promise<void> => {
                 delete originalRequest.response.config.headers.Authorization;
                 return Promise.resolve();
             })
+            .finally(() => tokenRefreshState.refreshingToken = false)
     } else {
         delete originalRequest.headers.Authorization;
         return Promise.resolve();

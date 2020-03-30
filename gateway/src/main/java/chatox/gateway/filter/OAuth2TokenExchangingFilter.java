@@ -9,6 +9,8 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
+
 @Component
 public class OAuth2TokenExchangingFilter implements WebFilter {
     @Autowired
@@ -39,7 +41,10 @@ public class OAuth2TokenExchangingFilter implements WebFilter {
                 var queryParameters = serverWebExchange.getRequest().getQueryParams();
                 var accessToken = queryParameters.getFirst("accessToken");
                 var jwt = tokenExchanger.exchangeAccessTokenToJwtToken(accessToken);
-                var queryString = queryParameters.entrySet().stream()
+                System.out.println(path);
+                System.out.println(serverWebExchange.getRequest().getURI().toString());
+                var queryString = queryParameters.entrySet()
+                        .stream()
                         .map(entry -> {
                             if (entry.getKey().equals("accessToken")) {
                                 return "accessToken=" + jwt;
@@ -47,13 +52,18 @@ public class OAuth2TokenExchangingFilter implements WebFilter {
                                 return entry.getKey() + "=" + entry.getValue().get(0);
                             }
                         })
-                        .reduce((left, right) -> left + right)
+                        .reduce((left, right) -> left + "&" + right)
                         .orElse("");
                 queryString = "?" + queryString;
+                var originalUri = serverWebExchange.getRequest().getURI().toString();
+                var newUri = URI.create(originalUri.replace(
+                        originalUri.substring(originalUri.indexOf("?")), queryString
+                ));
                 var request = serverWebExchange.getRequest()
                         .mutate()
-                        .path(path + queryString)
+                        .uri(newUri)
                         .build();
+                System.out.println(request.getURI().toString());
                 var exchange = serverWebExchange.mutate()
                         .request(request)
                         .build();

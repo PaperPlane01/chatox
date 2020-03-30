@@ -14,5 +14,6 @@ data class User(
         var lastSeen: Date,
         var avatarUri: String?,
         var accountId: String,
-        var deleted: Boolean
+        var deleted: Boolean,
+        var dateOfBirth: Date?
 )

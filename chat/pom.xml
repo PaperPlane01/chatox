@@ -97,6 +97,11 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-maven-allopen</artifactId>
+			<version>${kotlin.version}</version>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
@@ -128,7 +133,11 @@
 					</args>
 					<compilerPlugins>
 						<plugin>spring</plugin>
+						<plugin>all-open</plugin>
 					</compilerPlugins>
+					<pluginOptions>
+						<option>all-open:annotation=org.springframework.data.mongodb.core.mapping.Document</option>
+					</pluginOptions>
 				</configuration>
 				<dependencies>
 					<dependency>

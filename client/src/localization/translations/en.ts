@@ -57,5 +57,18 @@ export const en: Labels = {
     "username.too-short": "Username is too short",
     "chat.create-chat": "Create chat",
     "markdown.preview": "Preview",
-    "markdown.preview.show": "Show preview"
+    "markdown.preview.show": "Show preview",
+    "chat.select-chat": "Select chat to start messaging",
+    "chat.login-to-see-list": "You need too log in to see list of your chats",
+    "chat.my-chats": "My chats",
+    "chat.number-of-participants": "{numberOfParticipants} participants",
+    "chat.no-description": "No description provided",
+    "home": "Home",
+    "message.text-is-too-long": "Message text is too long",
+    "message.text-must-be-present": "Please type some text",
+    "message.type-something": "Type something...",
+    "feature.not-available": "This feature is not yet available",
+    "chat.join": "Join chat",
+    "chat.leave": "Leave chat",
+    "chat.join.error": "Error occurred when tried to join chat"
 };

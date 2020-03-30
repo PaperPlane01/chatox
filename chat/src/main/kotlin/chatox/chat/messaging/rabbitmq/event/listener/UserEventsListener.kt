@@ -26,7 +26,10 @@ class UserEventsListener(private val userRepository: UserRepository) {
                 lastSeen = userCreated.lastSeen,
                 slug = userCreated.slug,
                 firstName = userCreated.firstName,
-                lastName = userCreated.lastName
+                lastName = userCreated.lastName,
+                bio = userCreated.bio,
+                dateOfBirth = null,
+                createdAt = userCreated.createdAt
         ))
                 .flatMap { Mono.empty<Void>() }
     }
@@ -40,7 +43,10 @@ class UserEventsListener(private val userRepository: UserRepository) {
                         avatarUri = userUpdated.avatarUri,
                         firstName = userUpdated.firstName,
                         lastName = userUpdated.lastName,
-                        slug = userUpdated.slug
+                        slug = userUpdated.slug,
+                        bio = userUpdated.bio,
+                        dateOfBirth = userUpdated.dateOfBirth,
+                        createdAt = userUpdated.createdAt
                 )) }
                 .flatMap { it }
                 .flatMap { Mono.empty<Void>() }

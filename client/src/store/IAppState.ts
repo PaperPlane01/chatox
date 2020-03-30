@@ -1,9 +1,18 @@
+import {EntitiesStore} from "../entities-store";
 import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore} from "../Authorization";
 import {UserRegistrationStore} from "../Registration";
-import {CreateChatStore} from "../Chat";
+import {
+    ChatsOfCurrentUserStore,
+    CreateChatStore,
+    ChatStore,
+    ChatParticipantsStore,
+    JoinChatStore
+} from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
+import {CreateMessageStore, MessagesOfChatStore} from "../Message";
+import {WebsocketStore} from "../websocket";
 
 export interface IAppState {
     language: LocaleStore,
@@ -13,5 +22,13 @@ export interface IAppState {
     appBar: AppBarStore,
     chatCreation: CreateChatStore,
     markdownPreviewDialog: MarkdownPreviewDialogStore,
+    entities: EntitiesStore,
+    chatsOfCurrentUser: ChatsOfCurrentUserStore,
+    chat: ChatStore,
+    chatParticipants: ChatParticipantsStore,
+    messageCreation: CreateMessageStore,
+    messagesOfChat: MessagesOfChatStore,
+    joinChat: JoinChatStore,
+    websocket: WebsocketStore
     store?: any
 }

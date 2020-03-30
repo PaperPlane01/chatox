@@ -13,5 +13,6 @@ data class UserResponse(
         val lastName: String?,
         val createdAt: Date,
         val lastSeen: Date,
-        val avatarUri: String?
+        val avatarUri: String?,
+        val dateOfBirth: Date?
 )

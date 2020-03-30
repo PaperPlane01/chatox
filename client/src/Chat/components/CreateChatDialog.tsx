@@ -19,7 +19,7 @@ import {
 import {CreateChatFormData, TagErrorsMapContainer} from "../types";
 import {FormErrors} from "../../utils/types";
 import {ApiError} from "../../api";
-import {ChatResponse} from "../../api/types/response";
+import {Chat, ChatOfCurrentUser} from "../../api/types/response";
 import {localized, Localized} from "../../localization";
 import {MapMobxToProps} from "../../store";
 import {Routes} from "../../router";
@@ -34,7 +34,7 @@ interface CreateChatDialogMobxProps {
     submissionError?: ApiError,
     checkingSlugAvailability: boolean,
     createChatDialogOpen: boolean,
-    createdChat?: ChatResponse,
+    createdChat?: ChatOfCurrentUser,
     createChat: () => void,
     setCreateChatDialogOpen: (createChatDialogOpen: boolean) => void,
     setFormValue: <Key extends keyof CreateChatFormData>(key: Key, value: CreateChatFormData[Key]) => void,

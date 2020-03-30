@@ -57,5 +57,18 @@ export const ru: Labels = {
     "username.too-short": "Имя пользователя слишком короткое",
     "chat.create-chat": "Создать чат",
     "markdown.preview": "Превью",
-    "markdown.preview.show": "Показать превью"
+    "markdown.preview.show": "Показать превью",
+    "chat.select-chat": "Выберите чат",
+    "chat.login-to-see-list": "Войдите в аккаунт, чтобы увидеть список ваших чатов",
+    "chat.my-chats": "Мои чаты",
+    "chat.number-of-participants": "{numberOfParticipants} участников",
+    "chat.no-description": "Описание не указано",
+    "home": "На главную",
+    "message.text-is-too-long": "Текст сообщения слишком длинный",
+    "message.text-must-be-present": "Напечатайте что-нибудь",
+    "message.type-something": "Напишите сообщение...",
+    "feature.not-available": "Данный функционал пока недоступен",
+    "chat.join": "Стать участником чата",
+    "chat.leave": "Покинуть чат",
+    "chat.join.error": "Во время попытки стать участником чата произошла ошибка"
 };

@@ -1,6 +1,8 @@
 import React, {FunctionComponent, Fragment} from "react";
 import {inject, observer} from "mobx-react";
 import {SwipeableDrawer, List} from "@material-ui/core";
+import {HomeMenuItem} from "./HomeMenuItem";
+import {MyChatsMenuItem} from "./MyChatsMenuItem";
 import {HasRole} from "../../Authorization";
 import {LoginMenuItem, LogOutMenuItem, LoginDialog} from "../../Authorization";
 import {RegistrationMenuItem, RegistrationDialog} from "../../Registration";
@@ -23,14 +25,21 @@ const _NavigationalDrawer: FunctionComponent<NavigationalDrawerMobxProps> = ({
             <SwipeableDrawer onClose={closeDrawer}
                              onOpen={openDrawer}
                              open={drawerOpen}
+                             PaperProps={{
+                                 style: {
+                                     width: 240
+                                 }
+                             }}
             >
                 <List>
+                    <HomeMenuItem onClick={closeDrawer}/>
                     <HasRole role="ROLE_NOT_LOGGED_IN">
                         <LoginMenuItem onClick={closeDrawer}/>
                         <RegistrationMenuItem onClick={closeDrawer}/>
                     </HasRole>
                     <HasRole role="ROLE_USER">
-                        <LogOutMenuItem/>
+                        <MyChatsMenuItem onClick={closeDrawer}/>
+                        <LogOutMenuItem onClick={closeDrawer}/>
                     </HasRole>
                 </List>
             </SwipeableDrawer>

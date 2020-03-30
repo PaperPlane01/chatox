@@ -1,16 +1,37 @@
 import React, {FunctionComponent} from "react";
-import {Grid, Typography} from "@material-ui/core";
-import {AppBar} from "../AppBar";
+import {Grid, Hidden} from "@material-ui/core";
+import {ChatAppBar, ChatInfoContainer, ChatsOfCurrentUserList, MessagesList} from "../Chat";
+import {CreateMessageForm} from "../Message";
+import {MessagesListBottom} from "../Message/components/MessagesListBottom";
+
+const ScrollLock = require("react-scrolllock").default;
 
 export const ChatPage: FunctionComponent = () => (
-    <Grid container>
-        <Grid item xs={12}>
-            <AppBar/>
+    <ScrollLock>
+        <Grid container>
+            <Grid item xs={12}>
+                <ChatAppBar/>
+            </Grid>
+            <Grid item xs={12}>
+                <Grid item xs={12} style={{display: "flex"}}
+                      justify="space-between"
+                >
+                    <Hidden mdDown>
+                        <ChatsOfCurrentUserList/>
+                    </Hidden>
+                    <Grid container>
+                        <Grid item xs={12} lg={9}>
+                            <MessagesList/>
+                            <MessagesListBottom/>
+                        </Grid>
+                        <Hidden mdDown>
+                            <Grid item lg={3}>
+                                <ChatInfoContainer/>
+                            </Grid>
+                        </Hidden>
+                    </Grid>
+                </Grid>
+            </Grid>
         </Grid>
-        <Grid item xs={12}>
-            <Typography variant="body1">
-                This page is under development
-            </Typography>
-        </Grid>
-    </Grid>
+    </ScrollLock>
 );

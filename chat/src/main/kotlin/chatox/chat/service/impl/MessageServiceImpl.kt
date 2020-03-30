@@ -13,9 +13,12 @@ import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.MessageReadRepository
 import chatox.chat.repository.MessageRepository
 import chatox.chat.security.AuthenticationFacade
+import chatox.chat.security.access.MessagePermissions
 import chatox.chat.service.MessageService
 import chatox.chat.support.pagination.PaginationRequest
 import chatox.chat.util.isDateBeforeOrEquals
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
@@ -35,38 +38,58 @@ class MessageServiceImpl(
         private val authenticationFacade: AuthenticationFacade,
         private val messageMapper: MessageMapper) : MessageService {
 
+    private lateinit var messagePermissions: MessagePermissions
+
+    @Autowired
+    fun setMessagePermissions(messagePermissions: MessagePermissions) {
+        this.messagePermissions = messagePermissions
+    }
+
     override fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse> {
         val chat = findChatById(chatId)
-        val savedMessage: Mono<Message>
 
-        if (createMessageRequest.referredMessageId != null) {
-            savedMessage = chat.zipWith(findMessageEntityById(createMessageRequest.referredMessageId))
-                    .zipWith(authenticationFacade.getCurrentUser())
-                    .map { messageMapper.fromCreateMessageRequest(
-                            createMessageRequest,
-                            sender = it.t2,
-                            referredMessage = it.t1.t2,
-                            chat = it.t1.t1
-                    ) }
-                    .map { messageRepository.save(it) }
-                    .flatMap { it }
-        } else {
-            savedMessage =  chat.zipWith(authenticationFacade.getCurrentUser())
-                    .map { messageMapper.fromCreateMessageRequest(
-                            createMessageRequest,
-                            sender = it.t2,
-                            referredMessage = null,
-                            chat = it.t1
-                    ) }
-                    .map { messageRepository.save(it) }
-                    .flatMap { it }
-        }
+        return assertCanCreateMessage(chatId)
+                .flatMap {
+                    if (createMessageRequest.referredMessageId != null) {
+                        chat.zipWith(findMessageEntityById(createMessageRequest.referredMessageId))
+                                .zipWith(authenticationFacade.getCurrentUser())
+                                .map { messageMapper.fromCreateMessageRequest(
+                                        createMessageRequest,
+                                        sender = it.t2,
+                                        referredMessage = it.t1.t2,
+                                        chat = it.t1.t1
+                                ) }
+                                .map { messageRepository.save(it) }
+                                .flatMap { it }
+                    } else {
+                        chat.zipWith(authenticationFacade.getCurrentUser())
+                                .map { messageMapper.fromCreateMessageRequest(
+                                        createMessageRequest,
+                                        sender = it.t2,
+                                        referredMessage = null,
+                                        chat = it.t1
+                                ) }
+                                .map { messageRepository.save(it) }
+                                .flatMap { it }
+                    }
+                }
+                .map { messageMapper.toMessageResponse(
+                        message = it,
+                        mapReferredMessage = true,
+                        readByCurrentUser = true
+                ) }
+    }
 
-        return savedMessage.map { messageMapper.toMessageResponse(
-                it,
-                mapReferredMessage = true,
-                readByCurrentUser = true
-        ) }
+    private fun assertCanCreateMessage(chatId: String): Mono<Boolean> {
+        return messagePermissions.canCreateMessage(chatId)
+                .map {
+                    if (!it) {
+                        Mono.error<Boolean>(AccessDeniedException("Can't create message"))
+                    } else {
+                        Mono.just(it)
+                    }
+                }
+                .flatMap { it }
     }
 
     override fun updateMessage(id: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {

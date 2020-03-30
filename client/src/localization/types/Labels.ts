@@ -55,5 +55,18 @@ export interface Labels {
     "username.too-short": string,
     "chat.create-chat": string,
     "markdown.preview": string,
-    "markdown.preview.show": string
+    "markdown.preview.show": string,
+    "chat.select-chat": string,
+    "chat.login-to-see-list": string,
+    "chat.my-chats": string,
+    "chat.number-of-participants": string,
+    "chat.no-description": string,
+    "home": string,
+    "message.text-is-too-long": string,
+    "message.text-must-be-present": string,
+    "message.type-something": string,
+    "feature.not-available": string,
+    "chat.join": string,
+    "chat.leave": string,
+    "chat.join.error": string
 }

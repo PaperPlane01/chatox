@@ -16,7 +16,10 @@ class CustomJwtReactiveAuthenticationManager(private val jwtDecoder: ReactiveJwt
                 .map { jwtDecoder.decode(it.token) }
                 .flatMap { it }
                 .map { JwtAuthenticationToken(it) }
-                .map { CustomAuthentication(it) }
+                .map {
+                    val auth = CustomAuthentication(it)
+                    auth
+                }
     }
 
 }

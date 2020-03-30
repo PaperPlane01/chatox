@@ -12,5 +12,5 @@ data class ChatResponse(
         @field:JsonInclude(JsonInclude.Include.NON_NULL)
         val createdByCurrentUser: Boolean?,
         @field:JsonInclude(JsonInclude.Include.NON_NULL)
-        val numberOfParticipants: Int?
+        val participantsCount: Int?
 )

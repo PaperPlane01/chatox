@@ -26,7 +26,7 @@ class ChatMapper(
             name = chat.name,
             slug = chat.slug,
             avatarUri = chat.avatarUri,
-            numberOfParticipants = chat.numberOfParticipants,
+            participantsCount = chat.numberOfParticipants,
             createdByCurrentUser = null,
             tags = chat.tags
     )
@@ -37,7 +37,7 @@ class ChatMapper(
             name = chat.name,
             slug = chat.slug,
             avatarUri = chat.avatarUri,
-            numberOfParticipants = chat.numberOfParticipants,
+            participantsCount = chat.numberOfParticipants,
             createdByCurrentUser = currentUserId ?: currentUserId === chat.createdBy.id,
             tags = chat.tags
     )
@@ -54,12 +54,13 @@ class ChatMapper(
             )
         }
 
-        if (lastReadMessage != null) {
+        if (lastMessage != null) {
             lastMessageMapped = messageMapper.toMessageResponse(
-                    lastReadMessage,
-                    readByCurrentUser = lastReadMessage.id == lastMessage?.id,
+                    lastMessage,
+                    readByCurrentUser = lastReadMessage ?: lastReadMessage?.id == lastMessage.id,
                     mapReferredMessage = false
             )
+
         }
 
         return ChatOfCurrentUserResponse(
@@ -70,7 +71,11 @@ class ChatMapper(
                 lastReadMessage = lastReadMessageMapped,
                 lastMessage = lastMessageMapped,
                 chatParticipation = chatParticipationMapper.toMinifiedChatParticipationResponse(chatParticipation),
-                unreadMessagesCount = unreadMessagesCount
+                unreadMessagesCount = unreadMessagesCount,
+                createdAt = chat.createdAt,
+                description = chat.description,
+                tags = chat.tags,
+                participantsCount = chat.numberOfParticipants
         )
     }
 

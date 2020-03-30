@@ -1,6 +1,8 @@
-import {action, observable} from "mobx";
+import {action, observable, computed} from "mobx";
 import {UserApi} from "../../api";
 import {CurrentUser} from "../../api/types/response";
+import {EntitiesStore} from "../../entities-store";
+import {tokenRefreshState} from "../../api/axios-instance";
 
 export class AuthorizationStore {
     @observable
@@ -12,9 +14,20 @@ export class AuthorizationStore {
     @observable
     loggingOut: boolean = false;
 
+    @computed
+    get refreshingToken(): boolean {
+        return tokenRefreshState.refreshingToken;
+    }
+
+    constructor(private readonly entities: EntitiesStore) {}
+
     @action
     setCurrentUser = (currentUser: CurrentUser): void => {
         this.currentUser = currentUser;
+        this.entities.users.insert({
+            ...currentUser,
+            deleted: false
+        });
     };
 
     @action
@@ -24,11 +37,11 @@ export class AuthorizationStore {
     };
 
     @action
-    fetchCurrentUser = (): void => {
+    fetchCurrentUser = (): Promise<void> => {
         this.fetchingCurrentUser = true;
 
-        UserApi.getCurrentUser()
-            .then(({data}) => this.currentUser = data)
+        return UserApi.getCurrentUser()
+            .then(({data}) => this.setCurrentUser(data))
             .finally(() => this.fetchingCurrentUser = false);
     };
 

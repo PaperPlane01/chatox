@@ -26,5 +26,5 @@ data class Chat(
         var numberOfParticipants: Int,
         @DBRef
         var lastMessage: Message?,
-        var lastMessageDate: Date
+        var lastMessageDate: Date?
 )
