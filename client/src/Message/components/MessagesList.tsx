@@ -10,7 +10,7 @@ interface MessagesListMobxProps {
 
 const useStyles = makeStyles(() => createStyles({
     messagesList: {
-        height: "calc(100vh - 166px)",
+        height: "calc(100vh - 154px)",
         overflowY: "auto"
     }
 }));

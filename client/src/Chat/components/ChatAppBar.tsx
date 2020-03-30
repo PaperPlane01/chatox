@@ -82,7 +82,8 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
     return (
         <Fragment>
             <AppBar position="sticky" style={{
-                zIndex: 1300
+                zIndex: 1300,
+                maxHeight:64
             }}>
                 <Toolbar>
                     <Hidden mdDown>

@@ -5,7 +5,7 @@ import {ChatParticipantsList} from "./ChatParticipantsList";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatInfoContainer: {
-        height: "calc(100vh - 80px)",
+        height: "calc(100vh - 68px)",
         width: "100%",
         overflowY: "auto"
     },
