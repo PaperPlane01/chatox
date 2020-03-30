@@ -97,7 +97,9 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
                                   color: "inherit"
                               }}
                         >
-                            <IconButton color="inherit" size="small">
+                            <IconButton color="inherit"
+                                        size="medium"
+                            >
                                 <ArrowBackIcon/>
                             </IconButton>
                         </Link>
