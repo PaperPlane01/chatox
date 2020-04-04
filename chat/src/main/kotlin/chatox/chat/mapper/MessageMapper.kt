@@ -8,6 +8,7 @@ import chatox.chat.model.Message
 import chatox.chat.model.User
 import org.springframework.stereotype.Component
 import java.time.Instant
+import java.time.ZonedDateTime
 import java.util.Date
 import java.util.UUID
 
@@ -29,7 +30,7 @@ class MessageMapper(private val userMapper: UserMapper) {
                 readByCurrentUser = readByCurrentUser,
                 referredMessage = referredMessage,
                 updatedAt = message.updatedAt,
-                chatId = message.chat.id!!
+                chatId = message.chat.id
         )
     }
 
@@ -40,7 +41,7 @@ class MessageMapper(private val userMapper: UserMapper) {
             referredMessage: Message?
     ) = Message(
             id = UUID.randomUUID().toString(),
-            createdAt = Date.from(Instant.now()),
+            createdAt = ZonedDateTime.now(),
             deleted = false,
             chat = chat,
             deletedBy = null,
@@ -55,6 +56,6 @@ class MessageMapper(private val userMapper: UserMapper) {
                          originalMessage: Message
     ) = originalMessage.copy(
             text = updateMessageRequest.text ?: originalMessage.text,
-            updatedAt = Date.from(Instant.now())
+            updatedAt = ZonedDateTime.now()
     )
 }

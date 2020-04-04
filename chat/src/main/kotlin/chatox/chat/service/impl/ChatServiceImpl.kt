@@ -19,8 +19,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.time.Instant
-import java.util.Date
+import java.time.ZonedDateTime
 
 @Service
 @Transactional
@@ -68,7 +67,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         return chatRepository.findById(id)
                 .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
                 .zipWith(authenticationFacade.getCurrentUser())
-                .map { it.t1.copy(deleted = true, deletedAt = Date.from(Instant.now()), deletedBy = it.t2) }
+                .map { it.t1.copy(deleted = true, deletedAt = ZonedDateTime.now(), deletedBy = it.t2) }
                 .map { chatRepository.save(it) }
                 .flatMap { Mono.empty<Void>() }
     }

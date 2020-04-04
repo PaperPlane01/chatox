@@ -1,5 +1,6 @@
 package chatox.chat.api.response
 
+import java.time.ZonedDateTime
 import java.util.Date
 
 data class MessageResponse(
@@ -8,8 +9,8 @@ data class MessageResponse(
         val referredMessage: MessageResponse?,
         val sender: UserResponse,
         val deleted: Boolean,
-        val createdAt: Date,
-        val updatedAt: Date?,
+        val createdAt: ZonedDateTime,
+        val updatedAt: ZonedDateTime?,
         val readByCurrentUser: Boolean,
         val chatId: String
 )

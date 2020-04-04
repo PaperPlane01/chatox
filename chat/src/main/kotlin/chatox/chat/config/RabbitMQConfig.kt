@@ -1,31 +1,31 @@
 package chatox.chat.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.core.TopicExchange
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 
 @Configuration
 class RabbitMQConfig {
+    
+    @Autowired
     @Bean
-    fun rabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate {
+    fun rabbitTemplate(connectionFactory: ConnectionFactory,
+                       messageConverter: Jackson2JsonMessageConverter): RabbitTemplate {
         val rabbitTemplate = RabbitTemplate(connectionFactory)
-        rabbitTemplate.messageConverter = jackson2JsonMessageConverter()
+        rabbitTemplate.messageConverter = messageConverter
         return rabbitTemplate
     }
 
+    @Autowired
     @Bean
-    fun jackson2JsonMessageConverter(): Jackson2JsonMessageConverter {
-        val objectMapper = Jackson2ObjectMapperBuilder()
-                .modules(KotlinModule())
-                .build<ObjectMapper>()
+    fun jackson2JsonMessageConverter(objectMapper: ObjectMapper): Jackson2JsonMessageConverter {
         return Jackson2JsonMessageConverter(objectMapper)
     }
 

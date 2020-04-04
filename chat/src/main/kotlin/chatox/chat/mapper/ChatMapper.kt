@@ -11,8 +11,7 @@ import chatox.chat.model.ChatType
 import chatox.chat.model.Message
 import chatox.chat.model.User
 import org.springframework.stereotype.Component
-import java.time.Instant
-import java.util.Date
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Component
@@ -81,7 +80,7 @@ class ChatMapper(
 
     fun fromCreateChatRequest(createChatRequest: CreateChatRequest, currentUser: User): Chat {
         val id = UUID.randomUUID().toString()
-        val createdAt = Date.from(Instant.now())
+        val createdAt = ZonedDateTime.now()
 
         return Chat(
                 id = id,
