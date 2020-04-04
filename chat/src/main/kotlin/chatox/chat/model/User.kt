@@ -2,7 +2,7 @@ package chatox.chat.model
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
-import java.util.Date
+import java.time.ZonedDateTime
 
 @Document(collection = "user")
 data class User(
@@ -14,8 +14,8 @@ data class User(
         var avatarUri: String?,
         var slug: String?,
         var deleted: Boolean,
-        var lastSeen: Date?,
+        var lastSeen: ZonedDateTime?,
         var bio: String?,
-        var createdAt: Date?,
-        var dateOfBirth: Date?
+        var createdAt: ZonedDateTime?,
+        var dateOfBirth: ZonedDateTime?
 )

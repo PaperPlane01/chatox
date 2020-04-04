@@ -24,9 +24,7 @@ import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.util.function.Tuples
-import java.time.Instant
 import java.time.ZonedDateTime
-import java.util.Date
 import java.util.UUID
 
 @Service
@@ -300,7 +298,7 @@ class MessageServiceImpl(
                 .zipWith(findMessageEntityById(messageId))
                 .map { messageReadRepository.save(MessageRead(
                         id = UUID.randomUUID().toString(),
-                        date = Date.from(Instant.now()),
+                        date = ZonedDateTime.now(),
                         message = it.t2,
                         user = it.t1,
                         chat = it.t2.chat

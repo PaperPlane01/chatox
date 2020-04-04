@@ -23,8 +23,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.time.Instant
-import java.util.Date
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Service
@@ -53,7 +52,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                                 id = UUID.randomUUID().toString(),
                                 user = it.t2,
                                 chat = it.t1,
-                                createdAt = Date.from(Instant.now()),
+                                createdAt = ZonedDateTime.now(),
                                 role = ChatRole.USER,
                                 lastMessageRead = null
                         ) }

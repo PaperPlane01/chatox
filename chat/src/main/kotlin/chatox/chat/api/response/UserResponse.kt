@@ -1,6 +1,6 @@
 package chatox.chat.api.response
 
-import java.util.Date
+import java.time.ZonedDateTime
 
 data class UserResponse(
         val id: String,
@@ -10,6 +10,6 @@ data class UserResponse(
         val avatarUri: String?,
         val deleted: Boolean,
         val bio: String?,
-        val lastSeen: Date?,
-        val dateOfBirth: Date?
+        val lastSeen: ZonedDateTime?,
+        val dateOfBirth: ZonedDateTime?
 )

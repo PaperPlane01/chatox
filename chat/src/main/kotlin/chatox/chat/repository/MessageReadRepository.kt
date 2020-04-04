@@ -3,7 +3,6 @@ package chatox.chat.repository
 import chatox.chat.model.Chat
 import chatox.chat.model.MessageRead
 import chatox.chat.model.User
-import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Mono
 

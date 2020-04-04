@@ -25,3 +25,7 @@ fun getDifferenceInSeconds(left: Date, right: Date): Long {
 
     return abs(ChronoUnit.SECONDS.between(leftLocalDateTime, rightLocalDateTime))
 }
+
+fun getDifferenceInSeconds(left: ZonedDateTime, right: ZonedDateTime): Long {
+    return abs(ChronoUnit.SECONDS.between(left, right))
+}
