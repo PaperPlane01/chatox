@@ -1,7 +1,7 @@
 package chatox.user.api.response
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import java.util.Date
+import java.time.ZonedDateTime
 
 data class UserResponse(
         val id: String,
@@ -11,8 +11,8 @@ data class UserResponse(
         val bio: String?,
         val firstName: String,
         val lastName: String?,
-        val createdAt: Date,
-        val lastSeen: Date,
+        val createdAt: ZonedDateTime,
+        val lastSeen: ZonedDateTime,
         val avatarUri: String?,
-        val dateOfBirth: Date?
+        val dateOfBirth: ZonedDateTime?
 )

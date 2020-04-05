@@ -5,7 +5,7 @@ import org.springframework.boot.runApplication
 import org.springframework.data.mongodb.config.EnableMongoAuditing
 
 @SpringBootApplication
-@EnableMongoAuditing
+@EnableMongoAuditing(dateTimeProviderRef = "dateTimeProvider")
 class ChatServiceApplication
 
 fun main(args: Array<String>) {
