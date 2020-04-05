@@ -1,5 +1,6 @@
 package chatox.chat.messaging.rabbitmq.event
 
+import java.time.ZonedDateTime
 import java.util.Date
 
 data class UserUpdated(
@@ -8,8 +9,8 @@ data class UserUpdated(
         val bio: String?,
         val firstName: String,
         val lastName: String?,
-        val createdAt: Date,
-        val lastSeen: Date,
+        val createdAt: ZonedDateTime,
+        val lastSeen: ZonedDateTime,
         val avatarUri: String?,
-        val dateOfBirth: Date?
+        val dateOfBirth: ZonedDateTime?
 )

@@ -24,8 +24,7 @@ import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.util.function.Tuples
-import java.time.Instant
-import java.util.Date
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Service
@@ -108,7 +107,7 @@ class MessageServiceImpl(
                 .zipWith(authenticationFacade.getCurrentUser())
                 .map { it.t1.copy(
                         deleted = true,
-                        deletedAt = Date.from(Instant.now()),
+                        deletedAt = ZonedDateTime.now(),
                         deletedBy = it.t2
                 ) }
                 .flatMap { messageRepository.save(it) }
@@ -299,7 +298,7 @@ class MessageServiceImpl(
                 .zipWith(findMessageEntityById(messageId))
                 .map { messageReadRepository.save(MessageRead(
                         id = UUID.randomUUID().toString(),
-                        date = Date.from(Instant.now()),
+                        date = ZonedDateTime.now(),
                         message = it.t2,
                         user = it.t1,
                         chat = it.t2.chat
@@ -309,7 +308,7 @@ class MessageServiceImpl(
                 .flatMap { it }
                 .map {
                     if (it.t1.lastMessageRead != null) {
-                        if (it.t1.lastMessageRead!!.message.createdAt.before(it.t2.message.createdAt)) {
+                        if (it.t1.lastMessageRead!!.message.createdAt.isBefore(it.t2.message.createdAt)) {
                             it.t1.lastMessageRead = it.t2
                         }
                     } else {

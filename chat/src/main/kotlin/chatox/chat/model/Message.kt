@@ -3,7 +3,7 @@ package chatox.chat.model
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
-import java.util.Date
+import java.time.ZonedDateTime
 
 @Document(collection = "message")
 data class Message(
@@ -16,10 +16,10 @@ data class Message(
         var sender: User,
         @DBRef(lazy = true)
         val chat: Chat,
-        var createdAt: Date,
-        var updatedAt: Date?,
+        var createdAt: ZonedDateTime,
+        var updatedAt: ZonedDateTime?,
         var deleted: Boolean,
-        var deletedAt: Date?,
+        var deletedAt: ZonedDateTime?,
         @DBRef
         var deletedBy: User?,
         var attachments: List<MessageAttachment> = arrayListOf()

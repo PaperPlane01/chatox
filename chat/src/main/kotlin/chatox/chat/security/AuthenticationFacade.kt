@@ -8,8 +8,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
-import java.time.Instant
-import java.util.Date
+import java.time.ZonedDateTime
 
 @Component
 @Transactional
@@ -28,7 +27,7 @@ class AuthenticationFacade {
             deleted = true,
             lastSeen = null,
             bio = null,
-            createdAt = Date.from(Instant.now()),
+            createdAt = ZonedDateTime.now(),
             dateOfBirth = null
     )
 
