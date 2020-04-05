@@ -29,8 +29,7 @@ import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,7 +66,7 @@ public class ClientServiceImpl implements ClientService {
 
 
         var client = Client.builder()
-                .createdAt(Date.from(Instant.now()))
+                .createdAt(ZonedDateTime.now())
                 .name(createClientRequest.getName())
                 .accessTokenValidity(createClientRequest.getAccessTokenValidity())
                 .refreshTokenValidity(createClientRequest.getRefreshTokenValidity())
