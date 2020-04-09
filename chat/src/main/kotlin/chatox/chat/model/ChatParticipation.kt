@@ -21,5 +21,8 @@ data class ChatParticipation(
         @CreatedDate
         var createdAt: ZonedDateTime? = null,
         @LastModifiedDate
-        var lastModifiedAt: ZonedDateTime? = null
+        var lastModifiedAt: ZonedDateTime? = null,
+
+        @DBRef
+        var lastChatBlocking: ChatBlocking? = null
 )

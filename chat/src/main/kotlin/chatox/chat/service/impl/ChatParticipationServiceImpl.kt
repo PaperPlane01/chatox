@@ -170,4 +170,11 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 .switchIfEmpty(Mono.error(ChatParticipationNotFoundException("Could not find chat participation with id $participationId")))
                 .map { chatParticipationMapper.toChatParticipationResponse(it) }
     }
+
+    override fun getMinifiedChatParticipation(chatId: String, user: User): Mono<ChatParticipationMinifiedResponse> {
+        return chatRepository.findById(chatId)
+                .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
+                .flatMap { chatParticipationRepository.findByChatAndUser(it, user) }
+                .map { chatParticipationMapper.toMinifiedChatParticipationResponse(it) }
+    }
 }
