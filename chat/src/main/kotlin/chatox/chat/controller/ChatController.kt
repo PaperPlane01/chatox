@@ -25,12 +25,12 @@ class ChatController(private val chatService: ChatService) {
     @PostMapping("/api/v1/chat")
     fun createChat(@RequestBody @Valid createChatRequest: CreateChatRequest) = chatService.createChat(createChatRequest)
 
-    @PreAuthorize("hasRole('USER') and #chatPermissions.canUpdateChat(#id)")
+    @PreAuthorize("hasRole('USER')")
     @PutMapping("/api/v1/chat/{id}")
     fun updateChat(@PathVariable id: String,
                    @RequestBody @Valid updateChatRequest: UpdateChatRequest) = chatService.updateChat(id, updateChatRequest)
 
-    @PreAuthorize("hasRole('USER') and #chatPermissions.canDeleteChat(#id)")
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/api/v1/chat/{id}")
     fun deleteChat(@PathVariable id: String) = chatService.deleteChat(id)
 

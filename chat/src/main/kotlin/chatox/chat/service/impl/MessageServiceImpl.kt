@@ -91,8 +91,9 @@ class MessageServiceImpl(
                 .flatMap { it }
     }
 
-    override fun updateMessage(id: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
-        return findMessageEntityById(id)
+    override fun updateMessage(id: String, chatId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
+        return assertCanUpdateMessage(id, chatId)
+                .flatMap { findMessageEntityById(id) }
                 .map { messageMapper.mapMessageUpdate(updateMessageRequest, it) }
                 .flatMap { messageRepository.save(it) }
                 .map { messageMapper.toMessageResponse(
@@ -102,8 +103,20 @@ class MessageServiceImpl(
                 ) }
     }
 
-    override fun deleteMessage(id: String): Mono<Void> {
-        return findMessageEntityById(id)
+    private fun assertCanUpdateMessage(id: String, chatId: String): Mono<Boolean> {
+        return messagePermissions.canUpdateMessage(id, chatId)
+                .flatMap {
+                    if (it) {
+                        Mono.just(it)
+                    } else {
+                        Mono.error<Boolean>(AccessDeniedException("Can't update message"))
+                    }
+                }
+    }
+
+    override fun deleteMessage(id: String, chatId: String): Mono<Void> {
+        return assertCanDeleteMessage(id, chatId)
+                .flatMap { findMessageEntityById(id) }
                 .zipWith(authenticationFacade.getCurrentUser())
                 .map { it.t1.copy(
                         deleted = true,
@@ -112,6 +125,17 @@ class MessageServiceImpl(
                 ) }
                 .flatMap { messageRepository.save(it) }
                 .flatMap { Mono.empty<Void>() }
+    }
+
+    private fun assertCanDeleteMessage(id: String, chatId: String): Mono<Boolean> {
+        return messagePermissions.canDeleteMessage(id, chatId)
+                .flatMap {
+                    if (it) {
+                        Mono.just(it)
+                    } else {
+                        Mono.error<Boolean>(AccessDeniedException("Can't delete message"))
+                    }
+                }
     }
 
     override fun findMessageById(id: String): Mono<MessageResponse> {
