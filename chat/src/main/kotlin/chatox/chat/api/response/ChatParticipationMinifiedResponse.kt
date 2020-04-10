@@ -4,5 +4,6 @@ import chatox.chat.model.ChatRole
 
 data class ChatParticipationMinifiedResponse(
         val id: String?,
-        val role: ChatRole
+        val role: ChatRole,
+        val activeChatBlocking: ChatBlockingResponse?
 )

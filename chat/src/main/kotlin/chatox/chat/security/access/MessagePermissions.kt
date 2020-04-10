@@ -21,11 +21,14 @@ class MessagePermissions(private val chatParticipationService: ChatParticipation
     }
 
     fun canCreateMessage(chatId: String): Mono<Boolean> {
-        return authenticationFacade.getCurrentUserDetails()
-                .map { chatParticipationService.getRoleOfUserInChat(chatId = chatId, userId = it.id) }
-                .flatMap { it }
-                .switchIfEmpty(Mono.just(ChatRole.NOT_PARTICIPANT))
-                .map { it != ChatRole.NOT_PARTICIPANT }
+        return authenticationFacade.getCurrentUser()
+                .flatMap { chatParticipationService.getMinifiedChatParticipation(chatId, it) }
+                .map {
+                    it.role == ChatRole.MODERATOR
+                            || it.role == ChatRole.ADMIN
+                            || it.activeChatBlocking != null
+                }
+                .switchIfEmpty(Mono.just(false))
     }
 
     fun canUpdateMessage(messageId: String, chatId: String): Mono<Boolean> {
