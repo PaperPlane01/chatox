@@ -103,29 +103,61 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 }
     }
 
-    override fun updateChatParticipation(id: String, updateChatParticipationRequest: UpdateChatParticipationRequest): Mono<ChatParticipationResponse> {
-        return chatParticipationRepository.findById(id)
-                .switchIfEmpty(Mono.error(ChatParticipationNotFoundException("Could not find chat participation with id $id")))
-                .map { chatParticipationMapper.mapChatParticipationUpdate(
-                        updateChatParticipationRequest, it
-                ) }
-                .flatMap { chatParticipationRepository.save(it) }
-                .map { chatParticipationMapper.toChatParticipationResponse(it) }
-                .map {
-                    chatEventsPublisher.chatParticipationUpdated(it)
-                    it
+    override fun updateChatParticipation(
+            id: String,
+            chatId: String,
+            updateChatParticipationRequest: UpdateChatParticipationRequest
+    ): Mono<ChatParticipationResponse> {
+        return assertCanUpdateChatParticipation(id, chatId)
+                .flatMap {
+                    chatParticipationRepository.findById(id)
+                            .switchIfEmpty(Mono.error(ChatParticipationNotFoundException("Could not find chat participation with id $id")))
+                            .map { chatParticipationMapper.mapChatParticipationUpdate(
+                                    updateChatParticipationRequest, it
+                            ) }
+                            .flatMap { chatParticipationRepository.save(it) }
+                            .map { chatParticipationMapper.toChatParticipationResponse(it) }
+                            .map {
+                                chatEventsPublisher.chatParticipationUpdated(it)
+                                it
+                            }
                 }
     }
 
-    override fun deleteChatParticipation(id: String): Mono<Void> {
-        return chatParticipationRepository.findById(id)
-                .switchIfEmpty(Mono.error(ChatParticipationNotFoundException("Could not find chat participation with id $id")))
+    private fun assertCanUpdateChatParticipation(chatId: String, chatParticipationId: String): Mono<Boolean> {
+        return chatParticipationPermissions.canUpdateChatParticipant(chatId, chatParticipationId)
                 .flatMap {
-                    chatParticipationRepository.delete(it)
-                    Mono.just(it)
+                    if (it) {
+                        Mono.just(it)
+                    } else {
+                        Mono.error<Boolean>(AccessDeniedException("Can't update chat participation"))
+                    }
                 }
-                .map { chatEventsPublisher.chatParticipationDeleted(it.chat.id, it.id!!) }
-                .then()
+    }
+
+    override fun deleteChatParticipation(id: String, chatId: String): Mono<Void> {
+        return assertCanUpdateChatParticipation(id, chatId)
+                .flatMap {
+                    chatParticipationRepository.findById(id)
+                            .switchIfEmpty(Mono.error(ChatParticipationNotFoundException("Could not find chat participation with id $id")))
+                            .flatMap {
+                                chatParticipationRepository.delete(it)
+                                Mono.just(it)
+                            }
+                            .map { chatEventsPublisher.chatParticipationDeleted(it.chat.id, it.id!!) }
+                            .then()
+                }
+    }
+
+    private fun assertCanDeleteChatParticipation(id: String, chatId: String): Mono<Boolean> {
+        return chatParticipationPermissions.canKickChatParticipant(chatId, id)
+                .flatMap {
+                    if (it) {
+                        Mono.just(it)
+                    } else {
+                        Mono.error<Boolean>(AccessDeniedException("Can't delete chat participation"))
+                    }
+                }
     }
 
     override fun findParticipantsOfChat(chatId: String, paginationRequest: PaginationRequest): Flux<ChatParticipationResponse> {

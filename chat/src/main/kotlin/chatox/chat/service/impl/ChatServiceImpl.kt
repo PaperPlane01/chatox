@@ -13,8 +13,11 @@ import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.MessageRepository
 import chatox.chat.security.AuthenticationFacade
+import chatox.chat.security.access.ChatPermissions
 import chatox.chat.service.ChatService
 import chatox.chat.support.pagination.PaginationRequest
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
@@ -28,6 +31,13 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val messageRepository: MessageRepository,
                       private val chatMapper: ChatMapper,
                       private val authenticationFacade: AuthenticationFacade) : ChatService {
+
+    private lateinit var chatPermissions: ChatPermissions
+
+    @Autowired
+    fun setChatPermissions(chatPermissions: ChatPermissions) {
+        this.chatPermissions = chatPermissions;
+    }
 
     override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatOfCurrentUserResponse> {
         return authenticationFacade.getCurrentUser()
@@ -55,21 +65,48 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     }
 
     override fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse> {
-        return chatRepository.findById(id)
-                .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
-                .map { chatMapper.mapChatUpdate(updateChatRequest, it) }
-                .map { chatRepository.save(it) }
-                .flatMap { it }
-                .map { chatMapper.toChatResponse(it) }
+        return assertCanUpdateChat(id)
+                .flatMap {
+                    chatRepository.findById(id)
+                            .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
+                            .map { chatMapper.mapChatUpdate(updateChatRequest, it) }
+                            .flatMap { chatRepository.save(it) }
+                            .map { chatMapper.toChatResponse(it) }
+                }
+    }
+
+    private fun assertCanUpdateChat(chatId: String): Mono<Boolean> {
+        return chatPermissions.canUpdateChat(chatId)
+                .flatMap {
+                    if (it) {
+                        Mono.just(it)
+                    } else {
+                        Mono.error<Boolean>(AccessDeniedException("Can't update chat"))
+                    }
+                }
     }
 
     override fun deleteChat(id: String): Mono<Void> {
-        return chatRepository.findById(id)
-                .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
-                .zipWith(authenticationFacade.getCurrentUser())
-                .map { it.t1.copy(deleted = true, deletedAt = ZonedDateTime.now(), deletedBy = it.t2) }
-                .map { chatRepository.save(it) }
-                .flatMap { Mono.empty<Void>() }
+        return assertCanDeleteChat(id)
+                .flatMap {
+                    chatRepository.findById(id)
+                            .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
+                            .zipWith(authenticationFacade.getCurrentUser())
+                            .map { it.t1.copy(deleted = true, deletedAt = ZonedDateTime.now(), deletedBy = it.t2) }
+                            .flatMap { chatRepository.save(it) }
+                            .then()
+                }
+    }
+
+    private fun assertCanDeleteChat(chatId: String): Mono<Boolean> {
+        return chatPermissions.canDeleteChat(chatId)
+                .flatMap {
+                    if (it) {
+                        Mono.just(it)
+                    } else {
+                        Mono.error<Boolean>(AccessDeniedException("Can't delete chat"))
+                    }
+                }
     }
 
     override fun findChatBySlugOrId(slugOrId: String): Mono<ChatResponse> {

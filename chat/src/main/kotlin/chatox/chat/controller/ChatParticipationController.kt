@@ -29,17 +29,17 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     fun leaveChat(@PathVariable chatId: String) = chatParticipationService.leaveChat(chatId)
 
     @DeleteMapping("/api/v1/chat/{chatId}/participants/{participationId}")
-    @PreAuthorize("hasRole('USER') and #chatParticipationPermissions.canKickChatParticipant(#chatId, #participationId)")
+    @PreAuthorize("hasRole('USER')")
     fun kickParticipant(@PathVariable chatId: String,
                         @PathVariable participationId: String
-    ) = chatParticipationService.deleteChatParticipation(participationId)
+    ) = chatParticipationService.deleteChatParticipation(participationId, chatId)
 
     @PutMapping("/api/v1/chat/{chatId}/participants/{participationId}")
-    @PreAuthorize("hasRole('USER') and #chatParticipationPermissions.canUpdateChatParticipant(#chatId, #participationId)")
+    @PreAuthorize("hasRole('USER')")
     fun updateChatParticipant(@PathVariable chatId: String,
                               @PathVariable participationId: String,
                               @RequestBody @Valid updateChatParticipationRequest: UpdateChatParticipationRequest
-    ) = chatParticipationService.updateChatParticipation(participationId, updateChatParticipationRequest)
+    ) = chatParticipationService.updateChatParticipation(participationId, chatId, updateChatParticipationRequest)
 
     @PaginationConfig(
             sortBy = SortBy(allowed = ["createdAt"], default = "createdAt"),

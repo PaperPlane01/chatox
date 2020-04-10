@@ -2,12 +2,18 @@ package chatox.chat.security.access
 
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class ChatPermissions(private val authenticationFacade: AuthenticationFacade,
-                      private val chatService: ChatService) {
+class ChatPermissions(private val authenticationFacade: AuthenticationFacade) {
+    private lateinit var chatService: ChatService
+
+    @Autowired
+    fun setChatService(chatService: ChatService) {
+        this.chatService = chatService
+    }
 
     fun canUpdateChat(chatId: String): Mono<Boolean> {
         return authenticationFacade.getCurrentUser()

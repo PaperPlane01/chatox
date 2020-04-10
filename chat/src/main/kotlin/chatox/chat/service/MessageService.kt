@@ -10,8 +10,8 @@ import reactor.core.publisher.Mono
 
 interface MessageService {
     fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse>
-    fun updateMessage(id: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse>
-    fun deleteMessage(id: String): Mono<Void>
+    fun updateMessage(id: String, chatId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse>
+    fun deleteMessage(id: String, chatId: String): Mono<Void>
     fun findMessageById(id: String): Mono<MessageResponse>
     fun findMessagesByChat(chatId: String, paginationRequest: PaginationRequest): Flux<MessageResponse>
     fun findMessagesSinceMessageByChat(chatId: String, sinceMessageId: String, paginationRequest: PaginationRequest): Flux<MessageResponse>

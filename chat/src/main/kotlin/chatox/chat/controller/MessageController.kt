@@ -28,17 +28,17 @@ class MessageController(private val messageService: MessageService) {
     ) = messageService.createMessage(chatId, createMessageRequest)
 
     @PutMapping("/api/v1/chat/{chatId}/messages/{messageId}")
-    @PreAuthorize("hasRole('USER') and @messagePermissions.canUpdateMessage(#messageId, #chatId)")
+    @PreAuthorize("hasRole('USER')")
     fun updateMessage(@PathVariable chatId: String,
                       @PathVariable messageId: String,
                       @RequestBody @Valid updateMessageRequest: UpdateMessageRequest
-    ) = messageService.updateMessage(messageId, updateMessageRequest)
+    ) = messageService.updateMessage(messageId, chatId,updateMessageRequest)
 
     @DeleteMapping("/api/v1/chat/{chatId}/messages/{messageId}")
     @PreAuthorize("hasRole('USER')")
     fun deleteMessage(@PathVariable chatId: String,
                       @PathVariable messageId: String
-    ) = messageService.deleteMessage(messageId)
+    ) = messageService.deleteMessage(messageId, chatId)
 
     @PaginationConfig(
             pageSize = PageSize(default = 200, max = 300),
