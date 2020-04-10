@@ -25,7 +25,7 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     fun joinChat(@PathVariable chatId: String) = chatParticipationService.joinChat(chatId)
 
     @DeleteMapping("/api/v1/chat/{chatId}/leave")
-    @PreAuthorize("hasRole('USER') and #chatParticipationPermissions.canLeaveChat(#chatId)")
+    @PreAuthorize("hasRole('USER')")
     fun leaveChat(@PathVariable chatId: String) = chatParticipationService.leaveChat(chatId)
 
     @DeleteMapping("/api/v1/chat/{chatId}/participants/{participationId}")

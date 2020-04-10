@@ -18,7 +18,7 @@ class ChatBlockingMongoEventListener : AbstractMongoEventListener<ChatBlocking>(
                 user = event.source.blockedUser
         )
                 .map { it.copy(lastChatBlocking = event.source) }
-                .map { chatParticipationRepository.save(it) }
+                .flatMap { chatParticipationRepository.save(it) }
                 .subscribe()
     }
 }

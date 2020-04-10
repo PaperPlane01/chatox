@@ -1,7 +1,9 @@
 package chatox.chat.security.access
 
 import chatox.chat.model.ChatRole
+import chatox.chat.model.User
 import chatox.chat.security.AuthenticationFacade
+import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.service.ChatService
 import org.springframework.beans.factory.annotation.Autowired
@@ -10,6 +12,7 @@ import reactor.core.publisher.Mono
 
 @Component
 class ChatParticipationPermissions(private val chatService: ChatService,
+                                   private val chatBlockingService: ChatBlockingService,
                                    private val authenticationFacade: AuthenticationFacade) {
     private lateinit var chatParticipationService: ChatParticipationService
 
@@ -20,10 +23,11 @@ class ChatParticipationPermissions(private val chatService: ChatService,
 
     fun canJoinChat(chatId: String): Mono<Boolean> {
         return authenticationFacade.getCurrentUser()
-                .map { chatParticipationService.getRoleOfUserInChat(chatId, it) }
-                .flatMap { it }
-                .switchIfEmpty(Mono.just(ChatRole.NOT_PARTICIPANT))
-                .map { it == ChatRole.NOT_PARTICIPANT }
+                .zipWhen {
+                    chatParticipationService.getRoleOfUserInChat(chatId, it)
+                        .switchIfEmpty(Mono.just(ChatRole.NOT_PARTICIPANT)) }
+                .zipWhen { chatBlockingService.isUserBlockedInChat(chatId, it.t1) }
+                .map { it.t1.t2 == ChatRole.NOT_PARTICIPANT && !it.t2 }
     }
 
     fun canLeaveChat(chatId: String): Mono<Boolean> {

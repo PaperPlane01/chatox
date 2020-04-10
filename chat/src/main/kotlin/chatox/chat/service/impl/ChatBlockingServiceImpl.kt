@@ -157,6 +157,19 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
                 .map { chatBlockingMapper.toChatBlockingResponse(it) }
     }
 
+    override fun isUserBlockedInChat(chatId: String, user: User): Mono<Boolean> {
+        return findChatById(chatId)
+                .map { chatBlockingRepository.findByChatAndBlockedUserAndBlockedUntilAfterAndCanceled(
+                        chat = it,
+                        blockedUser = user,
+                        canceled = false,
+                        date = ZonedDateTime.now()
+                )}
+                .flatMapMany { it }
+                .collectList()
+                .map { it.isNotEmpty() }
+    }
+
     private fun assertCanSeeBlockings(chatId: String): Mono<Boolean> {
         return chatBlockingPermissions.canSeeChatBlockings(chatId)
                 .flatMap {

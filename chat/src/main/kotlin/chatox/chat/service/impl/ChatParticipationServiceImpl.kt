@@ -41,7 +41,6 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
         this.chatParticipationPermissions = chatParticipationPermissions
     }
 
-
     override fun joinChat(chatId: String): Mono<ChatParticipationMinifiedResponse> {
         return assertCanJoinChat(chatId)
                 .flatMap {
@@ -78,21 +77,30 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
     }
 
     override fun leaveChat(chatId: String): Mono<Void> {
-        return chatRepository.findById(chatId)
-                .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
-                .zipWith(authenticationFacade.getCurrentUser())
-                .map { chatParticipationRepository.findByChatAndUser(
-                        chat = it.t1,
-                        user = it.t2
-                ) }
-                .flatMap { it }
-                .map {
-                    chatParticipationRepository.delete(it)
-                    Mono.just(it)
+        return assertCanLeaveChat(chatId)
+                .flatMap {
+                    chatRepository.findById(chatId)
+                            .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
+                            .zipWith(authenticationFacade.getCurrentUser())
+                            .flatMap { chatParticipationRepository.findByChatAndUser(
+                                    chat = it.t1,
+                                    user = it.t2
+                            ) }
+                            .flatMap { chatParticipationRepository.delete(it).then(Mono.just(it)) }
+                            .map { chatEventsPublisher.userLeftChat(it.chat.id, it.id!!) }
+                            .then()
                 }
-                .flatMap { it }
-                .map { chatEventsPublisher.userLeftChat(it.chat.id, it.id!!) }
-                .then()
+    }
+
+    private fun assertCanLeaveChat(chatId: String): Mono<Boolean> {
+        return chatParticipationPermissions.canLeaveChat(chatId)
+                .flatMap {
+                    if (it) {
+                        Mono.just(it)
+                    } else {
+                        Mono.error<Boolean>(AccessDeniedException("Can't leave chat"))
+                    }
+                }
     }
 
     override fun updateChatParticipation(id: String, updateChatParticipationRequest: UpdateChatParticipationRequest): Mono<ChatParticipationResponse> {
