@@ -70,7 +70,7 @@ const refreshAccessToken = (originalRequest: AxiosRequestConfig): Promise<any> =
                 .catch(error => {
                     console.log(error);
                     localStorage.removeItem("accessToken");
-                    // localStorage.removeItem("refreshToken");
+                    localStorage.removeItem("refreshToken");
                     onTokenRefreshed(undefined);
                 })
                 .finally(() => tokenRefreshState.refreshingToken = false);
