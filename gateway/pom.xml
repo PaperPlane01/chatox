@@ -10,7 +10,7 @@
     </parent>
     <groupId>chatox</groupId>
     <artifactId>gateway</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
     <name>gateway</name>
     <description>Chatox API gateway</description>
 
