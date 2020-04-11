@@ -12,6 +12,7 @@ export const MY = "my";
 export const JOIN = "join";
 export const LEAVE = "leave";
 export const PARTICIPANTS = "participants";
+export const PARTICIPATIONS = "participations";
 export const USERNAME = "username";
 export const SLUG = "slug";
 export const IS_AVAILABLE = "isAvailable";

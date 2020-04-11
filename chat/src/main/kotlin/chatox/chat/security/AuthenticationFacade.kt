@@ -6,23 +6,41 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Lazy
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
+import java.time.ZonedDateTime
 
 @Component
+@Transactional
 class AuthenticationFacade {
     @Lazy
     @Autowired
     private lateinit var userRepository: UserRepository
 
-    public val EMPTY_USER = User(id = "", firstName = "anon", lastName = null, slug = null, avatarUri = null, accountId = "", deleted = true, lastSeen = null)
+    val EMPTY_USER = User(
+            id = "EMPTY_ID",
+            firstName = "anon",
+            lastName = null,
+            slug = null,
+            avatarUri = null,
+            accountId = "",
+            deleted = true,
+            lastSeen = null,
+            bio = null,
+            createdAt = ZonedDateTime.now(),
+            dateOfBirth = null
+    )
 
     fun getCurrentAuthentication() = ReactiveSecurityContextHolder.getContext()
             .map { it.authentication }
-            .filter { it is CustomAuthentication }
+            .filter { it.javaClass == CustomAuthentication::class.java }
+            .map { it }
             .cast(CustomAuthentication::class.java)
 
-    fun getCurrentUserDetails() = getCurrentAuthentication()
-            .map { it.customUserDetails }
+    fun getCurrentUserDetails(): Mono<CustomUserDetails> {
+        return getCurrentAuthentication()
+                .map { it.customUserDetails }
+    }
 
     fun getCurrentUser() = getCurrentUserDetails()
             .map { userRepository.findById(it.id) }

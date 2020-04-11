@@ -11,8 +11,7 @@ import chatox.chat.model.ChatType
 import chatox.chat.model.Message
 import chatox.chat.model.User
 import org.springframework.stereotype.Component
-import java.time.Instant
-import java.util.Date
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Component
@@ -26,7 +25,7 @@ class ChatMapper(
             name = chat.name,
             slug = chat.slug,
             avatarUri = chat.avatarUri,
-            numberOfParticipants = chat.numberOfParticipants,
+            participantsCount = chat.numberOfParticipants,
             createdByCurrentUser = null,
             tags = chat.tags
     )
@@ -37,7 +36,7 @@ class ChatMapper(
             name = chat.name,
             slug = chat.slug,
             avatarUri = chat.avatarUri,
-            numberOfParticipants = chat.numberOfParticipants,
+            participantsCount = chat.numberOfParticipants,
             createdByCurrentUser = currentUserId ?: currentUserId === chat.createdBy.id,
             tags = chat.tags
     )
@@ -54,12 +53,13 @@ class ChatMapper(
             )
         }
 
-        if (lastReadMessage != null) {
+        if (lastMessage != null) {
             lastMessageMapped = messageMapper.toMessageResponse(
-                    lastReadMessage,
-                    readByCurrentUser = lastReadMessage.id == lastMessage?.id,
+                    lastMessage,
+                    readByCurrentUser = lastReadMessage ?: lastReadMessage?.id == lastMessage.id,
                     mapReferredMessage = false
             )
+
         }
 
         return ChatOfCurrentUserResponse(
@@ -70,13 +70,17 @@ class ChatMapper(
                 lastReadMessage = lastReadMessageMapped,
                 lastMessage = lastMessageMapped,
                 chatParticipation = chatParticipationMapper.toMinifiedChatParticipationResponse(chatParticipation),
-                unreadMessagesCount = unreadMessagesCount
+                unreadMessagesCount = unreadMessagesCount,
+                createdAt = chat.createdAt,
+                description = chat.description,
+                tags = chat.tags,
+                participantsCount = chat.numberOfParticipants
         )
     }
 
     fun fromCreateChatRequest(createChatRequest: CreateChatRequest, currentUser: User): Chat {
         val id = UUID.randomUUID().toString()
-        val createdAt = Date.from(Instant.now())
+        val createdAt = ZonedDateTime.now()
 
         return Chat(
                 id = id,
@@ -90,18 +94,18 @@ class ChatMapper(
                 avatarUri = null,
                 deletedAt = null,
                 description = createChatRequest.description,
-                updatedAt = null,
+                updatedAt = createdAt,
                 deletedBy = null,
                 numberOfParticipants = 1,
                 lastMessage = null,
                 lastMessageDate = createdAt
         )
     }
-    
+
     fun mapChatUpdate(updateChatRequest: UpdateChatRequest, originalChat: Chat) = originalChat.copy(
             name = updateChatRequest.name ?: originalChat.name,
             avatarUri = updateChatRequest.avatarUri,
-            slug = updateChatRequest.slug ?: originalChat.id,
+            slug = updateChatRequest.slug ?: originalChat.id!!,
             description = updateChatRequest.description,
             tags = updateChatRequest.tags ?: originalChat.tags
     )

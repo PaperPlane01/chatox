@@ -11,7 +11,7 @@ export const cyan = createMuiTheme({
             "default": "#fafafa"
         },
         "primary": {
-            "light": "rgba(79, 179, 191, 1)",
+            "light": "rgba(71,247,255,0.19)",
             "main": "rgba(0, 131, 143, 1)",
             "dark": "rgba(0, 86, 98, 1)",
             "contrastText": "#fff"

@@ -4,11 +4,16 @@ import Headroom from "react-headroom";
 import {AppBar as MuiAppBar, Toolbar, Typography, IconButton, createStyles, makeStyles} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
 import {NavigationalDrawer} from "./NavigationalDrawer";
+import {OpenDrawerButton} from "./OpenDrawerButton";
+import {AppBarMenu} from "./AppBarMenu";
 import {UserAppBarMenu} from "./UserAppBarMenu";
 import {IAppState} from "../../store";
+import {Routes} from "../../router";
+
+const {Link} = require("mobx-router");
 
 interface AppBarMobxProps {
-    setDrawerOpen: (drawerOpen: boolean) => void
+    routerStore?: any
 }
 
 const useClasses = makeStyles(() => createStyles({
@@ -18,11 +23,6 @@ const useClasses = makeStyles(() => createStyles({
     grow: {
         flexGrow: 1
     },
-    drawerButton: {
-        marginLeft: -12,
-        marginRight: 20,
-        color: "inherit"
-    },
     appBarTitle: {
         flexGrow: 1,
         display: "flex"
@@ -30,11 +30,15 @@ const useClasses = makeStyles(() => createStyles({
     headroom: {
         position: "fixed",
         zIndex: 1300
+    },
+    appBarLink: {
+        color: "inherit",
+        textDecoration: "none"
     }
 }));
 
 const _AppBar: FunctionComponent<AppBarMobxProps> = ({
-    setDrawerOpen
+    routerStore
 }) => {
     const classes = useClasses();
 
@@ -50,15 +54,17 @@ const _AppBar: FunctionComponent<AppBarMobxProps> = ({
                            }}
                 >
                     <Toolbar>
-                        <IconButton className={classes.drawerButton}
-                                    onClick={() => setDrawerOpen(true)}
-                        >
-                            <MenuIcon/>
-                        </IconButton>
+                        <OpenDrawerButton/>
                         <div className={classes.appBarTitle}>
-                            <Typography variant="h6">
-                                Chatox
-                            </Typography>
+                            <Link view={Routes.home}
+                                  store={routerStore}
+                                  className={classes.appBarLink}
+                            >
+                                <Typography variant="h6">
+                                    Chatox
+                                </Typography>
+                            </Link>
+                            <AppBarMenu/>
                         </div>
                         <UserAppBarMenu/>
                     </Toolbar>
@@ -70,7 +76,7 @@ const _AppBar: FunctionComponent<AppBarMobxProps> = ({
 };
 
 const mapMobxToProps = (state: IAppState): AppBarMobxProps => ({
-    setDrawerOpen: state.appBar.setDrawerExpanded
+    routerStore: state.store
 });
 
 export const AppBar = inject(mapMobxToProps)(observer(_AppBar as FunctionComponent<{}>));

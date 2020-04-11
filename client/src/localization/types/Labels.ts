@@ -1,11 +1,20 @@
 export interface Labels {
     "cancel": string,
+    "chat.create-chat": string,
     "chat.description": string,
     "chat.description.too-long": string,
+    "chat.join": string,
+    "chat.join.error": string,
+    "chat.leave": string,
+    "chat.login-to-see-list": string,
+    "chat.my-chats": string,
     "chat.name": string,
     "chat.name.empty": string,
     "chat.name.too-long": string,
     "chat.name.too-short": string,
+    "chat.no-description": string,
+    "chat.number-of-participants": string,
+    "chat.select-chat": string,
     "chat.slug": string,
     "chat.slug.contains-invalid-characters": string,
     "chat.slug.has-already-been-taken": string,
@@ -16,10 +25,12 @@ export interface Labels {
     "chat.tags.too-many": string,
     "close": string,
     "error.unknown": string,
+    "feature.not-available": string,
     "firstName": string,
     "firstName.empty": string,
     "firstName.too-long": string,
     "firstName.too-short": string,
+    "home": string,
     "language.english": string,
     "language.russian": string,
     "lastName": string,
@@ -28,6 +39,11 @@ export interface Labels {
     "login": string,
     "login.error.incorrect-username-or-password": string
     "logout": string,
+    "markdown.preview": string,
+    "markdown.preview.show": string,
+    "message.text-is-too-long": string,
+    "message.text-must-be-present": string,
+    "message.type-something": string,
     "page.not-found": string,
     "password": string,
     "password.do-not-match": string,
@@ -52,6 +68,5 @@ export interface Labels {
     "username.empty": string,
     "username.has-already-been-taken": string
     "username.too-long": string,
-    "username.too-short": string,
-    "chat.create-chat": string
+    "username.too-short": string
 }

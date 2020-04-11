@@ -6,7 +6,6 @@ import chatox.chat.api.response.MessageResponse
 import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.exception.MessageNotFoundException
 import chatox.chat.mapper.MessageMapper
-import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Message
 import chatox.chat.model.MessageRead
 import chatox.chat.repository.ChatParticipationRepository
@@ -14,16 +13,18 @@ import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.MessageReadRepository
 import chatox.chat.repository.MessageRepository
 import chatox.chat.security.AuthenticationFacade
+import chatox.chat.security.access.MessagePermissions
 import chatox.chat.service.MessageService
 import chatox.chat.support.pagination.PaginationRequest
 import chatox.chat.util.isDateBeforeOrEquals
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.util.function.Tuples
-import java.time.Instant
-import java.util.Date
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Service
@@ -33,58 +34,66 @@ class MessageServiceImpl(
         private val chatRepository: ChatRepository,
         private val messageReadRepository: MessageReadRepository,
         private val chatParticipationRepository: ChatParticipationRepository,
-        private val chatEventsPublisher: ChatEventsPublisher,
         private val authenticationFacade: AuthenticationFacade,
         private val messageMapper: MessageMapper) : MessageService {
 
-    override fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse> {
-        val chat = findChatById(chatId)
-        val savedMessage: Mono<Message>
+    private lateinit var messagePermissions: MessagePermissions
 
-        if (createMessageRequest.referredMessageId != null) {
-            savedMessage = chat.zipWith(findMessageEntityById(createMessageRequest.referredMessageId))
-                    .zipWith(authenticationFacade.getCurrentUser())
-                    .map { messageMapper.fromCreateMessageRequest(
-                            createMessageRequest,
-                            sender = it.t2,
-                            referredMessage = it.t1.t2,
-                            chat = it.t1.t1
-                    ) }
-                    .map { messageRepository.save(it) }
-                    .flatMap { it }
-                    .map {
-                        chatRepository.save(it.chat.copy(lastMessage = it, lastMessageDate = it.createdAt))
-                        it
-                    }
-        } else {
-            savedMessage =  chat.zipWith(authenticationFacade.getCurrentUser())
-                    .map { messageMapper.fromCreateMessageRequest(
-                            createMessageRequest,
-                            sender = it.t2,
-                            referredMessage = null,
-                            chat = it.t1
-                    ) }
-                    .map { messageRepository.save(it) }
-                    .flatMap { it }
-                    .map {
-                        chatRepository.save(it.chat.copy(lastMessage = it, lastMessageDate = it.createdAt))
-                        it
-                    }
-        }
-
-        return savedMessage.map { messageMapper.toMessageResponse(
-                it,
-                mapReferredMessage = true,
-                readByCurrentUser = true
-        ) }
-                .map {
-                    chatEventsPublisher.messageCreated(it)
-                    it
-                }
+    @Autowired
+    fun setMessagePermissions(messagePermissions: MessagePermissions) {
+        this.messagePermissions = messagePermissions
     }
 
-    override fun updateMessage(id: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
-        return findMessageEntityById(id)
+    override fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse> {
+        val chat = findChatById(chatId)
+
+        return assertCanCreateMessage(chatId)
+                .flatMap {
+                    if (createMessageRequest.referredMessageId != null) {
+                        chat.zipWith(findMessageEntityById(createMessageRequest.referredMessageId))
+                                .zipWith(authenticationFacade.getCurrentUser())
+                                .map { messageMapper.fromCreateMessageRequest(
+                                        createMessageRequest,
+                                        sender = it.t2,
+                                        referredMessage = it.t1.t2,
+                                        chat = it.t1.t1
+                                ) }
+                                .map { messageRepository.save(it) }
+                                .flatMap { it }
+                    } else {
+                        chat.zipWith(authenticationFacade.getCurrentUser())
+                                .map { messageMapper.fromCreateMessageRequest(
+                                        createMessageRequest,
+                                        sender = it.t2,
+                                        referredMessage = null,
+                                        chat = it.t1
+                                ) }
+                                .map { messageRepository.save(it) }
+                                .flatMap { it }
+                    }
+                }
+                .map { messageMapper.toMessageResponse(
+                        message = it,
+                        mapReferredMessage = true,
+                        readByCurrentUser = true
+                ) }
+    }
+
+    private fun assertCanCreateMessage(chatId: String): Mono<Boolean> {
+        return messagePermissions.canCreateMessage(chatId)
+                .map {
+                    if (!it) {
+                        Mono.error<Boolean>(AccessDeniedException("Can't create message"))
+                    } else {
+                        Mono.just(it)
+                    }
+                }
+                .flatMap { it }
+    }
+
+    override fun updateMessage(id: String, chatId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
+        return assertCanUpdateMessage(id, chatId)
+                .flatMap { findMessageEntityById(id) }
                 .map { messageMapper.mapMessageUpdate(updateMessageRequest, it) }
                 .flatMap { messageRepository.save(it) }
                 .map { messageMapper.toMessageResponse(
@@ -92,26 +101,41 @@ class MessageServiceImpl(
                         mapReferredMessage = true,
                         readByCurrentUser = true
                 ) }
-                .map {
-                    chatEventsPublisher.messageUpdated(it)
-                    it
+    }
+
+    private fun assertCanUpdateMessage(id: String, chatId: String): Mono<Boolean> {
+        return messagePermissions.canUpdateMessage(id, chatId)
+                .flatMap {
+                    if (it) {
+                        Mono.just(it)
+                    } else {
+                        Mono.error<Boolean>(AccessDeniedException("Can't update message"))
+                    }
                 }
     }
 
-    override fun deleteMessage(id: String): Mono<Void> {
-        return findMessageEntityById(id)
+    override fun deleteMessage(id: String, chatId: String): Mono<Void> {
+        return assertCanDeleteMessage(id, chatId)
+                .flatMap { findMessageEntityById(id) }
                 .zipWith(authenticationFacade.getCurrentUser())
                 .map { it.t1.copy(
                         deleted = true,
-                        deletedAt = Date.from(Instant.now()),
+                        deletedAt = ZonedDateTime.now(),
                         deletedBy = it.t2
                 ) }
                 .flatMap { messageRepository.save(it) }
-                .map {
-                    chatEventsPublisher.messageDeleted(it.chat.id, it.id)
-                    it
-                }
                 .flatMap { Mono.empty<Void>() }
+    }
+
+    private fun assertCanDeleteMessage(id: String, chatId: String): Mono<Boolean> {
+        return messagePermissions.canDeleteMessage(id, chatId)
+                .flatMap {
+                    if (it) {
+                        Mono.just(it)
+                    } else {
+                        Mono.error<Boolean>(AccessDeniedException("Can't delete message"))
+                    }
+                }
     }
 
     override fun findMessageById(id: String): Mono<MessageResponse> {
@@ -298,7 +322,7 @@ class MessageServiceImpl(
                 .zipWith(findMessageEntityById(messageId))
                 .map { messageReadRepository.save(MessageRead(
                         id = UUID.randomUUID().toString(),
-                        date = Date.from(Instant.now()),
+                        date = ZonedDateTime.now(),
                         message = it.t2,
                         user = it.t1,
                         chat = it.t2.chat
@@ -308,7 +332,7 @@ class MessageServiceImpl(
                 .flatMap { it }
                 .map {
                     if (it.t1.lastMessageRead != null) {
-                        if (it.t1.lastMessageRead!!.message.createdAt.before(it.t2.message.createdAt)) {
+                        if (it.t1.lastMessageRead!!.message.createdAt.isBefore(it.t2.message.createdAt)) {
                             it.t1.lastMessageRead = it.t2
                         }
                     } else {

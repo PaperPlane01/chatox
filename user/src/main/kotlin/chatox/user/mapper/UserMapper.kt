@@ -5,8 +5,7 @@ import chatox.user.api.request.UpdateUserRequest
 import chatox.user.api.response.UserResponse
 import chatox.user.domain.User
 import org.springframework.stereotype.Component
-import java.time.Instant
-import java.util.Date
+import java.time.ZonedDateTime
 
 @Component
 class UserMapper {
@@ -19,20 +18,22 @@ class UserMapper {
             bio = user.bio,
             createdAt = user.createdAt,
             lastSeen = user.lastSeen,
-            avatarUri = user.avatarUri
+            avatarUri = user.avatarUri,
+            dateOfBirth = null
     )
 
     fun fromCreateUserRequest(createUserRequest: CreateUserRequest) = User(
             id = createUserRequest.id,
             firstName = createUserRequest.firstName,
             lastName = createUserRequest.lastName,
-            createdAt = Date.from(Instant.now()),
-            lastSeen = Date.from(Instant.now()),
+            createdAt = ZonedDateTime.now(),
+            lastSeen = ZonedDateTime.now(),
             slug = createUserRequest.slug ?: createUserRequest.id,
             accountId = createUserRequest.accountId,
             avatarUri = null,
             bio = null,
-            deleted = false
+            deleted = false,
+            dateOfBirth = null
     )
 
     fun mapUserUpdate(originalUser: User, updateUserRequest: UpdateUserRequest): User = originalUser.copy(

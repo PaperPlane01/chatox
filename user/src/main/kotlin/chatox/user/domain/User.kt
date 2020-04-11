@@ -1,7 +1,7 @@
 package chatox.user.domain
 
 import org.springframework.data.mongodb.core.mapping.Document
-import java.util.Date
+import java.time.ZonedDateTime
 
 @Document(collection = "user")
 data class User(
@@ -10,9 +10,10 @@ data class User(
         var firstName: String,
         var lastName: String?,
         var bio: String?,
-        var createdAt: Date,
-        var lastSeen: Date,
+        var createdAt: ZonedDateTime,
+        var lastSeen: ZonedDateTime,
         var avatarUri: String?,
         var accountId: String,
-        var deleted: Boolean
+        var deleted: Boolean,
+        var dateOfBirth: ZonedDateTime?
 )

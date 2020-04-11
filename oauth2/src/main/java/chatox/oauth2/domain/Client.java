@@ -9,14 +9,13 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Entity
@@ -62,7 +61,7 @@ public class Client {
     @JoinColumn(name = "ownerId")
     private Account owner;
 
-    private Date createdAt;
+    private ZonedDateTime createdAt;
     private boolean enabled;
     private Integer accessTokenValidity;
     private Integer refreshTokenValidity;

@@ -7,72 +7,106 @@ import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.mapper.ChatMapper
-import chatox.chat.mapper.ChatParticipationMapper
-import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
+import chatox.chat.repository.MessageRepository
 import chatox.chat.security.AuthenticationFacade
+import chatox.chat.security.access.ChatPermissions
 import chatox.chat.service.ChatService
 import chatox.chat.support.pagination.PaginationRequest
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.time.Instant
-import java.util.Date
-import java.util.UUID
+import java.time.ZonedDateTime
 
 @Service
 @Transactional
 class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationRepository: ChatParticipationRepository,
-                      private val chatParticipationMapper: ChatParticipationMapper,
+                      private val messageRepository: MessageRepository,
                       private val chatMapper: ChatMapper,
-                      private val chatEventsPublisher: ChatEventsPublisher,
                       private val authenticationFacade: AuthenticationFacade) : ChatService {
 
-    override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatResponse> {
+    private lateinit var chatPermissions: ChatPermissions
+
+    @Autowired
+    fun setChatPermissions(chatPermissions: ChatPermissions) {
+        this.chatPermissions = chatPermissions;
+    }
+
+    override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatOfCurrentUserResponse> {
         return authenticationFacade.getCurrentUser()
                 .map { user -> chatMapper.fromCreateChatRequest(createChatRequest, user) }
                 .map { chatRepository.save(it) }
                 .flatMap { it }
-                .map { Mono.just(it).zipWith(chatParticipationRepository.save(ChatParticipation(
-                        id = UUID.randomUUID().toString(),
-                        chat = it,
-                        user = it.createdBy,
-                        role = ChatRole.ADMIN,
-                        createdAt = Date.from(Instant.now()),
-                        lastMessageRead = null
-                ))) }
-                .flatMap { it }
                 .map {
-                    chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(it.t2))
-                    it.t1
+                    chatParticipationRepository.save(
+                            chatParticipation = ChatParticipation(
+                                    user = it.createdBy,
+                                    chat = it,
+                                    role = ChatRole.ADMIN,
+                                    lastMessageRead = null
+                            )
+                    )
                 }
-                .map { chatMapper.toChatResponse(
-                        chat = it,
-                        currentUserId = it.createdBy.id
+                .flatMap { it }
+                .map { chatMapper.toChatOfCurrentUserResponse(
+                        chat = it.chat,
+                        chatParticipation = it,
+                        unreadMessagesCount = 0,
+                        lastMessage = null,
+                        lastReadMessage = null
                 ) }
     }
 
     override fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse> {
-        return chatRepository.findById(id)
-                .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
-                .map { chatMapper.mapChatUpdate(updateChatRequest, it) }
-                .map { chatRepository.save(it) }
-                .flatMap { it }
-                .map { chatMapper.toChatResponse(it) }
+        return assertCanUpdateChat(id)
+                .flatMap {
+                    chatRepository.findById(id)
+                            .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
+                            .map { chatMapper.mapChatUpdate(updateChatRequest, it) }
+                            .flatMap { chatRepository.save(it) }
+                            .map { chatMapper.toChatResponse(it) }
+                }
+    }
+
+    private fun assertCanUpdateChat(chatId: String): Mono<Boolean> {
+        return chatPermissions.canUpdateChat(chatId)
+                .flatMap {
+                    if (it) {
+                        Mono.just(it)
+                    } else {
+                        Mono.error<Boolean>(AccessDeniedException("Can't update chat"))
+                    }
+                }
     }
 
     override fun deleteChat(id: String): Mono<Void> {
-        return chatRepository.findById(id)
-                .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
-                .zipWith(authenticationFacade.getCurrentUser())
-                .map { it.t1.copy(deleted = true, deletedAt = Date.from(Instant.now()), deletedBy = it.t2) }
-                .map { chatRepository.save(it) }
-                .flatMap { Mono.empty<Void>() }
+        return assertCanDeleteChat(id)
+                .flatMap {
+                    chatRepository.findById(id)
+                            .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
+                            .zipWith(authenticationFacade.getCurrentUser())
+                            .map { it.t1.copy(deleted = true, deletedAt = ZonedDateTime.now(), deletedBy = it.t2) }
+                            .flatMap { chatRepository.save(it) }
+                            .then()
+                }
+    }
+
+    private fun assertCanDeleteChat(chatId: String): Mono<Boolean> {
+        return chatPermissions.canDeleteChat(chatId)
+                .flatMap {
+                    if (it) {
+                        Mono.just(it)
+                    } else {
+                        Mono.error<Boolean>(AccessDeniedException("Can't delete chat"))
+                    }
+                }
     }
 
     override fun findChatBySlugOrId(slugOrId: String): Mono<ChatResponse> {
@@ -91,14 +125,35 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         return authenticationFacade.getCurrentUser()
                 .map { chatParticipationRepository.findAllByUser(it) }
                 .flatMapMany { it }
-                .sort { first, second -> first.chat.lastMessageDate.compareTo(second.chat.lastMessageDate) }
+                .map { Mono.just(it) }
+                .parallel()
+                .map { it.zipWith(countUnreadMessages(it)) }
+                .flatMap { it }
+                .sequential()
                 .map { chatMapper.toChatOfCurrentUserResponse(
-                        chat = it.chat,
-                        lastMessage = it.chat.lastMessage,
-                        lastReadMessage = if (it.lastMessageRead != null) it.lastMessageRead!!.message else null,
-                        unreadMessagesCount = 0,
-                        chatParticipation = it
+                        chat = it.t1.chat,
+                        lastMessage = it.t1.chat.lastMessage,
+                        lastReadMessage = if (it.t1.lastMessageRead != null) it.t1.lastMessageRead!!.message else null,
+                        unreadMessagesCount = it.t2,
+                        chatParticipation = it.t1
                 ) }
+    }
+
+    private fun countUnreadMessages(chatParticipation: Mono<ChatParticipation>): Mono<Int> {
+        return chatParticipation.map {
+            if (it.lastMessageRead != null) {
+                val message = it.lastMessageRead!!.message
+
+                if (message != message.chat.lastMessage) {
+                    messageRepository.countByChatAndCreatedAtAfter(message.chat, message.createdAt)
+                } else {
+                    Mono.just(0)
+                }
+            } else {
+                Mono.just(0)
+            }
+        }
+                .flatMap { it }
     }
 
     override fun isChatCreatedByUser(chatId: String, userId: String): Mono<Boolean> {

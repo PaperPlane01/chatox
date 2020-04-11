@@ -4,5 +4,8 @@ export interface User {
     lastName?: string,
     slug?: string,
     avatarUri?: string,
-    deleted: boolean
+    deleted: boolean,
+    createdAt: string,
+    dateOfBirth?: string,
+    bio?: string
 }
