@@ -52,7 +52,7 @@ const _UserProfileInfo: FunctionComponent<UserProfileInfoProps> = ({
     const classes = useStyles();
 
     if (pending) {
-        return <CircularProgress className={classes.centered}/>
+        return <CircularProgress className={classes.centered} size={25}/>
     } else if (error) {
         return <Typography>{getErrorLabel(error, l)}</Typography>
     } else if (userId) {
