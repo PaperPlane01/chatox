@@ -13,6 +13,7 @@ import {
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {CreateMessageStore, MessagesOfChatStore} from "../Message";
 import {WebsocketStore} from "../websocket";
+import {UserProfileStore} from "../User";
 
 export interface IAppState {
     language: LocaleStore,
@@ -29,6 +30,7 @@ export interface IAppState {
     messageCreation: CreateMessageStore,
     messagesOfChat: MessagesOfChatStore,
     joinChat: JoinChatStore,
-    websocket: WebsocketStore
+    websocket: WebsocketStore,
+    userProfile: UserProfileStore,
     store?: any
 }

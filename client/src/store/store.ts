@@ -14,10 +14,9 @@ import {
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
 import {EntitiesStore} from "../entities-store";
-import {UsersStore} from "../User/stores";
+import {UsersStore, UserProfileStore} from "../User/stores";
 import {CreateMessageStore, MessagesOfChatStore, MessagesStore} from "../Message/stores";
 import {WebsocketStore} from "../websocket";
-
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -46,6 +45,7 @@ const messageCreation = new CreateMessageStore(chat, entities);
 const messagesOfChat = new MessagesOfChatStore(entities, chat);
 const joinChat = new JoinChatStore(entities, authorization);
 const websocket = new WebsocketStore(authorization, entities);
+const userProfile = new UserProfileStore(entities);
 
 export const store: IAppState = {
     authorization,
@@ -62,7 +62,8 @@ export const store: IAppState = {
     messageCreation,
     messagesOfChat,
     joinChat,
-    websocket
+    websocket,
+    userProfile
 };
 
 export interface MapMobxToProps<ComponentProps = {}> {

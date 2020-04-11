@@ -3,8 +3,9 @@ export interface UserEntity {
     firstName: string,
     lastName?: string,
     bio?: string,
-    dateOfBirth?: string,
+    dateOfBirth?: Date,
     slug?: string,
     avatarUri?: string,
-    deleted: boolean
+    deleted: boolean,
+    createdAt: Date
 }

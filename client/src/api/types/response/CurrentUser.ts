@@ -8,5 +8,6 @@ export interface CurrentUser {
     lastName?: string,
     avatarUri?: string,
     accountId: string,
-    roles: UserRole[]
+    roles: UserRole[],
+    createdAt: string
 }
