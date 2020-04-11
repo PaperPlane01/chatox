@@ -45,7 +45,7 @@ const getCreatedAtLabel = (createdAt: Date, currentLocale: Language): string => 
     } else if (isSameYear(createdAt, currentDate)) {
         return format(createdAt, "d MMM HH:mm", {locale});
     } else {
-        return format(createdAt, "d MMM YYYY HH:mm", {locale});
+        return format(createdAt, "d MMM yyyy HH:mm", {locale});
     }
 };
 
