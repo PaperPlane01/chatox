@@ -79,5 +79,6 @@ export const en: Labels = {
     "user.profile.birth-date": "Birth date",
     "user.profile.registration-date": "Registration date",
     "user.profile.id": "User ID",
-    "user.profile.years": "years"
+    "user.profile.years": "years",
+    "user.profile": "Profile"
 };

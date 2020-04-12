@@ -79,5 +79,6 @@ export const ru: Labels = {
     "user.profile.birth-date": "Дата рождения",
     "user.profile.registration-date": "Дата регистрации",
     "user.profile.id": "ID пользователя",
-    "user.profile.years": "лет"
+    "user.profile.years": "лет",
+    "user.profile": "Профиль"
 };

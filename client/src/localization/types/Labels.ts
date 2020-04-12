@@ -77,5 +77,6 @@ export interface Labels {
     "user.profile.registration-date": string,
     "user.profile.username": string,
     "user.profile.id": string,
-    "user.profile.years": string
+    "user.profile.years": string,
+    "user.profile": string
 }

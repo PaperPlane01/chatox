@@ -1,11 +1,11 @@
-import React, {FunctionComponent, Fragment} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import {SwipeableDrawer, List} from "@material-ui/core";
+import {Divider, List, SwipeableDrawer} from "@material-ui/core";
+import {ProfileMenuItem} from "./ProfileMenuItem";
 import {HomeMenuItem} from "./HomeMenuItem";
 import {MyChatsMenuItem} from "./MyChatsMenuItem";
-import {HasRole} from "../../Authorization";
-import {LoginMenuItem, LogOutMenuItem, LoginDialog} from "../../Authorization";
-import {RegistrationMenuItem, RegistrationDialog} from "../../Registration";
+import {HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
+import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {IAppState} from "../../store";
 
 interface NavigationalDrawerMobxProps {
@@ -32,6 +32,10 @@ const _NavigationalDrawer: FunctionComponent<NavigationalDrawerMobxProps> = ({
                              }}
             >
                 <List>
+                    <HasRole role="ROLE_USER">
+                        <ProfileMenuItem onClick={closeDrawer}/>
+                        <Divider/>
+                    </HasRole>
                     <HomeMenuItem onClick={closeDrawer}/>
                     <HasRole role="ROLE_NOT_LOGGED_IN">
                         <LoginMenuItem onClick={closeDrawer}/>
