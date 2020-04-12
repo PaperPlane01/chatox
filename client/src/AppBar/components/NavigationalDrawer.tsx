@@ -1,6 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
 import {Divider, List, SwipeableDrawer} from "@material-ui/core";
+import {DrawerUserInfo} from "./DrawerUserInfo";
 import {ProfileMenuItem} from "./ProfileMenuItem";
 import {HomeMenuItem} from "./HomeMenuItem";
 import {MyChatsMenuItem} from "./MyChatsMenuItem";
@@ -31,6 +32,10 @@ const _NavigationalDrawer: FunctionComponent<NavigationalDrawerMobxProps> = ({
                                  }
                              }}
             >
+                <HasRole role="ROLE_USER">
+                    <DrawerUserInfo/>
+                    <Divider/>
+                </HasRole>
                 <List>
                     <HasRole role="ROLE_USER">
                         <ProfileMenuItem onClick={closeDrawer}/>
