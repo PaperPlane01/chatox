@@ -19,7 +19,7 @@ class UserMapper {
             createdAt = user.createdAt,
             lastSeen = user.lastSeen,
             avatarUri = user.avatarUri,
-            dateOfBirth = null
+            dateOfBirth = user.dateOfBirth
     )
 
     fun fromCreateUserRequest(createUserRequest: CreateUserRequest) = User(
@@ -41,6 +41,7 @@ class UserMapper {
             lastName = updateUserRequest.lastName,
             bio = updateUserRequest.bio,
             avatarUri = updateUserRequest.avatarUri,
-            slug = updateUserRequest.slug
+            slug = updateUserRequest.slug,
+            dateOfBirth = updateUserRequest.dateOfBirth
     )
 }

@@ -16,8 +16,8 @@ export const Avatar: FunctionComponent<AvatarProps> = ({
     avatarUri,
     avatarLetter,
     avatarColor,
-    width,
-    height,
+    width = 40,
+    height = 40,
     pending
 }) => {
     if (pending) {
@@ -28,23 +28,17 @@ export const Avatar: FunctionComponent<AvatarProps> = ({
             />
         )
     } else {
-        const imageProps = (width && height)
-            ?
-            {
-                width: `${width} px`,
-                height: `${height} px`
-            }
-            :
-            {
-                width: "100%",
-                height: "100%"
-            };
+        const imageProps = {
+            width,
+            height
+        };
 
         if (isStringEmpty(avatarUri)) {
             return (
-                <MuiAvatar imgProps={imageProps}
-                           style={{
-                               backgroundColor: avatarColor
+                <MuiAvatar style={{
+                               backgroundColor: avatarColor,
+                               width: imageProps.width,
+                               height: imageProps.height
                            }}
                 >
                     {avatarLetter}
@@ -53,7 +47,10 @@ export const Avatar: FunctionComponent<AvatarProps> = ({
         } else {
             return (
                 <MuiAvatar src={avatarUri}
-                           imgProps={imageProps}
+                           style={{
+                               width: imageProps.width,
+                               height: imageProps.height
+                           }}
                 />
             )
         }

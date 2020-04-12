@@ -71,4 +71,14 @@ export const en: Labels = {
     "username.has-already-been-taken": "This username is already taken",
     "username.too-long": "Username is too long",
     "username.too-short": "Username is too short",
+    "user.error.not-found": "Could not find such user",
+    "user.error.with-status": "Could not load user, server responded with {errorStatus} status",
+    "user.error.server-unreachable": "Could not load user, server is unreachable",
+    "user.profile.bio": "Bio",
+    "user.profile.username": "Username",
+    "user.profile.birth-date": "Birth date",
+    "user.profile.registration-date": "Registration date",
+    "user.profile.id": "User ID",
+    "user.profile.years": "years",
+    "user.profile": "Profile"
 };

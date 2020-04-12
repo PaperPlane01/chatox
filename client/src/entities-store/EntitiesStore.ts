@@ -1,7 +1,7 @@
 import {action, computed} from "mobx";
 import {ChatsStore, ChatParticipationsStore} from "../Chat";
 import {UsersStore} from "../User";
-import {ChatOfCurrentUser, ChatParticipation, CurrentUser, Message} from "../api/types/response";
+import {ChatOfCurrentUser, ChatParticipation, CurrentUser, Message, User} from "../api/types/response";
 import {MessagesStore} from "../Message";
 import {AuthorizationStore} from "../Authorization";
 
@@ -42,7 +42,7 @@ export class EntitiesStore {
 
     @action
     insertMessage = (message: Message): void => {
-        this.users.insert(message.sender);
+        this.insertUser(message.sender);
 
         if (message.referredMessage) {
             this.insertMessage(message.referredMessage);
@@ -92,7 +92,7 @@ export class EntitiesStore {
 
     @action
     insertChatParticipation = (chatParticipation: ChatParticipation, currentUser: boolean = false): void => {
-        this.users.insert(chatParticipation.user);
+        this.insertUser(chatParticipation.user);
         this.chatParticipations.insert(chatParticipation);
         const chat = this.chats.findById(chatParticipation.chatId);
         chat.participants = Array.from(new Set([...chat.participants, chatParticipation.id]));
@@ -101,5 +101,10 @@ export class EntitiesStore {
             chat.participantsCount += 1;
         }
         this.chats.insertEntity(chat);
+    };
+
+    @action
+    insertUser = (user: User): void => {
+        this.users.insert(user);
     }
 }

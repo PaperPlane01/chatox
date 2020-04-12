@@ -71,4 +71,14 @@ export const ru: Labels = {
     "username.has-already-been-taken": "Имя пользователя уже используется",
     "username.too-long": "Имя пользователя слишком длинное",
     "username.too-short": "Имя пользователя слишком короткое",
+    "user.error.not-found": "Пользователь не найден",
+    "user.error.with-status": "Не удалось загрузить пользователя, сервер ответил со статусом {errorStatus}",
+    "user.error.server-unreachable": "Не удалось загрузить пользователя, сервер недоступен",
+    "user.profile.bio": "О себе",
+    "user.profile.username": "Имя пользователя",
+    "user.profile.birth-date": "Дата рождения",
+    "user.profile.registration-date": "Дата регистрации",
+    "user.profile.id": "ID пользователя",
+    "user.profile.years": "лет",
+    "user.profile": "Профиль"
 };

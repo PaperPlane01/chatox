@@ -143,7 +143,8 @@ export class UserRegistrationStore {
                             firstName: data.firstName,
                             lastName: data.lastName,
                             roles: data.roles,
-                            slug: data.slug
+                            slug: data.slug,
+                            createdAt: data.createdAt
                         });
                         this.authorizationStore.setTokens(data.accessToken, data.refreshToken);
                         this.reset();

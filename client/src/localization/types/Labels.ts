@@ -68,5 +68,15 @@ export interface Labels {
     "username.empty": string,
     "username.has-already-been-taken": string
     "username.too-long": string,
-    "username.too-short": string
+    "username.too-short": string,
+    "user.error.not-found": string,
+    "user.error.with-status": string,
+    "user.error.server-unreachable": string,
+    "user.profile.birth-date": string,
+    "user.profile.bio": string,
+    "user.profile.registration-date": string,
+    "user.profile.username": string,
+    "user.profile.id": string,
+    "user.profile.years": string,
+    "user.profile": string
 }

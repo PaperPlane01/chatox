@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.ZonedDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,4 +17,5 @@ public class CreateUserResponse {
     private String lastName;
     private String slug;
     private String avatarUri;
+    private ZonedDateTime createdAt;
 }

@@ -10,24 +10,25 @@ import {
     Theme,
     Typography
 } from "@material-ui/core";
-import {format, isSameDay, isSameYear} from "date-fns";
-import {enUS, ru} from "date-fns/locale";
+import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
 import {MessageEntity} from "../types";
 import {Avatar} from "../../Avatar";
 import {UserEntity} from "../../User";
 import {localized, Localized} from "../../localization";
-import {Language} from "../../localization/types";
 import {MapMobxToProps} from "../../store";
 import {CurrentUser} from "../../api/types/response";
+import {Routes} from "../../router";
 
 const breaks = require("remark-breaks");
+const {Link} = require("mobx-router");
 
 interface MessagesListItemMobxProps {
     findMessage: (id: string) => MessageEntity,
     findUser: (id: string) => UserEntity,
-    currentUser?: CurrentUser
+    currentUser?: CurrentUser,
+    routerStore?: any
 }
 
 interface MessagesListItemOwnProps {
@@ -36,9 +37,8 @@ interface MessagesListItemOwnProps {
 
 type MessagesListItemProps = MessagesListItemMobxProps & MessagesListItemOwnProps & Localized;
 
-const getCreatedAtLabel = (createdAt: Date, currentLocale: Language): string => {
+const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
     const currentDate = new Date();
-    const locale = currentLocale === "ru" ? ru : enUS;
 
     if (isSameDay(createdAt, currentDate)) {
         return format(createdAt, "HH:mm", {locale});
@@ -86,6 +86,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     cardActionsRoot: {
         paddingTop: 0,
         float: "right"
+    },
+    undecoratedLink: {
+        textDecoration: "none",
+        color: "inherit",
+        "a:visited": {
+            textDecoration: "none",
+            color: "inherit"
+        }
     }
 }));
 
@@ -94,12 +102,13 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
     currentUser,
     findMessage,
     findUser,
-    locale
+    routerStore,
+    dateFnsLocale
 }) => {
     const classes = useStyles();
     const message = findMessage(messageId);
     const sender = findUser(message.sender);
-    const createAtLabel = getCreatedAtLabel(message.createdAt, locale);
+    const createAtLabel = getCreatedAtLabel(message.createdAt, dateFnsLocale);
     const color = randomColor({seed: sender.id});
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
     const sentByCurrentUser = currentUser && currentUser.id === sender.id;
@@ -108,15 +117,27 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
         <div className={`${classes.messageListItemWrapper} ${sentByCurrentUser && classes.messageOfCurrentUserListItemWrapper}`}
              id={`message-${messageId}`}
         >
-            <Avatar avatarLetter={avatarLetter}
-                    avatarColor={color}
-                    avatarUri={sender.avatarUri}
-            />
+            <Link store={routerStore}
+                  className={classes.undecoratedLink}
+                  view={Routes.userPage}
+                  params={{slug: sender.slug || sender.id}}
+            >
+                <Avatar avatarLetter={avatarLetter}
+                        avatarColor={color}
+                        avatarUri={sender.avatarUri}
+                />
+            </Link>
             <Card className={`${classes.messageCard} ${sentByCurrentUser && classes.messageOfCurrentUserCard}`}>
                 <CardHeader title={
-                    <Typography variant="body1" style={{color}}>
-                        <strong>{sender.firstName} {sender.lastName && sender.lastName}</strong>
-                    </Typography>
+                    <Link store={routerStore}
+                          className={classes.undecoratedLink}
+                          view={Routes.userPage}
+                          params={{slug: sender.slug || sender.id}}
+                    >
+                        <Typography variant="body1" style={{color}}>
+                            <strong>{sender.firstName} {sender.lastName && sender.lastName}</strong>
+                        </Typography>
+                    </Link>
                 }
                             classes={{
                                 root: classes.cardHeaderRoot
@@ -141,10 +162,11 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
     )
 };
 
-const mapMobxToProps: MapMobxToProps<MessagesListItemMobxProps> = ({entities, authorization}) => ({
+const mapMobxToProps: MapMobxToProps<MessagesListItemMobxProps> = ({entities, authorization, store}) => ({
     findMessage: entities.messages.findById,
     findUser: entities.users.findById,
-    currentUser: authorization.currentUser
+    currentUser: authorization.currentUser,
+    routerStore: store
 });
 
 export const MessagesListItem = localized(

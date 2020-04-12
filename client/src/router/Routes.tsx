@@ -1,5 +1,5 @@
 import React from "react";
-import {HomePage, NotFoundPage, ChatPage, ChatsPage} from "../pages";
+import {HomePage, NotFoundPage, ChatPage, ChatsPage, UserPage} from "../pages";
 import {store} from "../store";
 
 const {Route} = require("mobx-router");
@@ -25,6 +25,16 @@ export const Routes = {
         },
         onParamsChange: (view: any, params: any) => {
             store.chat.setSelectedChat(params.slug);
+        }
+    }),
+    userPage: new Route({
+        path: "/user/:slug",
+        component: <UserPage/>,
+        onEnter: (view: any, params: any) => {
+            store.userProfile.setSelectedUser(params.slug)
+        },
+        onParamsChange: (view: any, params: any) => {
+            store.userProfile.setSelectedUser(params.slug)
         }
     })
 };
