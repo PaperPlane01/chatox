@@ -26,7 +26,7 @@ class MessagePermissions(private val chatParticipationService: ChatParticipation
                 .map {
                     it.role == ChatRole.MODERATOR
                             || it.role == ChatRole.ADMIN
-                            || it.activeChatBlocking != null
+                            || it.activeChatBlocking == null
                 }
                 .switchIfEmpty(Mono.just(false))
     }
