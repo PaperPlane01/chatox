@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
 import {Card, CardHeader, CircularProgress, createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
-import {format, formatDistanceStrict} from "date-fns";
+import {format, formatDistanceStrict, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
 import {UserEntity} from "../types";
@@ -39,6 +39,19 @@ const getErrorLabel = (apiError: ApiError, l: TranslationFunction): string => {
     } else if (apiError.status !== API_UNREACHABLE_STATUS) {
         return l("user.error.with-status", {errorStatus: apiError});
     } else return l("user.error.server-unreachable");
+};
+
+const getDateOfBirthLabel = (dateOfBirth: Date, dateFnsLocale: Locale): string => {
+    const dateLabel = format(dateOfBirth, "dd MMMM yyyy", {locale: dateFnsLocale});
+    const ageLabel = formatDistanceStrict(
+        dateOfBirth,
+        new Date(),
+        {
+            unit: "year",
+            locale: dateFnsLocale
+        }
+    );
+    return `${dateLabel} (${ageLabel})`;
 };
 
 const _UserProfileInfo: FunctionComponent<UserProfileInfoProps> = ({
@@ -120,7 +133,7 @@ const _UserProfileInfo: FunctionComponent<UserProfileInfoProps> = ({
                             }
                                         subheader={
                                             <Typography>
-                                                {format(user.dateOfBirth, "dd MMMM yyyy", {locale: dateFnsLocale})} ({formatDistanceStrict(user.dateOfBirth, new Date(), {locale: dateFnsLocale, unit: "year"})})
+                                                {getDateOfBirthLabel(user.dateOfBirth, dateFnsLocale)}
                                             </Typography>
                                         }
                             />
