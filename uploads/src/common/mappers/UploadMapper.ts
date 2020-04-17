@@ -3,7 +3,6 @@ import {UploadInfoResponse} from "../types/response";
 
 export class UploadMapper {
     public toUploadInfoResponse<Metadata>(upload: Upload<Metadata>): UploadInfoResponse<Metadata> {
-        console.log(upload.name);
         return {
             id: upload.id,
             extension: upload.extension,

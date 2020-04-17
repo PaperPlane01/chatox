@@ -6,6 +6,8 @@ export interface GifUploadMetadata {
     durationOpera: number,
     durationFirefox: number,
     durationChrome: number,
+    durationSafari: number,
     animated: boolean,
-    infinite: boolean
+    infinite: boolean,
+    loopCount: number
 }

@@ -6,6 +6,7 @@ import graphicsMagic, {Dimensions} from "gm";
 import fileSystem from "fs";
 import path from "path";
 import {FileTypeResult, fromFile} from "file-type";
+import {getInfo} from "gify-parse";
 import {GifUploadMetadata, ImageUploadMetadata, Upload, UploadType} from "../mongoose/entities";
 import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
@@ -20,6 +21,16 @@ interface SaveImageOptions {
     fileInfo: FileTypeResult,
     multipartFile: MultipartFile
 }
+
+const SUPPORTED_IMAGES_FORMATS = [
+    "jpg",
+    "jpeg",
+    "png",
+    "bmp",
+    "tiff"
+];
+
+const isImageFormatSupported = (imageFormat: string) => SUPPORTED_IMAGES_FORMATS.includes(imageFormat.trim().toLowerCase());
 
 @Injectable()
 export class ImagesUploadService {
@@ -38,13 +49,31 @@ export class ImagesUploadService {
 
             if (fileInfo.mime.startsWith("image")) {
                 if (fileInfo.ext !== "gif") {
+                    if (!isImageFormatSupported(fileInfo.ext)) {
+                        throw new HttpException(
+                            `Format ${fileInfo.ext} is not supported`,
+                            HttpStatus.BAD_REQUEST
+                        );
+                    }
                     resolve(this.saveImage({
                         fileId: id,
                         fileInfo,
                         filePath: temporaryFilePath,
                         multipartFile
                     }))
+                } else {
+                    resolve(this.saveGif({
+                        fileId: id,
+                        fileInfo,
+                        filePath: temporaryFilePath,
+                        multipartFile
+                    }))
                 }
+            } else {
+                throw new HttpException(
+                    `Could not identify uploaded file as image. It may be corrupted or may not be image at all`,
+                    HttpStatus.BAD_REQUEST
+                )
             }
         })
     }
@@ -90,32 +119,107 @@ export class ImagesUploadService {
     private generateThumbnail(originalImagePath: string, originalImageInfo: FileTypeResult): Promise<Upload<ImageUploadMetadata>> {
         return new Promise<Upload<ImageUploadMetadata>>(async (resolve, reject) => {
             const id = new Types.ObjectId().toHexString();
-            const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${id}.${originalImageInfo.ext}`);
-            gm(originalImagePath).resize(200)
-                .write(thumbnailPath, async error => {
-                    if (error) {
-                        throw reject(error);
-                    }
 
-                    const dimensions = await this.getImageDimensions(thumbnailPath);
-                    const thumbnailFileInfo = await fromFile(thumbnailPath);
-                    const thumbnailFileStats = fileSystem.statSync(thumbnailPath);
-                    const thumbnail = new this.uploadModel({
-                        id,
-                        size: thumbnailFileStats.size,
-                        mimeType: thumbnailFileInfo.mime,
-                        extension: thumbnailFileInfo.ext,
-                        meta: {
-                            width: dimensions.width,
-                            height: dimensions.height
-                        },
-                        type: UploadType.IMAGE,
-                        name: `${id}.${thumbnailFileInfo.ext}`,
-                        originalName: `${id}.${thumbnailFileInfo.ext}`
+            if (originalImageInfo.ext === "gif") {
+                const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${id}.jpg`);
+
+                gm(`${originalImagePath}[0]`)
+                    .resize(200)
+                    .write(thumbnailPath, async error => {
+                        if (error) {
+                            reject(error);
+                        }
+                        resolve(this.saveThumbnailToDatabase(id, thumbnailPath));
+                    })
+            } else {
+                const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${id}.${originalImageInfo.ext}`);
+
+                gm(originalImagePath).resize(200)
+                    .write(thumbnailPath, async error => {
+                        if (error) {
+                            reject(error);
+                        }
+                        resolve(this.saveThumbnailToDatabase(id, thumbnailPath))
                     });
-                    resolve(await thumbnail.save());
-                });
+            }
         })
+    }
+
+    private async saveThumbnailToDatabase(id: string, thumbnailPath: string): Promise<Upload<ImageUploadMetadata>> {
+        const dimensions = await this.getImageDimensions(thumbnailPath);
+        const thumbnailFileInfo = await fromFile(thumbnailPath);
+        const thumbnailFileStats = fileSystem.statSync(thumbnailPath);
+        const thumbnail = new this.uploadModel({
+            id,
+            size: thumbnailFileStats.size,
+            mimeType: thumbnailFileInfo.mime,
+            extension: thumbnailFileInfo.ext,
+            meta: {
+                width: dimensions.width,
+                height: dimensions.height
+            },
+            type: UploadType.IMAGE,
+            name: `${id}.${thumbnailFileInfo.ext}`,
+            originalName: `${id}.${thumbnailFileInfo.ext}`
+        });
+        await thumbnail.save();
+        return thumbnail;
+    }
+
+    private async saveGif(options: SaveImageOptions): Promise<UploadInfoResponse<ImageUploadMetadata | GifUploadMetadata>> {
+        const gifFile = fileSystem.readFileSync(options.filePath);
+        const gifInfo = getInfo(gifFile);
+
+        if (!gifInfo.valid) {
+            throw new HttpException(
+                `Uploaded GIF is invalid`,
+                HttpStatus.BAD_REQUEST
+            )
+        }
+
+        const width: number = gifInfo.width;
+        const height: number = gifInfo.height;
+        const duration: number = gifInfo.duration;
+        const durationIE: number = gifInfo.durationIE;
+        const durationOpera: number = gifInfo.durationOpera;
+        const durationChrome: number = gifInfo.durationChrome;
+        const durationFirefox: number = gifInfo.durationFirefox;
+        const durationSafari: number = gifInfo.durationSafari;
+        const animated: boolean = gifInfo.animated;
+        const loopCount: number = gifInfo.loopCount;
+        const infinite: boolean = animated && loopCount === 0;
+
+        const thumbnail = await this.generateThumbnail(options.filePath, options.fileInfo);
+
+        const permanentFilePath = path.join(config.IMAGES_DIRECTORY, `${options.fileId}.${options.fileInfo.ext}`);
+        fileSystem.renameSync(options.filePath, permanentFilePath);
+
+        const gif: Upload<ImageUploadMetadata | GifUploadMetadata> = new this.uploadModel({
+            id: options.fileId,
+            name: `${options.fileId}.${options.fileInfo.ext}`,
+            mimeType: options.fileInfo.mime,
+            size: options.multipartFile.size,
+            extension: options.fileInfo.ext,
+            type: UploadType.GIF,
+            originalName: options.multipartFile.originalname,
+            thumbnail,
+            meta: {
+                width,
+                height,
+                duration,
+                durationChrome,
+                durationFirefox,
+                durationIE,
+                durationOpera,
+                durationSafari,
+                infinite,
+                loopCount,
+                animated
+            }
+        });
+        await gif.save();
+
+        return this.uploadMapper.toUploadInfoResponse(gif);
     }
 
     public async getImage(imageName: string, response: Response): Promise<void> {
