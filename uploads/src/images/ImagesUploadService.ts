@@ -3,7 +3,7 @@ import {InjectModel} from "@nestjs/mongoose";
 import {Response} from "express";
 import {Model, Types} from "mongoose";
 import graphicsMagic, {Dimensions} from "gm";
-import fileSystem from "fs";
+import {promises} from "fs";
 import path from "path";
 import {FileTypeResult, fromFile} from "file-type";
 import {getInfo} from "gify-parse";
@@ -12,6 +12,8 @@ import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
 import {config} from "../config";
 import {UploadMapper} from "../common/mappers";
+
+const fileSystem = promises;
 
 const gm = graphicsMagic.subClass({imageMagick: true});
 
@@ -41,9 +43,9 @@ export class ImagesUploadService {
         return new Promise<UploadInfoResponse<ImageUploadMetadata | GifUploadMetadata>>(async (resolve, reject) => {
             const id = new Types.ObjectId().toHexString();
             const temporaryFilePath = path.join(config.IMAGES_DIRECTORY, `${id}.tmp`);
-            const fileDescriptor = fileSystem.openSync(temporaryFilePath, "w");
-            fileSystem.writeSync(fileDescriptor, multipartFile.buffer);
-            fileSystem.closeSync(fileDescriptor);
+            const fileHandle = await fileSystem.open(temporaryFilePath, "w");
+            await fileSystem.writeFile(fileHandle, multipartFile.buffer);
+            await fileHandle.close();
 
             const fileInfo = await fromFile(temporaryFilePath);
 
@@ -83,7 +85,7 @@ export class ImagesUploadService {
        const imageThumbnail = await this.generateThumbnail(options.filePath, options.fileInfo);
 
        const permanentPath = path.join(config.IMAGES_DIRECTORY, `${options.fileId}.${options.fileInfo.ext}`);
-       fileSystem.renameSync(options.filePath, permanentPath);
+       await fileSystem.rename(options.filePath, permanentPath);
 
        const image: Upload<ImageUploadMetadata> = new this.uploadModel({
            id: options.fileId,
@@ -117,7 +119,7 @@ export class ImagesUploadService {
     }
 
     private async saveGif(options: SaveImageOptions): Promise<UploadInfoResponse<ImageUploadMetadata | GifUploadMetadata>> {
-        const gifFile = fileSystem.readFileSync(options.filePath);
+        const gifFile = await fileSystem.readFile(options.filePath);
         const gifInfo = getInfo(gifFile);
 
         if (!gifInfo.valid) {
@@ -143,7 +145,7 @@ export class ImagesUploadService {
         const preview = await this.generateGifPreview(options.filePath);
 
         const permanentFilePath = path.join(config.IMAGES_DIRECTORY, `${options.fileId}.${options.fileInfo.ext}`);
-        fileSystem.renameSync(options.filePath, permanentFilePath);
+        await fileSystem.rename(options.filePath, permanentFilePath);
 
         const gif: Upload<ImageUploadMetadata | GifUploadMetadata> = new this.uploadModel({
             id: options.fileId,
@@ -155,6 +157,8 @@ export class ImagesUploadService {
             originalName: options.multipartFile.originalname,
             thumbnail,
             preview,
+            isThumbnail: false,
+            isPreview: false,
             meta: {
                 width,
                 height,
@@ -187,7 +191,7 @@ export class ImagesUploadService {
                         if (error) {
                             reject(error);
                         }
-                        resolve(this.saveThumbnailOrPreview(id, thumbnailPath));
+                        resolve(this.saveThumbnailOrPreview(id, thumbnailPath, {isPreview: false, isThumbnail: true}));
                     })
             } else {
                 const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${id}.${originalImageInfo.ext}`);
@@ -197,7 +201,7 @@ export class ImagesUploadService {
                         if (error) {
                             reject(error);
                         }
-                        resolve(this.saveThumbnailOrPreview(id, thumbnailPath))
+                        resolve(this.saveThumbnailOrPreview(id, thumbnailPath, {isThumbnail: true, isPreview: false}))
                     });
             }
         })
@@ -214,15 +218,15 @@ export class ImagesUploadService {
                         reject(error);
                     }
 
-                    resolve(this.saveThumbnailOrPreview(id, previewPath));
+                    resolve(this.saveThumbnailOrPreview(id, previewPath, {isThumbnail: false, isPreview: false}));
                 })
         })
     }
 
-    private async saveThumbnailOrPreview(id: string, thumbnailPath: string): Promise<Upload<ImageUploadMetadata>> {
-        const dimensions = await this.getImageDimensions(thumbnailPath);
-        const thumbnailFileInfo = await fromFile(thumbnailPath);
-        const thumbnailFileStats = fileSystem.statSync(thumbnailPath);
+    private async saveThumbnailOrPreview(id: string, path: string, options: {isThumbnail: boolean, isPreview: boolean}): Promise<Upload<ImageUploadMetadata>> {
+        const dimensions = await this.getImageDimensions(path);
+        const thumbnailFileInfo = await fromFile(path);
+        const thumbnailFileStats = await fileSystem.stat(path);
         const thumbnail = new this.uploadModel({
             id,
             size: thumbnailFileStats.size,
@@ -234,7 +238,9 @@ export class ImagesUploadService {
             },
             type: UploadType.IMAGE,
             name: `${id}.${thumbnailFileInfo.ext}`,
-            originalName: `${id}.${thumbnailFileInfo.ext}`
+            originalName: `${id}.${thumbnailFileInfo.ext}`,
+            isThumbnail: options.isThumbnail,
+            isPreview: options.isPreview
         });
         await thumbnail.save();
         return thumbnail;
@@ -253,15 +259,10 @@ export class ImagesUploadService {
             )
         }
 
-        if (fileSystem.existsSync(path.join(config.IMAGES_THUMBNAILS_DIRECTORY, imageName))) {
+        if (image.isThumbnail) {
             response.download(path.join(config.IMAGES_THUMBNAILS_DIRECTORY, imageName));
-        } else if (fileSystem.existsSync(path.join(config.IMAGES_DIRECTORY, imageName))) {
-            response.download(path.join(config.IMAGES_DIRECTORY, imageName));
         } else {
-            throw new HttpException(
-                `Image ${imageName} was found in database, but is absent in file system`,
-                HttpStatus.NOT_FOUND
-            )
+            response.download(path.join(config.IMAGES_DIRECTORY, imageName));
         }
     }
 }

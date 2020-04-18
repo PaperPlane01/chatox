@@ -20,6 +20,8 @@ export const UploadSchema = new Schema({
             UploadType.AUDIO
         ]
     },
+    isThumbnail: Boolean,
+    isPreview: Boolean,
     thumbnail: this,
     preview: this
 });
