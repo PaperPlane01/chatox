@@ -116,56 +116,6 @@ export class ImagesUploadService {
         })
     }
 
-    private generateThumbnail(originalImagePath: string, originalImageInfo: FileTypeResult): Promise<Upload<ImageUploadMetadata>> {
-        return new Promise<Upload<ImageUploadMetadata>>(async (resolve, reject) => {
-            const id = new Types.ObjectId().toHexString();
-
-            if (originalImageInfo.ext === "gif") {
-                const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${id}.jpg`);
-
-                gm(`${originalImagePath}[0]`)
-                    .resize(200)
-                    .write(thumbnailPath, async error => {
-                        if (error) {
-                            reject(error);
-                        }
-                        resolve(this.saveThumbnailToDatabase(id, thumbnailPath));
-                    })
-            } else {
-                const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${id}.${originalImageInfo.ext}`);
-
-                gm(originalImagePath).resize(200)
-                    .write(thumbnailPath, async error => {
-                        if (error) {
-                            reject(error);
-                        }
-                        resolve(this.saveThumbnailToDatabase(id, thumbnailPath))
-                    });
-            }
-        })
-    }
-
-    private async saveThumbnailToDatabase(id: string, thumbnailPath: string): Promise<Upload<ImageUploadMetadata>> {
-        const dimensions = await this.getImageDimensions(thumbnailPath);
-        const thumbnailFileInfo = await fromFile(thumbnailPath);
-        const thumbnailFileStats = fileSystem.statSync(thumbnailPath);
-        const thumbnail = new this.uploadModel({
-            id,
-            size: thumbnailFileStats.size,
-            mimeType: thumbnailFileInfo.mime,
-            extension: thumbnailFileInfo.ext,
-            meta: {
-                width: dimensions.width,
-                height: dimensions.height
-            },
-            type: UploadType.IMAGE,
-            name: `${id}.${thumbnailFileInfo.ext}`,
-            originalName: `${id}.${thumbnailFileInfo.ext}`
-        });
-        await thumbnail.save();
-        return thumbnail;
-    }
-
     private async saveGif(options: SaveImageOptions): Promise<UploadInfoResponse<ImageUploadMetadata | GifUploadMetadata>> {
         const gifFile = fileSystem.readFileSync(options.filePath);
         const gifInfo = getInfo(gifFile);
@@ -190,6 +140,7 @@ export class ImagesUploadService {
         const infinite: boolean = animated && loopCount === 0;
 
         const thumbnail = await this.generateThumbnail(options.filePath, options.fileInfo);
+        const preview = await this.generateGifPreview(options.filePath);
 
         const permanentFilePath = path.join(config.IMAGES_DIRECTORY, `${options.fileId}.${options.fileInfo.ext}`);
         fileSystem.renameSync(options.filePath, permanentFilePath);
@@ -203,6 +154,7 @@ export class ImagesUploadService {
             type: UploadType.GIF,
             originalName: options.multipartFile.originalname,
             thumbnail,
+            preview,
             meta: {
                 width,
                 height,
@@ -220,6 +172,72 @@ export class ImagesUploadService {
         await gif.save();
 
         return this.uploadMapper.toUploadInfoResponse(gif);
+    }
+
+    private generateThumbnail(originalImagePath: string, originalImageInfo: FileTypeResult): Promise<Upload<ImageUploadMetadata>> {
+        return new Promise<Upload<ImageUploadMetadata>>(async (resolve, reject) => {
+            const id = new Types.ObjectId().toHexString();
+
+            if (originalImageInfo.ext === "gif") {
+                const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${id}.jpg`);
+
+                gm(`${originalImagePath}[0]`)
+                    .resize(200)
+                    .write(thumbnailPath, async error => {
+                        if (error) {
+                            reject(error);
+                        }
+                        resolve(this.saveThumbnailOrPreview(id, thumbnailPath));
+                    })
+            } else {
+                const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${id}.${originalImageInfo.ext}`);
+
+                gm(originalImagePath).resize(200)
+                    .write(thumbnailPath, async error => {
+                        if (error) {
+                            reject(error);
+                        }
+                        resolve(this.saveThumbnailOrPreview(id, thumbnailPath))
+                    });
+            }
+        })
+    }
+
+    private async generateGifPreview(gifPath: string): Promise<Upload<ImageUploadMetadata>> {
+        return new Promise<Upload<ImageUploadMetadata>>((resolve, reject) => {
+            const id = new Types.ObjectId().toHexString();
+            const previewPath = path.join(config.IMAGES_DIRECTORY, `${id}.jpg`);
+
+            gm(`${gifPath}[0]`)
+                .write(previewPath, async error => {
+                    if (error) {
+                        reject(error);
+                    }
+
+                    resolve(this.saveThumbnailOrPreview(id, previewPath));
+                })
+        })
+    }
+
+    private async saveThumbnailOrPreview(id: string, thumbnailPath: string): Promise<Upload<ImageUploadMetadata>> {
+        const dimensions = await this.getImageDimensions(thumbnailPath);
+        const thumbnailFileInfo = await fromFile(thumbnailPath);
+        const thumbnailFileStats = fileSystem.statSync(thumbnailPath);
+        const thumbnail = new this.uploadModel({
+            id,
+            size: thumbnailFileStats.size,
+            mimeType: thumbnailFileInfo.mime,
+            extension: thumbnailFileInfo.ext,
+            meta: {
+                width: dimensions.width,
+                height: dimensions.height
+            },
+            type: UploadType.IMAGE,
+            name: `${id}.${thumbnailFileInfo.ext}`,
+            originalName: `${id}.${thumbnailFileInfo.ext}`
+        });
+        await thumbnail.save();
+        return thumbnail;
     }
 
     public async getImage(imageName: string, response: Response): Promise<void> {

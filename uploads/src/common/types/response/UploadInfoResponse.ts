@@ -1,4 +1,4 @@
-import {UploadType} from "../../../mongoose/entities";
+import {ImageUploadMetadata, UploadType} from "../../../mongoose/entities";
 
 export interface UploadInfoResponse<MetadataType> {
     id: string,
@@ -8,6 +8,7 @@ export interface UploadInfoResponse<MetadataType> {
     meta: MetadataType,
     size: number,
     originalName: string,
-    thumbnail?: UploadInfoResponse<MetadataType>,
+    thumbnail?: UploadInfoResponse<ImageUploadMetadata>,
+    preview?: UploadInfoResponse<ImageUploadMetadata>,
     name: string
 }

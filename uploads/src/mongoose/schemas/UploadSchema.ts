@@ -20,5 +20,6 @@ export const UploadSchema = new Schema({
             UploadType.AUDIO
         ]
     },
-    thumbnail: this
+    thumbnail: this,
+    preview: this
 });

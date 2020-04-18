@@ -1,5 +1,6 @@
 import {Document} from "mongoose";
 import {UploadType} from "./UploadType";
+import {ImageUploadMetadata} from "./ImageUploadMetadata";
 
 export interface Upload<Metadata> extends Document {
     id: string,
@@ -11,5 +12,6 @@ export interface Upload<Metadata> extends Document {
     userId?: string,
     type: UploadType,
     meta: Metadata,
-    thumbnail?: Upload<Metadata>
+    thumbnail?: Upload<ImageUploadMetadata>,
+    preview?: Upload<ImageUploadMetadata>
 }
