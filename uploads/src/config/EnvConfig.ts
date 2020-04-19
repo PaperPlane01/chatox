@@ -8,6 +8,9 @@ export class EnvConfig {
     IMAGES_THUMBNAILS_DIRECTORY: string;
 
     @Env({type: "string"})
+    VIDEOS_DIRECTORY: string;
+
+    @Env({type: "string"})
     MONGODB_HOST: string;
 
     @Env({type: "string"})
