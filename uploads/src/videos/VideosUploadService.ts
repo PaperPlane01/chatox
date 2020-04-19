@@ -5,7 +5,7 @@ import {Model, Types} from "mongoose";
 import ffmpeg from "fluent-ffmpeg";
 import {fromFile} from "file-type";
 import graphicsMagic, {Dimensions} from "gm";
-import {promises as fileSystem} from "fs";
+import {promises as fileSystem, createReadStream} from "fs";
 import path from "path";
 import {ImageUploadMetadata, Upload, UploadType, VideoUploadMetadata} from "../mongoose/entities";
 import {UploadMapper} from "../common/mappers";
@@ -221,7 +221,7 @@ export class VideosUploadService {
     }
 
     public async getVideo(videoName: string, response: Response): Promise<void> {
-        const video = await this.uploadModel.find({
+        const video = await this.uploadModel.findOne({
             name: videoName
         })
             .exec();
@@ -233,6 +233,7 @@ export class VideosUploadService {
             )
         }
 
-        response.download(path.join(config.VIDEOS_DIRECTORY, videoName));
+        response.header("Content-Type", video.mimeType);
+        createReadStream(path.join(config.VIDEOS_DIRECTORY, videoName)).pipe(response);
     }
 }

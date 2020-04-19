@@ -3,7 +3,7 @@ import {InjectModel} from "@nestjs/mongoose";
 import {Response} from "express";
 import {Model, Types} from "mongoose";
 import graphicsMagic, {Dimensions} from "gm";
-import {promises} from "fs";
+import {promises, createReadStream} from "fs";
 import path from "path";
 import {FileTypeResult, fromFile} from "file-type";
 import {getInfo} from "gify-parse";
@@ -259,10 +259,15 @@ export class ImagesUploadService {
             )
         }
 
+        response.header("Content-Type", image.mimeType);
+        let imagePath: string;
+
         if (image.isThumbnail) {
-            response.download(path.join(config.IMAGES_THUMBNAILS_DIRECTORY, imageName));
+            imagePath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, imageName);
         } else {
-            response.download(path.join(config.IMAGES_DIRECTORY, imageName));
+            imagePath = path.join(config.IMAGES_DIRECTORY, imageName);
         }
+
+        createReadStream(imagePath).pipe(response);
     }
 }
