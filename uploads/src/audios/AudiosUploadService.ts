@@ -1,10 +1,12 @@
 import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
+import {Response} from "express";
 import {Model, Types} from "mongoose";
-import {promises as fileSystem} from "fs";
+import {promises as fileSystem, createReadStream} from "fs";
 import path from "path";
 import {fromFile} from "file-type";
 import ffmpeg from "fluent-ffmpeg";
+import contentDisposition from "content-disposition";
 import {AudioUploadMetadata, Upload, UploadType} from "../mongoose/entities";
 import {UploadMapper} from "../common/mappers";
 import {MultipartFile} from "../common/types/request";
@@ -79,5 +81,36 @@ export class AudiosUploadService {
                     })
                 })
         })
+    }
+
+    public async getAudio(audioName: string, response: Response): Promise<void> {
+        const audio = await this.findAudioByName(audioName);
+        response.header("Content-Type", audio.mimeType);
+        const audioPath = path.join(config.AUDIOS_DIRECTORY, audio.name);
+        createReadStream(audioPath).pipe(response);
+    }
+
+    public async downloadAudio(audioName: string, response: Response): Promise<void> {
+        const audio = await this.findAudioByName(audioName);
+        const contentDispositionHeader = contentDisposition(audio.originalName);
+        response.header("Content-Type", audio.mimeType);
+        response.header("Content-Disposition", contentDispositionHeader);
+        const audioPath = path.join(config.AUDIOS_DIRECTORY, audio.name);
+        createReadStream(audioPath).pipe(response);
+    }
+
+    private async findAudioByName(audioName: string): Promise<Upload<AudioUploadMetadata>> {
+        const audio = await this.uploadModel.findOne({
+            name: audioName
+        });
+
+        if (!audio) {
+            throw new HttpException(
+                `Could not find audio with name ${audioName}`,
+                HttpStatus.NOT_FOUND
+            );
+        }
+
+        return audio;
     }
 }
