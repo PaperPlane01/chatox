@@ -6,6 +6,7 @@ import {UploadsModule} from "./uploads";
 import {EurekaModule} from "./eureka";
 import {VideosUploadModule} from "./videos";
 import {AudiosUploadModule} from "./audios";
+import {FilesModule} from "./files";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import {AudiosUploadModule} from "./audios";
       EurekaModule,
       VideosUploadModule,
       AudiosUploadModule,
+      FilesModule,
       MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.MONGODB_DATABASE_NAME}`)
   ]
 })

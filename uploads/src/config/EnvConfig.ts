@@ -14,6 +14,9 @@ export class EnvConfig {
     AUDIOS_DIRECTORY: string;
 
     @Env({type: "string"})
+    FILES_DIRECTORY: string;
+
+    @Env({type: "string"})
     MONGODB_HOST: string;
 
     @Env({type: "string"})

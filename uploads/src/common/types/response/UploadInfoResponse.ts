@@ -5,7 +5,7 @@ export interface UploadInfoResponse<MetadataType> {
     extension: string,
     mimeType: string,
     type: UploadType,
-    meta: MetadataType,
+    meta?: MetadataType,
     size: number,
     originalName: string,
     thumbnail?: UploadInfoResponse<ImageUploadMetadata>,
