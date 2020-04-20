@@ -5,12 +5,20 @@ import {ImagesUploadService} from "./ImagesUploadService";
 import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
 import {GifUploadMetadata, ImageUploadMetadata} from "../mongoose/entities";
+import {config} from "../config";
 
 @Controller("api/v1/uploads/images")
 export class ImagesUploadController {
     constructor(private readonly imagesUploadService: ImagesUploadService) {}
 
-    @UseInterceptors(FileInterceptor("file"))
+    @UseInterceptors(FileInterceptor(
+        "file",
+        {
+            limits: {
+                fileSize: config.IMAGE_MAX_SIZE_BYTES
+            }
+        }
+    ))
     @Post()
     public async uploadImage(@UploadedFile() file: MultipartFile): Promise<UploadInfoResponse<ImageUploadMetadata | GifUploadMetadata>> {
         return this.imagesUploadService.uploadImage(file);

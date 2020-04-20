@@ -5,12 +5,20 @@ import {AudiosUploadService} from "./AudiosUploadService";
 import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
 import {AudioUploadMetadata} from "../mongoose/entities";
+import {config} from "../config";
 
 @Controller("api/v1/uploads/audios")
 export class AudiosUploadController {
     constructor(private readonly audioUploadService: AudiosUploadService) {}
 
-    @UseInterceptors(FileInterceptor("file"))
+    @UseInterceptors(FileInterceptor(
+        "file",
+        {
+            limits: {
+                fileSize: config.AUDIO_MAX_SIZE_BYTES
+            }
+        })
+    )
     @Post()
     public uploadAudio(@UploadedFile() multipartFile: MultipartFile,
                        @Body("originalName") originalName?: string): Promise<UploadInfoResponse<AudioUploadMetadata>> {

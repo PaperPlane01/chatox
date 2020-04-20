@@ -4,13 +4,20 @@ import {Response} from "express";
 import {FilesUploadService} from "./FilesUploadService";
 import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
-
+import {config} from "../config";
 
 @Controller("api/v1/uploads/files")
 export class FilesUploadController {
     constructor(private readonly filesUploadService: FilesUploadService) {}
 
-    @UseInterceptors(FileInterceptor("file"))
+    @UseInterceptors(FileInterceptor(
+        "file",
+        {
+            limits: {
+                fileSize: config.FILE_MAX_SIZE_BYTES
+            }
+        }
+    ))
     @Post()
     public uploadFile(@UploadedFile() file: MultipartFile,
                       @Body("originalName") originalName?: string): Promise<UploadInfoResponse<any>> {
