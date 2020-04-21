@@ -1,16 +1,21 @@
-import {Controller, Get, Param, Post, Res, UploadedFile, UseInterceptors} from "@nestjs/common";
+import {Controller, Get, Param, Post, Res, UploadedFile, UseGuards, UseInterceptors} from "@nestjs/common";
 import {FileInterceptor} from "@nestjs/platform-express";
+import {AuthGuard} from "@nestjs/passport";
 import {Response} from "express";
 import {VideosUploadService} from "./VideosUploadService";
 import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
 import {VideoUploadMetadata} from "../mongoose/entities";
 import {config} from "../config";
+import {RolesGuard} from "../auth";
+import {HasAnyRole} from "../common/security";
 
 @Controller("api/v1/uploads/videos")
 export class VideosUploadController {
     constructor(private readonly videosUploadService: VideosUploadService) {}
 
+    @UseGuards(AuthGuard("jwt"), RolesGuard)
+    @HasAnyRole("ROLE_USER")
     @UseInterceptors(FileInterceptor(
         "file",
         {

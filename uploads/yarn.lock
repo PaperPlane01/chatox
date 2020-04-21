@@ -563,6 +563,14 @@
     tslib "1.11.1"
     uuid "7.0.2"
 
+"@nestjs/jwt@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@nestjs/jwt/-/jwt-7.0.0.tgz#977390ea2d5f61cbf49d3da4df740311b98998db"
+  integrity sha512-2GWFcW4jl3Ey7YutEIx0d4ZkKKIeHW5BLE92jpETmdZUwI+510mSHxkByTcjAbtKdpdSubiKuyDeU9IQZ5tPEQ==
+  dependencies:
+    "@types/jsonwebtoken" "8.3.8"
+    jsonwebtoken "8.5.1"
+
 "@nestjs/mongoose@^6.4.0":
   version "6.4.0"
   resolved "https://registry.yarnpkg.com/@nestjs/mongoose/-/mongoose-6.4.0.tgz#3ea2773528f8c4948b76377d24008f5b663b4e14"
@@ -801,6 +809,13 @@
   version "8.3.9"
   resolved "https://registry.yarnpkg.com/@types/jsonwebtoken/-/jsonwebtoken-8.3.9.tgz#48da9a49997e4eb046733e6878f583d7448f0594"
   integrity sha512-00rI8GbOKuRtoYxltFSRTVUXCRLbuYwln2/nUMPtFU9JGS7if+nnmLjeoFGmqsNCmblPLAaeQ/zMLVsHr6T5bg==
+  dependencies:
+    "@types/node" "*"
+
+"@types/jsonwebtoken@8.3.8":
+  version "8.3.8"
+  resolved "https://registry.yarnpkg.com/@types/jsonwebtoken/-/jsonwebtoken-8.3.8.tgz#b27c9156dde2049ae03e56528a53ef5a8294aa82"
+  integrity sha512-g2ke5+AR/RKYpQxd+HJ2yisLHGuOV0uourOcPtKlcT5Zqv4wFg9vKhFpXEztN4H/6Y6RSUKioz/2PTFPP30CTA==
   dependencies:
     "@types/node" "*"
 
@@ -4441,7 +4456,7 @@ jsonfile@^4.0.0:
   optionalDependencies:
     graceful-fs "^4.1.6"
 
-jsonwebtoken@^8.2.0:
+jsonwebtoken@8.5.1, jsonwebtoken@^8.2.0:
   version "8.5.1"
   resolved "https://registry.yarnpkg.com/jsonwebtoken/-/jsonwebtoken-8.5.1.tgz#00e71e0b8df54c2121a1f26137df2280673bcc0d"
   integrity sha512-XjwVfRS6jTMsqYs0EsuJ4LGxXV14zQybNd4L2r0UvbVnSF9Af8x7p5MzbJ90Ioz/9TI41/hTCvznF/loiSzn8w==

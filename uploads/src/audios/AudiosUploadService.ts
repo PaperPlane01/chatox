@@ -12,6 +12,7 @@ import {UploadMapper} from "../common/mappers";
 import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
 import {config} from "../config";
+import {CurrentUserHolder} from "../context/CurrentUserHolder";
 
 const SUPPORTED_AUDIO_FORMATS = [
     "mp3",
@@ -24,12 +25,14 @@ const isAudioFormatSupported = (format: string): boolean => SUPPORTED_AUDIO_FORM
 @Injectable()
 export class AudiosUploadService {
     constructor(@InjectModel("upload") private readonly uploadModel: Model<Upload<AudioUploadMetadata>>,
-                private readonly uploadMapper: UploadMapper) {
+                private readonly uploadMapper: UploadMapper,
+                private readonly currentUserHolder: CurrentUserHolder) {
 
     }
 
     public async uploadAudio(multipartFile: MultipartFile, originalName?: string): Promise<UploadInfoResponse<AudioUploadMetadata>> {
         return new Promise<UploadInfoResponse<AudioUploadMetadata>>(async (resolve, reject) => {
+            const currentUser = this.currentUserHolder.getCurrentUser();
             const id = new Types.ObjectId().toHexString();
             const temporaryFilePath = path.join(config.AUDIOS_DIRECTORY, `${id}.tmp`);
             const fileHandle = await fileSystem.open(temporaryFilePath, "w");
@@ -60,7 +63,8 @@ export class AudiosUploadService {
                 isThumbnail: false,
                 isPreview: false,
                 meta,
-                type: UploadType.AUDIO
+                type: UploadType.AUDIO,
+                userId: currentUser!.id
             });
             await audio.save();
             resolve(this.uploadMapper.toUploadInfoResponse(audio));

@@ -3,7 +3,7 @@ import {InjectModel} from "@nestjs/mongoose";
 import {Response} from "express";
 import {Model, Types} from "mongoose";
 import graphicsMagic, {Dimensions} from "gm";
-import {promises, createReadStream} from "fs";
+import {createReadStream, promises} from "fs";
 import path from "path";
 import {FileTypeResult, fromFile} from "file-type";
 import {getInfo} from "gify-parse";
@@ -12,6 +12,7 @@ import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
 import {config} from "../config";
 import {UploadMapper} from "../common/mappers";
+import {CurrentUserHolder} from "../context/CurrentUserHolder";
 
 const fileSystem = promises;
 
@@ -21,7 +22,8 @@ interface SaveImageOptions {
     fileId: string,
     filePath: string,
     fileInfo: FileTypeResult,
-    multipartFile: MultipartFile
+    multipartFile: MultipartFile,
+    userId: string
 }
 
 const SUPPORTED_IMAGES_FORMATS = [
@@ -37,10 +39,12 @@ const isImageFormatSupported = (imageFormat: string) => SUPPORTED_IMAGES_FORMATS
 @Injectable()
 export class ImagesUploadService {
     constructor(@InjectModel("upload") private readonly uploadModel: Model<Upload<ImageUploadMetadata | GifUploadMetadata>>,
-                private readonly uploadMapper: UploadMapper) {}
+                private readonly uploadMapper: UploadMapper,
+                private readonly currentUserHolder: CurrentUserHolder) {}
 
     public async uploadImage(multipartFile: MultipartFile): Promise<UploadInfoResponse<ImageUploadMetadata | GifUploadMetadata>> {
         return new Promise<UploadInfoResponse<ImageUploadMetadata | GifUploadMetadata>>(async (resolve, reject) => {
+            const currentUser = this.currentUserHolder.getCurrentUser();
             const id = new Types.ObjectId().toHexString();
             const temporaryFilePath = path.join(config.IMAGES_DIRECTORY, `${id}.tmp`);
             const fileHandle = await fileSystem.open(temporaryFilePath, "w");
@@ -61,14 +65,16 @@ export class ImagesUploadService {
                         fileId: id,
                         fileInfo,
                         filePath: temporaryFilePath,
-                        multipartFile
+                        multipartFile,
+                        userId: currentUser!.id
                     }))
                 } else {
                     resolve(this.saveGif({
                         fileId: id,
                         fileInfo,
                         filePath: temporaryFilePath,
-                        multipartFile
+                        multipartFile,
+                        userId: currentUser!.id
                     }))
                 }
             } else {
@@ -100,7 +106,8 @@ export class ImagesUploadService {
            originalName: options.multipartFile.originalname,
            type: UploadType.IMAGE,
            size: options.multipartFile.size,
-           thumbnail: imageThumbnail
+           thumbnail: imageThumbnail,
+           userId: options.userId
        });
        await image.save();
        return this.uploadMapper.toUploadInfoResponse(image);
@@ -159,6 +166,7 @@ export class ImagesUploadService {
             preview,
             isThumbnail: false,
             isPreview: false,
+            userId: options.userId,
             meta: {
                 width,
                 height,

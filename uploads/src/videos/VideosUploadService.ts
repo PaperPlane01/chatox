@@ -12,6 +12,7 @@ import {UploadMapper} from "../common/mappers";
 import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
 import {config} from "../config";
+import {CurrentUserHolder} from "../context/CurrentUserHolder";
 
 const gm = graphicsMagic.subClass({imageMagick: true});
 
@@ -33,12 +34,14 @@ const isVideoFormatSupported = (format: string): boolean => SUPPORTED_VIDEO_FORM
 @Injectable()
 export class VideosUploadService {
     constructor(@InjectModel("upload") private readonly uploadModel: Model<Upload<VideoUploadMetadata | ImageUploadMetadata>>,
-                private readonly uploadMapper: UploadMapper) {
+                private readonly uploadMapper: UploadMapper,
+                private readonly currentUserHolder: CurrentUserHolder) {
 
     }
 
     public uploadVideo(multipartFile: MultipartFile): Promise<UploadInfoResponse<VideoUploadMetadata>> {
         return new Promise<UploadInfoResponse<VideoUploadMetadata>>(async (resolve, reject) => {
+            const currentUser = this.currentUserHolder.getCurrentUser();
             const id = new Types.ObjectId().toHexString();
             const temporaryFilePath = path.join(config.VIDEOS_DIRECTORY, `${id}.tmp`);
             const fileHandle = await fileSystem.open(temporaryFilePath, "w");
@@ -66,7 +69,8 @@ export class VideosUploadService {
                     isThumbnail: false,
                     originalName: multipartFile.originalname,
                     size: multipartFile.size,
-                    extension: fileInfo.ext
+                    extension: fileInfo.ext,
+                    userId: currentUser!.id
                 }) as Upload<VideoUploadMetadata>;
                 await video.save();
                 resolve(this.uploadMapper.toUploadInfoResponse(video));

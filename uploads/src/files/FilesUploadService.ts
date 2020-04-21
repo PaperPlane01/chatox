@@ -11,15 +11,18 @@ import {UploadMapper} from "../common/mappers";
 import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
 import {config} from "../config";
+import {CurrentUserHolder} from "../context/CurrentUserHolder";
 
 @Injectable()
 export class FilesUploadService {
     constructor(@InjectModel("upload") private readonly uploadModel: Model<Upload<any>>,
-                private readonly uploadMapper: UploadMapper) {
+                private readonly uploadMapper: UploadMapper,
+                private readonly currentUserHolder: CurrentUserHolder) {
 
     }
 
     public async uploadFile(multipartFile: MultipartFile, originalName?: string): Promise<UploadInfoResponse<any>> {
+        const currentUser = this.currentUserHolder.getCurrentUser();
         const id = new Types.ObjectId().toHexString();
         const temporaryFilePath = path.join(config.FILES_DIRECTORY, `${id}.tmp`);
         const fileHandle = await fileSystem.open(temporaryFilePath, "w");
@@ -40,7 +43,8 @@ export class FilesUploadService {
             size: multipartFile.size,
             extension: fileInfo.ext,
             isPreview: false,
-            isThumbnail: false
+            isThumbnail: false,
+            userId: currentUser!.id
         });
         await file.save();
 

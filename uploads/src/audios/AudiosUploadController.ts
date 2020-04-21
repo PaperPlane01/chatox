@@ -1,16 +1,21 @@
-import {Body, Controller, Get, Param, Post, Res, UploadedFile, UseInterceptors} from "@nestjs/common";
+import {Body, Controller, Get, Param, Post, Res, UploadedFile, UseGuards, UseInterceptors} from "@nestjs/common";
 import {FileInterceptor} from "@nestjs/platform-express";
+import {AuthGuard} from "@nestjs/passport";
 import {Response} from "express";
 import {AudiosUploadService} from "./AudiosUploadService";
 import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
 import {AudioUploadMetadata} from "../mongoose/entities";
 import {config} from "../config";
+import {RolesGuard} from "../auth";
+import {HasAnyRole} from "../common/security";
 
 @Controller("api/v1/uploads/audios")
 export class AudiosUploadController {
     constructor(private readonly audioUploadService: AudiosUploadService) {}
 
+    @UseGuards(AuthGuard("jwt"), RolesGuard)
+    @HasAnyRole("ROLE_USER")
     @UseInterceptors(FileInterceptor(
         "file",
         {
