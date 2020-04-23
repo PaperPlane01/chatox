@@ -26,6 +26,18 @@ class RabbitMqConfig {
             .to(userEvents())
             .with("account.deleted.#")
 
+    @Bean
+    fun uploadEvents() = TopicExchange("upload.events")
+
+    @Bean
+    fun uploadCreatedQueue() = Queue("user_service_upload_created")
+
+    @Bean
+    fun uploadEventsBinding(): Binding = BindingBuilder
+            .bind(uploadCreatedQueue())
+            .to(uploadEvents())
+            .with("upload.created.#")
+
     @Autowired
     @Bean
     fun rabbitTemplate(connectionFactory: ConnectionFactory,

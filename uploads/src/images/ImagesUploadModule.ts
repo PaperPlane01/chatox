@@ -2,7 +2,7 @@ import {Module} from "@nestjs/common";
 import {MongooseModule} from "@nestjs/mongoose";
 import {ImagesUploadController} from "./ImagesUploadController";
 import {ImagesUploadService} from "./ImagesUploadService";
-import {UploadSchema} from "../mongoose/schemas";
+import {uploadSchemaFactory} from "../mongoose/schemas";
 import {UploadMapper} from "../common/mappers";
 
 @Module({
@@ -15,12 +15,9 @@ import {UploadMapper} from "../common/mappers";
         }
     ],
     imports: [
-        MongooseModule.forFeature([
-            {
-                name: "upload",
-                schema: UploadSchema
-            }
-        ]),
+        MongooseModule.forFeatureAsync([
+            uploadSchemaFactory
+        ])
     ]
 })
 export class ImagesUploadModule {}

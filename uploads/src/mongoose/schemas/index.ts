@@ -1,1 +1,1 @@
-export * from "./UploadSchema";
+export * from "./upload-schema-factory";

@@ -55,6 +55,18 @@ export class EnvConfig {
     @Env({type: "string", required: false})
     EUREKA_APP_INSTANCE_HOST: string = "localhost";
 
+    @Env({type: "string", required: true})
+    RABBITMQ_USERNAME: string;
+
+    @Env({type: "string", required: true})
+    RABBITMQ_PASSWORD: string;
+
+    @Env({type: "string", required: true})
+    RABBITMQ_HOST: string;
+
+    @Env({type: "number", required: true})
+    RABBITMQ_PORT: number;
+
     @Env({type: "string", required: false})
     JWT_PUBLIC_KEY: string = `-----BEGIN CERTIFICATE-----
 MIIDdTCCAl2gAwIBAgIEaWzSsDANBgkqhkiG9w0BAQsFADBrMRAwDgYDVQQGEwdV

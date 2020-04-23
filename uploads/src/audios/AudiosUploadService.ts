@@ -2,7 +2,7 @@ import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Response} from "express";
 import {Model, Types} from "mongoose";
-import {promises as fileSystem, createReadStream} from "fs";
+import {createReadStream, promises as fileSystem} from "fs";
 import path from "path";
 import {fromFile} from "file-type";
 import ffmpeg from "fluent-ffmpeg";

@@ -9,6 +9,7 @@ import {AudiosUploadModule} from "./audios";
 import {FilesModule} from "./files";
 import {AuthModule} from "./auth";
 import {ContextModule} from "./context";
+import {RabbitMQConfigModule} from "./rabbitmq";
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import {ContextModule} from "./context";
       FilesModule,
       AuthModule,
       ContextModule,
-      MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.MONGODB_DATABASE_NAME}`)
+      RabbitMQConfigModule,
+      MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.MONGODB_DATABASE_NAME}`),
   ]
 })
 export class AppModule {}

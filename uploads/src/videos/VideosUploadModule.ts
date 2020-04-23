@@ -3,7 +3,7 @@ import {MongooseModule} from "@nestjs/mongoose";
 import {VideosUploadController} from "./VideosUploadController";
 import {VideosUploadService} from "./VideosUploadService";
 import {UploadMapper} from "../common/mappers";
-import {UploadSchema} from "../mongoose/schemas";
+import {uploadSchemaFactory} from "../mongoose/schemas";
 
 @Module({
     controllers: [VideosUploadController],
@@ -15,11 +15,8 @@ import {UploadSchema} from "../mongoose/schemas";
         }
     ],
     imports: [
-        MongooseModule.forFeature([
-            {
-                name: "upload",
-                schema: UploadSchema
-            }
+        MongooseModule.forFeatureAsync([
+            uploadSchemaFactory
         ])
     ]
 })

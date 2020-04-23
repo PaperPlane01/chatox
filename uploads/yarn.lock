@@ -318,6 +318,39 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@golevelup/nestjs-common@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@golevelup/nestjs-common/-/nestjs-common-1.4.1.tgz#d87e804b3d8e4a5c763f07448ecb7be7ebbc3c68"
+  integrity sha512-/EN7JV50zWDsVN5QIcJpAHR4UDaS/X8Y5P6NR/KfTBJ9AY4kJROOUoKWq2/4pZRT5S3eiZHDm7nCTSK+LmNGdw==
+  dependencies:
+    shortid "^2.2.14"
+
+"@golevelup/nestjs-discovery@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@golevelup/nestjs-discovery/-/nestjs-discovery-2.3.0.tgz#ffa92da2db84720f7461dfbd76cdcb0e542a8f05"
+  integrity sha512-l4L2FIKtJnpd4ZjjEKQqy5EKGLXIbTdEHmFvMs+QCELOl1rTcfgmgNDjQFBtNyH6iGseOR3gWNGZ4wmL/lzudg==
+  dependencies:
+    lodash "^4.17.15"
+
+"@golevelup/nestjs-modules@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@golevelup/nestjs-modules/-/nestjs-modules-0.4.0.tgz#5efd84de12dc0e74c80e3a7641026a7508384f7b"
+  integrity sha512-PTEUana6AXbOwsjyOt7gfVZYlum/kekWZwU46+F6HmHJNqU9EmrAfUDm4TdX8zSdERbG8cmq9SSAlOPKOi8hOQ==
+  dependencies:
+    shortid "^2.2.14"
+
+"@golevelup/nestjs-rabbitmq@^1.15.0":
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/@golevelup/nestjs-rabbitmq/-/nestjs-rabbitmq-1.15.0.tgz#2bbf2fa17efdf910e3c09649cb490ab0b17e14b0"
+  integrity sha512-PNmA94NT5mskcNx5BcvvNPJhmHxxWlKUvQRj5d4XGCt+gM2jz1jMX4mvNGInJW7buYzqvHf6e6AXth95cr9Lxw==
+  dependencies:
+    "@golevelup/nestjs-common" "^1.4.1"
+    "@golevelup/nestjs-discovery" "^2.3.0"
+    "@golevelup/nestjs-modules" "^0.4.0"
+    amqp-connection-manager "^3.0.0"
+    amqplib "^0.5.3"
+    uuid "^3.3.2"
+
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@istanbuljs/load-nyc-config/-/load-nyc-config-1.0.0.tgz#10602de5570baea82f8afbfa2630b24e7a8cfe5b"
@@ -488,28 +521,6 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^15.0.0"
     chalk "^3.0.0"
-
-"@nestjs-plus/common@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@nestjs-plus/common/-/common-1.1.0.tgz#68fb7df56728132a624e7ab99e4e4739aa2537a2"
-  integrity sha512-5+FEVTWQ0fsfg+RwCLIJHq09n5MZ+x3m3T0gGmlKEi5kH8RKZVK5d1hbBU0ltuy0lhHHgyCq2e0v/KM33XiKFw==
-  dependencies:
-    shortid "^2.2.14"
-
-"@nestjs-plus/discovery@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@nestjs-plus/discovery/-/discovery-2.0.2.tgz#c29a2d70ddecf58082fa3f2574ef511b916c1e8d"
-  integrity sha512-7cOA00gFFbDj6DgWmCD6gXEOKUHs4fn/qBTB4yq7APkWVXKhF3+92D7MKLfpZstFAlKapdDu25c+Ed0ZUKIoGA==
-
-"@nestjs-plus/rabbitmq@^1.4.4":
-  version "1.4.4"
-  resolved "https://registry.yarnpkg.com/@nestjs-plus/rabbitmq/-/rabbitmq-1.4.4.tgz#676949cc8b7afef1500c762b555cb12a1d8fb4e0"
-  integrity sha512-EaD2EfahH0x5tzKG6+akd224KTHKKkG55/m8UUrSTvTXCOKlIwAFD0O1U31W8a8tMNFhfbqjmvHbguQUGs8jMw==
-  dependencies:
-    "@nestjs-plus/common" "^1.1.0"
-    "@nestjs-plus/discovery" "^2.0.2"
-    amqplib "^0.5.3"
-    uuid "^3.3.2"
 
 "@nestjs/cli@^7.0.0":
   version "7.1.2"
@@ -1244,6 +1255,13 @@ ajv@6.12.0, ajv@^6.1.0, ajv@^6.10.0, ajv@^6.10.2, ajv@^6.5.5:
     fast-json-stable-stringify "^2.0.0"
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
+
+amqp-connection-manager@^3.0.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/amqp-connection-manager/-/amqp-connection-manager-3.2.0.tgz#83534360533a48183113f8213af0d230c7b8d461"
+  integrity sha512-CnxBqUXd6ft4DbGs8YXNp0hDZgWiDQAghxG6JRJuxGbGEQdAjsb4oRR9PWBqO5V/Gssp7lDKigXX+DtSczID2w==
+  dependencies:
+    promise-breaker "^5.0.0"
 
 amqplib@^0.5.3:
   version "0.5.5"
@@ -5642,6 +5660,11 @@ progress@^2.0.0:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
+
+promise-breaker@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/promise-breaker/-/promise-breaker-5.0.0.tgz#58e8541f1619554057da95a211794d7834d30c1d"
+  integrity sha512-mgsWQuG4kJ1dtO6e/QlNDLFtMkMzzecsC69aI5hlLEjGHFNpHrvGhFi4LiK5jg2SMQj74/diH+wZliL9LpGsyA==
 
 promise-inflight@^1.0.1:
   version "1.0.1"
