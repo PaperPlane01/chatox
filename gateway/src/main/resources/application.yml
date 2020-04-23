@@ -52,6 +52,10 @@ spring:
           uri: lb://registration-service
           predicates:
             - Path=/api/v1/registration/**
+        - id: uploads-service
+          uri: lb://uploads-service
+          predicates:
+            - Path=/api/v1/uploads/**
         - id: events-service
           uri: lb://events-service
           predicates:

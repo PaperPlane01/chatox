@@ -1,6 +1,7 @@
 package chatox.chat.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.core.TopicExchange
@@ -13,7 +14,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class RabbitMQConfig {
-    
+
     @Autowired
     @Bean
     fun rabbitTemplate(connectionFactory: ConnectionFactory,
@@ -42,23 +43,35 @@ class RabbitMQConfig {
     fun userDeletedQueue() = Queue("chat_service_user_deleted")
 
     @Bean
-    fun userCreatedBinding() = BindingBuilder
+    fun userCreatedBinding(): Binding = BindingBuilder
             .bind(userCreatedQueue())
             .to(userEvents())
             .with("user.created.#")
 
     @Bean
-    fun userUpdatedBinding() = BindingBuilder
+    fun userUpdatedBinding(): Binding = BindingBuilder
             .bind(userUpdatedQueue())
             .to(userEvents())
             .with("user.updated.#")
 
     @Bean
-    fun userDeletedBinding() = BindingBuilder
+    fun userDeletedBinding(): Binding = BindingBuilder
             .bind(userDeletedQueue())
             .to(userEvents())
             .with("user.deleted.#")
 
     @Bean
     fun chatEvents() = TopicExchange("chat.events")
+
+    @Bean
+    fun uploadEvents() = TopicExchange("upload.events")
+
+    @Bean
+    fun uploadCreated() = Queue("chat_service_upload_created")
+
+    @Bean
+    fun uploadCreatedBinding(): Binding = BindingBuilder
+            .bind(uploadCreated())
+            .to(uploadEvents())
+            .with("upload.created.#")
 }
