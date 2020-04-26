@@ -10,3 +10,4 @@ export * from "./User";
 export * from "./ChatParticipation";
 export * from "./ChatRole";
 export * from "./ChatParticipationWithoutUser";
+export * from "./ChatBlocking";

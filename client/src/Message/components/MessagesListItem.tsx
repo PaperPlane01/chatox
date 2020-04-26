@@ -13,6 +13,7 @@ import {
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
+import {MessageMenu} from "./MessageMenu";
 import {MessageEntity} from "../types";
 import {Avatar} from "../../Avatar";
 import {UserEntity} from "../../User";
@@ -142,6 +143,7 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
                             classes={{
                                 root: classes.cardHeaderRoot
                             }}
+                            action={<MessageMenu messageId={messageId}/>}
                 />
                 <CardContent classes={{
                     root: classes.cardContentRoot

@@ -1,9 +1,10 @@
 import {action, computed} from "mobx";
 import {ChatsStore, ChatParticipationsStore} from "../Chat";
 import {UsersStore} from "../User";
-import {ChatOfCurrentUser, ChatParticipation, CurrentUser, Message, User} from "../api/types/response";
+import {ChatBlocking, ChatOfCurrentUser, ChatParticipation, CurrentUser, Message, User} from "../api/types/response";
 import {MessagesStore} from "../Message";
 import {AuthorizationStore} from "../Authorization";
+import {ChatBlockingsStore} from "../ChatBlocking/stores";
 
 export class EntitiesStore {
     private authorizationStore: AuthorizationStore;
@@ -21,7 +22,8 @@ export class EntitiesStore {
         public messages: MessagesStore,
         public chats: ChatsStore,
         public users: UsersStore,
-        public chatParticipations: ChatParticipationsStore
+        public chatParticipations: ChatParticipationsStore,
+        public chatBlockings: ChatBlockingsStore
     ) {
     }
 
@@ -106,5 +108,19 @@ export class EntitiesStore {
     @action
     insertUser = (user: User): void => {
         this.users.insert(user);
-    }
+    };
+
+    @action
+    insertChatBlockings = (chatBlockings: ChatBlocking[]): void => {
+        chatBlockings.forEach(blocking => this.insertChatBlocking(blocking));
+    };
+
+    @action
+    insertChatBlocking = (chatBlocking: ChatBlocking): void => {
+        this.insertUser(chatBlocking.blockedUser);
+        this.insertUser(chatBlocking.blockedBy);
+        chatBlocking.canceledBy && this.insertUser(chatBlocking.canceledBy);
+        chatBlocking.lastModifiedBy && this.insertUser(chatBlocking.lastModifiedBy);
+        this.chatBlockings.insert(chatBlocking);
+    };
 }

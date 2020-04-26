@@ -17,16 +17,19 @@ import {EntitiesStore} from "../entities-store";
 import {UsersStore, UserProfileStore} from "../User/stores";
 import {CreateMessageStore, MessagesOfChatStore, MessagesStore} from "../Message/stores";
 import {WebsocketStore} from "../websocket";
+import {ChatBlockingsStore, CreateChatBlockingStore} from "../ChatBlocking/stores";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
 const usersStore = new UsersStore();
 const chatParticipations = new ChatParticipationsStore();
+const chatBlockings = new ChatBlockingsStore(usersStore);
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
     usersStore,
-    chatParticipations
+    chatParticipations,
+    chatBlockings
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -46,6 +49,7 @@ const messagesOfChat = new MessagesOfChatStore(entities, chat);
 const joinChat = new JoinChatStore(entities, authorization);
 const websocket = new WebsocketStore(authorization, entities);
 const userProfile = new UserProfileStore(entities);
+const createChatBlocking = new CreateChatBlockingStore(chat, entities);
 
 export const store: IAppState = {
     authorization,
@@ -63,7 +67,8 @@ export const store: IAppState = {
     messagesOfChat,
     joinChat,
     websocket,
-    userProfile
+    userProfile,
+    createChatBlocking
 };
 
 export interface MapMobxToProps<ComponentProps = {}> {

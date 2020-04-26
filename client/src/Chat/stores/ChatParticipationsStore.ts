@@ -11,7 +11,8 @@ export interface FindChatParticipationByUserAndChatOptions {
 export class ChatParticipationsStore extends AbstractEntityStore<ChatParticipationEntity, ChatParticipation> {
     findByUserAndChat = createTransformer((options: FindChatParticipationByUserAndChatOptions) => {
         return this.ids.map(id => this.findById(id))
-            .find(chatParticipation => chatParticipation.chatId === options.chatId && chatParticipation.userId === options.userId)
+            .find(chatParticipation => chatParticipation.chatId === options.chatId
+                && chatParticipation.userId === options.userId)
     });
 
     protected convertToNormalizedForm(denormalizedEntity: ChatParticipation): ChatParticipationEntity {

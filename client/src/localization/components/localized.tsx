@@ -28,6 +28,7 @@ export const localized = <T extends Localized>(
 ): FunctionComponent<T & LocalizedMobxProps> => {
     return inject(mapMobxToProps)(observer((props: T & LocalizedMobxProps) => {
         const {locale, currentLabels, dateFnsLocale}  = props;
+
         const getLabel = (labelKey: keyof Labels, bindings?: any): string => {
             let label = currentLabels[labelKey];
 

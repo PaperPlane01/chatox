@@ -14,6 +14,7 @@ import {MarkdownPreviewDialogStore} from "../Markdown";
 import {CreateMessageStore, MessagesOfChatStore} from "../Message";
 import {WebsocketStore} from "../websocket";
 import {UserProfileStore} from "../User";
+import {CreateChatBlockingStore} from "../ChatBlocking/stores";
 
 export interface IAppState {
     language: LocaleStore,
@@ -32,5 +33,6 @@ export interface IAppState {
     joinChat: JoinChatStore,
     websocket: WebsocketStore,
     userProfile: UserProfileStore,
+    createChatBlocking: CreateChatBlockingStore,
     store?: any
 }

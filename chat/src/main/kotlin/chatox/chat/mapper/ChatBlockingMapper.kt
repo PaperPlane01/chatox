@@ -24,7 +24,8 @@ class ChatBlockingMapper(private val userMapper: UserMapper) {
                 canceledBy = if (chatBlocking.canceledBy != null) userMapper.toUserResponse(chatBlocking.canceledBy!!) else null,
                 canceledAt = chatBlocking.canceledAt,
                 lastModifiedAt = chatBlocking.lastModifiedAt,
-                lastModifiedBy = if (chatBlocking.lastModifiedBy != null) userMapper.toUserResponse(chatBlocking.lastModifiedBy!!) else null
+                lastModifiedBy = if (chatBlocking.lastModifiedBy != null) userMapper.toUserResponse(chatBlocking.lastModifiedBy!!) else null,
+                chatId = chatBlocking.chat.id
         )
     }
 
