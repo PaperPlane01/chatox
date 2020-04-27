@@ -83,7 +83,6 @@ const _CreateChatBlockingDialog: FunctionComponent<CreateChatBlockingDialogProps
     const classes = useStyles();
 
     if (!chatId || !formData.blockedUserId) {
-        console.log("No chat id or blocked user id, return null");
         return null;
     }
 

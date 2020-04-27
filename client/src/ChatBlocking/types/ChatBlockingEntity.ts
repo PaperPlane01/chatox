@@ -9,5 +9,7 @@ export interface ChatBlockingEntity {
     canceledByUserId?: string,
     lastModifiedAt?: Date,
     lastModifiedByUserId?: string,
-    chatId: string
+    chatId: string,
+    hidden: boolean,
+    createdAt: Date
 }

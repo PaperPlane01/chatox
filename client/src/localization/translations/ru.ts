@@ -98,5 +98,11 @@ export const ru: Labels = {
     "chat.blocking.success": "Пользователь был заблокирован",
     "chat.blocking.error.server-unreachable": "Во время попытки заблокировать пользователя произошла ошибка, сервер недоступен",
     "chat.blocking.error.unknown": "Во время попытки заблокировать пользователя произошла ошибка. Сервер ответил со статусом {responseStatus}. Пожалуйста, попробуйте позже",
-    "chat.blocking.error.forbidden": "У вас нет прав на совершение данной операции"
+    "chat.blocking.error.forbidden": "У вас нет прав на совершение данной операции",
+    "chat.blocking.no-active-blockings": "Нет активных блокировок",
+    "chat.blocking.no-blockings": "Нет блокировок",
+    "chat.blocking.created-at": "Дата блокировки",
+    "chat.blocking.canceled-at": "Дата отмены",
+    "chat.blocking.updated-at": "Дата обновления",
+    "chat.blocking.blocked-users": "Блокировки"
 };

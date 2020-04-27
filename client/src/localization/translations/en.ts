@@ -98,5 +98,11 @@ export const en: Labels = {
     "chat.blocking.success": "User has been blocked",
     "chat.blocking.error.server-unreachable": "Error occurred when tried to block user: server is unreachable",
     "chat.blocking.error.unknown": "Unknown error occurred when tried to block user. Server responded with {responseStatus} status. Please try again later",
-    "chat.blocking.error.forbidden": "You don't have access to perform this operation"
+    "chat.blocking.error.forbidden": "You don't have access to perform this operation",
+    "chat.blocking.no-active-blockings": "No active blockings",
+    "chat.blocking.no-blockings": "No blockings",
+    "chat.blocking.created-at": "Created at",
+    "chat.blocking.canceled-at": "Canceled at",
+    "chat.blocking.updated-at": "Canceled by",
+    "chat.blocking.blocked-users": "Blocked users"
 };

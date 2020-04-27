@@ -1,14 +1,15 @@
 import {action} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {ChatBlockingEntity} from "../types";
+import {ChatBlockingEntity, ChatBlockingSortableProperties} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {ChatBlocking} from "../../api/types/response";
 import {UsersStore} from "../../User/stores";
+import {SortingDirection} from "../../utils/types";
 
-interface FindByChatOptions {
+export interface FindChatBlockingsByChatOptions {
     chatId: string,
-    sortingProperty?: "blockedUntil" | "blockedBy" | "blockedUser",
-    sortingDirection?: "asc" | "desc"
+    sortingProperty?: ChatBlockingSortableProperties,
+    sortingDirection?: SortingDirection
 }
 
 export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, ChatBlocking> {
@@ -16,13 +17,13 @@ export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, 
         super();
     }
 
-    findByChat = createTransformer((options: FindByChatOptions) => {
+    findByChat = createTransformer((options: FindChatBlockingsByChatOptions) => {
         const {chatId, sortingProperty = "blockedUntil", sortingDirection = "desc"} = options;
 
         switch (sortingProperty) {
             case "blockedUntil":
                 return this.ids.map(id => this.entities[id])
-                    .filter(blocking => blocking.chatId === chatId)
+                    .filter(blocking => blocking.chatId === chatId && !blocking.hidden)
                     .slice()
                     .sort((left, right) => {
                         if (sortingDirection === "desc") {
@@ -32,9 +33,9 @@ export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, 
                         }
                     })
                     .map(blocking => blocking.id);
-            case "blockedUser": {
+            case "blockedUser.firstName": {
                 return this.ids.map(id => this.findById(id))
-                    .filter(blocking => blocking.chatId === chatId)
+                    .filter(blocking => blocking.chatId === chatId && !blocking.hidden)
                     .slice()
                     .sort((left, right) => {
                         const leftUser = this.users.findById(left.blockedUserId);
@@ -48,10 +49,9 @@ export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, 
                     })
                     .map(blocking => blocking.id)
             }
-            case "blockedBy":
-            default:
+            case "blockedBy.firstName":
                 return this.ids.map(id => this.findById(id))
-                    .filter(blocking => blocking.chatId === chatId)
+                    .filter(blocking => blocking.chatId === chatId && blocking.hidden)
                     .slice()
                     .sort((left, right) => {
                         const leftUser = this.users.findById(left.blockedById);
@@ -63,14 +63,30 @@ export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, 
                             return leftUser.firstName.localeCompare(rightUser.firstName);
                         }
                     })
-                    .map(blocking => blocking.id)
+                    .map(blocking => blocking.id);
+            case "createdAt":
+            default:
+                return this.ids.map(id => this.findById(id))
+                    .filter(blocking => blocking.chatId === chatId && !blocking.hidden)
+                    .slice()
+                    .sort((left, right) => {
+                        if (sortingDirection === "desc") {
+                            return left.createdAt.getTime() - right.createdAt.getTime();
+                        } else {
+                            return right.createdAt.getTime() - left.createdAt.getTime();
+                        }
+                    })
+                    .map(blocking => blocking.id);
+
         }
     });
 
     @action
-    deleteByChat = (chatId: string) => {
-        const blockings = this.findByChat({chatId});
-        this.deleteAllById(blockings);
+    hideByChat = (chatId: string): void => {
+        const chatBlockingsIds = this.findByChat({chatId});
+        const chatBlockings = chatBlockingsIds.map(id => this.findById(id));
+        chatBlockings.forEach(blocking => blocking.hidden = true);
+        this.insertAllEntities(chatBlockings);
     };
 
     protected convertToNormalizedForm(denormalizedEntity: ChatBlocking): ChatBlockingEntity {
@@ -85,7 +101,9 @@ export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, 
             chatId: denormalizedEntity.chatId,
             description: denormalizedEntity.description,
             lastModifiedAt: denormalizedEntity.lastModifiedAt ? new Date(denormalizedEntity.lastModifiedAt) : undefined,
-            lastModifiedByUserId: denormalizedEntity.lastModifiedBy && denormalizedEntity.lastModifiedBy.id
+            lastModifiedByUserId: denormalizedEntity.lastModifiedBy && denormalizedEntity.lastModifiedBy.id,
+            hidden: false,
+            createdAt: new Date(denormalizedEntity.createdAt)
         }
     }
 }

@@ -96,5 +96,11 @@ export interface Labels {
     "chat.blocking.success": string,
     "chat.blocking.error.server-unreachable": string,
     "chat.blocking.error.unknown": string,
-    "chat.blocking.error.forbidden": string
+    "chat.blocking.error.forbidden": string,
+    "chat.blocking.no-active-blockings": string,
+    "chat.blocking.no-blockings": string,
+    "chat.blocking.created-at": string,
+    "chat.blocking.canceled-at": string,
+    "chat.blocking.updated-at": string,
+    "chat.blocking.blocked-users": string
 }

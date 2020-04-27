@@ -4,6 +4,7 @@ import {AppBar, CardHeader, Toolbar, Typography, Hidden, IconButton} from "@mate
 import {Skeleton} from "@material-ui/lab";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import randomColor from "randomcolor";
+import {ChatMenu} from "./ChatMenu";
 import {ChatOfCurrentUserEntity} from "../types";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
@@ -67,6 +68,12 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
                                     avatarUri={chat.avatarUri}
                             />
                         )}
+                        action={
+                            <ChatMenu/>
+                        }
+                        style={{
+                            width: "100%"
+                        }}
             />
         )
     } else if (error) {

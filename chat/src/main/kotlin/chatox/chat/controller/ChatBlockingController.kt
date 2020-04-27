@@ -28,7 +28,14 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
 
     @PaginationConfig(
             sortBy = SortBy(
-                    allowed = ["createdAt", "blockedUntil", "blockedUser", "blockedBy"],
+                    allowed = [
+                        "createdAt",
+                        "blockedUntil",
+                        "blockedUser",
+                        "blockedBy",
+                        "blockedUser.firstName",
+                        "blockedBy.firsName"
+                    ],
                     default = "createdAt"
             ),
             sortingDirection = SortDirection(default = "desc")
@@ -40,7 +47,14 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
 
     @PaginationConfig(
             sortBy = SortBy(
-                    allowed = ["createdAt", "blockedUntil", "blockedUser", "blockedBy"],
+                    allowed = [
+                        "createdAt",
+                        "blockedUntil",
+                        "blockedUser",
+                        "blockedBy",
+                        "blockedUser.firstName",
+                        "blockedBy.firsName"
+                    ],
                     default = "createdAt"
             ),
             sortingDirection = SortDirection(default = "desc")
@@ -52,7 +66,14 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
 
     @PaginationConfig(
             sortBy = SortBy(
-                    allowed = ["createdAt", "blockedUntil", "blockedUser", "blockedBy"],
+                    allowed = [
+                        "createdAt",
+                        "blockedUntil",
+                        "blockedUser",
+                        "blockedBy",
+                        "blockedUser.firstName",
+                        "blockedBy.firsName"
+                    ],
                     default = "createdAt"
             ),
             sortingDirection = SortDirection(default = "desc")

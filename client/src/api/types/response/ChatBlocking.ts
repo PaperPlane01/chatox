@@ -11,5 +11,6 @@ export interface ChatBlocking {
     canceledBy?: User,
     lastModifiedAt?: string,
     lastModifiedBy?: User,
-    chatId: string
+    chatId: string,
+    createdAt: string
 }
