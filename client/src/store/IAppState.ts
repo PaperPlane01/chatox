@@ -3,18 +3,17 @@ import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore} from "../Authorization";
 import {UserRegistrationStore} from "../Registration";
-import {
-    ChatsOfCurrentUserStore,
-    CreateChatStore,
-    ChatStore,
-    ChatParticipantsStore,
-    JoinChatStore
-} from "../Chat";
+import {ChatParticipantsStore, ChatsOfCurrentUserStore, ChatStore, CreateChatStore, JoinChatStore} from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {CreateMessageStore, MessagesOfChatStore} from "../Message";
 import {WebsocketStore} from "../websocket";
 import {UserProfileStore} from "../User";
-import {CreateChatBlockingStore, ChatBlockingsOfChatStore, ChatBlockingsDialogStore} from "../ChatBlocking";
+import {
+    CancelChatBlockingStore,
+    ChatBlockingsDialogStore,
+    ChatBlockingsOfChatStore,
+    CreateChatBlockingStore
+} from "../ChatBlocking";
 
 export interface IAppState {
     language: LocaleStore,
@@ -36,5 +35,6 @@ export interface IAppState {
     createChatBlocking: CreateChatBlockingStore,
     chatBlockingsOfChat: ChatBlockingsOfChatStore,
     chatBlockingsDialog: ChatBlockingsDialogStore,
+    cancelChatBlocking: CancelChatBlockingStore,
     store?: any
 }

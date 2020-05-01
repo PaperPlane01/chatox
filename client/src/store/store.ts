@@ -21,7 +21,8 @@ import {
     ChatBlockingsStore,
     CreateChatBlockingStore,
     ChatBlockingsOfChatStore,
-    ChatBlockingsDialogStore
+    ChatBlockingsDialogStore,
+    CancelChatBlockingStore
 } from "../ChatBlocking";
 
 const messages = new MessagesStore();
@@ -57,6 +58,7 @@ const userProfile = new UserProfileStore(entities);
 const createChatBlocking = new CreateChatBlockingStore(chat, entities);
 const chatBlockingsOfChat = new ChatBlockingsOfChatStore(entities, chat);
 const chatBlockingsDialog = new ChatBlockingsDialogStore();
+const cancelChatBlocking = new CancelChatBlockingStore(entities);
 
 export const store: IAppState = {
     authorization,
@@ -77,7 +79,8 @@ export const store: IAppState = {
     userProfile,
     createChatBlocking,
     chatBlockingsOfChat,
-    chatBlockingsDialog
+    chatBlockingsDialog,
+    cancelChatBlocking
 };
 
 export interface MapMobxToProps<ComponentProps = {}> {

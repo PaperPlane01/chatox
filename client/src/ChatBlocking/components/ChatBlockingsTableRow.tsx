@@ -1,9 +1,11 @@
 import React, {FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import {createStyles, makeStyles, TableCell, TableRow, Theme, Typography, useTheme} from "@material-ui/core";
+import {createStyles, makeStyles, TableCell, TableRow, Theme, Typography} from "@material-ui/core";
 import {format} from "date-fns";
 import randomColor from "randomcolor";
+import {CancelChatBlockingButton} from "./CancelChatBlockingButton";
 import {ChatBlockingEntity} from "../types";
+import {isChatBlockingActive} from "../utils";
 import {Avatar} from "../../Avatar";
 import {UserEntity} from "../../User";
 import {getUserAvatarLabel} from "../../User/utils/get-user-avatar-label";
@@ -44,7 +46,6 @@ const _ChatBlockingsTableRow: FunctionComponent<ChatBlockingsTableRowProps> = ({
     routerStore
 }) => {
     const classes = useStyles();
-    const theme = useTheme();
     const chatBlocking = findChatBlocking(chatBlockingId);
     const blockedUser = findUser(chatBlocking.blockedUserId);
     const blockedBy = findUser(chatBlocking.blockedById);
@@ -91,7 +92,7 @@ const _ChatBlockingsTableRow: FunctionComponent<ChatBlockingsTableRowProps> = ({
             </TableCell>
             <TableCell>
                 <Link view={Routes.userPage}
-                      params={{slug: blockedUser.slug}}
+                      params={{slug: blockedBy.slug}}
                       className={classes.userLink}
                       store={routerStore}
                 >
@@ -168,6 +169,9 @@ const _ChatBlockingsTableRow: FunctionComponent<ChatBlockingsTableRowProps> = ({
                     : "—"
                 }
             </TableCell>
+            {isChatBlockingActive(chatBlocking) && (
+                <CancelChatBlockingButton chatBlockingId={chatBlocking.id}/>
+            )}
         </TableRow>
     )
 };

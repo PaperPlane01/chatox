@@ -94,6 +94,7 @@ export class CreateChatBlockingStore {
                             this.resetForm();
                         })
                         .catch(error => this.submissionError = getInitialApiErrorFromResponse(error))
+                        .finally(() => this.pending = false);
                 }
             })
         }
