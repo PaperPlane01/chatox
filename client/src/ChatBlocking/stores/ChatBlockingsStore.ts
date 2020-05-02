@@ -39,37 +39,6 @@ export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, 
                         }
                     })
                     .map(blocking => blocking.id);
-            case "blockedUser.firstName": {
-                return this.ids.map(id => this.findById(id))
-                    .filter(blocking => blocking.chatId === chatId && filter(blocking))
-                    .slice()
-                    .sort((left, right) => {
-                        const leftUser = this.users.findById(left.blockedUserId);
-                        const rightUser = this.users.findById(right.blockedUserId);
-
-                        if (sortingDirection === "desc") {
-                            return rightUser.firstName.localeCompare(leftUser.firstName);
-                        } else {
-                            return leftUser.firstName.localeCompare(rightUser.firstName);
-                        }
-                    })
-                    .map(blocking => blocking.id)
-            }
-            case "blockedBy.firstName":
-                return this.ids.map(id => this.findById(id))
-                    .filter(blocking => blocking.chatId === chatId && filter(blocking))
-                    .slice()
-                    .sort((left, right) => {
-                        const leftUser = this.users.findById(left.blockedById);
-                        const rightUser = this.users.findById(right.blockedById);
-
-                        if (sortingDirection === "desc") {
-                            return rightUser.firstName.localeCompare(leftUser.firstName);
-                        } else {
-                            return leftUser.firstName.localeCompare(rightUser.firstName);
-                        }
-                    })
-                    .map(blocking => blocking.id);
             case "createdAt":
             default:
                 return this.ids.map(id => this.findById(id))

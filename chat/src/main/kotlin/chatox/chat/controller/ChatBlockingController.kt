@@ -30,11 +30,7 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
             sortBy = SortBy(
                     allowed = [
                         "createdAt",
-                        "blockedUntil",
-                        "blockedUser",
-                        "blockedBy",
-                        "blockedUser.firstName",
-                        "blockedBy.firsName"
+                        "blockedUntil"
                     ],
                     default = "createdAt"
             ),
@@ -49,11 +45,7 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
             sortBy = SortBy(
                     allowed = [
                         "createdAt",
-                        "blockedUntil",
-                        "blockedUser",
-                        "blockedBy",
-                        "blockedUser.firstName",
-                        "blockedBy.firsName"
+                        "blockedUntil"
                     ],
                     default = "createdAt"
             ),
@@ -68,11 +60,7 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
             sortBy = SortBy(
                     allowed = [
                         "createdAt",
-                        "blockedUntil",
-                        "blockedUser",
-                        "blockedBy",
-                        "blockedUser.firstName",
-                        "blockedBy.firsName"
+                        "blockedUntil"
                     ],
                     default = "createdAt"
             ),

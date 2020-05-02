@@ -1,12 +1,12 @@
 import {action, computed, observable} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatBlockingEntity, ChatBlockingSortableProperties} from "../types";
+import {isChatBlockingActive} from "../utils";
 import {ChatStore} from "../../Chat";
-import {FetchOptions, PaginationWithSortingState} from "../../utils/types";
+import {FetchOptions, PaginationWithSortingState, SortingDirection} from "../../utils/types";
 import {EntitiesStore} from "../../entities-store";
 import {ChatBlockingApi} from "../../api";
 import {ChatBlocking} from "../../api/types/response";
-import {isChatBlockingActive} from "../utils";
 
 const PAGE_SIZE = 100;
 
@@ -62,6 +62,30 @@ export class ChatBlockingsOfChatStore {
                 {abortIfInitiallyFetched: false},
                 chatId,
                 showActiveOnly
+            )
+        }
+    };
+
+    @action
+    setSortingDirectionAndProperty = (sortingDirection: SortingDirection,
+                                      sortBy: ChatBlockingSortableProperties,
+                                      chatId: string | undefined = this.selectedChatId
+    ): void  => {
+        if (chatId) {
+            const chatBlockingsState = this.getChatBlockingsOfChatState(chatId);
+            chatBlockingsState.pagination = {
+                page: 0,
+                pending: false,
+                initiallyFetched: false,
+                noMoreItems: false,
+                sortBy: sortBy,
+                sortingDirection: sortingDirection
+            };
+            this.entities.chatBlockings.hideByChat(chatId);
+            this.fetchChatBlockings(
+                {abortIfInitiallyFetched: false},
+                chatId,
+                chatBlockingsState.showActiveOnly
             )
         }
     };
