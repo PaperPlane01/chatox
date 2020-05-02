@@ -102,5 +102,6 @@ export interface Labels {
     "chat.blocking.created-at": string,
     "chat.blocking.canceled-at": string,
     "chat.blocking.updated-at": string,
-    "chat.blocking.blocked-users": string
+    "chat.blocking.blocked-users": string,
+    "chat.blocking.show-active-only": string
 }

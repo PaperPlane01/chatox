@@ -104,5 +104,6 @@ export const en: Labels = {
     "chat.blocking.created-at": "Created at",
     "chat.blocking.canceled-at": "Canceled at",
     "chat.blocking.updated-at": "Canceled by",
-    "chat.blocking.blocked-users": "Blocked users"
+    "chat.blocking.blocked-users": "Blocked users",
+    "chat.blocking.show-active-only": "Show active only"
 };

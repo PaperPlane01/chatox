@@ -13,6 +13,7 @@ import {ChatBlockingsTable} from "./ChatBlockingsTable";
 import {localized, Localized} from "../../localization";
 import {ChatOfCurrentUserEntity} from "../../Chat/types";
 import {MapMobxToProps} from "../../store";
+import {ShowActiveOnlySwitch} from "./ShowActiveOnlySwitch";
 
 interface ChatBlockingsDialogMobxProps {
     chatBlockingsDialogOpen: boolean,
@@ -52,6 +53,7 @@ const _ChatBlockingsDialog: FunctionComponent<ChatBlockingsDialogProps> = ({
                 {l("chat.blocking.list", {chatName: chat.name})}
             </DialogTitle>
             <DialogContent>
+                <ShowActiveOnlySwitch chatId={chat.id}/>
                 <ChatBlockingsTable/>
             </DialogContent>
             <DialogActions>

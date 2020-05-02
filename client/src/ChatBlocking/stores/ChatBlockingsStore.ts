@@ -9,7 +9,8 @@ import {SortingDirection} from "../../utils/types";
 export interface FindChatBlockingsByChatOptions {
     chatId: string,
     sortingProperty?: ChatBlockingSortableProperties,
-    sortingDirection?: SortingDirection
+    sortingDirection?: SortingDirection,
+    filter?: (chatBlocking: ChatBlockingEntity) => boolean
 }
 
 export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, ChatBlocking> {
@@ -18,12 +19,17 @@ export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, 
     }
 
     findByChat = createTransformer((options: FindChatBlockingsByChatOptions) => {
-        const {chatId, sortingProperty = "blockedUntil", sortingDirection = "desc"} = options;
+        const {
+            chatId,
+            sortingProperty = "blockedUntil",
+            sortingDirection = "desc",
+            filter = (chatBlocking: ChatBlockingEntity) => !chatBlocking.hidden
+        } = options;
 
         switch (sortingProperty) {
             case "blockedUntil":
                 return this.ids.map(id => this.entities[id])
-                    .filter(blocking => blocking.chatId === chatId && !blocking.hidden)
+                    .filter(blocking => blocking.chatId === chatId && filter(blocking))
                     .slice()
                     .sort((left, right) => {
                         if (sortingDirection === "desc") {
@@ -35,7 +41,7 @@ export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, 
                     .map(blocking => blocking.id);
             case "blockedUser.firstName": {
                 return this.ids.map(id => this.findById(id))
-                    .filter(blocking => blocking.chatId === chatId && !blocking.hidden)
+                    .filter(blocking => blocking.chatId === chatId && filter(blocking))
                     .slice()
                     .sort((left, right) => {
                         const leftUser = this.users.findById(left.blockedUserId);
@@ -51,7 +57,7 @@ export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, 
             }
             case "blockedBy.firstName":
                 return this.ids.map(id => this.findById(id))
-                    .filter(blocking => blocking.chatId === chatId && blocking.hidden)
+                    .filter(blocking => blocking.chatId === chatId && filter(blocking))
                     .slice()
                     .sort((left, right) => {
                         const leftUser = this.users.findById(left.blockedById);
@@ -67,7 +73,7 @@ export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, 
             case "createdAt":
             default:
                 return this.ids.map(id => this.findById(id))
-                    .filter(blocking => blocking.chatId === chatId && !blocking.hidden)
+                    .filter(blocking => blocking.chatId === chatId && filter(blocking))
                     .slice()
                     .sort((left, right) => {
                         if (sortingDirection === "desc") {

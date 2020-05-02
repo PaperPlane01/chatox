@@ -5,7 +5,6 @@ import {ChatBlockingsTableRow} from "./ChatBlockingsTableRow";
 import {ChatBlockingsOfChatState, FindChatBlockingsByChatOptions} from "../stores";
 import {localized, Localized} from "../../localization";
 import {MapMobxToProps} from "../../store";
-import {toJS} from "mobx";
 
 interface ChatBlockingsTableMobxProps {
     selectedChatId: string | undefined,
@@ -34,10 +33,9 @@ const _ChatBlockingsTable: FunctionComponent<ChatBlockingsTableProps> = ({
     const chatBlockings = getChatBlockingsOfChat({
         chatId: selectedChatId,
         sortingDirection: chatBlockingsState.pagination.sortingDirection,
-        sortingProperty: chatBlockingsState.pagination.sortBy
+        sortingProperty: chatBlockingsState.pagination.sortBy,
+        filter: chatBlockingsState.filter
     });
-
-    console.log(toJS(chatBlockings));
 
     if (chatBlockingsState.pagination.initiallyFetched && chatBlockings.length === 0) {
         if (chatBlockingsState.showActiveOnly) {
