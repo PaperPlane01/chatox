@@ -1,9 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import {CircularProgress, List} from "@material-ui/core";
+import {CircularProgress, List, Typography} from "@material-ui/core";
 import {ChatBlockingsListItem} from "./ChatBlockingsListItem";
-import {MapMobxToProps} from "../../store";
 import {ChatBlockingsOfChatState, FindChatBlockingsByChatOptions} from "../stores";
+import {MapMobxToProps} from "../../store";
+import {localized, Localized} from "../../localization/components";
 
 interface ChatBlockingsListMobxProps {
     selectedChatId?: string,
@@ -11,10 +12,13 @@ interface ChatBlockingsListMobxProps {
     getChatBlockingsOfChat: (options: FindChatBlockingsByChatOptions) => string[],
 }
 
-const _ChatBLockingsList: FunctionComponent<ChatBlockingsListMobxProps> = ({
+type ChatBlockingsListProps = ChatBlockingsListMobxProps & Localized
+
+const _ChatBLockingsList: FunctionComponent<ChatBlockingsListProps> = ({
     selectedChatId,
     getChatBlockingsOfChat,
-    getChatBlockingsOfChatState
+    getChatBlockingsOfChatState,
+    l
 }) => {
     if (!selectedChatId) {
         return null;
@@ -33,6 +37,22 @@ const _ChatBLockingsList: FunctionComponent<ChatBlockingsListMobxProps> = ({
         filter: chatBlockingsState.filter
     });
 
+    if (chatBlockingsState.pagination.initiallyFetched && chatBlockings.length === 0) {
+        if (chatBlockingsState.showActiveOnly) {
+            return (
+                <Typography>
+                    {l("chat.blocking.no-active-blockings")}
+                </Typography>
+            );
+        } else {
+            return (
+                <Typography>
+                    {l("chat.blocking.no-blockings")}
+                </Typography>
+            )
+        }
+    }
+
     return (
         <List>
             {chatBlockings.map(chatBlockingId => (
@@ -48,4 +68,6 @@ const mapMobxToProps: MapMobxToProps<ChatBlockingsListMobxProps> = ({chat, chatB
     getChatBlockingsOfChat: entities.chatBlockings.findByChat,
 });
 
-export const ChatBlockingsList = inject(mapMobxToProps)(observer(_ChatBLockingsList) as FunctionComponent);
+export const ChatBlockingsList = localized(
+    inject(mapMobxToProps)(observer(_ChatBLockingsList))
+) as FunctionComponent;

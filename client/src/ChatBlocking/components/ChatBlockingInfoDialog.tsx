@@ -6,11 +6,11 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    Grid,
     Table,
     TableBody,
     TableCell,
     TableRow,
-    Grid,
     Typography
 } from "@material-ui/core";
 import {format} from "date-fns";
