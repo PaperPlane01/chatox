@@ -106,5 +106,7 @@ export const ru: Labels = {
     "chat.blocking.updated-at": "Дата обновления",
     "chat.blocking.blocked-users": "Блокировки",
     "chat.blocking.show-active-only": "Показывать только активные",
-    "chat.blocking.block-until.must-be-in-future": "Дата окончания блокировки должна быть в будущем"
+    "chat.blocking.block-until.must-be-in-future": "Дата окончания блокировки должна быть в будущем",
+    "chat.blocking.info": "Информация о блокировке пользователя {username} в {chatName}",
+    "chat.blocking.actions": "Действия"
 };

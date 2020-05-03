@@ -6,10 +6,12 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    WithMobileDialog,
-    withMobileDialog
+    Hidden,
+    withMobileDialog,
+    WithMobileDialog
 } from "@material-ui/core";
 import {ChatBlockingsTable} from "./ChatBlockingsTable";
+import {ChatBlockingsList} from "./ChatBlockingsList";
 import {localized, Localized} from "../../localization";
 import {ChatOfCurrentUserEntity} from "../../Chat/types";
 import {MapMobxToProps} from "../../store";
@@ -54,7 +56,12 @@ const _ChatBlockingsDialog: FunctionComponent<ChatBlockingsDialogProps> = ({
             </DialogTitle>
             <DialogContent>
                 <ShowActiveOnlySwitch chatId={chat.id}/>
-                <ChatBlockingsTable/>
+                <Hidden lgUp>
+                    <ChatBlockingsList/>
+                </Hidden>
+                <Hidden mdDown>
+                    <ChatBlockingsTable/>
+                </Hidden>
             </DialogContent>
             <DialogActions>
                 <Button variant="outlined"
