@@ -1,9 +1,14 @@
+import {isBefore} from "date-fns";
 import {Labels} from "../../localization/types";
 import {isStringEmpty} from "../../utils/string-utils";
 
 export const validateBlockedUntil = (blockedUntil?: Date): keyof Labels | undefined => {
     if (!blockedUntil) {
         return "chat.blocking.block-until.required";
+    }
+
+    if (isBefore(blockedUntil, new Date())) {
+        return "chat.blocking.block-until.must-be-in-future";
     }
 
     return undefined;

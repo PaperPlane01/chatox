@@ -103,5 +103,6 @@ export interface Labels {
     "chat.blocking.canceled-at": string,
     "chat.blocking.updated-at": string,
     "chat.blocking.blocked-users": string,
-    "chat.blocking.show-active-only": string
+    "chat.blocking.show-active-only": string,
+    "chat.blocking.block-until.must-be-in-future": string
 }
