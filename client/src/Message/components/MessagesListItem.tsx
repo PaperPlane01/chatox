@@ -78,7 +78,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         color: theme.palette.getContrastText(theme.palette.primary.light)
     },
     cardHeaderRoot: {
-        paddingBottom: 0
+        paddingBottom: 0,
+        alignItems: "flex-start"
+    },
+    cardHeaderAction: {
+      marginRight: -16
     },
     cardContentRoot: {
         paddingTop: 0,
@@ -141,7 +145,8 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
                     </Link>
                 }
                             classes={{
-                                root: classes.cardHeaderRoot
+                                root: classes.cardHeaderRoot,
+                                action: classes.cardHeaderAction
                             }}
                             action={<MessageMenu messageId={messageId}/>}
                 />

@@ -54,7 +54,9 @@ const _MessageMenu: FunctionComponent<MessageMenuProps> = ({
 
     return (
         <div>
-            <IconButton onClick={handleOpenClick}>
+            <IconButton onClick={handleOpenClick}
+                        size="small"
+            >
                 <MoreVert/>
             </IconButton>
             <Menu open={menuOpen}
