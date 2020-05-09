@@ -78,7 +78,9 @@ const _ChatBlockingsTable: FunctionComponent<ChatBlockingsTableProps> = ({
     }
 
     return (
-        <Table size="small">
+        <Table size="small"
+               stickyHeader
+        >
             <TableHead>
                 <TableRow>
                     <TableCell>{l("chat.blocking.blocked-user")}</TableCell>
