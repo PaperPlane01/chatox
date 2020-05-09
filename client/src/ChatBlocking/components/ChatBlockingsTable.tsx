@@ -1,6 +1,15 @@
 import React, {FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import {CircularProgress, Table, TableBody, TableCell, TableHead, TableRow, Typography, TableSortLabel} from "@material-ui/core";
+import {
+    CircularProgress,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    TableSortLabel,
+    Typography
+} from "@material-ui/core";
 import {ChatBlockingsTableRow} from "./ChatBlockingsTableRow";
 import {ChatBlockingsOfChatState, FindChatBlockingsByChatOptions} from "../stores";
 import {localized, Localized} from "../../localization";

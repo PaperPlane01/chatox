@@ -1,8 +1,9 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, Fragment} from "react";
 import {inject, observer} from "mobx-react";
 import {TableCell, TableRow} from "@material-ui/core";
 import {format} from "date-fns";
 import {CancelChatBlockingButton} from "./CancelChatBlockingButton";
+import {UpdateChatBlockingButton} from "./UpdateChatBlockingButton";
 import {ChatBlockingEntity} from "../types";
 import {isChatBlockingActive} from "../utils";
 import {UserEntity} from "../../User";
@@ -26,7 +27,7 @@ const _ChatBlockingsTableRow: FunctionComponent<ChatBlockingsTableRowProps> = ({
     chatBlockingId,
     findChatBlocking,
     findUser,
-    dateFnsLocale,
+    dateFnsLocale
 }) => {
     const chatBlocking = findChatBlocking(chatBlockingId);
     const blockedUser = findUser(chatBlocking.blockedUserId);
@@ -80,7 +81,10 @@ const _ChatBlockingsTableRow: FunctionComponent<ChatBlockingsTableRowProps> = ({
                 }
             </TableCell>
             {isChatBlockingActive(chatBlocking) && (
-                <CancelChatBlockingButton chatBlockingId={chatBlocking.id}/>
+                <Fragment>
+                    <CancelChatBlockingButton chatBlockingId={chatBlocking.id}/>
+                    <UpdateChatBlockingButton chatBlockingId={chatBlocking.id}/>
+                </Fragment>
             )}
         </TableRow>
     )

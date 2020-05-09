@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {Grid, Hidden} from "@material-ui/core";
 import {ChatAppBar, ChatInfoContainer, ChatsOfCurrentUserList, MessagesList} from "../Chat";
 import {MessagesListBottom} from "../Message";
-import {CreateChatBlockingDialog, ChatBlockingsDialog, ChatBlockingInfoDialog} from "../ChatBlocking";
+import {CreateChatBlockingDialog, ChatBlockingsDialog, ChatBlockingInfoDialog, UpdateChatBlockingDialog} from "../ChatBlocking";
 
 const ScrollLock = require("react-scrolllock").default;
 
@@ -35,6 +35,7 @@ export const ChatPage: FunctionComponent = () => (
             <CreateChatBlockingDialog/>
             <ChatBlockingsDialog/>
             <ChatBlockingInfoDialog/>
+            <UpdateChatBlockingDialog/>
         </Grid>
     </ScrollLock>
 );

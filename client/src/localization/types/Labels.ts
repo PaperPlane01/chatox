@@ -106,5 +106,11 @@ export interface Labels {
     "chat.blocking.show-active-only": string,
     "chat.blocking.block-until.must-be-in-future": string,
     "chat.blocking.info": string,
-    "chat.blocking.actions": string
+    "chat.blocking.actions": string,
+    "chat.blocking.update.error.server-unreachable": string,
+    "chat.blocking.update.error.unknown": string,
+    "chat.blocking.update.error.forbidden": string,
+    "chat.blocking.update.blocking": string,
+    "chat.blocking.edit": string,
+    "update": string
 }

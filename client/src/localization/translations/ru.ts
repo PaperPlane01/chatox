@@ -83,7 +83,7 @@ export const ru: Labels = {
     "user.profile": "Профиль",
     "chat.blocking.create": "Заблокировать пользователя {username} в чате {chatName}",
     "chat.blocking.list": "Пользователи, заблокированные в {chatName}",
-    "chat.blocking.update": "Обновить",
+    "chat.blocking.update": "Обновить блокировку пользователя {username} в чате {chatName}",
     "chat.blocking.cancel": "Отменить",
     "chat.blocking.blocked-until": "Дата окончания блокировки",
     "chat.blocking.block-until": "Дата окончания блокировки",
@@ -108,5 +108,11 @@ export const ru: Labels = {
     "chat.blocking.show-active-only": "Показывать только активные",
     "chat.blocking.block-until.must-be-in-future": "Дата окончания блокировки должна быть в будущем",
     "chat.blocking.info": "Информация о блокировке пользователя {username} в {chatName}",
-    "chat.blocking.actions": "Действия"
+    "chat.blocking.actions": "Действия",
+    "chat.blocking.update.error.server-unreachable": "Во время попытки обновить блокировку произошла ошибка: сервер недоступен",
+    "chat.blocking.update.error.unknown": "Во время обновления блокировки произошла неизвестная ошибка, сервер ответил со статусом {errorStatus}",
+    "chat.blocking.update.error.forbidden": "У вас нет прав на совершение данной операции",
+    "update": "Обновить",
+    "chat.blocking.update.blocking": "Обновить блокировку",
+    "chat.blocking.edit": "Редактировать"
 };

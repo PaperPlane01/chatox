@@ -3,3 +3,8 @@ export * from "./ChatBlockingsDialog";
 export * from "./ChatBlockingsTable";
 export * from "./ChatBlockingsTableRow";
 export * from "./ChatBlockingInfoDialog";
+export * from "./UpdateChatBlockingDialog";
+export * from "./ShowActiveOnlySwitch";
+export * from "./ChatBlockingsList";
+export * from "./ChatBlockingsListItem";
+export * from "./CancelChatBlockingButton";

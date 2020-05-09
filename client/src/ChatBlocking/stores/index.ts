@@ -4,3 +4,4 @@ export * from "./ChatBlockingsOfChatStore";
 export * from "./ChatBlockingsDialogStore";
 export * from "./CancelChatBlockingStore";
 export * from "./ChatBlockingInfoDialogStore";
+export * from "./UpdateChatBlockingStore";

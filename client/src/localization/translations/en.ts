@@ -83,7 +83,7 @@ export const en: Labels = {
     "user.profile": "Profile",
     "chat.blocking.create": "Block user {username} in chat {chatName}",
     "chat.blocking.list": "Users blocked in chat {chatName}",
-    "chat.blocking.update": "Update",
+    "chat.blocking.update": "Update blocking of {username} in chat {chatName}",
     "chat.blocking.cancel": "Cancel",
     "chat.blocking.blocked-until": "Blocked until",
     "chat.blocking.block-until": "Block until",
@@ -108,5 +108,11 @@ export const en: Labels = {
     "chat.blocking.show-active-only": "Show active only",
     "chat.blocking.block-until.must-be-in-future": "Blocking expiration date must be in future",
     "chat.blocking.info": "Info about blocking of {username} in {chatName}",
-    "chat.blocking.actions": "Actions"
+    "chat.blocking.actions": "Actions",
+    "chat.blocking.update.error.server-unreachable": "Error occurred when tried to update blocking: server is unreachable",
+    "chat.blocking.update.error.unknown": "Unknown error occurred when tried to update blocking, server responded with {errorStatus} status",
+    "chat.blocking.update.error.forbidden": "You don't have access to perform this operation",
+    "update": "Update",
+    "chat.blocking.update.blocking": "Update blocking",
+    "chat.blocking.edit": "Edit"
 };
