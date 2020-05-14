@@ -9,7 +9,7 @@ import {
     CreateChatStore,
     ChatParticipationsStore,
     ChatParticipantsStore,
-    JoinChatStore
+    JoinChatStore, ChatInfoDialogStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
@@ -63,6 +63,7 @@ const chatBlockingsDialog = new ChatBlockingsDialogStore();
 const cancelChatBlocking = new CancelChatBlockingStore(entities);
 const chatBlockingInfoDialog = new ChatBlockingInfoDialogStore();
 const updateChatBlocking = new UpdateChatBlockingStore(entities);
+const chatInfoDialog = new ChatInfoDialogStore();
 
 export const store: IAppState = {
     authorization,
@@ -86,7 +87,8 @@ export const store: IAppState = {
     chatBlockingsDialog,
     cancelChatBlocking,
     chatBlockingInfoDialog,
-    updateChatBlocking
+    updateChatBlocking,
+    chatInfoDialog
 };
 
 export interface MapMobxToProps<ComponentProps = {}> {

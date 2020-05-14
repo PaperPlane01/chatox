@@ -112,5 +112,6 @@ export interface Labels {
     "chat.blocking.update.error.forbidden": string,
     "chat.blocking.update.blocking": string,
     "chat.blocking.edit": string,
-    "update": string
+    "update": string,
+    "chat.info": string
 }

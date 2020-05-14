@@ -114,5 +114,6 @@ export const ru: Labels = {
     "chat.blocking.update.error.forbidden": "У вас нет прав на совершение данной операции",
     "update": "Обновить",
     "chat.blocking.update.blocking": "Обновить блокировку",
-    "chat.blocking.edit": "Редактировать"
+    "chat.blocking.edit": "Редактировать",
+    "chat.info": "Информация о чате"
 };

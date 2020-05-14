@@ -114,5 +114,6 @@ export const en: Labels = {
     "chat.blocking.update.error.forbidden": "You don't have access to perform this operation",
     "update": "Update",
     "chat.blocking.update.blocking": "Update blocking",
-    "chat.blocking.edit": "Edit"
+    "chat.blocking.edit": "Edit",
+    "chat.info": "Chat info"
 };

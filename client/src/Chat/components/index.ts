@@ -9,3 +9,4 @@ export * from "./ChatInfoContainer";
 export * from "./JoinChatButton";
 export * from "./ChatMenu";
 export * from "./ChatBlockingsMenuItem";
+export * from "./ChatInfoDialog";
