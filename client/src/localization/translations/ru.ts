@@ -123,5 +123,7 @@ export const ru: Labels = {
     "chat.blocking.update.blocking": "Обновить блокировку",
     "chat.blocking.edit": "Редактировать",
     "chat.info": "Информация о чате",
-    "message.deleted": "Сообщение удалено"
+    "message.deleted": "Сообщение удалено",
+    "chat.blocking.current-user-blocked.no-reason": "Вы были заблокированы в этом чате пользователем {blockedByUsername}. Блокировка закончится {blockedUntil}",
+    "chat.blocking.current-user-blocked.with-reason": "Вы были заблокированы в этом чате пользователем {blockedByUsername} по причине: \"{reason}\". Блокировка закончится {blockedUntil}"
 };

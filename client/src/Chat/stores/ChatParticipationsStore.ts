@@ -20,7 +20,10 @@ export class ChatParticipationsStore extends AbstractEntityStore<ChatParticipati
             id: denormalizedEntity.id,
             chatId: denormalizedEntity.chatId,
             role: denormalizedEntity.role,
-            userId: denormalizedEntity.user.id
+            userId: denormalizedEntity.user.id,
+            activeChatBlockingId: denormalizedEntity.activeChatBlocking
+                ? denormalizedEntity.activeChatBlocking.id
+                : undefined
         };
     }
 

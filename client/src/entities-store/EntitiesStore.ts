@@ -72,14 +72,20 @@ export class EntitiesStore {
         }
 
         if (this.currentUser && chatOfCurrentUser.chatParticipation) {
+            if (chatOfCurrentUser.chatParticipation.activeChatBlocking) {
+                this.chatBlockings.insert(chatOfCurrentUser.chatParticipation.activeChatBlocking);
+            }
+
             this.chatParticipations.insert({
                 ...chatOfCurrentUser.chatParticipation,
                 user: {
                     ...this.currentUser,
                     deleted: false
                 },
-                chatId: chatOfCurrentUser.id
+                chatId: chatOfCurrentUser.id,
+                activeChatBlocking: chatOfCurrentUser.chatParticipation.activeChatBlocking
             });
+
             chat.participants = Array.from(new Set([
                 ...chat.participants,
                 chatOfCurrentUser.chatParticipation.id

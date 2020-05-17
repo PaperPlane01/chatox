@@ -121,5 +121,7 @@ export interface Labels {
     "chat.blocking.messages-deletion-period.ALL_TIME": string,
     "update": string,
     "chat.info": string,
-    "message.deleted": string
+    "message.deleted": string,
+    "chat.blocking.current-user-blocked.no-reason": string,
+    "chat.blocking.current-user-blocked.with-reason": string
 }

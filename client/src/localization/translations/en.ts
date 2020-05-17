@@ -123,5 +123,7 @@ export const en: Labels = {
     "chat.blocking.update.blocking": "Update blocking",
     "chat.blocking.edit": "Edit",
     "chat.info": "Chat info",
-    "message.deleted": "Message has been deleted"
+    "message.deleted": "Message has been deleted",
+    "chat.blocking.current-user-blocked.no-reason": "You have been blocked in this chat by {blockedByUsername}. The blocking will expire at {blockedUntil}",
+    "chat.blocking.current-user-blocked.with-reason": "You have been blocked in this chat by {blockedByUsername} with the following reason: \"{reason}\". The blocking will expire at {blockedUntil}"
 };
