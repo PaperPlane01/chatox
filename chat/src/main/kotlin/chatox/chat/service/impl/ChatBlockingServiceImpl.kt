@@ -7,16 +7,22 @@ import chatox.chat.exception.ChatBlockingNotFoundException
 import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.exception.UserNotFoundException
 import chatox.chat.mapper.ChatBlockingMapper
+import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatBlocking
+import chatox.chat.model.ChatRole
 import chatox.chat.model.User
 import chatox.chat.repository.ChatBlockingRepository
 import chatox.chat.repository.ChatRepository
+import chatox.chat.repository.MessageRepository
 import chatox.chat.repository.UserRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatBlockingPermissions
 import chatox.chat.service.ChatBlockingService
+import chatox.chat.service.ChatParticipationService
 import chatox.chat.support.pagination.PaginationRequest
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
@@ -30,28 +36,65 @@ import java.time.ZonedDateTime
 class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRepository,
                               private val chatRepository: ChatRepository,
                               private val userRepository: UserRepository,
+                              private val messageRepository: MessageRepository,
                               private val authenticationFacade: AuthenticationFacade,
-                              private val chatBlockingMapper: ChatBlockingMapper) : ChatBlockingService {
+                              private val chatBlockingMapper: ChatBlockingMapper,
+                              private val chatEventsPublisher: ChatEventsPublisher) : ChatBlockingService {
     private lateinit var chatBlockingPermissions: ChatBlockingPermissions
+    private lateinit var chatParticipationService: ChatParticipationService
 
     @Autowired
     fun setChatBlockingPermissions(chatBlockingPermissions: ChatBlockingPermissions) {
-        this.chatBlockingPermissions = chatBlockingPermissions;
+        this.chatBlockingPermissions = chatBlockingPermissions
+    }
+
+    @Autowired
+    fun setChatParticipationService(chatParticipationService: ChatParticipationService) {
+        this.chatParticipationService = chatParticipationService
     }
 
     override fun blockUser(chatId: String, createChatBlockingRequest: CreateChatBlockingRequest): Mono<ChatBlockingResponse> {
-        return this.assertCanBlockUser(chatId)
-                .flatMap { authenticationFacade.getCurrentUser() }
-                .zipWith(findChatById(chatId))
-                .zipWith(findUserById(createChatBlockingRequest.userId))
-                .map { chatBlockingMapper.fromCreateChatBlockingRequest(
-                        createChatBlockingRequest = createChatBlockingRequest,
-                        currentUser = it.t1.t1,
-                        chat = it.t1.t2,
-                        blockedUser = it.t2
-                ) }
-                .flatMap { chatBlockingRepository.save(it) }
-                .map { chatBlockingMapper.toChatBlockingResponse(it) }
+        return mono {
+            assertCanBlockUser(chatId).awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val chat = findChatById(chatId).awaitFirst()
+            val blockedUser = findUserById(createChatBlockingRequest.userId).awaitFirst()
+
+            var chatBlocking = chatBlockingMapper.fromCreateChatBlockingRequest(
+                    createChatBlockingRequest = createChatBlockingRequest,
+                    chat = chat,
+                    blockedUser = blockedUser,
+                    currentUser = currentUser
+            )
+
+            chatBlocking = chatBlockingRepository.save(chatBlocking).awaitFirst()
+
+            if (createChatBlockingRequest.deleteRecentMessages != null && createChatBlockingRequest.deleteRecentMessages) {
+                val roleOfUserInChat = chatParticipationService.getRoleOfUserInChat(chat, blockedUser).awaitFirst()
+
+                if (roleOfUserInChat != ChatRole.MODERATOR && roleOfUserInChat != ChatRole.ADMIN) {
+                    val deleteMessagesSince = createChatBlockingRequest.deleteMessagesSince ?: ZonedDateTime.now().minusMinutes(5L)
+                    var deletedMessages = messageRepository.findBySenderAndCreatedAtAfter(
+                            user = blockedUser,
+                            date = deleteMessagesSince
+                    )
+                            .collectList()
+                            .awaitFirst()
+                    deletedMessages = deletedMessages.map { it.copy(
+                            deleted = true,
+                            deletedAt = ZonedDateTime.now(),
+                            deletedBy = currentUser
+                    ) }
+                    deletedMessages = messageRepository.saveAll(deletedMessages).collectList().awaitFirst()
+                    chatEventsPublisher.messagesDeleted(
+                            chatId = chat.id,
+                            messagesIds = deletedMessages.map { it.id }
+                    )
+                }
+            }
+
+            chatBlockingMapper.toChatBlockingResponse(chatBlocking)
+        }
     }
 
     private fun assertCanBlockUser(chatId: String): Mono<Boolean> {

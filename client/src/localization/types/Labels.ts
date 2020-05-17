@@ -112,6 +112,14 @@ export interface Labels {
     "chat.blocking.update.error.forbidden": string,
     "chat.blocking.update.blocking": string,
     "chat.blocking.edit": string,
+    "chat.blocking.delete-recent-messages": string,
+    "chat.blocking.messages-deletion-period": string,
+    "chat.blocking.messages-deletion-period.FIVE_MINUTES": string,
+    "chat.blocking.messages-deletion-period.ONE_HOUR": string,
+    "chat.blocking.messages-deletion-period.ONE_DAY": string,
+    "chat.blocking.messages-deletion-period.ONE_YEAR": string,
+    "chat.blocking.messages-deletion-period.ALL_TIME": string,
     "update": string,
-    "chat.info": string
+    "chat.info": string,
+    "message.deleted": string
 }

@@ -7,6 +7,7 @@ import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.exception.ChatParticipationNotFoundException
 import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
+import chatox.chat.model.Chat
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.User
@@ -17,6 +18,8 @@ import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatParticipationPermissions
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.support.pagination.PaginationRequest
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
@@ -203,6 +206,14 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                     it
                 }
                 .map { it.role }
+    }
+
+    override fun getRoleOfUserInChat(chat: Chat, user: User): Mono<ChatRole> {
+        return mono {
+            val chatParticipation = chatParticipationRepository.findByChatAndUser(chat, user).awaitFirstOrNull()
+
+            chatParticipation?.role ?: ChatRole.NOT_PARTICIPANT
+        }
     }
 
     override fun findChatParticipationById(participationId: String): Mono<ChatParticipationResponse> {

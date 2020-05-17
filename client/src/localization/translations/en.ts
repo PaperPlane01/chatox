@@ -112,8 +112,16 @@ export const en: Labels = {
     "chat.blocking.update.error.server-unreachable": "Error occurred when tried to update blocking: server is unreachable",
     "chat.blocking.update.error.unknown": "Unknown error occurred when tried to update blocking, server responded with {errorStatus} status",
     "chat.blocking.update.error.forbidden": "You don't have access to perform this operation",
+    "chat.blocking.delete-recent-messages": "Delete recent messages",
+    "chat.blocking.messages-deletion-period": "Messages deletion period",
+    "chat.blocking.messages-deletion-period.FIVE_MINUTES": "5 minutes",
+    "chat.blocking.messages-deletion-period.ONE_HOUR": "1 hour",
+    "chat.blocking.messages-deletion-period.ONE_DAY": "1 day",
+    "chat.blocking.messages-deletion-period.ONE_YEAR": "1 year",
+    "chat.blocking.messages-deletion-period.ALL_TIME": "All time",
     "update": "Update",
     "chat.blocking.update.blocking": "Update blocking",
     "chat.blocking.edit": "Edit",
-    "chat.info": "Chat info"
+    "chat.info": "Chat info",
+    "message.deleted": "Message has been deleted"
 };

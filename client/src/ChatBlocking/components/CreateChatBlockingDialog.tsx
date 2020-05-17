@@ -8,7 +8,13 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControl,
+    FormControlLabel,
+    InputLabel,
     makeStyles,
+    MenuItem,
+    Select,
+    Switch,
     TextField,
     Typography,
     useTheme,
@@ -18,11 +24,11 @@ import {
 import {DateTimePicker} from "@material-ui/pickers";
 import {withSnackbar, WithSnackbarProps} from "notistack";
 import randomColor from "randomcolor";
-import {CreateChatBlockingFormData} from "../types";
+import {CreateChatBlockingFormData, RecentMessagesDeletionPeriod} from "../types";
 import {FormErrors} from "../../utils/types";
 import {UserEntity} from "../../User";
 import {ChatOfCurrentUserEntity} from "../../Chat/types";
-import {localized, Localized, TranslationFunction} from "../../localization";
+import {Labels, localized, Localized, TranslationFunction} from "../../localization";
 import {Avatar} from "../../Avatar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {MapMobxToProps} from "../../store";
@@ -59,6 +65,10 @@ const getErrorLabel = (apiError: ApiError, l: TranslationFunction): string => {
     } else {
         return l("chat.blocking.error.unknown", {responseStatus: apiError.status})
     }
+};
+
+const getMessagesDeletionPeriodLabelCode = (messagesDeletionPeriod: RecentMessagesDeletionPeriod): keyof Labels => {
+    return `chat.blocking.messages-deletion-period.${messagesDeletionPeriod}` as keyof Labels;
 };
 
 const _CreateChatBlockingDialog: FunctionComponent<CreateChatBlockingDialogProps> = ({
@@ -146,6 +156,38 @@ const _CreateChatBlockingDialog: FunctionComponent<CreateChatBlockingDialogProps
                            helperText={errors.description && l(errors.description)}
                            multiline
                 />
+                <FormControlLabel label={l("chat.blocking.delete-recent-messages")}
+                                  control={
+                                      <Switch checked={formData.deleteRecentMessages}
+                                              onChange={event => setFormValue("deleteRecentMessages", event.target.checked)}
+                                              color="primary"
+                                      />
+                                  }
+                />
+                {formData.deleteRecentMessages && (
+                    <FormControl fullWidth>
+                        <InputLabel>{l("chat.blocking.messages-deletion-period")}</InputLabel>
+                        <Select value={formData.recentMessagesDeletionPeriod}
+                                onChange={event => setFormValue(
+                                    "recentMessagesDeletionPeriod",
+                                    event.target.value as RecentMessagesDeletionPeriod
+                                )}
+                        >
+                            <MenuItem value={RecentMessagesDeletionPeriod.FIVE_MINUTES}>
+                                {l(getMessagesDeletionPeriodLabelCode(RecentMessagesDeletionPeriod.FIVE_MINUTES))}
+                            </MenuItem>
+                            <MenuItem value={RecentMessagesDeletionPeriod.ONE_HOUR}>
+                                {l(getMessagesDeletionPeriodLabelCode(RecentMessagesDeletionPeriod.ONE_HOUR))}
+                            </MenuItem>
+                            <MenuItem value={RecentMessagesDeletionPeriod.ONE_DAY}>
+                                {l(getMessagesDeletionPeriodLabelCode(RecentMessagesDeletionPeriod.ONE_DAY))}
+                            </MenuItem>
+                            <MenuItem value={RecentMessagesDeletionPeriod.ALL_TIME}>
+                                {l(getMessagesDeletionPeriodLabelCode(RecentMessagesDeletionPeriod.ALL_TIME))}
+                            </MenuItem>
+                        </Select>
+                    </FormControl>
+                )}
                 {submissionError && (
                     <Typography style={{color: theme.palette.error.main}}>
                         {getErrorLabel(submissionError, l)}

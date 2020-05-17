@@ -9,6 +9,7 @@ import {MessageEntity} from "../../Message/types";
 import {UserEntity} from "../../User/types";
 import {MapMobxToProps} from "../../store";
 import {Routes} from "../../router";
+import {Localized, localized} from "../../localization";
 
 const {Link} = require("mobx-router");
 
@@ -24,7 +25,8 @@ interface ChatsOfCurrentUserListItemOwnProps {
     chatId: string
 }
 
-type ChatsOfCurrentUserListItemProps = ChatsOfCurrentUserListItemMobxProps & ChatsOfCurrentUserListItemOwnProps;
+type ChatsOfCurrentUserListItemProps = ChatsOfCurrentUserListItemMobxProps
+    & ChatsOfCurrentUserListItemOwnProps & Localized;
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatsOfCurrentUserListItem: {
@@ -89,7 +91,8 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
     findChat,
     findUser,
     findMessage,
-    routerStore
+    routerStore,
+    l
 }) => {
     const classes = useStyles();
     const chat = findChat(chatId);
@@ -130,7 +133,7 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
                                     <div className={classes.flexWrapper}>
                                         <div className={classes.flexTruncatedTextContainer}>
                                             <Typography className={`${classes.flexTruncatedText} ${selected && classes.selected}`}>
-                                                {lastMessageSender.firstName}: {lastMessage.text}
+                                                {lastMessage.deleted ? <i>{l("message.deleted")}</i> : `${lastMessageSender.firstName}: ${lastMessage.text}`}
                                             </Typography>
                                         </div>
                                     </div>
@@ -159,4 +162,6 @@ const mapMobxToProps: MapMobxToProps<ChatsOfCurrentUserListItemMobxProps> = ({en
     routerStore: store
 });
 
-export const ChatsOfCurrentUserListItem = inject(mapMobxToProps)(observer(_ChatsOfCurrentUserListItem) as FunctionComponent<ChatsOfCurrentUserListItemOwnProps>);
+export const ChatsOfCurrentUserListItem = localized(
+    inject(mapMobxToProps)(observer(_ChatsOfCurrentUserListItem))
+) as FunctionComponent<ChatsOfCurrentUserListItemOwnProps>;

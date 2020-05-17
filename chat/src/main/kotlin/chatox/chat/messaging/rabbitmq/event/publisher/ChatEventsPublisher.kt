@@ -29,6 +29,15 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             )
     )
 
+    fun messagesDeleted(chatId: String, messagesIds: List<String>) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.messages.deleted.#",
+            hashMapOf(
+                    Pair("chatId", chatId),
+                    Pair("messagesIds", messagesIds)
+            )
+    )
+
     fun userJoinedChat(chatParticipationResponse: ChatParticipationResponse) = rabbitTemplate.convertAndSend(
             "chat.events",
             "chat.user.joined.#",

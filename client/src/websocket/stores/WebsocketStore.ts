@@ -2,7 +2,7 @@ import {action, computed, reaction} from "mobx";
 import SocketIo from "socket.io-client";
 import {AuthorizationStore} from "../../Authorization/stores";
 import {EntitiesStore} from "../../entities-store";
-import {WebsocketEvent, WebsocketEventType} from "../../api/types/websocket";
+import {MessagesDeleted, WebsocketEvent, WebsocketEventType} from "../../api/types/websocket";
 import {Message} from "../../api/types/response";
 
 export class WebsocketStore {
@@ -57,6 +57,10 @@ export class WebsocketStore {
             this.socketIoClient.on(
                 WebsocketEventType.MESSAGE_UPDATED,
                 (event: WebsocketEvent<Message>) => this.entities.insertMessage(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.MESSAGES_DELETED,
+                (event: WebsocketEvent<MessagesDeleted>) => this.entities.messages.deleteAllById(event.payload.messagesIds)
             );
         }
     };

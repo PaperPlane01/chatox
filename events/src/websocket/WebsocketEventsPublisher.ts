@@ -15,6 +15,7 @@ import {ChatMessage} from "../common/types";
 import {ChatParticipationService} from "../chat-participation";
 import {CreateChatParticipationDto} from "../chat-participation/types";
 import {forwardRef, Inject} from "@nestjs/common";
+import {MessagesDeleted} from "./types/MessagesDeleted";
 
 @WebSocketGateway({
     path: "/api/v1/events/",
@@ -142,6 +143,15 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         };
         await this.publishEventToChatParticipants(messageDeleted.chatId, messageDeletedEvent);
         await this.publishEventToUsersSubscribedToChat(messageDeleted.chatId, messageDeletedEvent);
+    }
+
+    public async publishMessagesDeleted(messagesDeleted: MessagesDeleted) {
+        const messagesDeletedEvent: WebsocketEvent<MessagesDeleted> = {
+            type: EventType.MESSAGES_DELETED,
+            payload: messagesDeleted
+        };
+        await this.publishEventToChatParticipants(messagesDeleted.chatId, messagesDeletedEvent);
+        await this.publishEventToUsersSubscribedToChat(messagesDeleted.chatId, messagesDeletedEvent);
     }
 
     public async publishUserJoinedChat(createChatParticipationDto: CreateChatParticipationDto) {

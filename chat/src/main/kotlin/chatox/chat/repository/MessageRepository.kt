@@ -2,6 +2,7 @@ package chatox.chat.repository
 
 import chatox.chat.model.Chat
 import chatox.chat.model.Message
+import chatox.chat.model.User
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
@@ -18,4 +19,5 @@ interface MessageRepository : ReactiveMongoRepository<Message, String> {
     fun countByChatAndCreatedAtAfter(chat: Chat, date: ZonedDateTime): Mono<Int>
     fun findByChatAndCreatedAtGreaterThanEqual(chat: Chat, date: ZonedDateTime, pageable: Pageable): Flux<Message>
     fun findByChatAndCreatedAtLessThanEqual(chat: Chat, date: ZonedDateTime, pageable: Pageable): Flux<Message>
+    fun findBySenderAndCreatedAtAfter(user: User, date: ZonedDateTime): Flux<Message>
 }

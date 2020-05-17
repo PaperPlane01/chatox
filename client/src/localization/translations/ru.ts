@@ -112,8 +112,16 @@ export const ru: Labels = {
     "chat.blocking.update.error.server-unreachable": "Во время попытки обновить блокировку произошла ошибка: сервер недоступен",
     "chat.blocking.update.error.unknown": "Во время обновления блокировки произошла неизвестная ошибка, сервер ответил со статусом {errorStatus}",
     "chat.blocking.update.error.forbidden": "У вас нет прав на совершение данной операции",
+    "chat.blocking.delete-recent-messages": "Удалить недавние сообщения",
+    "chat.blocking.messages-deletion-period": "Период удаления сообщений",
+    "chat.blocking.messages-deletion-period.FIVE_MINUTES": "5 минут",
+    "chat.blocking.messages-deletion-period.ONE_HOUR": "1 час",
+    "chat.blocking.messages-deletion-period.ONE_DAY": "1 день",
+    "chat.blocking.messages-deletion-period.ONE_YEAR": "1 год",
+    "chat.blocking.messages-deletion-period.ALL_TIME": "За всё время",
     "update": "Обновить",
     "chat.blocking.update.blocking": "Обновить блокировку",
     "chat.blocking.edit": "Редактировать",
-    "chat.info": "Информация о чате"
+    "chat.info": "Информация о чате",
+    "message.deleted": "Сообщение удалено"
 };

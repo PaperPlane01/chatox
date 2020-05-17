@@ -1,25 +1,29 @@
 import {action, computed, observable, reaction} from "mobx";
-import {CreateChatBlockingFormData} from "../types";
+import {addHours, subDays, subHours, subMinutes, subYears} from "date-fns";
+import {CreateChatBlockingFormData, RecentMessagesDeletionPeriod} from "../types";
 import {validateBlockedUntil, validateBlockingDescription} from "../validation";
 import {ChatStore} from "../../Chat";
 import {ApiError, ChatBlockingApi, getInitialApiErrorFromResponse} from "../../api";
 import {FormErrors} from "../../utils/types";
 import {EntitiesStore} from "../../entities-store";
-import {addHours} from "date-fns";
 
 export class CreateChatBlockingStore {
     @observable
     createChatBlockingFormData: CreateChatBlockingFormData = {
         blockedUserId: undefined,
         blockedUntil: undefined,
-        description: undefined
+        description: undefined,
+        deleteRecentMessages: false,
+        recentMessagesDeletionPeriod: RecentMessagesDeletionPeriod.FIVE_MINUTES
     };
 
     @observable
     formErrors: FormErrors<CreateChatBlockingFormData> = {
         blockedUntil: undefined,
         description: undefined,
-        blockedUserId: undefined
+        blockedUserId: undefined,
+        deleteRecentMessages: undefined,
+        recentMessagesDeletionPeriod: undefined
     };
 
     @observable
@@ -79,12 +83,23 @@ export class CreateChatBlockingStore {
                     this.pending = true;
                     this.submissionError = undefined;
 
+                    const deleteRecentMessages = this.createChatBlockingFormData.deleteRecentMessages;
+                    let deleteMessagesSince: string | undefined = undefined;
+
+                    if (deleteRecentMessages) {
+                        deleteMessagesSince = this.getDeleteMessagesSinceDate(
+                            this.createChatBlockingFormData.recentMessagesDeletionPeriod
+                        ).toISOString();
+                    }
+
                     ChatBlockingApi.createChatBlocking(
                         this.chatId!,
                         {
                             userId: this.createChatBlockingFormData.blockedUserId!,
                             blockedUntil: this.createChatBlockingFormData.blockedUntil!.toISOString(),
-                            description: this.createChatBlockingFormData.description
+                            description: this.createChatBlockingFormData.description,
+                            deleteRecentMessages,
+                            deleteMessagesSince
                         }
                     )
                         .then(({data}) => {
@@ -121,14 +136,35 @@ export class CreateChatBlockingStore {
         this.createChatBlockingFormData = {
             description: undefined,
             blockedUntil: undefined,
-            blockedUserId: undefined
+            blockedUserId: undefined,
+            deleteRecentMessages: false,
+            recentMessagesDeletionPeriod: RecentMessagesDeletionPeriod.FIVE_MINUTES
         };
         setTimeout(() => {
             this.formErrors = {
                 blockedUntil: undefined,
                 description: undefined,
-                blockedUserId: undefined
+                blockedUserId: undefined,
+                deleteRecentMessages: undefined,
+                recentMessagesDeletionPeriod: undefined
             }
         })
+    };
+
+    private getDeleteMessagesSinceDate(period: RecentMessagesDeletionPeriod): Date {
+        const now = new Date();
+
+        switch (period) {
+            case RecentMessagesDeletionPeriod.FIVE_MINUTES:
+                return subMinutes(now, 5);
+            case RecentMessagesDeletionPeriod.ONE_HOUR:
+                return subHours(now, 1);
+            case RecentMessagesDeletionPeriod.ONE_DAY:
+                return subDays(now, 1);
+            case RecentMessagesDeletionPeriod.ALL_TIME:
+                return subYears(now, 70);
+            default:
+                return subMinutes(now, 5);
+        }
     }
 }

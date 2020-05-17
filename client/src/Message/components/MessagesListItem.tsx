@@ -94,11 +94,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     undecoratedLink: {
         textDecoration: "none",
-        color: "inherit",
-        "a:visited": {
-            textDecoration: "none",
-            color: "inherit"
-        }
+        color: "inherit"
     }
 }));
 
@@ -108,7 +104,8 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
     findMessage,
     findUser,
     routerStore,
-    dateFnsLocale
+    dateFnsLocale,
+    l
 }) => {
     const classes = useStyles();
     const message = findMessage(messageId);
@@ -153,9 +150,14 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
                 <CardContent classes={{
                     root: classes.cardContentRoot
                 }}>
-                    <ReactMarkdown source={message.text}
-                                   plugins={[breaks]}
-                    />
+                    {message.deleted
+                        ? <i>{l("message.deleted")}</i>
+                        : (
+                            <ReactMarkdown source={message.text}
+                                           plugins={[breaks]}
+                            />
+                        )
+                    }
                 </CardContent>
                 <CardActions classes={{
                     root: classes.cardActionsRoot
