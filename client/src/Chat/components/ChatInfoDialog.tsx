@@ -72,6 +72,8 @@ const _ChatInfoDialog: FunctionComponent<ChatInfoDialogProps> = ({
         <Dialog open={chatInfoDialogOpen}
                 onClose={() => setChatInfoDialogOpen(false)}
                 fullScreen={fullScreen}
+                fullWidth
+                maxWidth="xs"
         >
             <DialogTitle>
                 <CardHeader title={l("chat.info")}
