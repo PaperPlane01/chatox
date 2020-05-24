@@ -5,6 +5,7 @@ import {RabbitMQConfigModule} from "./rabbitmq";
 import {WebsocketModule} from "./websocket";
 import {ChatParticipationModule} from "./chat-participation";
 import {MessagesModule} from "./messages";
+import {ChatBlockingsModule} from "./chat-blockings";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import {MessagesModule} from "./messages";
       WebsocketModule,
       ChatParticipationModule,
       MessagesModule,
+      ChatBlockingsModule,
       MongooseModule.forRoot(`mongodb://${process.env.MONGODB_HOST}:${process.env.MONGODB_PORT}/${process.env.MONGODB_DATABASE_NAME}`)
   ]
 })

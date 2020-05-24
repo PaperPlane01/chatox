@@ -1,10 +1,19 @@
 import {action, computed} from "mobx";
-import {ChatsStore, ChatParticipationsStore} from "../Chat";
+import {ChatParticipationsStore, ChatsStore} from "../Chat";
 import {UsersStore} from "../User";
-import {ChatBlocking, ChatOfCurrentUser, ChatParticipation, CurrentUser, Message, User} from "../api/types/response";
+import {
+    ChatBlocking,
+    ChatOfCurrentUser,
+    ChatParticipation,
+    ChatRole,
+    CurrentUser,
+    Message,
+    User
+} from "../api/types/response";
 import {MessagesStore} from "../Message";
 import {AuthorizationStore} from "../Authorization";
 import {ChatBlockingsStore} from "../ChatBlocking/stores";
+import {isChatBlockingActive} from "../ChatBlocking/utils";
 
 export class EntitiesStore {
     private authorizationStore: AuthorizationStore;
@@ -127,6 +136,17 @@ export class EntitiesStore {
         this.insertUser(chatBlocking.blockedBy);
         chatBlocking.canceledBy && this.insertUser(chatBlocking.canceledBy);
         chatBlocking.lastModifiedBy && this.insertUser(chatBlocking.lastModifiedBy);
-        this.chatBlockings.insert(chatBlocking);
+        const chatBlockingEntity = this.chatBlockings.insert(chatBlocking);
+
+        if (this.authorizationStore.currentUser && chatBlockingEntity.blockedUserId === this.authorizationStore.currentUser.id) {
+            const chatParticipation = this.chatParticipations.findByUserAndChat({
+                userId: this.authorizationStore.currentUser.id,
+                chatId: chatBlockingEntity.chatId
+            });
+            if (chatParticipation && chatParticipation.role === ChatRole.USER) {
+                chatParticipation.activeChatBlockingId = chatBlockingEntity.id;
+                this.chatParticipations.insertEntity(chatParticipation);
+            }
+        }
     };
 }

@@ -93,7 +93,9 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
                 }
             }
 
-            chatBlockingMapper.toChatBlockingResponse(chatBlocking)
+            val chatBlockingResponse = chatBlockingMapper.toChatBlockingResponse(chatBlocking)
+            chatEventsPublisher.chatBlockingCreated(chatBlockingResponse)
+            chatBlockingResponse
         }
     }
 
@@ -109,21 +111,26 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
     }
 
     override fun unblockUser(chatId: String, blockingId: String): Mono<ChatBlockingResponse> {
-        return assertCanUnblockUser(chatId)
-                .flatMap { authenticationFacade.getCurrentUser() }
-                .zipWith(findBlockingById(blockingId))
-                .map {
-                    val cancelDate = ZonedDateTime.now()
-                    it.t2.copy(
-                            canceled = true,
-                            canceledBy = it.t1,
-                            canceledAt = cancelDate,
-                            lastModifiedAt = cancelDate,
-                            lastModifiedBy = it.t1
-                    )
-                }
-                .flatMap { chatBlockingRepository.save(it) }
-                .map { chatBlockingMapper.toChatBlockingResponse(it) }
+        return mono {
+            assertCanUnblockUser(chatId).awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            var chatBlocking = findBlockingById(blockingId).awaitFirst()
+
+            val cancelDate = ZonedDateTime.now()
+            chatBlocking = chatBlocking.copy(
+                    canceled = true,
+                    canceledAt = cancelDate,
+                    canceledBy = currentUser,
+                    lastModifiedAt = cancelDate,
+                    lastModifiedBy = currentUser
+            )
+
+            chatBlocking = chatBlockingRepository.save(chatBlocking).awaitFirst()
+
+            val chatBlockingResponse = chatBlockingMapper.toChatBlockingResponse(chatBlocking)
+            chatEventsPublisher.chatBlockingUpdated(chatBlockingResponse)
+            chatBlockingResponse
+        }
     }
 
     private fun assertCanUnblockUser(chatId: String): Mono<Boolean> {
@@ -138,17 +145,27 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
 
     }
 
-    override fun updateBlocking(chatId: String, blockingId: String, updateBlockingRequest: UpdateChatBlockingRequest): Mono<ChatBlockingResponse> {
-        return assertCanUpdateBlocking(chatId)
-                .flatMap { authenticationFacade.getCurrentUser() }
-                .zipWith(findBlockingById(blockingId))
-                .map { chatBlockingMapper.mapChatBlockingUpdate(
-                        chatBlocking = it.t2,
-                        currentUser = it.t1,
-                        updateChatBlockingRequest = updateBlockingRequest
-                ) }
-                .flatMap { chatBlockingRepository.save(it) }
-                .map { chatBlockingMapper.toChatBlockingResponse(it) }
+    override fun updateBlocking(
+            chatId: String,
+            blockingId: String,
+            updateBlockingRequest: UpdateChatBlockingRequest
+    ): Mono<ChatBlockingResponse> {
+        return mono {
+            assertCanUpdateBlocking(chatId).awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+
+            var chatBlocking = findBlockingById(blockingId).awaitFirst()
+            chatBlocking = chatBlockingMapper.mapChatBlockingUpdate(
+                    chatBlocking = chatBlocking,
+                    currentUser = currentUser,
+                    updateChatBlockingRequest = updateBlockingRequest
+            )
+            chatBlocking = chatBlockingRepository.save(chatBlocking).awaitFirst()
+
+            val chatBlockingResponse = chatBlockingMapper.toChatBlockingResponse(chatBlocking)
+            chatEventsPublisher.chatBlockingUpdated(chatBlockingResponse)
+            chatBlockingResponse
+        }
     }
 
     private fun assertCanUpdateBlocking(chatId: String): Mono<Boolean> {
