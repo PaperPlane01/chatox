@@ -123,5 +123,9 @@ export interface Labels {
     "chat.info": string,
     "message.deleted": string,
     "chat.blocking.current-user-blocked.no-reason": string,
-    "chat.blocking.current-user-blocked.with-reason": string
+    "chat.blocking.current-user-blocked.with-reason": string,
+    "chat.blocking.create.without-username": string,
+    "chat.blocking.user-id-or-slug": string,
+    "chat.blocking.user-id-or-slug.not-exist": string,
+    "chat.blocking.user-id-or-slug.unknown-error": string
 }

@@ -8,3 +8,4 @@ export * from "./ShowActiveOnlySwitch";
 export * from "./ChatBlockingsList";
 export * from "./ChatBlockingsListItem";
 export * from "./CancelChatBlockingButton";
+export * from "./BlockUserInChatByIdOrSlugDialog";

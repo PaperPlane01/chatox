@@ -125,5 +125,9 @@ export const ru: Labels = {
     "chat.info": "Информация о чате",
     "message.deleted": "Сообщение удалено",
     "chat.blocking.current-user-blocked.no-reason": "Вы были заблокированы в этом чате пользователем {blockedByUsername}. Блокировка закончится {blockedUntil}",
-    "chat.blocking.current-user-blocked.with-reason": "Вы были заблокированы в этом чате пользователем {blockedByUsername} по причине: \"{reason}\". Блокировка закончится {blockedUntil}"
+    "chat.blocking.current-user-blocked.with-reason": "Вы были заблокированы в этом чате пользователем {blockedByUsername} по причине: \"{reason}\". Блокировка закончится {blockedUntil}",
+    "chat.blocking.create.without-username": "Заблокировать пользователя в чате {chatName}",
+    "chat.blocking.user-id-or-slug": "ID или URL пользователя",
+    "chat.blocking.user-id-or-slug.not-exist": "Не удалось найти пользователя с таким ID или URL",
+    "chat.blocking.user-id-or-slug.unknown-error": "Во время проверки ID пользователя произошла ошибка, сервер ответил со статусом {errorStatus}"
 };

@@ -125,5 +125,9 @@ export const en: Labels = {
     "chat.info": "Chat info",
     "message.deleted": "Message has been deleted",
     "chat.blocking.current-user-blocked.no-reason": "You have been blocked in this chat by {blockedByUsername}. The blocking will expire at {blockedUntil}",
-    "chat.blocking.current-user-blocked.with-reason": "You have been blocked in this chat by {blockedByUsername} with the following reason: \"{reason}\". The blocking will expire at {blockedUntil}"
+    "chat.blocking.current-user-blocked.with-reason": "You have been blocked in this chat by {blockedByUsername} with the following reason: \"{reason}\". The blocking will expire at {blockedUntil}",
+    "chat.blocking.create.without-username": "Block user in chat {chatName}",
+    "chat.blocking.user-id-or-slug": "User ID or slug",
+    "chat.blocking.user-id-or-slug.not-exist": "Could not find user with such ID or URL",
+    "chat.blocking.user-id-or-slug.unknown-error": "Error occurred when tried to check user ID, server responded with {errorStatus} status"
 };

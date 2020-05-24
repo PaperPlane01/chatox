@@ -16,6 +16,7 @@ import {CreateMessageStore, MessagesOfChatStore} from "../Message";
 import {WebsocketStore} from "../websocket";
 import {UserProfileStore} from "../User";
 import {
+    BlockUserInChatByIdOrSlugStore,
     CancelChatBlockingStore,
     ChatBlockingInfoDialogStore,
     ChatBlockingsDialogStore,
@@ -48,5 +49,6 @@ export interface IAppState {
     chatBlockingInfoDialog: ChatBlockingInfoDialogStore,
     updateChatBlocking: UpdateChatBlockingStore,
     chatInfoDialog: ChatInfoDialogStore,
+    blockUserInChatByIdOrSlug: BlockUserInChatByIdOrSlugStore,
     store?: any
 }
