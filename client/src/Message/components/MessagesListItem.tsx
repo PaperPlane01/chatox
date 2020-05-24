@@ -63,6 +63,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     messageCard: {
         borderRadius: 8,
         marginLeft: theme.spacing(1),
+        wordBreak: "break-word",
         [theme.breakpoints.up("lg")]: {
             maxWidth: "50%"
         },
