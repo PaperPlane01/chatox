@@ -80,8 +80,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     cardHeaderRoot: {
         paddingBottom: 0,
-        paddingRight: theme.spacing(1),
         alignItems: "flex-start"
+    },
+    cardHeaderContent: {
+        paddingRight: theme.spacing(1),
     },
     cardHeaderAction: {
         marginRight: -16,
@@ -146,7 +148,8 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
                 }
                             classes={{
                                 root: classes.cardHeaderRoot,
-                                action: classes.cardHeaderAction
+                                action: classes.cardHeaderAction,
+                                content: classes.cardHeaderContent
                             }}
                             action={<MessageMenu messageId={messageId}/>}
                 />
