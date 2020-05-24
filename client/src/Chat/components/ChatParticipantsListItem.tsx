@@ -1,7 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import {createStyles, ListItemText, makeStyles, MenuItem, Theme, Typography} from "@material-ui/core";
+import {createStyles, ListItemText, makeStyles, MenuItem, Theme} from "@material-ui/core";
 import randomColor from "randomcolor";
+import {ChatParticipantMenu} from "./ChatParticipantMenu";
 import {ChatParticipationEntity} from "../types";
 import {Avatar} from "../../Avatar";
 import {UserEntity} from "../../User";
@@ -60,6 +61,7 @@ const _ChatParticipantsListItem: FunctionComponent<ChatParticipantsListItemProps
             <ListItemText>
                 {user.firstName} {user.lastName && user.lastName}
             </ListItemText>
+            <ChatParticipantMenu chatParticipation={chatParticipant}/>
         </MenuItem>
     )
 };

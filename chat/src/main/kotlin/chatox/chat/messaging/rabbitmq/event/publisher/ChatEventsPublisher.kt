@@ -1,5 +1,6 @@
 package chatox.chat.messaging.rabbitmq.event.publisher
 
+import chatox.chat.api.response.ChatBlockingResponse
 import chatox.chat.api.response.ChatParticipationResponse
 import chatox.chat.api.response.MessageResponse
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -26,6 +27,15 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             hashMapOf(
                     Pair("chatId", chatId),
                     Pair("messageId", messageId)
+            )
+    )
+
+    fun messagesDeleted(chatId: String, messagesIds: List<String>) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.messages.deleted.#",
+            hashMapOf(
+                    Pair("chatId", chatId),
+                    Pair("messagesIds", messagesIds)
             )
     )
 
@@ -57,5 +67,17 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.events",
             "chat.participation.updated.#",
             chatParticipationResponse
+    )
+
+    fun chatBlockingCreated(chatBlockingResponse: ChatBlockingResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.blocking.created.#",
+            chatBlockingResponse
+    )
+
+    fun chatBlockingUpdated(chatBlockingResponse: ChatBlockingResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.blocking.updated.#",
+            chatBlockingResponse
     )
 }

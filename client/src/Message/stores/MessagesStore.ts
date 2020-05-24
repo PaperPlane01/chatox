@@ -1,8 +1,8 @@
 import {MessageEntity} from "../types";
 import {Message} from "../../api/types/response";
-import {AbstractEntityStore} from "../../entity-store";
+import {SoftDeletableEntityStore} from "../../entity-store";
 
-export class MessagesStore extends AbstractEntityStore<MessageEntity, Message> {
+export class MessagesStore extends SoftDeletableEntityStore<MessageEntity, Message> {
     protected convertToNormalizedForm(denormalizedEntity: Message): MessageEntity {
         return {
             id: denormalizedEntity.id,

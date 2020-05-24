@@ -2,8 +2,8 @@ import {action, computed, reaction} from "mobx";
 import SocketIo from "socket.io-client";
 import {AuthorizationStore} from "../../Authorization/stores";
 import {EntitiesStore} from "../../entities-store";
-import {WebsocketEvent, WebsocketEventType} from "../../api/types/websocket";
-import {Message} from "../../api/types/response";
+import {MessagesDeleted, WebsocketEvent, WebsocketEventType} from "../../api/types/websocket";
+import {Message, ChatBlocking} from "../../api/types/response";
 
 export class WebsocketStore {
     socketIoClient?: SocketIOClient.Socket;
@@ -57,6 +57,22 @@ export class WebsocketStore {
             this.socketIoClient.on(
                 WebsocketEventType.MESSAGE_UPDATED,
                 (event: WebsocketEvent<Message>) => this.entities.insertMessage(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.MESSAGES_DELETED,
+                (event: WebsocketEvent<MessagesDeleted>) => this.entities.messages.deleteAllById(event.payload.messagesIds)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_BLOCKING_CREATED,
+                (event: WebsocketEvent<ChatBlocking>) => this.entities.insertChatBlocking(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_BLOCKING_UPDATED,
+                (event: WebsocketEvent<ChatBlocking>) => this.entities.insertChatBlocking(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_BLOCKING_CANCELED,
+                (event: WebsocketEvent<ChatBlocking>) => this.entities.insertChatBlocking(event.payload)
             );
         }
     };

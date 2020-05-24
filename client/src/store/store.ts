@@ -9,24 +9,35 @@ import {
     CreateChatStore,
     ChatParticipationsStore,
     ChatParticipantsStore,
-    JoinChatStore
+    JoinChatStore, ChatInfoDialogStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
 import {EntitiesStore} from "../entities-store";
-import {UsersStore, UserProfileStore} from "../User/stores";
-import {CreateMessageStore, MessagesOfChatStore, MessagesStore} from "../Message/stores";
+import {UsersStore, UserProfileStore} from "../User";
+import {CreateMessageStore, MessagesOfChatStore, MessagesStore} from "../Message";
 import {WebsocketStore} from "../websocket";
+import {
+    ChatBlockingsStore,
+    CreateChatBlockingStore,
+    ChatBlockingsOfChatStore,
+    ChatBlockingsDialogStore,
+    CancelChatBlockingStore,
+    ChatBlockingInfoDialogStore,
+    UpdateChatBlockingStore, BlockUserInChatByIdOrSlugStore
+} from "../ChatBlocking";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
 const usersStore = new UsersStore();
 const chatParticipations = new ChatParticipationsStore();
+const chatBlockings = new ChatBlockingsStore(usersStore);
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
     usersStore,
-    chatParticipations
+    chatParticipations,
+    chatBlockings
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -46,6 +57,14 @@ const messagesOfChat = new MessagesOfChatStore(entities, chat);
 const joinChat = new JoinChatStore(entities, authorization);
 const websocket = new WebsocketStore(authorization, entities);
 const userProfile = new UserProfileStore(entities);
+const createChatBlocking = new CreateChatBlockingStore(chat, entities);
+const chatBlockingsOfChat = new ChatBlockingsOfChatStore(entities, chat);
+const chatBlockingsDialog = new ChatBlockingsDialogStore();
+const cancelChatBlocking = new CancelChatBlockingStore(entities);
+const chatBlockingInfoDialog = new ChatBlockingInfoDialogStore();
+const updateChatBlocking = new UpdateChatBlockingStore(entities);
+const chatInfoDialog = new ChatInfoDialogStore();
+const blockUserInChatByIdOrSlug = new BlockUserInChatByIdOrSlugStore(entities, createChatBlocking);
 
 export const store: IAppState = {
     authorization,
@@ -63,7 +82,15 @@ export const store: IAppState = {
     messagesOfChat,
     joinChat,
     websocket,
-    userProfile
+    userProfile,
+    createChatBlocking,
+    chatBlockingsOfChat,
+    chatBlockingsDialog,
+    cancelChatBlocking,
+    chatBlockingInfoDialog,
+    updateChatBlocking,
+    chatInfoDialog,
+    blockUserInChatByIdOrSlug
 };
 
 export interface MapMobxToProps<ComponentProps = {}> {

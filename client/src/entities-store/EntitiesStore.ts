@@ -1,9 +1,19 @@
 import {action, computed} from "mobx";
-import {ChatsStore, ChatParticipationsStore} from "../Chat";
+import {ChatParticipationsStore, ChatsStore} from "../Chat";
 import {UsersStore} from "../User";
-import {ChatOfCurrentUser, ChatParticipation, CurrentUser, Message, User} from "../api/types/response";
+import {
+    ChatBlocking,
+    ChatOfCurrentUser,
+    ChatParticipation,
+    ChatRole,
+    CurrentUser,
+    Message,
+    User
+} from "../api/types/response";
 import {MessagesStore} from "../Message";
 import {AuthorizationStore} from "../Authorization";
+import {ChatBlockingsStore} from "../ChatBlocking/stores";
+import {isChatBlockingActive} from "../ChatBlocking/utils";
 
 export class EntitiesStore {
     private authorizationStore: AuthorizationStore;
@@ -21,7 +31,8 @@ export class EntitiesStore {
         public messages: MessagesStore,
         public chats: ChatsStore,
         public users: UsersStore,
-        public chatParticipations: ChatParticipationsStore
+        public chatParticipations: ChatParticipationsStore,
+        public chatBlockings: ChatBlockingsStore
     ) {
     }
 
@@ -70,14 +81,20 @@ export class EntitiesStore {
         }
 
         if (this.currentUser && chatOfCurrentUser.chatParticipation) {
+            if (chatOfCurrentUser.chatParticipation.activeChatBlocking) {
+                this.chatBlockings.insert(chatOfCurrentUser.chatParticipation.activeChatBlocking);
+            }
+
             this.chatParticipations.insert({
                 ...chatOfCurrentUser.chatParticipation,
                 user: {
                     ...this.currentUser,
                     deleted: false
                 },
-                chatId: chatOfCurrentUser.id
+                chatId: chatOfCurrentUser.id,
+                activeChatBlocking: chatOfCurrentUser.chatParticipation.activeChatBlocking
             });
+
             chat.participants = Array.from(new Set([
                 ...chat.participants,
                 chatOfCurrentUser.chatParticipation.id
@@ -106,5 +123,30 @@ export class EntitiesStore {
     @action
     insertUser = (user: User): void => {
         this.users.insert(user);
-    }
+    };
+
+    @action
+    insertChatBlockings = (chatBlockings: ChatBlocking[]): void => {
+        chatBlockings.forEach(blocking => this.insertChatBlocking(blocking));
+    };
+
+    @action
+    insertChatBlocking = (chatBlocking: ChatBlocking): void => {
+        this.insertUser(chatBlocking.blockedUser);
+        this.insertUser(chatBlocking.blockedBy);
+        chatBlocking.canceledBy && this.insertUser(chatBlocking.canceledBy);
+        chatBlocking.lastModifiedBy && this.insertUser(chatBlocking.lastModifiedBy);
+        const chatBlockingEntity = this.chatBlockings.insert(chatBlocking);
+
+        if (this.authorizationStore.currentUser && chatBlockingEntity.blockedUserId === this.authorizationStore.currentUser.id) {
+            const chatParticipation = this.chatParticipations.findByUserAndChat({
+                userId: this.authorizationStore.currentUser.id,
+                chatId: chatBlockingEntity.chatId
+            });
+            if (chatParticipation && chatParticipation.role === ChatRole.USER) {
+                chatParticipation.activeChatBlockingId = chatBlockingEntity.id;
+                this.chatParticipations.insertEntity(chatParticipation);
+            }
+        }
+    };
 }

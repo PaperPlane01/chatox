@@ -7,3 +7,8 @@ export * from "./ChatAppBar";
 export * from "./ChatDescription";
 export * from "./ChatInfoContainer";
 export * from "./JoinChatButton";
+export * from "./ChatMenu";
+export * from "./ChatBlockingsMenuItem";
+export * from "./ChatInfoDialog";
+export * from "./BlockChatParticipantMenuItem";
+export * from "./BlockUserInChatByIdOrSlugMenuItem";

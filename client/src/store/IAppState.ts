@@ -4,16 +4,26 @@ import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore} from "../Authorization";
 import {UserRegistrationStore} from "../Registration";
 import {
-    ChatsOfCurrentUserStore,
-    CreateChatStore,
-    ChatStore,
+    ChatInfoDialogStore,
     ChatParticipantsStore,
+    ChatsOfCurrentUserStore,
+    ChatStore,
+    CreateChatStore,
     JoinChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {CreateMessageStore, MessagesOfChatStore} from "../Message";
 import {WebsocketStore} from "../websocket";
 import {UserProfileStore} from "../User";
+import {
+    BlockUserInChatByIdOrSlugStore,
+    CancelChatBlockingStore,
+    ChatBlockingInfoDialogStore,
+    ChatBlockingsDialogStore,
+    ChatBlockingsOfChatStore,
+    CreateChatBlockingStore,
+    UpdateChatBlockingStore
+} from "../ChatBlocking";
 
 export interface IAppState {
     language: LocaleStore,
@@ -32,5 +42,13 @@ export interface IAppState {
     joinChat: JoinChatStore,
     websocket: WebsocketStore,
     userProfile: UserProfileStore,
+    createChatBlocking: CreateChatBlockingStore,
+    chatBlockingsOfChat: ChatBlockingsOfChatStore,
+    chatBlockingsDialog: ChatBlockingsDialogStore,
+    cancelChatBlocking: CancelChatBlockingStore,
+    chatBlockingInfoDialog: ChatBlockingInfoDialogStore,
+    updateChatBlocking: UpdateChatBlockingStore,
+    chatInfoDialog: ChatInfoDialogStore,
+    blockUserInChatByIdOrSlug: BlockUserInChatByIdOrSlugStore,
     store?: any
 }
