@@ -79,10 +79,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     cardHeaderRoot: {
         paddingBottom: 0,
+        paddingRight: theme.spacing(1),
         alignItems: "flex-start"
     },
     cardHeaderAction: {
-      marginRight: -16
+        marginRight: -16,
+        paddingRight: theme.spacing(1)
     },
     cardContentRoot: {
         paddingTop: 0,
