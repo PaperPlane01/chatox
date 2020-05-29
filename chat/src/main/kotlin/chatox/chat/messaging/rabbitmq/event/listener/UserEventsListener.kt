@@ -3,8 +3,13 @@ package chatox.chat.messaging.rabbitmq.event.listener
 import chatox.chat.messaging.rabbitmq.event.UserCreated
 import chatox.chat.messaging.rabbitmq.event.UserDeleted
 import chatox.chat.messaging.rabbitmq.event.UserUpdated
+import chatox.chat.messaging.rabbitmq.event.UserWentOffline
+import chatox.chat.messaging.rabbitmq.event.UserWentOnline
 import chatox.chat.model.User
 import chatox.chat.repository.UserRepository
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Component
@@ -29,7 +34,8 @@ class UserEventsListener(private val userRepository: UserRepository) {
                 lastName = userCreated.lastName,
                 bio = userCreated.bio,
                 dateOfBirth = null,
-                createdAt = userCreated.createdAt
+                createdAt = userCreated.createdAt,
+                online = false
         ))
                 .flatMap { Mono.empty<Void>() }
     }
@@ -58,5 +64,41 @@ class UserEventsListener(private val userRepository: UserRepository) {
                 .map { userRepository.save(it.copy(deleted = true)) }
                 .flatMap { it }
                 .flatMap { Mono.empty<Void>() }
+    }
+
+    @RabbitListener(queues = ["chat_service_user_went_online"])
+    fun onUserWentOnline(userWentOnline: UserWentOnline): Mono<Void> {
+        return mono {
+            var user = userRepository.findById(userWentOnline.userId).awaitFirstOrNull()
+
+            if (user != null) {
+                user = user.copy(
+                        online = true,
+                        lastSeen = userWentOnline.lastSeen
+                )
+                userRepository.save(user).awaitFirst()
+            }
+
+            Mono.empty<Void>()
+        }
+                .flatMap { it }
+    }
+
+    @RabbitListener(queues = ["chat_service_user_went_offline"])
+    fun onUserWentOffline(userWentOffline: UserWentOffline): Mono<Void> {
+        return mono {
+            var user = userRepository.findById(userWentOffline.userId).awaitFirstOrNull()
+
+            if (user != null) {
+                user = user.copy(
+                        online = false,
+                        lastSeen = userWentOffline.lastSeen
+                )
+                userRepository.save(user).awaitFirst()
+            }
+
+            Mono.empty<Void>()
+        }
+                .flatMap { it }
     }
 }

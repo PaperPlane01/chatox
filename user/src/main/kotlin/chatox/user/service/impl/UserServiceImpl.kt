@@ -8,7 +8,10 @@ import chatox.user.exception.UserNotFoundException
 import chatox.user.mapper.UserMapper
 import chatox.user.messaging.rabbitmq.event.producer.UserEventsProducer
 import chatox.user.repository.UserRepository
+import chatox.user.repository.UserSessionRepository
 import chatox.user.service.UserService
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
@@ -17,6 +20,7 @@ import reactor.core.publisher.Mono
 @Service
 @Transactional
 class UserServiceImpl(private val userRepository: UserRepository,
+                      private val userSessionRepository: UserSessionRepository,
                       private val userMapper: UserMapper,
                       private val userEventsProducer: UserEventsProducer) : UserService {
 
@@ -39,15 +43,19 @@ class UserServiceImpl(private val userRepository: UserRepository,
     }
 
     override fun updateUser(id: String, updateUserRequest: UpdateUserRequest): Mono<UserResponse> {
-        return findById(id)
-                .map { user -> userMapper.mapUserUpdate(user, updateUserRequest) }
-                .map { user -> userRepository.save(user) }
-                .flatMap { user -> user }
-                .map { user -> userMapper.toUserResponse(user) }
-                .map {
-                    userEventsProducer.userUpdated(it)
-                    it
-                }
+        return mono {
+            var user = findById(id).awaitFirst()
+            user = userMapper.mapUserUpdate(user, updateUserRequest)
+            user = userRepository.save(user).awaitFirst()
+            val online = userSessionRepository.countByUserAndDisconnectedAtNull(user).awaitFirst() != 0L
+
+            val userResponse = userMapper.toUserResponse(
+                    user = user,
+                    online = online
+            )
+            userEventsProducer.userUpdated(userResponse)
+            userResponse
+        }
     }
 
     override fun deleteUser(id: String): Mono<Void> {
@@ -61,8 +69,15 @@ class UserServiceImpl(private val userRepository: UserRepository,
     }
 
     override fun findUserByIdOrSlug(idOrSlug: String): Mono<UserResponse> {
-        return findByIdOrSlug(idOrSlug)
-                .map { user -> userMapper.toUserResponse(user) }
+        return mono {
+            val user = findByIdOrSlug(idOrSlug).awaitFirst()
+            val online = userSessionRepository.countByUserAndDisconnectedAtNull(user).awaitFirst() != 0L
+
+            userMapper.toUserResponse(
+                    user = user,
+                    online = online
+            )
+        }
     }
 
     override fun findUsersByAccount(accountId: String): Flux<UserResponse> {

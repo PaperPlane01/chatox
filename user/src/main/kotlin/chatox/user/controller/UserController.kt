@@ -4,6 +4,8 @@ import chatox.user.api.request.CreateUserRequest
 import chatox.user.api.request.UpdateUserRequest
 import chatox.user.security.AuthenticationFacade
 import chatox.user.service.UserService
+import chatox.user.service.UserSessionService
+import chatox.user.support.pagination.PaginationRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -20,6 +22,7 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/api/v1/user")
 class UserController(private val userService: UserService,
+                     private val userSessionService: UserSessionService,
                      private val authenticationFacade: AuthenticationFacade) {
 
     @PreAuthorize("hasAuthority('SCOPE_internal_create_user')")
@@ -44,6 +47,16 @@ class UserController(private val userService: UserService,
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/me")
     fun getCurrentUser() = authenticationFacade.getCurrentUser()
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/me/sessions")
+    fun getSessionsOfCurrentUser(paginationRequest: PaginationRequest) = userSessionService.findSessionsOfCurrentUser(
+            paginationRequest
+    )
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/me/sessions/active")
+    fun getActiveSessionsOfCurrentUser() = userSessionService.findActiveSessionsOfCurrentUser()
 
     @GetMapping("/slug/{slug}/isAvailable")
     fun isSlugAvailable(@PathVariable slug: String) = userService.isSlugAvailable(slug)

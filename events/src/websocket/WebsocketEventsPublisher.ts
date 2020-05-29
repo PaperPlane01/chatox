@@ -16,6 +16,7 @@ import {ChatParticipationService} from "../chat-participation";
 import {CreateChatParticipationDto} from "../chat-participation/types";
 import {forwardRef, Inject} from "@nestjs/common";
 import {MessagesDeleted} from "./types/MessagesDeleted";
+import {SessionActivityStatusResponse} from "./types/SessionActivityStatusResponse";
 
 @WebSocketGateway({
     path: "/api/v1/events/",
@@ -51,7 +52,10 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
                 "user.connected.#",
                 {
                     userId: jwtPayload.user_id,
-                    sessionId: client.id
+                    socketIoId: client.id,
+                    ipAddress: client.request.connection.remoteAddress,
+                    userAgent: client.request.headers["user-agent"],
+                    accessToken: queryParameters.accessToken
                 }
             )
         }
@@ -84,9 +88,22 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
                 "user.disconnected.#",
                 {
                     userId: disconnectedUserId,
-                    sessionId: client.id
+                    socketIoId: client.id
                 }
             )
+        }
+    }
+
+    public isSessionActive(socketIoId: string): SessionActivityStatusResponse {
+        const active = this.connectedClients.filter(client => client.id === socketIoId).length !== 0;
+        return {active};
+    }
+
+    public getSessionsOfUser(userId: string): string[] {
+        if (this.usersAndClientsMap[userId]) {
+            return this.usersAndClientsMap[userId].map(client => client.id);
+        } else {
+            return [];
         }
     }
 
