@@ -28,7 +28,8 @@ export class UsersStore extends AbstractEntityStore<UserEntity, User> {
             firstName: denormalizedEntity.firstName,
             lastName: denormalizedEntity.lastName,
             deleted: denormalizedEntity.deleted,
-            slug: denormalizedEntity.slug
+            slug: denormalizedEntity.slug,
+            online: denormalizedEntity.online
         };
     }
 }

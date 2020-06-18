@@ -18,6 +18,7 @@ import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatParticipationPermissions
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.support.pagination.PaginationRequest
+import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
@@ -60,10 +61,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                         ) }
                         .map { chatParticipationRepository.save(it) }
                         .flatMap { it }
-                        .map {
-                            chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(it))
-                            chatParticipationMapper.toMinifiedChatParticipationResponse(it)
-                        }
+                        .map { chatParticipationMapper.toMinifiedChatParticipationResponse(it) }
                 }
     }
 
@@ -227,5 +225,24 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
                 .flatMap { chatParticipationRepository.findByChatAndUser(it, user) }
                 .map { chatParticipationMapper.toMinifiedChatParticipationResponse(it) }
+    }
+
+    override fun findOnlineParticipants(chatId: String): Flux<ChatParticipationResponse> {
+        return mono {
+            val chat = findChatById(chatId).awaitFirst()
+            val onlineParticipants = chatParticipationRepository.findByChatAndUserOnlineTrue(chat)
+                    .collectList()
+                    .awaitFirst()
+
+            onlineParticipants.map { chatParticipationMapper.toChatParticipationResponse(it) }
+        }
+                .flatMapMany { Flux.fromIterable(it) }
+    }
+
+    private fun findChatById(chatId: String): Mono<Chat> {
+        return mono {
+            chatRepository.findById(chatId).awaitFirstOrNull()
+                    ?: throw ChatNotFoundException("Could not find chat with id $chatId")
+        }
     }
 }

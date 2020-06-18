@@ -7,5 +7,6 @@ export interface UserEntity {
     slug?: string,
     avatarUri?: string,
     deleted: boolean,
-    createdAt: Date
+    createdAt: Date,
+    online: boolean
 }

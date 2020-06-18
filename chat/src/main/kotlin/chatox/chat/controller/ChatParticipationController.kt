@@ -28,6 +28,9 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     @PreAuthorize("hasRole('USER')")
     fun leaveChat(@PathVariable chatId: String) = chatParticipationService.leaveChat(chatId)
 
+    @GetMapping("/api/v1/chat/{chatId}/participants/online")
+    fun getOnlineChatParticipants(@PathVariable chatId: String) = chatParticipationService.findOnlineParticipants(chatId)
+
     @DeleteMapping("/api/v1/chat/{chatId}/participants/{participationId}")
     @PreAuthorize("hasRole('USER')")
     fun kickParticipant(@PathVariable chatId: String,
@@ -48,5 +51,5 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     @GetMapping("/api/v1/chat/{chatId}/participants")
     fun getChatParticipants(@PathVariable chatId: String,
                             paginationRequest: PaginationRequest
-    ) = chatParticipationService.findParticipantsOfChat(chatId, paginationRequest);
+    ) = chatParticipationService.findParticipantsOfChat(chatId, paginationRequest)
 }

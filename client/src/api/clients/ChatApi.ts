@@ -1,8 +1,14 @@
 import {AxiosPromise} from "axios";
 import {axiosInstance} from "../axios-instance";
 import {CreateChatRequest} from "../types/request";
-import {AvailabilityResponse, Chat, ChatOfCurrentUser, ChatParticipation, ChatParticipationWithoutUser} from "../types/response";
-import {CHAT, IS_AVAILABLE, JOIN, LEAVE, MY, PARTICIPANTS, SLUG} from "../endpoints";
+import {
+    AvailabilityResponse,
+    Chat,
+    ChatOfCurrentUser,
+    ChatParticipation,
+    ChatParticipationWithoutUser
+} from "../types/response";
+import {CHAT, IS_AVAILABLE, JOIN, LEAVE, MY, ONLINE, PARTICIPANTS, SLUG} from "../endpoints";
 
 export class ChatApi {
 
@@ -32,5 +38,9 @@ export class ChatApi {
 
     public static getChatParticipants(chatId: string, page: number): AxiosPromise<ChatParticipation[]> {
         return axiosInstance.get(`/${CHAT}/${chatId}/${PARTICIPANTS}?page=${page}`);
+    }
+
+    public static getOnlineChatParticipants(chatId: string): AxiosPromise<ChatParticipation[]> {
+        return axiosInstance.get(`/${CHAT}/${chatId}/${PARTICIPANTS}/${ONLINE}`);
     }
 }

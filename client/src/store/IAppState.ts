@@ -9,7 +9,8 @@ import {
     ChatsOfCurrentUserStore,
     ChatStore,
     CreateChatStore,
-    JoinChatStore
+    JoinChatStore,
+    OnlineChatParticipantsStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {CreateMessageStore, MessagesOfChatStore} from "../Message";
@@ -50,5 +51,6 @@ export interface IAppState {
     updateChatBlocking: UpdateChatBlockingStore,
     chatInfoDialog: ChatInfoDialogStore,
     blockUserInChatByIdOrSlug: BlockUserInChatByIdOrSlugStore,
+    onlineChatParticipants: OnlineChatParticipantsStore,
     store?: any
 }

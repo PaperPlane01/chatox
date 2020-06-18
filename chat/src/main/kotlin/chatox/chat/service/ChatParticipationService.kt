@@ -22,4 +22,5 @@ interface ChatParticipationService {
     fun getRoleOfUserInChat(chat: Chat, user: User): Mono<ChatRole>
     fun findChatParticipationById(participationId: String): Mono<ChatParticipationResponse>
     fun getMinifiedChatParticipation(chatId: String, user: User): Mono<ChatParticipationMinifiedResponse>
+    fun findOnlineParticipants(chatId: String): Flux<ChatParticipationResponse>
 }

@@ -20,6 +20,7 @@ interface ChatAppBarMobxProps {
     selectedChatId?: string,
     pending: boolean,
     error?: ApiError,
+    onlineParticipantsCount: number,
     routerStore?: any,
     findChat: (id: string) => ChatOfCurrentUserEntity,
     setChatInfoDialogOpen: (chatInfoDialogOpen: boolean) => void
@@ -37,6 +38,7 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
     selectedChatId,
     pending,
     error,
+    onlineParticipantsCount,
     routerStore,
     findChat,
     setChatInfoDialogOpen,
@@ -70,7 +72,10 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
                                         }}
                                         onClick={() => setChatInfoDialogOpen(true)}
                             >
-                                {l("chat.number-of-participants", {numberOfParticipants: chat.participantsCount})}
+                                {l(
+                                    "chat.number-of-participants",
+                                    {numberOfParticipants: chat.participantsCount, onlineParticipantsCount}
+                                )}
                             </Typography>
                         )}
                         avatar={(
@@ -134,10 +139,17 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
     )
 };
 
-const mapMobxToProps: MapMobxToProps<ChatAppBarMobxProps> = ({chat, entities, chatInfoDialog, store}) => ({
+const mapMobxToProps: MapMobxToProps<ChatAppBarMobxProps> = ({
+    chat,
+    onlineChatParticipants,
+    entities,
+    chatInfoDialog,
+    store
+}) => ({
     pending: chat.pending,
     error: chat.error,
     selectedChatId: chat.selectedChatId,
+    onlineParticipantsCount: onlineChatParticipants.onlineParticipantsCount,
     routerStore: store,
     findChat: entities.chats.findById,
     setChatInfoDialogOpen: chatInfoDialog.setChatInfoDialogOpen

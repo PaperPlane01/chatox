@@ -16,7 +16,7 @@ import {
 } from "@material-ui/core";
 import randomColor from "randomcolor";
 import {ChatDescription} from "./ChatDescription";
-import {ChatParticipantsList} from "./ChatParticipantsList";
+import {AllChatParticipantsList} from "./AllChatParticipantsList";
 import {ChatMenu} from "./ChatMenu";
 import {ChatOfCurrentUserEntity} from "../types";
 import {getAvatarLabel} from "../utils";
@@ -99,7 +99,7 @@ const _ChatInfoDialog: FunctionComponent<ChatInfoDialogProps> = ({
                         <ChatDescription/>
                     </div>
                     <div className={classes.chatInfoCard}>
-                        <ChatParticipantsList/>
+                        <AllChatParticipantsList/>
                     </div>
                 </div>
             </DialogContent>

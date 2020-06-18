@@ -7,3 +7,4 @@ export * from "./ChatParticipationsStore";
 export * from "./ChatParticipantsStore";
 export * from "./JoinChatStore";
 export * from "./ChatInfoDialogStore";
+export * from "./OnlineChatParticipantsStore";

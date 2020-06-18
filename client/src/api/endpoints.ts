@@ -19,3 +19,4 @@ export const IS_AVAILABLE = "isAvailable";
 export const BLOCKINGS = "blockings";
 export const ACTIVE = "active";
 export const NON_ACTIVE = "nonActive";
+export const ONLINE = "online";
