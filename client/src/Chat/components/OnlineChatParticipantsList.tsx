@@ -33,7 +33,7 @@ const _OnlineChatParticipantsList: FunctionComponent<OnlineChatParticipantsListP
                               label={
                                   l(
                                       "chat.online-participants-count",
-                                      {onlineParticipantsCount}
+                                      {onlineParticipantsCount: `${onlineParticipantsCount}`}
                                   )
                               }
         />

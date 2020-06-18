@@ -29,7 +29,8 @@ export class UsersStore extends AbstractEntityStore<UserEntity, User> {
             lastName: denormalizedEntity.lastName,
             deleted: denormalizedEntity.deleted,
             slug: denormalizedEntity.slug,
-            online: denormalizedEntity.online
+            online: denormalizedEntity.online,
+            lastSeen: denormalizedEntity.lastSeen ? new Date(denormalizedEntity.lastSeen) : undefined
         };
     }
 }

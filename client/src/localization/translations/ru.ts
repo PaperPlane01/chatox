@@ -130,5 +130,7 @@ export const ru: Labels = {
     "chat.blocking.user-id-or-slug": "ID или URL пользователя",
     "chat.blocking.user-id-or-slug.not-exist": "Не удалось найти пользователя с таким ID или URL",
     "chat.blocking.user-id-or-slug.unknown-error": "Во время проверки ID пользователя произошла ошибка, сервер ответил со статусом {errorStatus}",
-    "chat.online-participants-count": "{onlineParticipantsCount} участников онлайн"
+    "chat.online-participants-count": "{onlineParticipantsCount} участников онлайн",
+    "user.profile.last-seen": "Последний раз был(-а): {lastSeenLabel}",
+    "user.profile.online": "Онлайн"
 };

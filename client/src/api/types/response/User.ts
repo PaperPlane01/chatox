@@ -8,5 +8,6 @@ export interface User {
     avatarUri?: string,
     deleted: boolean,
     createdAt: string,
-    online: boolean
+    online: boolean,
+    lastSeen?: string
 }

@@ -39,7 +39,7 @@ const _AllChatParticipantsList: FunctionComponent<AllChatParticipantsListProps> 
                                   "chat.number-of-participants",
                                   {
                                       numberOfParticipants: chat.participantsCount,
-                                      onlineParticipantsCount: onlineParticipantsCount
+                                      onlineParticipantsCount: `${onlineParticipantsCount}`
                                   })
                               }
         />

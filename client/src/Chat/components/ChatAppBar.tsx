@@ -74,7 +74,7 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
                             >
                                 {l(
                                     "chat.number-of-participants",
-                                    {numberOfParticipants: chat.participantsCount, onlineParticipantsCount}
+                                    {numberOfParticipants: chat.participantsCount, onlineParticipantsCount: `${onlineParticipantsCount}`}
                                 )}
                             </Typography>
                         )}
