@@ -1,7 +1,7 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, ReactNode} from "react";
 import {inject, observer} from "mobx-react";
 import {Card, CardHeader, CircularProgress, createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
-import {format, formatDistanceStrict, Locale} from "date-fns";
+import {format, formatDistanceStrict, Locale, isSameDay, isSameYear} from "date-fns";
 import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
 import {UserEntity} from "../types";
@@ -30,6 +30,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     userInfoCard: {
         marginBottom: theme.spacing(1)
+    },
+    onlineLabel: {
+        color: theme.palette.primary.main
     }
 }));
 
@@ -54,6 +57,18 @@ const getDateOfBirthLabel = (dateOfBirth: Date, dateFnsLocale: Locale): string =
     return `${dateLabel} (${ageLabel})`;
 };
 
+const getLastSeenLabel = (lastSeen: Date, locale: Locale): string => {
+    const currentDate = new Date();
+
+    if (isSameDay(lastSeen, currentDate)) {
+        return format(lastSeen, "HH:mm", {locale});
+    } else if (isSameYear(lastSeen, currentDate)) {
+        return format(lastSeen, "d MMM HH:mm", {locale});
+    } else {
+        return format(lastSeen, "d MMM yyyy HH:mm", {locale});
+    }
+};
+
 const _UserProfileInfo: FunctionComponent<UserProfileInfoProps> = ({
     pending,
     error,
@@ -73,6 +88,24 @@ const _UserProfileInfo: FunctionComponent<UserProfileInfoProps> = ({
         const avatarLetter = `${user.firstName[0]} ${user.lastName ? user.lastName[0] : ""}`;
         const color = randomColor({seed: user.id});
 
+        let onlineOrLastSeenLabel: ReactNode;
+
+        if (user.online) {
+            onlineOrLastSeenLabel = (
+                <Typography className={classes.onlineLabel}>
+                    {l("user.profile.online")}
+                </Typography>
+            )
+        } else if (user.lastSeen) {
+            onlineOrLastSeenLabel = (
+                <Typography>
+                    {l("user.profile.last-seen", {lastSeenLabel: getLastSeenLabel(user.lastSeen, dateFnsLocale)})}
+                </Typography>
+            )
+        } else {
+            onlineOrLastSeenLabel = null;
+        }
+
         return (
             <div>
                 <Card className={classes.userInfoCard}>
@@ -83,6 +116,7 @@ const _UserProfileInfo: FunctionComponent<UserProfileInfoProps> = ({
                                                 height={80}
                     />}
                                 title={`${user.firstName} ${user.lastName ? user.lastName : ""}`}
+                                subheader={onlineOrLastSeenLabel}
 
                     />
                 </Card>

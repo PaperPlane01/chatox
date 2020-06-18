@@ -127,5 +127,8 @@ export interface Labels {
     "chat.blocking.create.without-username": string,
     "chat.blocking.user-id-or-slug": string,
     "chat.blocking.user-id-or-slug.not-exist": string,
-    "chat.blocking.user-id-or-slug.unknown-error": string
+    "chat.blocking.user-id-or-slug.unknown-error": string,
+    "chat.online-participants-count": string,
+    "user.profile.last-seen": string,
+    "user.profile.online": string
 }

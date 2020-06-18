@@ -16,6 +16,7 @@ class UserMapper {
             lastSeen = user.lastSeen,
             bio = user.bio,
             dateOfBirth = user.dateOfBirth,
-            createdAt = user.createdAt
+            createdAt = user.createdAt,
+            online = user.online
     )
 }

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {createStyles, makeStyles, Theme} from "@material-ui/core";
 import {ChatDescription} from "./ChatDescription";
-import {ChatParticipantsList} from "./ChatParticipantsList";
+import {OnlineChatParticipantsList} from "./OnlineChatParticipantsList";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatInfoContainer: {
@@ -21,7 +21,7 @@ export const ChatInfoContainer: FunctionComponent = () => {
         <div className={classes.chatInfoContainer}>
             <ChatDescription/>
             <div className={classes.withPadding}>
-                <ChatParticipantsList/>
+                <OnlineChatParticipantsList/>
             </div>
         </div>
     );

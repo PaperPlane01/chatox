@@ -33,7 +33,8 @@ export class JoinChatStore {
                     chatId,
                     user: {
                         ...user,
-                        deleted: false
+                        deleted: false,
+                        online: true
                     }
                 }, true);
             })

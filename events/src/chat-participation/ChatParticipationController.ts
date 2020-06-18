@@ -13,6 +13,7 @@ export class ChatParticipationController {
         queue: `events_service_user_joined-${process.env.SERVER_PORT}`
     })
     public async onUserJoinedChat(createChatParticipationDto: CreateChatParticipationDto): Promise<void> {
+        console.log("Received userJoinedChat event");
         await this.chatParticipationService.saveChatParticipation(createChatParticipationDto);
     }
 }

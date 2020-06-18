@@ -15,7 +15,7 @@ export const ru: Labels = {
     "chat.name.too-long": "Название слишком длинное",
     "chat.name.too-short": "Название слишком короткое",
     "chat.no-description": "Описание не указано",
-    "chat.number-of-participants": "{numberOfParticipants} участников",
+    "chat.number-of-participants": "{numberOfParticipants} участников, {onlineParticipantsCount} онлайн",
     "chat.select-chat": "Выберите чат",
     "chat.slug": "URL чата",
     "chat.slug.contains-invalid-characters": "URL содержит недопустимые символы",
@@ -129,5 +129,8 @@ export const ru: Labels = {
     "chat.blocking.create.without-username": "Заблокировать пользователя в чате {chatName}",
     "chat.blocking.user-id-or-slug": "ID или URL пользователя",
     "chat.blocking.user-id-or-slug.not-exist": "Не удалось найти пользователя с таким ID или URL",
-    "chat.blocking.user-id-or-slug.unknown-error": "Во время проверки ID пользователя произошла ошибка, сервер ответил со статусом {errorStatus}"
+    "chat.blocking.user-id-or-slug.unknown-error": "Во время проверки ID пользователя произошла ошибка, сервер ответил со статусом {errorStatus}",
+    "chat.online-participants-count": "{onlineParticipantsCount} участников онлайн",
+    "user.profile.last-seen": "Последний раз был(-а): {lastSeenLabel}",
+    "user.profile.online": "Онлайн"
 };

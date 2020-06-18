@@ -1,6 +1,8 @@
 package chatox.user.messaging.rabbitmq.event.producer
 
 import chatox.user.api.response.UserResponse
+import chatox.user.messaging.rabbitmq.event.UserOffline
+import chatox.user.messaging.rabbitmq.event.UserOnline
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
 
@@ -22,5 +24,17 @@ class UserEventsProducer(private val rabbitTemplate: RabbitTemplate) {
             "user.events",
             "user.deleted.#",
             hashMapOf(Pair("id", id))
+    )
+
+    fun userWentOnline(userOnline: UserOnline) = rabbitTemplate.convertAndSend(
+            "user.events",
+            "user.online.#",
+            userOnline
+    )
+
+    fun userWentOffline(userOffline: UserOffline) = rabbitTemplate.convertAndSend(
+            "user.events",
+            "user.offline.#",
+            userOffline
     )
 }

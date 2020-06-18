@@ -89,7 +89,8 @@ export class EntitiesStore {
                 ...chatOfCurrentUser.chatParticipation,
                 user: {
                     ...this.currentUser,
-                    deleted: false
+                    deleted: false,
+                    online: true
                 },
                 chatId: chatOfCurrentUser.id,
                 activeChatBlocking: chatOfCurrentUser.chatParticipation.activeChatBlocking

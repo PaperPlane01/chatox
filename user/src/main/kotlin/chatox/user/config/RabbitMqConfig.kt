@@ -38,6 +38,27 @@ class RabbitMqConfig {
             .to(uploadEvents())
             .with("upload.created.#")
 
+    @Bean
+    fun websocketEvents() = TopicExchange("websocket.events")
+
+    @Bean
+    fun userConnectedQueue() = Queue("user_service_user_connected")
+
+    @Bean
+    fun userDisconnectedQueue() = Queue("user_service_user_disconnected")
+
+    @Bean
+    fun userConnectedBinding(): Binding = BindingBuilder
+            .bind(userConnectedQueue())
+            .to(websocketEvents())
+            .with("user.connected.#")
+
+    @Bean
+    fun userDisconnectedBinding(): Binding = BindingBuilder
+            .bind(userDisconnectedQueue())
+            .to(websocketEvents())
+            .with("user.disconnected.#")
+
     @Autowired
     @Bean
     fun rabbitTemplate(connectionFactory: ConnectionFactory,

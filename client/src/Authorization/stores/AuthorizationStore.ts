@@ -26,7 +26,8 @@ export class AuthorizationStore {
         this.currentUser = currentUser;
         this.entities.users.insert({
             ...currentUser,
-            deleted: false
+            deleted: false,
+            online: true
         });
     };
 

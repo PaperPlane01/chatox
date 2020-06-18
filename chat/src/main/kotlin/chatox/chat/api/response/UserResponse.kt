@@ -12,5 +12,6 @@ data class UserResponse(
         val bio: String?,
         val lastSeen: ZonedDateTime?,
         val dateOfBirth: ZonedDateTime?,
-        val createdAt: ZonedDateTime?
+        val createdAt: ZonedDateTime?,
+        val online: Boolean?
 )

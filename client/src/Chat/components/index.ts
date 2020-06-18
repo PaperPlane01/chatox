@@ -12,3 +12,5 @@ export * from "./ChatBlockingsMenuItem";
 export * from "./ChatInfoDialog";
 export * from "./BlockChatParticipantMenuItem";
 export * from "./BlockUserInChatByIdOrSlugMenuItem";
+export * from "./AllChatParticipantsList";
+export * from "./OnlineChatParticipantsList";

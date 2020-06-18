@@ -15,7 +15,7 @@ export const en: Labels = {
     "chat.name.too-long": "Name is too long",
     "chat.name.too-short": "Name is too short",
     "chat.no-description": "No description provided",
-    "chat.number-of-participants": "{numberOfParticipants} participants",
+    "chat.number-of-participants": "{numberOfParticipants} participants, {onlineParticipantsCount} online",
     "chat.select-chat": "Select chat to start messaging",
     "chat.slug": "Slug",
     "chat.slug.contains-invalid-characters": "Slug contains invalid characters",
@@ -129,5 +129,8 @@ export const en: Labels = {
     "chat.blocking.create.without-username": "Block user in chat {chatName}",
     "chat.blocking.user-id-or-slug": "User ID or slug",
     "chat.blocking.user-id-or-slug.not-exist": "Could not find user with such ID or URL",
-    "chat.blocking.user-id-or-slug.unknown-error": "Error occurred when tried to check user ID, server responded with {errorStatus} status"
+    "chat.blocking.user-id-or-slug.unknown-error": "Error occurred when tried to check user ID, server responded with {errorStatus} status",
+    "chat.online-participants-count": "{onlineParticipantsCount} participants online",
+    "user.profile.last-seen": "Last seen: {lastSeenLabel}",
+    "user.profile.online": "Online"
 };

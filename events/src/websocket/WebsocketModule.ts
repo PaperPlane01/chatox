@@ -1,10 +1,12 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
+import {WebsocketController} from "./WebsocketController";
 import {RabbitMQConfigModule} from "../rabbitmq";
 import {WebsocketEventsPublisher} from "./WebsocketEventsPublisher";
 import {ChatParticipationModule} from "../chat-participation";
 
 @Module({
+    controllers: [WebsocketController],
     providers: [WebsocketEventsPublisher],
     imports: [
         RabbitMQConfigModule,

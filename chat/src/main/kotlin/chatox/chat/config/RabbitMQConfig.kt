@@ -43,6 +43,12 @@ class RabbitMQConfig {
     fun userDeletedQueue() = Queue("chat_service_user_deleted")
 
     @Bean
+    fun userWentOnlineQueue() = Queue("chat_service_user_went_online")
+
+    @Bean
+    fun userWentOfflineQueue() = Queue("chat_service_user_went_offline")
+
+    @Bean
     fun userCreatedBinding(): Binding = BindingBuilder
             .bind(userCreatedQueue())
             .to(userEvents())
@@ -59,6 +65,18 @@ class RabbitMQConfig {
             .bind(userDeletedQueue())
             .to(userEvents())
             .with("user.deleted.#")
+
+    @Bean
+    fun userWentOnlineBinding(): Binding = BindingBuilder
+            .bind(userWentOnlineQueue())
+            .to(userEvents())
+            .with("user.online.#")
+
+    @Bean
+    fun userWentOfflineBinding(): Binding = BindingBuilder
+            .bind(userWentOfflineQueue())
+            .to(userEvents())
+            .with("user.offline.#")
 
     @Bean
     fun chatEvents() = TopicExchange("chat.events")

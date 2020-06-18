@@ -7,5 +7,7 @@ export interface User {
     slug?: string,
     avatarUri?: string,
     deleted: boolean,
-    createdAt: string
+    createdAt: string,
+    online: boolean,
+    lastSeen?: string
 }

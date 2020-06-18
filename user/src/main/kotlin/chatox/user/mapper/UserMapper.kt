@@ -9,7 +9,11 @@ import java.time.ZonedDateTime
 
 @Component
 class UserMapper {
-    fun toUserResponse(user: User, mapAccountId: Boolean = false) = UserResponse(
+    fun toUserResponse(
+            user: User,
+            online: Boolean = false,
+            mapAccountId: Boolean = false
+    ) = UserResponse(
             id = user.id,
             slug = user.slug,
             accountId = if (mapAccountId) user.accountId else null,
@@ -19,7 +23,8 @@ class UserMapper {
             createdAt = user.createdAt,
             lastSeen = user.lastSeen,
             avatarUri = user.avatarUri,
-            dateOfBirth = user.dateOfBirth
+            dateOfBirth = user.dateOfBirth,
+            online = online
     )
 
     fun fromCreateUserRequest(createUserRequest: CreateUserRequest) = User(
