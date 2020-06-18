@@ -16,6 +16,8 @@ import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatPermissions
 import chatox.chat.service.ChatService
 import chatox.chat.support.pagination.PaginationRequest
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
@@ -50,7 +52,8 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                                     user = it.createdBy,
                                     chat = it,
                                     role = ChatRole.ADMIN,
-                                    lastMessageRead = null
+                                    lastMessageRead = null,
+                                    createdAt = ZonedDateTime.now()
                             )
                     )
                 }
@@ -60,7 +63,8 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                         chatParticipation = it,
                         unreadMessagesCount = 0,
                         lastMessage = null,
-                        lastReadMessage = null
+                        lastReadMessage = null,
+                        onlineParticipantsCount = 1
                 ) }
     }
 
@@ -122,21 +126,35 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     }
 
     override fun getChatsOfCurrentUser(): Flux<ChatOfCurrentUserResponse> {
-        return authenticationFacade.getCurrentUser()
-                .map { chatParticipationRepository.findAllByUser(it) }
-                .flatMapMany { it }
-                .map { Mono.just(it) }
-                .parallel()
-                .map { it.zipWith(countUnreadMessages(it)) }
-                .flatMap { it }
-                .sequential()
-                .map { chatMapper.toChatOfCurrentUserResponse(
-                        chat = it.t1.chat,
-                        lastMessage = it.t1.chat.lastMessage,
-                        lastReadMessage = if (it.t1.lastMessageRead != null) it.t1.lastMessageRead!!.message else null,
-                        unreadMessagesCount = it.t2,
-                        chatParticipation = it.t1
-                ) }
+        return mono {
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val chatParticipations = chatParticipationRepository
+                    .findAllByUser(currentUser)
+                    .collectList()
+                    .awaitFirst()
+            val unreadMessagesMap: MutableMap<String, Int> = HashMap()
+            val onlineParticipantsCountMap: MutableMap<String, Int> = HashMap()
+
+            chatParticipations.forEach { chatParticipation ->
+                unreadMessagesMap[chatParticipation.chat.id] = countUnreadMessages(Mono.just(chatParticipation))
+                        .awaitFirst()
+                onlineParticipantsCountMap[chatParticipation.chat.id] = chatParticipationRepository
+                        .countByChatAndUserOnlineTrue(chatParticipation.chat)
+                        .awaitFirst()
+            }
+
+            chatParticipations.map { chatParticipation ->
+                chatMapper.toChatOfCurrentUserResponse(
+                        chat = chatParticipation.chat,
+                        chatParticipation = chatParticipation,
+                        lastReadMessage = if (chatParticipation.lastMessageRead != null) chatParticipation.lastMessageRead!!.message else null,
+                        lastMessage = chatParticipation.chat.lastMessage,
+                        onlineParticipantsCount = onlineParticipantsCountMap[chatParticipation.chat.id]!!,
+                        unreadMessagesCount = unreadMessagesMap[chatParticipation.chat.id]!!
+                        )
+            }
+        }
+                .flatMapMany { Flux.fromIterable(it) }
     }
 
     private fun countUnreadMessages(chatParticipation: Mono<ChatParticipation>): Mono<Int> {

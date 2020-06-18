@@ -17,4 +17,6 @@ interface ChatParticipationRepository : ReactiveMongoRepository<ChatParticipatio
     fun findByChatAndUser(chat: Chat, user: User): Mono<ChatParticipation>
     fun findByChatAndUserFirstNameContains(chat: Chat, username: String, pageable: Pageable): Flux<ChatParticipation>
     fun countAllByChat(chat: Chat): Mono<Int>
+    fun findByChatAndUserOnlineTrue(chat: Chat): Flux<ChatParticipation>
+    fun countByChatAndUserOnlineTrue(chat: Chat): Mono<Int>
 }

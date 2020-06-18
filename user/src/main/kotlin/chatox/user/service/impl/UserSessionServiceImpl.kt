@@ -17,6 +17,7 @@ import chatox.user.support.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.cloud.client.discovery.DiscoveryClient
 import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Scheduled
@@ -36,6 +37,8 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                              private val authenticationFacade: AuthenticationFacade,
                              private val userEventsProducer: UserEventsProducer,
                              private val discoveryClient: DiscoveryClient) : UserSessionService {
+
+    private val log = LoggerFactory.getLogger(UserSessionServiceImpl::class.java)
 
     override fun userConnected(userConnected: UserConnected): Mono<Void> {
         return mono {
@@ -83,8 +86,8 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
 
             if (userSession != null) {
                 val shouldPublishUserDisconnected = userSessionRepository
-                        .countByUserAndDisconnectedAtNull(userSession.user)
-                        .awaitFirst() == 1L
+                        .countByUserAndDisconnectedAtNullAndIdNotIn(userSession.user, listOf(userSession.id))
+                        .awaitFirst() == 0L
                 userSession = userSession.copy(
                         disconnectedAt = ZonedDateTime.now()
                 )
@@ -115,7 +118,8 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
         return mono {
             val user = authenticationFacade.getCurrentUser().awaitFirst()
 
-            userSessionRepository.findByUserIdAndDisconnectedAtNull(user.id)
+            userSessionRepository
+                    .findByUserIdAndDisconnectedAtNull(user.id)
                     .map { userSessionMapper.toUserSessionResponse(it) }
         }
                 .flatMapMany { it }
@@ -131,28 +135,31 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                 .flatMapMany { it }
     }
 
-    @Scheduled(cron = "*/10 * * * *")
+    @Scheduled(cron = "0 * * * * *")
     override fun lookForInactiveSessions() {
+        log.info("Looking for inactive sessions")
         val webClient = WebClient.create()
         val sessionActivityMap: MutableMap<String, Boolean> = HashMap()
 
         mono {
-            val activeSessions = userSessionRepository.findByDisconnectedAtNullAndCreatedAtLessThan(
+            val activeSessions = userSessionRepository.findByDisconnectedAtNullAndCreatedAtBefore(
                     ZonedDateTime.now().minusMinutes(10L)
             )
                     .collectList()
                     .awaitFirst()
 
+            log.debug("Active sessions are")
+            log.debug("$activeSessions")
+
             if (activeSessions.size != 0)  {
                 val eventsServiceInstances = discoveryClient.getInstances("events-service")
 
                 eventsServiceInstances.forEach { instance ->
-                    val scheme = instance.scheme
                     val host = instance.host
                     val port = instance.port
 
                     activeSessions.forEach { session ->
-                        val url = "${scheme}${host}:${port}/api/v1/sessions/${session.socketIoId}"
+                        val url = "http://${host}:${port}/api/v1/sessions/${session.socketIoId}"
 
                         val sessionActivityStatusResponse = webClient
                                 .get()
@@ -165,11 +172,14 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                     }
                 }
 
+                log.debug("Session activity map")
+                log.debug("$sessionActivityMap")
+
                 if (sessionActivityMap.isNotEmpty()) {
                     val nonActiveSessions = activeSessions
                             .filter { session -> !sessionActivityMap[session.id]!! }
                             .map { session -> session.copy(disconnectedAt = ZonedDateTime.now()) }
-                    userSessionRepository.saveAll(nonActiveSessions)
+                    userSessionRepository.saveAll(nonActiveSessions).collectList().awaitFirst()
                     val sessionIds = nonActiveSessions.map { session -> session.id }
 
                     nonActiveSessions.forEach { session ->

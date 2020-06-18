@@ -12,5 +12,6 @@ class WebsocketEventsListener(private val userSessionService: UserSessionService
     @RabbitListener(queues = ["user_service_user_connected"])
     fun onUserConnected(userConnected: UserConnected) = userSessionService.userConnected(userConnected)
 
+    @RabbitListener(queues = ["user_service_user_disconnected"])
     fun onUserDisconnected(userDisconnected: UserDisconnected) = userSessionService.userDisconnected(userDisconnected)
 }

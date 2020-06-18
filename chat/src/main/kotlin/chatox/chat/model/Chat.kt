@@ -24,7 +24,11 @@ data class Chat(
         var deletedBy: User?,
         var type: ChatType,
         var numberOfParticipants: Int,
-        @DBRef
+        @DBRef(lazy = true)
         var lastMessage: Message?,
         var lastMessageDate: ZonedDateTime?
-)
+) {
+        override fun toString(): String {
+                return "Chat(id='$id', name='$name', description=$description, tags=$tags, avatarUri=$avatarUri, slug='$slug', createdAt=$createdAt, createdBy=$createdBy, updatedAt=$updatedAt, deletedAt=$deletedAt, deleted=$deleted, deletedBy=$deletedBy, type=$type, numberOfParticipants=$numberOfParticipants, lastMessage=${lastMessage?.id}, lastMessageDate=$lastMessageDate)"
+        }
+}

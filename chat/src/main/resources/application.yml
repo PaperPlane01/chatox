@@ -8,6 +8,12 @@ spring:
       database: chatox_chat_service
       host: ${MONGODB_HOST:localhost}
       port: ${MONGODB_PORT:27017}
+  rabbitmq:
+    listener:
+      direct:
+        acknowledge-mode: manual
+      simple:
+        acknowledge-mode: manual
 server:
   port: 8085
 eureka:

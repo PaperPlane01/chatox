@@ -41,9 +41,6 @@ class UserController(private val userService: UserService,
                 .map { ResponseEntity.noContent().build<Void>() }
     }
 
-    @GetMapping("/{idOrSlug}")
-    fun findUserByIdOrSlug(@PathVariable idOrSlug: String) = userService.findUserByIdOrSlug(idOrSlug)
-
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/me")
     fun getCurrentUser() = authenticationFacade.getCurrentUser()
@@ -53,6 +50,9 @@ class UserController(private val userService: UserService,
     fun getSessionsOfCurrentUser(paginationRequest: PaginationRequest) = userSessionService.findSessionsOfCurrentUser(
             paginationRequest
     )
+
+    @GetMapping("/{idOrSlug}")
+    fun findUserByIdOrSlug(@PathVariable idOrSlug: String) = userService.findUserByIdOrSlug(idOrSlug)
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/me/sessions/active")

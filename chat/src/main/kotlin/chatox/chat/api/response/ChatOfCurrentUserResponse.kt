@@ -15,5 +15,6 @@ data class ChatOfCurrentUserResponse(
         val createdAt: ZonedDateTime,
         val description: String?,
         val tags: List<String> = arrayListOf(),
-        val participantsCount: Int = 0
+        val participantsCount: Int = 0,
+        val onlineParticipantsCount: Int = 0
 )

@@ -41,7 +41,14 @@ class ChatMapper(
             tags = chat.tags
     )
 
-    fun toChatOfCurrentUserResponse(chat: Chat, chatParticipation: ChatParticipation, lastMessage: Message?, lastReadMessage: Message?, unreadMessagesCount: Int): ChatOfCurrentUserResponse {
+    fun toChatOfCurrentUserResponse(
+            chat: Chat,
+            chatParticipation: ChatParticipation,
+            lastMessage: Message?,
+            lastReadMessage: Message?,
+            unreadMessagesCount: Int,
+            onlineParticipantsCount: Int
+    ): ChatOfCurrentUserResponse {
         var lastReadMessageMapped: MessageResponse? = null
         var lastMessageMapped: MessageResponse? = null
 
@@ -59,7 +66,6 @@ class ChatMapper(
                     readByCurrentUser = lastReadMessage ?: lastReadMessage?.id == lastMessage.id,
                     mapReferredMessage = false
             )
-
         }
 
         return ChatOfCurrentUserResponse(
@@ -105,7 +111,7 @@ class ChatMapper(
     fun mapChatUpdate(updateChatRequest: UpdateChatRequest, originalChat: Chat) = originalChat.copy(
             name = updateChatRequest.name ?: originalChat.name,
             avatarUri = updateChatRequest.avatarUri,
-            slug = updateChatRequest.slug ?: originalChat.id!!,
+            slug = updateChatRequest.slug ?: originalChat.id,
             description = updateChatRequest.description,
             tags = updateChatRequest.tags ?: originalChat.tags
     )

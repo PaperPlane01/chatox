@@ -15,5 +15,5 @@ interface UserSessionRepository : ReactiveMongoRepository<UserSession, String> {
     fun findByUserIdAndDisconnectedAtNull(userId: String): Flux<UserSession>
     fun countByUserAndDisconnectedAtNull(user: User): Mono<Long>
     fun countByUserAndDisconnectedAtNullAndIdNotIn(user: User, ids: List<String>): Mono<Long>
-    fun findByDisconnectedAtNullAndCreatedAtLessThan(createdAt: ZonedDateTime): Flux<UserSession>
+    fun findByDisconnectedAtNullAndCreatedAtBefore(createdAt: ZonedDateTime): Flux<UserSession>
 }
