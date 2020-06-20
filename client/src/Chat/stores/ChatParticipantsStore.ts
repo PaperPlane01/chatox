@@ -25,7 +25,7 @@ export class ChatParticipantsStore {
     @computed
     get chatParticipants(): string[] {
         if (this.selectedChat) {
-            return this.entities.chats.findById(this.selectedChat).participants;
+            return this.entities.chatParticipations.findByChat(this.selectedChat);
         } else {
             return [];
         }

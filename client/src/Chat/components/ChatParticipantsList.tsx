@@ -6,6 +6,7 @@ import {FetchingState} from "../../utils/types";
 
 interface ChatParticipantsListProps {
     participantsIds: string[],
+    highlightOnline?: boolean,
     fetchingState: FetchingState,
     label: string
 }
@@ -22,6 +23,7 @@ const useStyles = makeStyles(() => createStyles({
 
 export const ChatParticipantsList: FunctionComponent<ChatParticipantsListProps> = ({
     participantsIds,
+    highlightOnline = false,
     fetchingState,
     label
 }) => {
@@ -43,7 +45,10 @@ export const ChatParticipantsList: FunctionComponent<ChatParticipantsListProps> 
             )}/>
             <CardContent>
                 {participantsIds.map(participantId => (
-                    <ChatParticipantsListItem participantId={participantId} key={participantId}/>
+                    <ChatParticipantsListItem participantId={participantId}
+                                              key={participantId}
+                                              highlightOnline={highlightOnline}
+                    />
                 ))}
             </CardContent>
         </Card>

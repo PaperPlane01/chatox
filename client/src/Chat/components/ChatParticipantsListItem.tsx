@@ -15,6 +15,7 @@ interface ChatParticipantsListItemMobxProps {
 
 interface ChatParticipantsListItemOwnProps {
     participantId: string,
+    highlightOnline?: boolean,
     onClick?: () => void
 }
 
@@ -26,11 +27,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     avatar: {
         paddingRight: theme.spacing(2)
+    },
+    online: {
     }
 }));
 
 const _ChatParticipantsListItem: FunctionComponent<ChatParticipantsListItemProps> = ({
     participantId,
+    highlightOnline = false,
     findUser,
     findParticipant,
     onClick
@@ -58,7 +62,9 @@ const _ChatParticipantsListItem: FunctionComponent<ChatParticipantsListItemProps
                         avatarUri={user.avatarUri}
                 />
             </div>
-            <ListItemText>
+            <ListItemText primaryTypographyProps={{
+                color: (user.online && highlightOnline) ? "primary" : "textPrimary"
+            }}>
                 {user.firstName} {user.lastName && user.lastName}
             </ListItemText>
             <ChatParticipantMenu chatParticipation={chatParticipant}/>

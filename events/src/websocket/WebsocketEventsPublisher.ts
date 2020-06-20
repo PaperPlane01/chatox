@@ -1,3 +1,4 @@
+import {forwardRef, Inject} from "@nestjs/common";
 import {
     ConnectedSocket,
     MessageBody,
@@ -11,12 +12,11 @@ import {AmqpConnection} from "@nestjs-plus/rabbitmq";
 import {Socket} from "socket.io";
 import {parse} from "querystring";
 import {ChatSubscription, ChatUnsubscription, EventType, JwtPayload, MessageDeleted, WebsocketEvent} from "./types";
-import {ChatBlocking, ChatMessage} from "../common/types";
-import {ChatParticipationService} from "../chat-participation";
-import {CreateChatParticipationDto} from "../chat-participation/types";
-import {forwardRef, Inject} from "@nestjs/common";
 import {MessagesDeleted} from "./types/MessagesDeleted";
 import {SessionActivityStatusResponse} from "./types/SessionActivityStatusResponse";
+import {ChatBlocking, ChatMessage} from "../common/types";
+import {ChatParticipationService} from "../chat-participation";
+import {ChatParticipationDto} from "../chat-participation/types";
 
 @WebSocketGateway({
     path: "/api/v1/events/",
@@ -171,8 +171,8 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         await this.publishEventToUsersSubscribedToChat(messagesDeleted.chatId, messagesDeletedEvent);
     }
 
-    public async publishUserJoinedChat(createChatParticipationDto: CreateChatParticipationDto) {
-        const userJoinedEvent: WebsocketEvent<CreateChatParticipationDto> = {
+    public async publishUserJoinedChat(createChatParticipationDto: ChatParticipationDto) {
+        const userJoinedEvent: WebsocketEvent<ChatParticipationDto> = {
             type: EventType.USER_JOINED_CHAT,
             payload: createChatParticipationDto
         };
@@ -194,6 +194,28 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: chatBlocking
         };
         await this.publishEventToUser(chatBlocking.blockedUser.id, chatBlockingUpdated);
+    }
+
+    public async publishChatParticipantsWentOnline(chatParticipants: ChatParticipationDto[]) {
+        chatParticipants.forEach(participant => {
+            const chatParticipantWentOnline: WebsocketEvent<ChatParticipationDto> = {
+                payload: participant,
+                type: EventType.CHAT_PARTICIPANT_WENT_ONLINE
+            };
+            this.publishEventToChatParticipants(participant.chatId, chatParticipantWentOnline);
+            this.publishEventToUsersSubscribedToChat(participant.chatId, chatParticipantWentOnline);
+        })
+    }
+
+    public async publishChatParticipantsWentOffline(chatParticipants: ChatParticipationDto[]) {
+        chatParticipants.forEach(participant => {
+            const chatParticipantWentOffline: WebsocketEvent<ChatParticipationDto> = {
+                payload: participant,
+                type: EventType.CHAT_PARTICIPANT_WENT_OFFLINE
+            };
+            this.publishEventToChatParticipants(participant.chatId, chatParticipantWentOffline);
+            this.publishEventToUsersSubscribedToChat(participant.chatId, chatParticipantWentOffline);
+        })
     }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {

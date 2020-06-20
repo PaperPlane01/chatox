@@ -1,10 +1,12 @@
 package chatox.chat.messaging.rabbitmq.event.listener
 
+import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.messaging.rabbitmq.event.UserCreated
 import chatox.chat.messaging.rabbitmq.event.UserDeleted
 import chatox.chat.messaging.rabbitmq.event.UserUpdated
 import chatox.chat.messaging.rabbitmq.event.UserWentOffline
 import chatox.chat.messaging.rabbitmq.event.UserWentOnline
+import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.User
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.UserRepository
@@ -21,7 +23,9 @@ import java.time.ZonedDateTime
 
 @Component
 class UserEventsListener(private val userRepository: UserRepository,
-                         private val chatParticipationRepository: ChatParticipationRepository) {
+                         private val chatParticipationRepository: ChatParticipationRepository,
+                         private val chatParticipationMapper: ChatParticipationMapper,
+                         private val chatEventsPublisher: ChatEventsPublisher) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     @RabbitListener(queues = ["chat_service_user_created"])
@@ -114,6 +118,12 @@ class UserEventsListener(private val userRepository: UserRepository,
                     chatParticipation.copy(userOnline = true, lastModifiedAt = ZonedDateTime.now())
                 }
                 chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
+
+                chatEventsPublisher.chatParticipantsWentOnline(
+                        chatParticipants = chatParticipations.map { chatParticipation ->
+                            chatParticipationMapper.toChatParticipationResponse(chatParticipation)
+                        }
+                )
             }
 
         }
@@ -144,7 +154,12 @@ class UserEventsListener(private val userRepository: UserRepository,
                 chatParticipations = chatParticipations.map { chatParticipation ->
                     chatParticipation.copy(userOnline = false, lastModifiedAt = ZonedDateTime.now())
                 }
-                chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
+                chatParticipations = chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
+                chatEventsPublisher.chatParticipantsWentOffline(
+                        chatParticipants = chatParticipations.map { chatParticipation ->
+                            chatParticipationMapper.toChatParticipationResponse(chatParticipation)
+                        }
+                )
                 log.debug("Chat participations have been updated")
             }
 

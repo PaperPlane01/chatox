@@ -3,7 +3,7 @@ import SocketIo from "socket.io-client";
 import {AuthorizationStore} from "../../Authorization/stores";
 import {EntitiesStore} from "../../entities-store";
 import {MessagesDeleted, WebsocketEvent, WebsocketEventType} from "../../api/types/websocket";
-import {Message, ChatBlocking} from "../../api/types/response";
+import {Message, ChatBlocking, ChatParticipation} from "../../api/types/response";
 
 export class WebsocketStore {
     socketIoClient?: SocketIOClient.Socket;
@@ -74,6 +74,14 @@ export class WebsocketStore {
                 WebsocketEventType.CHAT_BLOCKING_CANCELED,
                 (event: WebsocketEvent<ChatBlocking>) => this.entities.insertChatBlocking(event.payload)
             );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_PARTICIPANT_WENT_ONLINE,
+                (event: WebsocketEvent<ChatParticipation>) => this.entities.insertChatParticipation(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_PARTICIPANT_WENT_OFFLINE,
+                (event: WebsocketEvent<ChatParticipation>) => this.entities.insertChatParticipation(event.payload)
+            )
         }
     };
 

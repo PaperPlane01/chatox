@@ -80,4 +80,16 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.blocking.updated.#",
             chatBlockingResponse
     )
+
+    fun chatParticipantsWentOnline(chatParticipants: List<ChatParticipationResponse>) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.participants.online.#",
+            chatParticipants
+    )
+
+    fun chatParticipantsWentOffline(chatParticipants: List<ChatParticipationResponse>) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.participants.offline.#",
+            chatParticipants
+    )
 }

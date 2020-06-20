@@ -42,6 +42,7 @@ const _AllChatParticipantsList: FunctionComponent<AllChatParticipantsListProps> 
                                       onlineParticipantsCount: `${onlineParticipantsCount}`
                                   })
                               }
+                              highlightOnline
         />
     )
 };

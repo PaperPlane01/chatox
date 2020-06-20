@@ -21,7 +21,7 @@ export class OnlineChatParticipantsStore {
     @computed
     get onlineParticipants(): string[] {
         if (this.selectedChat) {
-            const participants = this.entities.chats.findById(this.selectedChat).participants;
+            const participants = this.entities.chatParticipations.findByChat(this.selectedChat);
 
             return participants.filter(participantId => {
                 const participant = this.entities.chatParticipations.findById(participantId);
