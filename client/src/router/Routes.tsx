@@ -25,6 +25,9 @@ export const Routes = {
         },
         onParamsChange: (view: any, params: any) => {
             store.chat.setSelectedChat(params.slug);
+        },
+        onExit: () => {
+            store.chat.setSelectedChat(undefined)
         }
     }),
     userPage: new Route({

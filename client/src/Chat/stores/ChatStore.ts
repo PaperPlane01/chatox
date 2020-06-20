@@ -16,7 +16,12 @@ export class ChatStore {
     constructor(private readonly entities: EntitiesStore) {}
 
     @action
-    setSelectedChat = (slug: string): void => {
+    setSelectedChat = (slug?: string): void => {
+        if (!slug) {
+            this.selectedChatId = undefined;
+            return;
+        }
+
         const chat = this.entities.chats.findBySlug(slug);
         if (chat) {
             this.selectedChatId = chat.id;
