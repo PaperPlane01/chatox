@@ -9,7 +9,7 @@ data class Upload<MetadataType>(
         var name: String,
         var originalName: String,
         var type: UploadType,
-        var meta: MetadataType,
+        var meta: MetadataType?,
         var extenstion: String,
         var mimeType: String,
         var size: Int,

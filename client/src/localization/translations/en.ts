@@ -132,5 +132,10 @@ export const en: Labels = {
     "chat.blocking.user-id-or-slug.unknown-error": "Error occurred when tried to check user ID, server responded with {errorStatus} status",
     "chat.online-participants-count": "{onlineParticipantsCount} participants online",
     "user.profile.last-seen": "Last seen: {lastSeenLabel}",
-    "user.profile.online": "Online"
+    "user.profile.online": "Online",
+    "upload.file.too-large": "Selected file is too large",
+    "chat.avatar.upload": "Upload avatar",
+    "chat.update": "Update chat {chatName}",
+    "chat.update.save-changes": "Save changes",
+    "chat.edit": "Edit chat"
 };

@@ -5,10 +5,23 @@ import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.chat.messaging.rabbitmq.event.UploadCreated
+import chatox.chat.model.UploadType
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
 class UploadMapper {
+    @Value("\${uploads.images}")
+    private lateinit var imagesBaseUrl: String
+
+    @Value("\${uploads.videos}")
+    private lateinit var videosBaseUrl: String
+
+    @Value("\${uploads.audios}")
+    private lateinit var audiosBaseUrl: String
+
+    @Value("\${uploads.files}")
+    private lateinit var filesBaseUrl: String
 
     fun <MetadataType>toUploadResponse(upload: Upload<MetadataType>): UploadResponse<MetadataType> = UploadResponse(
             id = upload.id,
@@ -18,7 +31,9 @@ class UploadMapper {
             mimeType = upload.mimeType,
             meta = upload.meta,
             preview = if (upload.preview != null) toUploadResponse(upload.preview!!) else null,
-            thumbnail = if (upload.thumbnail != null) toUploadResponse(upload.thumbnail!!) else null
+            thumbnail = if (upload.thumbnail != null) toUploadResponse(upload.thumbnail!!) else null,
+            uri = getUploadUri(upload = upload),
+            originalName = upload.originalName
     )
 
     fun <MetadataType>fromUploadCreated(uploadCreated: UploadCreated<MetadataType>,
@@ -40,4 +55,13 @@ class UploadMapper {
             user = user,
             originalName = uploadCreated.originalName
     )
+
+    private fun <MetadataType>getUploadUri(upload: Upload<MetadataType>): String {
+        return when (upload.type) {
+            UploadType.IMAGE -> "${imagesBaseUrl}/${upload.name}"
+            UploadType.AUDIO -> "${audiosBaseUrl}/${upload.name}"
+            UploadType.VIDEO -> "${videosBaseUrl}/${upload.name}"
+            UploadType.FILE -> "${filesBaseUrl}/${upload.name}"
+        }
+    }
 }

@@ -5,6 +5,7 @@ import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.api.response.MessageResponse
+import chatox.chat.messaging.rabbitmq.event.ChatUpdated
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatType
@@ -17,7 +18,8 @@ import java.util.UUID
 @Component
 class ChatMapper(
         private val chatParticipationMapper: ChatParticipationMapper,
-        private val messageMapper: MessageMapper
+        private val messageMapper: MessageMapper,
+        private val uploadMapper: UploadMapper
 ) {
     fun toChatResponse(chat: Chat) = ChatResponse(
             id = chat.id,
@@ -27,7 +29,8 @@ class ChatMapper(
             avatarUri = chat.avatarUri,
             participantsCount = chat.numberOfParticipants,
             createdByCurrentUser = null,
-            tags = chat.tags
+            tags = chat.tags,
+            avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null
     )
 
     fun toChatResponse(chat: Chat, currentUserId: String?) = ChatResponse(
@@ -38,7 +41,8 @@ class ChatMapper(
             avatarUri = chat.avatarUri,
             participantsCount = chat.numberOfParticipants,
             createdByCurrentUser = currentUserId ?: currentUserId === chat.createdBy.id,
-            tags = chat.tags
+            tags = chat.tags,
+            avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null
     )
 
     fun toChatOfCurrentUserResponse(
@@ -80,7 +84,9 @@ class ChatMapper(
                 createdAt = chat.createdAt,
                 description = chat.description,
                 tags = chat.tags,
-                participantsCount = chat.numberOfParticipants
+                participantsCount = chat.numberOfParticipants,
+                avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
+                createdByCurrentUser = chat.createdBy.id == chatParticipation.user.id
         )
     }
 
@@ -108,11 +114,14 @@ class ChatMapper(
         )
     }
 
-    fun mapChatUpdate(updateChatRequest: UpdateChatRequest, originalChat: Chat) = originalChat.copy(
-            name = updateChatRequest.name ?: originalChat.name,
-            avatarUri = updateChatRequest.avatarUri,
-            slug = updateChatRequest.slug ?: originalChat.id,
-            description = updateChatRequest.description,
-            tags = updateChatRequest.tags ?: originalChat.tags
+    fun toChatUpdated(chat: Chat) = ChatUpdated(
+            id = chat.id,
+            avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
+            description = chat.description,
+            avatarUri = chat.avatarUri,
+            createdAt = chat.createdAt,
+            name = chat.name,
+            slug = chat.slug,
+            tags = chat.tags
     )
 }

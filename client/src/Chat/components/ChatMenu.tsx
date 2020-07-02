@@ -4,21 +4,25 @@ import {IconButton, Menu} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {ChatBlockingsMenuItem} from "./ChatBlockingsMenuItem";
 import {BlockUserInChatByIdOrSlugMenuItem} from "./BlockUserInChatByIdOrSlugMenuItem";
-import {CurrentUser} from "../../api/types/response";
 import {FindChatParticipationByUserAndChatOptions} from "../stores";
-import {ChatParticipationEntity} from "../types";
+import {ChatOfCurrentUserEntity, ChatParticipationEntity} from "../types";
+import {canUpdateChat} from "../permissions";
+import {CurrentUser} from "../../api/types/response";
 import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
 import {MapMobxToProps} from "../../store";
+import {EditChatMenuItem} from "./EditChatMenuItem";
 
 interface ChatMenuMobxProps {
     selectedChatId?: string,
     currentUser?: CurrentUser,
+    findChat: (chatId: string) => ChatOfCurrentUserEntity,
     findChatParticipation: (options: FindChatParticipationByUserAndChatOptions) => ChatParticipationEntity | undefined
 }
 
 const _ChatMenu: FunctionComponent<ChatMenuMobxProps> = ({
     currentUser,
     findChatParticipation,
+    findChat,
     selectedChatId
 }) => {
     const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
@@ -34,6 +38,7 @@ const _ChatMenu: FunctionComponent<ChatMenuMobxProps> = ({
             userId: currentUser.id
         })
         : undefined;
+    const chat = findChat(selectedChatId);
 
     const handleOpenClick = (event: MouseEvent<HTMLElement>): void => {
         setAnchorElement(event.currentTarget);
@@ -47,6 +52,7 @@ const _ChatMenu: FunctionComponent<ChatMenuMobxProps> = ({
 
     canBlockUsersInChat(chatParticipation) && menuItems.push(<ChatBlockingsMenuItem onClick={handleClose}/>);
     canBlockUsersInChat(chatParticipation) && menuItems.push(<BlockUserInChatByIdOrSlugMenuItem onClick={handleClose}/>);
+    canUpdateChat(chat) && menuItems.push(<EditChatMenuItem onClick={handleClose}/>);
 
     if (menuItems.length === 0) {
         return null;
@@ -74,7 +80,8 @@ const mapMobxToProps: MapMobxToProps<ChatMenuMobxProps> = ({
 }) => ({
     selectedChatId: chat.selectedChatId,
     currentUser: authorization.currentUser,
-    findChatParticipation: entities.chatParticipations.findByUserAndChat
+    findChatParticipation: entities.chatParticipations.findByUserAndChat,
+    findChat: entities.chats.findById
 });
 
 export const ChatMenu = inject(mapMobxToProps)(observer(_ChatMenu) as FunctionComponent);

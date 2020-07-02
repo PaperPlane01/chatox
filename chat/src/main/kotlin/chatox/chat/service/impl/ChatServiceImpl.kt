@@ -6,17 +6,26 @@ import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.exception.ChatNotFoundException
+import chatox.chat.exception.SlugIsAlreadyInUseException
+import chatox.chat.exception.UploadNotFoundException
+import chatox.chat.exception.WrongUploadTypeException
 import chatox.chat.mapper.ChatMapper
+import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
+import chatox.chat.model.ImageUploadMetadata
+import chatox.chat.model.Upload
+import chatox.chat.model.UploadType
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.MessageRepository
+import chatox.chat.repository.UploadRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatPermissions
 import chatox.chat.service.ChatService
 import chatox.chat.support.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
@@ -31,8 +40,10 @@ import java.time.ZonedDateTime
 class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationRepository: ChatParticipationRepository,
                       private val messageRepository: MessageRepository,
+                      private val uploadRepository: UploadRepository,
                       private val chatMapper: ChatMapper,
-                      private val authenticationFacade: AuthenticationFacade) : ChatService {
+                      private val authenticationFacade: AuthenticationFacade,
+                      private val chatEventsPublisher: ChatEventsPublisher) : ChatService {
 
     private lateinit var chatPermissions: ChatPermissions
 
@@ -69,14 +80,49 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     }
 
     override fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse> {
-        return assertCanUpdateChat(id)
-                .flatMap {
-                    chatRepository.findById(id)
-                            .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
-                            .map { chatMapper.mapChatUpdate(updateChatRequest, it) }
-                            .flatMap { chatRepository.save(it) }
-                            .map { chatMapper.toChatResponse(it) }
+        return mono {
+            assertCanUpdateChat(id).awaitFirst()
+            var chat = chatRepository.findById(id).awaitFirst()
+
+            if (updateChatRequest.slug != null
+                    && updateChatRequest.slug != chat.slug
+                    && updateChatRequest.slug != chat.id) {
+                val slugAvailability = checkChatSlugAvailability(updateChatRequest.slug).awaitFirst()
+
+                if (!slugAvailability.available) {
+                    throw SlugIsAlreadyInUseException(
+                            "Slug ${updateChatRequest.slug} is already used by another chat"
+                    )
                 }
+            }
+
+            var avatar: Upload<Any>? = chat.avatar as Upload<Any>?
+
+            if (updateChatRequest.avatarId != null) {
+                avatar = uploadRepository.findById(updateChatRequest.avatarId).awaitFirstOrNull()
+
+                if (avatar == null) {
+                    throw UploadNotFoundException("Could not find avatar with id ${updateChatRequest.avatarId}")
+                }
+
+                if (avatar.type != UploadType.IMAGE) {
+                    throw WrongUploadTypeException("Avatar must have ${UploadType.IMAGE} type, however file with id ${updateChatRequest.avatarId} has ${avatar.type} type")
+                }
+            }
+
+            chat = chat.copy(
+                    name = updateChatRequest.name,
+                    avatar = avatar as Upload<ImageUploadMetadata>?,
+                    slug = updateChatRequest.slug ?: chat.id,
+                    tags = updateChatRequest.tags ?: arrayListOf(),
+                    description = updateChatRequest.description
+            )
+
+            chat = chatRepository.save(chat).awaitFirst()
+            chatEventsPublisher.chatUpdated(chatMapper.toChatUpdated(chat))
+
+            chatMapper.toChatResponse(chat)
+        }
     }
 
     private fun assertCanUpdateChat(chatId: String): Mono<Boolean> {
@@ -181,7 +227,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     }
 
     override fun checkChatSlugAvailability(slug: String): Mono<AvailabilityResponse> {
-        return chatRepository.existsBySlug(slug)
+        return chatRepository.existsBySlugOrId(slug, slug)
                 .map { AvailabilityResponse(available = !it) }
     }
 }

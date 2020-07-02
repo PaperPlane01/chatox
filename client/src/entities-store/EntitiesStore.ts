@@ -13,7 +13,7 @@ import {
 import {MessagesStore} from "../Message";
 import {AuthorizationStore} from "../Authorization";
 import {ChatBlockingsStore} from "../ChatBlocking/stores";
-import {isChatBlockingActive} from "../ChatBlocking/utils";
+import {UploadsStore} from "../Upload/stores";
 
 export class EntitiesStore {
     private authorizationStore: AuthorizationStore;
@@ -32,7 +32,8 @@ export class EntitiesStore {
         public chats: ChatsStore,
         public users: UsersStore,
         public chatParticipations: ChatParticipationsStore,
-        public chatBlockings: ChatBlockingsStore
+        public chatBlockings: ChatBlockingsStore,
+        public uploads: UploadsStore
     ) {
     }
 
@@ -78,6 +79,10 @@ export class EntitiesStore {
 
         if (chatOfCurrentUser.lastReadMessage) {
             this.insertMessage(chatOfCurrentUser.lastReadMessage);
+        }
+
+        if (chatOfCurrentUser.avatar) {
+            this.uploads.insert(chatOfCurrentUser.avatar);
         }
 
         if (this.currentUser && chatOfCurrentUser.chatParticipation) {

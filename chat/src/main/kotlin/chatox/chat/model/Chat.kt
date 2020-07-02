@@ -13,6 +13,7 @@ data class Chat(
         var description: String?,
         var tags: List<String> = arrayListOf(),
         val avatarUri: String?,
+        val avatar: Upload<ImageUploadMetadata>? = null,
         var slug: String,
         var createdAt: ZonedDateTime,
         @DBRef

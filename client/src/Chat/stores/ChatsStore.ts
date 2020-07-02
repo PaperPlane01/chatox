@@ -58,7 +58,10 @@ export class ChatsStore extends AbstractEntityStore<ChatOfCurrentUserEntity, Cha
             participants: [],
             currentUserParticipationId: denormalizedEntity.chatParticipation
                 && denormalizedEntity.chatParticipation.id,
-            description: denormalizedEntity.description
+            description: denormalizedEntity.description,
+            avatarId: denormalizedEntity.avatar && denormalizedEntity.avatar.id,
+            createdByCurrentUser: denormalizedEntity.createdByCurrentUser,
+            tags: denormalizedEntity.tags
         }
     }
 }

@@ -141,6 +141,7 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
                                 avatar={<Avatar avatarLetter={getAvatarLabel(chat.name)}
                                                 avatarColor={randomColor({seed: chatId})}
                                                 avatarUri={chat.avatarUri}
+                                                avatarId={chat.avatarId}
                                 />}
                                 classes={{
                                     root: classes.listItemHeaderRoot,

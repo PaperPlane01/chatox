@@ -90,6 +90,7 @@ const _ChatInfoDialog: FunctionComponent<ChatInfoDialogProps> = ({
                                                     avatarUri={chat.avatarUri}
                                                     width={80}
                                                     height={80}
+                                                    avatarId={chat.avatarId}
                         />}
                                     title={chat.name}
 
