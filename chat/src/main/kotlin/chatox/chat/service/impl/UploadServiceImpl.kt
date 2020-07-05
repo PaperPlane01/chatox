@@ -28,6 +28,8 @@ class UploadServiceImpl(private val uploadRepository: UploadRepository,
         return mono {
             log.info("Saving upload ${uploadCreated.name}")
 
+            println(uploadCreated)
+
             var thumbnail: Upload<ImageUploadMetadata>? = null
             var preview: Upload<ImageUploadMetadata>? = null
             var user: User? = null

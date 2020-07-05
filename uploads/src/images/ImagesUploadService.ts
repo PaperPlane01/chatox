@@ -101,7 +101,6 @@ export class ImagesUploadService {
            meta: {
                width: imageDimensions.width,
                height: imageDimensions.height,
-               thumbnailId: imageThumbnail.id
            },
            originalName: options.multipartFile.originalname,
            type: UploadType.IMAGE,

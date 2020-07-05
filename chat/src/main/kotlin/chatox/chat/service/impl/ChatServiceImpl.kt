@@ -96,30 +96,35 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 }
             }
 
-            var avatar: Upload<Any>? = chat.avatar as Upload<Any>?
+            var avatar: Upload<ImageUploadMetadata>? = chat.avatar
 
             if (updateChatRequest.avatarId != null) {
-                avatar = uploadRepository.findById(updateChatRequest.avatarId).awaitFirstOrNull()
+                avatar = uploadRepository.findByIdAndType<ImageUploadMetadata>(
+                        updateChatRequest.avatarId,
+                        UploadType.IMAGE
+                ).awaitFirstOrNull()
 
                 if (avatar == null) {
-                    throw UploadNotFoundException("Could not find avatar with id ${updateChatRequest.avatarId}")
+                    throw UploadNotFoundException("Could not find image with id ${updateChatRequest.avatarId}")
                 }
 
-                if (avatar.type != UploadType.IMAGE) {
-                    throw WrongUploadTypeException("Avatar must have ${UploadType.IMAGE} type, however file with id ${updateChatRequest.avatarId} has ${avatar.type} type")
-                }
+                println(avatar)
+                println(avatar.meta!!::class)
             }
 
             chat = chat.copy(
                     name = updateChatRequest.name,
-                    avatar = avatar as Upload<ImageUploadMetadata>?,
+                    avatar = avatar,
                     slug = updateChatRequest.slug ?: chat.id,
                     tags = updateChatRequest.tags ?: arrayListOf(),
                     description = updateChatRequest.description
             )
 
             chat = chatRepository.save(chat).awaitFirst()
-            chatEventsPublisher.chatUpdated(chatMapper.toChatUpdated(chat))
+            val chatUpdatedEvent = chatMapper.toChatUpdated(chat)
+            println(chatUpdatedEvent)
+            println(chatUpdatedEvent.avatar!!.meta!!::class.java.canonicalName)
+            chatEventsPublisher.chatUpdated(chatUpdatedEvent)
 
             chatMapper.toChatResponse(chat)
         }
