@@ -2,7 +2,7 @@ import {action, computed, reaction} from "mobx";
 import SocketIo from "socket.io-client";
 import {AuthorizationStore} from "../../Authorization/stores";
 import {EntitiesStore} from "../../entities-store";
-import {MessagesDeleted, WebsocketEvent, WebsocketEventType} from "../../api/types/websocket";
+import {ChatUpdated, MessagesDeleted, WebsocketEvent, WebsocketEventType} from "../../api/types/websocket";
 import {Message, ChatBlocking, ChatParticipation} from "../../api/types/response";
 
 export class WebsocketStore {
@@ -81,7 +81,11 @@ export class WebsocketStore {
             this.socketIoClient.on(
                 WebsocketEventType.CHAT_PARTICIPANT_WENT_OFFLINE,
                 (event: WebsocketEvent<ChatParticipation>) => this.entities.insertChatParticipation(event.payload)
-            )
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_UPDATED,
+                (event: WebsocketEvent<ChatUpdated>) => this.entities.updateChat(event.payload)
+            );
         }
     };
 
@@ -97,5 +101,5 @@ export class WebsocketStore {
         if (this.socketIoClient) {
             this.socketIoClient.emit(WebsocketEventType.CHAT_UNSUBSCRIPTION, {chatId});
         }
-    }
+    };
 }

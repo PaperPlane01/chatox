@@ -14,7 +14,7 @@ import {parse} from "querystring";
 import {ChatSubscription, ChatUnsubscription, EventType, JwtPayload, MessageDeleted, WebsocketEvent} from "./types";
 import {MessagesDeleted} from "./types/MessagesDeleted";
 import {SessionActivityStatusResponse} from "./types/SessionActivityStatusResponse";
-import {ChatBlocking, ChatMessage} from "../common/types";
+import {Chat, ChatBlocking, ChatMessage} from "../common/types";
 import {ChatParticipationService} from "../chat-participation";
 import {ChatParticipationDto} from "../chat-participation/types";
 
@@ -216,6 +216,15 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             this.publishEventToChatParticipants(participant.chatId, chatParticipantWentOffline);
             this.publishEventToUsersSubscribedToChat(participant.chatId, chatParticipantWentOffline);
         })
+    }
+
+    public async publishChatUpdated(chat: Chat) {
+        const chatUpdated: WebsocketEvent<Chat> = {
+            payload: chat,
+            type: EventType.CHAT_UPDATED
+        };
+        this.publishEventToChatParticipants(chat.id, chatUpdated);
+        this.publishEventToUsersSubscribedToChat(chat.id, chatUpdated);
     }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {

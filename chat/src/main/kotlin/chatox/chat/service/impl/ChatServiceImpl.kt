@@ -107,9 +107,6 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 if (avatar == null) {
                     throw UploadNotFoundException("Could not find image with id ${updateChatRequest.avatarId}")
                 }
-
-                println(avatar)
-                println(avatar.meta!!::class)
             }
 
             chat = chat.copy(
@@ -122,8 +119,6 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
             chat = chatRepository.save(chat).awaitFirst()
             val chatUpdatedEvent = chatMapper.toChatUpdated(chat)
-            println(chatUpdatedEvent)
-            println(chatUpdatedEvent.avatar!!.meta!!::class.java.canonicalName)
             chatEventsPublisher.chatUpdated(chatUpdatedEvent)
 
             chatMapper.toChatResponse(chat)

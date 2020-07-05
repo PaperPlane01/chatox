@@ -2,6 +2,7 @@ import {action, computed} from "mobx";
 import {ChatParticipationsStore, ChatsStore} from "../Chat";
 import {UsersStore} from "../User";
 import {
+    Chat,
     ChatBlocking,
     ChatOfCurrentUser,
     ChatParticipation,
@@ -14,6 +15,7 @@ import {MessagesStore} from "../Message";
 import {AuthorizationStore} from "../Authorization";
 import {ChatBlockingsStore} from "../ChatBlocking/stores";
 import {UploadsStore} from "../Upload/stores";
+import {ChatUpdated} from "../api/types/websocket";
 
 export class EntitiesStore {
     private authorizationStore: AuthorizationStore;
@@ -62,6 +64,24 @@ export class EntitiesStore {
 
         this.messages.insert(message);
         this.chats.addMessageToChat(message.chatId, message.id);
+    };
+
+    @action
+    updateChat = (chatUpdated: ChatUpdated): void => {
+        const chat = this.chats.findByIdOptional(chatUpdated.id);
+
+        if (chat) {
+            if (chatUpdated.avatar) {
+                this.uploads.insert(chatUpdated.avatar);
+            }
+
+            chat.name = chatUpdated.name;
+            chat.slug = chatUpdated.slug;
+            chat.avatarId = chatUpdated.avatar ? chatUpdated.avatar.id : undefined;
+            chat.description = chatUpdated.description;
+
+            this.chats.insertEntity(chat);
+        }
     };
 
     @action
