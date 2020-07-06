@@ -11,7 +11,9 @@ import {
     ChatParticipantsStore,
     JoinChatStore,
     ChatInfoDialogStore,
-    OnlineChatParticipantsStore
+    OnlineChatParticipantsStore,
+    UploadChatAvatarStore,
+    UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
@@ -26,20 +28,24 @@ import {
     ChatBlockingsDialogStore,
     CancelChatBlockingStore,
     ChatBlockingInfoDialogStore,
-    UpdateChatBlockingStore, BlockUserInChatByIdOrSlugStore
+    UpdateChatBlockingStore,
+    BlockUserInChatByIdOrSlugStore
 } from "../ChatBlocking";
+import {UploadsStore} from "../Upload";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
 const usersStore = new UsersStore();
 const chatParticipations = new ChatParticipationsStore();
 const chatBlockings = new ChatBlockingsStore(usersStore);
+const uploads = new UploadsStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
     usersStore,
     chatParticipations,
-    chatBlockings
+    chatBlockings,
+    uploads
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -68,6 +74,8 @@ const updateChatBlocking = new UpdateChatBlockingStore(entities);
 const chatInfoDialog = new ChatInfoDialogStore();
 const blockUserInChatByIdOrSlug = new BlockUserInChatByIdOrSlugStore(entities, createChatBlocking);
 const onlineChatParticipants = new OnlineChatParticipantsStore(entities, chat);
+const chatAvatarUpload = new UploadChatAvatarStore(entities);
+const chatUpdate = new UpdateChatStore(chatAvatarUpload, chat, entities);
 
 export const store: IAppState = {
     authorization,
@@ -94,7 +102,9 @@ export const store: IAppState = {
     updateChatBlocking,
     chatInfoDialog,
     blockUserInChatByIdOrSlug,
-    onlineChatParticipants
+    onlineChatParticipants,
+    chatAvatarUpload,
+    chatUpdate
 };
 
 export interface MapMobxToProps<ComponentProps = {}> {

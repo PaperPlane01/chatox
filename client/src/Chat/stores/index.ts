@@ -8,3 +8,5 @@ export * from "./ChatParticipantsStore";
 export * from "./JoinChatStore";
 export * from "./ChatInfoDialogStore";
 export * from "./OnlineChatParticipantsStore";
+export * from "./UploadChatAvatarStore";
+export * from "./UpdateChatStore";

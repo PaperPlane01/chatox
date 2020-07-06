@@ -9,6 +9,7 @@ import {
     ChatParticipationWithoutUser
 } from "../types/response";
 import {CHAT, IS_AVAILABLE, JOIN, LEAVE, MY, ONLINE, PARTICIPANTS, SLUG} from "../endpoints";
+import {UpdateChatRequest} from "../types/request/UpdateChatRequest";
 
 export class ChatApi {
 
@@ -42,5 +43,9 @@ export class ChatApi {
 
     public static getOnlineChatParticipants(chatId: string): AxiosPromise<ChatParticipation[]> {
         return axiosInstance.get(`/${CHAT}/${chatId}/${PARTICIPANTS}/${ONLINE}`);
+    }
+
+    public static updateChat(chatId: string, updateChatRequest: UpdateChatRequest): AxiosPromise<ChatOfCurrentUser> {
+        return axiosInstance.put(`/${CHAT}/${chatId}`, updateChatRequest);
     }
 }

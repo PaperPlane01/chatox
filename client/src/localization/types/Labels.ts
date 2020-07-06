@@ -130,5 +130,14 @@ export interface Labels {
     "chat.blocking.user-id-or-slug.unknown-error": string,
     "chat.online-participants-count": string,
     "user.profile.last-seen": string,
-    "user.profile.online": string
+    "user.profile.online": string,
+    "upload.file.too-large": string,
+    "chat.avatar.upload": string,
+    "chat.update": string,
+    "chat.update.save-changes": string,
+    "chat.edit": string,
+    "chat.update.success": string,
+    "chat.update.no-permission": string,
+    "chat.update.unexpected-error": string,
+    "chat.update.api-unreachable": string
 }

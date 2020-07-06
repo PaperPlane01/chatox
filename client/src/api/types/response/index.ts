@@ -11,3 +11,8 @@ export * from "./ChatParticipation";
 export * from "./ChatRole";
 export * from "./ChatParticipationWithoutUser";
 export * from "./ChatBlocking";
+export * from "./Upload";
+export * from "./AudioUploadMetadata";
+export * from "./ImageUploadMetadata";
+export * from "./VideoUploadMetadata";
+export * from "./GifUploadMetadata";

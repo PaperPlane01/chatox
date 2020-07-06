@@ -3,6 +3,7 @@ package chatox.chat.messaging.rabbitmq.event.publisher
 import chatox.chat.api.response.ChatBlockingResponse
 import chatox.chat.api.response.ChatParticipationResponse
 import chatox.chat.api.response.MessageResponse
+import chatox.chat.messaging.rabbitmq.event.ChatUpdated
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
 
@@ -91,5 +92,11 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.events",
             "chat.participants.offline.#",
             chatParticipants
+    )
+
+    fun chatUpdated(chatUpdated: ChatUpdated) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.updated.#",
+            chatUpdated
     )
 }

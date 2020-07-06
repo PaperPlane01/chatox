@@ -132,5 +132,14 @@ export const en: Labels = {
     "chat.blocking.user-id-or-slug.unknown-error": "Error occurred when tried to check user ID, server responded with {errorStatus} status",
     "chat.online-participants-count": "{onlineParticipantsCount} participants online",
     "user.profile.last-seen": "Last seen: {lastSeenLabel}",
-    "user.profile.online": "Online"
+    "user.profile.online": "Online",
+    "upload.file.too-large": "Selected file is too large",
+    "chat.avatar.upload": "Upload avatar",
+    "chat.update": "Update chat {chatName}",
+    "chat.update.save-changes": "Save changes",
+    "chat.edit": "Edit chat",
+    "chat.update.success": "Chat has been updated",
+    "chat.update.no-permission": "You don't have permission to update chat",
+    "chat.update.unexpected-error": "Unexpected error occurred when tried to update chat. Server responded with {errorStatus} status",
+    "chat.update.api-unreachable": "Error occurred when tried to update chat: server is unreachable"
 };

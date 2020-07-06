@@ -67,6 +67,9 @@ export class EnvConfig {
     @Env({type: "number", required: true})
     RABBITMQ_PORT: number;
 
+    @Env({type: "string", required: true})
+    API_HOST: string;
+
     @Env({type: "string", required: false})
     JWT_PUBLIC_KEY: string = `-----BEGIN CERTIFICATE-----
 MIIDdTCCAl2gAwIBAgIEaWzSsDANBgkqhkiG9w0BAQsFADBrMRAwDgYDVQQGEwdV

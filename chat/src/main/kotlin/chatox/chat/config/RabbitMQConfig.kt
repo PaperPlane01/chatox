@@ -85,11 +85,47 @@ class RabbitMQConfig {
     fun uploadEvents() = TopicExchange("upload.events")
 
     @Bean
-    fun uploadCreated() = Queue("chat_service_upload_created")
+    fun imageCreated() = Queue("chat_service_image_created")
 
     @Bean
-    fun uploadCreatedBinding(): Binding = BindingBuilder
-            .bind(uploadCreated())
+    fun gifCreated() = Queue("chat_service_gif_created")
+
+    @Bean
+    fun videoCreated() = Queue("chat_service_video_created")
+
+    @Bean
+    fun audioCreated() = Queue("chat_service_audio_created")
+
+    @Bean
+    fun fileCreated() = Queue("chat_service_file_created")
+
+    @Bean
+    fun imageCreatedBinding(): Binding = BindingBuilder
+            .bind(imageCreated())
             .to(uploadEvents())
-            .with("upload.created.#")
+            .with("upload.image.created.#")
+
+    @Bean
+    fun gifCreatedBinding(): Binding = BindingBuilder
+            .bind(gifCreated())
+            .to(uploadEvents())
+            .with("upload.gif.created.#")
+
+    @Bean
+    fun videoCreatedBinding(): Binding = BindingBuilder
+            .bind(videoCreated())
+            .to(uploadEvents())
+            .with("upload.video.created.#")
+
+    @Bean
+    fun audioCreatedBinding(): Binding = BindingBuilder
+            .bind(audioCreated())
+            .to(uploadEvents())
+            .with("upload.audio.created.#")
+
+    @Bean
+    fun fileCreatedBinding(): Binding = BindingBuilder
+            .bind(fileCreated())
+            .to(uploadEvents())
+            .with("upload.file.created.#")
 }

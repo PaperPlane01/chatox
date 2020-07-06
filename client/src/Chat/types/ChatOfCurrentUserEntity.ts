@@ -11,5 +11,8 @@ export interface ChatOfCurrentUserEntity {
     participantsCount: number,
     participants: string[],
     currentUserParticipationId?: string,
-    description?: string
+    description?: string,
+    avatarId?: string,
+    createdByCurrentUser: boolean,
+    tags: string[]
 }

@@ -19,9 +19,11 @@
     "@types/react-dom": "^16.9.0",
     "@types/react-headroom": "^2.2.1",
     "@types/socket.io-client": "^1.4.32",
+    "@types/uuid": "^8.0.0",
     "axios": "^0.19.2",
     "date-fns": "^2.11.0",
     "lodash": "^4.17.15",
+    "material-ui-chip-input": "^1.1.0",
     "mobx": "^5.15.1",
     "mobx-react": "^6.1.4",
     "mobx-router": "^0.0.20",
@@ -38,7 +40,8 @@
     "react-visibility-sensor": "^5.1.1",
     "remark-breaks": "^1.0.3",
     "socket.io-client": "^2.3.0",
-    "typescript": "~3.7.2"
+    "typescript": "~3.7.2",
+    "uuid": "^8.1.0"
   },
   "scripts": {
     "start": "react-scripts start",

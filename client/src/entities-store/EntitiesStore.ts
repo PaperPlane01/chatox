@@ -2,6 +2,7 @@ import {action, computed} from "mobx";
 import {ChatParticipationsStore, ChatsStore} from "../Chat";
 import {UsersStore} from "../User";
 import {
+    Chat,
     ChatBlocking,
     ChatOfCurrentUser,
     ChatParticipation,
@@ -13,7 +14,8 @@ import {
 import {MessagesStore} from "../Message";
 import {AuthorizationStore} from "../Authorization";
 import {ChatBlockingsStore} from "../ChatBlocking/stores";
-import {isChatBlockingActive} from "../ChatBlocking/utils";
+import {UploadsStore} from "../Upload/stores";
+import {ChatUpdated} from "../api/types/websocket";
 
 export class EntitiesStore {
     private authorizationStore: AuthorizationStore;
@@ -32,7 +34,8 @@ export class EntitiesStore {
         public chats: ChatsStore,
         public users: UsersStore,
         public chatParticipations: ChatParticipationsStore,
-        public chatBlockings: ChatBlockingsStore
+        public chatBlockings: ChatBlockingsStore,
+        public uploads: UploadsStore
     ) {
     }
 
@@ -64,6 +67,24 @@ export class EntitiesStore {
     };
 
     @action
+    updateChat = (chatUpdated: ChatUpdated): void => {
+        const chat = this.chats.findByIdOptional(chatUpdated.id);
+
+        if (chat) {
+            if (chatUpdated.avatar) {
+                this.uploads.insert(chatUpdated.avatar);
+            }
+
+            chat.name = chatUpdated.name;
+            chat.slug = chatUpdated.slug;
+            chat.avatarId = chatUpdated.avatar ? chatUpdated.avatar.id : undefined;
+            chat.description = chatUpdated.description;
+
+            this.chats.insertEntity(chat);
+        }
+    };
+
+    @action
     insertChats = (chatsOfCurrentUser: ChatOfCurrentUser[]): void => {
         chatsOfCurrentUser.forEach(chat => this.insertChat(chat));
     };
@@ -78,6 +99,10 @@ export class EntitiesStore {
 
         if (chatOfCurrentUser.lastReadMessage) {
             this.insertMessage(chatOfCurrentUser.lastReadMessage);
+        }
+
+        if (chatOfCurrentUser.avatar) {
+            this.uploads.insert(chatOfCurrentUser.avatar);
         }
 
         if (this.currentUser && chatOfCurrentUser.chatParticipation) {

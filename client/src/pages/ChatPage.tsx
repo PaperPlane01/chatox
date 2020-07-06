@@ -1,6 +1,13 @@
 import React, {FunctionComponent} from "react";
 import {Grid, Hidden} from "@material-ui/core";
-import {ChatAppBar, ChatInfoContainer, ChatInfoDialog, ChatsOfCurrentUserList, MessagesList} from "../Chat";
+import {
+    ChatAppBar,
+    ChatInfoContainer,
+    ChatInfoDialog,
+    ChatsOfCurrentUserList,
+    MessagesList,
+    UpdateChatDialog
+} from "../Chat";
 import {MessagesListBottom} from "../Message";
 import {
     BlockUserInChatByIdOrSlugDialog,
@@ -44,6 +51,7 @@ export const ChatPage: FunctionComponent = () => (
             <UpdateChatBlockingDialog/>
             <ChatInfoDialog/>
             <BlockUserInChatByIdOrSlugDialog/>
+            <UpdateChatDialog/>
         </Grid>
     </ScrollLock>
 );

@@ -85,6 +85,7 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
                                 <Avatar avatarLetter={getAvatarLabel(chat.name)}
                                         avatarColor={randomColor({seed: chat.id})}
                                         avatarUri={chat.avatarUri}
+                                        avatarId={chat.avatarId}
                                 />
                             </div>
                         )}
