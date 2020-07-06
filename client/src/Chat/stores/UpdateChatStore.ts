@@ -61,9 +61,7 @@ export class UpdateChatStore {
 
     @computed
     get avatarUploadPending(): boolean {
-        return Boolean(
-            this.uploadChatAvatarStore.avatarContainer && this.uploadChatAvatarStore.avatarContainer.pending
-        );
+        return this.uploadChatAvatarStore.pending;
     }
 
     @computed
@@ -75,6 +73,8 @@ export class UpdateChatStore {
     get currentChatSlug(): string | undefined {
         if (this.selectedChat) {
             return this.entities.chats.findById(this.selectedChat).slug;
+        } else {
+            return undefined;
         }
     }
 

@@ -105,6 +105,7 @@ const _UpdateChatDialog: FunctionComponent<UpdateChatDialogProps> = ({
     updateChatDialogOpen,
     pending,
     checkingSlugAvailability,
+    avatarUploadPending,
     error,
     setUpdateChatDialogOpen,
     updateChat,
@@ -210,7 +211,7 @@ const _UpdateChatDialog: FunctionComponent<UpdateChatDialogProps> = ({
                 <Button variant="contained"
                         color="primary"
                         onClick={() => updateChat()}
-                        disabled={pending}
+                        disabled={pending || avatarUploadPending || checkingSlugAvailability}
                 >
                     {pending && <CircularProgress size={25} color="primary"/>}
                     {l("chat.update.save-changes")}
