@@ -4,13 +4,13 @@ import {IconButton, Menu} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {ChatBlockingsMenuItem} from "./ChatBlockingsMenuItem";
 import {BlockUserInChatByIdOrSlugMenuItem} from "./BlockUserInChatByIdOrSlugMenuItem";
+import {EditChatMenuItem} from "./EditChatMenuItem";
 import {FindChatParticipationByUserAndChatOptions} from "../stores";
 import {ChatOfCurrentUserEntity, ChatParticipationEntity} from "../types";
 import {canUpdateChat} from "../permissions";
 import {CurrentUser} from "../../api/types/response";
 import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
 import {MapMobxToProps} from "../../store";
-import {EditChatMenuItem} from "./EditChatMenuItem";
 
 interface ChatMenuMobxProps {
     selectedChatId?: string,
