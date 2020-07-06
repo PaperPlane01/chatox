@@ -137,5 +137,9 @@ export const ru: Labels = {
     "chat.avatar.upload": "Загрузить аватар",
     "chat.update": "Обновить чат {chatName}",
     "chat.update.save-changes": "Сохранить",
-    "chat.edit": "Редактировать чат"
+    "chat.edit": "Редактировать чат",
+    "chat.update.success": "Чат обновлён",
+    "chat.update.no-permission": "У вас нет прав на обновление чата",
+    "chat.update.unexpected-error": "Во время попытки обновить чат произошла непредвиденная ошибка. Сервер ответил со статусом {errorStatus}",
+    "chat.update.api-unreachable": "Во время попытки обновить чат произошла ошибка: сервер недоступен"
 };

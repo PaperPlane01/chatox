@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {inject, observer} from "mobx-react";
 import {
     Button,
@@ -18,8 +18,8 @@ import {ChatAvatarUpload} from "./ChatAvatarUpload";
 import {MakrdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {ChatOfCurrentUserEntity, TagErrorsMapContainer, UpdateChatFormData} from "../types";
 import {FormErrors} from "../../utils/types";
-import {ApiError} from "../../api";
-import {localized, Localized} from "../../localization";
+import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
+import {Language, localized, Localized, TranslationFunction} from "../../localization";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
 import {MapMobxToProps} from "../../store";
 
@@ -40,6 +40,65 @@ interface UpdateChatDialogMobxProps {
 
 type UpdateChatDialogProps = UpdateChatDialogMobxProps & Localized & WithMobileDialog;
 
+const notFoundErrorTranslations = {
+    en: () => (
+        <Typography variant="body1"
+                    style={{color: "red"}}
+        >
+            Server responded with 404 status when tried to update chat. This may occur due to the following reasons:
+            <ul>
+                <li>
+                    Chat you are trying to update no longer exists
+                </li>
+                <li>
+                    If your update contains avatar image, it may have not been uploaded properly. Try to re-upload it
+                </li>
+            </ul>
+        </Typography>
+    ),
+    ru: () => (
+        <Typography variant="body1"
+                    style={{color: "red"}}
+        >
+            При попытке обновить чат сервер ответил со статусом 404. Это может произойти по следующим причинам:
+            <ul>
+                <li>
+                    Чат, который вы пытаетесь обновить, был удалён
+                </li>
+                <li>
+                    Если вы пытаетесь поменять аватар чата, он мог быть загружен некорректно. Попытайтесь перезагрузить картинку
+                </li>
+            </ul>
+        </Typography>
+    )
+};
+
+const getErrorNode = (error: ApiError, l: TranslationFunction, language: Language): ReactNode => {
+    if (error.status !== 404) {
+        let errorText: string;
+
+        if (error.status === 409) {
+            errorText = l("chat.slug.has-already-been-taken");
+        } else if (error.status === 403) {
+            errorText = l("chat.update.no-permission");
+        } else if (error.status === API_UNREACHABLE_STATUS) {
+            errorText = l("chat.update.api-unreachable");
+        } else {
+            errorText = l("chat.update.unexpected-error", {errorStatus: error.status});
+        }
+
+        return (
+            <Typography variant="body1"
+                        style={{color: "red"}}
+            >
+                {errorText}
+            </Typography>
+        )
+    } else {
+        return notFoundErrorTranslations[language]();
+    }
+};
+
 const _UpdateChatDialog: FunctionComponent<UpdateChatDialogProps> = ({
     updateChatForm,
     formErrors,
@@ -53,6 +112,7 @@ const _UpdateChatDialog: FunctionComponent<UpdateChatDialogProps> = ({
     selectedChatId,
     findChat,
     l,
+    locale,
     fullScreen
 }) => {
     if (!selectedChatId) {
@@ -138,23 +198,24 @@ const _UpdateChatDialog: FunctionComponent<UpdateChatDialogProps> = ({
                            }
                            onChange={tags => setFormValue("tags", tags as string[])}
                 />
-                <DialogActions>
-                    <Button variant="outlined"
-                            color="secondary"
-                            onClick={() => setUpdateChatDialogOpen(false)}
-                    >
-                        {l("close")}
-                    </Button>
-                    <Button variant="contained"
-                            color="primary"
-                            onClick={() => updateChat()}
-                            disabled={pending}
-                    >
-                        {pending && <CircularProgress size={25} color="primary"/>}
-                        {l("chat.update.save-changes")}
-                    </Button>
-                </DialogActions>
+                {error && getErrorNode(error, l, locale)}
             </DialogContent>
+            <DialogActions>
+                <Button variant="outlined"
+                        color="secondary"
+                        onClick={() => setUpdateChatDialogOpen(false)}
+                >
+                    {l("close")}
+                </Button>
+                <Button variant="contained"
+                        color="primary"
+                        onClick={() => updateChat()}
+                        disabled={pending}
+                >
+                    {pending && <CircularProgress size={25} color="primary"/>}
+                    {l("chat.update.save-changes")}
+                </Button>
+            </DialogActions>
             <MakrdownPreviewDialog text={updateChatForm.description || ""}/>
         </Dialog>
     )

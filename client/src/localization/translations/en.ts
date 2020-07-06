@@ -137,5 +137,9 @@ export const en: Labels = {
     "chat.avatar.upload": "Upload avatar",
     "chat.update": "Update chat {chatName}",
     "chat.update.save-changes": "Save changes",
-    "chat.edit": "Edit chat"
+    "chat.edit": "Edit chat",
+    "chat.update.success": "Chat has been updated",
+    "chat.update.no-permission": "You don't have permission to update chat",
+    "chat.update.unexpected-error": "Unexpected error occurred when tried to update chat. Server responded with {errorStatus} status",
+    "chat.update.api-unreachable": "Error occurred when tried to update chat: server is unreachable"
 };
