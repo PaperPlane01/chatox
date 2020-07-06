@@ -1,6 +1,6 @@
 import React, {FunctionComponent, useState} from "react";
 import {inject, observer} from "mobx-react";
-import {Button, CircularProgress, Typography, createStyles, makeStyles} from "@material-ui/core";
+import {Button, CircularProgress, Typography, createStyles, makeStyles, Theme} from "@material-ui/core";
 import {Image} from "@material-ui/icons";
 import randomColor from "randomcolor";
 import {Avatar} from "../../Avatar";
@@ -25,12 +25,15 @@ interface ChatAvatarUploadMobxProps {
 
 type ChatAvatarUploadProps = ChatAvatarUploadMobxProps & Localized;
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles((theme: Theme) => createStyles({
     centered: {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        height: "100%"
+        flexDirection: "column"
+    },
+    avatarUploadButton: {
+        marginTop: theme.spacing(1)
     }
 }));
 
@@ -66,6 +69,7 @@ const _ChatAvatarUpload: FunctionComponent<ChatAvatarUploadProps> = ({
                     color="primary"
                     disabled={pending}
                     component="label"
+                    className={classes.avatarUploadButton}
             >
                 {pending && <CircularProgress color="primary" size={25}/>}
                 {!pending && <Image/>}
