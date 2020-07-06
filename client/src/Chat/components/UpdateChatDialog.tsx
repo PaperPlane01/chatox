@@ -14,6 +14,7 @@ import {
     WithMobileDialog
 } from "@material-ui/core";
 import ChipInput from "material-ui-chip-input";
+import {withSnackbar, WithSnackbarProps} from "notistack";
 import {ChatAvatarUpload} from "./ChatAvatarUpload";
 import {MakrdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {ChatOfCurrentUserEntity, TagErrorsMapContainer, UpdateChatFormData} from "../types";
@@ -32,13 +33,15 @@ interface UpdateChatDialogMobxProps {
     checkingSlugAvailability: boolean,
     error?: ApiError,
     selectedChatId?: string,
+    showSnackbar: boolean,
     setFormValue: <Key extends keyof UpdateChatFormData>(key: Key, value: UpdateChatFormData[Key]) => void,
     updateChat: () => void,
     setUpdateChatDialogOpen: (updateChatDialogOpen: boolean) => void,
-    findChat: (id: string) => ChatOfCurrentUserEntity
+    findChat: (id: string) => ChatOfCurrentUserEntity,
+    setShowSnackbar: (showSnackbar: boolean) => void
 }
 
-type UpdateChatDialogProps = UpdateChatDialogMobxProps & Localized & WithMobileDialog;
+type UpdateChatDialogProps = UpdateChatDialogMobxProps & Localized & WithMobileDialog & WithSnackbarProps;
 
 const notFoundErrorTranslations = {
     en: () => (
@@ -107,17 +110,25 @@ const _UpdateChatDialog: FunctionComponent<UpdateChatDialogProps> = ({
     checkingSlugAvailability,
     avatarUploadPending,
     error,
+    showSnackbar,
     setUpdateChatDialogOpen,
     updateChat,
     setFormValue,
     selectedChatId,
     findChat,
+    setShowSnackbar,
     l,
     locale,
-    fullScreen
+    fullScreen,
+    enqueueSnackbar
 }) => {
     if (!selectedChatId) {
         return null;
+    }
+
+    if (showSnackbar) {
+        enqueueSnackbar(l("chat.update.success"));
+        setShowSnackbar(false);
     }
 
     const chat = findChat(selectedChatId);
@@ -238,11 +249,15 @@ const mapMobxToProps: MapMobxToProps<UpdateChatDialogMobxProps> = ({
     setFormValue: chatUpdate.setFormValue,
     setUpdateChatDialogOpen: chatUpdate.setUpdateChatDialogOpen,
     updateChat: chatUpdate.updateChat,
-    findChat: entities.chats.findById
+    findChat: entities.chats.findById,
+    showSnackbar: chatUpdate.showSnackbar,
+    setShowSnackbar: chatUpdate.setShowSnackbar
 });
 
 export const UpdateChatDialog = withMobileDialog()(
-    localized(
-        inject(mapMobxToProps)(observer(_UpdateChatDialog))
-    ) as FunctionComponent
+    withSnackbar(
+        localized(
+            inject(mapMobxToProps)(observer(_UpdateChatDialog))
+        ) as FunctionComponent
+    )
 );

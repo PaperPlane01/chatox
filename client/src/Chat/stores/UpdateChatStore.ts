@@ -49,6 +49,9 @@ export class UpdateChatStore {
     @observable
     error?: ApiError = undefined;
 
+    @observable
+    showSnackbar: boolean = false;
+
     @computed
     get avatarFileContainer(): UploadedFileContainer<ImageUploadMetadata> | undefined {
         return this.uploadChatAvatarStore.avatarContainer;
@@ -152,6 +155,11 @@ export class UpdateChatStore {
     };
 
     @action
+    setShowSnackbar = (showSnackbar: boolean): void => {
+        this.showSnackbar = showSnackbar;
+    };
+
+    @action
     updateChat = (): void => {
         const chatId = this.selectedChat;
 
@@ -176,6 +184,7 @@ export class UpdateChatStore {
             .then(({data}) => {
                 this.entities.insertChat(data);
                 this.setUpdateChatDialogOpen(false);
+                this.setShowSnackbar(true);
             })
             .catch(error => this.error = getInitialApiErrorFromResponse(error))
             .finally(() => this.pending = false)
