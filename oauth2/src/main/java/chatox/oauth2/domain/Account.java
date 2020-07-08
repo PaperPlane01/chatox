@@ -48,4 +48,6 @@ public class Account {
 
     @Type(type = "jsonb")
     private List<String> userIds;
+
+    private String email;
 }
