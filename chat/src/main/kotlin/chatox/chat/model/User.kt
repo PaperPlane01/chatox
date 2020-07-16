@@ -18,5 +18,6 @@ data class User(
         var bio: String?,
         var createdAt: ZonedDateTime?,
         var dateOfBirth: ZonedDateTime?,
-        var online: Boolean?
+        var online: Boolean?,
+        var email: String?
 )

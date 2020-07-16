@@ -29,7 +29,8 @@ class AuthenticationFacade {
             bio = null,
             createdAt = ZonedDateTime.now(),
             dateOfBirth = null,
-            online = false
+            online = false,
+            email = null
     )
 
     fun getCurrentAuthentication() = ReactiveSecurityContextHolder.getContext()

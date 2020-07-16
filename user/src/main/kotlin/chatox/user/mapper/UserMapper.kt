@@ -12,7 +12,8 @@ class UserMapper {
     fun toUserResponse(
             user: User,
             online: Boolean = false,
-            mapAccountId: Boolean = false
+            mapAccountId: Boolean = false,
+            mapEmail: Boolean = false
     ) = UserResponse(
             id = user.id,
             slug = user.slug,
@@ -24,7 +25,8 @@ class UserMapper {
             lastSeen = user.lastSeen,
             avatarUri = user.avatarUri,
             dateOfBirth = user.dateOfBirth,
-            online = online
+            online = online,
+            email = if (mapEmail) user.email else null
     )
 
     fun fromCreateUserRequest(createUserRequest: CreateUserRequest) = User(
@@ -38,7 +40,8 @@ class UserMapper {
             avatarUri = null,
             bio = null,
             deleted = false,
-            dateOfBirth = null
+            dateOfBirth = null,
+            email = createUserRequest.email
     )
 
     fun mapUserUpdate(originalUser: User, updateUserRequest: UpdateUserRequest): User = originalUser.copy(

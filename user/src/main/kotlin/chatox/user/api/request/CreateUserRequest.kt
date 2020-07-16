@@ -13,5 +13,6 @@ data class CreateUserRequest(
         val firstName: String,
 
         val slug: String?,
-        val lastName: String?
+        val lastName: String?,
+        val email: String?
 )

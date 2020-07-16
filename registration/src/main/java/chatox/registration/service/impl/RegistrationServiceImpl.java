@@ -3,6 +3,7 @@ package chatox.registration.service.impl;
 import chatox.registration.api.request.CreateAccountRequest;
 import chatox.registration.api.request.CreateUserRequest;
 import chatox.registration.api.request.RegistrationRequest;
+import chatox.registration.api.response.CreateAccountResponse;
 import chatox.registration.api.response.RegistrationResponse;
 import chatox.registration.client.OAuthServiceClient;
 import chatox.registration.client.UserServiceClient;
@@ -31,6 +32,9 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .password(registrationRequest.getPassword())
                 .username(registrationRequest.getUsername())
                 .clientId(registrationRequest.getClientId())
+                .email(registrationRequest.getEmail())
+                .emailVerificationId(registrationRequest.getEmailVerificationId())
+                .emailVerificationConfirmationCode(registrationRequest.getEmailVerificationConfirmationCode())
                 .build();
 
         var createUserRequest = CreateUserRequest
@@ -40,6 +44,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .firstName(registrationRequest.getFirstName())
                 .lastName(registrationRequest.getLastName())
                 .slug(registrationRequest.getSlug())
+                .email(registrationRequest.getEmail())
                 .build();
 
         return oAuthServiceClient.createAccount(createAccountRequest)

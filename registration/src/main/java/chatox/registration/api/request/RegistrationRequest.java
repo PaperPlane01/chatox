@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 @Data
@@ -28,4 +29,10 @@ public class RegistrationRequest {
 
     @NotBlank(message = "Client id must be specified")
     private String clientId;
+
+    @Email(message = "Email must be a valid email")
+    private String email;
+
+    private String emailVerificationId;
+    private String emailVerificationConfirmationCode;
 }
