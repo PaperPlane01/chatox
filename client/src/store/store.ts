@@ -1,7 +1,12 @@
 import {IAppState} from "./IAppState";
 import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore} from "../Authorization";
-import {UserRegistrationStore} from "../Registration";
+import {
+    UserRegistrationStore,
+    SendVerificationEmailStore,
+    CheckEmailVerificationCodeStore,
+    RegistrationDialogStore
+} from "../Registration";
 import {
     ChatsStore,
     ChatsOfCurrentUserStore,
@@ -52,8 +57,11 @@ const authorization = new AuthorizationStore(entities);
 entities.setAuthorizationStore(authorization);
 
 const login = new LoginStore(authorization);
-const userRegistration = new UserRegistrationStore(authorization);
+const registrationDialog = new RegistrationDialogStore();
 const language = new LocaleStore();
+const sendVerificationEmail = new SendVerificationEmailStore(registrationDialog, language);
+const verificationCodeCheck = new CheckEmailVerificationCodeStore(registrationDialog, sendVerificationEmail);
+const userRegistration = new UserRegistrationStore(authorization, sendVerificationEmail);
 const appBar = new AppBarStore();
 const markdownPreviewDialog = new MarkdownPreviewDialogStore();
 const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entities);
@@ -104,7 +112,10 @@ export const store: IAppState = {
     blockUserInChatByIdOrSlug,
     onlineChatParticipants,
     chatAvatarUpload,
-    chatUpdate
+    chatUpdate,
+    sendVerificationEmail,
+    verificationCodeCheck,
+    registrationDialog
 };
 
 export interface MapMobxToProps<ComponentProps = {}> {

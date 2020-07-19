@@ -2,7 +2,12 @@ import {EntitiesStore} from "../entities-store";
 import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore} from "../Authorization";
-import {UserRegistrationStore} from "../Registration";
+import {
+    UserRegistrationStore,
+    SendVerificationEmailStore,
+    CheckEmailVerificationCodeStore,
+    RegistrationDialogStore
+} from "../Registration";
 import {
     ChatInfoDialogStore,
     ChatParticipantsStore,
@@ -56,5 +61,8 @@ export interface IAppState {
     onlineChatParticipants: OnlineChatParticipantsStore,
     chatAvatarUpload: UploadChatAvatarStore,
     chatUpdate: UpdateChatStore,
+    sendVerificationEmail: SendVerificationEmailStore,
+    verificationCodeCheck: CheckEmailVerificationCodeStore,
+    registrationDialog: RegistrationDialogStore,
     store?: any
 }

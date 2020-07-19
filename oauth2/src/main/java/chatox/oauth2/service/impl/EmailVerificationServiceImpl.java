@@ -1,10 +1,14 @@
 package chatox.oauth2.service.impl;
 
+import chatox.oauth2.api.request.CheckEmailVerificationCodeValidityRequest;
 import chatox.oauth2.api.request.SendVerificationEmailRequest;
+import chatox.oauth2.api.response.EmailAvailabilityResponse;
+import chatox.oauth2.api.response.EmailVerificationCodeValidityResponse;
 import chatox.oauth2.api.response.EmailVerificationResponse;
 import chatox.oauth2.domain.EmailVerification;
 import chatox.oauth2.domain.Language;
 import chatox.oauth2.exception.EmailHasAlreadyBeenTakenException;
+import chatox.oauth2.exception.EmailVerificationNotFoundException;
 import chatox.oauth2.mapper.EmailVerificationMapper;
 import chatox.oauth2.respository.AccountRepository;
 import chatox.oauth2.respository.EmailVerificationRepository;
@@ -95,5 +99,31 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
         javaMailSender.send(mimeMessagePreparator);
 
         return emailVerificationMapper.toEmailVerificationResponse(emailVerification);
+    }
+
+    @Override
+    public EmailAvailabilityResponse checkEmailAvailability(String email) {
+        boolean available = !accountRepository.existsByEmail(email);
+
+        if (available) {
+            available = !emailVerificationRepository.existsByEmailAndExpiresAtBeforeAndCompletedAtNull(
+                    email,
+                    ZonedDateTime.now().plusDays(1L)
+            );
+        }
+
+        return EmailAvailabilityResponse.builder().available(available).build();
+    }
+
+    @Override
+    public EmailVerificationCodeValidityResponse checkEmailVerificationCode(String emailVerificationId, CheckEmailVerificationCodeValidityRequest checkEmailVerificationCodeValidityRequest) {
+        EmailVerification emailVerification = emailVerificationRepository.findById(emailVerificationId)
+                .orElseThrow(() -> new EmailVerificationNotFoundException(
+                        String.format("Could not find email verification with id %s", emailVerificationId)
+                ));
+
+        boolean valid = passwordEncoder.matches(emailVerification.getVerificationCodeHash(), checkEmailVerificationCodeValidityRequest.getVerificationCode());
+
+        return EmailVerificationCodeValidityResponse.builder().valid(valid).build();
     }
 }

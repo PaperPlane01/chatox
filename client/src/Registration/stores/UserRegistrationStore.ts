@@ -13,6 +13,7 @@ import {API_UNREACHABLE_STATUS, ApiError, getInitialApiErrorFromResponse, UserAp
 import {RegistrationResponse} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {AuthorizationStore} from "../../Authorization";
+import {SendVerificationEmailStore} from "./SendVerificationEmailStore";
 
 export class UserRegistrationStore {
     @observable
@@ -56,11 +57,8 @@ export class UserRegistrationStore {
     @observable
     displayPassword: boolean = false;
 
-    private readonly authorizationStore: AuthorizationStore;
-
-    constructor(authorizationStore: AuthorizationStore) {
-        this.authorizationStore = authorizationStore;
-
+    constructor(private readonly authorizationStore: AuthorizationStore,
+                private readonly sendVerificationEmailStore: SendVerificationEmailStore) {
         this.checkUsernameAvailability = _.throttle(this.checkUsernameAvailability, 1000);
         this.checkSlugAvailability = _.throttle(this.checkSlugAvailability, 1000);
 

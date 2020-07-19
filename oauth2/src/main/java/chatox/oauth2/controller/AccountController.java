@@ -5,8 +5,10 @@ import chatox.oauth2.api.request.CreateAnonymousAccountRequest;
 import chatox.oauth2.api.request.UpdatePasswordRequest;
 import chatox.oauth2.api.response.AccountResponse;
 import chatox.oauth2.api.response.CreateAccountResponse;
+import chatox.oauth2.api.response.EmailAvailabilityResponse;
 import chatox.oauth2.api.response.UsernameAvailabilityResponse;
 import chatox.oauth2.service.AccountService;
+import chatox.oauth2.service.EmailVerificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +29,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
+    private final EmailVerificationService emailVerificationService;
 
     @PreAuthorize("#oauth2.hasScope('internal_create_account')")
     @PostMapping
@@ -57,6 +60,11 @@ public class AccountController {
     @GetMapping("/username/{username}/isAvailable")
     public UsernameAvailabilityResponse isUsernameAvailable(@PathVariable String username) {
         return accountService.isUsernameAvailable(username);
+    }
+
+    @GetMapping("/email/{email}/isAvailable")
+    public EmailAvailabilityResponse isEmailAvailable(@PathVariable String email) {
+        return emailVerificationService.checkEmailAvailability(email);
     }
 
     @PreAuthorize("#oauth2.hasScope('internal_update_account')")
