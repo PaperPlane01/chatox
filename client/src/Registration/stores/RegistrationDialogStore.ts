@@ -16,5 +16,11 @@ export class RegistrationDialogStore {
     @action
     setCurrentStep = (registrationStep: RegistrationStep): void => {
         this.currentStep = registrationStep;
+    };
+
+    @action
+    reset = () => {
+        this.registrationDialogOpen = false;
+        this.currentStep = RegistrationStep.SEND_VERIFICATION_EMAIL;
     }
 }

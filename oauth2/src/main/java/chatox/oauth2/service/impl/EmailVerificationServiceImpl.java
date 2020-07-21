@@ -122,7 +122,10 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
                         String.format("Could not find email verification with id %s", emailVerificationId)
                 ));
 
-        boolean valid = passwordEncoder.matches(emailVerification.getVerificationCodeHash(), checkEmailVerificationCodeValidityRequest.getVerificationCode());
+        boolean valid = passwordEncoder.matches(
+                checkEmailVerificationCodeValidityRequest.getVerificationCode(),
+                emailVerification.getVerificationCodeHash()
+        );
 
         return EmailVerificationCodeValidityResponse.builder().valid(valid).build();
     }

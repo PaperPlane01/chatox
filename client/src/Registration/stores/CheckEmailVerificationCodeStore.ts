@@ -39,7 +39,7 @@ export class CheckEmailVerificationCodeStore {
 
     @action
     setFormValue = <Key extends keyof CheckEmailVerificationCodeFormData>(key: Key, value: CheckEmailVerificationCodeFormData[Key]): void => {
-        this.checkEmailVerificationCodeForm[key] = value;
+        this.checkEmailVerificationCodeForm[key] = value.toUpperCase();
     };
 
     @action
@@ -54,7 +54,13 @@ export class CheckEmailVerificationCodeStore {
             this.emailVerification.id,
             {...this.checkEmailVerificationCodeForm}
         )
-            .then(() => this.registrationDialogStore.setCurrentStep(RegistrationStep.REGISTER))
+            .then(({data}) => {
+                if (data.valid) {
+                    this.registrationDialogStore.setCurrentStep(RegistrationStep.REGISTER);
+                } else {
+                    this.formErrors.verificationCode = "email.verification.code.invalid";
+                }
+            })
             .catch(error => this.error = getInitialApiErrorFromResponse(error))
             .finally(() => this.pending = false);
     };
@@ -68,4 +74,16 @@ export class CheckEmailVerificationCodeStore {
 
         return !Boolean(this.formErrors.verificationCode);
     };
+
+    @action
+    reset = () => {
+        this.checkEmailVerificationCodeForm = {
+            verificationCode: ""
+        };
+        this.error = undefined;
+        this.pending = false;
+        setTimeout(() => this.formErrors = {
+            verificationCode: undefined
+        });
+    }
 }

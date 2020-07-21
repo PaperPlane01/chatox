@@ -4,5 +4,8 @@ export interface RegistrationRequest {
     repeatedPassword: string,
     firstName: string,
     lastName?: string,
-    clientId: string
+    clientId: string,
+    email?: string,
+    emailVerificationId?: string,
+    emailVerificationConfirmationCode?: string
 }

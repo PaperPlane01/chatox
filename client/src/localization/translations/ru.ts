@@ -154,7 +154,10 @@ export const ru: Labels = {
     "registration.skip-email.limitations": "Мы не сможем восстановить ваш пароль в случае утери, если вы не предоставите свой e-mail. Также, некоторые чаты могут запретить пользователям без подтверждённого e-mail становиться участниками.",
     "registration.skip-email.are-you-sure": "Вы уверены?",
     "registration.skip-email.go-back": "Вернуться",
-    "registration.skip-email.continue": "Продолжить",
+    "registration.continue": "Всё равно продолжить",
+    "registration.continue-anyway": "Продолжить",
     "registration.provide-your-email": "Укажите свой e-mail",
     "email.verification.code.empty": "Код подтверждения не может быть пустым",
+    "registration.send-verification-email": "Отправить e-mail с кодом подтверждения",
+    "email.verification.code.enter": "Введите код потверждения"
 };

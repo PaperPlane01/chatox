@@ -154,7 +154,10 @@ export const en: Labels = {
     "registration.skip-email.limitations": "We won't be able to recover your password if you don't provide us your e-mail. Also, some chats may restrict users without verified e-mails to join.",
     "registration.skip-email.are-you-sure": "Are you sure?",
     "registration.skip-email.go-back": "Go back",
-    "registration.skip-email.continue": "Continue anyway",
+    "registration.continue": "Continue",
+    "registration.continue-anyway": "Continue away",
     "registration.provide-your-email": "Provide your e-mail",
     "email.verification.code.empty": "E-mail verification code can't be empty",
+    "registration.send-verification-email": "Send verification e-mail",
+    "email.verification.code.enter": "Enter verification code"
 };

@@ -52,8 +52,11 @@ export class SendVerificationEmailStore {
 
     @action
     sendVerificationEmail = (): void => {
+        console.log("Sending verification email");
         this.validateForm()
             .then(formValid => {
+                console.log(`Form valid: ${formValid}`);
+
                 if (!formValid) {
                     return;
                 }
@@ -111,7 +114,19 @@ export class SendVerificationEmailStore {
             }
 
             this.checkEmailAvailability()
-                .then(() => resolve(Boolean(this.formErrors.email)));
+                .then(() => resolve(!Boolean(this.formErrors.email)));
         })
     };
+
+    @action
+    reset = () => {
+        this.emailVerification = undefined;
+        this.sendVerificationEmailForm = {
+            email: ""
+        };
+        setTimeout(() => this.formErrors = {
+            email: undefined
+        });
+        this.error = undefined;
+    }
 }

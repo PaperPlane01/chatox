@@ -153,6 +153,9 @@ export interface Labels {
     "registration.skip-email.limitations": string,
     "registration.skip-email.are-you-sure": string,
     "registration.skip-email.go-back": string,
-    "registration.skip-email.continue": string,
-    "registration.provide-your-email": string
+    "registration.continue": string,
+    "registration.continue-anyway": string,
+    "registration.provide-your-email": string,
+    "registration.send-verification-email": string,
+    "email.verification.code.enter": string
 }

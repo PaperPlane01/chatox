@@ -61,7 +61,12 @@ const registrationDialog = new RegistrationDialogStore();
 const language = new LocaleStore();
 const sendVerificationEmail = new SendVerificationEmailStore(registrationDialog, language);
 const verificationCodeCheck = new CheckEmailVerificationCodeStore(registrationDialog, sendVerificationEmail);
-const userRegistration = new UserRegistrationStore(authorization, sendVerificationEmail);
+const userRegistration = new UserRegistrationStore(
+    authorization,
+    sendVerificationEmail,
+    verificationCodeCheck,
+    registrationDialog
+);
 const appBar = new AppBarStore();
 const markdownPreviewDialog = new MarkdownPreviewDialogStore();
 const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entities);
