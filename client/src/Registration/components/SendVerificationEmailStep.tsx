@@ -35,7 +35,7 @@ const getErrorText = (apiError: ApiError, l: TranslationFunction): string => {
     } else if (apiError.status === API_UNREACHABLE_STATUS) {
         return l("registration.send-verification-email.server-unreachable");
     } else {
-        l("registration.send-verification-email.unknown-error", {errorStatus: apiError.status})
+        return l("registration.send-verification-email.unknown-error", {errorStatus: apiError.status})
     }
 };
 
