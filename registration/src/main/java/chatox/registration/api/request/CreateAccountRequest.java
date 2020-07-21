@@ -15,4 +15,7 @@ public class CreateAccountRequest {
     private String username;
     private String password;
     private String clientId;
+    private String email;
+    private String emailVerificationId;
+    private String emailVerificationConfirmationCode;
 }

@@ -1,5 +1,8 @@
-import {action, observable, reaction} from "mobx";
+import {action, observable, reaction, computed} from "mobx";
 import _ from "lodash";
+import {SendVerificationEmailStore} from "./SendVerificationEmailStore";
+import {CheckEmailVerificationCodeStore} from "./CheckEmailVerificationCodeStore";
+import {RegistrationDialogStore} from "./RegistrationDialogStore";
 import {
     validateFirstName,
     validateLastName,
@@ -10,9 +13,10 @@ import {
 } from "../validation";
 import {RegisterUserFormData} from "../types";
 import {API_UNREACHABLE_STATUS, ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
-import {RegistrationResponse} from "../../api/types/response";
+import {EmailVerificationResponse, RegistrationResponse} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {AuthorizationStore} from "../../Authorization";
+import {isStringEmpty} from "../../utils/string-utils";
 
 export class UserRegistrationStore {
     @observable
@@ -56,11 +60,22 @@ export class UserRegistrationStore {
     @observable
     displayPassword: boolean = false;
 
-    private readonly authorizationStore: AuthorizationStore;
+    @computed
+    get emailVerification(): EmailVerificationResponse | undefined {
+        return this.sendVerificationEmailStore.emailVerification;
+    }
 
-    constructor(authorizationStore: AuthorizationStore) {
-        this.authorizationStore = authorizationStore;
+    @computed
+    get emailVerificationCode(): string | undefined {
+        return isStringEmpty(this.checkEmailVerificationCodeStore.checkEmailVerificationCodeForm.verificationCode)
+            ? undefined
+            : this.checkEmailVerificationCodeStore.checkEmailVerificationCodeForm.verificationCode
+    }
 
+    constructor(private readonly authorizationStore: AuthorizationStore,
+                private readonly sendVerificationEmailStore: SendVerificationEmailStore,
+                private readonly checkEmailVerificationCodeStore: CheckEmailVerificationCodeStore,
+                private readonly registrationDialogStore: RegistrationDialogStore) {
         this.checkUsernameAvailability = _.throttle(this.checkUsernameAvailability, 1000);
         this.checkSlugAvailability = _.throttle(this.checkSlugAvailability, 1000);
 
@@ -131,6 +146,9 @@ export class UserRegistrationStore {
 
                 UserApi.registerUser({
                     ...this.registrationForm,
+                    email: this.emailVerification && this.emailVerification.email,
+                    emailVerificationId: this.emailVerification && this.emailVerification.id,
+                    emailVerificationConfirmationCode: this.emailVerificationCode && this.emailVerificationCode,
                     clientId: process.env.REACT_APP_CLIENT_ID as string
                 })
                     .then(({data}) => {
@@ -148,6 +166,9 @@ export class UserRegistrationStore {
                         });
                         this.authorizationStore.setTokens(data.accessToken, data.refreshToken);
                         this.reset();
+                        this.registrationDialogStore.reset();
+                        this.sendVerificationEmailStore.reset();
+                        this.checkEmailVerificationCodeStore.reset();
                     })
                     .catch(error => {
                         const apiError = getInitialApiErrorFromResponse(error);

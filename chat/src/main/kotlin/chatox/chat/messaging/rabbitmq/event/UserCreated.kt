@@ -11,5 +11,6 @@ data class UserCreated(
         val lastName: String? = "",
         val createdAt: ZonedDateTime = ZonedDateTime.now(),
         val lastSeen: ZonedDateTime = ZonedDateTime.now(),
-        val avatarUri: String? = null
+        val avatarUri: String? = null,
+        var email: String? = null
 )

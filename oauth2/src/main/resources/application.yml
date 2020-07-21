@@ -13,6 +13,14 @@ spring:
       jdbc-url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/chatox-oauth2-service}
     username: ${POSTGRES_USER:admin}
     password: ${POSTGRES_PASSWORD:root}
+  mail:
+    host: ${OAUTH2_SERVICE_SPRING_MAIL_HOST}
+    username: ${OAUTH2_SERVICE_SPRING_MAIL_USERNAME}
+    password: ${OAUTH2_SERVICE_SPRING_MAIL_PASSWORD}
+    port: ${OAUTH2_SERVICE_SPRING_MAIL_PORT}
+    default-encoding: UTF-8
+    protocol: ${OAUTH2_SERVICE_SPRING_MAIL_PROTOCOL}
+    full-email: ${OAUTH2_SERVICE_FULL_EMAIL}
   jpa:
     hibernate:
       ddl-auto: update

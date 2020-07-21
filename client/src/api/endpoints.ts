@@ -25,3 +25,7 @@ export const IMAGES = "images";
 export const AUDIOS = "audios";
 export const FILES = "files";
 export const VIDEOS = "videos";
+export const EMAIL = "email";
+export const EMAIL_VERIFICATION = "emailVerification";
+export const CODE = "code";
+export const IS_VALID = "isValid";

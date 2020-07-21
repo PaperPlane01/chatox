@@ -47,7 +47,8 @@ class UserEventsListener(private val userRepository: UserRepository,
                     bio = userCreated.bio,
                     dateOfBirth = null,
                     createdAt = userCreated.createdAt,
-                    online = false
+                    online = false,
+                    email = userCreated.email
             )).awaitFirst()
         }
                 .doOnSuccess { channel.basicAck(tag, false) }
