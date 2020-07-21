@@ -159,5 +159,9 @@ export const en: Labels = {
     "registration.provide-your-email": "Provide your e-mail",
     "email.verification.code.empty": "E-mail verification code can't be empty",
     "registration.send-verification-email": "Send verification e-mail",
-    "email.verification.code.enter": "Enter verification code"
+    "email.verification.code.enter": "Enter verification code",
+    "email.verification.unknown-error": "Unexpected error occurred when tried to check verification code. Server responded with {errorStatus} status",
+    "email.verification.server-unreachable": "Error occurred when tried to check verification code: server is unreachable",
+    "registration.send-verification-email.unknown-error": "Unexpected error occurred when tried to send e-mail with verification code. Server responded with {errorStatus} status",
+    "registration.send-verification-email.server-unreachable": "Error occurred when tried to send e-maul with verification code: server is unreachable",
 };

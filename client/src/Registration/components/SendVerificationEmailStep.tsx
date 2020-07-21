@@ -6,12 +6,13 @@ import {
     DialogContent,
     DialogTitle,
     InputAdornment,
-    TextField
+    TextField,
+    Typography
 } from "@material-ui/core";
 import {RegistrationStep, SendVerificationEmailFormData} from "../types";
-import {localized, Localized} from "../../localization";
+import {localized, Localized, TranslationFunction} from "../../localization";
 import {FormErrors} from "../../utils/types";
-import {ApiError} from "../../api";
+import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {MapMobxToProps} from "../../store";
 import {inject, observer} from "mobx-react";
 
@@ -27,6 +28,16 @@ interface SendVerificationEmailStepMobxProps {
 }
 
 type SendVerificationEmailStepProps = SendVerificationEmailStepMobxProps & Localized;
+
+const getErrorText = (apiError: ApiError, l: TranslationFunction): string => {
+    if (apiError.status === 409) {
+        return l("email.has-already-been-taken");
+    } else if (apiError.status === API_UNREACHABLE_STATUS) {
+        return l("registration.send-verification-email.server-unreachable");
+    } else {
+        l("registration.send-verification-email.unknown-error", {errorStatus: apiError.status})
+    }
+};
 
 const _SendVerificationEmailStep: FunctionComponent<SendVerificationEmailStepProps> = ({
     sendVerificationEmailForm,
@@ -59,6 +70,11 @@ const _SendVerificationEmailStep: FunctionComponent<SendVerificationEmailStepPro
                            )
                        }}
             />
+            {error && (
+                <Typography style={{color: "red"}}>
+                    {getErrorText(error, l)}
+                </Typography>
+            )}
         </DialogContent>
         <DialogActions>
             <Button variant="outlined"

@@ -10,9 +10,9 @@ import {
     Typography
 } from "@material-ui/core";
 import {CheckEmailVerificationCodeFormData} from "../types";
-import {localized, Localized} from "../../localization";
+import {localized, Localized, TranslationFunction} from "../../localization";
 import {FormErrors} from "../../utils/types";
-import {ApiError} from "../../api";
+import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {MapMobxToProps} from "../../store";
 
 interface CheckVerificationCodeStepMobxProps {
@@ -25,6 +25,14 @@ interface CheckVerificationCodeStepMobxProps {
 }
 
 type CheckVerificationCodeStepProps = CheckVerificationCodeStepMobxProps & Localized;
+
+const getErrorText = (apiError: ApiError, l: TranslationFunction): string => {
+    if (apiError.status === 410) {
+        return l("email.verification.code.expired");
+    } else if (apiError.status === API_UNREACHABLE_STATUS) {
+        return l("email.verification.server-unreachable");
+    } else return l("email.verification.unknown-error", {errorStatus: apiError.status});
+};
 
 const _CheckVerificationCodeStep: FunctionComponent<CheckVerificationCodeStepProps> = ({
     checkVerificationCodeForm,
@@ -51,6 +59,11 @@ const _CheckVerificationCodeStep: FunctionComponent<CheckVerificationCodeStepPro
                        helperText={formErrors.verificationCode && l(formErrors.verificationCode)}
                        onChange={event => setFormValue("verificationCode", event.target.value)}
             />
+            {error && (
+                <Typography style={{color: "red"}}>
+                    {getErrorText(error, l)}
+                </Typography>
+            )}
         </DialogContent>
         <DialogActions>
             <Button variant="contained"

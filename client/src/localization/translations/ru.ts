@@ -159,5 +159,9 @@ export const ru: Labels = {
     "registration.provide-your-email": "Укажите свой e-mail",
     "email.verification.code.empty": "Код подтверждения не может быть пустым",
     "registration.send-verification-email": "Отправить e-mail с кодом подтверждения",
-    "email.verification.code.enter": "Введите код потверждения"
+    "email.verification.code.enter": "Введите код потверждения",
+    "email.verification.unknown-error": "Во время попытки проверить код подтверждения произошла непредвиденная ошибка. Сервер ответил со статусом {errorStatus}",
+    "email.verification.server-unreachable": "Во время попытки проверить код подтверждения произошла ошибка: сервер недоступен",
+    "registration.send-verification-email.unknown-error": "Во время попытки отправить e-mail с кодом подтверждения произошла непредвиденная ошибка. Сервер ответил со статусом {errorStatus}",
+    "registration.send-verification-email.server-unreachable": "Во время попытки отправить e-mail с кодом подтверждения произошла ошибка: сервер недоступен",
 };

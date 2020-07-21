@@ -8,6 +8,7 @@ import chatox.oauth2.api.response.EmailVerificationResponse;
 import chatox.oauth2.domain.EmailVerification;
 import chatox.oauth2.domain.Language;
 import chatox.oauth2.exception.EmailHasAlreadyBeenTakenException;
+import chatox.oauth2.exception.EmailVerificationExpiredException;
 import chatox.oauth2.exception.EmailVerificationNotFoundException;
 import chatox.oauth2.mapper.EmailVerificationMapper;
 import chatox.oauth2.respository.AccountRepository;
@@ -121,6 +122,10 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
                 .orElseThrow(() -> new EmailVerificationNotFoundException(
                         String.format("Could not find email verification with id %s", emailVerificationId)
                 ));
+
+        if (emailVerification.getExpiresAt().isBefore(ZonedDateTime.now())) {
+            throw new EmailVerificationExpiredException();
+        }
 
         boolean valid = passwordEncoder.matches(
                 checkEmailVerificationCodeValidityRequest.getVerificationCode(),

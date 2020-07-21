@@ -157,5 +157,9 @@ export interface Labels {
     "registration.continue-anyway": string,
     "registration.provide-your-email": string,
     "registration.send-verification-email": string,
-    "email.verification.code.enter": string
+    "registration.send-verification-email.unknown-error": string,
+    "registration.send-verification-email.server-unreachable": string,
+    "email.verification.code.enter": string,
+    "email.verification.unknown-error": string,
+    "email.verification.server-unreachable": string
 }
