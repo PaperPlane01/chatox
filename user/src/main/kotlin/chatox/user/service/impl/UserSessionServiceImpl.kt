@@ -135,7 +135,7 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                 .flatMapMany { it }
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0/15 * * * *")
     override fun lookForInactiveSessions() {
         log.info("Looking for inactive sessions")
         val webClient = WebClient.create()
