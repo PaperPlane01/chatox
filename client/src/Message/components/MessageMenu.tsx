@@ -3,11 +3,14 @@ import {inject, observer} from "mobx-react";
 import {Menu, IconButton} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {BlockMessageAuthorInChatMenuItem} from "./BlockMessageAuthorInChatMenuItem";
+import {ReplyToMessageMenuItem} from "./ReplyToMessageMenuItem";
 import {FindChatParticipationByUserAndChatOptions} from "../../Chat/stores";
 import {ChatParticipationEntity} from "../../Chat/types";
 import {CurrentUser} from "../../api/types/response";
 import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
 import {MapMobxToProps} from "../../store";
+
+export type MenuItemType = "blockMessageAuthorInChat" | "replyToMessage";
 
 interface MessageMenuMobxProps {
     findChatParticipation: (options: FindChatParticipationByUserAndChatOptions) => ChatParticipationEntity | undefined,
@@ -16,13 +19,15 @@ interface MessageMenuMobxProps {
 }
 
 interface MessageMenuOwnProps {
-    messageId: string
+    messageId: string,
+    onMenuItemClick?: (menuItemType: MenuItemType) => void
 }
 
 type MessageMenuProps = MessageMenuMobxProps & MessageMenuOwnProps;
 
 const _MessageMenu: FunctionComponent<MessageMenuProps> = ({
     messageId,
+    onMenuItemClick,
     findChatParticipation,
     currentUser,
     selectedChatId
@@ -38,14 +43,24 @@ const _MessageMenu: FunctionComponent<MessageMenuProps> = ({
         setAnchorElement(event.currentTarget);
     };
 
-    const handleClose = (): void => {
+    const handleClose = (menuItemType: MenuItemType) => (): void => {
+        if (onMenuItemClick) {
+            onMenuItemClick(menuItemType);
+        }
+
         setAnchorElement(null);
     };
 
     const menuItems: ReactNode[] = [];
 
     if (canBlockUsersInChat(chatParticipation)) {
-        menuItems.push(<BlockMessageAuthorInChatMenuItem onClick={handleClose} messageId={messageId}/>);
+        menuItems.push(<BlockMessageAuthorInChatMenuItem onClick={handleClose("blockMessageAuthorInChat")}
+                                                         messageId={messageId}/>
+        );
+    }
+
+    if (chatParticipation && !chatParticipation.activeChatBlockingId) {
+        menuItems.push(<ReplyToMessageMenuItem messageId={messageId} onClick={handleClose("replyToMessage")}/>);
     }
 
     if (menuItems.length === 0) {

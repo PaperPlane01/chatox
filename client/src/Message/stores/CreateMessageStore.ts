@@ -23,9 +23,23 @@ export class CreateMessageStore {
     @observable
     submissionError?: ApiError = undefined;
 
+    @observable
+    referredMessageId?: string = undefined;
+
     @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
+    }
+
+    @computed
+    get shouldSendReferredMessageId(): boolean {
+        if (this.referredMessageId && this.selectedChatId) {
+            const referredMessage = this.entitiesStore.messages.findById(this.referredMessageId);
+
+            return referredMessage.chatId === this.selectedChatId;
+        }
+
+        return false;
     }
 
     constructor(
@@ -37,6 +51,11 @@ export class CreateMessageStore {
             text => this.formErrors.text = validateMessageText(text)
         )
     }
+
+    @action
+    setReferredMessageId = (referredMessageId?: string): void => {
+        this.referredMessageId = referredMessageId;
+    };
 
     @action
     setFormValue = <Key extends keyof CreateMessageFormData>(key: Key, value: CreateMessageFormData[Key]): void => {
@@ -53,7 +72,8 @@ export class CreateMessageStore {
                     this.submissionError = undefined;
 
                     MessageApi.createMessage(chatId, {
-                        text: this.createMessageForm.text
+                        text: this.createMessageForm.text,
+                        referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined
                     })
                         .then(({data}) => {
                             this.entitiesStore.insertMessage(data);
@@ -79,6 +99,7 @@ export class CreateMessageStore {
         this.createMessageForm = {
             text: ""
         };
+        this.referredMessageId = undefined;
         setTimeout(() => {
             this.formErrors = {
                 text: undefined

@@ -24,7 +24,7 @@ import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
 import {EntitiesStore} from "../entities-store";
 import {UsersStore, UserProfileStore} from "../User";
-import {CreateMessageStore, MessagesOfChatStore, MessagesStore} from "../Message";
+import {CreateMessageStore, MessagesOfChatStore, MessagesStore, MessageDialogStore} from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
     ChatBlockingsStore,
@@ -89,6 +89,7 @@ const blockUserInChatByIdOrSlug = new BlockUserInChatByIdOrSlugStore(entities, c
 const onlineChatParticipants = new OnlineChatParticipantsStore(entities, chat);
 const chatAvatarUpload = new UploadChatAvatarStore(entities);
 const chatUpdate = new UpdateChatStore(chatAvatarUpload, chat, entities);
+const messageDialog = new MessageDialogStore();
 
 export const store: IAppState = {
     authorization,
@@ -120,7 +121,8 @@ export const store: IAppState = {
     chatUpdate,
     sendVerificationEmail,
     verificationCodeCheck,
-    registrationDialog
+    registrationDialog,
+    messageDialog
 };
 
 export interface MapMobxToProps<ComponentProps = {}> {

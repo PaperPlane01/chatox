@@ -9,12 +9,13 @@ export class MessagesStore extends SoftDeletableEntityStore<MessageEntity, Messa
             createdAt: new Date(denormalizedEntity.createdAt),
             deleted: denormalizedEntity.deleted,
             readByCurrentUser: denormalizedEntity.readByCurrentUser,
-            referredMessage: denormalizedEntity.referredMessage && denormalizedEntity.referredMessage.id,
+            referredMessageId: denormalizedEntity.referredMessage && denormalizedEntity.referredMessage.id,
             sender: denormalizedEntity.sender.id,
             text: denormalizedEntity.text,
             updatedAt: denormalizedEntity.updatedAt ? new Date(denormalizedEntity.updatedAt) : undefined,
             previousMessageId: denormalizedEntity.previousMessageId,
-            nextMessageId: denormalizedEntity.nextMessageId
+            nextMessageId: denormalizedEntity.nextMessageId,
+            chatId: denormalizedEntity.chatId
         };
     }
 }

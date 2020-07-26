@@ -13,7 +13,8 @@ import {
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
-import {MessageMenu} from "./MessageMenu";
+import {MenuItemType, MessageMenu} from "./MessageMenu";
+import {ReferredMessageContent} from "./ReferredMessageContent";
 import {MessageEntity} from "../types";
 import {Avatar} from "../../Avatar";
 import {UserEntity} from "../../User";
@@ -33,7 +34,9 @@ interface MessagesListItemMobxProps {
 }
 
 interface MessagesListItemOwnProps {
-    messageId: string
+    messageId: string,
+    fullWidth?: boolean,
+    onMenuItemClick?: (menuItemType: MenuItemType) => void
 }
 
 type MessagesListItemProps = MessagesListItemMobxProps & MessagesListItemOwnProps & Localized;
@@ -74,6 +77,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             maxWidth: "70%"
         }
     },
+    messageCardFullWidth: {
+        borderRadius: 8,
+        marginLeft: theme.spacing(1),
+        wordBreak: "break-word",
+        width: "100%"
+    },
     messageOfCurrentUserCard: {
         backgroundColor: theme.palette.primary.light,
         color: theme.palette.getContrastText(theme.palette.primary.light)
@@ -105,6 +114,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
     messageId,
+    fullWidth = false,
+    onMenuItemClick,
     currentUser,
     findMessage,
     findUser,
@@ -120,8 +131,14 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
     const sentByCurrentUser = currentUser && currentUser.id === sender.id;
 
+    const handleMenuItemClick = (menuItemType: MenuItemType): void => {
+        if (onMenuItemClick) {
+            onMenuItemClick(menuItemType);
+        }
+    };
+
     return (
-        <div className={`${classes.messageListItemWrapper} ${sentByCurrentUser && classes.messageOfCurrentUserListItemWrapper}`}
+        <div className={`${classes.messageListItemWrapper} ${sentByCurrentUser && !fullWidth && classes.messageOfCurrentUserListItemWrapper}`}
              id={`message-${messageId}`}
         >
             <Link store={routerStore}
@@ -134,7 +151,7 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
                         avatarUri={sender.avatarUri}
                 />
             </Link>
-            <Card className={`${classes.messageCard} ${sentByCurrentUser && classes.messageOfCurrentUserCard}`}>
+            <Card className={`${fullWidth ? classes.messageCardFullWidth : classes.messageCard} ${sentByCurrentUser && classes.messageOfCurrentUserCard}`}>
                 <CardHeader title={
                     <Link store={routerStore}
                           className={classes.undecoratedLink}
@@ -151,11 +168,12 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
                                 action: classes.cardHeaderAction,
                                 content: classes.cardHeaderContent
                             }}
-                            action={<MessageMenu messageId={messageId}/>}
+                            action={<MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>}
                 />
                 <CardContent classes={{
                     root: classes.cardContentRoot
                 }}>
+                    <ReferredMessageContent messageId={message.referredMessageId}/>
                     {message.deleted
                         ? <i>{l("message.deleted")}</i>
                         : (

@@ -2,6 +2,7 @@ import React, {FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
 import {createStyles, Divider, IconButton, InputAdornment, makeStyles, TextField, Tooltip} from "@material-ui/core";
 import {AttachFile, InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
+import {ReferredMessageCard} from "./ReferredMessageCard";
 import {CreateMessageFormData} from "../types";
 import {localized, Localized} from "../../localization";
 import {FormErrors} from "../../utils/types";

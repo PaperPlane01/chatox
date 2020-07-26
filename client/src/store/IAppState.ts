@@ -20,7 +20,7 @@ import {
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
-import {CreateMessageStore, MessagesOfChatStore} from "../Message";
+import {CreateMessageStore, MessagesOfChatStore, MessageDialogStore} from "../Message";
 import {WebsocketStore} from "../websocket";
 import {UserProfileStore} from "../User";
 import {
@@ -64,5 +64,6 @@ export interface IAppState {
     sendVerificationEmail: SendVerificationEmailStore,
     verificationCodeCheck: CheckEmailVerificationCodeStore,
     registrationDialog: RegistrationDialogStore,
+    messageDialog: MessageDialogStore,
     store?: any
 }
