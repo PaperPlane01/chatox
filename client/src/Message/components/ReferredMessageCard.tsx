@@ -51,14 +51,23 @@ const _ReferredMessageCard: FunctionComponent<ReferredMessageCardMobxProps> = ({
 }) => {
     const classes = useStyles();
 
-    const messagesListWidth = document.getElementById("messagesList")!.clientWidth;
+    const messagesListElement = document.getElementById("messagesList");
+    const messagesListWidth = messagesListElement
+        ? messagesListElement.clientWidth
+        : "100%";
 
     const [width, setWidth] = useState(messagesListWidth);
 
+    const updateWidth = (): void => {
+        const messagesListElement = document.getElementById("messagesList");
+        setWidth(messagesListElement ? messagesListElement.clientWidth : "100%");
+    };
+
+    if (width === "100%") {
+        setTimeout(updateWidth, 1);
+    }
+
     useLayoutEffect(() => {
-        const updateWidth = (): void => {
-            setWidth(document.getElementById("messagesList")!.clientWidth);
-        };
         window.addEventListener("resize", updateWidth);
         return () => window.removeEventListener("resize", updateWidth);
     }, []);
