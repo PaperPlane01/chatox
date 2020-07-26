@@ -13,16 +13,20 @@ import {
 import {Close} from "@material-ui/icons";
 import randomColor from "randomcolor";
 import {MessageEntity} from "../types";
-import {UserEntity} from "../../User/types";
+import {UserEntity} from "../../User";
+import {localized, Localized} from "../../localization";
 import {MapMobxToProps} from "../../store";
 
 interface ReferredMessageCardMobxProps {
     referredMessageId?: string,
     selectedChatId?: string,
     setReferredMessageId: (referredMessageId?: string) => void,
+    setMessageDialogMessageId: (messageId?: string) => void,
     findMessage: (id: string) => MessageEntity,
     findUser: (id: string) => UserEntity,
 }
+
+type ReferredMessageCardProps = ReferredMessageCardMobxProps & Localized;
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     cardContentRoot: {
@@ -32,7 +36,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         overflow: "hidden",
         whiteSpace: "nowrap",
         borderLeft: "4px solid",
-        borderLeftColor: theme.palette.primary.main
+        borderLeftColor: theme.palette.primary.main,
+        cursor: "pointer"
     },
     cardHeaderRoot: {
         paddingLeft: theme.spacing(2),
@@ -42,12 +47,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-const _ReferredMessageCard: FunctionComponent<ReferredMessageCardMobxProps> = ({
+const _ReferredMessageCard: FunctionComponent<ReferredMessageCardProps> = ({
     referredMessageId,
     selectedChatId,
     setReferredMessageId,
+    setMessageDialogMessageId,
     findMessage,
-    findUser
+    findUser,
+    l
 }) => {
     const classes = useStyles();
 
@@ -107,8 +114,12 @@ const _ReferredMessageCard: FunctionComponent<ReferredMessageCardMobxProps> = ({
                 root: classes.cardContentRoot
             }}
                          style={{maxWidth: width}}
+                         onClick={() => setMessageDialogMessageId(referredMessageId)}
             >
-                {message.text}
+                {message.deleted
+                    ? <i>{l("message.deleted")}</i>
+                    : message.text
+                }
             </CardContent>
         </Card>
     )
@@ -117,13 +128,17 @@ const _ReferredMessageCard: FunctionComponent<ReferredMessageCardMobxProps> = ({
 const mapMobxToProps: MapMobxToProps<ReferredMessageCardMobxProps> = ({
     messageCreation,
     chat,
-    entities
+    entities,
+    messageDialog
 }) => ({
     referredMessageId: messageCreation.referredMessageId,
     setReferredMessageId: messageCreation.setReferredMessageId,
     selectedChatId: chat.selectedChatId,
     findMessage: entities.messages.findById,
-    findUser: entities.users.findById
+    findUser: entities.users.findById,
+    setMessageDialogMessageId: messageDialog.setMessageId
 });
 
-export const ReferredMessageCard = inject(mapMobxToProps)(observer(_ReferredMessageCard) as FunctionComponent);
+export const ReferredMessageCard = localized(
+    inject(mapMobxToProps)(observer(_ReferredMessageCard))
+) as FunctionComponent;

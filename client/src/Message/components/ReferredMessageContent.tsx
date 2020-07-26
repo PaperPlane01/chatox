@@ -1,10 +1,11 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import {CardContent, CardHeader, createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
+import {CardContent, CardHeader, createStyles, makeStyles, Theme} from "@material-ui/core";
 import {UserLink} from "../../UserLink";
 import {MessageEntity} from "../types";
 import {UserEntity} from "../../User";
 import {trimString} from "../../utils/string-utils";
+import {localized, Localized} from "../../localization";
 import {MapMobxToProps} from "../../store";
 
 interface ReferredMessageContentMobxProps {
@@ -17,7 +18,7 @@ interface ReferredMessageContentOwnProps {
     messageId?: string
 }
 
-type ReferredMessageContentProps = ReferredMessageContentMobxProps & ReferredMessageContentOwnProps;
+type ReferredMessageContentProps = ReferredMessageContentMobxProps & ReferredMessageContentOwnProps & Localized;
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     cardContentRoot: {
@@ -39,7 +40,8 @@ const _ReferredMessageContent: FunctionComponent<ReferredMessageContentProps> = 
     messageId,
     findMessage,
     findUser,
-    setMessageDialogMessageId
+    setMessageDialogMessageId,
+    l
 }) => {
     const classes = useStyles();
 
@@ -62,7 +64,10 @@ const _ReferredMessageContent: FunctionComponent<ReferredMessageContentProps> = 
             }}
                          onClick={() => setMessageDialogMessageId(messageId)}
             >
-                {trimString(message.text, 150)}
+                {message.deleted
+                    ? <i>{l("message.deleted")}</i>
+                    : trimString(message.text, 150)
+                }
             </CardContent>
         </Fragment>
     )
@@ -77,4 +82,6 @@ const mapMobxToProps: MapMobxToProps<ReferredMessageContentMobxProps> = ({
     findUser: entities.users.findById
 });
 
-export const ReferredMessageContent = inject(mapMobxToProps)(observer(_ReferredMessageContent) as FunctionComponent<ReferredMessageContentOwnProps>);
+export const ReferredMessageContent = localized(
+    inject(mapMobxToProps)(observer(_ReferredMessageContent))
+) as FunctionComponent<ReferredMessageContentOwnProps>;
