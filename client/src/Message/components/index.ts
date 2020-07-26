@@ -4,3 +4,4 @@ export * from "./MessagesListBottom";
 export * from "./MessagesListItem";
 export * from "./BlockMessageAuthorInChatMenuItem";
 export * from "./MessageMenu";
+export * from "./ReferredMessageCard";

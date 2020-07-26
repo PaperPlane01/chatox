@@ -3,6 +3,7 @@ import {inject, observer} from "mobx-react";
 import {Menu, IconButton} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {BlockMessageAuthorInChatMenuItem} from "./BlockMessageAuthorInChatMenuItem";
+import {ReplyToMessageMenuItem} from "./ReplyToMessageMenuItem";
 import {FindChatParticipationByUserAndChatOptions} from "../../Chat/stores";
 import {ChatParticipationEntity} from "../../Chat/types";
 import {CurrentUser} from "../../api/types/response";
@@ -46,6 +47,10 @@ const _MessageMenu: FunctionComponent<MessageMenuProps> = ({
 
     if (canBlockUsersInChat(chatParticipation)) {
         menuItems.push(<BlockMessageAuthorInChatMenuItem onClick={handleClose} messageId={messageId}/>);
+    }
+
+    if (chatParticipation && !chatParticipation.activeChatBlockingId) {
+        menuItems.push(<ReplyToMessageMenuItem messageId={messageId} onClick={handleClose}/>);
     }
 
     if (menuItems.length === 0) {

@@ -1,8 +1,9 @@
-import React, {FunctionComponent, ReactNode} from "react";
+import React, {FunctionComponent, Fragment, ReactNode} from "react";
 import {inject, observer} from "mobx-react";
 import {Typography} from "@material-ui/core";
 import {format} from "date-fns";
 import {CreateMessageForm} from "./CreateMessageForm";
+import {ReferredMessageCard} from "./ReferredMessageCard";
 import {JoinChatButton} from "../../Chat";
 import {ChatParticipationEntity} from "../../Chat/types";
 import {CurrentUser} from "../../api/types/response";
@@ -97,15 +98,20 @@ const _MessagesListBottom: FunctionComponent<MessagesListBottomProps> = ({
                             }
                         </Typography>
                     </Typography>
-                )
+                );
             } else {
-                messagesListBottomContent = <CreateMessageForm/>
+                messagesListBottomContent = (
+                    <Fragment>
+                        <ReferredMessageCard/>
+                        <CreateMessageForm/>
+                    </Fragment>
+                );
             }
         } else {
-            messagesListBottomContent = <JoinChatButton/>
+            messagesListBottomContent = <JoinChatButton/>;
         }
     } else {
-        messagesListBottomContent = <div/>
+        messagesListBottomContent = <div/>;
     }
 
     return (
