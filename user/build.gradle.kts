@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "chatox"
-version = "0.2.2"
+version = "0.3.beta-1"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
