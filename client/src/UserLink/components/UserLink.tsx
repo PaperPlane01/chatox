@@ -16,7 +16,8 @@ interface UserLinkMobxProps {
 
 interface UserLinkOwnProps {
     user: UserEntity,
-    displayAvatar: boolean
+    displayAvatar: boolean,
+    boldText?: boolean
 }
 
 type UserLinkProps = UserLinkMobxProps & UserLinkOwnProps;
@@ -34,12 +35,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 const _UserLink: FunctionComponent<UserLinkProps> = ({
     user,
-    displayAvatar,
+    displayAvatar = false,
+    boldText = false,
     routerStore
 }) => {
     const classes = useStyles();
     const color = randomColor({seed: user.id});
     const avatarLabel = getUserAvatarLabel(user);
+    const text = `${user.firstName} ${user.lastName ? user.lastName : ""}`;
 
     if (displayAvatar) {
         return (
@@ -57,7 +60,10 @@ const _UserLink: FunctionComponent<UserLinkProps> = ({
                 <Typography className={classes.userNicknameTypography}
                             style={{color}}
                 >
-                    {user.firstName} {user.lastName && user.lastName}
+                    {boldText
+                        ? <strong>{text}</strong>
+                        : text
+                    }
                 </Typography>
             </Link>
         )
@@ -69,7 +75,10 @@ const _UserLink: FunctionComponent<UserLinkProps> = ({
                   store={routerStore}
             >
                 <Typography style={{color}}>
-                    {user.firstName} {user.lastName && user.lastName}
+                    {boldText
+                        ? <strong>{text}</strong>
+                        : text
+                    }
                 </Typography>
             </Link>
         )
