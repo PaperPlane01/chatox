@@ -12,11 +12,18 @@ import reactor.core.publisher.Mono
 interface ChatParticipationRepository : ReactiveMongoRepository<ChatParticipation, String> {
     fun save(chatParticipation: ChatParticipation): Mono<ChatParticipation>
     override fun findById(id: String): Mono<ChatParticipation>
+    fun findByIdAndDeletedFalse(id: String): Mono<ChatParticipation>
     fun findAllByUser(user: User): Flux<ChatParticipation>
+    fun findAllByUserAndDeletedFalse(user: User): Flux<ChatParticipation>
     fun findByChat(chat: Chat, pageable: Pageable): Flux<ChatParticipation>
+    fun findByChatAndDeletedFalse(chat: Chat, pageable: Pageable): Flux<ChatParticipation>
     fun findByChatAndUser(chat: Chat, user: User): Mono<ChatParticipation>
+    fun findByChatAndUserAndDeletedFalse(chat: Chat, user: User): Mono<ChatParticipation>
+    fun findByChatAndUserAndDeletedTrue(chat: Chat, user: User): Mono<ChatParticipation>
     fun findByChatAndUserFirstNameContains(chat: Chat, username: String, pageable: Pageable): Flux<ChatParticipation>
+    fun findByChatAndUserFirstNameContainsAndDeletedFalse(chat: Chat, username: String, pageable: Pageable): Flux<ChatParticipation>
     fun countAllByChat(chat: Chat): Mono<Int>
+    fun countByChatAndDeletedFalse(chat: Chat): Mono<Int>
     fun findByChatAndUserOnlineTrue(chat: Chat): Flux<ChatParticipation>
     fun countByChatAndUserOnlineTrue(chat: Chat): Mono<Int>
 }

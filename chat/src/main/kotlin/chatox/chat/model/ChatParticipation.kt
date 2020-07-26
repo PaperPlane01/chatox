@@ -9,11 +9,14 @@ import java.time.ZonedDateTime
 data class ChatParticipation(
         @Id
         var id: String? = null,
+
         @DBRef
         var chat: Chat,
+
         @DBRef
         var user: User,
         var role: ChatRole,
+
         @DBRef(lazy = true)
         var lastMessageRead: MessageRead?,
         var createdAt: ZonedDateTime,
@@ -21,5 +24,6 @@ data class ChatParticipation(
 
         @DBRef
         var lastChatBlocking: ChatBlocking? = null,
-        var userOnline: Boolean = false
+        var userOnline: Boolean = false,
+        var deleted: Boolean = false
 )
