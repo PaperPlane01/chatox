@@ -14,5 +14,8 @@ data class UserResponse(
         val createdAt: ZonedDateTime,
         val lastSeen: ZonedDateTime,
         val avatarUri: String?,
-        val dateOfBirth: ZonedDateTime?
+        val dateOfBirth: ZonedDateTime?,
+        val online: Boolean,
+        @field:JsonInclude(JsonInclude.Include.NON_NULL)
+        val email: String? = null
 )

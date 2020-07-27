@@ -9,5 +9,6 @@ export interface RegistrationResponse {
     lastName?: string,
     slug?: string,
     avatarUri?: string,
-    accountId: string
+    accountId: string,
+    createdAt: string
 }

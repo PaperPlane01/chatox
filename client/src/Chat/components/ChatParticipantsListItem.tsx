@@ -1,7 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import {createStyles, ListItemText, makeStyles, MenuItem, Theme, Typography} from "@material-ui/core";
+import {createStyles, ListItemText, makeStyles, MenuItem, Theme} from "@material-ui/core";
 import randomColor from "randomcolor";
+import {ChatParticipantMenu} from "./ChatParticipantMenu";
 import {ChatParticipationEntity} from "../types";
 import {Avatar} from "../../Avatar";
 import {UserEntity} from "../../User";
@@ -14,6 +15,7 @@ interface ChatParticipantsListItemMobxProps {
 
 interface ChatParticipantsListItemOwnProps {
     participantId: string,
+    highlightOnline?: boolean,
     onClick?: () => void
 }
 
@@ -25,11 +27,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     avatar: {
         paddingRight: theme.spacing(2)
+    },
+    online: {
     }
 }));
 
 const _ChatParticipantsListItem: FunctionComponent<ChatParticipantsListItemProps> = ({
     participantId,
+    highlightOnline = false,
     findUser,
     findParticipant,
     onClick
@@ -57,9 +62,12 @@ const _ChatParticipantsListItem: FunctionComponent<ChatParticipantsListItemProps
                         avatarUri={user.avatarUri}
                 />
             </div>
-            <ListItemText>
+            <ListItemText primaryTypographyProps={{
+                color: (user.online && highlightOnline) ? "primary" : "textPrimary"
+            }}>
                 {user.firstName} {user.lastName && user.lastName}
             </ListItemText>
+            <ChatParticipantMenu chatParticipation={chatParticipant}/>
         </MenuItem>
     )
 };

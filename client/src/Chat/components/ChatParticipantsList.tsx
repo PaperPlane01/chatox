@@ -1,21 +1,15 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
 import {Card, CardContent, CardHeader, createStyles, makeStyles, Typography} from "@material-ui/core";
 import GroupOutlinedIcon from "@material-ui/icons/GroupOutlined";
 import {ChatParticipantsListItem} from "./ChatParticipantsListItem";
-import {ChatOfCurrentUserEntity} from "../types"
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
-import {PaginationState} from "../../utils/types";
+import {FetchingState} from "../../utils/types";
 
-interface ChatParticipantsListMobxProps {
-    participants: string[],
-    selectedChatId?: string,
-    findChat: (chatId: string) => ChatOfCurrentUserEntity,
-    getPaginationState: (chatId: string) => PaginationState
+interface ChatParticipantsListProps {
+    participantsIds: string[],
+    highlightOnline?: boolean,
+    fetchingState: FetchingState,
+    label: string
 }
-
-type ChatParticipantsListProps = ChatParticipantsListMobxProps & Localized;
 
 const useStyles = makeStyles(() => createStyles({
     root: {
@@ -27,21 +21,13 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-const _ChatParticipangsList: FunctionComponent<ChatParticipantsListProps> = ({
-    participants,
-    selectedChatId,
-    findChat,
-    getPaginationState,
-    l
+export const ChatParticipantsList: FunctionComponent<ChatParticipantsListProps> = ({
+    participantsIds,
+    highlightOnline = false,
+    fetchingState,
+    label
 }) => {
     const classes = useStyles();
-
-    if (!selectedChatId) {
-        return null;
-    }
-
-    const pending = getPaginationState(selectedChatId);
-    const chat = findChat(selectedChatId);
 
     return (
         <Card classes={{
@@ -52,27 +38,19 @@ const _ChatParticipangsList: FunctionComponent<ChatParticipantsListProps> = ({
                     <GroupOutlinedIcon/>
                     <Typography variant="body1">
                         <strong>
-                            {l("chat.number-of-participants", {numberOfParticipants: chat.participantsCount})}
+                            {label}
                         </strong>
                     </Typography>
                 </div>
             )}/>
             <CardContent>
-                {participants.map(participantId => (
-                    <ChatParticipantsListItem participantId={participantId} key={participantId}/>
+                {participantsIds.map(participantId => (
+                    <ChatParticipantsListItem participantId={participantId}
+                                              key={participantId}
+                                              highlightOnline={highlightOnline}
+                    />
                 ))}
             </CardContent>
         </Card>
     )
 };
-
-const mapMobxToProps: MapMobxToProps<ChatParticipantsListMobxProps> = ({entities, chatParticipants, chat}) => ({
-    participants: chatParticipants.chatParticipants,
-    selectedChatId: chat.selectedChatId,
-    findChat: entities.chats.findById,
-    getPaginationState: chatParticipants.getPaginationState
-});
-
-export const ChatParticipantsList = localized(
-    inject(mapMobxToProps)(observer(_ChatParticipangsList))
-) as FunctionComponent;

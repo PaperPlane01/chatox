@@ -41,7 +41,7 @@ const _AppBarMenu: FunctionComponent<AppBarMenuMobxProps & Localized> = ({
     return (
         <div className={classes.appBarLinks}>
             <Hidden xsDown>
-                <HasRole role="ROLE_ACCESS_TOKEN_PRESENT">
+                <HasRole role="ROLE_USER">
                     <Link view={Routes.myChats}
                           store={routerStore}
                           className={classes.appBarLink}

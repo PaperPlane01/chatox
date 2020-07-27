@@ -3,7 +3,7 @@ import {stringify} from "query-string";
 import {axiosInstance} from "../axios-instance";
 import {ACCOUNT, IS_AVAILABLE, ME, OAUTH, REGISTRATION, REVOKE, SLUG, TOKEN, USER, USERNAME} from "../endpoints";
 import {RegistrationRequest, RevokeTokenRequest} from "../types/request";
-import {AvailabilityResponse, CurrentUser, OAuth2Response, RegistrationResponse} from "../types/response";
+import {AvailabilityResponse, CurrentUser, OAuth2Response, RegistrationResponse, User} from "../types/response";
 
 export class UserApi {
     public static registerUser(registrationRequest: RegistrationRequest): AxiosPromise<RegistrationResponse> {
@@ -27,6 +27,10 @@ export class UserApi {
 
     public static getCurrentUser(): AxiosPromise<CurrentUser> {
         return axiosInstance.get(`/${USER}/${ME}`);
+    }
+
+    public static getUserByIdOrSlug(idOrSlug: string): AxiosPromise<User> {
+        return axiosInstance.get(`/${USER}/${idOrSlug}`);
     }
 
     public static doLogin(username: string, password: string): AxiosPromise<OAuth2Response> {

@@ -6,5 +6,8 @@ export interface User {
     dateOfBirth?: string,
     slug?: string,
     avatarUri?: string,
-    deleted: boolean
+    deleted: boolean,
+    createdAt: string,
+    online: boolean,
+    lastSeen?: string
 }

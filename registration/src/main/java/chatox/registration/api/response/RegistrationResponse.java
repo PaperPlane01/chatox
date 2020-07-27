@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Data
@@ -22,4 +23,5 @@ public class RegistrationResponse {
     private String slug;
     private String avatarUri;
     private String accountId;
+    private ZonedDateTime createdAt;
 }

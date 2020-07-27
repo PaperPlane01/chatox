@@ -1,10 +1,18 @@
 import React, {FunctionComponent} from "react";
+import {inject, observer} from "mobx-react";
 import {Avatar as MuiAvatar} from "@material-ui/core";
 import {Skeleton} from "@material-ui/lab";
 import {isStringEmpty} from "../../utils/string-utils";
+import {ImageUploadMetadata, Upload} from "../../api/types/response";
+import {MapMobxToProps} from "../../store";
 
-interface AvatarProps {
+interface AvatarMobxProps {
+    findImage: (id: string) => Upload<ImageUploadMetadata>
+}
+
+interface AvatarOwnProps {
     avatarUri?: string,
+    avatarId?: string
     avatarLetter: string,
     avatarColor: string,
     width?: number,
@@ -12,13 +20,17 @@ interface AvatarProps {
     pending?: boolean
 }
 
-export const Avatar: FunctionComponent<AvatarProps> = ({
+type AvatarProps = AvatarMobxProps & AvatarOwnProps;
+
+const _Avatar: FunctionComponent<AvatarProps> = ({
     avatarUri,
+    avatarId,
     avatarLetter,
     avatarColor,
-    width,
-    height,
-    pending
+    width = 40,
+    height = 40,
+    pending,
+    findImage
 }) => {
     if (pending) {
         return (
@@ -28,23 +40,31 @@ export const Avatar: FunctionComponent<AvatarProps> = ({
             />
         )
     } else {
-        const imageProps = (width && height)
-            ?
-            {
-                width: `${width} px`,
-                height: `${height} px`
-            }
-            :
-            {
-                width: "100%",
-                height: "100%"
-            };
+        const imageProps = {
+            width,
+            height
+        };
 
-        if (isStringEmpty(avatarUri)) {
+        let uri: string | undefined = undefined;
+
+        if (avatarUri) {
+            uri = avatarUri;
+        } else if (avatarId) {
+            const avatar = findImage(avatarId);
+
+            if (avatar.thumbnail) {
+                uri = avatar.thumbnail.uri;
+            } else {
+                uri = avatar.uri;
+            }
+        }
+
+        if (isStringEmpty(uri)) {
             return (
-                <MuiAvatar imgProps={imageProps}
-                           style={{
-                               backgroundColor: avatarColor
+                <MuiAvatar style={{
+                               backgroundColor: avatarColor,
+                               width: imageProps.width,
+                               height: imageProps.height
                            }}
                 >
                     {avatarLetter}
@@ -52,10 +72,19 @@ export const Avatar: FunctionComponent<AvatarProps> = ({
             )
         } else {
             return (
-                <MuiAvatar src={avatarUri}
-                           imgProps={imageProps}
+                <MuiAvatar src={uri}
+                           style={{
+                               width: imageProps.width,
+                               height: imageProps.height
+                           }}
                 />
             )
         }
     }
 };
+
+const mapMobxToProps: MapMobxToProps<AvatarMobxProps> = ({entities}) => ({
+    findImage: entities.uploads.findImage
+});
+
+export const Avatar = inject(mapMobxToProps)(observer(_Avatar as FunctionComponent<AvatarOwnProps>));

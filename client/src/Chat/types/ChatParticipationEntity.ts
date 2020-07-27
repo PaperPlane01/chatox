@@ -4,5 +4,6 @@ export interface ChatParticipationEntity {
     id: string,
     role: ChatRole,
     userId: string,
-    chatId: string
+    chatId: string,
+    activeChatBlockingId?: string
 }

@@ -5,17 +5,18 @@ import {MessagesListItem} from "./MessagesListItem";
 import {MapMobxToProps} from "../../store";
 
 interface MessagesListMobxProps {
-    messagesOfChat: string[]
+    messagesOfChat: string[],
+    referredMessageId?: string
 }
 
 const useStyles = makeStyles(() => createStyles({
     messagesList: {
-        height: "calc(100vh - 154px)",
+        height: (props: Omit<MessagesListMobxProps, "messagesOfChat">) => `calc(100vh - ${props.referredMessageId ? 238 : 154}px)`,
         overflowY: "auto"
     }
 }));
 
-const _MessagesList: FunctionComponent<MessagesListMobxProps> = ({messagesOfChat}) => {
+const _MessagesList: FunctionComponent<MessagesListMobxProps> = ({messagesOfChat, referredMessageId}) => {
     const messagesListBottomRef = useRef<HTMLDivElement>(null);
     const [reachedBottom, setReachedBottom] = useState(true);
 
@@ -32,11 +33,12 @@ const _MessagesList: FunctionComponent<MessagesListMobxProps> = ({messagesOfChat
 
     useEffect(scrollToBottom, [messagesOfChat]);
 
-    const classes = useStyles();
+    const classes = useStyles({referredMessageId});
 
     return (
         <div className={classes.messagesList}
              onScroll={handleScroll}
+             id="messagesList"
         >
             {messagesOfChat.map(messageId => (
                 <MessagesListItem messageId={messageId}
@@ -48,8 +50,9 @@ const _MessagesList: FunctionComponent<MessagesListMobxProps> = ({messagesOfChat
     );
 };
 
-const mapMobxToProps: MapMobxToProps<MessagesListMobxProps> = ({messagesOfChat}) => ({
-    messagesOfChat: messagesOfChat.messagesOfChat
+const mapMobxToProps: MapMobxToProps<MessagesListMobxProps> = ({messagesOfChat, messageCreation}) => ({
+    messagesOfChat: messagesOfChat.messagesOfChat,
+    referredMessageId: messageCreation.referredMessageId
 });
 
 export const MessagesList = inject(mapMobxToProps)(observer(_MessagesList) as FunctionComponent);

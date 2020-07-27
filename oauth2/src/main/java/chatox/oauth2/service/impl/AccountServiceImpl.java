@@ -11,13 +11,20 @@ import chatox.oauth2.domain.Client;
 import chatox.oauth2.domain.Role;
 import chatox.oauth2.exception.AccountNotFoundException;
 import chatox.oauth2.exception.ClientNotFoundException;
+import chatox.oauth2.exception.EmailHasAlreadyBeenTakenException;
+import chatox.oauth2.exception.EmailMismatchException;
+import chatox.oauth2.exception.EmailVerificationExpiredException;
+import chatox.oauth2.exception.EmailVerificationNotFoundException;
+import chatox.oauth2.exception.InvalidEmailVerificationCodeException;
 import chatox.oauth2.mapper.AccountMapper;
 import chatox.oauth2.respository.AccountRepository;
 import chatox.oauth2.respository.ClientRepository;
+import chatox.oauth2.respository.EmailVerificationRepository;
 import chatox.oauth2.respository.UserRoleRepository;
 import chatox.oauth2.security.CustomClientDetails;
 import chatox.oauth2.security.CustomUserDetails;
 import chatox.oauth2.service.AccountService;
+import chatox.oauth2.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,6 +41,7 @@ import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -50,6 +58,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final ClientRepository clientRepository;
     private final UserRoleRepository userRoleRepository;
+    private final EmailVerificationRepository emailVerificationRepository;
     private final AccountMapper accountMapper;
 
     private JdbcTokenStore tokenStore;
@@ -69,6 +78,41 @@ public class AccountServiceImpl implements AccountService {
     public CreateAccountResponse createAccount(CreateAccountRequest createAccountRequest) {
         var client = findClientById(createAccountRequest.getClientId());
 
+        if (Util.allNotNull(
+                createAccountRequest.getEmail(),
+                createAccountRequest.getEmailVerificationConfirmationCode(),
+                createAccountRequest.getEmailVerificationId())) {
+            if (accountRepository.existsByEmail(createAccountRequest.getEmail())) {
+                throw new EmailHasAlreadyBeenTakenException(String.format(
+                        "Email %s has already been taken", createAccountRequest.getEmail()
+                ));
+            }
+
+            var emailVerification = emailVerificationRepository.findById(createAccountRequest.getEmailVerificationId())
+                    .orElseThrow(() -> new EmailVerificationNotFoundException(
+                            String.format(
+                                    "Could not find email verification with id %s",
+                                    createAccountRequest.getEmailVerificationId()
+                            )
+                    ));
+
+            if (!emailVerification.getEmail().equals(createAccountRequest.getEmail())) {
+                throw new EmailMismatchException(
+                        "Email provided in request does not match with email in email verification with the specified id"
+                );
+            }
+
+            if (!passwordEncoder.matches(
+                    createAccountRequest.getEmailVerificationConfirmationCode(),
+                    emailVerification.getVerificationCodeHash())) {
+                throw new InvalidEmailVerificationCodeException("Provided email verification code is invalid");
+            }
+
+            if (ZonedDateTime.now().isAfter(emailVerification.getExpiresAt())) {
+                throw new EmailVerificationExpiredException("This email verification code has expired");
+            }
+        }
+
         var account = Account.builder()
                 .id(createAccountRequest.getId())
                 .enabled(true)
@@ -77,6 +121,7 @@ public class AccountServiceImpl implements AccountService {
                 .passwordHash(passwordEncoder.encode(createAccountRequest.getPassword()))
                 .username(createAccountRequest.getUsername())
                 .userIds(new ArrayList<>(Arrays.asList(createAccountRequest.getUserId())))
+                .email(createAccountRequest.getEmail())
                 .build();
 
         accountRepository.save(account);

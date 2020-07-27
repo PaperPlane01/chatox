@@ -15,5 +15,6 @@ data class User(
         var avatarUri: String?,
         var accountId: String,
         var deleted: Boolean,
-        var dateOfBirth: ZonedDateTime?
+        var dateOfBirth: ZonedDateTime?,
+        var email: String?
 )

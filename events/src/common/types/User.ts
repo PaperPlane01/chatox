@@ -7,5 +7,7 @@ export interface User {
     deleted: boolean,
     createdAt: string,
     dateOfBirth?: string,
-    bio?: string
+    bio?: string,
+    online: boolean,
+    lastSeen: string
 }

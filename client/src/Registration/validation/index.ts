@@ -1,3 +1,4 @@
+import {validate as isValidEmail} from "email-validator";
 import {isStringEmpty} from "../../utils/string-utils";
 import {Labels} from "../../localization";
 
@@ -93,6 +94,26 @@ export const validateLastName = (lastName: string | undefined): keyof Labels | u
 
     if (lastName!.trim().length > 20) {
         return "lastName.too-long";
+    }
+
+    return undefined;
+};
+
+export const validateEmail = (email?: string): keyof Labels | undefined => {
+    if (isStringEmpty(email)) {
+        return "email.empty";
+    }
+
+    if (!isValidEmail(email!)) {
+        return "email.invalid";
+    }
+
+    return undefined;
+};
+
+export const validateVerificationCode = (verificationCode: string): keyof Labels | undefined => {
+    if (isStringEmpty(verificationCode)) {
+        return "email.verification.code.empty";
     }
 
     return undefined;

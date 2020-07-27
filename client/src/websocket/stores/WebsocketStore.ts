@@ -2,8 +2,8 @@ import {action, computed, reaction} from "mobx";
 import SocketIo from "socket.io-client";
 import {AuthorizationStore} from "../../Authorization/stores";
 import {EntitiesStore} from "../../entities-store";
-import {WebsocketEvent, WebsocketEventType} from "../../api/types/websocket";
-import {Message} from "../../api/types/response";
+import {ChatUpdated, MessagesDeleted, WebsocketEvent, WebsocketEventType} from "../../api/types/websocket";
+import {Message, ChatBlocking, ChatParticipation} from "../../api/types/response";
 
 export class WebsocketStore {
     socketIoClient?: SocketIOClient.Socket;
@@ -58,6 +58,34 @@ export class WebsocketStore {
                 WebsocketEventType.MESSAGE_UPDATED,
                 (event: WebsocketEvent<Message>) => this.entities.insertMessage(event.payload)
             );
+            this.socketIoClient.on(
+                WebsocketEventType.MESSAGES_DELETED,
+                (event: WebsocketEvent<MessagesDeleted>) => this.entities.messages.deleteAllById(event.payload.messagesIds)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_BLOCKING_CREATED,
+                (event: WebsocketEvent<ChatBlocking>) => this.entities.insertChatBlocking(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_BLOCKING_UPDATED,
+                (event: WebsocketEvent<ChatBlocking>) => this.entities.insertChatBlocking(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_BLOCKING_CANCELED,
+                (event: WebsocketEvent<ChatBlocking>) => this.entities.insertChatBlocking(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_PARTICIPANT_WENT_ONLINE,
+                (event: WebsocketEvent<ChatParticipation>) => this.entities.insertChatParticipation(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_PARTICIPANT_WENT_OFFLINE,
+                (event: WebsocketEvent<ChatParticipation>) => this.entities.insertChatParticipation(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_UPDATED,
+                (event: WebsocketEvent<ChatUpdated>) => this.entities.updateChat(event.payload)
+            );
         }
     };
 
@@ -73,5 +101,5 @@ export class WebsocketStore {
         if (this.socketIoClient) {
             this.socketIoClient.emit(WebsocketEventType.CHAT_UNSUBSCRIPTION, {chatId});
         }
-    }
+    };
 }

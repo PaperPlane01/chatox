@@ -41,7 +41,7 @@ const _RegistrationMenuItem: FunctionComponent<RegistrationMenuItemProps> = ({
 };
 
 const mapMobxToProps = (state: IAppState): RegistrationMenuItemMobxProps => ({
-    setRegistrationDialogOpen: state.userRegistration.setRegistrationDialogOpen
+    setRegistrationDialogOpen: state.registrationDialog.setRegistrationDialogOpen
 });
 
 export const RegistrationMenuItem = localized(

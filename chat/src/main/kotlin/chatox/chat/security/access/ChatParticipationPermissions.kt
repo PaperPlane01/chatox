@@ -1,11 +1,13 @@
 package chatox.chat.security.access
 
 import chatox.chat.model.ChatRole
-import chatox.chat.model.User
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.service.ChatService
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrDefault
+import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
@@ -22,12 +24,19 @@ class ChatParticipationPermissions(private val chatService: ChatService,
     }
 
     fun canJoinChat(chatId: String): Mono<Boolean> {
-        return authenticationFacade.getCurrentUser()
-                .zipWhen {
-                    chatParticipationService.getRoleOfUserInChat(chatId, it)
-                        .switchIfEmpty(Mono.just(ChatRole.NOT_PARTICIPANT)) }
-                .zipWhen { chatBlockingService.isUserBlockedInChat(chatId, it.t1) }
-                .map { it.t1.t2 == ChatRole.NOT_PARTICIPANT && !it.t2 }
+        return mono {
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val chatRole = chatParticipationService.getRoleOfUserInChat(
+                    chatId = chatId,
+                    user = currentUser
+            )
+                    .awaitFirstOrDefault(ChatRole.NOT_PARTICIPANT)
+            val userBlockedInChat = chatBlockingService
+                    .isUserBlockedInChat(chatId = chatId, user = currentUser)
+                    .awaitFirst()
+
+            chatRole == ChatRole.NOT_PARTICIPANT && !userBlockedInChat
+        }
     }
 
     fun canLeaveChat(chatId: String): Mono<Boolean> {

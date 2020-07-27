@@ -5,5 +5,7 @@ import java.time.ZonedDateTime
 data class CreateChatBlockingRequest(
         val userId: String,
         val description: String?,
-        val blockedUntil: ZonedDateTime
+        val blockedUntil: ZonedDateTime,
+        val deleteRecentMessages: Boolean?,
+        val deleteMessagesSince: ZonedDateTime?
 )

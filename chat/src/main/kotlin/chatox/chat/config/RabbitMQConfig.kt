@@ -1,6 +1,7 @@
 package chatox.chat.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.core.TopicExchange
@@ -13,7 +14,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class RabbitMQConfig {
-    
+
     @Autowired
     @Bean
     fun rabbitTemplate(connectionFactory: ConnectionFactory,
@@ -42,23 +43,89 @@ class RabbitMQConfig {
     fun userDeletedQueue() = Queue("chat_service_user_deleted")
 
     @Bean
-    fun userCreatedBinding() = BindingBuilder
+    fun userWentOnlineQueue() = Queue("chat_service_user_went_online")
+
+    @Bean
+    fun userWentOfflineQueue() = Queue("chat_service_user_went_offline")
+
+    @Bean
+    fun userCreatedBinding(): Binding = BindingBuilder
             .bind(userCreatedQueue())
             .to(userEvents())
             .with("user.created.#")
 
     @Bean
-    fun userUpdatedBinding() = BindingBuilder
+    fun userUpdatedBinding(): Binding = BindingBuilder
             .bind(userUpdatedQueue())
             .to(userEvents())
             .with("user.updated.#")
 
     @Bean
-    fun userDeletedBinding() = BindingBuilder
+    fun userDeletedBinding(): Binding = BindingBuilder
             .bind(userDeletedQueue())
             .to(userEvents())
             .with("user.deleted.#")
 
     @Bean
+    fun userWentOnlineBinding(): Binding = BindingBuilder
+            .bind(userWentOnlineQueue())
+            .to(userEvents())
+            .with("user.online.#")
+
+    @Bean
+    fun userWentOfflineBinding(): Binding = BindingBuilder
+            .bind(userWentOfflineQueue())
+            .to(userEvents())
+            .with("user.offline.#")
+
+    @Bean
     fun chatEvents() = TopicExchange("chat.events")
+
+    @Bean
+    fun uploadEvents() = TopicExchange("upload.events")
+
+    @Bean
+    fun imageCreated() = Queue("chat_service_image_created")
+
+    @Bean
+    fun gifCreated() = Queue("chat_service_gif_created")
+
+    @Bean
+    fun videoCreated() = Queue("chat_service_video_created")
+
+    @Bean
+    fun audioCreated() = Queue("chat_service_audio_created")
+
+    @Bean
+    fun fileCreated() = Queue("chat_service_file_created")
+
+    @Bean
+    fun imageCreatedBinding(): Binding = BindingBuilder
+            .bind(imageCreated())
+            .to(uploadEvents())
+            .with("upload.image.created.#")
+
+    @Bean
+    fun gifCreatedBinding(): Binding = BindingBuilder
+            .bind(gifCreated())
+            .to(uploadEvents())
+            .with("upload.gif.created.#")
+
+    @Bean
+    fun videoCreatedBinding(): Binding = BindingBuilder
+            .bind(videoCreated())
+            .to(uploadEvents())
+            .with("upload.video.created.#")
+
+    @Bean
+    fun audioCreatedBinding(): Binding = BindingBuilder
+            .bind(audioCreated())
+            .to(uploadEvents())
+            .with("upload.audio.created.#")
+
+    @Bean
+    fun fileCreatedBinding(): Binding = BindingBuilder
+            .bind(fileCreated())
+            .to(uploadEvents())
+            .with("upload.file.created.#")
 }

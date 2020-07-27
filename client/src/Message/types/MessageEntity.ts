@@ -1,6 +1,6 @@
 export interface MessageEntity {
     id: string,
-    referredMessage?: string,
+    referredMessageId?: string,
     sender: string,
     text: string,
     deleted: boolean,
@@ -8,5 +8,6 @@ export interface MessageEntity {
     updatedAt?: Date,
     readByCurrentUser: boolean,
     previousMessageId?: string,
-    nextMessageId?: string
+    nextMessageId?: string,
+    chatId: string
 }

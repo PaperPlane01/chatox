@@ -78,7 +78,6 @@ const refreshAccessToken = (originalRequest: AxiosRequestConfig): Promise<any> =
 
         return new Promise(resolve => {
             addRefreshTokenSubscriber(token =>{
-                console.log(token);
 
                 if (token) {
                     originalRequest.headers.Authorization = `Bearer ${token}`;

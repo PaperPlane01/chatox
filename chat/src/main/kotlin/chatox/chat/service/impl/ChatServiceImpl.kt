@@ -6,16 +6,27 @@ import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.exception.ChatNotFoundException
+import chatox.chat.exception.SlugIsAlreadyInUseException
+import chatox.chat.exception.UploadNotFoundException
+import chatox.chat.exception.WrongUploadTypeException
 import chatox.chat.mapper.ChatMapper
+import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
+import chatox.chat.model.ImageUploadMetadata
+import chatox.chat.model.Upload
+import chatox.chat.model.UploadType
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.MessageRepository
+import chatox.chat.repository.UploadRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatPermissions
 import chatox.chat.service.ChatService
 import chatox.chat.support.pagination.PaginationRequest
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
@@ -29,8 +40,10 @@ import java.time.ZonedDateTime
 class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationRepository: ChatParticipationRepository,
                       private val messageRepository: MessageRepository,
+                      private val uploadRepository: UploadRepository,
                       private val chatMapper: ChatMapper,
-                      private val authenticationFacade: AuthenticationFacade) : ChatService {
+                      private val authenticationFacade: AuthenticationFacade,
+                      private val chatEventsPublisher: ChatEventsPublisher) : ChatService {
 
     private lateinit var chatPermissions: ChatPermissions
 
@@ -50,7 +63,8 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                                     user = it.createdBy,
                                     chat = it,
                                     role = ChatRole.ADMIN,
-                                    lastMessageRead = null
+                                    lastMessageRead = null,
+                                    createdAt = ZonedDateTime.now()
                             )
                     )
                 }
@@ -60,19 +74,55 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                         chatParticipation = it,
                         unreadMessagesCount = 0,
                         lastMessage = null,
-                        lastReadMessage = null
+                        lastReadMessage = null,
+                        onlineParticipantsCount = 1
                 ) }
     }
 
     override fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse> {
-        return assertCanUpdateChat(id)
-                .flatMap {
-                    chatRepository.findById(id)
-                            .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
-                            .map { chatMapper.mapChatUpdate(updateChatRequest, it) }
-                            .flatMap { chatRepository.save(it) }
-                            .map { chatMapper.toChatResponse(it) }
+        return mono {
+            assertCanUpdateChat(id).awaitFirst()
+            var chat = chatRepository.findById(id).awaitFirst()
+
+            if (updateChatRequest.slug != null
+                    && updateChatRequest.slug != chat.slug
+                    && updateChatRequest.slug != chat.id) {
+                val slugAvailability = checkChatSlugAvailability(updateChatRequest.slug).awaitFirst()
+
+                if (!slugAvailability.available) {
+                    throw SlugIsAlreadyInUseException(
+                            "Slug ${updateChatRequest.slug} is already used by another chat"
+                    )
                 }
+            }
+
+            var avatar: Upload<ImageUploadMetadata>? = chat.avatar
+
+            if (updateChatRequest.avatarId != null) {
+                avatar = uploadRepository.findByIdAndType<ImageUploadMetadata>(
+                        updateChatRequest.avatarId,
+                        UploadType.IMAGE
+                ).awaitFirstOrNull()
+
+                if (avatar == null) {
+                    throw UploadNotFoundException("Could not find image with id ${updateChatRequest.avatarId}")
+                }
+            }
+
+            chat = chat.copy(
+                    name = updateChatRequest.name,
+                    avatar = avatar,
+                    slug = updateChatRequest.slug ?: chat.id,
+                    tags = updateChatRequest.tags ?: arrayListOf(),
+                    description = updateChatRequest.description
+            )
+
+            chat = chatRepository.save(chat).awaitFirst()
+            val chatUpdatedEvent = chatMapper.toChatUpdated(chat)
+            chatEventsPublisher.chatUpdated(chatUpdatedEvent)
+
+            chatMapper.toChatResponse(chat)
+        }
     }
 
     private fun assertCanUpdateChat(chatId: String): Mono<Boolean> {
@@ -122,21 +172,35 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     }
 
     override fun getChatsOfCurrentUser(): Flux<ChatOfCurrentUserResponse> {
-        return authenticationFacade.getCurrentUser()
-                .map { chatParticipationRepository.findAllByUser(it) }
-                .flatMapMany { it }
-                .map { Mono.just(it) }
-                .parallel()
-                .map { it.zipWith(countUnreadMessages(it)) }
-                .flatMap { it }
-                .sequential()
-                .map { chatMapper.toChatOfCurrentUserResponse(
-                        chat = it.t1.chat,
-                        lastMessage = it.t1.chat.lastMessage,
-                        lastReadMessage = if (it.t1.lastMessageRead != null) it.t1.lastMessageRead!!.message else null,
-                        unreadMessagesCount = it.t2,
-                        chatParticipation = it.t1
-                ) }
+        return mono {
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val chatParticipations = chatParticipationRepository
+                    .findAllByUser(currentUser)
+                    .collectList()
+                    .awaitFirst()
+            val unreadMessagesMap: MutableMap<String, Int> = HashMap()
+            val onlineParticipantsCountMap: MutableMap<String, Int> = HashMap()
+
+            chatParticipations.forEach { chatParticipation ->
+                unreadMessagesMap[chatParticipation.chat.id] = countUnreadMessages(Mono.just(chatParticipation))
+                        .awaitFirst()
+                onlineParticipantsCountMap[chatParticipation.chat.id] = chatParticipationRepository
+                        .countByChatAndUserOnlineTrue(chatParticipation.chat)
+                        .awaitFirst()
+            }
+
+            chatParticipations.map { chatParticipation ->
+                chatMapper.toChatOfCurrentUserResponse(
+                        chat = chatParticipation.chat,
+                        chatParticipation = chatParticipation,
+                        lastReadMessage = if (chatParticipation.lastMessageRead != null) chatParticipation.lastMessageRead!!.message else null,
+                        lastMessage = chatParticipation.chat.lastMessage,
+                        onlineParticipantsCount = onlineParticipantsCountMap[chatParticipation.chat.id]!!,
+                        unreadMessagesCount = unreadMessagesMap[chatParticipation.chat.id]!!
+                        )
+            }
+        }
+                .flatMapMany { Flux.fromIterable(it) }
     }
 
     private fun countUnreadMessages(chatParticipation: Mono<ChatParticipation>): Mono<Int> {
@@ -163,7 +227,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     }
 
     override fun checkChatSlugAvailability(slug: String): Mono<AvailabilityResponse> {
-        return chatRepository.existsBySlug(slug)
+        return chatRepository.existsBySlugOrId(slug, slug)
                 .map { AvailabilityResponse(available = !it) }
     }
 }

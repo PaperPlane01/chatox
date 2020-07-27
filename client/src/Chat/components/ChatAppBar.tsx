@@ -4,6 +4,7 @@ import {AppBar, CardHeader, Toolbar, Typography, Hidden, IconButton} from "@mate
 import {Skeleton} from "@material-ui/lab";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import randomColor from "randomcolor";
+import {ChatMenu} from "./ChatMenu";
 import {ChatOfCurrentUserEntity} from "../types";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
@@ -19,8 +20,10 @@ interface ChatAppBarMobxProps {
     selectedChatId?: string,
     pending: boolean,
     error?: ApiError,
+    onlineParticipantsCount: number,
     routerStore?: any,
-    findChat: (id: string) => ChatOfCurrentUserEntity
+    findChat: (id: string) => ChatOfCurrentUserEntity,
+    setChatInfoDialogOpen: (chatInfoDialogOpen: boolean) => void
 }
 
 const getLabelFromError = (error: ApiError): keyof Labels => {
@@ -35,8 +38,10 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
     selectedChatId,
     pending,
     error,
+    onlineParticipantsCount,
     routerStore,
     findChat,
+    setChatInfoDialogOpen,
     l
 }) => {
     let appBarContent: ReactElement;
@@ -52,21 +57,44 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
         const chat = findChat(selectedChatId);
         appBarContent = (
             <CardHeader title={(
-                <Typography variant="body1">
+                <Typography variant="body1"
+                            style={{cursor: "pointer"}}
+                            onClick={() => setChatInfoDialogOpen(true)}
+                >
                     {chat.name}
                 </Typography>
             )}
                         subheader={(
-                            <Typography variant="body2" style={{opacity: 0.5}}>
-                                {l("chat.number-of-participants", {numberOfParticipants: chat.participantsCount})}
+                            <Typography variant="body2"
+                                        style={{
+                                            opacity: 0.5,
+                                            cursor: "pointer"
+                                        }}
+                                        onClick={() => setChatInfoDialogOpen(true)}
+                            >
+                                {l(
+                                    "chat.number-of-participants",
+                                    {numberOfParticipants: chat.participantsCount, onlineParticipantsCount: `${onlineParticipantsCount}`}
+                                )}
                             </Typography>
                         )}
                         avatar={(
-                            <Avatar avatarLetter={getAvatarLabel(chat.name)}
-                                    avatarColor={randomColor({seed: chat.id})}
-                                    avatarUri={chat.avatarUri}
-                            />
+                            <div style={{cursor: "pointer"}}
+                                 onClick={() => setChatInfoDialogOpen(true)}
+                            >
+                                <Avatar avatarLetter={getAvatarLabel(chat.name)}
+                                        avatarColor={randomColor({seed: chat.id})}
+                                        avatarUri={chat.avatarUri}
+                                        avatarId={chat.avatarId}
+                                />
+                            </div>
                         )}
+                        action={
+                            <ChatMenu/>
+                        }
+                        style={{
+                            width: "100%"
+                        }}
             />
         )
     } else if (error) {
@@ -112,12 +140,20 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
     )
 };
 
-const mapMobxToProps: MapMobxToProps<ChatAppBarMobxProps> = ({chat, entities, store}) => ({
+const mapMobxToProps: MapMobxToProps<ChatAppBarMobxProps> = ({
+    chat,
+    onlineChatParticipants,
+    entities,
+    chatInfoDialog,
+    store
+}) => ({
     pending: chat.pending,
     error: chat.error,
     selectedChatId: chat.selectedChatId,
+    onlineParticipantsCount: onlineChatParticipants.onlineParticipantsCount,
     routerStore: store,
-    findChat: entities.chats.findById
+    findChat: entities.chats.findById,
+    setChatInfoDialogOpen: chatInfoDialog.setChatInfoDialogOpen
 });
 
 export const ChatAppBar = localized(

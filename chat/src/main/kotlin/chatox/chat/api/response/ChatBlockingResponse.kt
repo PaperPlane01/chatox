@@ -12,5 +12,7 @@ data class ChatBlockingResponse(
      val canceledAt: ZonedDateTime?,
      val canceledBy: UserResponse?,
      val lastModifiedAt: ZonedDateTime?,
-     val lastModifiedBy: UserResponse?
+     val lastModifiedBy: UserResponse?,
+     val chatId: String,
+     val createdAt: ZonedDateTime
 )

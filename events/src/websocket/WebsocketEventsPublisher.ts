@@ -1,3 +1,4 @@
+import {forwardRef, Inject} from "@nestjs/common";
 import {
     ConnectedSocket,
     MessageBody,
@@ -11,10 +12,11 @@ import {AmqpConnection} from "@nestjs-plus/rabbitmq";
 import {Socket} from "socket.io";
 import {parse} from "querystring";
 import {ChatSubscription, ChatUnsubscription, EventType, JwtPayload, MessageDeleted, WebsocketEvent} from "./types";
-import {ChatMessage} from "../common/types";
+import {MessagesDeleted} from "./types/MessagesDeleted";
+import {SessionActivityStatusResponse} from "./types/SessionActivityStatusResponse";
+import {Chat, ChatBlocking, ChatMessage} from "../common/types";
 import {ChatParticipationService} from "../chat-participation";
-import {CreateChatParticipationDto} from "../chat-participation/types";
-import {forwardRef, Inject} from "@nestjs/common";
+import {ChatParticipationDto} from "../chat-participation/types";
 
 @WebSocketGateway({
     path: "/api/v1/events/",
@@ -50,7 +52,10 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
                 "user.connected.#",
                 {
                     userId: jwtPayload.user_id,
-                    sessionId: client.id
+                    socketIoId: client.id,
+                    ipAddress: client.request.connection.remoteAddress,
+                    userAgent: client.request.headers["user-agent"],
+                    accessToken: queryParameters.accessToken
                 }
             )
         }
@@ -83,9 +88,22 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
                 "user.disconnected.#",
                 {
                     userId: disconnectedUserId,
-                    sessionId: client.id
+                    socketIoId: client.id
                 }
             )
+        }
+    }
+
+    public isSessionActive(socketIoId: string): SessionActivityStatusResponse {
+        const active = this.connectedClients.filter(client => client.id === socketIoId).length !== 0;
+        return {active};
+    }
+
+    public getSessionsOfUser(userId: string): string[] {
+        if (this.usersAndClientsMap[userId]) {
+            return this.usersAndClientsMap[userId].map(client => client.id);
+        } else {
+            return [];
         }
     }
 
@@ -144,13 +162,69 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         await this.publishEventToUsersSubscribedToChat(messageDeleted.chatId, messageDeletedEvent);
     }
 
-    public async publishUserJoinedChat(createChatParticipationDto: CreateChatParticipationDto) {
-        const userJoinedEvent: WebsocketEvent<CreateChatParticipationDto> = {
+    public async publishMessagesDeleted(messagesDeleted: MessagesDeleted) {
+        const messagesDeletedEvent: WebsocketEvent<MessagesDeleted> = {
+            type: EventType.MESSAGES_DELETED,
+            payload: messagesDeleted
+        };
+        await this.publishEventToChatParticipants(messagesDeleted.chatId, messagesDeletedEvent);
+        await this.publishEventToUsersSubscribedToChat(messagesDeleted.chatId, messagesDeletedEvent);
+    }
+
+    public async publishUserJoinedChat(createChatParticipationDto: ChatParticipationDto) {
+        const userJoinedEvent: WebsocketEvent<ChatParticipationDto> = {
             type: EventType.USER_JOINED_CHAT,
             payload: createChatParticipationDto
         };
         await this.publishEventToChatParticipants(createChatParticipationDto.chatId, userJoinedEvent);
         await this.publishEventToUsersSubscribedToChat(createChatParticipationDto.chatId, userJoinedEvent);
+    }
+
+    public async publishChatBlockingCreated(chatBlocking: ChatBlocking) {
+        const chatBlockingCreated: WebsocketEvent<ChatBlocking> = {
+            type: EventType.CHAT_BLOCKING_CREATED,
+            payload: chatBlocking
+        };
+        await this.publishEventToUser(chatBlocking.blockedUser.id, chatBlockingCreated);
+    }
+
+    public async publishChatBlockingUpdated(chatBlocking: ChatBlocking) {
+        const chatBlockingUpdated: WebsocketEvent<ChatBlocking> = {
+            type: EventType.CHAT_BLOCKING_UPDATED,
+            payload: chatBlocking
+        };
+        await this.publishEventToUser(chatBlocking.blockedUser.id, chatBlockingUpdated);
+    }
+
+    public async publishChatParticipantsWentOnline(chatParticipants: ChatParticipationDto[]) {
+        chatParticipants.forEach(participant => {
+            const chatParticipantWentOnline: WebsocketEvent<ChatParticipationDto> = {
+                payload: participant,
+                type: EventType.CHAT_PARTICIPANT_WENT_ONLINE
+            };
+            this.publishEventToChatParticipants(participant.chatId, chatParticipantWentOnline);
+            this.publishEventToUsersSubscribedToChat(participant.chatId, chatParticipantWentOnline);
+        })
+    }
+
+    public async publishChatParticipantsWentOffline(chatParticipants: ChatParticipationDto[]) {
+        chatParticipants.forEach(participant => {
+            const chatParticipantWentOffline: WebsocketEvent<ChatParticipationDto> = {
+                payload: participant,
+                type: EventType.CHAT_PARTICIPANT_WENT_OFFLINE
+            };
+            this.publishEventToChatParticipants(participant.chatId, chatParticipantWentOffline);
+            this.publishEventToUsersSubscribedToChat(participant.chatId, chatParticipantWentOffline);
+        })
+    }
+
+    public async publishChatUpdated(chat: Chat) {
+        const chatUpdated: WebsocketEvent<Chat> = {
+            payload: chat,
+            type: EventType.CHAT_UPDATED
+        };
+        this.publishEventToChatParticipants(chat.id, chatUpdated);
+        this.publishEventToUsersSubscribedToChat(chat.id, chatUpdated);
     }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {
@@ -163,6 +237,14 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
                 })
             }
         });
+    }
+
+    private async publishEventToUser(userId: string, event: WebsocketEvent<any>): Promise<void> {
+        const clients = this.usersAndClientsMap[userId];
+
+        if (clients && clients.length !== 0) {
+            clients.forEach(client => client.emit(event.type, event));
+        }
     }
 
     private async publishEventToUsersSubscribedToChat(chatId: string, event: WebsocketEvent<any>): Promise<void> {
