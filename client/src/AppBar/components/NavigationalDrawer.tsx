@@ -5,6 +5,7 @@ import {DrawerUserInfo} from "./DrawerUserInfo";
 import {ProfileMenuItem} from "./ProfileMenuItem";
 import {HomeMenuItem} from "./HomeMenuItem";
 import {MyChatsMenuItem} from "./MyChatsMenuItem";
+import {SettingsMenuItem} from "./SettingsMenuItem";
 import {HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {IAppState} from "../../store";
@@ -50,6 +51,7 @@ const _NavigationalDrawer: FunctionComponent<NavigationalDrawerMobxProps> = ({
                         <MyChatsMenuItem onClick={closeDrawer}/>
                         <LogOutMenuItem onClick={closeDrawer}/>
                     </HasRole>
+                    <SettingsMenuItem onClick={closeDrawer}/>
                 </List>
             </SwipeableDrawer>
             <LoginDialog/>
@@ -63,4 +65,4 @@ const mapMobxToProps = (state: IAppState): NavigationalDrawerMobxProps => ({
     drawerOpen: state.appBar.drawerExpanded
 });
 
-export const NavigationalDrawer = inject(mapMobxToProps)(observer(_NavigationalDrawer as FunctionComponent<{}>));
+export const NavigationalDrawer = inject(mapMobxToProps)(observer(_NavigationalDrawer as FunctionComponent));

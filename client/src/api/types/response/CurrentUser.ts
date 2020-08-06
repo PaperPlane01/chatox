@@ -1,4 +1,6 @@
 import {UserRole} from "./UserRole";
+import {Upload} from "./Upload";
+import {ImageUploadMetadata} from "./ImageUploadMetadata";
 
 export interface CurrentUser {
     id: string,
@@ -7,7 +9,10 @@ export interface CurrentUser {
     firstName: string,
     lastName?: string,
     avatarUri?: string,
+    avatarId?: string,
+    avatar?: Upload<ImageUploadMetadata>,
     accountId: string,
     roles: UserRole[],
-    createdAt: string
+    createdAt: string,
+    dateOfBirth?: string
 }

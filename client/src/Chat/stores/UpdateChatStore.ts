@@ -1,9 +1,9 @@
 import {observable, action, reaction, computed} from "mobx";
 import {throttle} from "lodash";
 import {ChatStore} from "./ChatStore";
-import {UploadChatAvatarStore} from "./UploadChatAvatarStore";
 import {UpdateChatFormData, TagErrorsMapContainer} from "../types";
 import {FormErrors} from "../../utils/types";
+import {UploadImageStore} from "../../Upload";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ImageUploadMetadata} from "../../api/types/response";
 import {EntitiesStore} from "../../entities-store";
@@ -54,7 +54,7 @@ export class UpdateChatStore {
 
     @computed
     get avatarFileContainer(): UploadedFileContainer<ImageUploadMetadata> | undefined {
-        return this.uploadChatAvatarStore.avatarContainer;
+        return this.uploadChatAvatarStore.imageContainer
     }
 
     @computed
@@ -87,7 +87,7 @@ export class UpdateChatStore {
             && this.avatarFileContainer.uploadedFile.id
     }
 
-    constructor(private readonly uploadChatAvatarStore: UploadChatAvatarStore,
+    constructor(private readonly uploadChatAvatarStore: UploadImageStore,
                 private readonly chatStore: ChatStore,
                 private readonly entities: EntitiesStore) {
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300);

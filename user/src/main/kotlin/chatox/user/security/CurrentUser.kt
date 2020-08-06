@@ -11,5 +11,6 @@ data class CurrentUser(
         val avatarUri: String?,
         val accountId: String,
         val bio: String?,
-        val createdAt: ZonedDateTime
+        val createdAt: ZonedDateTime,
+        val dateOfBirth: ZonedDateTime?
 )

@@ -39,7 +39,8 @@ class AuthenticationFacade(private val userRepository: UserRepository) {
                         avatarUri = it.t1.avatarUri,
                         roles = it.t2.roles,
                         bio = it.t1.bio,
-                        createdAt = it.t1.createdAt
+                        createdAt = it.t1.createdAt,
+                        dateOfBirth = it.t1.dateOfBirth
                 ) }
     }
 
