@@ -124,6 +124,7 @@ const _EditProfileForm: FunctionComponent<EditProfileFormProps> = ({
                            }}
                            multiline
                            rows={4}
+                           rowsMax={Number.MAX_SAFE_INTEGER}
                 />
             </CardContent>
             <CardActions>
@@ -132,6 +133,7 @@ const _EditProfileForm: FunctionComponent<EditProfileFormProps> = ({
                         disabled={pending || avatarUploadPending || checkingSlugAvailability}
                         onClick={updateProfile}
                 >
+                    {pending && <CircularProgress size={25} color="primary"/>}
                     {l("user.edit-profile.save-changes")}
                 </Button>
             </CardActions>

@@ -73,6 +73,29 @@ export class EditProfileStore {
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300);
 
         reaction(
+            () => this.currentUser,
+            currentUser => {
+                if (currentUser) {
+                    this.editProfileForm = {
+                        firstName: currentUser.firstName,
+                        bio: currentUser.bio,
+                        lastName: currentUser.lastName,
+                        dateOfBirth: currentUser.dateOfBirth ? new Date(currentUser.dateOfBirth) : undefined,
+                        slug: currentUser.slug
+                    }
+                } else {
+                    this.editProfileForm = {
+                        firstName: "",
+                        slug: "",
+                        bio: "",
+                        lastName: undefined,
+                        dateOfBirth: undefined
+                    }
+                }
+            }
+        );
+
+        reaction(
             () => this.editProfileForm.firstName,
             firstName => this.formErrors.firstName = validateFirstName(firstName)
         );
@@ -90,10 +113,14 @@ export class EditProfileStore {
         reaction(
             () => this.editProfileForm.slug,
             slug => {
-                this.formErrors.slug = validateSlug(slug);
+                if (this.currentUser && (slug === this.currentUser.slug || slug === this.currentUser.id)) {
+                    this.formErrors.slug = undefined;
+                } else {
+                    this.formErrors.slug = validateSlug(slug);
 
-                if (!this.formErrors.slug) {
-                    this.checkSlugAvailability();
+                    if (!this.formErrors.slug) {
+                        this.checkSlugAvailability();
+                    }
                 }
             }
         );
@@ -107,6 +134,8 @@ export class EditProfileStore {
     @action
     updateProfile = (): void => {
         this.validateForm().then(formValid => {
+            console.log(`Is form valid: ${formValid}`);
+
             if (!this.currentUser || !formValid) {
                 return;
             }
@@ -129,6 +158,7 @@ export class EditProfileStore {
                             ...this.currentUser,
                             ...data
                         });
+                        this.setShowSnackbar(true);
                     }
                 })
                 .catch(error => this.error = getInitialApiErrorFromResponse(error))
@@ -138,7 +168,12 @@ export class EditProfileStore {
 
     @action
     checkSlugAvailability = (): Promise<void> => {
-        if (!this.editProfileForm.slug) {
+        if (!this.editProfileForm.slug || this.editProfileForm.slug.length === 0) {
+            return new Promise<void>(resolve => resolve());
+        }
+
+        if (this.currentUser && (this.editProfileForm.slug === this.currentUser.slug
+            || this.editProfileForm.slug === this.currentUser.id)) {
             return new Promise<void>(resolve => resolve());
         }
 
@@ -160,12 +195,12 @@ export class EditProfileStore {
         return new Promise<boolean>(async resolve => {
             let {firstName, lastName, bio, slug, dateOfBirth} = this.formErrors;
 
-            if (firstName || lastName || bio || slug || dateOfBirth || this.avatarValidationError) {
+            if (Boolean(firstName || lastName || bio || slug || dateOfBirth || this.avatarValidationError)) {
                 resolve(false);
             }
 
             this.checkSlugAvailability()
-                .then(() => resolve(Boolean(this.formErrors.slug)));
+                .then(() => resolve(!Boolean(this.formErrors.slug)));
         })
     };
 

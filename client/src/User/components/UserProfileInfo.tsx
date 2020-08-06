@@ -29,7 +29,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         height: "100%"
     },
     userInfoCard: {
-        marginBottom: theme.spacing(1)
+        marginBottom: theme.spacing(1),
+        wordBreak: "break-word",
+        maxWidth: 420
     },
     onlineLabel: {
         color: theme.palette.primary.main
