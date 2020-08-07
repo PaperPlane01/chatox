@@ -31,18 +31,15 @@ class UploadMapper {
             mimeType = upload.mimeType,
             meta = upload.meta,
             preview = if (upload.preview != null) toUploadResponse(upload.preview!!) else null,
-            thumbnail = if (upload.thumbnail != null) toUploadResponse(upload.thumbnail!!) else null,
             uri = getUploadUri(upload = upload),
             originalName = upload.originalName
     )
 
     fun <MetadataType>fromUploadCreated(uploadCreated: UploadCreated<MetadataType>,
-                                        thumbnail: Upload<ImageUploadMetadata>?,
                                         preview: Upload<ImageUploadMetadata>?,
                                         user: User?
     ): Upload<MetadataType> = Upload(
             id = uploadCreated.id,
-            thumbnail = thumbnail,
             preview = preview,
             meta = uploadCreated.meta,
             extension = uploadCreated.extension,
