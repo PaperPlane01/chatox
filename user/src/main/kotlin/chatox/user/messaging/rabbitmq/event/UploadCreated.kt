@@ -15,6 +15,5 @@ data class UploadCreated<MetadataType>(
         val isPreview: Boolean,
         val isThumbnail: Boolean,
         val userId: String?,
-        val preview: UploadCreated<ImageUploadMetadata>?,
-        val thumbnail: UploadCreated<ImageUploadMetadata>?
+        val preview: UploadCreated<ImageUploadMetadata>?
 )

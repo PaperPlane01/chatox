@@ -55,7 +55,7 @@ const _UserLink: FunctionComponent<UserLinkProps> = ({
                         avatarColor={color}
                         width={25}
                         height={25}
-                        avatarUri={user.avatarUri}
+                        avatarId={user.avatarId}
                 />
                 <Typography className={classes.userNicknameTypography}
                             style={{color}}

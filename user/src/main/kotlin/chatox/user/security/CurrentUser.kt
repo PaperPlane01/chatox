@@ -1,5 +1,7 @@
 package chatox.user.security
 
+import chatox.user.api.response.UploadResponse
+import chatox.user.domain.ImageUploadMetadata
 import java.time.ZonedDateTime
 
 data class CurrentUser(
@@ -8,7 +10,7 @@ data class CurrentUser(
         val firstName: String,
         val lastName: String?,
         val slug: String?,
-        val avatarUri: String?,
+        val avatar: UploadResponse<ImageUploadMetadata>?,
         val accountId: String,
         val bio: String?,
         val createdAt: ZonedDateTime,

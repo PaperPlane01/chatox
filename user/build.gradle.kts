@@ -59,3 +59,7 @@ tasks.withType<KotlinCompile> {
 		jvmTarget = "1.8"
 	}
 }
+
+allOpen {
+	annotation("org.springframework.data.mongodb.core.mapping.Document")
+}

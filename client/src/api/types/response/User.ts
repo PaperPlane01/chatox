@@ -1,3 +1,6 @@
+import {ImageUploadMetadata} from "./ImageUploadMetadata";
+import {Upload} from "./Upload";
+
 export interface User {
     id: string,
     firstName: string,
@@ -9,5 +12,6 @@ export interface User {
     deleted: boolean,
     createdAt: string,
     online: boolean,
-    lastSeen?: string
+    lastSeen?: string,
+    avatar?: Upload<ImageUploadMetadata>
 }

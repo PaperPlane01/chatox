@@ -36,6 +36,7 @@ const _DrawerUserInfo: FunctionComponent<DrawerUserInfoMobxProps> = ({
                         avatarColor={randomColor({seed: currentUser.id})}
                         width={60}
                         height={60}
+                        avatarId={currentUser.avatarId}
                 />
                 <Typography className={classes.username}>
                     {currentUser.firstName} {currentUser.lastName ? currentUser.lastName : ""}

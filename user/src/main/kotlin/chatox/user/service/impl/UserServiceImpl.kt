@@ -4,13 +4,20 @@ import chatox.user.api.request.CreateUserRequest
 import chatox.user.api.request.UpdateUserRequest
 import chatox.user.api.response.SlugAvailabilityResponse
 import chatox.user.api.response.UserResponse
+import chatox.user.domain.ImageUploadMetadata
+import chatox.user.domain.Upload
+import chatox.user.domain.UploadType
+import chatox.user.exception.UploadNotFoundException
 import chatox.user.exception.UserNotFoundException
+import chatox.user.exception.WrongUploadTypeException
 import chatox.user.mapper.UserMapper
 import chatox.user.messaging.rabbitmq.event.producer.UserEventsProducer
+import chatox.user.repository.UploadRepository
 import chatox.user.repository.UserRepository
 import chatox.user.repository.UserSessionRepository
 import chatox.user.service.UserService
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,6 +28,7 @@ import reactor.core.publisher.Mono
 @Transactional
 class UserServiceImpl(private val userRepository: UserRepository,
                       private val userSessionRepository: UserSessionRepository,
+                      private val uploadRepository: UploadRepository,
                       private val userMapper: UserMapper,
                       private val userEventsProducer: UserEventsProducer) : UserService {
 
@@ -45,7 +53,29 @@ class UserServiceImpl(private val userRepository: UserRepository,
     override fun updateUser(id: String, updateUserRequest: UpdateUserRequest): Mono<UserResponse> {
         return mono {
             var user = findById(id).awaitFirst()
-            user = userMapper.mapUserUpdate(user, updateUserRequest)
+            var avatar: Upload<ImageUploadMetadata>? = null
+
+            if (updateUserRequest.avatarId != null) {
+                val avatarUpload = uploadRepository.findById(updateUserRequest.avatarId)
+                        .awaitFirstOrNull()
+                        ?: throw UploadNotFoundException(
+                                "Could not find image with ${updateUserRequest.avatarId}"
+                        )
+
+                if (avatarUpload.type !== UploadType.IMAGE) {
+                    throw WrongUploadTypeException(
+                            "Avatar upload must have ${UploadType.IMAGE} type, however this upload has ${avatarUpload.type} type"
+                    )
+                }
+
+                avatar = avatarUpload as Upload<ImageUploadMetadata>;
+            }
+
+            user = userMapper.mapUserUpdate(
+                    originalUser = user,
+                    avatar = avatar,
+                    updateUserRequest = updateUserRequest
+            )
             user = userRepository.save(user).awaitFirst()
             val online = userSessionRepository.countByUserAndDisconnectedAtNull(user).awaitFirst() != 0L
 

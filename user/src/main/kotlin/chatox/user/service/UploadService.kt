@@ -5,5 +5,5 @@ import chatox.user.messaging.rabbitmq.event.UploadCreated
 import reactor.core.publisher.Mono
 
 interface UploadService {
-    fun saveUpload(uploadCreated: UploadCreated<Any>): Mono<UploadResponse<Any>>
+    fun <MetadataType>saveUpload(uploadCreated: UploadCreated<MetadataType>): Mono<UploadResponse<MetadataType>>
 }

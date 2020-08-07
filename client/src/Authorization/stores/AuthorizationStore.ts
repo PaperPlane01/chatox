@@ -42,7 +42,17 @@ export class AuthorizationStore {
         this.fetchingCurrentUser = true;
 
         return UserApi.getCurrentUser()
-            .then(({data}) => this.setCurrentUser(data))
+            .then(({data}) => {
+                this.entities.insertUser({
+                    ...data,
+                    online: true,
+                    deleted: false
+                });
+                this.currentUser = {
+                    ...data,
+                    avatarId: data.avatar ? data.avatar.id : undefined
+                };
+            })
             .finally(() => this.fetchingCurrentUser = false);
     };
 

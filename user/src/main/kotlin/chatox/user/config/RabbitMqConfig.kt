@@ -30,13 +30,13 @@ class RabbitMqConfig {
     fun uploadEvents() = TopicExchange("upload.events")
 
     @Bean
-    fun uploadCreatedQueue() = Queue("user_service_upload_created")
+    fun imageCreatedQueue() = Queue("user_service_image_created")
 
     @Bean
     fun uploadEventsBinding(): Binding = BindingBuilder
-            .bind(uploadCreatedQueue())
+            .bind(imageCreatedQueue())
             .to(uploadEvents())
-            .with("upload.created.#")
+            .with("upload.image.created.#")
 
     @Bean
     fun websocketEvents() = TopicExchange("websocket.events")

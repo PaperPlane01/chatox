@@ -148,7 +148,7 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
             >
                 <Avatar avatarLetter={avatarLetter}
                         avatarColor={color}
-                        avatarUri={sender.avatarUri}
+                        avatarId={sender.avatarId}
                 />
             </Link>
             <Card className={`${fullWidth ? classes.messageCardFullWidth : classes.messageCard} ${sentByCurrentUser && classes.messageOfCurrentUserCard}`}>
