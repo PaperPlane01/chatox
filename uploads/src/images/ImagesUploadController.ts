@@ -1,8 +1,9 @@
-import {Controller, Get, Param, Post, Res, UploadedFile, UseGuards, UseInterceptors} from "@nestjs/common";
+import {Controller, Get, Param, Post, Query, Res, UploadedFile, UseGuards, UseInterceptors} from "@nestjs/common";
 import {FileInterceptor} from "@nestjs/platform-express";
 import {AuthGuard} from "@nestjs/passport";
 import {Response} from "express";
 import {ImagesUploadService} from "./ImagesUploadService";
+import {ImageSizeRequest} from "./types/request";
 import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
 import {GifUploadMetadata, ImageUploadMetadata} from "../mongoose/entities";
@@ -31,7 +32,8 @@ export class ImagesUploadController {
 
     @Get(":imageName")
     public async getImage(@Param("imageName") imageName: string,
+                          @Query() imageSizeRequest: ImageSizeRequest,
                           @Res() response: Response): Promise<void> {
-        await this.imagesUploadService.getImage(imageName, response);
+        await this.imagesUploadService.getImage(imageName, imageSizeRequest, response);
     }
 }

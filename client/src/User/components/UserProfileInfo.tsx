@@ -114,8 +114,8 @@ const _UserProfileInfo: FunctionComponent<UserProfileInfoProps> = ({
                     <CardHeader avatar={<Avatar avatarLetter={avatarLetter}
                                                 avatarColor={color}
                                                 avatarUri={user.avatarUri}
-                                                width={80}
-                                                height={80}
+                                                width={64}
+                                                height={64}
                     />}
                                 title={`${user.firstName} ${user.lastName ? user.lastName : ""}`}
                                 subheader={onlineOrLastSeenLabel}

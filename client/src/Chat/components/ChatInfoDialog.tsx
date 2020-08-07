@@ -88,8 +88,8 @@ const _ChatInfoDialog: FunctionComponent<ChatInfoDialogProps> = ({
                         <CardHeader avatar={<Avatar avatarLetter={avatarLetter}
                                                     avatarColor={color}
                                                     avatarUri={chat.avatarUri}
-                                                    width={80}
-                                                    height={80}
+                                                    width={64}
+                                                    height={64}
                                                     avatarId={chat.avatarId}
                         />}
                                     title={chat.name}

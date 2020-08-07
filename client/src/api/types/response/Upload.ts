@@ -9,7 +9,6 @@ export interface Upload<MetadataType> {
     meta?: MetadataType,
     size: number,
     originalName: string,
-    thumbnail?: Upload<ImageUploadMetadata>,
     preview?: Upload<ImageUploadMetadata>,
     name: string,
     isThumbnail: boolean,
