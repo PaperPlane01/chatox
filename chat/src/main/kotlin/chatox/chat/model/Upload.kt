@@ -18,7 +18,5 @@ data class Upload<MetadataType>(
         @DBRef
         var preview: Upload<ImageUploadMetadata>?,
         @DBRef
-        var thumbnail: Upload<ImageUploadMetadata>?,
-        @DBRef
         var user: User?
 )

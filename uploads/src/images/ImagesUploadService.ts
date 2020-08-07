@@ -7,12 +7,14 @@ import {createReadStream, promises} from "fs";
 import path from "path";
 import {FileTypeResult, fromFile} from "file-type";
 import {getInfo} from "gify-parse";
+import {ImageSizeRequest} from "./types/request";
 import {GifUploadMetadata, ImageUploadMetadata, Upload, UploadType} from "../mongoose/entities";
 import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
 import {config} from "../config";
 import {UploadMapper} from "../common/mappers";
 import {CurrentUserHolder} from "../context/CurrentUserHolder";
+import {mapAsync} from "../utils/map-async";
 
 const fileSystem = promises;
 
@@ -35,6 +37,8 @@ const SUPPORTED_IMAGES_FORMATS = [
 ];
 
 const isImageFormatSupported = (imageFormat: string) => SUPPORTED_IMAGES_FORMATS.includes(imageFormat.trim().toLowerCase());
+
+const STANDARD_THUMBNAIL_SIZES = [40, 64, 128, 256, 512, 1024, 2048];
 
 @Injectable()
 export class ImagesUploadService {
@@ -88,7 +92,18 @@ export class ImagesUploadService {
 
     private async saveImage(options: SaveImageOptions): Promise<UploadInfoResponse<ImageUploadMetadata>> {
        const imageDimensions = await this.getImageDimensions(options.filePath);
-       const imageThumbnail = await this.generateThumbnail(options.filePath, options.fileInfo);
+       const thumbnails = await mapAsync(
+           STANDARD_THUMBNAIL_SIZES.filter(size => size < imageDimensions.width),
+           size => this.generateThumbnail(
+               options.filePath,
+               {
+                   ...options.fileInfo,
+                   ...imageDimensions,
+                   id: options.fileId
+               },
+               size
+           )
+       );
 
        const permanentPath = path.join(config.IMAGES_DIRECTORY, `${options.fileId}.${options.fileInfo.ext}`);
        await fileSystem.rename(options.filePath, permanentPath);
@@ -105,8 +120,8 @@ export class ImagesUploadService {
            originalName: options.multipartFile.originalname,
            type: UploadType.IMAGE,
            size: options.multipartFile.size,
-           thumbnail: imageThumbnail,
-           userId: options.userId
+           userId: options.userId,
+           thumbnails
        });
        await image.save();
        return this.uploadMapper.toUploadInfoResponse(image);
@@ -147,7 +162,6 @@ export class ImagesUploadService {
         const loopCount: number = gifInfo.loopCount;
         const infinite: boolean = animated && loopCount === 0;
 
-        const thumbnail = await this.generateThumbnail(options.filePath, options.fileInfo);
         const preview = await this.generateGifPreview(options.filePath);
 
         const permanentFilePath = path.join(config.IMAGES_DIRECTORY, `${options.fileId}.${options.fileInfo.ext}`);
@@ -161,7 +175,6 @@ export class ImagesUploadService {
             extension: options.fileInfo.ext,
             type: UploadType.GIF,
             originalName: options.multipartFile.originalname,
-            thumbnail,
             preview,
             isThumbnail: false,
             isPreview: false,
@@ -185,7 +198,11 @@ export class ImagesUploadService {
         return this.uploadMapper.toUploadInfoResponse(gif);
     }
 
-    private generateThumbnail(originalImagePath: string, originalImageInfo: FileTypeResult): Promise<Upload<ImageUploadMetadata>> {
+    private generateThumbnail(
+        originalImagePath: string,
+        originalImageInfo: FileTypeResult & ImageUploadMetadata & {id: string},
+        size: number
+    ): Promise<Upload<ImageUploadMetadata>> {
         return new Promise<Upload<ImageUploadMetadata>>(async (resolve, reject) => {
             const id = new Types.ObjectId().toHexString();
 
@@ -193,7 +210,7 @@ export class ImagesUploadService {
                 const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${id}.jpg`);
 
                 gm(`${originalImagePath}[0]`)
-                    .resize(200)
+                    .resize(size)
                     .write(thumbnailPath, async error => {
                         if (error) {
                             reject(error);
@@ -203,7 +220,7 @@ export class ImagesUploadService {
             } else {
                 const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${id}.${originalImageInfo.ext}`);
 
-                gm(originalImagePath).resize(200)
+                gm(originalImagePath).resize(size)
                     .write(thumbnailPath, async error => {
                         if (error) {
                             reject(error);
@@ -232,28 +249,46 @@ export class ImagesUploadService {
 
     private async saveThumbnailOrPreview(id: string, path: string, options: {isThumbnail: boolean, isPreview: boolean}): Promise<Upload<ImageUploadMetadata>> {
         const dimensions = await this.getImageDimensions(path);
-        const thumbnailFileInfo = await fromFile(path);
-        const thumbnailFileStats = await fileSystem.stat(path);
-        const thumbnail = new this.uploadModel({
+        const fileInfo = await fromFile(path);
+        const fileStats = await fileSystem.stat(path);
+        let thumbnails: Upload<ImageUploadMetadata>[] = [];
+
+        if (options.isPreview) {
+            thumbnails = await mapAsync(
+                STANDARD_THUMBNAIL_SIZES.filter(size => size < dimensions.width),
+                size => this.generateThumbnail(
+                    path,
+                    {
+                        ...fileInfo,
+                        ...dimensions,
+                        id
+                    },
+                    size
+                )
+            );
+        }
+
+        const image = new this.uploadModel({
             id,
-            size: thumbnailFileStats.size,
-            mimeType: thumbnailFileInfo.mime,
-            extension: thumbnailFileInfo.ext,
+            size: fileStats.size,
+            mimeType: fileInfo.mime,
+            extension: fileInfo.ext,
             meta: {
                 width: dimensions.width,
                 height: dimensions.height
             },
             type: UploadType.IMAGE,
-            name: `${id}.${thumbnailFileInfo.ext}`,
-            originalName: `${id}.${thumbnailFileInfo.ext}`,
+            name: `${id}.${fileInfo.ext}`,
+            originalName: `${id}.${fileInfo.ext}`,
             isThumbnail: options.isThumbnail,
-            isPreview: options.isPreview
+            isPreview: options.isPreview,
+            thumbnails
         });
-        await thumbnail.save();
-        return thumbnail;
+        await image.save();
+        return image;
     }
 
-    public async getImage(imageName: string, response: Response): Promise<void> {
+    public async getImage(imageName: string, imageSizeRequest: ImageSizeRequest, response: Response): Promise<void> {
         const image = await this.uploadModel.findOne({
             name: imageName
         })
@@ -272,9 +307,35 @@ export class ImagesUploadService {
         if (image.isThumbnail) {
             imagePath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, imageName);
         } else {
-            imagePath = path.join(config.IMAGES_DIRECTORY, imageName);
+            if (imageSizeRequest.size !== undefined && imageSizeRequest.size < image.meta.width) {
+                const thumbnail = await this.getThumbnailOrCreateNew(image, imageSizeRequest.size);
+                imagePath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, thumbnail.name);
+            } else {
+                imagePath = path.join(config.IMAGES_DIRECTORY, imageName);
+            }
         }
 
         createReadStream(imagePath).pipe(response);
+    }
+
+    private async getThumbnailOrCreateNew(image: Upload<ImageUploadMetadata>, size: number): Promise<Upload<ImageUploadMetadata>> {
+        let thumbnail = image.thumbnails.find(thumbnail => thumbnail.meta.width === size);
+
+        if (thumbnail) {
+            return thumbnail;
+        } else {
+            const imagePath = path.join(config.IMAGES_DIRECTORY, image.name);
+            const fileInfo = await fromFile(imagePath);
+
+            return this.generateThumbnail(
+                path.join(config.IMAGES_DIRECTORY, image.name),
+                {
+                    ...fileInfo,
+                    ...image.meta,
+                    id: image.id
+                },
+                size
+            );
+        }
     }
 }
