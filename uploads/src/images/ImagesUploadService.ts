@@ -1,5 +1,6 @@
-import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
+import {CACHE_MANAGER, HttpException, HttpStatus, Inject, Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
+import {Store} from "cache-manager";
 import {Response} from "express";
 import {Model, Types} from "mongoose";
 import graphicsMagic, {Dimensions} from "gm";
@@ -15,6 +16,7 @@ import {config} from "../config";
 import {UploadMapper} from "../common/mappers";
 import {CurrentUserHolder} from "../context/CurrentUserHolder";
 import {mapAsync} from "../utils/map-async";
+import {FileInfoResult} from "prettier";
 
 const fileSystem = promises;
 
@@ -26,6 +28,11 @@ interface SaveImageOptions {
     fileInfo: FileTypeResult,
     multipartFile: MultipartFile,
     userId: string
+}
+
+interface RedisFileInfo {
+    name: string,
+    mimeType: string
 }
 
 const SUPPORTED_IMAGES_FORMATS = [
@@ -44,7 +51,8 @@ const STANDARD_THUMBNAIL_SIZES = [64, 128, 256, 512, 1024, 2048];
 export class ImagesUploadService {
     constructor(@InjectModel("upload") private readonly uploadModel: Model<Upload<ImageUploadMetadata | GifUploadMetadata>>,
                 private readonly uploadMapper: UploadMapper,
-                private readonly currentUserHolder: CurrentUserHolder) {}
+                private readonly currentUserHolder: CurrentUserHolder,
+                @Inject(CACHE_MANAGER) private readonly cacheManager: Store) {}
 
     public async uploadImage(multipartFile: MultipartFile): Promise<UploadInfoResponse<ImageUploadMetadata | GifUploadMetadata>> {
         return new Promise<UploadInfoResponse<ImageUploadMetadata | GifUploadMetadata>>(async (resolve, reject) => {
@@ -289,6 +297,24 @@ export class ImagesUploadService {
     }
 
     public async getImage(imageName: string, imageSizeRequest: ImageSizeRequest, response: Response): Promise<void> {
+        if (imageSizeRequest.size) {
+            const fileInfo: RedisFileInfo | undefined = await this.cacheManager.get(`fileInfo_${imageName}_${imageSizeRequest.size}`);
+
+            if (fileInfo) {
+                response.setHeader("Content-Type", fileInfo.mimeType);
+                createReadStream(path.join(config.IMAGES_THUMBNAILS_DIRECTORY, fileInfo.name)).pipe(response);
+                return
+            }
+        } else {
+            const fileInfo: RedisFileInfo | undefined = await this.cacheManager.get(`fileInfo_${imageName}`);
+
+            if (fileInfo) {
+                response.setHeader("Content-Type", fileInfo.mimeType);
+                createReadStream(path.join(config.IMAGES_DIRECTORY, fileInfo.name)).pipe(response);
+                return;
+            }
+        }
+
         const image = await this.uploadModel.findOne({
             name: imageName
         })
@@ -309,8 +335,16 @@ export class ImagesUploadService {
         } else {
             if (imageSizeRequest.size !== undefined && imageSizeRequest.size < image.meta.width) {
                 const thumbnail = await this.getThumbnailOrCreateNew(image, imageSizeRequest.size);
+                await this.cacheManager.set(`fileInfo_${imageName}_${imageSizeRequest.size}`, {
+                    name: thumbnail.name,
+                    mimeType: thumbnail.mimeType
+                });
                 imagePath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, thumbnail.name);
             } else {
+                await this.cacheManager.set(`fileInfo_${imageName}`, {
+                    name: imageName,
+                    mimeType: image.mimeType
+                });
                 imagePath = path.join(config.IMAGES_DIRECTORY, imageName);
             }
         }
