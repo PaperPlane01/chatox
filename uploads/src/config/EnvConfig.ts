@@ -70,6 +70,12 @@ export class EnvConfig {
     @Env({type: "string", required: true})
     API_HOST: string;
 
+    @Env({type: "string", required: true})
+    REDIS_HOST: string;
+
+    @Env({type: "string", required: true})
+    REDIS_PORT: string;
+
     @Env({type: "string", required: false})
     JWT_PUBLIC_KEY: string = `-----BEGIN CERTIFICATE-----
 MIIDdTCCAl2gAwIBAgIEaWzSsDANBgkqhkiG9w0BAQsFADBrMRAwDgYDVQQGEwdV
