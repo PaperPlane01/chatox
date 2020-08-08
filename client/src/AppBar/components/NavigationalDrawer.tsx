@@ -38,20 +38,23 @@ const _NavigationalDrawer: FunctionComponent<NavigationalDrawerMobxProps> = ({
                     <Divider/>
                 </HasRole>
                 <List>
+                    <HomeMenuItem onClick={closeDrawer}/>
+                    <Divider/>
                     <HasRole role="ROLE_USER">
                         <ProfileMenuItem onClick={closeDrawer}/>
-                        <Divider/>
                     </HasRole>
-                    <HomeMenuItem onClick={closeDrawer}/>
                     <HasRole role="ROLE_NOT_LOGGED_IN">
                         <LoginMenuItem onClick={closeDrawer}/>
                         <RegistrationMenuItem onClick={closeDrawer}/>
                     </HasRole>
                     <HasRole role="ROLE_USER">
                         <MyChatsMenuItem onClick={closeDrawer}/>
-                        <LogOutMenuItem onClick={closeDrawer}/>
                     </HasRole>
                     <SettingsMenuItem onClick={closeDrawer}/>
+                    <HasRole role="ROLE_USER">
+                        <Divider/>
+                        <LogOutMenuItem onClick={closeDrawer}/>
+                    </HasRole>
                 </List>
             </SwipeableDrawer>
             <LoginDialog/>
