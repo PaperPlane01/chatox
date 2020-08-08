@@ -91,7 +91,7 @@ const chatAvatarUpload = new UploadImageStore(entities);
 const chatUpdate = new UpdateChatStore(chatAvatarUpload, chat, entities);
 const messageDialog = new MessageDialogStore();
 const userAvatarUpload = new UploadImageStore(entities);
-const editProfile = new EditProfileStore(authorization, userAvatarUpload);
+const editProfile = new EditProfileStore(authorization, userAvatarUpload, entities);
 const settingsTabs = new SettingsTabsStore();
 
 export const store: IAppState = {

@@ -10,6 +10,7 @@ import {CurrentUser, ImageUploadMetadata} from "../../api/types/response";
 import {UploadImageStore} from "../../Upload/stores";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {Labels} from "../../localization/types";
+import {EntitiesStore} from "../../entities-store";
 
 export class EditProfileStore {
     @observable
@@ -48,6 +49,11 @@ export class EditProfileStore {
     }
 
     @computed
+    get currentUserAvatarId(): string | undefined {
+        return this.currentUser && this.currentUser.avatarId;
+    }
+
+    @computed
     get avatarFileContainer(): UploadedFileContainer<ImageUploadMetadata> | undefined {
         return this.uploadUserAvatarStore.imageContainer
     }
@@ -69,7 +75,8 @@ export class EditProfileStore {
     }
 
     constructor(private readonly authorizationStore: AuthorizationStore,
-                private readonly uploadUserAvatarStore: UploadImageStore) {
+                private readonly uploadUserAvatarStore: UploadImageStore,
+                private readonly entities: EntitiesStore) {
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300);
 
         reaction(
@@ -134,8 +141,6 @@ export class EditProfileStore {
     @action
     updateProfile = (): void => {
         this.validateForm().then(formValid => {
-            console.log(`Is form valid: ${formValid}`);
-
             if (!this.currentUser || !formValid) {
                 return;
             }
@@ -150,14 +155,16 @@ export class EditProfileStore {
                     : undefined,
                 firstName: this.editProfileForm.firstName,
                 lastName: this.editProfileForm.lastName,
-                avatarId: this.uploadedAvatarId
+                avatarId: this.uploadedAvatarId ? this.uploadedAvatarId : this.currentUserAvatarId
             })
                 .then(({data}) => {
                     if (this.currentUser && this.currentUser.id === data.id) {
                         this.authorizationStore.setCurrentUser({
                             ...this.currentUser,
-                            ...data
+                            ...data,
+                            avatarId: data.avatar && data.avatar.id
                         });
+                        this.entities.insertUser(data);
                         this.setShowSnackbar(true);
                     }
                 })
