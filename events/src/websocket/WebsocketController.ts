@@ -7,12 +7,12 @@ export class WebsocketController {
     constructor(private readonly websocketEventsPublisher: WebsocketEventsPublisher) {}
 
     @Get(":socketIoId")
-    public isSessionActive(@Param() socketIoId: string): SessionActivityStatusResponse {
+    public isSessionActive(@Param("socketIoId") socketIoId: string): SessionActivityStatusResponse {
         return this.websocketEventsPublisher.isSessionActive(socketIoId);
     }
 
     @Get("user/:userId")
-    public getSessionsOfUser(@Param() userId: string): string[] {
+    public getSessionsOfUser(@Param("userId") userId: string): string[] {
         return this.websocketEventsPublisher.getSessionsOfUser(userId);
     }
 }
