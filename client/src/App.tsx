@@ -5,6 +5,7 @@ import DateFnsUtils from "@date-io/date-fns";
 import {SnackbarProvider} from "notistack";
 import {cyan} from "./themes";
 import {Localized, localized} from "./localization";
+import {LoadingCurrentUserProgressIndicator} from "./Authorization";
 
 const {MobxRouter} = require("mobx-router");
 
@@ -14,6 +15,7 @@ const _App: FunctionComponent<Localized> = ({dateFnsLocale}) => (
     >
         <SnackbarProvider maxSnack={3}>
             <MuiThemeProvider theme={cyan}>
+                <LoadingCurrentUserProgressIndicator/>
                 <CssBaseline/>
                 <MobxRouter/>
             </MuiThemeProvider>
