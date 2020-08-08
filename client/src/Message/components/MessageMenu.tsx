@@ -43,8 +43,8 @@ const _MessageMenu: FunctionComponent<MessageMenuProps> = ({
         setAnchorElement(event.currentTarget);
     };
 
-    const handleClose = (menuItemType: MenuItemType) => (): void => {
-        if (onMenuItemClick) {
+    const handleClose = (menuItemType?: MenuItemType) => (): void => {
+        if (onMenuItemClick && menuItemType) {
             onMenuItemClick(menuItemType);
         }
 
@@ -75,7 +75,7 @@ const _MessageMenu: FunctionComponent<MessageMenuProps> = ({
                 <MoreVert/>
             </IconButton>
             <Menu open={menuOpen}
-                  onClose={handleClose}
+                  onClose={handleClose()}
                   anchorEl={anchorElement}
             >
                 {menuItems}
