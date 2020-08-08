@@ -147,6 +147,10 @@ export class EntitiesStore {
 
     @action
     insertUser = (user: User): void => {
+        if (user.avatar) {
+            this.uploads.insert(user.avatar);
+        }
+
         this.users.insert(user);
     };
 

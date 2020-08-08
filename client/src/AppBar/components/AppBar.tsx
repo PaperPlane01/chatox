@@ -1,20 +1,26 @@
-import React, {FunctionComponent, Fragment} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
 import Headroom from "react-headroom";
-import {AppBar as MuiAppBar, Toolbar, Typography, IconButton, createStyles, makeStyles} from "@material-ui/core";
-import MenuIcon from "@material-ui/icons/Menu";
+import {AppBar as MuiAppBar, createStyles, makeStyles, Toolbar, Typography} from "@material-ui/core";
 import {NavigationalDrawer} from "./NavigationalDrawer";
 import {OpenDrawerButton} from "./OpenDrawerButton";
 import {AppBarMenu} from "./AppBarMenu";
 import {UserAppBarMenu} from "./UserAppBarMenu";
 import {IAppState} from "../../store";
 import {Routes} from "../../router";
+import {Labels, Localized, localized} from "../../localization";
 
 const {Link} = require("mobx-router");
+
+interface AppBarOwnProps {
+    title?: keyof Labels
+}
 
 interface AppBarMobxProps {
     routerStore?: any
 }
+
+type AppBarProps = AppBarMobxProps & AppBarOwnProps & Localized;
 
 const useClasses = makeStyles(() => createStyles({
     root: {
@@ -37,8 +43,10 @@ const useClasses = makeStyles(() => createStyles({
     }
 }));
 
-const _AppBar: FunctionComponent<AppBarMobxProps> = ({
-    routerStore
+const _AppBar: FunctionComponent<AppBarProps> = ({
+    routerStore,
+    l,
+    title
 }) => {
     const classes = useClasses();
 
@@ -61,7 +69,7 @@ const _AppBar: FunctionComponent<AppBarMobxProps> = ({
                                   className={classes.appBarLink}
                             >
                                 <Typography variant="h6">
-                                    Chatox
+                                    {title ? l(title) : "Chatox"}
                                 </Typography>
                             </Link>
                             <AppBarMenu/>
@@ -79,6 +87,8 @@ const mapMobxToProps = (state: IAppState): AppBarMobxProps => ({
     routerStore: state.store
 });
 
-export const AppBar = inject(mapMobxToProps)(observer(_AppBar as FunctionComponent<{}>));
+export const AppBar = localized(
+    inject(mapMobxToProps)(observer(_AppBar))
+) as FunctionComponent<AppBarOwnProps>;
 
 

@@ -38,7 +38,7 @@ const SUPPORTED_IMAGES_FORMATS = [
 
 const isImageFormatSupported = (imageFormat: string) => SUPPORTED_IMAGES_FORMATS.includes(imageFormat.trim().toLowerCase());
 
-const STANDARD_THUMBNAIL_SIZES = [40, 64, 128, 256, 512, 1024, 2048];
+const STANDARD_THUMBNAIL_SIZES = [64, 128, 256, 512, 1024, 2048];
 
 @Injectable()
 export class ImagesUploadService {

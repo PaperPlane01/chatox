@@ -1,5 +1,6 @@
 package chatox.user.api.response
 
+import chatox.user.domain.ImageUploadMetadata
 import com.fasterxml.jackson.annotation.JsonInclude
 import java.time.ZonedDateTime
 
@@ -13,9 +14,9 @@ data class UserResponse(
         val lastName: String?,
         val createdAt: ZonedDateTime,
         val lastSeen: ZonedDateTime,
-        val avatarUri: String?,
         val dateOfBirth: ZonedDateTime?,
         val online: Boolean,
         @field:JsonInclude(JsonInclude.Include.NON_NULL)
-        val email: String? = null
+        val email: String? = null,
+        val avatar: UploadResponse<ImageUploadMetadata>?
 )

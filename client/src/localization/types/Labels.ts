@@ -163,4 +163,14 @@ export interface Labels {
     "username.too-long": string,
     "username.too-short": string,
     "message.reply": string,
+    "user.bio.too-long": string,
+    "user.edit-profile": string,
+    "user.edit-profile.success": string,
+    "user.edit-profile.save-changes": string,
+    "settings.profile": string,
+    "settings.language": string,
+    "language.english.native": string,
+    "language.russian.native": string,
+    "language.select-language": string,
+    "user.edit-profile.authorization-required": string
 }

@@ -29,7 +29,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         height: "100%"
     },
     userInfoCard: {
-        marginBottom: theme.spacing(1)
+        marginBottom: theme.spacing(1),
+        wordBreak: "break-word",
+        maxWidth: 420
     },
     onlineLabel: {
         color: theme.palette.primary.main
@@ -111,7 +113,7 @@ const _UserProfileInfo: FunctionComponent<UserProfileInfoProps> = ({
                 <Card className={classes.userInfoCard}>
                     <CardHeader avatar={<Avatar avatarLetter={avatarLetter}
                                                 avatarColor={color}
-                                                avatarUri={user.avatarUri}
+                                                avatarId={user.avatarId}
                                                 width={64}
                                                 height={64}
                     />}

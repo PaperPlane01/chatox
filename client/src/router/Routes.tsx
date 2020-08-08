@@ -1,6 +1,7 @@
 import React from "react";
-import {HomePage, NotFoundPage, ChatPage, ChatsPage, UserPage} from "../pages";
+import {HomePage, NotFoundPage, ChatPage, ChatsPage, UserPage, SettingsPage} from "../pages";
 import {store} from "../store";
+import {getSettingsTabFromString} from "../Settings";
 
 const {Route} = require("mobx-router");
 
@@ -38,6 +39,23 @@ export const Routes = {
         },
         onParamsChange: (view: any, params: any) => {
             store.userProfile.setSelectedUser(params.slug)
+        }
+    }),
+    settingsPage: new Route({
+        path: "/settings",
+        component: <SettingsPage/>
+    }),
+    settingsTabPage: new Route({
+        path: "/settings/:tab",
+        component: <SettingsPage/>,
+        onEnter: (view: any, params: any) => {
+            store.settingsTabs.setActiveTab(getSettingsTabFromString(params.tab as string))
+        },
+        onParamsChange: (view: any, params: any) => {
+            store.settingsTabs.setActiveTab(getSettingsTabFromString(params.tab as string))
+        },
+        onExit: () => {
+            store.settingsTabs.setActiveTab(undefined);
         }
     })
 };

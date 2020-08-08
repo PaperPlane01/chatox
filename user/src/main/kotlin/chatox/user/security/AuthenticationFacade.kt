@@ -1,6 +1,7 @@
 package chatox.user.security
 
 import chatox.user.exception.UserNotFoundException
+import chatox.user.mapper.UploadMapper
 import chatox.user.repository.UserRepository
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Component
@@ -10,7 +11,8 @@ import reactor.util.function.Tuples
 
 @Component
 @Transactional
-class AuthenticationFacade(private val userRepository: UserRepository) {
+class AuthenticationFacade(private val userRepository: UserRepository,
+                           private val uploadMapper: UploadMapper) {
 
     fun getCurrentUser(): Mono<CurrentUser> {
         return ReactiveSecurityContextHolder.getContext()
@@ -36,10 +38,11 @@ class AuthenticationFacade(private val userRepository: UserRepository) {
                         firstName = it.t1.firstName,
                         lastName = it.t1.lastName,
                         accountId = it.t1.accountId,
-                        avatarUri = it.t1.avatarUri,
+                        avatar = if (it.t1.avatar != null) uploadMapper.toUploadResponse(it.t1.avatar!!) else null,
                         roles = it.t2.roles,
                         bio = it.t1.bio,
-                        createdAt = it.t1.createdAt
+                        createdAt = it.t1.createdAt,
+                        dateOfBirth = it.t1.dateOfBirth
                 ) }
     }
 
