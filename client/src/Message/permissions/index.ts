@@ -4,7 +4,11 @@ import {ChatParticipationEntity} from "../../Chat";
 import {ChatBlockingEntity} from "../../ChatBlocking";
 import {isDefined} from "../../utils/object-utils";
 
-export const canEditMessage = (message: MessageEntity, chatParticipation?: ChatParticipationEntity, activeChatBlocking?: ChatBlockingEntity): boolean => {
+export const canEditMessage = (
+    message: MessageEntity,
+    chatParticipation?: ChatParticipationEntity,
+    activeChatBlocking?: ChatBlockingEntity
+): boolean => {
     if (!chatParticipation) {
         return false;
     }
@@ -13,7 +17,7 @@ export const canEditMessage = (message: MessageEntity, chatParticipation?: ChatP
         return false;
     }
 
-    if (differenceInDays(message.createdAt, new Date()) >= 1) {
+    if (differenceInDays(new Date(), message.createdAt) >= 1) {
         return false;
     }
 
