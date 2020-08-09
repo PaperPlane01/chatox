@@ -174,5 +174,7 @@ export interface Labels {
     "language.select-language": string,
     "user.edit-profile.authorization-required": string,
     "message.edit": string,
-    "message.edit.short": string
+    "message.edit.short": string,
+    "message.edited": string,
+    "message.updated-at": string
 }

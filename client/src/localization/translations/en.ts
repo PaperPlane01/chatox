@@ -176,5 +176,7 @@ export const en: Labels = {
     "language.select-language": "Select language",
     "user.edit-profile.authorization-required": "You have to be logged in to edit your profile",
     "message.edit": "Edit message",
-    "message.edit.short": "Edit"
+    "message.edit.short": "Edit",
+    "message.edited": "edited",
+    "message.updated-at": "Updated at {updatedAt}"
 };
