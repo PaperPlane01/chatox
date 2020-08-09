@@ -174,5 +174,9 @@ export const en: Labels = {
     "language.english.native": "English",
     "language.russian.native": "Русский",
     "language.select-language": "Select language",
-    "user.edit-profile.authorization-required": "You have to be logged in to edit your profile"
+    "user.edit-profile.authorization-required": "You have to be logged in to edit your profile",
+    "message.edit": "Edit message",
+    "message.edit.short": "Edit",
+    "message.edited": "edited",
+    "message.updated-at": "Updated at {updatedAt}"
 };

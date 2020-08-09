@@ -172,5 +172,9 @@ export interface Labels {
     "language.english.native": string,
     "language.russian.native": string,
     "language.select-language": string,
-    "user.edit-profile.authorization-required": string
+    "user.edit-profile.authorization-required": string,
+    "message.edit": string,
+    "message.edit.short": string,
+    "message.edited": string,
+    "message.updated-at": string
 }

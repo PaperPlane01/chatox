@@ -23,7 +23,13 @@ import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
 import {EntitiesStore} from "../entities-store";
 import {UsersStore, UserProfileStore, EditProfileStore} from "../User";
-import {CreateMessageStore, MessagesOfChatStore, MessagesStore, MessageDialogStore} from "../Message";
+import {
+    CreateMessageStore,
+    MessagesOfChatStore,
+    MessagesStore,
+    MessageDialogStore,
+    UpdateMessageStore
+} from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
     ChatBlockingsStore,
@@ -93,6 +99,7 @@ const messageDialog = new MessageDialogStore();
 const userAvatarUpload = new UploadImageStore(entities);
 const editProfile = new EditProfileStore(authorization, userAvatarUpload, entities);
 const settingsTabs = new SettingsTabsStore();
+const messageUpdate = new UpdateMessageStore(chat, entities);
 
 export const store: IAppState = {
     authorization,
@@ -128,7 +135,8 @@ export const store: IAppState = {
     messageDialog,
     userAvatarUpload,
     editProfile,
-    settingsTabs
+    settingsTabs,
+    messageUpdate
 };
 
 export interface MapMobxToProps<ComponentProps = {}> {

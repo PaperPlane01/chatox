@@ -6,3 +6,5 @@ export * from "./BlockMessageAuthorInChatMenuItem";
 export * from "./MessageMenu";
 export * from "./ReferredMessageCard";
 export * from "./MessageDialog";
+export * from "./EditMessageMenuItem";
+export * from "./UpdateMessageDialog";

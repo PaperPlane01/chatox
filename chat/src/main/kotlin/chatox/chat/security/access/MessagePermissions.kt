@@ -3,14 +3,19 @@ package chatox.chat.security.access
 import chatox.chat.model.ChatRole
 import chatox.chat.model.User
 import chatox.chat.security.AuthenticationFacade
+import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.service.MessageService
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
+import java.time.ZonedDateTime
 
 @Component
 class MessagePermissions(private val chatParticipationService: ChatParticipationService,
+                         private val chatBlockingService: ChatBlockingService,
                          private val authenticationFacade: AuthenticationFacade) {
 
     private lateinit var messageService: MessageService
@@ -32,9 +37,20 @@ class MessagePermissions(private val chatParticipationService: ChatParticipation
     }
 
     fun canUpdateMessage(messageId: String, chatId: String): Mono<Boolean> {
-        return messageService.findMessageById(messageId)
-                .zipWith(authenticationFacade.getCurrentUser())
-                .map { it.t1.chatId == chatId && it.t1.sender.id == it.t2.id }
+        return mono {
+            val message = messageService.findMessageById(messageId).awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val userBlockedInChat = chatBlockingService.isUserBlockedInChat(
+                    chatId = chatId,
+                    user = currentUser
+            )
+                    .awaitFirst()
+
+            message.chatId == chatId
+                    && message.createdAt.plusDays(1L).isAfter(ZonedDateTime.now())
+                    && message.sender.id == currentUser.id
+                    && !userBlockedInChat
+        }
     }
 
     fun canDeleteMessage(messageId: String, chatId: String): Mono<Boolean> {

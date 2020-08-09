@@ -174,5 +174,9 @@ export const ru: Labels = {
     "language.english.native": "English",
     "language.russian.native": "Русский",
     "language.select-language": "Выбрать язык",
-    "user.edit-profile.authorization-required": "Для редактрования профиля необходимо войти в аккаунт"
+    "user.edit-profile.authorization-required": "Для редактрования профиля необходимо войти в аккаунт",
+    "message.edit": "Редактировать сообщение",
+    "message.edit.short": "Редактировать",
+    "message.edited": "Изменено",
+    "message.updated-at": "Обновлено {updatedAt}"
 };
