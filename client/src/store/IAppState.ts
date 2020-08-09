@@ -19,7 +19,7 @@ import {
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
-import {CreateMessageStore, MessagesOfChatStore, MessageDialogStore} from "../Message";
+import {CreateMessageStore, MessagesOfChatStore, MessageDialogStore, UpdateMessageStore} from "../Message";
 import {WebsocketStore} from "../websocket";
 import {UserProfileStore, EditProfileStore} from "../User";
 import {
@@ -69,5 +69,6 @@ export interface IAppState {
     userAvatarUpload: UploadImageStore,
     editProfile: EditProfileStore,
     settingsTabs: SettingsTabsStore,
+    messageUpdate: UpdateMessageStore,
     store?: any
 }
