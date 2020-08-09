@@ -1,6 +1,5 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import Headroom from "react-headroom";
 import {AppBar as MuiAppBar, createStyles, makeStyles, Toolbar, Typography} from "@material-ui/core";
 import {NavigationalDrawer} from "./NavigationalDrawer";
 import {OpenDrawerButton} from "./OpenDrawerButton";
@@ -33,10 +32,6 @@ const useClasses = makeStyles(() => createStyles({
         flexGrow: 1,
         display: "flex"
     },
-    headroom: {
-        position: "fixed",
-        zIndex: 1300
-    },
     appBarLink: {
         color: "inherit",
         textDecoration: "none"
@@ -52,32 +47,28 @@ const _AppBar: FunctionComponent<AppBarProps> = ({
 
     return (
         <Fragment>
-            <Headroom style={{
-                position: "fixed",
-                zIndex: 1300
-            }}>
-                <MuiAppBar position="sticky"
-                           classes={{
-                               root: classes.root
-                           }}
-                >
-                    <Toolbar>
-                        <OpenDrawerButton/>
-                        <div className={classes.appBarTitle}>
-                            <Link view={Routes.home}
-                                  store={routerStore}
-                                  className={classes.appBarLink}
-                            >
-                                <Typography variant="h6">
-                                    {title ? l(title) : "Chatox"}
-                                </Typography>
-                            </Link>
-                            <AppBarMenu/>
-                        </div>
-                        <UserAppBarMenu/>
-                    </Toolbar>
-                </MuiAppBar>
-            </Headroom>
+            <MuiAppBar position="fixed"
+                       classes={{
+                           root: classes.root
+                       }}
+            >
+                <Toolbar>
+                    <OpenDrawerButton/>
+                    <div className={classes.appBarTitle}>
+                        <Link view={Routes.home}
+                              store={routerStore}
+                              className={classes.appBarLink}
+                        >
+                            <Typography variant="h6">
+                                {title ? l(title) : "Chatox"}
+                            </Typography>
+                        </Link>
+                        <AppBarMenu/>
+                    </div>
+                    <UserAppBarMenu/>
+                </Toolbar>
+            </MuiAppBar>
+            <Toolbar/>
             <NavigationalDrawer/>
         </Fragment>
     )
