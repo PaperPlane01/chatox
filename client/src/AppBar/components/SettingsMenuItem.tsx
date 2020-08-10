@@ -1,22 +1,15 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText, createStyles, makeStyles} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {createStyles, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
 import {Settings} from "@material-ui/icons";
-import {localized, Localized} from "../../localization";
 import {Routes} from "../../router";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useRouter} from "../../store";
 
 const {Link} = require("mobx-router");
 
-interface SettingsMenuItemMobxProps {
-    routerStore?: any
-}
-
-interface SettingsMenuItemOwnProps {
+interface SettingsMenuItemProps {
     onClick?: () => void
 }
-
-type SettingsMenuItemProps = SettingsMenuItemMobxProps & SettingsMenuItemOwnProps & Localized;
 
 const useStyles = makeStyles(() => createStyles({
     undecoratedLink: {
@@ -25,12 +18,10 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-const _SettingsMenuItem: FunctionComponent<SettingsMenuItemProps> = ({
-    onClick,
-    routerStore,
-    l
-}) => {
+export const SettingsMenuItem: FunctionComponent<SettingsMenuItemProps> = observer(({onClick}) => {
     const classes = useStyles();
+    const {l} = useLocalization();
+    const routerStore = useRouter();
 
     const handleClick = (): void => {
         if (onClick) {
@@ -53,12 +44,4 @@ const _SettingsMenuItem: FunctionComponent<SettingsMenuItemProps> = ({
             </MenuItem>
         </Link>
     )
-};
-
-const mapMoxToProps: MapMobxToProps<SettingsMenuItemMobxProps> = ({store}) => ({
-    routerStore: store
 });
-
-export const SettingsMenuItem = localized(
-    inject(mapMoxToProps)(observer(_SettingsMenuItem))
-) as FunctionComponent<SettingsMenuItemOwnProps>;

@@ -1,14 +1,9 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
-import {createStyles, makeStyles, Typography, Theme} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
 import randomColor from "randomcolor";
 import {Avatar} from "../../Avatar";
-import {CurrentUser} from "../../api/types/response";
-import {MapMobxToProps} from "../../store";
-
-interface DrawerUserInfoMobxProps {
-    currentUser?: CurrentUser
-}
+import {useAuthorization} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     userInfoContainer: {
@@ -22,10 +17,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-const _DrawerUserInfo: FunctionComponent<DrawerUserInfoMobxProps> = ({
-    currentUser
-}) => {
+export const DrawerUserInfo: FunctionComponent = observer(() => {
     const classes = useStyles();
+    const {currentUser} = useAuthorization();
 
     if (currentUser) {
         const avatarLetter = `${currentUser.firstName[0]} ${currentUser.lastName ? currentUser.lastName[0] : ""}`;
@@ -46,10 +40,4 @@ const _DrawerUserInfo: FunctionComponent<DrawerUserInfoMobxProps> = ({
     } else {
         return null;
     }
-};
-
-const mapMobxToProps: MapMobxToProps<DrawerUserInfoMobxProps> = ({authorization}) => ({
-    currentUser: authorization.currentUser
 });
-
-export const DrawerUserInfo = inject(mapMobxToProps)(observer(_DrawerUserInfo)) as FunctionComponent;
