@@ -13,7 +13,7 @@ import {
     withMobileDialog,
     WithMobileDialog
 } from "@material-ui/core";
-import {MakrdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {Language, localized, Localized, TranslationFunction} from "../../localization";
 import {UpdateMessageFormData} from "../types";
 import {FormErrors} from "../../utils/types";
@@ -160,7 +160,7 @@ const _UpdateMessageDialog: FunctionComponent<UpdateMessageDialogProps> = ({
                     {l("chat.update.save-changes")}
                 </Button>
             </DialogActions>
-            <MakrdownPreviewDialog text={updateMessageForm.text}/>
+            <MarkdownPreviewDialog text={updateMessageForm.text}/>
         </Dialog>
     )
 };

@@ -18,7 +18,7 @@ import {
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
-import {MakrdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 
 const useStyles = makeStyles(theme => createStyles({
     errorLabel: {
@@ -189,7 +189,7 @@ export const CreateChatDialog: FunctionComponent = withMobileDialog()(observer((
                     {l("chat.create-chat")}
                 </Button>
             </DialogActions>
-            <MakrdownPreviewDialog text={createChatForm.description || ""}/>
+            <MarkdownPreviewDialog text={createChatForm.description || ""}/>
         </Dialog>
     );
 })) as FunctionComponent;

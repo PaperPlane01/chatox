@@ -15,7 +15,7 @@ import {
 import ChipInput from "material-ui-chip-input";
 import {useSnackbar} from "notistack";
 import {ChatAvatarUpload} from "./ChatAvatarUpload";
-import {MakrdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {Language, TranslationFunction} from "../../localization";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
@@ -214,7 +214,7 @@ export const UpdateChatDialog: FunctionComponent = withMobileDialog()(observer((
                     {l("chat.update.save-changes")}
                 </Button>
             </DialogActions>
-            <MakrdownPreviewDialog text={updateChatForm.description || ""}/>
+            <MarkdownPreviewDialog text={updateChatForm.description || ""}/>
         </Dialog>
     )
 })) as FunctionComponent;

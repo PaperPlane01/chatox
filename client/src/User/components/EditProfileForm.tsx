@@ -14,7 +14,7 @@ import {DatePicker} from "@material-ui/pickers";
 import {useSnackbar} from "notistack";
 import {UserAvatarUpload} from "./UserAvatarUpload";
 import {EditProfileFormData} from "../types";
-import {MakrdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {localized, Localized} from "../../localization";
 import {FormErrors} from "../../utils/types";
 import {ApiError} from "../../api";
@@ -137,7 +137,7 @@ const _EditProfileForm: FunctionComponent<EditProfileFormProps> = ({
                     {l("user.edit-profile.save-changes")}
                 </Button>
             </CardActions>
-            <MakrdownPreviewDialog text={editProfileForm.bio || ""}/>
+            <MarkdownPreviewDialog text={editProfileForm.bio || ""}/>
         </Card>
     )
 };
