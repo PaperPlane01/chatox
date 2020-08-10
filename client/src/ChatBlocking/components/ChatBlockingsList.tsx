@@ -1,25 +1,25 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {CircularProgress, List, Typography} from "@material-ui/core";
 import {ChatBlockingsListItem} from "./ChatBlockingsListItem";
-import {ChatBlockingsOfChatState, FindChatBlockingsByChatOptions} from "../stores";
-import {MapMobxToProps} from "../../store";
-import {localized, Localized} from "../../localization/components";
+import {useLocalization, useStore} from "../../store";
 
-interface ChatBlockingsListMobxProps {
-    selectedChatId?: string,
-    getChatBlockingsOfChatState: (chatId: string) => ChatBlockingsOfChatState,
-    getChatBlockingsOfChat: (options: FindChatBlockingsByChatOptions) => string[],
-}
+export const ChatBlockingsList: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            selectedChatId
+        },
+        chatBlockingsOfChat: {
+            getChatBlockingsOfChatState
+        },
+        entities: {
+            chatBlockings: {
+                findByChat: getChatBlockingsOfChat
+            }
+        }
+    } = useStore();
+    const {l} = useLocalization();
 
-type ChatBlockingsListProps = ChatBlockingsListMobxProps & Localized
-
-const _ChatBLockingsList: FunctionComponent<ChatBlockingsListProps> = ({
-    selectedChatId,
-    getChatBlockingsOfChat,
-    getChatBlockingsOfChatState,
-    l
-}) => {
     if (!selectedChatId) {
         return null;
     }
@@ -60,14 +60,4 @@ const _ChatBLockingsList: FunctionComponent<ChatBlockingsListProps> = ({
             ))}
         </List>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatBlockingsListMobxProps> = ({chat, chatBlockingsOfChat, entities}) => ({
-    selectedChatId: chat.selectedChatId,
-    getChatBlockingsOfChatState: chatBlockingsOfChat.getChatBlockingsOfChatState,
-    getChatBlockingsOfChat: entities.chatBlockings.findByChat,
 });
-
-export const ChatBlockingsList = localized(
-    inject(mapMobxToProps)(observer(_ChatBLockingsList))
-) as FunctionComponent;

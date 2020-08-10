@@ -1,27 +1,22 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
-import {IconButton, Tooltip, CircularProgress} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {CircularProgress, IconButton, Tooltip} from "@material-ui/core";
 import {Cancel} from "@material-ui/icons";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-interface CancelChatBlockingButtonMobxProps {
-    isChatBlockingCancellationPending: (chatBlockingId: string) => boolean,
-    cancelChatBlocking: (id: string) => void
-}
-
-interface CancelChatBlockingButtonOwnProps {
+interface CancelChatBlockingButtonProps {
     chatBlockingId: string
 }
 
-type CancelChatBlockingButtonProps = CancelChatBlockingButtonMobxProps & CancelChatBlockingButtonOwnProps & Localized;
+export const CancelChatBlockingButton: FunctionComponent<CancelChatBlockingButtonProps> = observer(({chatBlockingId}) => {
+    const {
+        cancelChatBlocking: {
+            cancelChatBlocking,
+            isChatBlockingCancellationPending
+        }
+    } = useStore();
+    const {l} = useLocalization();
 
-const _CancelChatBlockingButton: FunctionComponent<CancelChatBlockingButtonProps> = ({
-    chatBlockingId,
-    cancelChatBlocking,
-    isChatBlockingCancellationPending,
-    l
-}) => {
     if (isChatBlockingCancellationPending(chatBlockingId)) {
         return <CircularProgress size={24} color="primary"/>
     }
@@ -33,13 +28,4 @@ const _CancelChatBlockingButton: FunctionComponent<CancelChatBlockingButtonProps
             </IconButton>
         </Tooltip>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<CancelChatBlockingButtonMobxProps> = ({cancelChatBlocking}) => ({
-    isChatBlockingCancellationPending: cancelChatBlocking.isChatBlockingCancellationPending,
-    cancelChatBlocking: cancelChatBlocking.cancelChatBlocking
 });
-
-export const CancelChatBlockingButton = localized(
-    inject(mapMobxToProps)(observer(_CancelChatBlockingButton))
-) as FunctionComponent<CancelChatBlockingButtonOwnProps>;

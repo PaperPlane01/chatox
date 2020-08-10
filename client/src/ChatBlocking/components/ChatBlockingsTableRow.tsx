@@ -1,34 +1,29 @@
-import React, {FunctionComponent, Fragment} from "react";
-import {inject, observer} from "mobx-react";
+import React, {Fragment, FunctionComponent} from "react";
+import {observer} from "mobx-react";
 import {TableCell, TableRow} from "@material-ui/core";
 import {format} from "date-fns";
 import {CancelChatBlockingButton} from "./CancelChatBlockingButton";
 import {UpdateChatBlockingButton} from "./UpdateChatBlockingButton";
-import {ChatBlockingEntity} from "../types";
 import {isChatBlockingActive} from "../utils";
-import {UserEntity} from "../../User";
-import {localized, Localized} from "../../localization";
 import {UserLink} from "../../UserLink";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-interface ChatBlockingsTableRowMobxProps {
-    findChatBlocking: (id: string) => ChatBlockingEntity,
-    findUser: (id: string) => UserEntity,
-    routerStore?: any
-}
-
-interface ChatBlockingsTableRowOwnProps {
+interface ChatBlockingsTableRowProps {
     chatBlockingId: string
 }
 
-type ChatBlockingsTableRowProps = ChatBlockingsTableRowMobxProps & ChatBlockingsTableRowOwnProps & Localized;
-
-const _ChatBlockingsTableRow: FunctionComponent<ChatBlockingsTableRowProps> = ({
-    chatBlockingId,
-    findChatBlocking,
-    findUser,
-    dateFnsLocale
-}) => {
+export const ChatBlockingsTableRow: FunctionComponent<ChatBlockingsTableRowProps> = observer(({chatBlockingId}) => {
+    const {
+        entities: {
+            chatBlockings: {
+                findById: findChatBlocking
+            },
+            users: {
+                findById: findUser
+            }
+        }
+    } = useStore();
+    const {dateFnsLocale} = useLocalization();
     const chatBlocking = findChatBlocking(chatBlockingId);
     const blockedUser = findUser(chatBlocking.blockedUserId);
     const blockedBy = findUser(chatBlocking.blockedById);
@@ -88,14 +83,4 @@ const _ChatBlockingsTableRow: FunctionComponent<ChatBlockingsTableRowProps> = ({
             )}
         </TableRow>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatBlockingsTableRowMobxProps> = ({entities, store}) => ({
-    findChatBlocking: entities.chatBlockings.findById,
-    findUser: entities.users.findById,
-    routerStore: store
 });
-
-export const ChatBlockingsTableRow = localized(
-    inject(mapMobxToProps)(observer(_ChatBlockingsTableRow))
-) as FunctionComponent<ChatBlockingsTableRowOwnProps>;

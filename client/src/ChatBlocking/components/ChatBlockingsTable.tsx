@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {
     CircularProgress,
     Table,
@@ -11,28 +11,27 @@ import {
     Typography
 } from "@material-ui/core";
 import {ChatBlockingsTableRow} from "./ChatBlockingsTableRow";
-import {ChatBlockingsOfChatState, FindChatBlockingsByChatOptions} from "../stores";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
-import {getOppositeSortingDirection, SortingDirection} from "../../utils/types";
 import {ChatBlockingSortableProperties} from "../types";
+import {useLocalization, useStore} from "../../store";
+import {getOppositeSortingDirection} from "../../utils/types";
 
-interface ChatBlockingsTableMobxProps {
-    selectedChatId: string | undefined,
-    getChatBlockingsOfChatState: (chatId: string) => ChatBlockingsOfChatState,
-    getChatBlockingsOfChat: (options: FindChatBlockingsByChatOptions) => string[],
-    setSortingDirectionAndProperty: (sortingDirection: SortingDirection, sortingProperty: ChatBlockingSortableProperties) => void
-}
+export const ChatBlockingsTable: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            selectedChatId
+        },
+        chatBlockingsOfChat: {
+            getChatBlockingsOfChatState,
+            setSortingDirectionAndProperty
+        },
+        entities: {
+            chatBlockings: {
+                findByChat: getChatBlockingsOfChat
+            }
+        }
+    } = useStore();
+    const {l} = useLocalization();
 
-type ChatBlockingsTableProps = ChatBlockingsTableMobxProps & Localized;
-
-const _ChatBlockingsTable: FunctionComponent<ChatBlockingsTableProps> = ({
-    selectedChatId,
-    getChatBlockingsOfChatState,
-    getChatBlockingsOfChat,
-    setSortingDirectionAndProperty,
-    l,
-}) => {
     if (!selectedChatId || !getChatBlockingsOfChatState(selectedChatId)) {
         return null;
     }
@@ -117,19 +116,4 @@ const _ChatBlockingsTable: FunctionComponent<ChatBlockingsTableProps> = ({
             </TableBody>
         </Table>
     )
- };
-
-const mapMobxToProps: MapMobxToProps<ChatBlockingsTableMobxProps> = ({
-    chat,
-    chatBlockingsOfChat,
-    entities
-}) => ({
-    selectedChatId: chat.selectedChatId,
-    getChatBlockingsOfChatState: chatBlockingsOfChat.getChatBlockingsOfChatState,
-    getChatBlockingsOfChat: entities.chatBlockings.findByChat,
-    setSortingDirectionAndProperty: chatBlockingsOfChat.setSortingDirectionAndProperty
-});
-
-export const ChatBlockingsTable = localized(
-    inject(mapMobxToProps)(observer(_ChatBlockingsTable))
-) as FunctionComponent;
+ });
