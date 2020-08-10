@@ -1,26 +1,21 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {ChatParticipantsList} from "./ChatParticipantsList";
-import {localized, Localized} from "../../localization";
-import {FetchingState} from "../../utils/types";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-interface OnlineChatParticipantsListMobxProps {
-    onlineParticipants: string[],
-    onlineParticipantsCount: number,
-    getFetchingState: (chatId: string) => FetchingState,
-    selectedChatId?: string
-}
+export const OnlineChatParticipantsList: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            selectedChatId
+        },
+        onlineChatParticipants: {
+            onlineParticipants,
+            onlineParticipantsCount,
+            getFetchingState
+        }
+    } = useStore();
+    const {l} = useLocalization();
 
-type OnlineChatParticipantsListProps = OnlineChatParticipantsListMobxProps & Localized;
-
-const _OnlineChatParticipantsList: FunctionComponent<OnlineChatParticipantsListProps> = ({
-    onlineParticipantsCount,
-    selectedChatId,
-    onlineParticipants,
-    getFetchingState,
-    l
-}) => {
     if (!selectedChatId) {
         return null;
     }
@@ -38,18 +33,4 @@ const _OnlineChatParticipantsList: FunctionComponent<OnlineChatParticipantsListP
                               }
         />
     )
-};
-
-const mapMobxToProps: MapMobxToProps<OnlineChatParticipantsListMobxProps> = ({
-    chat,
-    onlineChatParticipants
-}) => ({
-    selectedChatId: chat.selectedChatId,
-    onlineParticipants: onlineChatParticipants.onlineParticipants,
-    onlineParticipantsCount: onlineChatParticipants.onlineParticipantsCount,
-    getFetchingState: onlineChatParticipants.getFetchingState
 });
-
-export const OnlineChatParticipantsList = localized(
-    inject(mapMobxToProps)(observer(_OnlineChatParticipantsList))
-) as FunctionComponent;

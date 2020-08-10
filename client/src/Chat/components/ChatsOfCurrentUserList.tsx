@@ -1,15 +1,10 @@
 import React, {Fragment, FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {CircularProgress, createStyles, Divider, Hidden, List, makeStyles} from "@material-ui/core";
 import {ChatsOfCurrentUserListItem} from "./ChatsOfCurrentUserListItem";
 import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
 import {CreateChatDialog} from "./CreateChatDialog";
-import {MapMobxToProps} from "../../store";
-
-interface ChatsOfCurrentUserListMobxProps {
-    chatIds: string[],
-    pending: boolean
-}
+import {useStore} from "../../store";
 
 const useStyles = makeStyles(theme => createStyles({
     centered: {
@@ -39,10 +34,13 @@ const useStyles = makeStyles(theme => createStyles({
     }
 }));
 
-const _ChatsOfCurrentUserList: FunctionComponent<ChatsOfCurrentUserListMobxProps> = ({
-    chatIds,
-    pending
-}) => {
+export const ChatsOfCurrentUserList: FunctionComponent = observer(() => {
+    const {
+        chatsOfCurrentUser: {
+            chatsOfCurrentUser: chatIds,
+            pending
+        }
+    } = useStore();
     const classes = useStyles();
 
     if (pending) {
@@ -61,7 +59,7 @@ const _ChatsOfCurrentUserList: FunctionComponent<ChatsOfCurrentUserListMobxProps
                  }}
            >
                {chatIds.map(chatId => (
-                   <Fragment>
+                   <Fragment key={chatId}>
                        <ChatsOfCurrentUserListItem chatId={chatId}
                                                    key={chatId}
                        />
@@ -75,11 +73,4 @@ const _ChatsOfCurrentUserList: FunctionComponent<ChatsOfCurrentUserListMobxProps
            <CreateChatDialog/>
        </div>
    )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatsOfCurrentUserListMobxProps> = ({chatsOfCurrentUser}) => ({
-    chatIds: chatsOfCurrentUser.chatsOfCurrentUser,
-    pending: chatsOfCurrentUser.pending
 });
-
-export const ChatsOfCurrentUserList = inject(mapMobxToProps)(observer(_ChatsOfCurrentUserList) as FunctionComponent);

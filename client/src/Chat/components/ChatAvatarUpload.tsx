@@ -1,25 +1,10 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {createStyles, makeStyles} from "@material-ui/core";
 import randomColor from "randomcolor";
 import {AvatarUpload} from "../../Upload";
-import {ChatOfCurrentUserEntity} from "../types";
-import {Labels} from "../../localization/types";
-import {ApiError} from "../../api";
-import {UploadedFileContainer} from "../../utils/file-utils";
-import {ImageUploadMetadata} from "../../api/types/response";
 import {getAvatarLabel} from "../utils";
-import {MapMobxToProps} from "../../store";
-
-interface ChatAvatarUploadProps {
-    uploadFile: (file: File) => void,
-    pending: boolean,
-    validationError?: keyof Labels,
-    submissionError?: ApiError,
-    avatarContainer?: UploadedFileContainer<ImageUploadMetadata>
-    selectedChatId?: string,
-    findChat: (id: string) => ChatOfCurrentUserEntity
-}
+import {useStore} from "../../store";
 
 const useStyles = makeStyles(() => createStyles({
     centered: {
@@ -30,15 +15,24 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-const _ChatAvatarUpload: FunctionComponent<ChatAvatarUploadProps> = ({
-    uploadFile,
-    validationError,
-    submissionError,
-    pending,
-    avatarContainer,
-    selectedChatId,
-    findChat,
-}) => {
+export const ChatAvatarUpload: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            selectedChatId
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            }
+        },
+        chatAvatarUpload: {
+            uploadFile,
+            imageContainer: avatarContainer,
+            pending,
+            validationError,
+            submissionError
+        }
+    } = useStore();
     const classes = useStyles();
 
     if (!selectedChatId) {
@@ -60,16 +54,4 @@ const _ChatAvatarUpload: FunctionComponent<ChatAvatarUploadProps> = ({
             />
         </div>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatAvatarUploadProps> = ({chatAvatarUpload, chat, entities}) => ({
-    uploadFile: chatAvatarUpload.uploadFile,
-    validationError: chatAvatarUpload.validationError,
-    submissionError: chatAvatarUpload.submissionError,
-    pending: chatAvatarUpload.pending,
-    avatarContainer: chatAvatarUpload.imageContainer,
-    selectedChatId: chat.selectedChatId,
-    findChat: entities.chats.findById
 });
-
-export const ChatAvatarUpload = inject(mapMobxToProps)(observer(_ChatAvatarUpload) as FunctionComponent);

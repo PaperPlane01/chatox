@@ -1,30 +1,19 @@
 import React, {Fragment, FunctionComponent, ReactElement} from "react";
-import {inject, observer} from "mobx-react";
-import {AppBar, CardHeader, Toolbar, Typography, Hidden, IconButton} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography} from "@material-ui/core";
 import {Skeleton} from "@material-ui/lab";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import randomColor from "randomcolor";
 import {ChatMenu} from "./ChatMenu";
-import {ChatOfCurrentUserEntity} from "../types";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
-import {OpenDrawerButton, NavigationalDrawer} from "../../AppBar";
+import {NavigationalDrawer, OpenDrawerButton} from "../../AppBar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {Labels, localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {Labels} from "../../localization";
+import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 
 const {Link} = require("mobx-router");
-
-interface ChatAppBarMobxProps {
-    selectedChatId?: string,
-    pending: boolean,
-    error?: ApiError,
-    onlineParticipantsCount: number,
-    routerStore?: any,
-    findChat: (id: string) => ChatOfCurrentUserEntity,
-    setChatInfoDialogOpen: (chatInfoDialogOpen: boolean) => void
-}
 
 const getLabelFromError = (error: ApiError): keyof Labels => {
     if (error.status === API_UNREACHABLE_STATUS) {
@@ -34,16 +23,28 @@ const getLabelFromError = (error: ApiError): keyof Labels => {
     }
 };
 
-const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
-    selectedChatId,
-    pending,
-    error,
-    onlineParticipantsCount,
-    routerStore,
-    findChat,
-    setChatInfoDialogOpen,
-    l
-}) => {
+export const ChatAppBar: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            pending,
+            error,
+            selectedChatId
+        },
+        onlineChatParticipants: {
+            onlineParticipantsCount
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            }
+        },
+        chatInfoDialog: {
+            setChatInfoDialogOpen
+        }
+    } = useStore();
+    const {l} = useLocalization();
+    const routerStore = useRouter();
+
     let appBarContent: ReactElement;
 
     if (pending) {
@@ -138,24 +139,4 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
             <NavigationalDrawer/>
         </Fragment>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatAppBarMobxProps> = ({
-    chat,
-    onlineChatParticipants,
-    entities,
-    chatInfoDialog,
-    store
-}) => ({
-    pending: chat.pending,
-    error: chat.error,
-    selectedChatId: chat.selectedChatId,
-    onlineParticipantsCount: onlineChatParticipants.onlineParticipantsCount,
-    routerStore: store,
-    findChat: entities.chats.findById,
-    setChatInfoDialogOpen: chatInfoDialog.setChatInfoDialogOpen
 });
-
-export const ChatAppBar = localized(
-    inject(mapMobxToProps)(observer(_ChatAppBar))
-) as FunctionComponent;

@@ -1,28 +1,26 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
 import {AssignmentInd} from "@material-ui/icons";
-import {FetchOptions} from "../../utils/types";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-interface ChatBlockingsMenuItemMobxProps {
-    setChatBlockingsDialogOpen: (chatBlockingsDialogOpen: boolean) => void,
-    fetchChatBlockings: (fetchOptions: FetchOptions) => void
-}
-
-interface ChatBlockingsMenuItemOwnProps {
+interface ChatBlockingsMenuItemProps {
     onClick?: () => void
 }
 
-type ChatBlockingsMenuItemProps = ChatBlockingsMenuItemMobxProps & ChatBlockingsMenuItemOwnProps & Localized;
-
-const _ChatBlockingsMenuItem: FunctionComponent<ChatBlockingsMenuItemProps> = ({
-    setChatBlockingsDialogOpen,
-    fetchChatBlockings,
-    l,
+export const ChatBlockingsMenuItem: FunctionComponent<ChatBlockingsMenuItemProps> = observer(({
     onClick
 }) => {
+    const {
+        chatBlockingsOfChat: {
+            fetchChatBlockings
+        },
+        chatBlockingsDialog: {
+            setChatBlockingsDialogOpen
+        }
+    } = useStore();
+    const {l} = useLocalization();
+
     const handleClick = (): void => {
         if (onClick) {
             onClick();
@@ -42,16 +40,4 @@ const _ChatBlockingsMenuItem: FunctionComponent<ChatBlockingsMenuItemProps> = ({
             </ListItemText>
         </MenuItem>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatBlockingsMenuItemMobxProps> = ({
-    chatBlockingsOfChat,
-    chatBlockingsDialog
-}) => ({
-    fetchChatBlockings: chatBlockingsOfChat.fetchChatBlockings,
-    setChatBlockingsDialogOpen: chatBlockingsDialog.setChatBlockingsDialogOpen
 });
-
-export const ChatBlockingsMenuItem = localized(
-    inject(mapMobxToProps)(observer(_ChatBlockingsMenuItem))
-) as FunctionComponent<ChatBlockingsMenuItemOwnProps>;

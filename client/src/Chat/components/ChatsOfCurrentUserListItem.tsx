@@ -1,32 +1,17 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {Badge, CardHeader, createStyles, Divider, ListItem, makeStyles, Theme, Typography} from "@material-ui/core";
 import randomColor from "randomcolor";
-import {ChatOfCurrentUserEntity} from "../types";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
-import {MessageEntity} from "../../Message/types";
-import {UserEntity} from "../../User/types";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {Localized, localized} from "../../localization";
 
 const {Link} = require("mobx-router");
 
-interface ChatsOfCurrentUserListItemMobxProps {
-    selectedChat?: string,
-    findChat: (id: string) => ChatOfCurrentUserEntity,
-    findUser: (id: string) => UserEntity,
-    findMessage: (id: string) => MessageEntity,
-    routerStore?: any
-}
-
-interface ChatsOfCurrentUserListItemOwnProps {
+interface ChatsOfCurrentUserListItemProps {
     chatId: string
 }
-
-type ChatsOfCurrentUserListItemProps = ChatsOfCurrentUserListItemMobxProps
-    & ChatsOfCurrentUserListItemOwnProps & Localized;
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatsOfCurrentUserListItem: {
@@ -85,20 +70,32 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemProps> = ({
-    chatId,
-    selectedChat,
-    findChat,
-    findUser,
-    findMessage,
-    routerStore,
-    l
+export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemProps> = observer(({
+    chatId
 }) => {
+    const {
+        chat: {
+            selectedChatId
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            },
+            messages: {
+                findById: findMessage
+            },
+            users: {
+                findById: findUser
+            }
+        }
+    } = useStore();
+    const routerStore = useRouter();
+    const {l} = useLocalization();
     const classes = useStyles();
     const chat = findChat(chatId);
     const lastMessage = chat.lastMessage && findMessage(chat.lastMessage);
     const lastMessageSender = lastMessage && findUser(lastMessage.sender);
-    const selected = selectedChat === chatId;
+    const selected = selectedChatId === chatId;
 
     return (
         <Link store={routerStore}
@@ -153,16 +150,4 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
             </ListItem>
         </Link>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatsOfCurrentUserListItemMobxProps> = ({entities, chat, store}) => ({
-    findChat: entities.chats.findById,
-    selectedChat: chat.selectedChatId,
-    findMessage: entities.messages.findById,
-    findUser: entities.users.findById,
-    routerStore: store
 });
-
-export const ChatsOfCurrentUserListItem = localized(
-    inject(mapMobxToProps)(observer(_ChatsOfCurrentUserListItem))
-) as FunctionComponent<ChatsOfCurrentUserListItemOwnProps>;
