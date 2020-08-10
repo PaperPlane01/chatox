@@ -1,5 +1,6 @@
 package chatox.chat.api.response
 
+import chatox.chat.model.ImageUploadMetadata
 import java.time.ZonedDateTime
 
 data class UserResponse(
@@ -13,5 +14,6 @@ data class UserResponse(
         val lastSeen: ZonedDateTime?,
         val dateOfBirth: ZonedDateTime?,
         val createdAt: ZonedDateTime?,
-        val online: Boolean?
+        val online: Boolean?,
+        val avatar: UploadResponse<ImageUploadMetadata>?
 )

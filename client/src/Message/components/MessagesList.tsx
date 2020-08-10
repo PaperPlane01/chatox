@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useState, useEffect, useRef} from "react";
+import React, {FunctionComponent, UIEvent, useState, useEffect, useRef} from "react";
 import {inject, observer} from "mobx-react";
 import {createStyles, makeStyles} from "@material-ui/core";
 import {MessagesListItem} from "./MessagesListItem";
@@ -26,7 +26,7 @@ const _MessagesList: FunctionComponent<MessagesListMobxProps> = ({messagesOfChat
         }
     };
 
-    const handleScroll = (event: React.UIEvent<HTMLElement>): void => {
+    const handleScroll = (event: UIEvent<HTMLElement>): void => {
         const reachedBottom = event.currentTarget.scrollHeight - event.currentTarget.scrollTop === event.currentTarget.clientHeight;
         setReachedBottom(reachedBottom);
     };

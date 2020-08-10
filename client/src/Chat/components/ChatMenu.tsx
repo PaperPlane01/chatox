@@ -50,9 +50,9 @@ const _ChatMenu: FunctionComponent<ChatMenuMobxProps> = ({
 
     const menuItems: ReactNode[] = [];
 
+    canUpdateChat(chat) && menuItems.push(<EditChatMenuItem onClick={handleClose}/>);
     canBlockUsersInChat(chatParticipation) && menuItems.push(<ChatBlockingsMenuItem onClick={handleClose}/>);
     canBlockUsersInChat(chatParticipation) && menuItems.push(<BlockUserInChatByIdOrSlugMenuItem onClick={handleClose}/>);
-    canUpdateChat(chat) && menuItems.push(<EditChatMenuItem onClick={handleClose}/>);
 
     if (menuItems.length === 0) {
         return null;

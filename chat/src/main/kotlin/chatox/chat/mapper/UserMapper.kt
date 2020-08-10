@@ -5,7 +5,7 @@ import chatox.chat.model.User
 import org.springframework.stereotype.Component
 
 @Component
-class UserMapper {
+class UserMapper(private val uploadMapper: UploadMapper) {
     fun toUserResponse(user: User) = UserResponse(
             id = user.id,
             slug = user.slug,
@@ -17,6 +17,7 @@ class UserMapper {
             bio = user.bio,
             dateOfBirth = user.dateOfBirth,
             createdAt = user.createdAt,
-            online = user.online
+            online = user.online,
+            avatar = if (user.avatar != null) uploadMapper.toUploadResponse(user.avatar!!) else null
     )
 }

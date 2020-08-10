@@ -8,8 +8,10 @@ import {
     createStyles,
     makeStyles,
     Theme,
+    Tooltip,
     Typography
 } from "@material-ui/core";
+import {Edit} from "@material-ui/icons";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
@@ -148,7 +150,7 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
             >
                 <Avatar avatarLetter={avatarLetter}
                         avatarColor={color}
-                        avatarUri={sender.avatarUri}
+                        avatarId={sender.avatarId}
                 />
             </Link>
             <Card className={`${fullWidth ? classes.messageCardFullWidth : classes.messageCard} ${sentByCurrentUser && classes.messageOfCurrentUserCard}`}>
@@ -188,6 +190,16 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
                 }}>
                     <Typography variant="caption" color="textSecondary">
                         {createAtLabel}
+                        {message.updatedAt && (
+                            <Tooltip title={l("message.updated-at", {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)})}>
+                                <span>
+                                    ,
+                                    {" "}
+                                    <Edit fontSize="inherit"/>
+                                    {l("message.edited")}
+                                </span>
+                            </Tooltip>
+                        )}
                     </Typography>
                 </CardActions>
             </Card>

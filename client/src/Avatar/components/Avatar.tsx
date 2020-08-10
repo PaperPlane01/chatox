@@ -51,12 +51,7 @@ const _Avatar: FunctionComponent<AvatarProps> = ({
             uri = avatarUri;
         } else if (avatarId) {
             const avatar = findImage(avatarId);
-
-            if (avatar.thumbnail) {
-                uri = avatar.thumbnail.uri;
-            } else {
-                uri = avatar.uri;
-            }
+            uri = `${avatar.uri}?size=${width >= 256 ? width : 256}`;
         }
 
         if (isStringEmpty(uri)) {

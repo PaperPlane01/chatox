@@ -1,19 +1,23 @@
 import React, {FunctionComponent, MouseEvent, ReactNode, useState} from "react";
 import {inject, observer} from "mobx-react";
-import {Menu, IconButton} from "@material-ui/core";
+import {IconButton, Menu} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {BlockMessageAuthorInChatMenuItem} from "./BlockMessageAuthorInChatMenuItem";
 import {ReplyToMessageMenuItem} from "./ReplyToMessageMenuItem";
-import {FindChatParticipationByUserAndChatOptions} from "../../Chat/stores";
-import {ChatParticipationEntity} from "../../Chat/types";
+import {EditMessageMenuItem} from "./EditMessageMenuItem";
+import {canCreateMessage, canEditMessage} from "../permissions";
+import {MessageEntity} from "../types";
+import {ChatParticipationEntity, FindChatParticipationByUserAndChatOptions} from "../../Chat";
 import {CurrentUser} from "../../api/types/response";
-import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
 import {MapMobxToProps} from "../../store";
+import {canBlockUsersInChat, ChatBlockingEntity} from "../../ChatBlocking";
 
-export type MenuItemType = "blockMessageAuthorInChat" | "replyToMessage";
+export type MenuItemType = "blockMessageAuthorInChat" | "replyToMessage" | "editMessage";
 
 interface MessageMenuMobxProps {
     findChatParticipation: (options: FindChatParticipationByUserAndChatOptions) => ChatParticipationEntity | undefined,
+    findMessage: (messageId: string) => MessageEntity,
+    findChatBlocking: (blockingId: string) => ChatBlockingEntity,
     currentUser?: CurrentUser,
     selectedChatId?: string
 }
@@ -29,6 +33,8 @@ const _MessageMenu: FunctionComponent<MessageMenuProps> = ({
     messageId,
     onMenuItemClick,
     findChatParticipation,
+    findMessage,
+    findChatBlocking,
     currentUser,
     selectedChatId
 }) => {
@@ -38,13 +44,19 @@ const _MessageMenu: FunctionComponent<MessageMenuProps> = ({
     const chatParticipation = currentUser && selectedChatId
         ? findChatParticipation({userId: currentUser.id, chatId: selectedChatId})
         : undefined;
+    const message = findMessage(messageId);
+    let activeChatBlocking: ChatBlockingEntity | undefined = undefined;
+
+    if (chatParticipation && chatParticipation.activeChatBlockingId) {
+        activeChatBlocking = findChatBlocking(chatParticipation.activeChatBlockingId);
+    }
 
     const handleOpenClick = (event: MouseEvent<HTMLElement>): void => {
         setAnchorElement(event.currentTarget);
     };
 
-    const handleClose = (menuItemType: MenuItemType) => (): void => {
-        if (onMenuItemClick) {
+    const handleClose = (menuItemType?: MenuItemType) => (): void => {
+        if (onMenuItemClick && menuItemType) {
             onMenuItemClick(menuItemType);
         }
 
@@ -53,13 +65,17 @@ const _MessageMenu: FunctionComponent<MessageMenuProps> = ({
 
     const menuItems: ReactNode[] = [];
 
+    if (canEditMessage(message, chatParticipation, activeChatBlocking)) {
+        menuItems.push(<EditMessageMenuItem messageId={messageId} onClick={handleClose("editMessage")}/>);
+    }
+
     if (canBlockUsersInChat(chatParticipation)) {
         menuItems.push(<BlockMessageAuthorInChatMenuItem onClick={handleClose("blockMessageAuthorInChat")}
                                                          messageId={messageId}/>
         );
     }
 
-    if (chatParticipation && !chatParticipation.activeChatBlockingId) {
+    if (canCreateMessage(chatParticipation, activeChatBlocking)) {
         menuItems.push(<ReplyToMessageMenuItem messageId={messageId} onClick={handleClose("replyToMessage")}/>);
     }
 
@@ -75,7 +91,7 @@ const _MessageMenu: FunctionComponent<MessageMenuProps> = ({
                 <MoreVert/>
             </IconButton>
             <Menu open={menuOpen}
-                  onClose={handleClose}
+                  onClose={handleClose()}
                   anchorEl={anchorElement}
             >
                 {menuItems}
@@ -91,7 +107,9 @@ const mapMobxToProps: MapMobxToProps<MessageMenuMobxProps> = ({
 }) => ({
     findChatParticipation: entities.chatParticipations.findByUserAndChat,
     selectedChatId: chat.selectedChatId,
-    currentUser: authorization.currentUser
+    currentUser: authorization.currentUser,
+    findMessage: entities.messages.findById,
+    findChatBlocking: entities.chatBlockings.findById
 });
 
 export const MessageMenu = inject(mapMobxToProps)(observer(_MessageMenu as FunctionComponent<MessageMenuOwnProps>));

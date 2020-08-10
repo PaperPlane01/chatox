@@ -93,7 +93,7 @@ const _ReferredMessageCard: FunctionComponent<ReferredMessageCardProps> = ({
     const color = randomColor({seed: user.id});
 
     return (
-        <Card>
+        <Card elevation={0}>
             <CardHeader title={
                 <Typography variant="body1" style={{color}}>
                     <strong>

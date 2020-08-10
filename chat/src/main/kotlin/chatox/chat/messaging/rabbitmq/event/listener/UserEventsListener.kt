@@ -7,8 +7,12 @@ import chatox.chat.messaging.rabbitmq.event.UserUpdated
 import chatox.chat.messaging.rabbitmq.event.UserWentOffline
 import chatox.chat.messaging.rabbitmq.event.UserWentOnline
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
+import chatox.chat.model.ImageUploadMetadata
+import chatox.chat.model.Upload
+import chatox.chat.model.UploadType
 import chatox.chat.model.User
 import chatox.chat.repository.ChatParticipationRepository
+import chatox.chat.repository.UploadRepository
 import chatox.chat.repository.UserRepository
 import com.rabbitmq.client.Channel
 import kotlinx.coroutines.reactive.awaitFirst
@@ -24,6 +28,7 @@ import java.time.ZonedDateTime
 @Component
 class UserEventsListener(private val userRepository: UserRepository,
                          private val chatParticipationRepository: ChatParticipationRepository,
+                         private val uploadRepository: UploadRepository,
                          private val chatParticipationMapper: ChatParticipationMapper,
                          private val chatEventsPublisher: ChatEventsPublisher) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -66,6 +71,16 @@ class UserEventsListener(private val userRepository: UserRepository,
             val user = userRepository.findById(userUpdated.id).awaitFirstOrNull()
 
             if (user != null) {
+                var avatar: Upload<ImageUploadMetadata>? = null;
+
+                if (userUpdated.avatar != null) {
+                    avatar = uploadRepository.findByIdAndType<ImageUploadMetadata>(
+                            userUpdated.avatar.id,
+                            UploadType.IMAGE
+                    )
+                            .awaitFirstOrNull()
+                }
+
                 userRepository.save(user.copy(
                         avatarUri = userUpdated.avatarUri,
                         firstName = userUpdated.firstName,
@@ -73,7 +88,8 @@ class UserEventsListener(private val userRepository: UserRepository,
                         slug = userUpdated.slug,
                         bio = userUpdated.bio,
                         dateOfBirth = userUpdated.dateOfBirth,
-                        createdAt = userUpdated.createdAt
+                        createdAt = userUpdated.createdAt,
+                        avatar = avatar
                 ))
                         .awaitFirst()
             }

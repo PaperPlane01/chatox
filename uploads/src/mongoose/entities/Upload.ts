@@ -14,6 +14,8 @@ export interface Upload<Metadata> extends Document {
     meta?: Metadata,
     thumbnail?: Upload<ImageUploadMetadata>,
     preview?: Upload<ImageUploadMetadata>,
+    thumbnails: Upload<ImageUploadMetadata>[]
     isThumbnail: boolean,
-    isPreview: boolean
+    isPreview: boolean,
+    originalId?: string
 }

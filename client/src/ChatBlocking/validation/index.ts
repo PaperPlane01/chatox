@@ -15,7 +15,7 @@ export const validateBlockedUntil = (blockedUntil?: Date): keyof Labels | undefi
 };
 
 export const validateBlockingDescription = (description?: string): keyof Labels | undefined=> {
-    if (!isStringEmpty(description)) {
+    if (isStringEmpty(description)) {
         return undefined;
     }
 

@@ -6,3 +6,5 @@ export * from "./CreateChatBlockingRequest";
 export * from "./PaginationRequest";
 export * from "./CreateEmailVerificationRequest";
 export * from "./CheckEmailVerificationCodeValidityRequest";
+export * from "./UpdateUserRequest";
+export * from "./UpdateMessageRequest";

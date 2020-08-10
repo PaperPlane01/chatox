@@ -17,14 +17,19 @@ import {
     JoinChatStore,
     ChatInfoDialogStore,
     OnlineChatParticipantsStore,
-    UploadChatAvatarStore,
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
 import {EntitiesStore} from "../entities-store";
-import {UsersStore, UserProfileStore} from "../User";
-import {CreateMessageStore, MessagesOfChatStore, MessagesStore, MessageDialogStore} from "../Message";
+import {UsersStore, UserProfileStore, EditProfileStore} from "../User";
+import {
+    CreateMessageStore,
+    MessagesOfChatStore,
+    MessagesStore,
+    MessageDialogStore,
+    UpdateMessageStore
+} from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
     ChatBlockingsStore,
@@ -36,7 +41,8 @@ import {
     UpdateChatBlockingStore,
     BlockUserInChatByIdOrSlugStore
 } from "../ChatBlocking";
-import {UploadsStore} from "../Upload";
+import {UploadsStore, UploadImageStore} from "../Upload";
+import {SettingsTabsStore} from "../Settings";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -87,9 +93,13 @@ const updateChatBlocking = new UpdateChatBlockingStore(entities);
 const chatInfoDialog = new ChatInfoDialogStore();
 const blockUserInChatByIdOrSlug = new BlockUserInChatByIdOrSlugStore(entities, createChatBlocking);
 const onlineChatParticipants = new OnlineChatParticipantsStore(entities, chat);
-const chatAvatarUpload = new UploadChatAvatarStore(entities);
+const chatAvatarUpload = new UploadImageStore(entities);
 const chatUpdate = new UpdateChatStore(chatAvatarUpload, chat, entities);
 const messageDialog = new MessageDialogStore();
+const userAvatarUpload = new UploadImageStore(entities);
+const editProfile = new EditProfileStore(authorization, userAvatarUpload, entities);
+const settingsTabs = new SettingsTabsStore();
+const messageUpdate = new UpdateMessageStore(chat, entities);
 
 export const store: IAppState = {
     authorization,
@@ -122,7 +132,11 @@ export const store: IAppState = {
     sendVerificationEmail,
     verificationCodeCheck,
     registrationDialog,
-    messageDialog
+    messageDialog,
+    userAvatarUpload,
+    editProfile,
+    settingsTabs,
+    messageUpdate
 };
 
 export interface MapMobxToProps<ComponentProps = {}> {

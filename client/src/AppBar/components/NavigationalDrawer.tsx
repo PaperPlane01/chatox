@@ -5,6 +5,7 @@ import {DrawerUserInfo} from "./DrawerUserInfo";
 import {ProfileMenuItem} from "./ProfileMenuItem";
 import {HomeMenuItem} from "./HomeMenuItem";
 import {MyChatsMenuItem} from "./MyChatsMenuItem";
+import {SettingsMenuItem} from "./SettingsMenuItem";
 import {HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {IAppState} from "../../store";
@@ -37,17 +38,21 @@ const _NavigationalDrawer: FunctionComponent<NavigationalDrawerMobxProps> = ({
                     <Divider/>
                 </HasRole>
                 <List>
+                    <HomeMenuItem onClick={closeDrawer}/>
+                    <Divider/>
                     <HasRole role="ROLE_USER">
                         <ProfileMenuItem onClick={closeDrawer}/>
-                        <Divider/>
                     </HasRole>
-                    <HomeMenuItem onClick={closeDrawer}/>
                     <HasRole role="ROLE_NOT_LOGGED_IN">
                         <LoginMenuItem onClick={closeDrawer}/>
                         <RegistrationMenuItem onClick={closeDrawer}/>
                     </HasRole>
                     <HasRole role="ROLE_USER">
                         <MyChatsMenuItem onClick={closeDrawer}/>
+                    </HasRole>
+                    <SettingsMenuItem onClick={closeDrawer}/>
+                    <HasRole role="ROLE_USER">
+                        <Divider/>
                         <LogOutMenuItem onClick={closeDrawer}/>
                     </HasRole>
                 </List>
@@ -63,4 +68,4 @@ const mapMobxToProps = (state: IAppState): NavigationalDrawerMobxProps => ({
     drawerOpen: state.appBar.drawerExpanded
 });
 
-export const NavigationalDrawer = inject(mapMobxToProps)(observer(_NavigationalDrawer as FunctionComponent<{}>));
+export const NavigationalDrawer = inject(mapMobxToProps)(observer(_NavigationalDrawer as FunctionComponent));

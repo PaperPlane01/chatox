@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "chatox"
-version = "0.3.beta-1"
+version = "0.3"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -58,4 +58,8 @@ tasks.withType<KotlinCompile> {
 		freeCompilerArgs = listOf("-Xjsr305=strict")
 		jvmTarget = "1.8"
 	}
+}
+
+allOpen {
+	annotation("org.springframework.data.mongodb.core.mapping.Document")
 }

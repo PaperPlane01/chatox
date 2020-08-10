@@ -5,10 +5,13 @@ import chatox.user.domain.ImageUploadMetadata
 import chatox.user.domain.Upload
 import chatox.user.domain.User
 import chatox.user.messaging.rabbitmq.event.UploadCreated
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
 class UploadMapper {
+    @Value("\${uploads.images}")
+    private lateinit var imagesBaseUrl: String
 
     fun <MetadataType>toUploadResponse(upload: Upload<MetadataType>): UploadResponse<MetadataType> = UploadResponse(
             id = upload.id,
@@ -18,16 +21,15 @@ class UploadMapper {
             mimeType = upload.mimeType,
             meta = upload.meta,
             preview = if (upload.preview != null) toUploadResponse(upload.preview!!) else null,
-            thumbnail = if (upload.thumbnail != null) toUploadResponse(upload.thumbnail!!) else null
+            uri = "${imagesBaseUrl}/${upload.name}",
+            originalName = upload.originalName
     )
 
     fun <MetadataType>fromUploadCreated(uploadCreated: UploadCreated<MetadataType>,
-                                        thumbnail: Upload<ImageUploadMetadata>?,
                                         preview: Upload<ImageUploadMetadata>?,
                                         user: User?
     ): Upload<MetadataType> = Upload(
             id = uploadCreated.id,
-            thumbnail = thumbnail,
             preview = preview,
             meta = uploadCreated.meta,
             extenstion = uploadCreated.extension,

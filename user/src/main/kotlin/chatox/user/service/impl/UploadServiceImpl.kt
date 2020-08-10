@@ -25,30 +25,17 @@ class UploadServiceImpl(private val uploadRepository: UploadRepository,
 
     private val log = LoggerFactory.getLogger(this.javaClass)
 
-    override fun saveUpload(uploadCreated: UploadCreated<Any>): Mono<UploadResponse<Any>> {
+    override fun <MetadataType>saveUpload(uploadCreated: UploadCreated<MetadataType>): Mono<UploadResponse<MetadataType>> {
         return mono {
             log.info("Saving upload ${uploadCreated.name}")
 
-            var thumbnail: Upload<ImageUploadMetadata>? = null
             var preview: Upload<ImageUploadMetadata>? = null
             var user: User? = null
-
-            if (uploadCreated.thumbnail !== null) {
-                log.info("Saving thumbnail of ${uploadCreated.name}")
-                thumbnail = uploadMapper.fromUploadCreated(
-                        uploadCreated.thumbnail,
-                        thumbnail = null,
-                        preview = null,
-                        user = null
-                )
-                thumbnail = uploadRepository.save(thumbnail).awaitFirst()
-            }
 
             if (uploadCreated.preview != null) {
                 log.info("Saving preview of ${uploadCreated.name}")
                 preview = uploadMapper.fromUploadCreated(
                         uploadCreated = uploadCreated.preview,
-                        thumbnail = null,
                         preview = null,
                         user = null
                 )
@@ -62,7 +49,6 @@ class UploadServiceImpl(private val uploadRepository: UploadRepository,
             var upload = uploadMapper.fromUploadCreated(
                     uploadCreated = uploadCreated,
                     preview = preview,
-                    thumbnail = thumbnail,
                     user = user
             )
             upload = uploadRepository.save(upload).awaitFirst()

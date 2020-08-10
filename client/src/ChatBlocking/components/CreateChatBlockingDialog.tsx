@@ -128,6 +128,7 @@ const _CreateChatBlockingDialog: FunctionComponent<CreateChatBlockingDialogProps
                     </Typography>
                     <Avatar avatarLetter={avatarLetters}
                             avatarColor={color}
+                            avatarId={user.avatarId}
                             width={25}
                             height={25}
                     />

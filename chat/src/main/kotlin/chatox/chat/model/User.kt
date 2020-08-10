@@ -19,5 +19,6 @@ data class User(
         var createdAt: ZonedDateTime?,
         var dateOfBirth: ZonedDateTime?,
         var online: Boolean?,
-        var email: String?
+        var email: String?,
+        var avatar: Upload<ImageUploadMetadata>? = null
 )

@@ -1,19 +1,17 @@
-import React, {FunctionComponent, useState} from "react";
+import React, {FunctionComponent} from "react";
 import {inject, observer} from "mobx-react";
-import {Button, CircularProgress, Typography, createStyles, makeStyles, Theme} from "@material-ui/core";
-import {Image} from "@material-ui/icons";
+import {createStyles, makeStyles} from "@material-ui/core";
 import randomColor from "randomcolor";
-import {Avatar} from "../../Avatar";
+import {AvatarUpload} from "../../Upload";
 import {ChatOfCurrentUserEntity} from "../types";
 import {Labels} from "../../localization/types";
-import {Localized, localized} from "../../localization";
 import {ApiError} from "../../api";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ImageUploadMetadata} from "../../api/types/response";
 import {getAvatarLabel} from "../utils";
 import {MapMobxToProps} from "../../store";
 
-interface ChatAvatarUploadMobxProps {
+interface ChatAvatarUploadProps {
     uploadFile: (file: File) => void,
     pending: boolean,
     validationError?: keyof Labels,
@@ -23,17 +21,12 @@ interface ChatAvatarUploadMobxProps {
     findChat: (id: string) => ChatOfCurrentUserEntity
 }
 
-type ChatAvatarUploadProps = ChatAvatarUploadMobxProps & Localized;
-
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles(() => createStyles({
     centered: {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         flexDirection: "column"
-    },
-    avatarUploadButton: {
-        marginTop: theme.spacing(1)
     }
 }));
 
@@ -45,9 +38,7 @@ const _ChatAvatarUpload: FunctionComponent<ChatAvatarUploadProps> = ({
     avatarContainer,
     selectedChatId,
     findChat,
-    l
 }) => {
-    const [value, setValue] = useState("");
     const classes = useStyles();
 
     if (!selectedChatId) {
@@ -58,55 +49,27 @@ const _ChatAvatarUpload: FunctionComponent<ChatAvatarUploadProps> = ({
 
     return (
         <div className={classes.centered}>
-            <Avatar avatarLetter={getAvatarLabel(chat.name)}
-                    avatarColor={randomColor({seed: chat.id})}
-                    avatarId={chat.avatarId}
-                    avatarUri={avatarContainer && avatarContainer.url}
-                    width={80}
-                    height={80}
+            <AvatarUpload onFileAttached={uploadFile}
+                          pending={pending}
+                          imageContainer={avatarContainer}
+                          defaultAvatarLabel={getAvatarLabel(chat.name)}
+                          avatarColor={randomColor({seed: chat.id})}
+                          validationError={validationError}
+                          submissionError={submissionError}
+                          defaultAvatarId={chat.avatarId}
             />
-            <Button variant="outlined"
-                    color="primary"
-                    disabled={pending}
-                    component="label"
-                    className={classes.avatarUploadButton}
-            >
-                {pending && <CircularProgress color="primary" size={25}/>}
-                {!pending && <Image/>}
-                {l("chat.avatar.upload")}
-                <input type="file"
-                       value={value}
-                       style={{display: "none"}}
-                       accept="image/png, image/jpg, image/jpeg"
-                       onClick={() => setValue('')}
-                       onChange={event => {
-                           if (event.target.files && event.target.files.length !== 0) {
-                               uploadFile(event.target.files[0]);
-                           }
-                       }}
-                />
-            </Button>
-            {validationError && (
-                <Typography variant="body1"
-                            style={{color: "red"}}
-                >
-                    {l(validationError)}
-                </Typography>
-            )}
         </div>
     )
 };
 
-const mapMobxToProps: MapMobxToProps<ChatAvatarUploadMobxProps> = ({chatAvatarUpload, chat, entities}) => ({
+const mapMobxToProps: MapMobxToProps<ChatAvatarUploadProps> = ({chatAvatarUpload, chat, entities}) => ({
     uploadFile: chatAvatarUpload.uploadFile,
     validationError: chatAvatarUpload.validationError,
     submissionError: chatAvatarUpload.submissionError,
     pending: chatAvatarUpload.pending,
-    avatarContainer: chatAvatarUpload.avatarContainer,
+    avatarContainer: chatAvatarUpload.imageContainer,
     selectedChatId: chat.selectedChatId,
     findChat: entities.chats.findById
 });
 
-export const ChatAvatarUpload = localized(
-    inject(mapMobxToProps)(observer(_ChatAvatarUpload))
-) as FunctionComponent;
+export const ChatAvatarUpload = inject(mapMobxToProps)(observer(_ChatAvatarUpload) as FunctionComponent);

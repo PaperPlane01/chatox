@@ -24,8 +24,9 @@ const UploadSchema = new Schema({
     },
     isThumbnail: Boolean,
     isPreview: Boolean,
-    thumbnail: this,
-    preview: this
+    preview: this,
+    thumbnails: [this],
+    originalId: String
 });
 
 const getRabbitMQRoutingKey = (upload: Upload<any>): string => {

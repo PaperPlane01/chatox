@@ -1,4 +1,12 @@
-export const isStringEmpty = (string: string | null | undefined) => (string === null || string === undefined) || string.trim().length === 0;
+import {isDefined} from "./object-utils";
+
+export const isStringEmpty = (string: string | null | undefined, trimString: boolean = false) => {
+    if (!isDefined(string)) {
+        return true;
+    }
+
+    return trimString ? string!.trim().length === 0 : string!.length === 0;
+};
 
 export const trimString = (string: string, targetLength: number): string => {
     if (string.length <= targetLength) {

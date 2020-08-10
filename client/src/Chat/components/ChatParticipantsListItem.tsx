@@ -59,7 +59,7 @@ const _ChatParticipantsListItem: FunctionComponent<ChatParticipantsListItemProps
             <div className={classes.avatar}>
                 <Avatar avatarLetter={avatarLetters}
                         avatarColor={randomColor({seed: user.id})}
-                        avatarUri={user.avatarUri}
+                        avatarId={user.avatarId}
                 />
             </div>
             <ListItemText primaryTypographyProps={{

@@ -15,10 +15,8 @@ data class Upload<MetadataType>(
         var size: Int,
         var isPreview: Boolean,
         var isThumbnail: Boolean,
-        @DBRef
+        @DBRef(lazy = true)
         var preview: Upload<ImageUploadMetadata>?,
-        @DBRef
-        var thumbnail: Upload<ImageUploadMetadata>?,
-        @DBRef
+        @DBRef(lazy = true)
         var user: User?
 )

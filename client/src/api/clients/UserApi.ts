@@ -2,7 +2,7 @@ import {AxiosPromise} from "axios";
 import {stringify} from "query-string";
 import {axiosInstance} from "../axios-instance";
 import {ACCOUNT, IS_AVAILABLE, ME, OAUTH, REGISTRATION, REVOKE, SLUG, TOKEN, USER, USERNAME} from "../endpoints";
-import {RegistrationRequest, RevokeTokenRequest} from "../types/request";
+import {RegistrationRequest, RevokeTokenRequest, UpdateUserRequest} from "../types/request";
 import {AvailabilityResponse, CurrentUser, OAuth2Response, RegistrationResponse, User} from "../types/response";
 
 export class UserApi {
@@ -65,5 +65,9 @@ export class UserApi {
                 ...revokeTokenRequest
             }
         })
+    }
+
+    public static updateUser(id: string, updateUserRequest: UpdateUserRequest): AxiosPromise<User> {
+        return axiosInstance.put(`/${USER}/${id}`, updateUserRequest);
     }
 }

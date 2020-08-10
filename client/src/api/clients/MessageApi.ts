@@ -2,7 +2,7 @@ import {AxiosPromise} from "axios";
 import {axiosInstance} from "../axios-instance";
 import {Message} from "../types/response";
 import {CHAT, MESSAGES} from "../endpoints";
-import {CreateMessageRequest} from "../types/request";
+import {CreateMessageRequest, UpdateMessageRequest} from "../types/request";
 
 export class MessageApi {
     public static getMessagesByChat(chatId: string): AxiosPromise<Message[]> {
@@ -19,5 +19,9 @@ export class MessageApi {
 
     public static createMessage(chatId: string, createMessageRequest: CreateMessageRequest): AxiosPromise<Message> {
         return axiosInstance.post(`/${CHAT}/${chatId}/${MESSAGES}`, createMessageRequest);
+    }
+
+    public static updateMessage(chatId: string, messageId: string, updateMessageRequest: UpdateMessageRequest): AxiosPromise<Message> {
+        return axiosInstance.put(`/${CHAT}/${chatId}/${MESSAGES}/${messageId}`, updateMessageRequest);
     }
 }

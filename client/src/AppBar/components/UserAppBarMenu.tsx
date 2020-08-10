@@ -41,6 +41,7 @@ const _UserAppBarMenu: FunctionComponent<UserAppBarMenuMobxProps> = ({currentUse
                         <Avatar avatarLetter={avatarLetter}
                                 avatarColor={randomColor({seed: currentUser.id})}
                                 avatarUri={currentUser.avatarUri}
+                                avatarId={currentUser.avatarId}
                         />
                     </div>
                     {currentUser.firstName}{currentUser.lastName && ` ${currentUser.lastName}`}

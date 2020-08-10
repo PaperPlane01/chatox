@@ -41,7 +41,7 @@ const _ChatBlockingsListItem: FunctionComponent<ChatBlockingsListItemProps> = ({
     return (
         <MenuItem onClick={handleClick}>
             <ListItemAvatar>
-                <Avatar avatarLetter={avatarLabel} avatarColor={color}/>
+                <Avatar avatarLetter={avatarLabel} avatarColor={color} avatarId={blockedUser.avatarId}/>
             </ListItemAvatar>
             <ListItemText>
                 {blockedUser.firstName} {blockedUser.lastName && blockedUser.lastName}
