@@ -1,29 +1,17 @@
-import React, {FunctionComponent, Fragment, ReactNode} from "react";
-import {inject, observer} from "mobx-react";
+import React, {Fragment, FunctionComponent, ReactNode} from "react";
+import {observer} from "mobx-react";
 import {Typography} from "@material-ui/core";
 import {format} from "date-fns";
 import {CreateMessageForm} from "./CreateMessageForm";
 import {ReferredMessageCard} from "./ReferredMessageCard";
 import {JoinChatButton} from "../../Chat";
 import {ChatParticipationEntity} from "../../Chat/types";
-import {CurrentUser} from "../../api/types/response";
-import {MapMobxToProps} from "../../store";
-import {FindChatParticipationByUserAndChatOptions} from "../../Chat";
+import {useAuthorization, useLocalization, useStore} from "../../store";
 import {ChatBlockingEntity} from "../../ChatBlocking/types";
 import {isChatBlockingActive} from "../../ChatBlocking/utils";
 import {isStringEmpty} from "../../utils/string-utils";
 import {UserEntity} from "../../User/types";
-import {localized, Localized, Labels, TranslationFunction} from "../../localization";
-
-interface MessagesListBottomMobxProps {
-    findChatParticipation: (options: FindChatParticipationByUserAndChatOptions) => ChatParticipationEntity | undefined,
-    findChatBlocking: (id: string) => ChatBlockingEntity,
-    findUser: (id: string) => UserEntity,
-    currentUser?: CurrentUser,
-    selectedChatId?: string
-}
-
-type MessagesListBottomProps = MessagesListBottomMobxProps & Localized;
+import {Labels, TranslationFunction} from "../../localization";
 
 const getBlockingLabel = (
     chatBlockingEntity: ChatBlockingEntity,
@@ -59,15 +47,26 @@ const getBlockingLabel = (
     return l(labelCode, bindings);
 };
 
-const _MessagesListBottom: FunctionComponent<MessagesListBottomProps> = ({
-    findChatParticipation,
-    findChatBlocking,
-    findUser,
-    currentUser,
-    selectedChatId,
-    l,
-    dateFnsLocale
-}) => {
+export const MessagesListBottom: FunctionComponent = observer(() => {
+    const {
+        entities: {
+            chatParticipations: {
+                findByUserAndChat: findChatParticipation
+            },
+            chatBlockings: {
+                findById: findChatBlocking
+            },
+            users: {
+                findById: findUser
+            }
+        },
+        chat: {
+            selectedChatId
+        }
+    } = useStore();
+    const {l, dateFnsLocale} = useLocalization();
+    const {currentUser} = useAuthorization();
+
     let chatParticipation: ChatParticipationEntity | undefined;
     let activeChatBlocking: ChatBlockingEntity | undefined;
     let messagesListBottomContent: ReactNode;
@@ -119,16 +118,4 @@ const _MessagesListBottom: FunctionComponent<MessagesListBottomProps> = ({
             {messagesListBottomContent}
         </div>
     );
-};
-
-const mapMobxToProps: MapMobxToProps<MessagesListBottomMobxProps> = ({entities, authorization, chat}) => ({
-    findChatParticipation: entities.chatParticipations.findByUserAndChat,
-    findChatBlocking: entities.chatBlockings.findById,
-    findUser: entities.users.findById,
-    currentUser: authorization.currentUser,
-    selectedChatId: chat.selectedChatId
 });
-
-export const MessagesListBottom = localized(
-    inject(mapMobxToProps)(observer(_MessagesListBottom))
-) as FunctionComponent;

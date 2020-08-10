@@ -9,35 +9,34 @@ import {canCreateMessage, canEditMessage} from "../permissions";
 import {MessageEntity} from "../types";
 import {ChatParticipationEntity, FindChatParticipationByUserAndChatOptions} from "../../Chat";
 import {CurrentUser} from "../../api/types/response";
-import {MapMobxToProps} from "../../store";
+import {MapMobxToProps, useAuthorization, useStore} from "../../store";
 import {canBlockUsersInChat, ChatBlockingEntity} from "../../ChatBlocking";
 
 export type MenuItemType = "blockMessageAuthorInChat" | "replyToMessage" | "editMessage";
 
-interface MessageMenuMobxProps {
-    findChatParticipation: (options: FindChatParticipationByUserAndChatOptions) => ChatParticipationEntity | undefined,
-    findMessage: (messageId: string) => MessageEntity,
-    findChatBlocking: (blockingId: string) => ChatBlockingEntity,
-    currentUser?: CurrentUser,
-    selectedChatId?: string
-}
-
-interface MessageMenuOwnProps {
+interface MessageMenuProps {
     messageId: string,
     onMenuItemClick?: (menuItemType: MenuItemType) => void
 }
 
-type MessageMenuProps = MessageMenuMobxProps & MessageMenuOwnProps;
-
-const _MessageMenu: FunctionComponent<MessageMenuProps> = ({
-    messageId,
-    onMenuItemClick,
-    findChatParticipation,
-    findMessage,
-    findChatBlocking,
-    currentUser,
-    selectedChatId
-}) => {
+export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messageId, onMenuItemClick}) => {
+    const {
+        entities: {
+            chatParticipations: {
+                findByUserAndChat: findChatParticipation
+            },
+            messages: {
+                findById: findMessage
+            },
+            chatBlockings: {
+                findById: findChatBlocking
+            }
+        },
+        chat: {
+            selectedChatId
+        }
+    } = useStore();
+    const {currentUser} = useAuthorization();
     const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
     const menuOpen = Boolean(anchorElement);
 
@@ -98,18 +97,4 @@ const _MessageMenu: FunctionComponent<MessageMenuProps> = ({
             </Menu>
         </div>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<MessageMenuMobxProps> = ({
-    authorization,
-    chat,
-    entities
-}) => ({
-    findChatParticipation: entities.chatParticipations.findByUserAndChat,
-    selectedChatId: chat.selectedChatId,
-    currentUser: authorization.currentUser,
-    findMessage: entities.messages.findById,
-    findChatBlocking: entities.chatBlockings.findById
 });
-
-export const MessageMenu = inject(mapMobxToProps)(observer(_MessageMenu as FunctionComponent<MessageMenuOwnProps>));

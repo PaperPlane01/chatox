@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {
     Card,
     CardActions,
@@ -17,31 +17,18 @@ import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
 import {MenuItemType, MessageMenu} from "./MessageMenu";
 import {ReferredMessageContent} from "./ReferredMessageContent";
-import {MessageEntity} from "../types";
 import {Avatar} from "../../Avatar";
-import {UserEntity} from "../../User";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
-import {CurrentUser} from "../../api/types/response";
+import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 
 const breaks = require("remark-breaks");
 const {Link} = require("mobx-router");
 
-interface MessagesListItemMobxProps {
-    findMessage: (id: string) => MessageEntity,
-    findUser: (id: string) => UserEntity,
-    currentUser?: CurrentUser,
-    routerStore?: any
-}
-
-interface MessagesListItemOwnProps {
+interface MessagesListItemProps {
     messageId: string,
     fullWidth?: boolean,
     onMenuItemClick?: (menuItemType: MenuItemType) => void
 }
-
-type MessagesListItemProps = MessagesListItemMobxProps & MessagesListItemOwnProps & Localized;
 
 const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
     const currentDate = new Date();
@@ -114,18 +101,26 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
+export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     messageId,
     fullWidth = false,
-    onMenuItemClick,
-    currentUser,
-    findMessage,
-    findUser,
-    routerStore,
-    dateFnsLocale,
-    l
+    onMenuItemClick
 }) => {
+    const {
+        entities: {
+            users: {
+                findById: findUser
+            },
+            messages: {
+                findById: findMessage
+            }
+        }
+    } = useStore();
+    const {l, dateFnsLocale} = useLocalization();
+    const {currentUser} = useAuthorization();
+    const routerStore = useRouter();
     const classes = useStyles();
+
     const message = findMessage(messageId);
     const sender = findUser(message.sender);
     const createAtLabel = getCreatedAtLabel(message.createdAt, dateFnsLocale);
@@ -205,15 +200,4 @@ const _MessageListItem: FunctionComponent<MessagesListItemProps> = ({
             </Card>
         </div>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<MessagesListItemMobxProps> = ({entities, authorization, store}) => ({
-    findMessage: entities.messages.findById,
-    findUser: entities.users.findById,
-    currentUser: authorization.currentUser,
-    routerStore: store
 });
-
-export const MessagesListItem = localized(
-    inject(mapMobxToProps)(observer(_MessageListItem))
-) as FunctionComponent<MessagesListItemOwnProps>;

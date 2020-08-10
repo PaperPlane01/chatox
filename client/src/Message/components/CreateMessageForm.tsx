@@ -1,22 +1,8 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {createStyles, Divider, IconButton, InputAdornment, makeStyles, TextField, Tooltip} from "@material-ui/core";
 import {AttachFile, InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
-import {ReferredMessageCard} from "./ReferredMessageCard";
-import {CreateMessageFormData} from "../types";
-import {localized, Localized} from "../../localization";
-import {FormErrors} from "../../utils/types";
-import {ApiError} from "../../api";
-import {MapMobxToProps} from "../../store";
-
-interface CreateMessageFormMobxProps {
-    formValues: CreateMessageFormData,
-    formErrors: FormErrors<CreateMessageFormData>,
-    pending: boolean,
-    submissionError?: ApiError,
-    setFormValue: <Key extends keyof CreateMessageFormData>(key: Key, value: CreateMessageFormData[Key]) => void,
-    createMessage: () => void
-}
+import {useLocalization, useStore} from "../../store";
 
 const useStyles = makeStyles(() => createStyles({
     createMessageForm: {
@@ -26,15 +12,18 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-const _CreateMessageForm: FunctionComponent<CreateMessageFormMobxProps & Localized> = ({
-    formErrors,
-    formValues,
-    pending,
-    submissionError,
-    createMessage,
-    setFormValue,
-    l
-}) => {
+export const CreateMessageForm: FunctionComponent = observer(() => {
+    const {
+        messageCreation: {
+            createMessageForm: formValues,
+            formErrors,
+            pending,
+            submissionError,
+            setFormValue,
+            createMessage
+        },
+    } = useStore();
+    const {l} = useLocalization();
     const classes = useStyles();
 
     return (
@@ -94,17 +83,4 @@ const _CreateMessageForm: FunctionComponent<CreateMessageFormMobxProps & Localiz
             />
         </div>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<CreateMessageFormMobxProps> = ({messageCreation}) => ({
-    formValues: messageCreation.createMessageForm,
-    formErrors: messageCreation.formErrors,
-    pending: messageCreation.pending,
-    submissionError: messageCreation.submissionError,
-    createMessage: messageCreation.createMessage,
-    setFormValue: messageCreation.setFormValue
 });
-
-export const CreateMessageForm = localized(
-    inject(mapMobxToProps)(observer(_CreateMessageForm))
-) as FunctionComponent;

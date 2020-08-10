@@ -1,29 +1,25 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
 import {Reply} from "@material-ui/icons";
-import {localized, Localized} from "../../localization/components";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-interface ReplyToMessageMenuItemMobxProps {
-    setReferredMessageId: (referredMessageId?: string) => void
-}
-
-interface ReplyToMessageMenuItemOwnProps {
+interface ReplyToMessageMenuItemProps {
     onClick?: () => void,
     messageId: string
 }
 
-type ReplyToMessageMenuItemProps = ReplyToMessageMenuItemMobxProps
-    & ReplyToMessageMenuItemOwnProps
-    & Localized;
-
-const _ReplyToMessageMenuItem: FunctionComponent<ReplyToMessageMenuItemProps> = ({
+export const ReplyToMessageMenuItem: FunctionComponent<ReplyToMessageMenuItemProps> = observer(({
     messageId,
-    setReferredMessageId,
-    onClick,
-    l
+    onClick
 }) => {
+    const {
+        messageCreation: {
+            setReferredMessageId
+        }
+    } = useStore();
+    const {l} = useLocalization();
+
     const handleClick = (): void => {
         if (onClick) {
             onClick();
@@ -42,14 +38,4 @@ const _ReplyToMessageMenuItem: FunctionComponent<ReplyToMessageMenuItemProps> = 
             </ListItemText>
         </MenuItem>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ReplyToMessageMenuItemMobxProps> = ({
-    messageCreation
-}) => ({
-    setReferredMessageId: messageCreation.setReferredMessageId
 });
-
-export const ReplyToMessageMenuItem = localized(
-    inject(mapMobxToProps)(observer(_ReplyToMessageMenuItem))
-) as FunctionComponent<ReplyToMessageMenuItemOwnProps>;
