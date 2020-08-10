@@ -1,6 +1,6 @@
 import {IAppState} from "./IAppState";
 import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore} from "../Authorization";
+import {AuthorizationStore, LoginStore} from "../Authorization/stores";
 import {
     UserRegistrationStore,
     SendVerificationEmailStore,

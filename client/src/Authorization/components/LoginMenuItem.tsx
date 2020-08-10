@@ -1,25 +1,17 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
 import PersonIcon from "@material-ui/icons/Person";
-import {localized, Localized} from "../../localization";
-import {IAppState} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-interface LoginMenuItemMobxProps {
-    setLoginDialogOpen: (loginDialogOpen: boolean) => void
-}
-
-interface LoginMenuItemOwnProps {
+interface LoginMenuItemProps {
     onClick?: () => void
 }
 
-type LoginMenuItemProps = LoginMenuItemMobxProps & LoginMenuItemOwnProps & Localized;
+export const LoginMenuItem: FunctionComponent<LoginMenuItemProps> = observer(({onClick}) => {
+    const {l} = useLocalization();
+    const {login: {setLoginDialogOpen}} = useStore();
 
-const _LoginMenuItem: FunctionComponent<LoginMenuItemProps> = ({
-    setLoginDialogOpen,
-    onClick,
-    l
-}) => {
     const handleClick = (): void => {
         setLoginDialogOpen(true);
 
@@ -38,12 +30,4 @@ const _LoginMenuItem: FunctionComponent<LoginMenuItemProps> = ({
             </ListItemText>
         </MenuItem>
     )
-};
-
-const mapMobxToProps = (state: IAppState): LoginMenuItemMobxProps => ({
-    setLoginDialogOpen: state.login.setLoginDialogOpen
 });
-
-export const LoginMenuItem = localized(
-    inject(mapMobxToProps)(observer(_LoginMenuItem))
-) as FunctionComponent<LoginMenuItemOwnProps>;
