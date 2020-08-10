@@ -10,7 +10,7 @@
     </parent>
     <groupId>chatox</groupId>
     <artifactId>oauth2</artifactId>
-    <version>0.3.beta-1</version>
+    <version>0.3</version>
     <name>oauth2</name>
     <description>Chatox OAuth2 service</description>
 
