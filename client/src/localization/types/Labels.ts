@@ -176,5 +176,7 @@ export interface Labels {
     "message.edit": string,
     "message.edit.short": string,
     "message.edited": string,
-    "message.updated-at": string
+    "message.updated-at": string,
+    "message.edit.error.unknown": string,
+    "message.edit.error.server-unreachable": string
 }

@@ -178,5 +178,7 @@ export const ru: Labels = {
     "message.edit": "Редактировать сообщение",
     "message.edit.short": "Редактировать",
     "message.edited": "Изменено",
-    "message.updated-at": "Обновлено {updatedAt}"
+    "message.updated-at": "Обновлено {updatedAt}",
+    "message.edit.error.unknown": "Во время попытки обновить сообщение произошла непредвиденная ошибка, сервер ответил со статусом {errorStatus}",
+    "message.edit.error.server-unreachable": "Во время попытки обновить сообщение произошла ошибка: сервер недоступен"
 };

@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {inject, observer} from "mobx-react";
 import {
     Button,
@@ -9,15 +9,16 @@ import {
     DialogTitle,
     InputAdornment,
     TextField,
+    Typography,
     withMobileDialog,
     WithMobileDialog
 } from "@material-ui/core";
 import {MakrdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
-import {localized, Localized} from "../../localization";
+import {Language, localized, Localized, TranslationFunction} from "../../localization";
 import {UpdateMessageFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {MapMobxToProps} from "../../store";
-import {ApiError} from "../../api";
+import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 
 interface UpdateMessageDialogMobxProps {
     updatedMessageId?: string,
@@ -32,6 +33,70 @@ interface UpdateMessageDialogMobxProps {
 
 type UpdateMessageDialogProps = UpdateMessageDialogMobxProps & Localized & WithMobileDialog;
 
+const forbiddenErrorTranslations = {
+    en: (
+        <Fragment>
+            Could not update message, server responded with 403 error status.
+            This may have happened due to the following reasons:
+            <ul>
+                <li>
+                    Message has been published more than 24 hours ago
+                </li>
+                <li>
+                    Message has been deleted
+                </li>
+                <li>
+                    Yoy were blocked in the chat
+                </li>
+                <li>
+                    You are no longer participant of this chat
+                </li>
+            </ul>
+        </Fragment>
+    ),
+    ru: (
+        <Fragment>
+            Во время попытки обновить сообщение произошла ошибка, сервер ответил со статусом 404.
+            Это могло произойти по следующим причинам:
+            <ul>
+                <li>
+                    Сообщение было создано более 24 часов назад
+                </li>
+                <li>
+                    Сообщение было удалено
+                </li>
+                <li>
+                    Вы были заблокированы в чате
+                </li>
+                <li>
+                    Вы более не являетесь участником чата
+                </li>
+            </ul>
+        </Fragment>
+    )
+};
+
+const getErrorText = (apiError: ApiError, l: TranslationFunction, currentLanguage: Language): ReactNode => {
+    let errorContent: ReactNode;
+    switch (apiError.status) {
+        case API_UNREACHABLE_STATUS:
+            errorContent = l("message.edit.error.server-unreachable");
+            break;
+        case 403:
+            errorContent = forbiddenErrorTranslations[currentLanguage];
+            break;
+        default:
+            errorContent = l("message.edit.error.unknown", {errorStatus: apiError.status});
+            break;
+    }
+
+    return (
+        <Typography style={{color: "red"}}>
+            {errorContent}
+        </Typography>
+    );
+};
+
 const _UpdateMessageDialog: FunctionComponent<UpdateMessageDialogProps> = ({
     updatedMessageId,
     updateMessageForm,
@@ -42,7 +107,8 @@ const _UpdateMessageDialog: FunctionComponent<UpdateMessageDialogProps> = ({
     updateMessage,
     setFormValue,
     fullScreen,
-    l
+    l,
+    locale
 }) => {
     if (!updatedMessageId) {
         return null;
@@ -76,6 +142,7 @@ const _UpdateMessageDialog: FunctionComponent<UpdateMessageDialogProps> = ({
                                )
                            }}
                 />
+                {error && getErrorText(error, l, locale)}
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => setUpdatedMessageId(undefined)}

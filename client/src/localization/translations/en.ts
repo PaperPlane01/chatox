@@ -178,5 +178,7 @@ export const en: Labels = {
     "message.edit": "Edit message",
     "message.edit.short": "Edit",
     "message.edited": "edited",
-    "message.updated-at": "Updated at {updatedAt}"
+    "message.updated-at": "Updated at {updatedAt}",
+    "message.edit.error.unknown": "Unexpected error occurred when tried to update message, server responded with {errorStatus} status",
+    "message.edit.error.server-unreachable": "Error occurred when tried to update message: server is unreachable"
 };
