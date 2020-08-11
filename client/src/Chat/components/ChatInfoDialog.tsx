@@ -10,8 +10,7 @@ import {
     DialogContent,
     DialogTitle,
     makeStyles,
-    Theme,
-    withMobileDialog
+    Theme
 } from "@material-ui/core";
 import randomColor from "randomcolor";
 import {ChatDescription} from "./ChatDescription";
@@ -20,6 +19,7 @@ import {ChatMenu} from "./ChatMenu";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
 import {useLocalization, useStore} from "../../store";
+import {useMobileDialog} from "../../utils/hooks";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatInfoContainer: {
@@ -38,9 +38,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-export const ChatInfoDialog: FunctionComponent = withMobileDialog()(observer(({
-    fullScreen
-}) => {
+export const ChatInfoDialog: FunctionComponent = observer(() => {
     const {
         chat: {
             selectedChatId
@@ -56,6 +54,7 @@ export const ChatInfoDialog: FunctionComponent = withMobileDialog()(observer(({
         }
     } = useStore();
     const {l} = useLocalization();
+    const {fullScreen} = useMobileDialog();
     const classes = useStyles();
 
     if (!selectedChatId) {
@@ -112,4 +111,4 @@ export const ChatInfoDialog: FunctionComponent = withMobileDialog()(observer(({
             </DialogActions>
         </Dialog>
     )
-})) as FunctionComponent;
+});

@@ -1,22 +1,15 @@
 import React, {Fragment, FunctionComponent} from "react";
+import {observer} from "mobx-react";
 import {createStyles, List, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
 import {Language, Person} from "@material-ui/icons";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
 import {EditProfileForm} from "../../User";
-import {LanguagePicker, localized, Localized} from "../../localization";
+import {LanguagePicker} from "../../localization";
 import {SettingsTab} from "../types";
 import {Routes} from "../../router";
-import {MapMobxToProps} from "../../store";
-import {inject, observer} from "mobx-react";
+import {useLocalization, useRouter, useStore} from "../../store";
 
 const {Link} = require("mobx-router");
-
-interface SettingsMenuMobxProps {
-    activeTab?: SettingsTab,
-    routerStore?: any
-}
-
-type SettingsMenuProps = SettingsMenuMobxProps & Localized;
 
 const useStyles = makeStyles(() => createStyles({
     undecoratedLink: {
@@ -25,11 +18,14 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-const _SettingsMenu: FunctionComponent<SettingsMenuProps> = ({
-    activeTab,
-    routerStore,
-    l
-}) => {
+export const SettingsMenu: FunctionComponent = observer(() => {
+    const {
+        settingsTabs: {
+            activeTab
+        }
+    } = useStore();
+    const {l} = useLocalization();
+    const routerStore = useRouter();
     const classes = useStyles();
 
     return (
@@ -67,22 +63,13 @@ const _SettingsMenu: FunctionComponent<SettingsMenuProps> = ({
             <SettingsFullScreenDialog title={l("user.edit-profile")}
                                       open={activeTab === SettingsTab.PROFILE}
             >
-                <EditProfileForm/>
+                <EditProfileForm hideHeader/>
             </SettingsFullScreenDialog>
             <SettingsFullScreenDialog title={l("language.select-language")}
                                       open={activeTab === SettingsTab.LANGUAGE}
             >
-                <LanguagePicker/>
+                <LanguagePicker hideHeader/>
             </SettingsFullScreenDialog>
         </Fragment>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<SettingsMenuMobxProps> = ({settingsTabs, store}) => ({
-    activeTab: settingsTabs.activeTab,
-    routerStore: store
 });
-
-export const SettingsMenu = localized(
-    inject(mapMobxToProps)(observer(_SettingsMenu))
-) as FunctionComponent;

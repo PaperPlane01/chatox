@@ -11,12 +11,12 @@ import {
     TextField,
     Typography
 } from "@material-ui/core";
-import withMobileDialog from "@material-ui/core/withMobileDialog";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import {useLocalization, useStore} from "../../store";
+import {useMobileDialog} from "../../utils/hooks";
 
-export const LoginDialog: FunctionComponent = withMobileDialog()(observer(({fullScreen}) => {
+export const LoginDialog: FunctionComponent = observer(() => {
     const {l} = useLocalization();
     const {
         login: {
@@ -32,6 +32,7 @@ export const LoginDialog: FunctionComponent = withMobileDialog()(observer(({full
             doLogin
         }
     } = useStore();
+    const {fullScreen} = useMobileDialog();
 
     return (
         <Dialog open={loginDialogOpen}
@@ -103,4 +104,4 @@ export const LoginDialog: FunctionComponent = withMobileDialog()(observer(({full
             </DialogContent>
         </Dialog>
     )
-})) as FunctionComponent;
+});

@@ -1,22 +1,16 @@
 import React, {FunctionComponent, ReactNode} from "react";
-import {Dialog, DialogContent, DialogTitle, IconButton, createStyles, makeStyles} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {createStyles, Dialog, DialogContent, DialogTitle, IconButton, makeStyles} from "@material-ui/core";
 import {ArrowBack} from "@material-ui/icons";
 import {Routes} from "../../router";
-import {MapMobxToProps} from "../../store";
-import {inject, observer} from "mobx-react";
+import {useRouter} from "../../store";
 
 const {Link} = require("mobx-router");
 
-interface SettingsFullScreenDialogOwnProps {
+interface SettingsFullScreenDialogProps {
     title: ReactNode,
     open: boolean
 }
-
-interface SettingsFullScreenDialogMobxProps {
-    routerStore?: any
-}
-
-type SettingsFullScreenDialogProps = SettingsFullScreenDialogOwnProps & SettingsFullScreenDialogMobxProps;
 
 const useStyles = makeStyles(() => createStyles({
     undecoratedLink: {
@@ -25,12 +19,12 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-const _SettingsFullScreenDialog: FunctionComponent<SettingsFullScreenDialogProps> = ({
+export const SettingsFullScreenDialog: FunctionComponent<SettingsFullScreenDialogProps> = observer(({
     title,
     open,
-    routerStore,
     children
 }) => {
+    const routerStore = useRouter();
     const classes = useStyles();
 
     return (
@@ -53,10 +47,4 @@ const _SettingsFullScreenDialog: FunctionComponent<SettingsFullScreenDialogProps
             </DialogContent>
         </Dialog>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<SettingsFullScreenDialogMobxProps> = ({store}) => ({
-    routerStore: store
 });
-
-export const SettingsFullScreenDialog = inject(mapMobxToProps)(observer(_SettingsFullScreenDialog) as FunctionComponent<SettingsFullScreenDialogOwnProps>);
