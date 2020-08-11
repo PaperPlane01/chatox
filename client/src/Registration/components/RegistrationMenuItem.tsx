@@ -1,25 +1,23 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
-import {localized, Localized} from "../../localization";
-import {IAppState} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-interface RegistrationMenuItemOwnProps {
+interface RegistrationMenuItemProps {
     onClick?: () => void
 }
 
-interface RegistrationMenuItemMobxProps {
-    setRegistrationDialogOpen: (registrationDialogOpen: boolean) => void
-}
-
-type RegistrationMenuItemProps = RegistrationMenuItemMobxProps & RegistrationMenuItemOwnProps & Localized;
-
-const _RegistrationMenuItem: FunctionComponent<RegistrationMenuItemProps> = ({
-    onClick,
-    setRegistrationDialogOpen,
-    l
+export const RegistrationMenuItem: FunctionComponent<RegistrationMenuItemProps> = observer(({
+    onClick
 }) => {
+    const {
+        registrationDialog: {
+            setRegistrationDialogOpen
+        }
+    } = useStore();
+    const {l} = useLocalization();
+
     const handleClick = (): void => {
         if (onClick) {
             onClick()
@@ -38,12 +36,4 @@ const _RegistrationMenuItem: FunctionComponent<RegistrationMenuItemProps> = ({
             </ListItemText>
         </MenuItem>
     )
-};
-
-const mapMobxToProps = (state: IAppState): RegistrationMenuItemMobxProps => ({
-    setRegistrationDialogOpen: state.registrationDialog.setRegistrationDialogOpen
 });
-
-export const RegistrationMenuItem = localized(
-    inject(mapMobxToProps)(observer(_RegistrationMenuItem))
-) as FunctionComponent<RegistrationMenuItemOwnProps>;
