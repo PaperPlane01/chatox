@@ -1,15 +1,12 @@
 import React, {FunctionComponent, MouseEvent, ReactNode, useState} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {IconButton, Menu} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {BlockMessageAuthorInChatMenuItem} from "./BlockMessageAuthorInChatMenuItem";
 import {ReplyToMessageMenuItem} from "./ReplyToMessageMenuItem";
 import {EditMessageMenuItem} from "./EditMessageMenuItem";
 import {canCreateMessage, canEditMessage} from "../permissions";
-import {MessageEntity} from "../types";
-import {ChatParticipationEntity, FindChatParticipationByUserAndChatOptions} from "../../Chat";
-import {CurrentUser} from "../../api/types/response";
-import {MapMobxToProps, useAuthorization, useStore} from "../../store";
+import {useAuthorization, useStore} from "../../store";
 import {canBlockUsersInChat, ChatBlockingEntity} from "../../ChatBlocking";
 
 export type MenuItemType = "blockMessageAuthorInChat" | "replyToMessage" | "editMessage";
