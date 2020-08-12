@@ -1,9 +1,9 @@
-import React, {FunctionComponent, Fragment} from "react";
-import {Grid, Hidden, Typography, createStyles, makeStyles} from "@material-ui/core";
+import React, {Fragment, FunctionComponent} from "react";
+import {createStyles, Grid, Hidden, makeStyles, Typography} from "@material-ui/core";
 import {HasRole} from "../Authorization";
 import {AppBar} from "../AppBar";
 import {ChatsOfCurrentUserList} from "../Chat";
-import {localized, Localized} from "../localization";
+import {useLocalization} from "../store/hooks";
 
 const ScrollLock = require("react-scrolllock").default;
 
@@ -17,7 +17,8 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-const _ChatsPage: FunctionComponent<Localized> = ({l}) => {
+export const ChatsPage: FunctionComponent = () => {
+    const {l} = useLocalization();
     const classes = useStyles();
 
     const content = (
@@ -63,5 +64,3 @@ const _ChatsPage: FunctionComponent<Localized> = ({l}) => {
         </Fragment>
     )
 };
-
-export const ChatsPage = localized(_ChatsPage) as FunctionComponent;

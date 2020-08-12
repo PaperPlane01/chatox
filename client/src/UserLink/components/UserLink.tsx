@@ -1,26 +1,20 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import randomColor from "randomcolor";
 import {createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
 import {Avatar} from "../../Avatar";
 import {UserEntity} from "../../User/types";
 import {Routes} from "../../router";
 import {getUserAvatarLabel} from "../../User/utils/get-user-avatar-label";
-import {MapMobxToProps} from "../../store";
+import {useRouter} from "../../store";
 
 const {Link} = require("mobx-router");
 
-interface UserLinkMobxProps {
-    routerStore?: any
-}
-
-interface UserLinkOwnProps {
+interface UserLinkProps {
     user: UserEntity,
     displayAvatar: boolean,
     boldText?: boolean
 }
-
-type UserLinkProps = UserLinkMobxProps & UserLinkOwnProps;
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     userLink: {
@@ -33,12 +27,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-const _UserLink: FunctionComponent<UserLinkProps> = ({
+export const UserLink: FunctionComponent<UserLinkProps> = observer(({
     user,
     displayAvatar = false,
     boldText = false,
-    routerStore
 }) => {
+    const routerStore = useRouter();
     const classes = useStyles();
     const color = randomColor({seed: user.id});
     const avatarLabel = getUserAvatarLabel(user);
@@ -83,11 +77,4 @@ const _UserLink: FunctionComponent<UserLinkProps> = ({
             </Link>
         )
     }
-};
-
-const mapMobxToProps: MapMobxToProps<UserLinkMobxProps> = ({store}) => ({
-    routerStore: store
 });
-
-export const UserLink = inject(mapMobxToProps)(observer(_UserLink)) as FunctionComponent<UserLinkOwnProps>;
-

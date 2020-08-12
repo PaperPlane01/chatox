@@ -1,24 +1,15 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {createStyles, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
 import {PersonOutlined} from "@material-ui/icons";
-import {localized, Localized} from "../../localization";
 import {Routes} from "../../router";
-import {CurrentUser} from "../../api/types/response";
-import {MapMobxToProps} from "../../store";
+import {useAuthorization, useLocalization, useRouter} from "../../store";
 
 const {Link} = require("mobx-router");
 
-interface ProfileMenuItemMobxProps {
-    currentUser?: CurrentUser,
-    routerStore?: any
-}
-
-interface ProfileMenuItemOwnProps {
+interface ProfileMenuItemProps {
     onClick?: () => void
 }
-
-type ProfileMenuItemProps = ProfileMenuItemMobxProps & ProfileMenuItemOwnProps & Localized;
 
 const useStyles = makeStyles(() => createStyles({
     undecoratedLink: {
@@ -27,13 +18,11 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-const _ProfileMenuItem: FunctionComponent<ProfileMenuItemProps> = ({
-    currentUser,
-    routerStore,
-    l,
-    onClick
-}) => {
+export const ProfileMenuItem: FunctionComponent<ProfileMenuItemProps> = observer(({onClick}) => {
     const classes = useStyles();
+    const {l} = useLocalization();
+    const {currentUser} = useAuthorization();
+    const routerStore = useRouter();
 
     const handleClick = (): void => {
         if (onClick) {
@@ -61,13 +50,4 @@ const _ProfileMenuItem: FunctionComponent<ProfileMenuItemProps> = ({
     } else {
         return null;
     }
-};
-
-const mapMoxToProps: MapMobxToProps<ProfileMenuItemMobxProps> = ({authorization, store}) => ({
-    currentUser: authorization.currentUser,
-    routerStore: store
 });
-
-export const ProfileMenuItem = localized(
-    inject(mapMoxToProps)(observer(_ProfileMenuItem))
-) as FunctionComponent<ProfileMenuItemOwnProps>;

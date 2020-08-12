@@ -1,30 +1,27 @@
 import React, {FunctionComponent, MouseEvent, ReactNode, useState} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {IconButton, Menu} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {BlockChatParticipantMenuItem} from "./BlockChatParticipantMenuItem";
-import {FindChatParticipationByUserAndChatOptions} from "../stores";
 import {ChatParticipationEntity} from "../types";
-import {CurrentUser} from "../../api/types/response";
 import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
-import {MapMobxToProps} from "../../store";
+import {useAuthorization, useStore} from "../../store";
 
-interface ChatParticipantMenuMobxProps {
-    currentUser?: CurrentUser,
-    findChatParticipation: (options: FindChatParticipationByUserAndChatOptions) => ChatParticipationEntity | undefined
-}
-
-interface ChatParticipantMenuOwnProps {
+interface ChatParticipantMenuProps {
     chatParticipation: ChatParticipationEntity
 }
 
-type ChatParticipantMenuProps = ChatParticipantMenuMobxProps & ChatParticipantMenuOwnProps;
-
-const _ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = ({
-    chatParticipation,
-    findChatParticipation,
-    currentUser
+export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = observer(({
+    chatParticipation
 }) => {
+    const {
+        entities: {
+            chatParticipations: {
+                findByUserAndChat: findChatParticipation
+            }
+        }
+    } = useStore();
+    const {currentUser} = useAuthorization();
     const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
     const menuOpen = Boolean(anchorElement);
 
@@ -70,11 +67,4 @@ const _ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = ({
             </Menu>
         </div>
     );
-};
-
-const mapMobxToProps: MapMobxToProps<ChatParticipantMenuMobxProps> = ({authorization, entities}) => ({
-    currentUser: authorization.currentUser,
-    findChatParticipation: entities.chatParticipations.findByUserAndChat
 });
-
-export const ChatParticipantMenu = inject(mapMobxToProps)(observer(_ChatParticipantMenu) as FunctionComponent<ChatParticipantMenuOwnProps>);

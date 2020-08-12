@@ -1,22 +1,12 @@
 import React, {FunctionComponent} from "react";
-import {observer, inject} from "mobx-react";
+import {observer} from "mobx-react";
 import {Card, CardContent, createStyles, makeStyles} from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info"
 import {Skeleton} from "@material-ui/lab";
 import ReactMarkdown from "react-markdown";
-import {ChatOfCurrentUserEntity} from "../types";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
 const breaks = require("remark-breaks");
-
-interface ChatDescriptionMobxProps {
-    findChat: (chatId: string) => ChatOfCurrentUserEntity,
-    selectedChatId?: string,
-    pending: boolean
-}
-
-type ChatDescriptionProps = ChatDescriptionMobxProps & Localized;
 
 const useStyles = makeStyles(() => createStyles({
     root: {
@@ -25,12 +15,19 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-const _ChatDescription: FunctionComponent<ChatDescriptionProps> = ({
-    findChat,
-    selectedChatId,
-    pending,
-    l
-}) => {
+export const ChatDescription: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            selectedChatId,
+            pending
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            }
+        }
+    } = useStore();
+    const {l} = useLocalization();
     const classes = useStyles();
 
     if (selectedChatId) {
@@ -56,14 +53,4 @@ const _ChatDescription: FunctionComponent<ChatDescriptionProps> = ({
     } else {
         return null;
     }
-};
-
-const mapMobxToProps: MapMobxToProps<ChatDescriptionMobxProps> = ({entities, chat}) => ({
-    selectedChatId: chat.selectedChatId,
-    findChat: entities.chats.findById,
-    pending: chat.pending
 });
-
-export const ChatDescription = localized(
-    inject(mapMobxToProps)(observer(_ChatDescription))
-) as FunctionComponent;

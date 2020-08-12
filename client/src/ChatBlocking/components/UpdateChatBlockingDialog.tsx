@@ -1,49 +1,32 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {
+    Button,
+    CircularProgress,
+    createStyles,
     Dialog,
-    DialogTitle,
     DialogActions,
     DialogContent,
+    DialogTitle,
+    makeStyles,
     TextField,
-    Button,
     Typography,
-    WithMobileDialog, makeStyles, createStyles, useTheme, CircularProgress, withMobileDialog
+    useTheme,
+    withMobileDialog
 } from "@material-ui/core";
 import {DateTimePicker} from "@material-ui/pickers";
-import {ChatBlockingEntity, UpdateChatBlockingFormData} from "../types";
-import {FormErrors} from "../../utils/types";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {UserEntity} from "../../User/types";
-import {ChatOfCurrentUserEntity} from "../../Chat/types";
-import {localized, Localized} from "../../localization/components";
 import randomColor from "randomcolor";
 import {getUserAvatarLabel} from "../../User/utils/get-user-avatar-label";
 import {Avatar} from "../../Avatar/components";
 import {TranslationFunction} from "../../localization/types";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
 const useStyles = makeStyles(() => createStyles({
     blockedUserContainer: {
         display: "flex"
     }
 }));
-
-interface UpdateChatBlockingDialogMobxProps {
-    formData: UpdateChatBlockingFormData,
-    formErrors: FormErrors<UpdateChatBlockingFormData>,
-    updateChatBlockingDialogOpen: boolean,
-    pending: boolean,
-    submissionError?: ApiError,
-    updatedChatBlocking?: ChatBlockingEntity,
-    setFormValue: <Key extends keyof UpdateChatBlockingFormData>(key: Key, value: UpdateChatBlockingFormData[Key]) => void,
-    setUpdateChatBlockingDialogOpen: (updateChatBlockingDialogOpen: boolean) => void,
-    updateChatBlocking: () => void,
-    findUser: (id: string) => UserEntity,
-    findChat: (id: string) => ChatOfCurrentUserEntity
-}
-
-type UpdateChatBlockingDialogProps = UpdateChatBlockingDialogMobxProps & WithMobileDialog & Localized;
 
 const getErrorLabel = (apiError: ApiError, l: TranslationFunction): string => {
     if (apiError.status === API_UNREACHABLE_STATUS) {
@@ -55,21 +38,31 @@ const getErrorLabel = (apiError: ApiError, l: TranslationFunction): string => {
     }
 };
 
-const _UpdateChatBlockingDialog: FunctionComponent<UpdateChatBlockingDialogProps> = ({
-    formData,
-    formErrors,
-    pending,
-    submissionError,
-    updateChatBlockingDialogOpen,
-    updatedChatBlocking,
-    setFormValue,
-    setUpdateChatBlockingDialogOpen,
-    updateChatBlocking,
-    findUser,
-    findChat,
-    l,
+export const UpdateChatBlockingDialog: FunctionComponent = withMobileDialog()(observer(({
     fullScreen
 }) => {
+    const {
+        updateChatBlocking: {
+            updateChatBlockingForm: formData,
+            formErrors,
+            pending,
+            submissionError,
+            updateChatBlockingDialogOpen,
+            updatedChatBlocking,
+            setUpdateChatBlockingDialogOpen,
+            setFormValue,
+            updateChatBlocking
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            },
+            users: {
+                findById: findUser
+            }
+        }
+    } = useStore();
+    const {l} = useLocalization();
     const classes = useStyles();
     const theme = useTheme();
 
@@ -160,27 +153,4 @@ const _UpdateChatBlockingDialog: FunctionComponent<UpdateChatBlockingDialogProps
             </DialogActions>
         </Dialog>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<UpdateChatBlockingDialogMobxProps> = ({
-    updateChatBlocking,
-    entities
-}) => ({
-    formData: updateChatBlocking.updateChatBlockingForm,
-    formErrors: updateChatBlocking.formErrors,
-    updateChatBlockingDialogOpen: updateChatBlocking.updateChatBlockingDialogOpen,
-    submissionError: updateChatBlocking.submissionError,
-    pending: updateChatBlocking.pending,
-    setFormValue: updateChatBlocking.setFormValue,
-    updateChatBlocking: updateChatBlocking.updateChatBlocking,
-    updatedChatBlocking: updateChatBlocking.updatedChatBlocking,
-    setUpdateChatBlockingDialogOpen: updateChatBlocking.setUpdateChatBlockingDialogOpen,
-    findUser: entities.users.findById,
-    findChat: entities.chats.findById
-});
-
-export const UpdateChatBlockingDialog = localized(
-    withMobileDialog()(
-        inject(mapMobxToProps)(observer(_UpdateChatBlockingDialog))
-    )
-) as FunctionComponent;
+})) as FunctionComponent;

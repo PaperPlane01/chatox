@@ -1,22 +1,29 @@
-import React, {FunctionComponent, UIEvent, useState, useEffect, useRef} from "react";
-import {inject, observer} from "mobx-react";
+import React, {FunctionComponent, UIEvent, useEffect, useRef, useState} from "react";
+import {observer} from "mobx-react";
 import {createStyles, makeStyles} from "@material-ui/core";
 import {MessagesListItem} from "./MessagesListItem";
-import {MapMobxToProps} from "../../store";
+import {useStore} from "../../store";
 
-interface MessagesListMobxProps {
-    messagesOfChat: string[],
+interface MessagesListStylesProps {
     referredMessageId?: string
 }
 
 const useStyles = makeStyles(() => createStyles({
     messagesList: {
-        height: (props: Omit<MessagesListMobxProps, "messagesOfChat">) => `calc(100vh - ${props.referredMessageId ? 238 : 154}px)`,
+        height: (props: MessagesListStylesProps) => `calc(100vh - ${props.referredMessageId ? 238 : 154}px)`,
         overflowY: "auto"
     }
 }));
 
-const _MessagesList: FunctionComponent<MessagesListMobxProps> = ({messagesOfChat, referredMessageId}) => {
+export const MessagesList: FunctionComponent = observer(() => {
+    const {
+        messagesOfChat: {
+            messagesOfChat
+        },
+        messageCreation: {
+            referredMessageId
+        }
+    } = useStore();
     const messagesListBottomRef = useRef<HTMLDivElement>(null);
     const [reachedBottom, setReachedBottom] = useState(true);
 
@@ -48,11 +55,4 @@ const _MessagesList: FunctionComponent<MessagesListMobxProps> = ({messagesOfChat
             <div id="messagesListBottom" ref={messagesListBottomRef}/>
         </div>
     );
-};
-
-const mapMobxToProps: MapMobxToProps<MessagesListMobxProps> = ({messagesOfChat, messageCreation}) => ({
-    messagesOfChat: messagesOfChat.messagesOfChat,
-    referredMessageId: messageCreation.referredMessageId
 });
-
-export const MessagesList = inject(mapMobxToProps)(observer(_MessagesList) as FunctionComponent);

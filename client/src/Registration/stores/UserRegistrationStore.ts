@@ -55,9 +55,6 @@ export class UserRegistrationStore {
     registrationResponse?: RegistrationResponse = undefined;
 
     @observable
-    registrationDialogOpen: boolean = false;
-
-    @observable
     displayPassword: boolean = false;
 
     @computed
@@ -124,11 +121,6 @@ export class UserRegistrationStore {
     }
 
     @action
-    setRegistrationDialogOpen = (registrationDialogOpen: boolean): void => {
-        this.registrationDialogOpen = registrationDialogOpen;
-    };
-
-    @action
     setDisplayPassword = (displayPassword: boolean): void => {
         this.displayPassword = displayPassword;
     };
@@ -152,7 +144,6 @@ export class UserRegistrationStore {
                     clientId: process.env.REACT_APP_CLIENT_ID as string
                 })
                     .then(({data}) => {
-                        this.registrationDialogOpen = false;
                         this.registrationResponse = data;
                         this.authorizationStore.setCurrentUser({
                             id: data.userId,

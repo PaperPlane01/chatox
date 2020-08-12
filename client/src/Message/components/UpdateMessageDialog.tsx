@@ -1,5 +1,5 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {
     Button,
     CircularProgress,
@@ -10,28 +10,12 @@ import {
     InputAdornment,
     TextField,
     Typography,
-    withMobileDialog,
-    WithMobileDialog
+    withMobileDialog
 } from "@material-ui/core";
-import {MakrdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
-import {Language, localized, Localized, TranslationFunction} from "../../localization";
-import {UpdateMessageFormData} from "../types";
-import {FormErrors} from "../../utils/types";
-import {MapMobxToProps} from "../../store";
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
+import {Language, TranslationFunction} from "../../localization";
+import {useLocalization, useStore} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-
-interface UpdateMessageDialogMobxProps {
-    updatedMessageId?: string,
-    updateMessageForm: UpdateMessageFormData,
-    formErrors: FormErrors<UpdateMessageFormData>,
-    pending: boolean,
-    error?: ApiError,
-    setUpdatedMessageId: (updatedMessageId?: string) => void,
-    setFormValue: <Key extends keyof UpdateMessageFormData>(key: Key, value: UpdateMessageFormData[Key]) => void,
-    updateMessage: () => void
-}
-
-type UpdateMessageDialogProps = UpdateMessageDialogMobxProps & Localized & WithMobileDialog;
 
 const forbiddenErrorTranslations = {
     en: (
@@ -97,19 +81,23 @@ const getErrorText = (apiError: ApiError, l: TranslationFunction, currentLanguag
     );
 };
 
-const _UpdateMessageDialog: FunctionComponent<UpdateMessageDialogProps> = ({
-    updatedMessageId,
-    updateMessageForm,
-    formErrors,
-    pending,
-    error,
-    setUpdatedMessageId,
-    updateMessage,
-    setFormValue,
-    fullScreen,
-    l,
-    locale
+export const UpdateMessageDialog: FunctionComponent = withMobileDialog()(observer(({
+    fullScreen
 }) => {
+    const {
+        messageUpdate: {
+            updatedMessageId,
+            updateMessageForm,
+            formErrors,
+            pending,
+            error,
+            setUpdatedMessageId,
+            updateMessage,
+            setFormValue
+        }
+    } = useStore();
+    const {l, locale} = useLocalization();
+
     if (!updatedMessageId) {
         return null;
     }
@@ -160,24 +148,7 @@ const _UpdateMessageDialog: FunctionComponent<UpdateMessageDialogProps> = ({
                     {l("chat.update.save-changes")}
                 </Button>
             </DialogActions>
-            <MakrdownPreviewDialog text={updateMessageForm.text}/>
+            <MarkdownPreviewDialog text={updateMessageForm.text}/>
         </Dialog>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<UpdateMessageDialogMobxProps> = ({
-    messageUpdate
-}) => ({
-    updatedMessageId: messageUpdate.updatedMessageId,
-    updateMessageForm: messageUpdate.updateMessageForm,
-    formErrors: messageUpdate.formErrors,
-    pending: messageUpdate.pending,
-    error: messageUpdate.error,
-    setFormValue: messageUpdate.setFormValue,
-    setUpdatedMessageId: messageUpdate.setUpdatedMessageId,
-    updateMessage: messageUpdate.updateMessage
-});
-
-export const UpdateMessageDialog = withMobileDialog()(
-    localized(inject(mapMobxToProps)(observer(_UpdateMessageDialog))) as FunctionComponent
-);
+})) as FunctionComponent;

@@ -1,27 +1,20 @@
 import React, {FunctionComponent} from "react";
-import {observer, inject} from "mobx-react";
-import {Switch, FormControlLabel} from "@material-ui/core";
-import {ChatBlockingsOfChatState} from "../stores";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {observer} from "mobx-react";
+import {FormControlLabel, Switch} from "@material-ui/core";
+import {useLocalization, useStore} from "../../store";
 
-interface ShowActiveOnlySwitchMobxProps {
-    getChatBlockingsOfChatState: (chatId: string) => ChatBlockingsOfChatState,
-    setShowActiveOnly: (showActiveOnly: boolean) => void
-}
-
-interface ShowActiveOnlySwitchOwnProps {
+interface ShowActiveOnlySwitchProps {
     chatId: string
 }
 
-type ShowActiveOnlySwitchProps = ShowActiveOnlySwitchMobxProps & ShowActiveOnlySwitchOwnProps & Localized;
-
-const _ShowActiveOnlySwitch: FunctionComponent<ShowActiveOnlySwitchProps> = ({
-    getChatBlockingsOfChatState,
-    setShowActiveOnly,
-    chatId,
-    l
-}) => {
+export const ShowActiveOnlySwitch: FunctionComponent<ShowActiveOnlySwitchProps> = observer(({chatId}) => {
+    const {l} = useLocalization();
+    const {
+        chatBlockingsOfChat: {
+            getChatBlockingsOfChatState,
+            setShowActiveOnly
+        }
+    } = useStore();
     const showActiveOnly = getChatBlockingsOfChatState(chatId).showActiveOnly;
 
     return (
@@ -33,13 +26,4 @@ const _ShowActiveOnlySwitch: FunctionComponent<ShowActiveOnlySwitchProps> = ({
                           label={l("chat.blocking.show-active-only")}
         />
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ShowActiveOnlySwitchMobxProps> = ({chatBlockingsOfChat}) => ({
-    getChatBlockingsOfChatState: chatBlockingsOfChat.getChatBlockingsOfChatState,
-    setShowActiveOnly: chatBlockingsOfChat.setShowActiveOnly
 });
-
-export const ShowActiveOnlySwitch = localized(
-    inject(mapMobxToProps)(observer(_ShowActiveOnlySwitch))
-) as FunctionComponent<ShowActiveOnlySwitchOwnProps>;

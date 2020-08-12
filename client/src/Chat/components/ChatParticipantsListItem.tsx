@@ -1,25 +1,16 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {createStyles, ListItemText, makeStyles, MenuItem, Theme} from "@material-ui/core";
 import randomColor from "randomcolor";
 import {ChatParticipantMenu} from "./ChatParticipantMenu";
-import {ChatParticipationEntity} from "../types";
 import {Avatar} from "../../Avatar";
-import {UserEntity} from "../../User";
-import {MapMobxToProps} from "../../store";
+import {useStore} from "../../store";
 
-interface ChatParticipantsListItemMobxProps {
-    findParticipant: (id: string) => ChatParticipationEntity,
-    findUser: (id: string) => UserEntity
-}
-
-interface ChatParticipantsListItemOwnProps {
+interface ChatParticipantsListItemProps {
     participantId: string,
     highlightOnline?: boolean,
     onClick?: () => void
 }
-
-type ChatParticipantsListItemProps = ChatParticipantsListItemMobxProps & ChatParticipantsListItemOwnProps;
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     gutters: {
@@ -32,13 +23,21 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-const _ChatParticipantsListItem: FunctionComponent<ChatParticipantsListItemProps> = ({
+export const ChatParticipantsListItem: FunctionComponent<ChatParticipantsListItemProps> = observer(({
     participantId,
     highlightOnline = false,
-    findUser,
-    findParticipant,
     onClick
 }) => {
+    const {
+        entities: {
+            chatParticipations: {
+                findById: findParticipant
+            },
+            users: {
+                findById: findUser
+            }
+        }
+    } = useStore();
     const classes = useStyles();
     const chatParticipant = findParticipant(participantId);
     const user = findUser(chatParticipant.userId);
@@ -70,13 +69,4 @@ const _ChatParticipantsListItem: FunctionComponent<ChatParticipantsListItemProps
             <ChatParticipantMenu chatParticipation={chatParticipant}/>
         </MenuItem>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatParticipantsListItemMobxProps> = ({entities}) => ({
-    findParticipant: entities.chatParticipations.findById,
-    findUser: entities.users.findById
 });
-
-export const ChatParticipantsListItem = inject(mapMobxToProps)(
-    observer(_ChatParticipantsListItem) as FunctionComponent<ChatParticipantsListItemOwnProps>
-);

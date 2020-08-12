@@ -1,5 +1,5 @@
-import React, {FunctionComponent, Fragment} from "react";
-import {inject, observer} from "mobx-react";
+import React, {Fragment, FunctionComponent} from "react";
+import {observer} from "mobx-react";
 import {
     Button,
     CircularProgress,
@@ -8,50 +8,31 @@ import {
     IconButton,
     InputAdornment,
     TextField,
-    Typography
+    Typography,
 } from "@material-ui/core";
-import withMobileDialog, {WithMobileDialog} from "@material-ui/core/withMobileDialog";
-import VisibilityIcon from "@material-ui/icons/Visibility";
-import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
-import {RegisterUserFormData} from "../types";
-import {FormErrors} from "../../utils/types";
-import {IAppState} from "../../store";
-import {ApiError} from "../../api";
-import {RegistrationResponse} from "../../api/types/response";
-import {localized, Localized} from "../../localization";
+import {Visibility, VisibilityOff} from "@material-ui/icons";
+import {useLocalization, useStore} from "../../store";
 
-interface RegistrationDialogMobxProps {
-    registrationDialogOpen: boolean,
-    registerUserForm: RegisterUserFormData,
-    errors: FormErrors<RegisterUserFormData>,
-    checkingUsernameAvailability: boolean,
-    checkingSlugAvailability: boolean,
-    pending: boolean,
-    registrationResponse?: RegistrationResponse,
-    registrationError?: ApiError,
-    displayPassword: boolean,
-    setFormValue: <Key extends keyof RegisterUserFormData>(key: Key, value: RegisterUserFormData[Key]) => void,
-    setRegistrationDialogOpen: (registrationDialogOpen: boolean) => void,
-    registerUser: () => void,
-    setDisplayPassword: (displayPassword: boolean) => void
-}
+export const RegisterStep: FunctionComponent = observer(() => {
+    const {
+        userRegistration: {
+            checkingSlugAvailability,
+            checkingUsernameAvailability,
+            registrationForm: registerUserForm,
+            registrationFormErrors: errors,
+            submissionError: registrationError,
+            pending,
+            displayPassword,
+            registerUser,
+            updateFormValue: setFormValue,
+            setDisplayPassword
+        },
+        registrationDialog: {
+            setRegistrationDialogOpen
+        }
+    } = useStore();
+    const {l} = useLocalization();
 
-type RegistrationDialogProps = RegistrationDialogMobxProps & Localized & WithMobileDialog;
-
-const _RegistrationDialog: FunctionComponent<RegistrationDialogProps> = ({
-    checkingSlugAvailability,
-    checkingUsernameAvailability,
-    registerUserForm,
-    errors,
-    registrationError,
-    pending,
-    displayPassword,
-    registerUser,
-    setFormValue,
-    setRegistrationDialogOpen,
-    setDisplayPassword,
-    l
-}) => {
     return (
         <Fragment>
             <DialogTitle>
@@ -88,8 +69,8 @@ const _RegistrationDialog: FunctionComponent<RegistrationDialogProps> = ({
                                    <InputAdornment position="end">
                                        <IconButton onClick={() => setDisplayPassword(!displayPassword)}>
                                            {displayPassword
-                                               ? <VisibilityOffIcon/>
-                                               : <VisibilityIcon/>
+                                               ? <VisibilityOff/>
+                                               : <Visibility/>
                                            }
                                        </IconButton>
                                    </InputAdornment>
@@ -109,8 +90,8 @@ const _RegistrationDialog: FunctionComponent<RegistrationDialogProps> = ({
                                    <InputAdornment position="end">
                                        <IconButton onClick={() => setDisplayPassword(!displayPassword)}>
                                            {displayPassword
-                                               ? <VisibilityOffIcon/>
-                                               : <VisibilityIcon/>
+                                               ? <VisibilityOff/>
+                                               : <Visibility/>
                                            }
                                        </IconButton>
                                    </InputAdornment>
@@ -184,24 +165,4 @@ const _RegistrationDialog: FunctionComponent<RegistrationDialogProps> = ({
             </DialogContent>
         </Fragment>
     )
-};
-
-const mapMobxToProps = (state: IAppState): RegistrationDialogMobxProps => ({
-    checkingSlugAvailability: state.userRegistration.checkingSlugAvailability,
-    checkingUsernameAvailability: state.userRegistration.checkingUsernameAvailability,
-    errors: state.userRegistration.registrationFormErrors,
-    registerUserForm: state.userRegistration.registrationForm,
-    registrationDialogOpen: state.userRegistration.registrationDialogOpen,
-    setFormValue: state.userRegistration.updateFormValue,
-    pending: state.userRegistration.pending,
-    displayPassword: state.userRegistration.displayPassword,
-    setRegistrationDialogOpen: state.registrationDialog.setRegistrationDialogOpen,
-    registerUser: state.userRegistration.registerUser,
-    registrationResponse: state.userRegistration.registrationResponse,
-    registrationError: state.userRegistration.submissionError,
-    setDisplayPassword: state.userRegistration.setDisplayPassword
 });
-
-export const RegisterStep = withMobileDialog()(
-    localized(inject(mapMobxToProps)(observer(_RegistrationDialog))) as FunctionComponent
-);

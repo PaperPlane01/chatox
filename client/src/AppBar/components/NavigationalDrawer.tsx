@@ -1,5 +1,5 @@
 import React, {Fragment, FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {Divider, List, SwipeableDrawer} from "@material-ui/core";
 import {DrawerUserInfo} from "./DrawerUserInfo";
 import {ProfileMenuItem} from "./ProfileMenuItem";
@@ -8,25 +8,20 @@ import {MyChatsMenuItem} from "./MyChatsMenuItem";
 import {SettingsMenuItem} from "./SettingsMenuItem";
 import {HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
-import {IAppState} from "../../store";
+import {useStore} from "../../store";
 
-interface NavigationalDrawerMobxProps {
-    setDrawerOpen: (drawerOpen: boolean) => void,
-    drawerOpen: boolean
-}
+export const NavigationalDrawer: FunctionComponent = observer(() => {
+    const {appBar} = useStore();
+    const {drawerExpanded, setDrawerExpanded} = appBar;
 
-const _NavigationalDrawer: FunctionComponent<NavigationalDrawerMobxProps> = ({
-    drawerOpen,
-    setDrawerOpen
-}) => {
-    const closeDrawer = (): void => setDrawerOpen(false);
-    const openDrawer = (): void => setDrawerOpen(true);
+    const closeDrawer = (): void => setDrawerExpanded(false);
+    const openDrawer = (): void => setDrawerExpanded(true);
 
     return (
         <Fragment>
             <SwipeableDrawer onClose={closeDrawer}
                              onOpen={openDrawer}
-                             open={drawerOpen}
+                             open={drawerExpanded}
                              PaperProps={{
                                  style: {
                                      width: 240
@@ -61,11 +56,4 @@ const _NavigationalDrawer: FunctionComponent<NavigationalDrawerMobxProps> = ({
             <RegistrationDialog/>
         </Fragment>
     )
-};
-
-const mapMobxToProps = (state: IAppState): NavigationalDrawerMobxProps => ({
-    setDrawerOpen: state.appBar.setDrawerExpanded,
-    drawerOpen: state.appBar.drawerExpanded
 });
-
-export const NavigationalDrawer = inject(mapMobxToProps)(observer(_NavigationalDrawer as FunctionComponent));

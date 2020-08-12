@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {
     Button,
     CircularProgress,
@@ -18,38 +18,16 @@ import {
     TextField,
     Typography,
     useTheme,
-    withMobileDialog,
-    WithMobileDialog
+    withMobileDialog
 } from "@material-ui/core";
 import {DateTimePicker} from "@material-ui/pickers";
-import {withSnackbar, WithSnackbarProps} from "notistack";
+import {useSnackbar} from "notistack";
 import randomColor from "randomcolor";
-import {CreateChatBlockingFormData, RecentMessagesDeletionPeriod} from "../types";
-import {FormErrors} from "../../utils/types";
-import {UserEntity} from "../../User";
-import {ChatOfCurrentUserEntity} from "../../Chat/types";
-import {Labels, localized, Localized, TranslationFunction} from "../../localization";
+import {RecentMessagesDeletionPeriod} from "../types";
+import {Labels, TranslationFunction} from "../../localization";
 import {Avatar} from "../../Avatar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {MapMobxToProps} from "../../store";
-
-interface CreateChatBlockingDialogMobxProps {
-    formData: CreateChatBlockingFormData,
-    errors: FormErrors<CreateChatBlockingFormData>,
-    pending: boolean,
-    chatId: string | undefined,
-    open: boolean,
-    showSnackbar: boolean,
-    submissionError?: ApiError,
-    setFormValue: <Key extends keyof CreateChatBlockingFormData>(key: Key, value: CreateChatBlockingFormData[Key]) => void,
-    createChatBlocking: () => void,
-    setCreateChatBlockingDialogOpen: (createChatBlockingDialogOpen: boolean) => void,
-    setShowSnackbar: (showSnackbar: boolean) => void,
-    findUser: (userId: string) => UserEntity,
-    findChat: (chatId: string) => ChatOfCurrentUserEntity,
-}
-
-type CreateChatBlockingDialogProps = CreateChatBlockingDialogMobxProps & WithMobileDialog & WithSnackbarProps & Localized;
+import {useLocalization, useStore} from "../../store";
 
 const useStyles = makeStyles(() => createStyles({
     blockedUserContainer: {
@@ -71,24 +49,32 @@ const getMessagesDeletionPeriodLabelCode = (messagesDeletionPeriod: RecentMessag
     return `chat.blocking.messages-deletion-period.${messagesDeletionPeriod}` as keyof Labels;
 };
 
-const _CreateChatBlockingDialog: FunctionComponent<CreateChatBlockingDialogProps> = ({
-    formData,
-    errors,
-    chatId,
-    open,
-    showSnackbar,
-    pending,
-    submissionError,
-    setFormValue,
-    setCreateChatBlockingDialogOpen,
-    setShowSnackbar,
-    createChatBlocking,
-    findUser,
-    findChat,
-    l,
-    fullScreen,
-    enqueueSnackbar
-}) => {
+export const CreateChatBlockingDialog: FunctionComponent = withMobileDialog()(observer(({fullScreen}) => {
+    const {
+        createChatBlocking: {
+            createChatBlockingFormData: formData,
+            formErrors: errors,
+            chatId,
+            createChatBlockingDialogOpen: open,
+            showSnackbar,
+            submissionError,
+            pending,
+            setFormValue,
+            setCreateChatBlockingDialogOpen,
+            setShowSnackbar,
+            createChatBlocking
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            },
+            users: {
+                findById: findUser
+            }
+        }
+    } = useStore();
+    const {l} = useLocalization();
+    const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
     const classes = useStyles();
 
@@ -213,26 +199,4 @@ const _CreateChatBlockingDialog: FunctionComponent<CreateChatBlockingDialogProps
             </DialogActions>
         </Dialog>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<CreateChatBlockingDialogMobxProps> = ({createChatBlocking, entities}) => ({
-    formData: createChatBlocking.createChatBlockingFormData,
-    errors: createChatBlocking.formErrors,
-    pending: createChatBlocking.pending,
-    chatId: createChatBlocking.chatId,
-    open: createChatBlocking.createChatBlockingDialogOpen,
-    showSnackbar: createChatBlocking.showSnackbar,
-    submissionError: createChatBlocking.submissionError,
-    setFormValue: createChatBlocking.setFormValue,
-    createChatBlocking: createChatBlocking.createChatBlocking,
-    setCreateChatBlockingDialogOpen: createChatBlocking.setCreateChatBlockingDialogOpen,
-    setShowSnackbar: createChatBlocking.setShowSnackbar,
-    findUser: entities.users.findById,
-    findChat: entities.chats.findById
-});
-
-export const CreateChatBlockingDialog = withMobileDialog()(
-    withSnackbar(
-        localized(inject(mapMobxToProps)(observer(_CreateChatBlockingDialog)))
-    )
-) as FunctionComponent;
+})) as FunctionComponent;

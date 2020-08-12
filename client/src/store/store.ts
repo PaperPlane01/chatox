@@ -1,6 +1,6 @@
 import {IAppState} from "./IAppState";
 import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore} from "../Authorization";
+import {AuthorizationStore, LoginStore} from "../Authorization/stores";
 import {
     UserRegistrationStore,
     SendVerificationEmailStore,
@@ -138,7 +138,3 @@ export const store: IAppState = {
     settingsTabs,
     messageUpdate
 };
-
-export interface MapMobxToProps<ComponentProps = {}> {
-    (state: IAppState): ComponentProps
-}

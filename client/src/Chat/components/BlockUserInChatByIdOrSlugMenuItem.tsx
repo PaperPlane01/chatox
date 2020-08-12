@@ -1,26 +1,23 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
 import {Block} from "@material-ui/icons";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-interface BlockUserInChatByIdOrSlugMenuItemMobxProps {
-    setBlockUserInChatByIdOrSlugDialogOpen: (blockUserInChatByIdOrSlugDialogOpen: boolean) => void
-}
-
-interface BlockUserInChatByIdOrSlugMenuItemOwnProps {
+interface BlockUserInChatByIdOrSlugMenuItemProps {
     onClick?: () => void
 }
 
-type BlockUserInChatByIdOrSlugMenuItemProps = BlockUserInChatByIdOrSlugMenuItemMobxProps
-    & BlockUserInChatByIdOrSlugMenuItemOwnProps & Localized;
-
-const _BlockUserByIdOrSlugMenuItem: FunctionComponent<BlockUserInChatByIdOrSlugMenuItemProps> = ({
-    onClick,
-    setBlockUserInChatByIdOrSlugDialogOpen,
-    l
+export const BlockUserInChatByIdOrSlugMenuItem: FunctionComponent<BlockUserInChatByIdOrSlugMenuItemProps> = observer(({
+    onClick
 }) => {
+    const {l} = useLocalization();
+    const {
+        blockUserInChatByIdOrSlug: {
+            setBlockUserInChatByIdOrSlugDialogOpen
+        }
+    } = useStore();
+
     const handleClick = (): void => {
         if (onClick) {
             onClick();
@@ -39,14 +36,4 @@ const _BlockUserByIdOrSlugMenuItem: FunctionComponent<BlockUserInChatByIdOrSlugM
             </ListItemText>
         </MenuItem>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<BlockUserInChatByIdOrSlugMenuItemMobxProps> = ({
-    blockUserInChatByIdOrSlug
-}) => ({
-    setBlockUserInChatByIdOrSlugDialogOpen: blockUserInChatByIdOrSlug.setBlockUserInChatByIdOrSlugDialogOpen
 });
-
-export const BlockUserInChatByIdOrSlugMenuItem = localized(
-    inject(mapMobxToProps)(observer(_BlockUserByIdOrSlugMenuItem))
-) as FunctionComponent<BlockUserInChatByIdOrSlugMenuItemOwnProps>;

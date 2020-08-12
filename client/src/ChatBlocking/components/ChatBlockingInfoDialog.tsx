@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {
     Button,
     Dialog,
@@ -15,35 +15,31 @@ import {
 } from "@material-ui/core";
 import {format} from "date-fns";
 import {CancelChatBlockingButton} from "./CancelChatBlockingButton";
-import {ChatBlockingEntity} from "../types";
-import {localized, Localized} from "../../localization/components";
-import {UserEntity} from "../../User/types";
-import {ChatOfCurrentUserEntity} from "../../Chat/types";
 import {UserLink} from "../../UserLink";
 import {isStringEmpty} from "../../utils/string-utils";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-interface ChatBlockingInfoDialogMobxProps {
-    chatBlockingId: string | undefined,
-    chatBlockingInfoDialogOpen: boolean,
-    setChatBlockingInfoDialogOpen: (chatBlockingInfoDialogOpen: boolean) => void,
-    findChatBlocking: (chatBlockingId: string) => ChatBlockingEntity,
-    findChat: (chatId: string) => ChatOfCurrentUserEntity,
-    findUser: (userId: string) => UserEntity,
-}
+export const ChatBlockingInfoDialog: FunctionComponent = observer(() => {
+    const {
+        chatBlockingInfoDialog: {
+            chatBlockingDialogOpen,
+            setChatBlockingDialogOpen,
+            chatBlockingId
+        },
+        entities: {
+            users: {
+                findById: findUser
+            },
+            chats: {
+                findById: findChat
+            },
+            chatBlockings: {
+                findById: findChatBlocking
+            }
+        }
+    } = useStore();
+    const {l, dateFnsLocale} = useLocalization();
 
-type ChatBlockingInfoDialogProps = ChatBlockingInfoDialogMobxProps & Localized;
-
-const _ChatBlockingInfoDialog: FunctionComponent<ChatBlockingInfoDialogProps> = ({
-    chatBlockingId,
-    chatBlockingInfoDialogOpen,
-    setChatBlockingInfoDialogOpen,
-    findUser,
-    findChatBlocking,
-    findChat,
-    l,
-    dateFnsLocale
-}) => {
     if (!chatBlockingId) {
         return null;
     }
@@ -56,9 +52,9 @@ const _ChatBlockingInfoDialog: FunctionComponent<ChatBlockingInfoDialogProps> = 
     const updatedBy = chatBlocking.lastModifiedByUserId ? findUser(chatBlocking.lastModifiedByUserId) : undefined;
 
     return (
-        <Dialog open={chatBlockingInfoDialogOpen}
+        <Dialog open={chatBlockingDialogOpen}
                 fullScreen
-                onClose={() => setChatBlockingInfoDialogOpen(false)}
+                onClose={() => setChatBlockingDialogOpen(false)}
         >
             <DialogTitle>
                 {l("chat.blocking.info", {
@@ -149,27 +145,11 @@ const _ChatBlockingInfoDialog: FunctionComponent<ChatBlockingInfoDialogProps> = 
             <DialogActions>
                 <Button variant="outlined"
                         color="secondary"
-                        onClick={() => setChatBlockingInfoDialogOpen(false)}
+                        onClick={() => setChatBlockingDialogOpen(false)}
                 >
                     {l("close")}
                 </Button>
             </DialogActions>
         </Dialog>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatBlockingInfoDialogMobxProps> = ({
-    chatBlockingInfoDialog,
-    entities
-}) => ({
-    chatBlockingId: chatBlockingInfoDialog.chatBlockingId,
-    chatBlockingInfoDialogOpen: chatBlockingInfoDialog.chatBlockingDialogOpen,
-    setChatBlockingInfoDialogOpen: chatBlockingInfoDialog.setChatBlockingDialogOpen,
-    findUser: entities.users.findById,
-    findChat: entities.chats.findById,
-    findChatBlocking: entities.chatBlockings.findById
 });
-
-export const ChatBlockingInfoDialog = localized(
-    inject(mapMobxToProps)(observer(_ChatBlockingInfoDialog))
-) as FunctionComponent;

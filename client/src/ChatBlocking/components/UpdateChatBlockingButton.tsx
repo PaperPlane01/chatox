@@ -1,30 +1,24 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {IconButton, Tooltip} from "@material-ui/core";
 import {Edit} from "@material-ui/icons";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-interface UpdateChatBlockingButtonMobxProps {
-    setUpdatedChatBlockingId: (chatBlockingId: string) => void,
-    setUpdateChatBlockingDialogOpen: (updateChatBlockingDialogOpen: boolean) => void
-}
-
-interface UpdateChatBlockingButtonOwnProps {
+interface UpdateChatBlockingButtonProps {
     chatBlockingId: string
 }
 
-type UpdateChatBlockingButtonProps = UpdateChatBlockingButtonMobxProps & UpdateChatBlockingButtonOwnProps
-    & Localized;
+export const UpdateChatBlockingButton: FunctionComponent<UpdateChatBlockingButtonProps> = observer(({chatBlockingId}) => {
+    const {
+        updateChatBlocking: {
+            setUpdateChatBlockingDialogOpen,
+            setChatBlocking
+        }
+    } = useStore();
+    const {l} = useLocalization();
 
-const _UpdateChatBlockingButton: FunctionComponent<UpdateChatBlockingButtonProps> = ({
-    chatBlockingId,
-    setUpdateChatBlockingDialogOpen,
-    setUpdatedChatBlockingId,
-    l
-}) => {
     const handleClick = (): void => {
-        setUpdatedChatBlockingId(chatBlockingId);
+        setChatBlocking(chatBlockingId);
         setUpdateChatBlockingDialogOpen(true);
     };
 
@@ -35,13 +29,4 @@ const _UpdateChatBlockingButton: FunctionComponent<UpdateChatBlockingButtonProps
             </IconButton>
         </Tooltip>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<UpdateChatBlockingButtonMobxProps> = ({updateChatBlocking}) => ({
-    setUpdatedChatBlockingId: updateChatBlocking.setChatBlocking,
-    setUpdateChatBlockingDialogOpen: updateChatBlocking.setUpdateChatBlockingDialogOpen
 });
-
-export const UpdateChatBlockingButton = localized(
-    inject(mapMobxToProps)(observer(_UpdateChatBlockingButton))
-) as FunctionComponent<UpdateChatBlockingButtonOwnProps>;

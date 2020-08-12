@@ -1,27 +1,25 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
 import {Edit} from "@material-ui/icons";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-interface EditMessageMenuItemMobxProps {
-    setUpdatedMessageId: (updatedMessageId: string) => void
-}
-
-interface EditMessageMenuItemOwnProps {
+interface EditMessageMenuItemProps {
     onClick?: () => void,
     messageId: string
 }
 
-type EditMessageMenuItemProps = EditMessageMenuItemMobxProps & EditMessageMenuItemOwnProps & Localized;
-
-const _EditMessageMenuItem: FunctionComponent<EditMessageMenuItemProps> = ({
+export const EditMessageMenuItem: FunctionComponent<EditMessageMenuItemProps> = observer(({
     onClick,
-    messageId,
-    setUpdatedMessageId,
-    l
+    messageId
 }) => {
+    const {
+        messageUpdate: {
+            setUpdatedMessageId
+        }
+    } = useStore();
+    const {l} = useLocalization();
+
     const handleClick = (): void => {
         if (onClick) {
             onClick();
@@ -40,14 +38,4 @@ const _EditMessageMenuItem: FunctionComponent<EditMessageMenuItemProps> = ({
             </ListItemText>
         </MenuItem>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<EditMessageMenuItemMobxProps> = ({
-    messageUpdate
-}) => ({
-    setUpdatedMessageId: messageUpdate.setUpdatedMessageId
 });
-
-export const EditMessageMenuItem = localized(
-    inject(mapMobxToProps)(observer(_EditMessageMenuItem))
-) as FunctionComponent<EditMessageMenuItemOwnProps>;

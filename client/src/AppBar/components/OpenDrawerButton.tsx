@@ -1,12 +1,8 @@
 import React, {FunctionComponent} from "react";
-import {inject} from "mobx-react";
-import {IconButton, createStyles, makeStyles} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {createStyles, IconButton, makeStyles} from "@material-ui/core";
 import MenuIcon from "@material-ui/icons/Menu";
-import {MapMobxToProps} from "../../store";
-
-interface OpenDrawerButtonMobxProps {
-    setDrawerOpen: (drawerOpen: boolean) => void
-}
+import {useStore} from "../../store";
 
 const useStyles = makeStyles(() => createStyles({
     openDrawerButton: {
@@ -16,20 +12,16 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-const _OpenDrawerButton: FunctionComponent<OpenDrawerButtonMobxProps> = ({setDrawerOpen}) => {
+export const OpenDrawerButton: FunctionComponent = observer(() => {
     const classes = useStyles();
+    const {appBar} = useStore();
+    const {setDrawerExpanded} = appBar;
 
     return (
-        <IconButton onClick={() => setDrawerOpen(true)}
+        <IconButton onClick={() => setDrawerExpanded(true)}
                     className={classes.openDrawerButton}
         >
             <MenuIcon/>
         </IconButton>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<OpenDrawerButtonMobxProps> = ({appBar}) => ({
-    setDrawerOpen: appBar.setDrawerExpanded
 });
-
-export const OpenDrawerButton = inject(mapMobxToProps)(_OpenDrawerButton as FunctionComponent);

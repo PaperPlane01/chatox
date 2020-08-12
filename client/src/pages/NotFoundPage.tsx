@@ -2,21 +2,23 @@ import React, {FunctionComponent} from "react";
 import {Grid, Typography} from "@material-ui/core";
 import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
-import {localized, Localized} from "../localization";
+import {useLocalization} from "../store/hooks";
 
-const _NotFoundPage: FunctionComponent<Localized> = ({l}) => (
-    <Grid container>
-        <Grid item xs={12}>
-            <AppBar/>
-        </Grid>
-        <Grid item xs={12}>
-            <Layout>
-                <Typography variant="h6">
-                    {l("page.not-found")}
-                </Typography>
-            </Layout>
-        </Grid>
-    </Grid>
-);
+export const NotFoundPage: FunctionComponent = () => {
+    const {l} = useLocalization();
 
-export const NotFoundPage = localized(_NotFoundPage) as FunctionComponent<{}>;
+    return (
+        <Grid container>
+            <Grid item xs={12}>
+                <AppBar/>
+            </Grid>
+            <Grid item xs={12}>
+                <Layout>
+                    <Typography variant="h6">
+                        {l("page.not-found")}
+                    </Typography>
+                </Layout>
+            </Grid>
+        </Grid>
+    )
+};
