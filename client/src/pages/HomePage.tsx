@@ -5,7 +5,7 @@ import {AppBar} from "../AppBar";
 import {HasRole} from "../Authorization";
 import {CreateChatDialog, CreateChatFloatingActionButton} from "../Chat";
 
-export const HomePage: FunctionComponent<{}> = () => (
+export const HomePage: FunctionComponent = () => (
     <Grid container>
         <Grid item xs={12}>
             <AppBar/>
