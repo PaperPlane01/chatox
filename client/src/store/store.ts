@@ -138,7 +138,3 @@ export const store: IAppState = {
     settingsTabs,
     messageUpdate
 };
-
-export interface MapMobxToProps<ComponentProps = {}> {
-    (state: IAppState): ComponentProps
-}
