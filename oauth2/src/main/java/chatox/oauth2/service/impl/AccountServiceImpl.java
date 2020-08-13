@@ -11,6 +11,8 @@ import chatox.oauth2.domain.Client;
 import chatox.oauth2.domain.Role;
 import chatox.oauth2.exception.AccountNotFoundException;
 import chatox.oauth2.exception.ClientNotFoundException;
+import chatox.oauth2.exception.EmailConfirmationIdRequiredException;
+import chatox.oauth2.exception.EmailConfirmationVerificationCodeRequiredException;
 import chatox.oauth2.exception.EmailHasAlreadyBeenTakenException;
 import chatox.oauth2.exception.EmailMismatchException;
 import chatox.oauth2.exception.EmailVerificationExpiredException;
@@ -21,9 +23,11 @@ import chatox.oauth2.respository.AccountRepository;
 import chatox.oauth2.respository.ClientRepository;
 import chatox.oauth2.respository.EmailVerificationRepository;
 import chatox.oauth2.respository.UserRoleRepository;
+import chatox.oauth2.security.AuthenticationFacade;
 import chatox.oauth2.security.CustomClientDetails;
 import chatox.oauth2.security.CustomUserDetails;
 import chatox.oauth2.service.AccountService;
+import chatox.oauth2.service.TimeService;
 import chatox.oauth2.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +64,8 @@ public class AccountServiceImpl implements AccountService {
     private final UserRoleRepository userRoleRepository;
     private final EmailVerificationRepository emailVerificationRepository;
     private final AccountMapper accountMapper;
+    private final AuthenticationFacade authenticationFacade;
+    private final TimeService timeService;
 
     private JdbcTokenStore tokenStore;
     private PasswordEncoder passwordEncoder;
@@ -240,7 +246,42 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void updateCurrentAccountPassword(UpdatePasswordRequest updatePasswordRequest) {
+        var currentUserDetails = authenticationFacade.getCurrentUserDetails();
+        var currentAccount = accountRepository.findById(currentUserDetails.getAccountId()).get();
 
+        if (currentAccount.getEmail() != null) {
+            if (updatePasswordRequest.getEmailConfirmationId() == null) {
+                throw new EmailConfirmationIdRequiredException(
+                        "This account has email, so emailConfirmationId is required"
+                );
+            }
+
+            if (updatePasswordRequest.getEmailConfirmationVerificationCode() == null) {
+                throw new EmailConfirmationVerificationCodeRequiredException(
+                        "This account has email, so emailConfirmationVerificationCode is required"
+                );
+            }
+
+            var emailVerification = emailVerificationRepository.findById(updatePasswordRequest.getEmailConfirmationId())
+                    .orElseThrow(() -> new EmailVerificationNotFoundException(
+                            "Could not find email confirmation with provided id"
+                    ));
+
+            if (timeService.now().isAfter(emailVerification.getExpiresAt())) {
+                throw new EmailVerificationExpiredException("This email confirmation has expired");
+            }
+
+            if (!emailVerification.getEmail().equals(currentAccount.getEmail())) {
+                throw new EmailMismatchException();
+            }
+
+            if (!passwordEncoder.matches(updatePasswordRequest.getEmailConfirmationVerificationCode(), emailVerification.getVerificationCodeHash())) {
+                throw new InvalidEmailVerificationCodeException("Provided email verification code is invalid");
+            }
+        }
+
+        currentAccount.setPasswordHash(passwordEncoder.encode(updatePasswordRequest.getPassword()));
+        accountRepository.save(currentAccount);
     }
 
     @Override

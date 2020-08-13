@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.ZonedDateTime;
@@ -27,4 +29,7 @@ public class EmailVerification {
     private ZonedDateTime createdAt;
     private ZonedDateTime completedAt;
     private ZonedDateTime expiresAt;
+
+    @Enumerated(EnumType.STRING)
+    private EmailVerificationType type;
 }

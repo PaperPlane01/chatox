@@ -6,6 +6,7 @@ import chatox.oauth2.api.response.EmailVerificationCodeValidityResponse;
 import chatox.oauth2.api.response.EmailVerificationResponse;
 import chatox.oauth2.service.EmailVerificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,7 @@ import javax.validation.Valid;
 public class EmailVerificationController {
     private final EmailVerificationService emailVerificationService;
 
+    @PreAuthorize("@emailVerificationPermissions.canCreateEmailVerification(#sendVerificationEmailRequest)")
     @PostMapping
     public EmailVerificationResponse sendVerificationEmail(@RequestBody @Valid SendVerificationEmailRequest sendVerificationEmailRequest) {
         return emailVerificationService.sendVerificationEmail(sendVerificationEmailRequest);

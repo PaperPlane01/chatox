@@ -6,14 +6,17 @@ import chatox.oauth2.api.response.EmailAvailabilityResponse;
 import chatox.oauth2.api.response.EmailVerificationCodeValidityResponse;
 import chatox.oauth2.api.response.EmailVerificationResponse;
 import chatox.oauth2.domain.EmailVerification;
-import chatox.oauth2.domain.Language;
+import chatox.oauth2.domain.EmailVerificationType;
 import chatox.oauth2.exception.EmailHasAlreadyBeenTakenException;
 import chatox.oauth2.exception.EmailVerificationExpiredException;
 import chatox.oauth2.exception.EmailVerificationNotFoundException;
 import chatox.oauth2.mapper.EmailVerificationMapper;
 import chatox.oauth2.respository.AccountRepository;
 import chatox.oauth2.respository.EmailVerificationRepository;
+import chatox.oauth2.security.AuthenticationFacade;
 import chatox.oauth2.service.EmailVerificationService;
+import chatox.oauth2.support.email.EmailPropertiesProvider;
+import chatox.oauth2.support.email.EmailSourceStrategy;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,60 +42,71 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     private final PasswordEncoder passwordEncoder;
     private final TemplateEngine templateEngine;
     private final JavaMailSender javaMailSender;
+    private final AuthenticationFacade authenticationFacade;
+    private final EmailPropertiesProvider emailPropertiesProvider;
 
     @Value("${spring.mail.full-email}")
     private String chatoxEmail;
 
     @Override
     public EmailVerificationResponse sendVerificationEmail(SendVerificationEmailRequest sendVerificationEmailRequest) {
-        if (accountRepository.existsByEmail(sendVerificationEmailRequest.getEmail())) {
+        if (sendVerificationEmailRequest.getType().equals(EmailVerificationType.CONFIRM_EMAIL)
+                && accountRepository.existsByEmail(sendVerificationEmailRequest.getEmail())) {
             throw new EmailHasAlreadyBeenTakenException(
                     String.format("Email %s has already been taken", sendVerificationEmailRequest.getEmail())
             );
         }
 
-        ZonedDateTime now = ZonedDateTime.now();
-        ZonedDateTime tomorrow = now.plusDays(1);
-
-        if (emailVerificationRepository.existsByEmailAndExpiresAtBeforeAndCompletedAtNull(
-                sendVerificationEmailRequest.getEmail(),
-                tomorrow
+        if (sendVerificationEmailRequest.getType().equals(EmailVerificationType.CONFIRM_EMAIL)
+                && emailVerificationRepository.existsByEmailAndExpiresAtBeforeAndCompletedAtNull(
+                sendVerificationEmailRequest.getEmail(), ZonedDateTime.now().plusDays(1L)
         )) {
             throw new EmailHasAlreadyBeenTakenException(
                     String.format("Email %s has already been taken", sendVerificationEmailRequest.getEmail())
             );
         }
 
+        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime expiresAt = emailPropertiesProvider.getExpirationDate(
+                sendVerificationEmailRequest.getType(),
+                now
+        );
+        String email;
+
+        if (emailPropertiesProvider.getEmailSourceStrategy(sendVerificationEmailRequest.getType()).equals(EmailSourceStrategy.USE_CURRENT_USER_EMAIL)) {
+            email = authenticationFacade.getCurrentUserDetails().getEmail();
+        } else {
+            email = sendVerificationEmailRequest.getEmail();
+        }
+
         String verificationCode = RandomStringUtils.randomAlphanumeric(5).toUpperCase();
 
         EmailVerification emailVerification = EmailVerification.builder()
-                .email(sendVerificationEmailRequest.getEmail())
+                .email(email)
                 .createdAt(now)
-                .expiresAt(tomorrow)
+                .expiresAt(expiresAt)
                 .verificationCodeHash(passwordEncoder.encode(verificationCode))
+                .type(sendVerificationEmailRequest.getType())
                 .build();
-        emailVerification = emailVerificationRepository.save(emailVerification);
+        emailVerificationRepository.save(emailVerification);
 
         Context context = new Context();
         context.setVariable("emailConfirmationCode", verificationCode);
         context.setVariable("emailConfirmationCodeExpirationDate", Date.from(emailVerification.getExpiresAt().toInstant()));
 
-        String emailText;
-
-        if (sendVerificationEmailRequest.getLanguage().equals(Language.RU)) {
-            emailText = templateEngine.process("emailConfirmation_ru.html", context);
-        } else {
-            emailText = templateEngine.process("emailConfirmation_en.html", context);
-        }
+        String templateName = emailPropertiesProvider.getThymeleafTemplate(emailVerification.getType(), sendVerificationEmailRequest.getLanguage());
+        String emailText = templateEngine.process(templateName, context);
 
         MimeMessagePreparator mimeMessagePreparator = mimeMessage -> {
             mimeMessage.setContent(emailText, "text/html; charset=utf-8");
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
             mimeMessageHelper.setFrom(chatoxEmail);
-            mimeMessageHelper.setTo(sendVerificationEmailRequest.getEmail());
-            mimeMessageHelper.setSubject(sendVerificationEmailRequest.getLanguage().equals(Language.RU)
-                    ? "Подтверждение e-mail"
-                    : "Confirm your email"
+            mimeMessageHelper.setTo(email);
+            mimeMessageHelper.setSubject(
+                    emailPropertiesProvider.getSubject(
+                            emailVerification.getType(),
+                            sendVerificationEmailRequest.getLanguage()
+                    )
             );
             mimeMessageHelper.setText(emailText, true);
         };

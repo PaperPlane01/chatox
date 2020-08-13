@@ -28,4 +28,12 @@ public enum Language {
                 .findFirst()
                 .orElse(Language.EN);
     }
+
+    public String getPrimaryAlias() {
+        return aliases.get(0);
+    }
+
+    public String getPrimaryAliasLowerCase() {
+        return getPrimaryAlias().toLowerCase();
+    }
 }
