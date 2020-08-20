@@ -2,12 +2,7 @@ import {EntitiesStore} from "../entities-store";
 import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore} from "../Authorization";
-import {
-    UserRegistrationStore,
-    SendVerificationEmailStore,
-    CheckEmailVerificationCodeStore,
-    RegistrationDialogStore
-} from "../Registration";
+import {RegistrationDialogStore, SendConfirmationCodeStore, UserRegistrationStore} from "../Registration";
 import {
     ChatInfoDialogStore,
     ChatParticipantsStore,
@@ -19,9 +14,16 @@ import {
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
-import {CreateMessageStore, MessagesOfChatStore, MessageDialogStore, UpdateMessageStore} from "../Message";
+import {CreateMessageStore, MessageDialogStore, MessagesOfChatStore, UpdateMessageStore} from "../Message";
 import {WebsocketStore} from "../websocket";
-import {UserProfileStore, EditProfileStore} from "../User";
+import {
+    EditProfileStore,
+    PasswordChangeFormSubmissionStore,
+    PasswordChangeStepStore,
+    PasswordChangeStore,
+    SendPasswordChangeEmailConfirmationCodeStore,
+    UserProfileStore
+} from "../User";
 import {
     BlockUserInChatByIdOrSlugStore,
     CancelChatBlockingStore,
@@ -33,6 +35,7 @@ import {
 } from "../ChatBlocking";
 import {UploadImageStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings/stores";
+import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
 
 export interface IAppState {
     language: LocaleStore,
@@ -62,13 +65,18 @@ export interface IAppState {
     onlineChatParticipants: OnlineChatParticipantsStore,
     chatAvatarUpload: UploadImageStore,
     chatUpdate: UpdateChatStore,
-    sendVerificationEmail: SendVerificationEmailStore,
-    verificationCodeCheck: CheckEmailVerificationCodeStore,
+    sendVerificationEmail: SendConfirmationCodeStore,
+    registrationEmailConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
     registrationDialog: RegistrationDialogStore,
     messageDialog: MessageDialogStore,
     userAvatarUpload: UploadImageStore,
     editProfile: EditProfileStore,
     settingsTabs: SettingsTabsStore,
     messageUpdate: UpdateMessageStore,
+    passwordChangeEmailConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
+    passwordChange: PasswordChangeStore,
+    passwordChangeForm: PasswordChangeFormSubmissionStore,
+    passwordChangeStep: PasswordChangeStepStore,
+    passwordChangeEmailConfirmationCodeSending: SendPasswordChangeEmailConfirmationCodeStore,
     store?: any
 }

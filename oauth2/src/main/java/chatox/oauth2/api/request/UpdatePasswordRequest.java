@@ -13,9 +13,11 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class UpdatePasswordRequest {
     @NotBlank
+    private String currentPassword;
+    @NotBlank
     private String password;
     @NotBlank
     private String repeatedPassword;
-    private String emailConfirmationId;
-    private String emailConfirmationVerificationCode;
+    private String emailConfirmationCodeId;
+    private String emailConfirmationCode;
 }

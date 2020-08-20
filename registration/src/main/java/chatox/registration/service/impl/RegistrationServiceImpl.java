@@ -33,8 +33,8 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .username(registrationRequest.getUsername())
                 .clientId(registrationRequest.getClientId())
                 .email(registrationRequest.getEmail())
-                .emailVerificationId(registrationRequest.getEmailVerificationId())
-                .emailVerificationConfirmationCode(registrationRequest.getEmailVerificationConfirmationCode())
+                .emailConfirmationCodeId(registrationRequest.getEmailConfirmationCodeId())
+                .emailConfirmationCode(registrationRequest.getEmailConfirmationCode())
                 .build();
 
         var createUserRequest = CreateUserRequest

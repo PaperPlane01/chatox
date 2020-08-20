@@ -8,7 +8,7 @@ import chatox.oauth2.api.response.CreateAccountResponse;
 import chatox.oauth2.api.response.EmailAvailabilityResponse;
 import chatox.oauth2.api.response.UsernameAvailabilityResponse;
 import chatox.oauth2.service.AccountService;
-import chatox.oauth2.service.EmailVerificationService;
+import chatox.oauth2.service.EmailConfirmationCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,7 +29,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
-    private final EmailVerificationService emailVerificationService;
+    private final EmailConfirmationCodeService emailVerificationService;
 
     @PreAuthorize("#oauth2.hasScope('internal_create_account')")
     @PostMapping

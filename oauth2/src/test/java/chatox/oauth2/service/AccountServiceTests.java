@@ -2,16 +2,17 @@ package chatox.oauth2.service;
 
 import chatox.oauth2.api.request.UpdatePasswordRequest;
 import chatox.oauth2.domain.Account;
-import chatox.oauth2.domain.EmailVerification;
-import chatox.oauth2.domain.EmailVerificationType;
+import chatox.oauth2.domain.EmailConfirmationCode;
+import chatox.oauth2.domain.EmailConfirmationCodeType;
+import chatox.oauth2.exception.EmailConfirmationCodeRequiredException;
 import chatox.oauth2.exception.EmailConfirmationIdRequiredException;
-import chatox.oauth2.exception.EmailConfirmationVerificationCodeRequiredException;
-import chatox.oauth2.exception.EmailMismatchException;
-import chatox.oauth2.exception.EmailVerificationExpiredException;
-import chatox.oauth2.exception.EmailVerificationNotFoundException;
-import chatox.oauth2.exception.InvalidEmailVerificationCodeException;
+import chatox.oauth2.exception.metadata.EmailMismatchException;
+import chatox.oauth2.exception.EmailConfirmationCodeExpiredException;
+import chatox.oauth2.exception.EmailConfirmationCodeNotFoundException;
+import chatox.oauth2.exception.metadata.InvalidEmailConfirmationCodeCodeException;
+import chatox.oauth2.exception.metadata.InvalidPasswordException;
 import chatox.oauth2.respository.AccountRepository;
-import chatox.oauth2.respository.EmailVerificationRepository;
+import chatox.oauth2.respository.EmailConfirmationCodeRepository;
 import chatox.oauth2.security.AuthenticationFacade;
 import chatox.oauth2.security.CustomUserDetails;
 import chatox.oauth2.service.impl.AccountServiceImpl;
@@ -46,7 +47,7 @@ public class AccountServiceTests {
     PasswordEncoder passwordEncoder;
 
     @Mock
-    EmailVerificationRepository emailVerificationRepository;
+    EmailConfirmationCodeRepository emailConfirmationCodeRepository;
 
     @InjectMocks
     AccountServiceImpl accountService;
@@ -63,17 +64,19 @@ public class AccountServiceTests {
                 .id("1")
                 .email(null)
                 .roles(Collections.emptyList())
-                .passwordHash("test")
+                .passwordHash("currentPasswordHash")
                 .build();
         var userDetails = new CustomUserDetails(account);
         when(authenticationFacade.getCurrentUserDetails()).thenReturn(userDetails);
         when(accountRepository.findById(userDetails.getAccountId())).thenReturn(Optional.of(account));
-        when(passwordEncoder.encode("test2")).thenReturn("test2encoded");
+        when(passwordEncoder.matches("currentPassword", "currentPasswordHash")).thenReturn(true);
+        when(passwordEncoder.encode("newPassword")).thenReturn("newPasswordHash");
 
         // Run test
         var updatePasswordRequest = UpdatePasswordRequest.builder()
-                .password("test2")
-                .repeatedPassword("test2")
+                .currentPassword("currentPassword")
+                .password("newPassword")
+                .repeatedPassword("newPassword")
                 .build();
         accountService.updateCurrentAccountPassword(updatePasswordRequest);
 
@@ -81,7 +84,7 @@ public class AccountServiceTests {
         var resultAccount = Account.builder()
                 .id("1")
                 .email(null)
-                .passwordHash("test2encoded")
+                .passwordHash("newPasswordHash")
                 .roles(Collections.emptyList())
                 .build();
         verify(accountRepository, times(1)).save(resultAccount);
@@ -97,30 +100,32 @@ public class AccountServiceTests {
                 .id("1")
                 .roles(Collections.emptyList())
                 .email("test@gmail.com")
-                .passwordHash("test1")
+                .passwordHash("currentPasswordHash")
                 .build();
         var userDetails = new CustomUserDetails(account);
-        var emailVerification = EmailVerification.builder()
+        var emailConfirmationCode = EmailConfirmationCode.builder()
                 .id("1")
                 .createdAt(minuteAgo)
                 .expiresAt(twentyNineMinutesAfter)
-                .type(EmailVerificationType.CONFIRM_PASSWORD_RESET)
-                .verificationCodeHash("emailVerificationHash")
+                .type(EmailConfirmationCodeType.CONFIRM_PASSWORD_RESET)
+                .confirmationCodeHash("emailConfirmationCodeHash")
                 .email("test@gmail.com")
                 .build();
         when(authenticationFacade.getCurrentUserDetails()).thenReturn(userDetails);
         when(accountRepository.findById(account.getId())).thenReturn(Optional.of(account));
-        when(emailVerificationRepository.findById(emailVerification.getId())).thenReturn(Optional.of(emailVerification));
+        when(passwordEncoder.matches("currentPassword","currentPasswordHash")).thenReturn(true);
+        when(emailConfirmationCodeRepository.findById(emailConfirmationCode.getId())).thenReturn(Optional.of(emailConfirmationCode));
         when(timeService.now()).thenReturn(now);
-        when(passwordEncoder.matches("emailVerificationCode", "emailVerificationHash")).thenReturn(true);
-        when(passwordEncoder.encode("test2")).thenReturn("test2encoded");
+        when(passwordEncoder.matches("emailConfirmationCodeCode", "emailConfirmationCodeHash")).thenReturn(true);
+        when(passwordEncoder.encode("newPassword")).thenReturn("newPasswordHash");
 
         // Run test
         var updatePasswordRequest = UpdatePasswordRequest.builder()
-                .emailConfirmationId("1")
-                .emailConfirmationVerificationCode("emailVerificationCode")
-                .password("test2")
-                .repeatedPassword("test2")
+                .emailConfirmationCodeId("1")
+                .emailConfirmationCode("emailConfirmationCodeCode")
+                .currentPassword("currentPassword")
+                .password("newPassword")
+                .repeatedPassword("newPassword")
                 .build();
         accountService.updateCurrentAccountPassword(updatePasswordRequest);
 
@@ -129,106 +134,140 @@ public class AccountServiceTests {
                 .id("1")
                 .roles(Collections.emptyList())
                 .email("test@gmail.com")
-                .passwordHash("test2encoded")
+                .passwordHash("newPasswordHash")
                 .build();
-        verify(emailVerificationRepository, times(1)).findById("1");
+        verify(emailConfirmationCodeRepository, times(1)).findById("1");
         verify(accountRepository, times(1)).save(resultAccount);
     }
 
-    @Test(expected = EmailConfirmationIdRequiredException.class)
-    public void updatePassword_throwsException_whenCurrentUserHasEmailAndEmailVerificationIdNotProvided() {
+    @Test(expected = InvalidPasswordException.class)
+    public void updatePassword_throwsException_whenSuppliedCurrentPasswordIsWrong() {
         // Setup
         var account = Account.builder()
                 .id("1")
-                .email("test@gmail.com")
                 .roles(Collections.emptyList())
+                .passwordHash("currentPasswordHash")
                 .build();
         var userDetails = new CustomUserDetails(account);
-        when(accountRepository.findById("1")).thenReturn(Optional.of(account));
         when(authenticationFacade.getCurrentUserDetails()).thenReturn(userDetails);
+        when(accountRepository.findById(account.getId())).thenReturn(Optional.of(account));
+        when(passwordEncoder.matches("wrongPassword", "currentPasswordHash")).thenReturn(false);
 
-        // Run test
+        // Run the test
         var updatePasswordRequest = UpdatePasswordRequest.builder()
-                .password("test2")
-                .repeatedPassword("test2")
-                .emailConfirmationId(null)
+                .currentPassword("wrongPassword")
+                .password("newPassword")
+                .repeatedPassword("newPassword")
                 .build();
         accountService.updateCurrentAccountPassword(updatePasswordRequest);
     }
 
-    @Test(expected = EmailConfirmationVerificationCodeRequiredException.class)
-    public void updatePassword_throwsException_whenCurrentUserHasEmailAndVerificationCodeNotProvided() {
+    @Test(expected = EmailConfirmationIdRequiredException.class)
+    public void updatePassword_throwsException_whenCurrentUserHasEmailAndEmailConfirmationCodeIdNotProvided() {
         // Setup
         var account = Account.builder()
                 .id("1")
+                .passwordHash("currentPasswordHash")
                 .email("test@gmail.com")
                 .roles(Collections.emptyList())
                 .build();
         var userDetails = new CustomUserDetails(account);
         when(accountRepository.findById("1")).thenReturn(Optional.of(account));
         when(authenticationFacade.getCurrentUserDetails()).thenReturn(userDetails);
+        when(passwordEncoder.matches("currentPassword", "currentPasswordHash")).thenReturn(true);
 
         // Run test
         var updatePasswordRequest = UpdatePasswordRequest.builder()
-                .emailConfirmationId("1")
+                .currentPassword("currentPassword")
+                .password("test2")
+                .repeatedPassword("test2")
+                .emailConfirmationCodeId(null)
+                .build();
+        accountService.updateCurrentAccountPassword(updatePasswordRequest);
+    }
+
+    @Test(expected = EmailConfirmationCodeRequiredException.class)
+    public void updatePassword_throwsException_whenCurrentUserHasEmailAndEmailConfirmationCodeCodeNotProvided() {
+        // Setup
+        var account = Account.builder()
+                .id("1")
+                .passwordHash("currentPasswordHash")
+                .email("test@gmail.com")
+                .roles(Collections.emptyList())
+                .build();
+        var userDetails = new CustomUserDetails(account);
+        when(accountRepository.findById("1")).thenReturn(Optional.of(account));
+        when(authenticationFacade.getCurrentUserDetails()).thenReturn(userDetails);
+        when(passwordEncoder.matches("currentPassword", "currentPasswordHash")).thenReturn(true);
+
+        // Run test
+        var updatePasswordRequest = UpdatePasswordRequest.builder()
+                .emailConfirmationCodeId("1")
+                .currentPassword("currentPassword")
                 .password("test")
                 .repeatedPassword("test")
                 .build();
         accountService.updateCurrentAccountPassword(updatePasswordRequest);
     }
 
-    @Test(expected = EmailVerificationNotFoundException.class)
-    public void updatePassword_throwsException_whenEmailVerificationNotFound() {
+    @Test(expected = EmailConfirmationCodeNotFoundException.class)
+    public void updatePassword_throwsException_whenEmailConfirmationCodeNotFound() {
         // Setup
         var account = Account.builder()
                 .id("1")
+                .passwordHash("currentPasswordHash")
                 .email("test@gmail.com")
                 .roles(Collections.emptyList())
                 .build();
         var userDetails = new CustomUserDetails(account);
         when(authenticationFacade.getCurrentUserDetails()).thenReturn(userDetails);
         when(accountRepository.findById(account.getId())).thenReturn(Optional.of(account));
-        when(emailVerificationRepository.findById("1")).thenReturn(Optional.empty());
+        when(passwordEncoder.matches("currentPassword", "currentPasswordHash")).thenReturn(true);
+        when(emailConfirmationCodeRepository.findById("1")).thenReturn(Optional.empty());
 
         // Run test
         var updatePasswordRequest = UpdatePasswordRequest.builder()
-                .emailConfirmationId("1")
-                .emailConfirmationVerificationCode("code")
+                .emailConfirmationCodeId("1")
+                .emailConfirmationCode("code")
+                .currentPassword("currentPassword")
                 .password("test")
                 .repeatedPassword("test")
                 .build();
         accountService.updateCurrentAccountPassword(updatePasswordRequest);
     }
 
-    @Test(expected = EmailVerificationExpiredException.class)
-    public void updatePassword_throwsException_whenEmailVerificationHasExpired() {
+    @Test(expected = EmailConfirmationCodeExpiredException.class)
+    public void updatePassword_throwsException_whenEmailConfirmationCodeHasExpired() {
         // Setup
         var now = ZonedDateTime.now();
         var thirtyMinutesAgo = now.minusMinutes(30L);
         var hourAgo = now.minusHours(1L);
         var account = Account.builder()
                 .id("1")
+                .passwordHash("currentPasswordHash")
                 .email("test@gmail.com")
                 .roles(Collections.emptyList())
                 .build();
-        var emailVerification = EmailVerification.builder()
+        var emailConfirmationCode = EmailConfirmationCode.builder()
                 .id("1")
                 .createdAt(hourAgo)
                 .expiresAt(thirtyMinutesAgo)
-                .type(EmailVerificationType.CONFIRM_PASSWORD_RESET)
-                .verificationCodeHash("emailVerificationHash")
+                .type(EmailConfirmationCodeType.CONFIRM_PASSWORD_RESET)
+                .confirmationCodeHash("emailConfirmationCodeHash")
                 .email("test@gmail.com")
                 .build();
         var userDetails = new CustomUserDetails(account);
         when(authenticationFacade.getCurrentUserDetails()).thenReturn(userDetails);
         when(accountRepository.findById(account.getId())).thenReturn(Optional.of(account));
-        when(emailVerificationRepository.findById("1")).thenReturn(Optional.of(emailVerification));
+        when(passwordEncoder.matches("currentPassword", "currentPasswordHash")).thenReturn(true);
+        when(emailConfirmationCodeRepository.findById("1")).thenReturn(Optional.of(emailConfirmationCode));
         when(timeService.now()).thenReturn(now);
 
         // Run test
         var updatePasswordRequest = UpdatePasswordRequest.builder()
-                .emailConfirmationId("1")
-                .emailConfirmationVerificationCode("code")
+                .currentPassword("currentPassword")
+                .emailConfirmationCodeId("1")
+                .emailConfirmationCode("code")
                 .password("test")
                 .repeatedPassword("test")
                 .build();
@@ -236,72 +275,76 @@ public class AccountServiceTests {
     }
 
     @Test(expected = EmailMismatchException.class)
-    public void updatePassword_throwsException_whenCurrentUserHasDifferentEmailThanSpecifiedInEmailVerification() {
+    public void updatePassword_throwsException_whenCurrentUserHasDifferentEmailThanSpecifiedInEmailConfirmationCode() {
         // Setup
         var now = ZonedDateTime.now();
         var minuteAgo = now.minusMinutes(1L);
         var twentyNineMinutesAfter = now.plusMinutes(29L);
         var account = Account.builder()
                 .id("1")
+                .passwordHash("currentPasswordHash")
                 .roles(Collections.emptyList())
                 .email("test@gmail.com")
-                .passwordHash("test1")
                 .build();
         var userDetails = new CustomUserDetails(account);
-        var emailVerification = EmailVerification.builder()
+        var emailConfirmationCode = EmailConfirmationCode.builder()
                 .id("1")
                 .createdAt(minuteAgo)
                 .expiresAt(twentyNineMinutesAfter)
-                .type(EmailVerificationType.CONFIRM_PASSWORD_RESET)
-                .verificationCodeHash("emailVerificationHash")
+                .type(EmailConfirmationCodeType.CONFIRM_PASSWORD_RESET)
+                .confirmationCodeHash("emailConfirmationCodeHash")
                 .email("different_email@gmail.com")
                 .build();
         when(authenticationFacade.getCurrentUserDetails()).thenReturn(userDetails);
         when(accountRepository.findById(account.getId())).thenReturn(Optional.of(account));
-        when(emailVerificationRepository.findById("1")).thenReturn(Optional.of(emailVerification));
+        when(passwordEncoder.matches("currentPassword","currentPasswordHash")).thenReturn(true);
+        when(emailConfirmationCodeRepository.findById("1")).thenReturn(Optional.of(emailConfirmationCode));
         when(timeService.now()).thenReturn(now);
 
         // Run test
         var updatePasswordRequest = UpdatePasswordRequest.builder()
-                .emailConfirmationId("1")
-                .emailConfirmationVerificationCode("code")
+                .emailConfirmationCodeId("1")
+                .emailConfirmationCode("code")
+                .currentPassword("currentPassword")
                 .password("test")
                 .repeatedPassword("test")
                 .build();
         accountService.updateCurrentAccountPassword(updatePasswordRequest);
     }
 
-    @Test(expected = InvalidEmailVerificationCodeException.class)
-    public void updatePassword_throwsException_whenVerificationCodeIsInvalid() {
+    @Test(expected = InvalidEmailConfirmationCodeCodeException.class)
+    public void updatePassword_throwsException_whenEmailConfirmationCodeIsInvalid() {
         // Setup
         var now = ZonedDateTime.now();
         var minuteAgo = now.minusMinutes(1L);
         var twentyNineMinutesAfter = now.plusMinutes(29L);
         var account = Account.builder()
                 .id("1")
+                .passwordHash("currentPasswordHash")
                 .roles(Collections.emptyList())
                 .email("test@gmail.com")
-                .passwordHash("test1")
                 .build();
         var userDetails = new CustomUserDetails(account);
-        var emailVerification = EmailVerification.builder()
+        var emailConfirmationCode = EmailConfirmationCode.builder()
                 .id("1")
                 .createdAt(minuteAgo)
                 .expiresAt(twentyNineMinutesAfter)
-                .type(EmailVerificationType.CONFIRM_PASSWORD_RESET)
-                .verificationCodeHash("emailVerificationHash")
+                .type(EmailConfirmationCodeType.CONFIRM_PASSWORD_RESET)
+                .confirmationCodeHash("emailConfirmationCodeHash")
                 .email("test@gmail.com")
                 .build();
         when(authenticationFacade.getCurrentUserDetails()).thenReturn(userDetails);
         when(accountRepository.findById(account.getId())).thenReturn(Optional.of(account));
-        when(emailVerificationRepository.findById(emailVerification.getId())).thenReturn(Optional.of(emailVerification));
+        when(passwordEncoder.matches("currentPassword", "currentPasswordHash")).thenReturn(true);
+        when(emailConfirmationCodeRepository.findById(emailConfirmationCode.getId())).thenReturn(Optional.of(emailConfirmationCode));
         when(timeService.now()).thenReturn(now);
-        when(passwordEncoder.matches("emailVerificationCode", "emailVerificationHash")).thenReturn(false);
+        when(passwordEncoder.matches("emailConfirmationCodeCode", "emailConfirmationCodeHash")).thenReturn(false);
 
         // Run test
         var updatePasswordRequest = UpdatePasswordRequest.builder()
-                .emailConfirmationId("1")
-                .emailConfirmationVerificationCode("emailVerificationCode")
+                .emailConfirmationCodeId("1")
+                .emailConfirmationCode("emailConfirmationCodeCode")
+                .currentPassword("currentPassword")
                 .password("test")
                 .repeatedPassword("test")
                 .build();

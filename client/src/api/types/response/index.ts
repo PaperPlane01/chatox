@@ -16,6 +16,6 @@ export * from "./AudioUploadMetadata";
 export * from "./ImageUploadMetadata";
 export * from "./VideoUploadMetadata";
 export * from "./GifUploadMetadata";
-export * from "./EmailVerificationResponse";
+export * from "./EmailConfirmationCodeResponse";
 export * from "./EmailAvailabilityResponse";
-export * from "./EmailVerificationCodeValidityResponse";
+export * from "./EmailConfirmationCodeValidityResponse";

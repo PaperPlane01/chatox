@@ -181,4 +181,13 @@ export const ru: Labels = {
     "username.has-already-been-taken": "Имя пользователя уже используется",
     "username.too-long": "Имя пользователя слишком длинное",
     "username.too-short": "Имя пользователя слишком короткое",
+    "change-password": "Сменить пароль",
+    "change-password.current-password": "Текущий пароль",
+    "change-password.new-password": "Новый пароль",
+    "change-password.confirm-password": "Повторите новый парль",
+    "change-password.error.email-confirmation-code-expired": "Код подтверждения истёк",
+    "change-password.error.email-confirmation-code-invalid": "Неверный код подтверждения",
+    "change-password.error.server-unreachable": "Во время попытки обновить пароль произошла ошибка: сервер недоступен",
+    "change-password.error.unknown-error": "Во время попытки обновить пароль произошла ошибка, сервер ответил со статусом {errorStatus}",
+    "change-password.success": "Пароль был обновлён"
 };

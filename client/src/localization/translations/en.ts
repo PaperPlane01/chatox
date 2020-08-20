@@ -181,4 +181,13 @@ export const en: Labels = {
     "username.has-already-been-taken": "This username is already taken",
     "username.too-long": "Username is too long",
     "username.too-short": "Username is too short",
+    "change-password": "Change password",
+    "change-password.current-password": "Current password",
+    "change-password.new-password": "New password",
+    "change-password.confirm-password": "Confirm password",
+    "change-password.error.email-confirmation-code-expired": "Email confirmation code expired",
+    "change-password.error.email-confirmation-code-invalid": "Email confirmation code is invalid",
+    "change-password.error.server-unreachable": "Error occurred when tried to update password: server is unreachable",
+    "change-password.error.unknown-error": "Error occurred when tried to update password, server responded with {errorStatus} status",
+    "change-password.success": "Password has been changed"
 };

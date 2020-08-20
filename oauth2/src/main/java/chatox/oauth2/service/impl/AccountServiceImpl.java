@@ -12,16 +12,17 @@ import chatox.oauth2.domain.Role;
 import chatox.oauth2.exception.AccountNotFoundException;
 import chatox.oauth2.exception.ClientNotFoundException;
 import chatox.oauth2.exception.EmailConfirmationIdRequiredException;
-import chatox.oauth2.exception.EmailConfirmationVerificationCodeRequiredException;
+import chatox.oauth2.exception.EmailConfirmationCodeRequiredException;
 import chatox.oauth2.exception.EmailHasAlreadyBeenTakenException;
-import chatox.oauth2.exception.EmailMismatchException;
-import chatox.oauth2.exception.EmailVerificationExpiredException;
-import chatox.oauth2.exception.EmailVerificationNotFoundException;
-import chatox.oauth2.exception.InvalidEmailVerificationCodeException;
+import chatox.oauth2.exception.metadata.EmailMismatchException;
+import chatox.oauth2.exception.EmailConfirmationCodeExpiredException;
+import chatox.oauth2.exception.EmailConfirmationCodeNotFoundException;
+import chatox.oauth2.exception.metadata.InvalidEmailConfirmationCodeCodeException;
+import chatox.oauth2.exception.metadata.InvalidPasswordException;
 import chatox.oauth2.mapper.AccountMapper;
 import chatox.oauth2.respository.AccountRepository;
 import chatox.oauth2.respository.ClientRepository;
-import chatox.oauth2.respository.EmailVerificationRepository;
+import chatox.oauth2.respository.EmailConfirmationCodeRepository;
 import chatox.oauth2.respository.UserRoleRepository;
 import chatox.oauth2.security.AuthenticationFacade;
 import chatox.oauth2.security.CustomClientDetails;
@@ -62,7 +63,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final ClientRepository clientRepository;
     private final UserRoleRepository userRoleRepository;
-    private final EmailVerificationRepository emailVerificationRepository;
+    private final EmailConfirmationCodeRepository emailConfirmationCodeRepository;
     private final AccountMapper accountMapper;
     private final AuthenticationFacade authenticationFacade;
     private final TimeService timeService;
@@ -86,19 +87,19 @@ public class AccountServiceImpl implements AccountService {
 
         if (Util.allNotNull(
                 createAccountRequest.getEmail(),
-                createAccountRequest.getEmailVerificationConfirmationCode(),
-                createAccountRequest.getEmailVerificationId())) {
+                createAccountRequest.getEmailConfirmationCode(),
+                createAccountRequest.getEmailConfirmationCodeId())) {
             if (accountRepository.existsByEmail(createAccountRequest.getEmail())) {
                 throw new EmailHasAlreadyBeenTakenException(String.format(
                         "Email %s has already been taken", createAccountRequest.getEmail()
                 ));
             }
 
-            var emailVerification = emailVerificationRepository.findById(createAccountRequest.getEmailVerificationId())
-                    .orElseThrow(() -> new EmailVerificationNotFoundException(
+            var emailVerification = emailConfirmationCodeRepository.findById(createAccountRequest.getEmailConfirmationCodeId())
+                    .orElseThrow(() -> new EmailConfirmationCodeNotFoundException(
                             String.format(
-                                    "Could not find email verification with id %s",
-                                    createAccountRequest.getEmailVerificationId()
+                                    "Could not find email confirmation code with id %s",
+                                    createAccountRequest.getEmailConfirmationCodeId()
                             )
                     ));
 
@@ -109,13 +110,13 @@ public class AccountServiceImpl implements AccountService {
             }
 
             if (!passwordEncoder.matches(
-                    createAccountRequest.getEmailVerificationConfirmationCode(),
-                    emailVerification.getVerificationCodeHash())) {
-                throw new InvalidEmailVerificationCodeException("Provided email verification code is invalid");
+                    createAccountRequest.getEmailConfirmationCode(),
+                    emailVerification.getConfirmationCodeHash())) {
+                throw new InvalidEmailConfirmationCodeCodeException("Provided email confirmation code is invalid");
             }
 
             if (ZonedDateTime.now().isAfter(emailVerification.getExpiresAt())) {
-                throw new EmailVerificationExpiredException("This email verification code has expired");
+                throw new EmailConfirmationCodeExpiredException("This email confirmation code has expired");
             }
         }
 
@@ -249,34 +250,38 @@ public class AccountServiceImpl implements AccountService {
         var currentUserDetails = authenticationFacade.getCurrentUserDetails();
         var currentAccount = accountRepository.findById(currentUserDetails.getAccountId()).get();
 
+        if (!passwordEncoder.matches(updatePasswordRequest.getCurrentPassword(), currentAccount.getPasswordHash())) {
+            throw new InvalidPasswordException("Current user has different password");
+        }
+
         if (currentAccount.getEmail() != null) {
-            if (updatePasswordRequest.getEmailConfirmationId() == null) {
+            if (updatePasswordRequest.getEmailConfirmationCodeId() == null) {
                 throw new EmailConfirmationIdRequiredException(
                         "This account has email, so emailConfirmationId is required"
                 );
             }
 
-            if (updatePasswordRequest.getEmailConfirmationVerificationCode() == null) {
-                throw new EmailConfirmationVerificationCodeRequiredException(
+            if (updatePasswordRequest.getEmailConfirmationCode() == null) {
+                throw new EmailConfirmationCodeRequiredException(
                         "This account has email, so emailConfirmationVerificationCode is required"
                 );
             }
 
-            var emailVerification = emailVerificationRepository.findById(updatePasswordRequest.getEmailConfirmationId())
-                    .orElseThrow(() -> new EmailVerificationNotFoundException(
+            var emailVerification = emailConfirmationCodeRepository.findById(updatePasswordRequest.getEmailConfirmationCodeId())
+                    .orElseThrow(() -> new EmailConfirmationCodeNotFoundException(
                             "Could not find email confirmation with provided id"
                     ));
 
             if (timeService.now().isAfter(emailVerification.getExpiresAt())) {
-                throw new EmailVerificationExpiredException("This email confirmation has expired");
+                throw new EmailConfirmationCodeExpiredException("This email confirmation has expired");
             }
 
             if (!emailVerification.getEmail().equals(currentAccount.getEmail())) {
                 throw new EmailMismatchException();
             }
 
-            if (!passwordEncoder.matches(updatePasswordRequest.getEmailConfirmationVerificationCode(), emailVerification.getVerificationCodeHash())) {
-                throw new InvalidEmailVerificationCodeException("Provided email verification code is invalid");
+            if (!passwordEncoder.matches(updatePasswordRequest.getEmailConfirmationCode(), emailVerification.getConfirmationCodeHash())) {
+                throw new InvalidEmailConfirmationCodeCodeException("Provided email verification code is invalid");
             }
         }
 

@@ -3,9 +3,9 @@ import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore} from "../Authorization/stores";
 import {
     UserRegistrationStore,
-    SendVerificationEmailStore,
-    CheckEmailVerificationCodeStore,
-    RegistrationDialogStore
+    SendConfirmationCodeStore,
+    RegistrationDialogStore,
+    createSetRegistrationStepCallback
 } from "../Registration";
 import {
     ChatsStore,
@@ -22,7 +22,16 @@ import {
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
 import {EntitiesStore} from "../entities-store";
-import {UsersStore, UserProfileStore, EditProfileStore} from "../User";
+import {
+    createSetChangePasswordStepCallback,
+    EditProfileStore,
+    PasswordChangeFormSubmissionStore,
+    PasswordChangeStepStore,
+    PasswordChangeStore,
+    SendPasswordChangeEmailConfirmationCodeStore,
+    UserProfileStore,
+    UsersStore
+} from "../User";
 import {
     CreateMessageStore,
     MessagesOfChatStore,
@@ -43,6 +52,7 @@ import {
 } from "../ChatBlocking";
 import {UploadsStore, UploadImageStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings";
+import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation/stores";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -65,12 +75,14 @@ entities.setAuthorizationStore(authorization);
 const login = new LoginStore(authorization);
 const registrationDialog = new RegistrationDialogStore();
 const language = new LocaleStore();
-const sendVerificationEmail = new SendVerificationEmailStore(registrationDialog, language);
-const verificationCodeCheck = new CheckEmailVerificationCodeStore(registrationDialog, sendVerificationEmail);
+const sendVerificationEmail = new SendConfirmationCodeStore(registrationDialog, language);
+const registrationEmailConfirmationCodeCheck = new CheckEmailConfirmationCodeStore(
+    createSetRegistrationStepCallback(registrationDialog)
+);
 const userRegistration = new UserRegistrationStore(
     authorization,
     sendVerificationEmail,
-    verificationCodeCheck,
+    registrationEmailConfirmationCodeCheck,
     registrationDialog
 );
 const appBar = new AppBarStore();
@@ -100,6 +112,22 @@ const userAvatarUpload = new UploadImageStore(entities);
 const editProfile = new EditProfileStore(authorization, userAvatarUpload, entities);
 const settingsTabs = new SettingsTabsStore();
 const messageUpdate = new UpdateMessageStore(chat, entities);
+const passwordChangeStep = new PasswordChangeStepStore();
+const passwordChangeForm = new PasswordChangeFormSubmissionStore(passwordChangeStep);
+const passwordChangeEmailConfirmationCodeSending = new SendPasswordChangeEmailConfirmationCodeStore(
+    language,
+    passwordChangeStep
+);
+const  passwordChangeEmailConfirmationCodeCheck = new CheckEmailConfirmationCodeStore(
+    createSetChangePasswordStepCallback(passwordChangeStep)
+);
+const passwordChange = new PasswordChangeStore(
+    passwordChangeForm,
+    passwordChangeEmailConfirmationCodeSending,
+    passwordChangeEmailConfirmationCodeCheck,
+    passwordChangeStep,
+    authorization
+);
 
 export const store: IAppState = {
     authorization,
@@ -130,11 +158,16 @@ export const store: IAppState = {
     chatAvatarUpload,
     chatUpdate,
     sendVerificationEmail,
-    verificationCodeCheck,
+    registrationEmailConfirmationCodeCheck,
     registrationDialog,
     messageDialog,
     userAvatarUpload,
     editProfile,
     settingsTabs,
-    messageUpdate
+    messageUpdate,
+    passwordChangeStep,
+    passwordChangeEmailConfirmationCodeCheck,
+    passwordChangeEmailConfirmationCodeSending,
+    passwordChangeForm,
+    passwordChange
 };

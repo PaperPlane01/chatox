@@ -1,6 +1,6 @@
 package chatox.oauth2.support.email;
 
-import chatox.oauth2.domain.EmailVerificationType;
+import chatox.oauth2.domain.EmailConfirmationCodeType;
 import chatox.oauth2.domain.Language;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,13 +14,13 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class EmailPropertiesProvider {
-    private Map<EmailVerificationType, EmailProperties> propertiesMap;
+    private Map<EmailConfirmationCodeType, EmailProperties> propertiesMap;
 
-    public ZonedDateTime getExpirationDate(EmailVerificationType emailVerificationType) {
+    public ZonedDateTime getExpirationDate(EmailConfirmationCodeType emailVerificationType) {
         return getExpirationDate(emailVerificationType, ZonedDateTime.now());
     }
 
-    public ZonedDateTime getExpirationDate(EmailVerificationType emailVerificationType, ZonedDateTime now) {
+    public ZonedDateTime getExpirationDate(EmailConfirmationCodeType emailVerificationType, ZonedDateTime now) {
         var emailProperties = propertiesMap.get(emailVerificationType);
         var amountToAdd = emailProperties.getExpirationAmount();
         var chronoUnit = emailProperties.getExpirationChronoUnit();
@@ -28,21 +28,21 @@ public class EmailPropertiesProvider {
         return now.plus(amountToAdd, chronoUnit);
     }
 
-    public String getSubject(EmailVerificationType emailVerificationType, Language language) {
+    public String getSubject(EmailConfirmationCodeType emailVerificationType, Language language) {
         return propertiesMap.get(emailVerificationType).getSubjectsMap().get(language);
     }
 
-    public String getThymeleafTemplate(EmailVerificationType emailVerificationType, Language language) {
+    public String getThymeleafTemplate(EmailConfirmationCodeType emailVerificationType, Language language) {
         var emailProperties = propertiesMap.get(emailVerificationType);
 
         return String.format("%s_%s.html", emailProperties.getTemplateBaseName(), language.getPrimaryAliasLowerCase());
     }
 
-    public EmailSourceStrategy getEmailSourceStrategy(EmailVerificationType emailVerificationType) {
+    public EmailSourceStrategy getEmailSourceStrategy(EmailConfirmationCodeType emailVerificationType) {
         return propertiesMap.get(emailVerificationType).getEmailSourceStrategy();
     }
 
-    public boolean requiresCheckingAccountExistence(EmailVerificationType emailVerificationType) {
+    public boolean requiresCheckingAccountExistence(EmailConfirmationCodeType emailVerificationType) {
         return propertiesMap.get(emailVerificationType).isRequiresCheckingAccountExistence();
     }
 
@@ -50,7 +50,7 @@ public class EmailPropertiesProvider {
     void initializeProperties() {
         propertiesMap = new HashMap<>();
         propertiesMap.put(
-                EmailVerificationType.CONFIRM_EMAIL,
+                EmailConfirmationCodeType.CONFIRM_EMAIL,
                 EmailProperties.builder()
                         .subjectsMap(
                                 Map.of(
@@ -66,7 +66,7 @@ public class EmailPropertiesProvider {
                         .build()
         );
         propertiesMap.put(
-                EmailVerificationType.CONFIRM_PASSWORD_RESET,
+                EmailConfirmationCodeType.CONFIRM_PASSWORD_RESET,
                 EmailProperties.builder()
                         .subjectsMap(
                                 Map.of(
