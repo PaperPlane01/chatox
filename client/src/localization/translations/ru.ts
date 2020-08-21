@@ -189,5 +189,7 @@ export const ru: Labels = {
     "change-password.error.email-confirmation-code-invalid": "Неверный код подтверждения",
     "change-password.error.server-unreachable": "Во время попытки обновить пароль произошла ошибка: сервер недоступен",
     "change-password.error.unknown-error": "Во время попытки обновить пароль произошла ошибка, сервер ответил со статусом {errorStatus}",
-    "change-password.success": "Пароль был обновлён"
+    "change-password.success": "Пароль был обновлён",
+    "change-password.error.wrong-password": "Неправильный пароль",
+    "change-password.error.email-mismatch": "Данный код подтверждения принадлежит другому пользователю"
 };

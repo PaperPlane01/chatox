@@ -1,8 +1,34 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, Card, CardActions, CardContent, CardHeader, TextField} from "@material-ui/core";
-import {useLocalization, useStore} from "../../store/hooks";
+import {Button, Card, CardActions, CardContent, CardHeader, TextField, Typography} from "@material-ui/core";
 import {ChangePasswordStep} from "../types";
+import {useLocalization, useStore} from "../../store/hooks";
+import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
+import {Labels, TranslationFunction} from "../../localization";
+
+const getErrorText = (error: ApiError, l: TranslationFunction): string => {
+    let errorCode: keyof Labels = "change-password.error.unknown-error";
+
+    if (error.status === 403 && error.metadata) {
+        switch (error.metadata.errorCode) {
+            case "INVALID_PASSWORD":
+                errorCode = "change-password.error.wrong-password";
+                break;
+            case "EMAIL_MISMATCH":
+                errorCode = "change-password.error.email-mismatch";
+                break;
+            case "INVALID_EMAIL_CONFIRMATION_CODE":
+                errorCode = "change-password.error.email-confirmation-code-invalid";
+                break;
+        }
+    } else if (error.status === 410) {
+        errorCode = "change-password.error.email-confirmation-code-expired";
+    } else if (error.status === API_UNREACHABLE_STATUS) {
+        errorCode = "change-password.error.server-unreachable";
+    }
+
+    return l(errorCode);
+}
 
 export const ChangePasswordForm: FunctionComponent = observer(() => {
     const {
@@ -47,6 +73,11 @@ export const ChangePasswordForm: FunctionComponent = observer(() => {
                            fullWidth
                            margin="dense"
                 />
+                {error && (
+                    <Typography style={{color: "red"}}>
+                        {getErrorText(error, l)}
+                    </Typography>
+                )}
             </CardContent>
             <CardActions>
                 <Button variant="contained"

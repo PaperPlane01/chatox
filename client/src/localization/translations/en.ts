@@ -189,5 +189,7 @@ export const en: Labels = {
     "change-password.error.email-confirmation-code-invalid": "Email confirmation code is invalid",
     "change-password.error.server-unreachable": "Error occurred when tried to update password: server is unreachable",
     "change-password.error.unknown-error": "Error occurred when tried to update password, server responded with {errorStatus} status",
-    "change-password.success": "Password has been changed"
+    "change-password.success": "Password has been changed",
+    "change-password.error.wrong-password": "Wrong password has been provided",
+    "change-password.error.email-mismatch": "This email confirmation code is intended to be used by other user"
 };

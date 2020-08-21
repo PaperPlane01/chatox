@@ -187,5 +187,7 @@ export interface Labels {
     "change-password.error.email-confirmation-code-invalid": string,
     "change-password.error.server-unreachable": string,
     "change-password.error.unknown-error": string,
-    "change-password.success": string
+    "change-password.success": string,
+    "change-password.error.wrong-password": string,
+    "change-password.error.email-mismatch": string,
 }
