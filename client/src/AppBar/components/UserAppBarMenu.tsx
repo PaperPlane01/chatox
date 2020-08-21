@@ -35,7 +35,6 @@ export const UserAppBarMenu: FunctionComponent = observer(() => {
                     <div style={{marginRight: 14}}>
                         <Avatar avatarLetter={avatarLetter}
                                 avatarColor={randomColor({seed: currentUser.id})}
-                                avatarUri={currentUser.avatarUri}
                                 avatarId={currentUser.avatarId}
                         />
                     </div>
