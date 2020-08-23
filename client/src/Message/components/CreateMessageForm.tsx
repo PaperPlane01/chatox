@@ -8,9 +8,7 @@ import {
     makeStyles,
     TextField,
     Theme,
-    Tooltip,
-    useMediaQuery,
-    useTheme
+    Tooltip
 } from "@material-ui/core";
 import {AttachFile, InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
 import {ReferredMessageCard} from "./ReferredMessageCard";
@@ -38,9 +36,9 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
-    const theme = useTheme();
 
     const inputRef = useRef<HTMLInputElement>(null);
+
     useEffect(() => {
         if (formValues.text === "") {
             if (inputRef && inputRef.current) {
