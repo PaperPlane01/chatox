@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import {
     createStyles,
@@ -39,20 +39,35 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
     const {l} = useLocalization();
     const classes = useStyles();
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+    const inputRef = useRef<HTMLInputElement>(null);
+    useEffect(() => {
+        if (formValues.text === "") {
+            if (inputRef && inputRef.current) {
+                inputRef.current.value = "";
+            }
+        }
+    })
+
+    const updateText = (): void => {
+        setFormValue("text", inputRef!.current!.value);
+    }
 
     return (
         <div>
             <ReferredMessageCard/>
             <Divider/>
-            <TextField fullWidth
+            <TextField id="messageTextField"
+                       fullWidth
                        placeholder={l("message.type-something")}
-                       onChange={event => setFormValue("text", event.target.value)}
-                       value={formValues.text}
+                       onChange={updateText}
+                       onPaste={updateText}
+                       inputRef={inputRef}
                        multiline
-                       rows={onSmallScreen ? 2 : 4}
-                       rowsMax={4}
+                       rows={1}
+                       rowsMax={8}
                        InputProps={{
+                           disableUnderline: true,
                            startAdornment: (
                                <InputAdornment position="start">
                                    <Tooltip title={l("feature.not-available")}>

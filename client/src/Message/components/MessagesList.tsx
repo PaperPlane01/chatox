@@ -9,7 +9,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     messagesList: {
         [theme.breakpoints.up("lg")]: {
             overflowY: "auto",
-            paddingTop: theme.spacing(3)
         },
         [theme.breakpoints.down("md")]: {
             overflowY: "auto",
@@ -29,7 +28,10 @@ export const MessagesList: FunctionComponent = observer(() => {
             messagesOfChat
         },
         messageCreation: {
-            referredMessageId
+            referredMessageId,
+            createMessageForm: {
+                text
+            }
         }
     } = useStore();
     const [reachedBottom, setReachedBottom] = useState(true);
@@ -50,7 +52,7 @@ export const MessagesList: FunctionComponent = observer(() => {
             }
         } else {
             if (messagesListBottomRef && messagesListBottomRef.current) {
-                const heightToSubtract = theme.mixins.toolbar.minHeight as number + messagesListBottomRef.current.getBoundingClientRect().height;
+                const heightToSubtract = theme.spacing(8) + messagesListBottomRef.current.getBoundingClientRect().height + theme.spacing(2);
                 height = `calc(100vh - ${heightToSubtract}px)`
             } else {
                 height = `calc(100vh - ${referredMessageId ? 238 : 154}px)`;
@@ -74,7 +76,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     };
 
     useEffect(scrollToBottom, [messagesOfChat]);
-    useLayoutEffect(() => setStyles(calculateStyles()), [messagesOfChat, referredMessageId]);
+    useLayoutEffect(() => setStyles(calculateStyles()), [messagesOfChat, referredMessageId, text]);
 
     const classes = useStyles({referredMessageId});
 

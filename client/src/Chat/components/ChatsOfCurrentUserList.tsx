@@ -15,10 +15,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     chatListWrapper: {
         [theme.breakpoints.up("lg")]: {
-            height: `calc(100vh - ${theme.mixins.toolbar.minHeight}px)`,
+            height: `calc(100vh - 64px)`,
             width: 280,
             display: "flex",
-            paddingTop: theme.spacing(1)
         },
         [theme.breakpoints.down("md")]: {
             width: "100%"
@@ -31,7 +30,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         }
     },
     padding: {
-        paddingTop: 0
+        paddingTop: 0,
+        paddingBottom: 0
     }
 }));
 
