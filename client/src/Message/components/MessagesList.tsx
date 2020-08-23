@@ -76,6 +76,16 @@ export const MessagesList: FunctionComponent = observer(() => {
     };
 
     useEffect(scrollToBottom, [messagesOfChat]);
+    useEffect(() => {
+        const handleResize = () => {
+            setStyles(calculateStyles());
+            if (reachedBottom) {
+                scrollToBottom();
+            }
+        }
+
+        window.addEventListener("resize", handleResize);
+    })
     useLayoutEffect(() => setStyles(calculateStyles()), [messagesOfChat, referredMessageId, text]);
 
     const classes = useStyles({referredMessageId});

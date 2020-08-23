@@ -16,15 +16,12 @@ import {
     CreateChatBlockingDialog,
     UpdateChatBlockingDialog
 } from "../ChatBlocking";
-import {AppBar} from "../AppBar/components";
 
-const ScrollLock = require("react-scrolllock").default;
-
-export const ChatPage: FunctionComponent = () => {
-    const content = (
+export const ChatPage: FunctionComponent = () => (
+    <Fragment>
         <Grid container>
             <Grid item xs={12}>
-                <AppBar/>
+                <ChatAppBar/>
             </Grid>
             <Grid item xs={12}>
                 <Grid item xs={12}
@@ -56,18 +53,5 @@ export const ChatPage: FunctionComponent = () => {
             <MessageDialog/>
             <UpdateMessageDialog/>
         </Grid>
-    )
-
-    return (
-        <Fragment>
-            <Hidden lgUp>
-                {content}
-            </Hidden>
-            <Hidden mdDown>
-                <Fragment>
-                    {content}
-                </Fragment>
-            </Hidden>
-        </Fragment>
-    )
-}
+    </Fragment>
+);
