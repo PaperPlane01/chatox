@@ -1,9 +1,8 @@
-import React, {Fragment, FunctionComponent, ReactNode} from "react";
+import React, {forwardRef, Fragment, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {Typography} from "@material-ui/core";
+import {Typography, createStyles, makeStyles, Theme} from "@material-ui/core";
 import {format} from "date-fns";
 import {CreateMessageForm} from "./CreateMessageForm";
-import {ReferredMessageCard} from "./ReferredMessageCard";
 import {JoinChatButton} from "../../Chat";
 import {ChatParticipationEntity} from "../../Chat/types";
 import {useAuthorization, useLocalization, useStore} from "../../store";
@@ -13,6 +12,23 @@ import {isStringEmpty} from "../../utils/string-utils";
 import {UserEntity} from "../../User/types";
 import {Labels, TranslationFunction} from "../../localization";
 
+
+const useStyles = makeStyles((theme: Theme) => createStyles({
+    messagesListBottom: {
+        [theme.breakpoints.up("lg")]: {
+            display: "inline-block",
+            verticalAlign: "bottom",
+            width: "100%",
+        },
+        [theme.breakpoints.down("md")]: {
+            position: "fixed",
+            bottom: 0,
+            width: "100%",
+            backgroundColor: theme.palette.background.default
+        }
+    }
+}));
+
 const getBlockingLabel = (
     chatBlockingEntity: ChatBlockingEntity,
     blockedBy: UserEntity,
@@ -20,7 +36,7 @@ const getBlockingLabel = (
     dateFnsLocale: Locale
 ): string => {
     let labelCode: keyof Labels;
-    let bindings: any = undefined;
+    let bindings: any;
 
     const blockedByUsername = `${blockedBy.firstName}${blockedBy.lastName ? `${ blockedBy.lastName}` : ""}`;
     const blockedUntil = format(
@@ -47,7 +63,7 @@ const getBlockingLabel = (
     return l(labelCode, bindings);
 };
 
-export const MessagesListBottom: FunctionComponent = observer(() => {
+const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
     const {
         entities: {
             chatParticipations: {
@@ -66,6 +82,7 @@ export const MessagesListBottom: FunctionComponent = observer(() => {
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
     const {currentUser} = useAuthorization();
+    const classes = useStyles();
 
     let chatParticipation: ChatParticipationEntity | undefined;
     let activeChatBlocking: ChatBlockingEntity | undefined;
@@ -99,12 +116,7 @@ export const MessagesListBottom: FunctionComponent = observer(() => {
                     </Typography>
                 );
             } else {
-                messagesListBottomContent = (
-                    <Fragment>
-                        <ReferredMessageCard/>
-                        <CreateMessageForm/>
-                    </Fragment>
-                );
+                messagesListBottomContent = <CreateMessageForm/>
             }
         } else {
             messagesListBottomContent = <JoinChatButton/>;
@@ -114,8 +126,13 @@ export const MessagesListBottom: FunctionComponent = observer(() => {
     }
 
     return (
-        <div id="messagesListBottom">
+        <div id="messagesListBottom"
+             ref={ref}
+             className={classes.messagesListBottom}
+        >
             {messagesListBottomContent}
         </div>
     );
 });
+
+export const MessagesListBottom = observer(_MessagesListBottom);

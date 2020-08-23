@@ -1,12 +1,12 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {CircularProgress, createStyles, Divider, Hidden, List, makeStyles} from "@material-ui/core";
+import {CircularProgress, createStyles, Divider, Hidden, List, makeStyles, Theme} from "@material-ui/core";
 import {ChatsOfCurrentUserListItem} from "./ChatsOfCurrentUserListItem";
 import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
 import {CreateChatDialog} from "./CreateChatDialog";
 import {useStore} from "../../store";
 
-const useStyles = makeStyles(theme => createStyles({
+const useStyles = makeStyles((theme: Theme) => createStyles({
     centered: {
         display: "flex",
         alignItems: "center",
@@ -15,9 +15,10 @@ const useStyles = makeStyles(theme => createStyles({
     },
     chatListWrapper: {
         [theme.breakpoints.up("lg")]: {
-            height: "calc(100vh - 68px)",
+            height: `calc(100vh - ${theme.mixins.toolbar.minHeight}px)`,
             width: 280,
-            display: "flex"
+            display: "flex",
+            paddingTop: theme.spacing(1)
         },
         [theme.breakpoints.down("md")]: {
             width: "100%"

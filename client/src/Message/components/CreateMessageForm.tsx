@@ -1,14 +1,27 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, Divider, IconButton, InputAdornment, makeStyles, TextField, Tooltip} from "@material-ui/core";
+import {
+    createStyles,
+    Divider,
+    IconButton,
+    InputAdornment,
+    makeStyles,
+    TextField,
+    Theme,
+    Tooltip,
+    useMediaQuery,
+    useTheme
+} from "@material-ui/core";
 import {AttachFile, InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
 import {useLocalization, useStore} from "../../store";
+import {ReferredMessageCard} from "./ReferredMessageCard";
 
-const useStyles = makeStyles(() => createStyles({
-    createMessageForm: {
-        display: "inline-block",
-        verticalAlign: "bottom",
-        width: "100%"
+
+const useStyles = makeStyles((theme: Theme) => createStyles({
+    textField: {
+        [theme.breakpoints.down("md")]: {
+            backgroundColor: theme.palette.background
+        }
     }
 }));
 
@@ -25,16 +38,20 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
+    const theme = useTheme();
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
     return (
-        <div className={classes.createMessageForm}>
+        <div>
+            <ReferredMessageCard/>
             <Divider/>
             <TextField fullWidth
                        placeholder={l("message.type-something")}
                        onChange={event => setFormValue("text", event.target.value)}
                        value={formValues.text}
                        multiline
-                       rows={4}
+                       rows={onSmallScreen ? 2 : 4}
+                       rowsMax={4}
                        InputProps={{
                            startAdornment: (
                                <InputAdornment position="start">
@@ -80,6 +97,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                </InputAdornment>
                            )
                        }}
+                       className={classes.textField}
             />
         </div>
     )

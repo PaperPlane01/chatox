@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent, ReactElement} from "react";
 import {observer} from "mobx-react";
-import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography} from "@material-ui/core";
+import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography, createStyles, makeStyles} from "@material-ui/core";
 import {Skeleton} from "@material-ui/lab";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import randomColor from "randomcolor";
@@ -23,6 +23,12 @@ const getLabelFromError = (error: ApiError): keyof Labels => {
     }
 };
 
+const useStyles = makeStyles(() => createStyles({
+    cardHeaderRoot: {
+        padding: 0
+    }
+}))
+
 export const ChatAppBar: FunctionComponent = observer(() => {
     const {
         chat: {
@@ -44,6 +50,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const routerStore = useRouter();
+    const classes = useStyles();
 
     let appBarContent: ReactElement;
 
@@ -96,6 +103,9 @@ export const ChatAppBar: FunctionComponent = observer(() => {
                         style={{
                             width: "100%"
                         }}
+                        classes={{
+                            root: classes.cardHeaderRoot
+                        }}
             />
         )
     } else if (error) {
@@ -110,10 +120,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
 
     return (
         <Fragment>
-            <AppBar position="sticky" style={{
-                zIndex: 1300,
-                maxHeight:64
-            }}>
+            <AppBar position="fixed">
                 <Toolbar>
                     <Hidden mdDown>
                         <OpenDrawerButton/>
@@ -136,6 +143,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
                     {appBarContent}
                 </Toolbar>
             </AppBar>
+            <Toolbar/>
             <NavigationalDrawer/>
         </Fragment>
     )
