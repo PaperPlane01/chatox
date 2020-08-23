@@ -13,8 +13,8 @@ import {
     useTheme
 } from "@material-ui/core";
 import {AttachFile, InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
-import {useLocalization, useStore} from "../../store";
 import {ReferredMessageCard} from "./ReferredMessageCard";
+import {useLocalization, useStore} from "../../store";
 
 
 const useStyles = makeStyles((theme: Theme) => createStyles({

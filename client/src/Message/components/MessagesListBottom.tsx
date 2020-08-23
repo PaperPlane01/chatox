@@ -1,6 +1,6 @@
-import React, {forwardRef, Fragment, ReactNode} from "react";
+import React, {forwardRef, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {Typography, createStyles, makeStyles, Theme} from "@material-ui/core";
+import {createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
 import {format} from "date-fns";
 import {CreateMessageForm} from "./CreateMessageForm";
 import {JoinChatButton} from "../../Chat";
