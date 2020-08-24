@@ -97,6 +97,11 @@ export const MessagesList: FunctionComponent = observer(() => {
 
         document.addEventListener("scroll", handleWindowScroll)
         window.addEventListener("resize", handleResize);
+
+        return () => {
+            document.removeEventListener("scroll", handleWindowScroll);
+            window.removeEventListener("resize", handleResize);
+        }
     })
     useLayoutEffect(() => setStyles(calculateStyles()), [messagesOfChat, referredMessageId, text]);
 
