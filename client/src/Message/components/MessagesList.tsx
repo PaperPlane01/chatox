@@ -70,10 +70,21 @@ export const MessagesList: FunctionComponent = observer(() => {
         }
     };
 
-    const handleScroll = (event: UIEvent<HTMLElement>): void => {
-        const reachedBottom = Math.abs((event.currentTarget.scrollHeight - event.currentTarget.scrollTop) - event.currentTarget.clientHeight) <= 1;
+    const handleDivScroll = (event: UIEvent<HTMLElement>): void => {
+        const coveredDistance = event.currentTarget.scrollHeight - event.currentTarget.scrollTop;
+        const reachedBottom = coveredDistance - event.currentTarget.clientHeight <= 1;
         setReachedBottom(reachedBottom);
     };
+
+    const handleWindowScroll = (): void => {
+        const windowHeight = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
+        const body = document.body;
+        const html = document.documentElement;
+        const documentHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+        const windowBottom = windowHeight + window.pageYOffset;
+
+        setReachedBottom( documentHeight - windowBottom <= 1);
+    }
 
     useEffect(scrollToBottom, [messagesOfChat]);
     useEffect(() => {
@@ -84,6 +95,7 @@ export const MessagesList: FunctionComponent = observer(() => {
             }
         }
 
+        document.addEventListener("scroll", handleWindowScroll)
         window.addEventListener("resize", handleResize);
     })
     useLayoutEffect(() => setStyles(calculateStyles()), [messagesOfChat, referredMessageId, text]);
@@ -93,7 +105,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     return (
         <Fragment>
             <div className={classes.messagesList}
-                 onScroll={handleScroll}
+                 onScroll={handleDivScroll}
                  id="messagesList"
                  style={styles}
             >
