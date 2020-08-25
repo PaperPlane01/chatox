@@ -22,7 +22,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         }
     },
     inputIconButton: {
-        marginTop: theme.spacing(2)
+        [theme.breakpoints.up("lg")]: {
+            marginTop: theme.spacing(2)
+        }
     }
 }));
 
