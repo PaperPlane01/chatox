@@ -32,7 +32,7 @@ export const MessagesList: FunctionComponent = observer(() => {
             createMessageForm: {
                 text
             }
-        }
+        },
     } = useStore();
     const [reachedBottom, setReachedBottom] = useState(true);
     const theme = useTheme();
@@ -103,7 +103,15 @@ export const MessagesList: FunctionComponent = observer(() => {
             window.removeEventListener("resize", handleResize);
         }
     })
-    useLayoutEffect(() => setStyles(calculateStyles()), [messagesOfChat, referredMessageId, text]);
+    useLayoutEffect(
+        () => setStyles(calculateStyles()),
+        [
+            messagesOfChat,
+            referredMessageId,
+            text,
+            onSmallScreen
+        ]
+    );
 
     const classes = useStyles({referredMessageId});
 
