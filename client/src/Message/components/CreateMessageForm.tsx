@@ -33,8 +33,9 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             formErrors,
             pending,
             submissionError,
+            referredMessageId,
             setFormValue,
-            createMessage
+            createMessage,
         },
     } = useStore();
     const {l} = useLocalization();
@@ -48,7 +49,13 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                 inputRef.current.value = "";
             }
         }
-    })
+    });
+
+    useEffect(() => {
+        if (referredMessageId && inputRef && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [referredMessageId])
 
     const updateText = (): void => {
         setFormValue("text", inputRef!.current!.value);
