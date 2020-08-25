@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent, ReactElement} from "react";
 import {observer} from "mobx-react";
-import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography, createStyles, makeStyles} from "@material-ui/core";
+import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography, createStyles, makeStyles, useMediaQuery, useTheme} from "@material-ui/core";
 import {Skeleton} from "@material-ui/lab";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import randomColor from "randomcolor";
@@ -12,6 +12,7 @@ import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {Labels} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
+import {trimString} from "../../utils/string-utils";
 
 const {Link} = require("mobx-router");
 
@@ -51,6 +52,8 @@ export const ChatAppBar: FunctionComponent = observer(() => {
     const {l} = useLocalization();
     const routerStore = useRouter();
     const classes = useStyles();
+    const theme = useTheme();
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
     let appBarContent: ReactElement;
 
@@ -65,12 +68,14 @@ export const ChatAppBar: FunctionComponent = observer(() => {
         const chat = findChat(selectedChatId);
         appBarContent = (
             <CardHeader title={(
-                <Typography variant="body1"
-                            style={{cursor: "pointer"}}
-                            onClick={() => setChatInfoDialogOpen(true)}
-                >
-                    {chat.name}
-                </Typography>
+                <div style={{display: "flex"}}>
+                    <Typography variant="body1"
+                                style={{cursor: "pointer"}}
+                                onClick={() => setChatInfoDialogOpen(true)}
+                    >
+                        {onSmallScreen ? trimString(chat.name, 25) : chat.name}
+                    </Typography>
+                </div>
             )}
                         subheader={(
                             <Typography variant="body2"
