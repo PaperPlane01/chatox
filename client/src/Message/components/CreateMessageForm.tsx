@@ -74,7 +74,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                        onPaste={updateText}
                        inputRef={inputRef}
                        multiline
-                       rows={1}
+                       rows={2}
                        rowsMax={8}
                        InputProps={{
                            disableUnderline: true,
