@@ -20,6 +20,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         [theme.breakpoints.down("md")]: {
             backgroundColor: theme.palette.background
         }
+    },
+    inputIconButton: {
+        marginTop: theme.spacing(2)
     }
 }));
 
@@ -70,7 +73,9 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                <InputAdornment position="start">
                                    <Tooltip title={l("feature.not-available")}>
                                        <div>
-                                           <IconButton disabled>
+                                           <IconButton disabled
+                                                       className={classes.inputIconButton}
+                                           >
                                                <AttachFile/>
                                            </IconButton>
                                        </div>
@@ -82,7 +87,9 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                    <div style={{display: "flex"}}>
                                        <Tooltip title={l("feature.not-available")}>
                                            <div>
-                                               <IconButton disabled>
+                                               <IconButton disabled
+                                                           className={classes.inputIconButton}
+                                               >
                                                    <InsertEmoticon/>
                                                </IconButton>
                                            </div>
@@ -92,6 +99,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                                <IconButton onClick={createMessage}
                                                            color="primary"
                                                            disabled={pending}
+                                                           className={classes.inputIconButton}
                                                >
                                                    <Send/>
                                                </IconButton>
@@ -99,7 +107,9 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                            : (
                                                <Tooltip title={l("feature.not-available")}>
                                                   <div>
-                                                      <IconButton disabled>
+                                                      <IconButton disabled
+                                                                  className={classes.inputIconButton}
+                                                      >
                                                           <KeyboardVoice/>
                                                       </IconButton>
                                                   </div>
