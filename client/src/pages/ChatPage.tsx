@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {Grid, Hidden} from "@material-ui/core";
 import {
     ChatAppBar,
@@ -8,7 +8,7 @@ import {
     MessagesList,
     UpdateChatDialog
 } from "../Chat";
-import {MessagesListBottom, MessageDialog, UpdateMessageDialog} from "../Message";
+import {MessageDialog, UpdateMessageDialog} from "../Message";
 import {
     BlockUserInChatByIdOrSlugDialog,
     ChatBlockingInfoDialog,
@@ -17,16 +17,15 @@ import {
     UpdateChatBlockingDialog
 } from "../ChatBlocking";
 
-const ScrollLock = require("react-scrolllock").default;
-
 export const ChatPage: FunctionComponent = () => (
-    <ScrollLock>
+    <Fragment>
         <Grid container>
             <Grid item xs={12}>
                 <ChatAppBar/>
             </Grid>
             <Grid item xs={12}>
-                <Grid item xs={12} style={{display: "flex"}}
+                <Grid item xs={12}
+                      style={{display: "flex"}}
                       justify="space-between"
                 >
                     <Hidden mdDown>
@@ -35,7 +34,6 @@ export const ChatPage: FunctionComponent = () => (
                     <Grid container>
                         <Grid item xs={12} lg={9}>
                             <MessagesList/>
-                            <MessagesListBottom/>
                         </Grid>
                         <Hidden mdDown>
                             <Grid item lg={3}>
@@ -55,5 +53,5 @@ export const ChatPage: FunctionComponent = () => (
             <MessageDialog/>
             <UpdateMessageDialog/>
         </Grid>
-    </ScrollLock>
+    </Fragment>
 );
