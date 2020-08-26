@@ -9,6 +9,7 @@ class CustomUserDetails : UserDetails {
     var id: String
     var accountId: String
     var authorities: MutableList<GrantedAuthority> = mutableListOf()
+    var email: String? = null
     private var username: String
 
     constructor(jwtAuthenticationToken: JwtAuthenticationToken) {
@@ -40,6 +41,7 @@ class CustomUserDetails : UserDetails {
         } else {
             jwtAuthenticationToken.token.getClaimAsString("client_id")
         }
+        email = jwtAuthenticationToken.token.getClaimAsString("email")
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {

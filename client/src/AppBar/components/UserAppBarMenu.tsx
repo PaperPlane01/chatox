@@ -52,7 +52,6 @@ export const UserAppBarMenu: FunctionComponent = observer(() => {
                     <div className={classes.userAvatarContainer}>
                         <Avatar avatarLetter={avatarLetter}
                                 avatarColor={randomColor({seed: currentUser.id})}
-                                avatarUri={currentUser.avatarUri}
                                 avatarId={currentUser.avatarId}
                         />
                     </div>

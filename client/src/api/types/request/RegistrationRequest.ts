@@ -6,6 +6,6 @@ export interface RegistrationRequest {
     lastName?: string,
     clientId: string,
     email?: string,
-    emailVerificationId?: string,
-    emailVerificationConfirmationCode?: string
+    emailConfirmationCodeId?: string,
+    emailConfirmationCode?: string
 }

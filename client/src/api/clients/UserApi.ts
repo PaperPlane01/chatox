@@ -1,9 +1,22 @@
 import {AxiosPromise} from "axios";
 import {stringify} from "query-string";
 import {axiosInstance} from "../axios-instance";
-import {ACCOUNT, IS_AVAILABLE, ME, OAUTH, REGISTRATION, REVOKE, SLUG, TOKEN, USER, USERNAME} from "../endpoints";
+import {
+    ACCOUNT,
+    IS_AVAILABLE,
+    ME,
+    OAUTH,
+    PASSWORD,
+    REGISTRATION,
+    REVOKE,
+    SLUG,
+    TOKEN,
+    USER,
+    USERNAME
+} from "../endpoints";
 import {RegistrationRequest, RevokeTokenRequest, UpdateUserRequest} from "../types/request";
 import {AvailabilityResponse, CurrentUser, OAuth2Response, RegistrationResponse, User} from "../types/response";
+import {UpdatePasswordRequest} from "../types/request/UpdatePasswordRequest";
 
 export class UserApi {
     public static registerUser(registrationRequest: RegistrationRequest): AxiosPromise<RegistrationResponse> {
@@ -69,5 +82,20 @@ export class UserApi {
 
     public static updateUser(id: string, updateUserRequest: UpdateUserRequest): AxiosPromise<User> {
         return axiosInstance.put(`/${USER}/${id}`, updateUserRequest);
+    }
+
+    public static updatePassword(updatePasswordRequest: UpdatePasswordRequest): AxiosPromise<void> {
+        return axiosInstance({
+            method: "PUT",
+            baseURL: process.env.REACT_APP_API_BASE_URL,
+            url: `/${OAUTH}/${ACCOUNT}/${PASSWORD}`,
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            data: {
+                ...updatePasswordRequest
+            }
+        });
     }
 }

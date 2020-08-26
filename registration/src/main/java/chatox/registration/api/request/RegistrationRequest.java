@@ -33,6 +33,6 @@ public class RegistrationRequest {
     @Email(message = "Email must be a valid email")
     private String email;
 
-    private String emailVerificationId;
-    private String emailVerificationConfirmationCode;
+    private String emailConfirmationCodeId;
+    private String emailConfirmationCode;
 }

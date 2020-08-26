@@ -5,11 +5,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class UpdatePasswordRequest {
+    @NotBlank
+    private String currentPassword;
+    @NotBlank
     private String password;
+    @NotBlank
     private String repeatedPassword;
+    private String emailConfirmationCodeId;
+    private String emailConfirmationCode;
 }

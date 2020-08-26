@@ -179,4 +179,21 @@ export interface Labels {
     "username.has-already-been-taken": string
     "username.too-long": string,
     "username.too-short": string,
+    "change-password": string,
+    "change-password.current-password": string,
+    "change-password.new-password": string,
+    "change-password.confirm-password": string,
+    "change-password.error.email-confirmation-code-expired": string,
+    "change-password.error.email-confirmation-code-invalid": string,
+    "change-password.error.server-unreachable": string,
+    "change-password.error.unknown-error": string,
+    "change-password.success": string,
+    "change-password.error.wrong-password": string,
+    "change-password.error.email-mismatch": string,
+    "settings.security": string,
+    "settings.security.authorization-required": string,
+    "email-confirmation-code.creation.pending": string,
+    "email-confirmation-code.creation.might-take-a-while": string,
+    "email-confirmation-code.creation.error": string,
+    "email-confirmation-code.creation.error.server-unreachable": string
 }

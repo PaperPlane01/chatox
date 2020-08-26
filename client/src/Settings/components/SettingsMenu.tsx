@@ -1,9 +1,9 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {createStyles, List, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
-import {Language, Person} from "@material-ui/icons";
+import {Language, Person, Security} from "@material-ui/icons";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
-import {EditProfileForm} from "../../User";
+import {ChangePasswordContainer, EditProfileForm} from "../../User";
 import {LanguagePicker} from "../../localization";
 import {SettingsTab} from "../types";
 import {Routes} from "../../router";
@@ -59,6 +59,20 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                         </ListItemText>
                     </MenuItem>
                 </Link>
+                <Link className={classes.undecoratedLink}
+                      view={Routes.settingsTabPage}
+                      params={{tab: SettingsTab.SECURITY}}
+                      store={routerStore}
+                >
+                    <MenuItem>
+                        <ListItemIcon>
+                            <Security/>
+                        </ListItemIcon>
+                        <ListItemText>
+                            {l("settings.security")}
+                        </ListItemText>
+                    </MenuItem>
+                </Link>
             </List>
             <SettingsFullScreenDialog title={l("user.edit-profile")}
                                       open={activeTab === SettingsTab.PROFILE}
@@ -69,6 +83,11 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                                       open={activeTab === SettingsTab.LANGUAGE}
             >
                 <LanguagePicker hideHeader/>
+            </SettingsFullScreenDialog>
+            <SettingsFullScreenDialog title={l("settings.security")}
+                                      open={activeTab === SettingsTab.SECURITY}
+            >
+                <ChangePasswordContainer/>
             </SettingsFullScreenDialog>
         </Fragment>
     )

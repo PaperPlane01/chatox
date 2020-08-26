@@ -8,11 +8,11 @@ export interface CurrentUser {
     bio?: string,
     firstName: string,
     lastName?: string,
-    avatarUri?: string,
     avatarId?: string,
     avatar?: Upload<ImageUploadMetadata>,
     accountId: string,
     roles: UserRole[],
     createdAt: string,
-    dateOfBirth?: string
+    dateOfBirth?: string,
+    email?: string
 }

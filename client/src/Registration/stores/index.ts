@@ -1,4 +1,3 @@
 export * from "./UserRegistrationStore";
-export * from "./SendVerificationEmailStore";
+export * from "./SendConfirmationCodeStore";
 export * from "./RegistrationDialogStore";
-export * from "./CheckEmailVerificationCodeStore";
