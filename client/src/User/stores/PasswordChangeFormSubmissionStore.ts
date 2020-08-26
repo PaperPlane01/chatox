@@ -80,7 +80,10 @@ export class PasswordChangeFormSubmissionStore {
             emailConfirmationCodeId: emailConfirmationArguments && emailConfirmationArguments.emailConfirmationId
         })
             .then(() => this.passwordChangeStepStore.setCurrentStep(ChangePasswordStep.CHANGE_PASSWORD_SUCCESS))
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
+            .catch(error => {
+                this.error = getInitialApiErrorFromResponse(error);
+                this.passwordChangeStepStore.setCurrentStep(ChangePasswordStep.CHANGE_PASSWORD_ERROR);
+            })
             .finally(() => this.pending = false);
     };
 

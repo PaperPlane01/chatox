@@ -66,6 +66,9 @@ export class PasswordChangeStore {
             case ChangePasswordStep.CHANGE_PASSWORD_SUCCESS:
                 this.showSuccessSnackbarAndResetEverything();
                 break;
+            case ChangePasswordStep.CHANGE_PASSWORD_ERROR:
+                this.checkEmailConfirmationCodeStore.reset();
+                break;
         }
     };
 
