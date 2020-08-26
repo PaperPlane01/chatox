@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent, ReactElement} from "react";
 import {observer} from "mobx-react";
-import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography} from "@material-ui/core";
+import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography, createStyles, makeStyles, useMediaQuery, useTheme} from "@material-ui/core";
 import {Skeleton} from "@material-ui/lab";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import randomColor from "randomcolor";
@@ -12,6 +12,7 @@ import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {Labels} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
+import {trimString} from "../../utils/string-utils";
 
 const {Link} = require("mobx-router");
 
@@ -22,6 +23,12 @@ const getLabelFromError = (error: ApiError): keyof Labels => {
         return "error.unknown";
     }
 };
+
+const useStyles = makeStyles(() => createStyles({
+    cardHeaderRoot: {
+        padding: 0
+    }
+}))
 
 export const ChatAppBar: FunctionComponent = observer(() => {
     const {
@@ -44,6 +51,9 @@ export const ChatAppBar: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const routerStore = useRouter();
+    const classes = useStyles();
+    const theme = useTheme();
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
     let appBarContent: ReactElement;
 
@@ -58,12 +68,14 @@ export const ChatAppBar: FunctionComponent = observer(() => {
         const chat = findChat(selectedChatId);
         appBarContent = (
             <CardHeader title={(
-                <Typography variant="body1"
-                            style={{cursor: "pointer"}}
-                            onClick={() => setChatInfoDialogOpen(true)}
-                >
-                    {chat.name}
-                </Typography>
+                <div style={{display: "flex"}}>
+                    <Typography variant="body1"
+                                style={{cursor: "pointer"}}
+                                onClick={() => setChatInfoDialogOpen(true)}
+                    >
+                        {onSmallScreen ? trimString(chat.name, 25) : chat.name}
+                    </Typography>
+                </div>
             )}
                         subheader={(
                             <Typography variant="body2"
@@ -96,6 +108,9 @@ export const ChatAppBar: FunctionComponent = observer(() => {
                         style={{
                             width: "100%"
                         }}
+                        classes={{
+                            root: classes.cardHeaderRoot
+                        }}
             />
         )
     } else if (error) {
@@ -110,10 +125,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
 
     return (
         <Fragment>
-            <AppBar position="sticky" style={{
-                zIndex: 1300,
-                maxHeight:64
-            }}>
+            <AppBar position="fixed">
                 <Toolbar>
                     <Hidden mdDown>
                         <OpenDrawerButton/>
@@ -136,6 +148,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
                     {appBarContent}
                 </Toolbar>
             </AppBar>
+            <Toolbar/>
             <NavigationalDrawer/>
         </Fragment>
     )

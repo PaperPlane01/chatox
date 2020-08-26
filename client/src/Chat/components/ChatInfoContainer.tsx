@@ -5,7 +5,7 @@ import {OnlineChatParticipantsList} from "./OnlineChatParticipantsList";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatInfoContainer: {
-        height: "calc(100vh - 68px)",
+        height: "calc(100vh - 64px)",
         width: "100%",
         overflowY: "auto"
     },
