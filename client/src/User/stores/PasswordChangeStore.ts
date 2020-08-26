@@ -22,6 +22,15 @@ export class PasswordChangeStore {
     }
 
     @computed
+    get currentUserId(): string | undefined {
+        if (this.currentUser) {
+            return this.currentUser.id;
+        }
+
+        return undefined;
+    }
+
+    @computed
     get currentUserHasEmail(): boolean {
         return Boolean(this.currentUser && this.currentUser.email);
     }
@@ -34,7 +43,12 @@ export class PasswordChangeStore {
         reaction(
             () => this.currentStep,
             currentStep => this.processPasswordChangeStep(currentStep)
-        )
+        );
+
+        reaction(
+            () => this.currentUserId,
+            () => this.reset()
+        );
     };
 
     @action
@@ -84,11 +98,16 @@ export class PasswordChangeStore {
     @action
     showSuccessSnackbarAndResetEverything = (): void => {
         this.setShowSuccessSnackbar(true);
+        this.reset();
+    };
+
+    @action
+    reset = (): void => {
         this.passwordChangeFormSubmissionStore.reset();
         this.sendPasswordChangeEmailConfirmationCodeStore.reset();
         this.checkEmailConfirmationCodeStore.reset();
         this.passwordChangeStepStore.setCurrentStep(ChangePasswordStep.NONE);
-    };
+    }
 
     @action
     setShowSuccessSnackbar = (showSuccessSnackbar: boolean): void => {
