@@ -13,5 +13,5 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class CheckEmailConfirmationCodeValidityRequest {
     @NotBlank
-    private String verificationCode;
+    private String confirmationCode;
 }

@@ -142,7 +142,7 @@ public class EmailConfirmationCodeServiceImpl implements EmailConfirmationCodeSe
         }
 
         boolean valid = passwordEncoder.matches(
-                checkEmailVerificationCodeValidityRequest.getVerificationCode(),
+                checkEmailVerificationCodeValidityRequest.getConfirmationCode(),
                 emailVerification.getConfirmationCodeHash()
         );
 
