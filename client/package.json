@@ -11,6 +11,7 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "@types/express": "^4.17.7",
     "@types/jest": "^24.0.0",
     "@types/lodash": "^4.14.149",
     "@types/node": "^12.0.0",
@@ -23,7 +24,9 @@
     "@types/uuid": "^8.0.0",
     "axios": "^0.19.2",
     "date-fns": "^2.11.0",
+    "dotenv": "^8.2.0",
     "email-validator": "^2.0.4",
+    "express": "^4.17.1",
     "lodash": "^4.17.15",
     "material-ui-chip-input": "^1.1.0",
     "mobx": "^5.15.1",
@@ -49,6 +52,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "production": "yarn run build && node server.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
