@@ -11,7 +11,10 @@ export const CheckPasswordChangeEmailConfirmationDialog: FunctionComponent = obs
         passwordChangeStep: {
             currentStep
         },
-        passwordChangeEmailConfirmationCodeCheck
+        passwordChangeEmailConfirmationCodeCheck,
+        passwordChangeEmailConfirmationCodeSending: {
+            emailConfirmationCodeResponse
+        }
     } = useStore();
     const {fullScreen} = useMobileDialog();
 
@@ -21,7 +24,9 @@ export const CheckPasswordChangeEmailConfirmationDialog: FunctionComponent = obs
                 fullWidth
                 maxWidth="md"
         >
-            <CheckEmailConfirmationCodeDialogContent checkEmailConfirmationCodeStore={passwordChangeEmailConfirmationCodeCheck}/>
+            <CheckEmailConfirmationCodeDialogContent checkEmailConfirmationCodeStore={passwordChangeEmailConfirmationCodeCheck}
+                                                     confirmationCodeId={emailConfirmationCodeResponse && emailConfirmationCodeResponse.id}
+            />
         </Dialog>
     )
 });

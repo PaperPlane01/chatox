@@ -43,6 +43,9 @@ export class PasswordChangeStore {
             case ChangePasswordStep.VALIDATE_FORM_AND_CHECK_IF_CONFIRMATION_CODE_SHOULD_BE_SENT:
                this.validateFormAndCheckIfEmailConfirmationCodeShouldBeSent();
                break;
+            case ChangePasswordStep.CREATE_EMAIL_CONFIRMATION_CODE:
+                this.sendPasswordChangeEmailConfirmationCodeStore.sendEmailConfirmationCode();
+                break;
             case ChangePasswordStep.CHANGE_PASSWORD:
                 this.changePassword();
                 break;

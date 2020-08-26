@@ -1,13 +1,26 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
-import {Button, Card, CardActions, CardContent, CardHeader, TextField, Typography} from "@material-ui/core";
+import {
+    Button,
+    Card,
+    CardActions,
+    CardContent,
+    CardHeader,
+    CircularProgress, IconButton,
+    InputAdornment,
+    TextField,
+    Typography
+} from "@material-ui/core";
+import {useSnackbar} from "notistack";
 import {ChangePasswordStep} from "../types";
 import {useLocalization, useStore} from "../../store/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {Labels, TranslationFunction} from "../../localization";
+import {Visibility, VisibilityOff} from "@material-ui/icons";
 
 const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     let errorCode: keyof Labels = "change-password.error.unknown-error";
+    let bindings: any = undefined;
 
     if (error.status === 403 && error.metadata) {
         switch (error.metadata.errorCode) {
@@ -25,9 +38,11 @@ const getErrorText = (error: ApiError, l: TranslationFunction): string => {
         errorCode = "change-password.error.email-confirmation-code-expired";
     } else if (error.status === API_UNREACHABLE_STATUS) {
         errorCode = "change-password.error.server-unreachable";
+    } else {
+        bindings = {errorStatus: error.status};
     }
 
-    return l(errorCode);
+    return l(errorCode, bindings);
 }
 
 export const ChangePasswordForm: FunctionComponent = observer(() => {
@@ -37,13 +52,30 @@ export const ChangePasswordForm: FunctionComponent = observer(() => {
             formErrors,
             pending,
             error,
-            setFormValue
+            displayPassword,
+            setFormValue,
+            setDisplayPassword
         },
         passwordChangeStep: {
             setCurrentStep
-        }
+        },
+        passwordChange: {
+            showSuccessSnackbar,
+            setShowSuccessSnackbar
+        },
     } = useStore();
     const {l} = useLocalization();
+    const {enqueueSnackbar} = useSnackbar();
+
+    useEffect(
+        () => {
+            if (showSuccessSnackbar) {
+                enqueueSnackbar(l("change-password.success"));
+                setShowSuccessSnackbar(false);
+            }
+        },
+        [showSuccessSnackbar]
+    );
 
     return (
         <Card>
@@ -56,6 +88,19 @@ export const ChangePasswordForm: FunctionComponent = observer(() => {
                            helperText={formErrors.currentPassword && l(formErrors.currentPassword)}
                            fullWidth
                            margin="dense"
+                           type={displayPassword ? "text" : "password"}
+                           InputProps={{
+                               endAdornment: (
+                                   <InputAdornment position="end">
+                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)}>
+                                           {displayPassword
+                                               ? <VisibilityOff/>
+                                               : <Visibility/>
+                                           }
+                                       </IconButton>
+                                   </InputAdornment>
+                               )
+                           }}
                 />
                 <TextField label={l("change-password.new-password")}
                            value={passwordChangeForm.password}
@@ -64,6 +109,7 @@ export const ChangePasswordForm: FunctionComponent = observer(() => {
                            helperText={formErrors.password && l(formErrors.password)}
                            fullWidth
                            margin="dense"
+                           type={displayPassword ? "text" : "password"}
                 />
                 <TextField label={l("change-password.confirm-password")}
                            value={passwordChangeForm.repeatedPassword}
@@ -72,6 +118,7 @@ export const ChangePasswordForm: FunctionComponent = observer(() => {
                            helperText={formErrors.repeatedPassword && l(formErrors.repeatedPassword)}
                            fullWidth
                            margin="dense"
+                           type={displayPassword ? "text" : "password"}
                 />
                 {error && (
                     <Typography style={{color: "red"}}>
@@ -85,6 +132,7 @@ export const ChangePasswordForm: FunctionComponent = observer(() => {
                         onClick={() => setCurrentStep(ChangePasswordStep.VALIDATE_FORM_AND_CHECK_IF_CONFIRMATION_CODE_SHOULD_BE_SENT)}
                         disabled={pending}
                 >
+                    {pending && <CircularProgress size={20} color="primary"/>}
                     {l("change-password")}
                 </Button>
             </CardActions>

@@ -190,4 +190,10 @@ export interface Labels {
     "change-password.success": string,
     "change-password.error.wrong-password": string,
     "change-password.error.email-mismatch": string,
+    "settings.security": string,
+    "settings.security.authorization-required": string,
+    "email-confirmation-code.creation.pending": string,
+    "email-confirmation-code.creation.might-take-a-while": string,
+    "email-confirmation-code.creation.error": string,
+    "email-confirmation-code.creation.error.server-unreachable": string
 }

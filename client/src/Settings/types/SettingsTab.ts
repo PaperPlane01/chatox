@@ -1,11 +1,10 @@
 export enum SettingsTab {
     PROFILE = "profile",
-    LANGUAGE = "language"
+    LANGUAGE = "language",
+    SECURITY = "security"
 }
 
 export const getSettingsTabFromString = (settingsTab?: string): SettingsTab => {
-    console.log(settingsTab);
-
     if (!settingsTab) {
         return SettingsTab.PROFILE;
     }
@@ -15,6 +14,8 @@ export const getSettingsTabFromString = (settingsTab?: string): SettingsTab => {
             return SettingsTab.PROFILE;
         case "language":
             return SettingsTab.LANGUAGE;
+        case "security":
+            return SettingsTab.SECURITY;
         default:
             return SettingsTab.PROFILE;
     }

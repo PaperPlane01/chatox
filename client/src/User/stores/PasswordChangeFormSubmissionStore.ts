@@ -35,6 +35,9 @@ export class PasswordChangeFormSubmissionStore {
     @observable
     error?: ApiError = undefined;
 
+    @observable
+    displayPassword: boolean = false;
+
     constructor(private readonly passwordChangeStepStore: PasswordChangeStepStore) {
         reaction(
             () => this.passwordChangeForm.currentPassword,
@@ -95,6 +98,11 @@ export class PasswordChangeFormSubmissionStore {
         const {currentPassword, password, repeatedPassword} = this.formErrors;
 
         return !Boolean(currentPassword || password || repeatedPassword);
+    };
+
+    @action
+    setDisplayPassword = (displayPassword: boolean): void => {
+        this.displayPassword = displayPassword;
     };
 
     @action

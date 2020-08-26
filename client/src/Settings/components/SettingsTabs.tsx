@@ -11,10 +11,10 @@ import {
     Typography
 } from "@material-ui/core";
 import {TabContext, TabList, TabPanel} from "@material-ui/lab";
-import {Language, Person} from "@material-ui/icons";
+import {Language, Person, Security} from "@material-ui/icons";
 import {SettingsTab} from "../types";
 import {HasRole} from "../../Authorization";
-import {EditProfileForm} from "../../User";
+import {EditProfileForm, ChangePasswordContainer} from "../../User";
 import {LanguagePicker} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
@@ -88,6 +88,18 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                              </MenuItem>
                          }
                     />
+                    <Tab value={SettingsTab.SECURITY}
+                         label={
+                             <MenuItem>
+                                 <ListItemIcon>
+                                     <Security/>
+                                 </ListItemIcon>
+                                 <ListItemText>
+                                     {l("settings.security")}
+                                 </ListItemText>
+                             </MenuItem>
+                         }
+                    />
                 </TabList>
                 <TabPanel value={SettingsTab.PROFILE}
                           className={classes.fullWidth}
@@ -106,6 +118,19 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                           className={classes.fullWidth}
                 >
                     <LanguagePicker/>
+                </TabPanel>
+                <TabPanel value={SettingsTab.SECURITY}
+                          className={classes.fullWidth}
+                >
+                    <HasRole role="ROLE_USER"
+                             alternative={
+                                 <Typography>
+                                     {l("settings.security.authorization-required")}
+                                 </Typography>
+                             }
+                    >
+                        <ChangePasswordContainer/>
+                    </HasRole>
                 </TabPanel>
             </TabContext>
         </div>

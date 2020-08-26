@@ -51,6 +51,7 @@ export class CheckEmailConfirmationCodeStore {
             .then(({data}) => {
                 if (!data.valid) {
                     this.formErrors.confirmationCode = "email.verification.code.invalid";
+                } else {
                     this.successCheckCallback();
                 }
             })

@@ -87,7 +87,7 @@ export class UserApi {
     public static updatePassword(updatePasswordRequest: UpdatePasswordRequest): AxiosPromise<void> {
         return axiosInstance({
             method: "PUT",
-            baseURL: process.env.REACT_APP_BASE_URL,
+            baseURL: process.env.REACT_APP_API_BASE_URL,
             url: `/${OAUTH}/${ACCOUNT}/${PASSWORD}`,
             headers: {
                 "Content-Type": "application/json",

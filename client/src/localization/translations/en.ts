@@ -191,5 +191,11 @@ export const en: Labels = {
     "change-password.error.unknown-error": "Error occurred when tried to update password, server responded with {errorStatus} status",
     "change-password.success": "Password has been changed",
     "change-password.error.wrong-password": "Wrong password has been provided",
-    "change-password.error.email-mismatch": "This email confirmation code is intended to be used by other user"
+    "change-password.error.email-mismatch": "This email confirmation code is intended to be used by other user",
+    "settings.security": "Security",
+    "settings.security.authorization-required": "You have to be logged in to edit your security settings",
+    "email-confirmation-code.creation.pending": "Creating email confirmation code",
+    "email-confirmation-code.creation.might-take-a-while": "This might take a while",
+    "email-confirmation-code.creation.error": "Unexpected error occurred when tried to create email confirmation code. Server responded with {errorStatus}",
+    "email-confirmation-code.creation.error.server-unreachable": "Error occurred when tried to create email confirmation code, server is unreachable"
 };
