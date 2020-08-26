@@ -27,7 +27,7 @@ export class SendPasswordChangeEmailConfirmationCodeStore {
 
     @action
     sendEmailConfirmationCode = (): void => {
-        this.pending = false;
+        this.pending = true;
         this.error = undefined;
 
         EmailConfirmationCodeApi.createEmailConfirmationCode({
@@ -36,9 +36,10 @@ export class SendPasswordChangeEmailConfirmationCodeStore {
         })
             .then(({data}) => {
                 this.emailConfirmationCodeResponse = data;
-                this.passwordChangeStepStore.setCurrentStep(ChangePasswordStep.CHANGE_PASSWORD);
+                this.passwordChangeStepStore.setCurrentStep(ChangePasswordStep.CHECK_EMAIL_CONFIRMATION_CODE);
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error));
+            .catch(error => this.error = getInitialApiErrorFromResponse(error))
+            .finally(() => this.pending = false);
     };
 
     @action

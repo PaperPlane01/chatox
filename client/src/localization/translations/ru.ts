@@ -159,7 +159,7 @@ export const ru: Labels = {
     "update": "Обновить",
     "upload.file.too-large": "Выбранный файл слишком большой",
     "user.bio.too-long": "Слишком длинный текст",
-    "user.edit-profile": "Редактировать профль",
+    "user.edit-profile": "Редактировать профиль",
     "user.edit-profile.authorization-required": "Для редактрования профиля необходимо войти в аккаунт",
     "user.edit-profile.save-changes": "Сохранить изменения",
     "user.edit-profile.success": "Профиль обновлён",
@@ -189,5 +189,13 @@ export const ru: Labels = {
     "change-password.error.email-confirmation-code-invalid": "Неверный код подтверждения",
     "change-password.error.server-unreachable": "Во время попытки обновить пароль произошла ошибка: сервер недоступен",
     "change-password.error.unknown-error": "Во время попытки обновить пароль произошла ошибка, сервер ответил со статусом {errorStatus}",
-    "change-password.success": "Пароль был обновлён"
+    "change-password.success": "Пароль был обновлён",
+    "change-password.error.wrong-password": "Неправильный пароль",
+    "change-password.error.email-mismatch": "Данный код подтверждения принадлежит другому пользователю",
+    "settings.security": "Безопасность",
+    "settings.security.authorization-required": "Вы должны войти в аккаунт, чтобы редактировать настройки безопасности",
+    "email-confirmation-code.creation.pending": "Создание кода подтверждения",
+    "email-confirmation-code.creation.might-take-a-while": "Это может занять какое-то время",
+    "email-confirmation-code.creation.error": "Во время создания кода подтверждения произошла ошибка. Сервер ответил со статусом {errorStatus}",
+    "email-confirmation-code.creation.error.server-unreachable": "Во время создания кода подтверждения произошла ошибка, сервер недоступен"
 };
