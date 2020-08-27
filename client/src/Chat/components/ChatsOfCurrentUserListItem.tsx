@@ -1,11 +1,14 @@
-import React, {FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Badge, CardHeader, createStyles, Divider, ListItem, makeStyles, Theme, Typography} from "@material-ui/core";
 import randomColor from "randomcolor";
+import {Data} from "emoji-mart";
+import appleData from "emoji-mart/data/apple.json";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
+import {parseEmojis} from "../../utils/parse-emojis";
 
 const {Link} = require("mobx-router");
 
@@ -130,7 +133,16 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                                     <div className={classes.flexWrapper}>
                                         <div className={classes.flexTruncatedTextContainer}>
                                             <Typography className={`${classes.flexTruncatedText} ${selected && classes.selected}`}>
-                                                {lastMessage.deleted ? <i>{l("message.deleted")}</i> : `${lastMessageSender.firstName}: ${lastMessage.text}`}
+                                                {lastMessage.deleted
+                                                    ? <i>{l("message.deleted")}</i>
+                                                    : (
+                                                        <Fragment>
+                                                            {lastMessageSender.firstName}
+                                                            :
+                                                            {parseEmojis(lastMessage.text, appleData as any as Data)}
+                                                        </Fragment>
+                                                    )
+                                                }
                                             </Typography>
                                         </div>
                                     </div>

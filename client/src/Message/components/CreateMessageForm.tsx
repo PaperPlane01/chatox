@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useEffect, useRef} from "react";
+import React, {Fragment, FunctionComponent, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import {
     createStyles,
@@ -6,11 +6,15 @@ import {
     IconButton,
     InputAdornment,
     makeStyles,
+    Menu,
     TextField,
     Theme,
     Tooltip
 } from "@material-ui/core";
 import {AttachFile, InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
+import {bindToggle, bindMenu, usePopupState} from "material-ui-popup-state/hooks";
+import {EmojiData, Picker} from "emoji-mart";
+import 'emoji-mart/css/emoji-mart.css';
 import {ReferredMessageCard} from "./ReferredMessageCard";
 import {useLocalization, useStore} from "../../store";
 
@@ -42,6 +46,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
+    const emojiPickerPopupState = usePopupState({variant: "popper", popupId: "emojiPicker"});
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -61,6 +66,13 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
 
     const updateText = (): void => {
         setFormValue("text", inputRef!.current!.value);
+    }
+
+    const handleEmojiSelect = (emoji: EmojiData): void => {
+        if (inputRef && inputRef.current) {
+            inputRef.current.value = `${inputRef.current.value}${(emoji as any).native}`;
+            updateText();
+        }
     }
 
     return (
@@ -94,15 +106,18 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                            endAdornment: (
                                <InputAdornment position="end">
                                    <div style={{display: "flex"}}>
-                                       <Tooltip title={l("feature.not-available")}>
-                                           <div>
-                                               <IconButton disabled
-                                                           className={classes.inputIconButton}
-                                               >
-                                                   <InsertEmoticon/>
-                                               </IconButton>
-                                           </div>
-                                       </Tooltip>
+                                       <Fragment>
+                                           <IconButton className={classes.inputIconButton}
+                                                       {...bindToggle(emojiPickerPopupState)}
+                                           >
+                                               <InsertEmoticon/>
+                                           </IconButton>
+                                           <Menu {...bindMenu(emojiPickerPopupState)}>
+                                               <Picker set="apple"
+                                                       onSelect={handleEmojiSelect}
+                                               />
+                                           </Menu>
+                                       </Fragment>
                                        {formValues.text.length
                                            ? (
                                                <IconButton onClick={createMessage}

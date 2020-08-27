@@ -1,9 +1,12 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CardContent, CardHeader, createStyles, makeStyles, Theme} from "@material-ui/core";
+import {Data} from "emoji-mart";
+import appleData from "emoji-mart/data/apple.json";
 import {UserLink} from "../../UserLink";
 import {trimString} from "../../utils/string-utils";
 import {useLocalization, useStore} from "../../store";
+import {parseEmojis} from "../../utils/parse-emojis";
 
 interface ReferredMessageContentProps {
     messageId?: string
@@ -63,7 +66,7 @@ export const ReferredMessageContent: FunctionComponent<ReferredMessageContentPro
             >
                 {message.deleted
                     ? <i>{l("message.deleted")}</i>
-                    : trimString(message.text, 150)
+                    : parseEmojis(trimString(message.text, 150), appleData as any as Data)
                 }
             </CardContent>
         </Fragment>

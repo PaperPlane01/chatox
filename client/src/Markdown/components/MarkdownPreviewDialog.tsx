@@ -1,9 +1,12 @@
-import React, {FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography} from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import ReactMarkdown from "react-markdown";
+import {Data} from "emoji-mart";
+import appleData from "emoji-mart/data/apple.json";
 import {useLocalization, useStore} from "../../store";
+import {parseEmojis} from "../../utils/parse-emojis";
 
 const breaks = require("remark-breaks");
 
@@ -37,6 +40,13 @@ export const MarkdownPreviewDialog: FunctionComponent<MarkdownPreviewDialogProps
                 <Typography>
                     <ReactMarkdown source={text}
                                    plugins={[breaks]}
+                                   renderers={{
+                                       text: props => (
+                                           <Fragment>
+                                               {parseEmojis(props.value as string, appleData as any as Data)}
+                                           </Fragment>
+                                       )
+                                   }}
                     />
                 </Typography>
             </DialogContent>
