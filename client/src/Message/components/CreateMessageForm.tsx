@@ -62,7 +62,27 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
         if (referredMessageId && inputRef && inputRef.current) {
             inputRef.current.focus();
         }
-    }, [referredMessageId])
+    }, [referredMessageId]);
+
+    useEffect(() => {
+        setTimeout(() => {
+            // For some reason search text field in emoji-mart picker is being focused right after render
+            // despite passing autoFocus={false} property, so I have to do this ugly work-around
+            const emojiMartTextFieldWrappers = document.getElementsByClassName("emoji-mart-search");
+
+            if (emojiMartTextFieldWrappers && emojiMartTextFieldWrappers.length !== 0) {
+                const emojiMartTextFieldWrapper = emojiMartTextFieldWrappers.item(0);
+
+                if (emojiMartTextFieldWrapper && emojiMartTextFieldWrapper.children && emojiMartTextFieldWrapper.children.length !== 0) {
+                    const emojiMartSearchTextField = emojiMartTextFieldWrapper.children.item(0) as HTMLInputElement;
+
+                    if (emojiMartSearchTextField) {
+                        emojiMartSearchTextField.blur();
+                    }
+                }
+            }
+        });
+    }, [emojiPickerPopupState.isOpen]);
 
     const updateText = (): void => {
         setFormValue("text", inputRef!.current!.value);
@@ -115,6 +135,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                            <Menu {...bindMenu(emojiPickerPopupState)}>
                                                <Picker set="apple"
                                                        onSelect={handleEmojiSelect}
+                                                       autoFocus={false}
                                                />
                                            </Menu>
                                        </Fragment>
