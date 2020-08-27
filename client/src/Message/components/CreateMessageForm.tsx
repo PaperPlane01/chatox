@@ -1,18 +1,20 @@
-import React, {Fragment, FunctionComponent, useEffect, useRef} from "react";
+import React, {Fragment, FunctionComponent, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {
     createStyles,
     Divider,
+    Hidden,
     IconButton,
     InputAdornment,
     makeStyles,
     Menu,
     TextField,
     Theme,
-    Tooltip
+    Tooltip,
+    useTheme
 } from "@material-ui/core";
 import {AttachFile, InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
-import {bindToggle, bindMenu, usePopupState} from "material-ui-popup-state/hooks";
+import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {EmojiData, Picker} from "emoji-mart";
 import 'emoji-mart/css/emoji-mart.css';
 import {ReferredMessageCard} from "./ReferredMessageCard";
@@ -46,7 +48,12 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
-    const emojiPickerPopupState = usePopupState({variant: "popper", popupId: "emojiPicker"});
+    const emojiPickerPopupState = usePopupState({
+        variant: "popover",
+        popupId: "emojiPicker"
+    });
+    const [pickerExpanded, setPickerExpanded] = useState(false);
+    const theme = useTheme();
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -65,6 +72,8 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
     }, [referredMessageId]);
 
     useEffect(() => {
+        setPickerExpanded(emojiPickerPopupState.isOpen);
+
         setTimeout(() => {
             // For some reason search text field in emoji-mart picker is being focused right after render
             // despite passing autoFocus={false} property, so I have to do this ugly work-around
@@ -127,17 +136,26 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                <InputAdornment position="end">
                                    <div style={{display: "flex"}}>
                                        <Fragment>
-                                           <IconButton className={classes.inputIconButton}
-                                                       {...bindToggle(emojiPickerPopupState)}
-                                           >
-                                               <InsertEmoticon/>
-                                           </IconButton>
-                                           <Menu {...bindMenu(emojiPickerPopupState)}>
-                                               <Picker set="apple"
-                                                       onSelect={handleEmojiSelect}
-                                                       autoFocus={false}
-                                               />
-                                           </Menu>
+                                           <Hidden mdDown>
+                                               <IconButton className={classes.inputIconButton}
+                                                           {...bindToggle(emojiPickerPopupState)}
+                                               >
+                                                   <InsertEmoticon/>
+                                               </IconButton>
+                                               <Menu {...bindMenu(emojiPickerPopupState)}>
+                                                   <Picker set="apple"
+                                                           onSelect={handleEmojiSelect}
+                                                           autoFocus={false}
+                                                   />
+                                               </Menu>
+                                           </Hidden>
+                                           <Hidden lgUp>
+                                               <IconButton className={classes.inputIconButton}
+                                                           onClick={() => setPickerExpanded(!pickerExpanded)}
+                                               >
+                                                   <InsertEmoticon/>
+                                               </IconButton>
+                                           </Hidden>
                                        </Fragment>
                                        {formValues.text.length
                                            ? (
@@ -167,6 +185,20 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                        }}
                        className={classes.textField}
             />
+            <Hidden lgUp>
+                {pickerExpanded && (
+                    <Picker set="apple"
+                            onSelect={handleEmojiSelect}
+                            autoFocus={false}
+                            showPreview={false}
+                            showSkinTones={false}
+                            style={{
+                                width: "100%",
+                                backgroundColor: theme.palette.background.default
+                            }}
+                    />
+                )}
+            </Hidden>
         </div>
     )
 });
