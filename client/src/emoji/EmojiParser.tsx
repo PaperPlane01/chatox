@@ -21,18 +21,22 @@ export class EmojiParser {
 
     private parseWithBackendEmojiData(text: string, emojiData: MessageEmoji): ReactNode | ReactNode[] {
         const result : ReactNode[] = [];
-        let previousIndex = 0;
+        let cursor = 0;
 
         for (let emojiPosition of emojiData.emojiPositions) {
-            if (emojiPosition.end + 1 !== previousIndex) {
-                result.push(text.substring(previousIndex, emojiPosition.start));
+            if (emojiPosition.end + 1 !== cursor) {
+                result.push(text.substring(cursor, emojiPosition.start));
             }
 
-            previousIndex = emojiPosition.end + 1;
+            cursor = emojiPosition.end + 1;
 
             const emojiMartData = emojiData.emoji[emojiPosition.emojiId];
 
             result.push(<Emoji size={20} emoji={emojiMartData} forceSize/>)
+        }
+
+        if (cursor !== text.length) {
+            result.push(text.substring(cursor));
         }
 
         return result;
@@ -45,33 +49,33 @@ export class EmojiParser {
     private parseWithEmojiMartData(text: string, data: Data): ReactNode | ReactNode[] {
         const result: ReactNode[] = [];
 
-        let previousIndex = 0;
+        let cursor = 0;
         let match: RegExpExecArray | null;
 
         while ((match = this.emojiRegExp.exec(text))) {
             let index = match.index;
-            let unicode = match[0];
+            let nativeEmoji = match[0];
 
             // skipped some text chars, add them to output
-            if (index !== previousIndex) {
-                result.push(text.substring(previousIndex, index));
+            if (index !== cursor) {
+                result.push(text.substring(cursor, index));
             }
 
             // move cursor forward
-            previousIndex = index + unicode.length;
+            cursor = index + nativeEmoji.length;
 
-            const emojiData = getEmojiDataFromNative(unicode, "apple", data);
+            const emojiData = getEmojiDataFromNative(nativeEmoji, "apple", data);
 
             if (emojiData === null) {
-                result.push(unicode);
+                result.push(nativeEmoji);
             } else {
                 result.push(<Emoji size={20} emoji={emojiData} forceSize/>);
             }
         }
 
         // if leftover text exists, append it to result
-        if (previousIndex < text.length) {
-            result.push(text.substring(previousIndex));
+        if (cursor < text.length) {
+            result.push(text.substring(cursor));
         }
 
         return result;
