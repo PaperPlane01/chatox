@@ -11,11 +11,8 @@ import {
     Typography
 } from "@material-ui/core";
 import {Close} from "@material-ui/icons";
-import {Data} from "emoji-mart";
-import appleData from "emoji-mart/data/apple.json";
 import randomColor from "randomcolor";
 import {useLocalization, useStore} from "../../store";
-import {parseEmojis} from "../../utils/parse-emojis";
 import {useEmojiParser} from "../../emoji/hooks";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({

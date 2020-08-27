@@ -20,7 +20,6 @@ export class EmojiParser {
     }
 
     private parseWithBackendEmojiData(text: string, emojiData: MessageEmoji): ReactNode | ReactNode[] {
-        const startTime = new Date();
         const result : ReactNode[] = [];
         let previousIndex = 0;
 
@@ -36,16 +35,14 @@ export class EmojiParser {
             result.push(<Emoji size={20} emoji={emojiMartData} forceSize/>)
         }
 
-        const endTime = new Date();
-
-        console.log(`Parsing of string ${text} with new parsing method completed`);
-        console.log(`New parsing method took ${endTime.getTime() - startTime.getTime()} ms`);
-
         return result;
     }
 
+    // Got code from here https://github.com/viaduck/emoji-mart-awesome/blob/master/src/components/emoji-text.js#L20
+    // This method is not performant enough for real-time parsing. Long strings may take >100 ms to be parsed.
+    // It may cause UI to freeze for a moment so this method should be used as a fallback.
+    // The exact same code is executed on backend and provides data for the parseWithBackendEmojiData
     private parseWithEmojiMartData(text: string, data: Data): ReactNode | ReactNode[] {
-        const starTime = new Date();
         const result: ReactNode[] = [];
 
         let previousIndex = 0;
@@ -77,10 +74,6 @@ export class EmojiParser {
             result.push(text.substring(previousIndex));
         }
 
-        const endTime = new Date();
-
-        console.log(`Parsing of string ${text} with old method completed`);
-        console.log(`Old parsing method took ${endTime.getTime() - starTime.getTime()} ms`);
         return result;
     }
 }

@@ -3,15 +3,15 @@ import {observer} from "mobx-react";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography} from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import ReactMarkdown from "react-markdown";
-import {Data} from "emoji-mart";
-import appleData from "emoji-mart/data/apple.json";
 import {useLocalization, useStore} from "../../store";
-import {parseEmojis} from "../../utils/parse-emojis";
+import {MessageEmoji} from "../../api/types/response";
+import {useEmojiParser} from "../../emoji/hooks";
 
 const breaks = require("remark-breaks");
 
 interface MarkdownPreviewDialogProps {
-    text: string
+    text: string,
+    emojiData?: MessageEmoji
 }
 
 export const MarkdownPreviewDialog: FunctionComponent<MarkdownPreviewDialogProps> = observer(({text}) => {
@@ -22,6 +22,7 @@ export const MarkdownPreviewDialog: FunctionComponent<MarkdownPreviewDialogProps
         }
     } = useStore();
     const {l} = useLocalization();
+    const {parseEmoji} = useEmojiParser();
 
     return (
         <Dialog open={markdownPreviewDialogOpen}
@@ -43,7 +44,7 @@ export const MarkdownPreviewDialog: FunctionComponent<MarkdownPreviewDialogProps
                                    renderers={{
                                        text: props => (
                                            <Fragment>
-                                               {parseEmojis(props.value as string, appleData as any as Data)}
+                                               {parseEmoji(props.value as string)}
                                            </Fragment>
                                        )
                                    }}
