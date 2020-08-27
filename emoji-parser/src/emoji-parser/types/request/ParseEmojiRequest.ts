@@ -1,0 +1,13 @@
+import {IsIn, IsNotEmpty, IsString} from "class-validator";
+import {EmojiSet} from "emoji-mart";
+
+export class ParseEmojiRequest {
+    @IsString()
+    @IsNotEmpty()
+    text: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @IsIn(["apple", "google", "twitter", "emojione", "messenger", "facebook"])
+    emojiSet: EmojiSet;
+}

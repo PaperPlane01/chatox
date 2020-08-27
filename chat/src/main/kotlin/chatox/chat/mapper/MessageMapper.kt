@@ -4,12 +4,11 @@ import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.model.Chat
+import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.User
 import org.springframework.stereotype.Component
-import java.time.Instant
 import java.time.ZonedDateTime
-import java.util.Date
 import java.util.UUID
 
 @Component
@@ -30,7 +29,8 @@ class MessageMapper(private val userMapper: UserMapper) {
                 readByCurrentUser = readByCurrentUser,
                 referredMessage = referredMessage,
                 updatedAt = message.updatedAt,
-                chatId = message.chat.id
+                chatId = message.chat.id,
+                emoji = message.emoji
         )
     }
 
@@ -38,7 +38,8 @@ class MessageMapper(private val userMapper: UserMapper) {
             createMessageRequest: CreateMessageRequest,
             sender: User,
             chat: Chat,
-            referredMessage: Message?
+            referredMessage: Message?,
+            emoji: EmojiInfo = EmojiInfo()
     ) = Message(
             id = UUID.randomUUID().toString(),
             createdAt = ZonedDateTime.now(),
@@ -49,13 +50,16 @@ class MessageMapper(private val userMapper: UserMapper) {
             updatedAt = null,
             referredMessage = referredMessage,
             text = createMessageRequest.text,
-            sender = sender
+            sender = sender,
+            emoji = emoji
     )
 
     fun mapMessageUpdate(updateMessageRequest: UpdateMessageRequest,
-                         originalMessage: Message
+                         originalMessage: Message,
+                         emojis: EmojiInfo = originalMessage.emoji
     ) = originalMessage.copy(
             text = updateMessageRequest.text ?: originalMessage.text,
-            updatedAt = ZonedDateTime.now()
+            updatedAt = ZonedDateTime.now(),
+            emoji = emojis
     )
 }
