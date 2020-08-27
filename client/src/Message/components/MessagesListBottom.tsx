@@ -24,7 +24,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             position: "fixed",
             bottom: 0,
             width: "100%",
-            backgroundColor: theme.palette.background.default
+            backgroundColor: theme.palette.background.default,
+            maxHeight: "70vh"
         }
     }
 }));
