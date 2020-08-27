@@ -137,7 +137,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                                                     : (
                                                         <Fragment>
                                                             {lastMessageSender.firstName}
-                                                            :
+                                                            {": "}
                                                             {parseEmoji(lastMessage.text, lastMessage.emoji)}
                                                         </Fragment>
                                                     )
