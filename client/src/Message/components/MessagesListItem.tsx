@@ -1,4 +1,4 @@
-import React, {FunctionComponent, ReactNode, Fragment} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {
     Card,
@@ -15,15 +15,12 @@ import {Edit} from "@material-ui/icons";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
-import {Data, Emoji, getEmojiDataFromNative} from "emoji-mart";
-import emojiRegex from "emoji-regex/text";
-import appleData from "emoji-mart/data/apple.json";
 import {MenuItemType, MessageMenu} from "./MessageMenu";
 import {ReferredMessageContent} from "./ReferredMessageContent";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {parseEmojis} from "../../utils/parse-emojis";
+import {useEmojiParser} from "../../emoji/hooks";
 
 const breaks = require("remark-breaks");
 const {Link} = require("mobx-router");
@@ -124,6 +121,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const {currentUser} = useAuthorization();
     const routerStore = useRouter();
     const classes = useStyles();
+    const {parseEmoji} = useEmojiParser();
 
     const message = findMessage(messageId);
     const sender = findUser(message.sender);
@@ -184,7 +182,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                                                text: props => {
                                                    return (
                                                        <Fragment>
-                                                           {parseEmojis(props.value as string, appleData as any as Data)}
+                                                           {parseEmoji(props.value as string, message.emoji)}
                                                        </Fragment>
                                                    )
                                                }

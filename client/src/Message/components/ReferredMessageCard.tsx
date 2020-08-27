@@ -16,6 +16,7 @@ import appleData from "emoji-mart/data/apple.json";
 import randomColor from "randomcolor";
 import {useLocalization, useStore} from "../../store";
 import {parseEmojis} from "../../utils/parse-emojis";
+import {useEmojiParser} from "../../emoji/hooks";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     cardContentRoot: {
@@ -59,6 +60,7 @@ export const ReferredMessageCard: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
+    const {parseEmoji} = useEmojiParser();
 
     const messagesListElement = document.getElementById("messagesList");
     const messagesListWidth = messagesListElement
@@ -120,7 +122,7 @@ export const ReferredMessageCard: FunctionComponent = observer(() => {
             >
                 {message.deleted
                     ? <i>{l("message.deleted")}</i>
-                    : parseEmojis(message.text, appleData as any as Data)
+                    : parseEmoji(message.text, message.emoji)
                 }
             </CardContent>
         </Card>

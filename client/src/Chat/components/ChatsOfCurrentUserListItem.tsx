@@ -2,13 +2,11 @@ import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Badge, CardHeader, createStyles, Divider, ListItem, makeStyles, Theme, Typography} from "@material-ui/core";
 import randomColor from "randomcolor";
-import {Data} from "emoji-mart";
-import appleData from "emoji-mart/data/apple.json";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {parseEmojis} from "../../utils/parse-emojis";
+import {useEmojiParser} from "../../emoji/hooks";
 
 const {Link} = require("mobx-router");
 
@@ -95,6 +93,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
     const routerStore = useRouter();
     const {l} = useLocalization();
     const classes = useStyles();
+    const {parseEmoji} = useEmojiParser();
     const chat = findChat(chatId);
     const lastMessage = chat.lastMessage && findMessage(chat.lastMessage);
     const lastMessageSender = lastMessage && findUser(lastMessage.sender);
@@ -139,7 +138,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                                                         <Fragment>
                                                             {lastMessageSender.firstName}
                                                             :
-                                                            {parseEmojis(lastMessage.text, appleData as any as Data)}
+                                                            {parseEmoji(lastMessage.text, lastMessage.emoji)}
                                                         </Fragment>
                                                     )
                                                 }

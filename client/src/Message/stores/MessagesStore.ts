@@ -15,7 +15,8 @@ export class MessagesStore extends SoftDeletableEntityStore<MessageEntity, Messa
             updatedAt: denormalizedEntity.updatedAt ? new Date(denormalizedEntity.updatedAt) : undefined,
             previousMessageId: denormalizedEntity.previousMessageId,
             nextMessageId: denormalizedEntity.nextMessageId,
-            chatId: denormalizedEntity.chatId
+            chatId: denormalizedEntity.chatId,
+            emoji: denormalizedEntity.emoji
         };
     }
 }
