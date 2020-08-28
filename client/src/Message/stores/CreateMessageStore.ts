@@ -26,6 +26,9 @@ export class CreateMessageStore {
     @observable
     referredMessageId?: string = undefined;
 
+    @observable
+    emojiPickerExpanded: boolean = false;
+
     @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
@@ -105,5 +108,10 @@ export class CreateMessageStore {
                 text: undefined
             }
         })
+    }
+
+    @action
+    setEmojiPickerExpanded = (emojiPickerExpanded: boolean): void => {
+        this.emojiPickerExpanded = emojiPickerExpanded;
     }
 }

@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent, useEffect, useRef, useState} from "react";
+import React, {Fragment, FunctionComponent, useEffect, useLayoutEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import {
     createStyles,
@@ -11,6 +11,7 @@ import {
     TextField,
     Theme,
     Tooltip,
+    useMediaQuery,
     useTheme
 } from "@material-ui/core";
 import {AttachFile, InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
@@ -18,8 +19,8 @@ import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks
 import {EmojiData, Picker} from "emoji-mart";
 import 'emoji-mart/css/emoji-mart.css';
 import {ReferredMessageCard} from "./ReferredMessageCard";
-import {useLocalization, useStore} from "../../store";
-
+import {useLocalization, useRouter, useStore} from "../../store";
+import {Routes} from "../../router";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     textField: {
@@ -41,20 +42,29 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             formErrors,
             pending,
             submissionError,
+            emojiPickerExpanded,
             referredMessageId,
             setFormValue,
             createMessage,
         },
+        entities: {
+            chats: {
+                findById: findChat
+            }
+        },
+        chat: {
+            selectedChatId
+        }
     } = useStore();
     const {l} = useLocalization();
+    const routerStore = useRouter();
     const classes = useStyles();
     const emojiPickerPopupState = usePopupState({
         variant: "popover",
         popupId: "emojiPicker"
     });
-    const [pickerExpanded, setPickerExpanded] = useState(false);
     const theme = useTheme();
-
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -71,27 +81,30 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
         }
     }, [referredMessageId]);
 
-    useEffect(() => {
-        setPickerExpanded(emojiPickerPopupState.isOpen);
+    useLayoutEffect(() => {
+        if (!onSmallScreen) {
+            setTimeout(() => {
+                // For some reason search text field in emoji-mart picker is being focused right after render
+                // despite passing autoFocus={false} property, so I have to do this ugly work-around
+                const emojiMartTextFieldWrappers = document.getElementsByClassName("emoji-mart-search");
 
-        setTimeout(() => {
-            // For some reason search text field in emoji-mart picker is being focused right after render
-            // despite passing autoFocus={false} property, so I have to do this ugly work-around
-            const emojiMartTextFieldWrappers = document.getElementsByClassName("emoji-mart-search");
+                if (emojiMartTextFieldWrappers && emojiMartTextFieldWrappers.length !== 0) {
+                    const emojiMartTextFieldWrapper = emojiMartTextFieldWrappers.item(0);
 
-            if (emojiMartTextFieldWrappers && emojiMartTextFieldWrappers.length !== 0) {
-                const emojiMartTextFieldWrapper = emojiMartTextFieldWrappers.item(0);
+                    if (emojiMartTextFieldWrapper && emojiMartTextFieldWrapper.children && emojiMartTextFieldWrapper.children.length !== 0) {
+                        const emojiMartSearchTextField = emojiMartTextFieldWrapper.children.item(0) as HTMLInputElement;
 
-                if (emojiMartTextFieldWrapper && emojiMartTextFieldWrapper.children && emojiMartTextFieldWrapper.children.length !== 0) {
-                    const emojiMartSearchTextField = emojiMartTextFieldWrapper.children.item(0) as HTMLInputElement;
-
-                    if (emojiMartSearchTextField) {
-                        emojiMartSearchTextField.blur();
+                        if (emojiMartSearchTextField) {
+                            emojiMartSearchTextField.blur();
+                        }
                     }
                 }
-            }
-        });
-    }, [emojiPickerPopupState.isOpen]);
+            });
+        }},
+        [emojiPickerPopupState.isOpen]
+    );
+
+    const chat = findChat(selectedChatId!);
 
     const updateText = (): void => {
         setFormValue("text", inputRef!.current!.value);
@@ -151,7 +164,16 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                            </Hidden>
                                            <Hidden lgUp>
                                                <IconButton className={classes.inputIconButton}
-                                                           onClick={() => setPickerExpanded(!pickerExpanded)}
+                                                           onClick={() => {
+                                                               routerStore.router.goTo(
+                                                                   Routes.chatPage,
+                                                                   {slug: chat!.slug || chat!.id},
+                                                                   {},
+                                                                   emojiPickerExpanded
+                                                                       ? {}
+                                                                       : {emojiPickerExpanded: true}
+                                                               )
+                                                           }}
                                                >
                                                    <InsertEmoticon/>
                                                </IconButton>
@@ -186,7 +208,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                        className={classes.textField}
             />
             <Hidden lgUp>
-                {pickerExpanded && (
+                {emojiPickerExpanded && (
                     <Picker set="apple"
                             onSelect={handleEmojiSelect}
                             autoFocus={false}
