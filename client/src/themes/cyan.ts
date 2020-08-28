@@ -1,5 +1,7 @@
 import {createMuiTheme} from "@material-ui/core";
 
+const PRIMARY_MAIN = "rgba(0, 131, 143, 1)";
+
 export const cyan = createMuiTheme({
     "palette": {
         "common": {
@@ -12,7 +14,7 @@ export const cyan = createMuiTheme({
         },
         "primary": {
             "light": "rgba(71,247,255,0.19)",
-            "main": "rgba(0, 131, 143, 1)",
+            "main": PRIMARY_MAIN,
             "dark": "rgba(0, 86, 98, 1)",
             "contrastText": "#fff"
         },
@@ -33,6 +35,18 @@ export const cyan = createMuiTheme({
             "secondary": "rgba(0, 0, 0, 0.54)",
             "disabled": "rgba(0, 0, 0, 0.38)",
             "hint": "rgba(0, 0, 0, 0.38)"
+        }
+    },
+    overrides: {
+        MuiCssBaseline: {
+            "@global": {
+                ".emoji-mart-anchor-bar": {
+                    backgroundColor: `${PRIMARY_MAIN} !important`
+                },
+                ".emoji-mart-anchor-selected" : {
+                    color: `${PRIMARY_MAIN} !important`
+                }
+            }
         }
     }
 });
