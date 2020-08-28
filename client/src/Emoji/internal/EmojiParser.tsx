@@ -2,7 +2,8 @@ import React, {ReactNode} from "react";
 import {Data, Emoji, getEmojiDataFromNative} from "emoji-mart";
 import createRegEmojiRegExp from "emoji-regex";
 import {ParseEmojiOptions} from "./ParseEmojiOptions";
-import {MessageEmoji} from "../api/types/response";
+import {ExtendedEmojiSet} from "../types";
+import {MessageEmoji} from "../../api/types/response";
 
 export class EmojiParser {
     private readonly emojiRegExp = createRegEmojiRegExp();
@@ -10,16 +11,16 @@ export class EmojiParser {
     public parseEmoji(text: string, options: ParseEmojiOptions): ReactNode | ReactNode[] {
         if (text.match(this.emojiRegExp)) {
             if (options.emojiData && options.emojiData.emojiPositions.length !== 0) {
-                return this.parseWithBackendEmojiData(text, options.emojiData);
+                return this.parseWithBackendEmojiData(text, options.emojiData, options.set);
             } else {
-                return this.parseWithEmojiMartData(text, options.emojiMartData);
+                return this.parseWithEmojiMartData(text, options.emojiMartData, options.set);
             }
         } else {
             return text;
         }
     }
 
-    private parseWithBackendEmojiData(text: string, emojiData: MessageEmoji): ReactNode | ReactNode[] {
+    private parseWithBackendEmojiData(text: string, emojiData: MessageEmoji, set: ExtendedEmojiSet): ReactNode | ReactNode[] {
         const result : ReactNode[] = [];
         let cursor = 0;
 
@@ -31,8 +32,10 @@ export class EmojiParser {
             cursor = emojiPosition.end + 1;
 
             const emojiMartData = emojiData.emoji[emojiPosition.emojiId];
+            const emojiSet = set === "native" ? undefined : set;
+            const native = set === "native";
 
-            result.push(<Emoji size={20} emoji={emojiMartData} forceSize/>)
+            result.push(<Emoji size={20} emoji={emojiMartData} set={emojiSet} native={native}/>)
         }
 
         if (cursor !== text.length) {
@@ -46,7 +49,7 @@ export class EmojiParser {
     // This method is not performant enough for real-time parsing. Long strings may take >100 ms to be parsed.
     // It may cause UI to freeze for a moment so this method should be used as a fallback.
     // The exact same code is executed on backend and provides data for the parseWithBackendEmojiData
-    private parseWithEmojiMartData(text: string, data: Data): ReactNode | ReactNode[] {
+    private parseWithEmojiMartData(text: string, data: Data, set: ExtendedEmojiSet): ReactNode | ReactNode[] {
         const result: ReactNode[] = [];
 
         let cursor = 0;
@@ -64,12 +67,14 @@ export class EmojiParser {
             // move cursor forward
             cursor = index + nativeEmoji.length;
 
-            const emojiData = getEmojiDataFromNative(nativeEmoji, "apple", data);
+            const emojiSet = set === "native" ? undefined : set;
+            const native = set === "native";
+            const emojiData = getEmojiDataFromNative(nativeEmoji, emojiSet ? emojiSet : "apple", data);
 
             if (emojiData === null) {
                 result.push(nativeEmoji);
             } else {
-                result.push(<Emoji size={20} emoji={emojiData} forceSize/>);
+                result.push(<Emoji size={20} emoji={emojiData} set={emojiSet} native={native}/>);
             }
         }
 

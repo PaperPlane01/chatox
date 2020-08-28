@@ -54,6 +54,9 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
         },
         chat: {
             selectedChatId
+        },
+        emoji: {
+            selectedEmojiSet
         }
     } = useStore();
     const {l} = useLocalization();
@@ -156,9 +159,10 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                                    <InsertEmoticon/>
                                                </IconButton>
                                                <Menu {...bindMenu(emojiPickerPopupState)}>
-                                                   <Picker set="apple"
+                                                   <Picker set={selectedEmojiSet === "native" ? undefined : selectedEmojiSet}
                                                            onSelect={handleEmojiSelect}
                                                            autoFocus={false}
+                                                           native={selectedEmojiSet === "native"}
                                                    />
                                                </Menu>
                                            </Hidden>
@@ -209,11 +213,12 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             />
             <Hidden lgUp>
                 {emojiPickerExpanded && (
-                    <Picker set="apple"
+                    <Picker set={selectedEmojiSet === "native" ? undefined : selectedEmojiSet}
                             onSelect={handleEmojiSelect}
                             autoFocus={false}
                             showPreview={false}
                             showSkinTones={false}
+                            native={selectedEmojiSet === "native"}
                             style={{
                                 width: "100%",
                                 backgroundColor: theme.palette.background.default

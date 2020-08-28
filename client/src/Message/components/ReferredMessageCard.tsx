@@ -13,7 +13,7 @@ import {
 import {Close} from "@material-ui/icons";
 import randomColor from "randomcolor";
 import {useLocalization, useStore} from "../../store";
-import {useEmojiParser} from "../../emoji/hooks";
+import {useEmojiParser} from "../../Emoji/hooks";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     cardContentRoot: {

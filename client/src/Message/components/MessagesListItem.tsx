@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {
     Card,
@@ -14,15 +14,13 @@ import {
 import {Edit} from "@material-ui/icons";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
-import ReactMarkdown from "react-markdown";
 import {MenuItemType, MessageMenu} from "./MessageMenu";
 import {ReferredMessageContent} from "./ReferredMessageContent";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {useEmojiParser} from "../../emoji/hooks";
+import {MarkdownTextWithEmoji} from "../../Emoji/components";
 
-const breaks = require("remark-breaks");
 const {Link} = require("mobx-router");
 
 interface MessagesListItemProps {
@@ -121,7 +119,6 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const {currentUser} = useAuthorization();
     const routerStore = useRouter();
     const classes = useStyles();
-    const {parseEmoji} = useEmojiParser();
 
     const message = findMessage(messageId);
     const sender = findUser(message.sender);
@@ -176,17 +173,8 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                     {message.deleted
                         ? <i>{l("message.deleted")}</i>
                         : (
-                            <ReactMarkdown source={message.text}
-                                           plugins={[breaks]}
-                                           renderers={{
-                                               text: props => {
-                                                   return (
-                                                       <Fragment>
-                                                           {parseEmoji(props.value as string, message.emoji)}
-                                                       </Fragment>
-                                                   )
-                                               }
-                                           }}
+                            <MarkdownTextWithEmoji text={message.text}
+                                                   emojiData={message.emoji}
                             />
                         )
                     }

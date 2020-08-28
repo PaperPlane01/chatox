@@ -5,7 +5,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import ReactMarkdown from "react-markdown";
 import {useLocalization, useStore} from "../../store";
 import {MessageEmoji} from "../../api/types/response";
-import {useEmojiParser} from "../../emoji/hooks";
+import {useEmojiParser} from "../../Emoji/hooks";
 
 const breaks = require("remark-breaks");
 

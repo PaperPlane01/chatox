@@ -1,9 +1,10 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {createStyles, List, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
-import {Language, Person, Security} from "@material-ui/icons";
+import {Language, Palette, Person, Security} from "@material-ui/icons";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
 import {ChangePasswordContainer, EditProfileForm} from "../../User";
+import {EmojiSetPicker} from "../../Emoji";
 import {LanguagePicker} from "../../localization";
 import {SettingsTab} from "../types";
 import {Routes} from "../../router";
@@ -61,6 +62,20 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                 </Link>
                 <Link className={classes.undecoratedLink}
                       view={Routes.settingsTabPage}
+                      params={{tab: SettingsTab.APPEARANCE}}
+                      store={routerStore}
+                >
+                    <MenuItem>
+                        <ListItemIcon>
+                            <Palette/>
+                        </ListItemIcon>
+                        <ListItemText>
+                            {l("settings.appearance")}
+                        </ListItemText>
+                    </MenuItem>
+                </Link>
+                <Link className={classes.undecoratedLink}
+                      view={Routes.settingsTabPage}
                       params={{tab: SettingsTab.SECURITY}}
                       store={routerStore}
                 >
@@ -88,6 +103,11 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                                       open={activeTab === SettingsTab.SECURITY}
             >
                 <ChangePasswordContainer/>
+            </SettingsFullScreenDialog>
+            <SettingsFullScreenDialog title={l("settings.appearance")}
+                                      open={activeTab === SettingsTab.APPEARANCE}
+            >
+                <EmojiSetPicker/>
             </SettingsFullScreenDialog>
         </Fragment>
     )

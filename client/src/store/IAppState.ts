@@ -36,6 +36,7 @@ import {
 import {UploadImageStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings/stores";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
+import {EmojiSettingsStore} from "../Emoji/stores";
 
 export interface IAppState {
     language: LocaleStore,
@@ -78,5 +79,6 @@ export interface IAppState {
     passwordChangeForm: PasswordChangeFormSubmissionStore,
     passwordChangeStep: PasswordChangeStepStore,
     passwordChangeEmailConfirmationCodeSending: SendPasswordChangeEmailConfirmationCodeStore,
+    emoji: EmojiSettingsStore,
     store?: any
 }

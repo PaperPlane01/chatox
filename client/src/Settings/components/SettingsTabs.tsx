@@ -11,10 +11,11 @@ import {
     Typography
 } from "@material-ui/core";
 import {TabContext, TabList, TabPanel} from "@material-ui/lab";
-import {Language, Person, Security} from "@material-ui/icons";
+import {Language, Palette, Person, Security} from "@material-ui/icons";
 import {SettingsTab} from "../types";
 import {HasRole} from "../../Authorization";
 import {EditProfileForm, ChangePasswordContainer} from "../../User";
+import {EmojiSetPicker} from "../../Emoji";
 import {LanguagePicker} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
@@ -88,6 +89,18 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                              </MenuItem>
                          }
                     />
+                    <Tab value={SettingsTab.APPEARANCE}
+                         label={
+                             <MenuItem>
+                                 <ListItemIcon>
+                                     <Palette/>
+                                 </ListItemIcon>
+                                 <ListItemText>
+                                     {l("settings.appearance")}
+                                 </ListItemText>
+                             </MenuItem>
+                         }
+                    />
                     <Tab value={SettingsTab.SECURITY}
                          label={
                              <MenuItem>
@@ -118,6 +131,11 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                           className={classes.fullWidth}
                 >
                     <LanguagePicker/>
+                </TabPanel>
+                <TabPanel value={SettingsTab.APPEARANCE}
+                          className={classes.fullWidth}
+                >
+                    <EmojiSetPicker/>
                 </TabPanel>
                 <TabPanel value={SettingsTab.SECURITY}
                           className={classes.fullWidth}

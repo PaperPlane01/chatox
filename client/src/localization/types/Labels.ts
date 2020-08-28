@@ -195,5 +195,14 @@ export interface Labels {
     "email-confirmation-code.creation.pending": string,
     "email-confirmation-code.creation.might-take-a-while": string,
     "email-confirmation-code.creation.error": string,
-    "email-confirmation-code.creation.error.server-unreachable": string
+    "email-confirmation-code.creation.error.server-unreachable": string,
+    "emoji.pick-emoji-set": string,
+    "emoji.set.apple": string,
+    "emoji.set.google": string,
+    "emoji.set.emojione": string,
+    "emoji.set.twitter": string,
+    "emoji.set.native": string,
+    "emoji.set.facebook": string,
+    "emoji.set.messenger": string,
+    "settings.appearance": string
 }

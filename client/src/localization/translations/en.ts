@@ -197,5 +197,14 @@ export const en: Labels = {
     "email-confirmation-code.creation.pending": "Creating email confirmation code",
     "email-confirmation-code.creation.might-take-a-while": "This might take a while",
     "email-confirmation-code.creation.error": "Unexpected error occurred when tried to create email confirmation code. Server responded with {errorStatus}",
-    "email-confirmation-code.creation.error.server-unreachable": "Error occurred when tried to create email confirmation code, server is unreachable"
+    "email-confirmation-code.creation.error.server-unreachable": "Error occurred when tried to create email confirmation code, server is unreachable",
+    "emoji.pick-emoji-set": "Emoji set",
+    "emoji.set.apple": "Apple",
+    "emoji.set.google": "Google",
+    "emoji.set.emojione": "Emoji One",
+    "emoji.set.twitter": "Twitter",
+    "emoji.set.native": "Native",
+    "emoji.set.facebook": "Facebook",
+    "emoji.set.messenger": "Messenger",
+    "settings.appearance": "Appearance"
 };

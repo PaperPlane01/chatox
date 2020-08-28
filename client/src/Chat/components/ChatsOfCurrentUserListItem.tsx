@@ -6,7 +6,7 @@ import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {useEmojiParser} from "../../emoji/hooks";
+import {useEmojiParser} from "../../Emoji/hooks";
 
 const {Link} = require("mobx-router");
 

@@ -4,7 +4,7 @@ import {CardContent, CardHeader, createStyles, makeStyles, Theme} from "@materia
 import {UserLink} from "../../UserLink";
 import {trimString} from "../../utils/string-utils";
 import {useLocalization, useStore} from "../../store";
-import {useEmojiParser} from "../../emoji/hooks";
+import {useEmojiParser} from "../../Emoji/hooks";
 
 interface ReferredMessageContentProps {
     messageId?: string

@@ -197,5 +197,14 @@ export const ru: Labels = {
     "email-confirmation-code.creation.pending": "Создание кода подтверждения",
     "email-confirmation-code.creation.might-take-a-while": "Это может занять какое-то время",
     "email-confirmation-code.creation.error": "Во время создания кода подтверждения произошла ошибка. Сервер ответил со статусом {errorStatus}",
-    "email-confirmation-code.creation.error.server-unreachable": "Во время создания кода подтверждения произошла ошибка, сервер недоступен"
+    "email-confirmation-code.creation.error.server-unreachable": "Во время создания кода подтверждения произошла ошибка, сервер недоступен",
+    "emoji.pick-emoji-set": "Набор эмоджи",
+    "emoji.set.apple": "Apple",
+    "emoji.set.google": "Google",
+    "emoji.set.emojione": "Emoji One",
+    "emoji.set.twitter": "Twitter",
+    "emoji.set.native": "Системные",
+    "emoji.set.facebook": "Facebook",
+    "emoji.set.messenger": "Messenger",
+    "settings.appearance": "Внешний вид"
 };
