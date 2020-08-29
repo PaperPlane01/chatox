@@ -1,4 +1,5 @@
 import {User} from "./User";
+import {MessageEmoji} from "./MessageEmoji";
 
 export interface Message {
     id: string,
@@ -11,5 +12,6 @@ export interface Message {
     readByCurrentUser: boolean,
     chatId: string,
     previousMessageId?: string,
-    nextMessageId?: string
+    nextMessageId?: string,
+    emoji: MessageEmoji
 }

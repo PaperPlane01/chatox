@@ -21,11 +21,13 @@ export const Routes = {
     chatPage: new Route({
         path: "/chat/:slug",
         component: <ChatPage/>,
-        onEnter: (view: any, params: any) => {
-            store.chat.setSelectedChat(params.slug)
-        },
-        onParamsChange: (view: any, params: any) => {
+        onEnter: (view: any, params: any, _: any, queryParams: any) => {
             store.chat.setSelectedChat(params.slug);
+            store.messageCreation.setEmojiPickerExpanded(`${queryParams.emojiPickerExpanded}` === "true");
+        },
+        onParamsChange: (view: any, params: any, _: any, queryParams: any) => {
+            store.chat.setSelectedChat(params.slug);
+            store.messageCreation.setEmojiPickerExpanded(`${queryParams.emojiPickerExpanded}` === "true");
         },
         onExit: () => {
             store.chat.setSelectedChat(undefined)

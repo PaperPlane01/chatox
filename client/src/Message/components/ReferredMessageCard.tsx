@@ -13,6 +13,7 @@ import {
 import {Close} from "@material-ui/icons";
 import randomColor from "randomcolor";
 import {useLocalization, useStore} from "../../store";
+import {useEmojiParser} from "../../Emoji/hooks";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     cardContentRoot: {
@@ -56,6 +57,7 @@ export const ReferredMessageCard: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
+    const {parseEmoji} = useEmojiParser();
 
     const messagesListElement = document.getElementById("messagesList");
     const messagesListWidth = messagesListElement
@@ -117,7 +119,7 @@ export const ReferredMessageCard: FunctionComponent = observer(() => {
             >
                 {message.deleted
                     ? <i>{l("message.deleted")}</i>
-                    : message.text
+                    : parseEmoji(message.text, message.emoji)
                 }
             </CardContent>
         </Card>

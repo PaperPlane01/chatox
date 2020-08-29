@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Badge, CardHeader, createStyles, Divider, ListItem, makeStyles, Theme, Typography} from "@material-ui/core";
 import randomColor from "randomcolor";
@@ -6,6 +6,7 @@ import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
+import {useEmojiParser} from "../../Emoji/hooks";
 
 const {Link} = require("mobx-router");
 
@@ -92,6 +93,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
     const routerStore = useRouter();
     const {l} = useLocalization();
     const classes = useStyles();
+    const {parseEmoji} = useEmojiParser();
     const chat = findChat(chatId);
     const lastMessage = chat.lastMessage && findMessage(chat.lastMessage);
     const lastMessageSender = lastMessage && findUser(lastMessage.sender);
@@ -130,7 +132,16 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                                     <div className={classes.flexWrapper}>
                                         <div className={classes.flexTruncatedTextContainer}>
                                             <Typography className={`${classes.flexTruncatedText} ${selected && classes.selected}`}>
-                                                {lastMessage.deleted ? <i>{l("message.deleted")}</i> : `${lastMessageSender.firstName}: ${lastMessage.text}`}
+                                                {lastMessage.deleted
+                                                    ? <i>{l("message.deleted")}</i>
+                                                    : (
+                                                        <Fragment>
+                                                            {lastMessageSender.firstName}
+                                                            {": "}
+                                                            {parseEmoji(lastMessage.text, lastMessage.emoji)}
+                                                        </Fragment>
+                                                    )
+                                                }
                                             </Typography>
                                         </div>
                                     </div>

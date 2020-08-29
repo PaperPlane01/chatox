@@ -15,8 +15,6 @@ const {MobxRouter} = require("mobx-router");
 export const App: FunctionComponent = observer(() => {
     const {dateFnsLocale} = useLocalization();
 
-    console.log(rgbToHex(cyan.palette.primary.main));
-
     return (
         <MuiPickersUtilsProvider utils={DateFnsUtils}
                                  locale={dateFnsLocale}

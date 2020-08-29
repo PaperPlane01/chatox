@@ -1,3 +1,5 @@
+import {MessageEmoji} from "../../api/types/response";
+
 export interface MessageEntity {
     id: string,
     referredMessageId?: string,
@@ -9,5 +11,6 @@ export interface MessageEntity {
     readByCurrentUser: boolean,
     previousMessageId?: string,
     nextMessageId?: string,
-    chatId: string
+    chatId: string,
+    emoji: MessageEmoji
 }

@@ -22,5 +22,6 @@ data class Message(
         var deletedAt: ZonedDateTime?,
         @DBRef
         var deletedBy: User?,
-        var attachments: List<MessageAttachment> = arrayListOf()
+        var attachments: List<MessageAttachment> = arrayListOf(),
+        var emoji: EmojiInfo = EmojiInfo()
 )

@@ -19,3 +19,6 @@ export * from "./GifUploadMetadata";
 export * from "./EmailConfirmationCodeResponse";
 export * from "./EmailAvailabilityResponse";
 export * from "./EmailConfirmationCodeValidityResponse";
+export * from "./EmojiMap";
+export * from "./EmojiPosition";
+export * from "./MessageEmoji";

@@ -828,6 +828,13 @@
   dependencies:
     regenerator-runtime "^0.13.2"
 
+"@babel/runtime@^7.1.5":
+  version "7.11.2"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.11.2.tgz#f549c13c754cc40b87644b9fa9f09a6a95fe0736"
+  integrity sha512-TeWkU52so0mPtDcaCTxNBI/IHiz0pZgr8VEFqXFtZWpYD08ZB6FaSwVAS8MKRQAP3bYKiVjwysOJgMFY28o6Tw==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
 "@babel/runtime@^7.3.1", "@babel/runtime@^7.4.4", "@babel/runtime@^7.5.1", "@babel/runtime@^7.5.5", "@babel/runtime@^7.6.2", "@babel/runtime@^7.6.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.7.6":
   version "7.7.7"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.7.7.tgz#194769ca8d6d7790ec23605af9ee3e42a0aa79cf"
@@ -1177,6 +1184,13 @@
     csstype "^2.5.2"
     prop-types "^15.7.2"
 
+"@material-ui/types@^4.1.1":
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/@material-ui/types/-/types-4.1.1.tgz#b65e002d926089970a3271213a3ad7a21b17f02b"
+  integrity sha512-AN+GZNXytX9yxGi0JOfxHrRTbhFybjUJ05rnsBVjcB+16e466Z0Xe5IxawuOayVZgTBNDxmPKo5j4V6OnMtaSQ==
+  dependencies:
+    "@types/react" "*"
+
 "@material-ui/types@^5.1.0":
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/@material-ui/types/-/types-5.1.0.tgz#efa1c7a0b0eaa4c7c87ac0390445f0f88b0d88f2"
@@ -1400,6 +1414,18 @@
   integrity sha512-2+FrkXY4zllzTNfJth7jOqEHC+enpLeGslEhpnTAkg21GkRrWV4SsAtqchtT4YS9/nODBU2/ZfsBY2X4J/dX7A==
   dependencies:
     "@types/node" "*"
+
+"@types/emoji-mart@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@types/emoji-mart/-/emoji-mart-3.0.2.tgz#5814064ce7c622069adf1583e17b3851a00802cb"
+  integrity sha512-Cmq8xpPK5Va+fjQE7ZaE5oykXzACBQ64CpNnYOIU7gWcR6nYTxWjMR3yPhnAMzw4yQn9R9761FpTvAyi/SH9MQ==
+  dependencies:
+    "@types/react" "*"
+
+"@types/emoji-regex@^8.0.0":
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/@types/emoji-regex/-/emoji-regex-8.0.0.tgz#df215c9ff818e071087fb8e7e6e74c4cb42a1303"
+  integrity sha512-iacbaYN9IWWrGWTwlYLVOeUtN/e4cjN9Uh6v7Yo1Qa/vJzeSQeh10L/erBBSl53BTmbnQ07vsWp8mmNHGI4WbQ==
 
 "@types/eslint-visitor-keys@^1.0.0":
   version "1.0.0"
@@ -3958,6 +3984,14 @@ email-validator@^2.0.4:
   resolved "https://registry.yarnpkg.com/email-validator/-/email-validator-2.0.4.tgz#b8dfaa5d0dae28f1b03c95881d904d4e40bfe7ed"
   integrity sha512-gYCwo7kh5S3IDyZPLZf6hSS0MnZT8QmJFqYvbqlDZSbwdZlY6QZWxJ4i/6UhITOJ4XzyI647Bm2MXKCLqnJ4nQ==
 
+emoji-mart@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/emoji-mart/-/emoji-mart-3.0.0.tgz#eca24a04881e27752a6921e09f65a86ce8539a50"
+  integrity sha512-r5DXyzOLJttdwRYfJmPq/XL3W5tiAE/VsRnS0Hqyn27SqPA/GOYwVUSx50px/dXdJyDSnvmoPbuJ/zzhwSaU4A==
+  dependencies:
+    "@babel/runtime" "^7.0.0"
+    prop-types "^15.6.0"
+
 emoji-regex@^7.0.1, emoji-regex@^7.0.2:
   version "7.0.3"
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-7.0.3.tgz#933a04052860c85e83c122479c4748a8e4c72156"
@@ -3967,6 +4001,11 @@ emoji-regex@^8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-8.0.0.tgz#e818fd69ce5ccfcb404594f842963bf53164cc37"
   integrity sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==
+
+emoji-regex@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-9.0.0.tgz#48a2309cc8a1d2e9d23bc6a67c39b63032e76ea4"
+  integrity sha512-6p1NII1Vm62wni/VR/cUMauVQoxmLVb9csqQlvLz+hO2gk8U2UYDfXHQSUYIBKmZwAKz867IDqG7B+u0mj+M6w==
 
 emojis-list@^2.0.0:
   version "2.1.0"
@@ -6878,6 +6917,16 @@ material-ui-chip-input@^1.1.0:
     classnames "^2.2.5"
     prop-types "^15.6.1"
 
+material-ui-popup-state@^1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/material-ui-popup-state/-/material-ui-popup-state-1.6.1.tgz#fc1a93c9111ee20370488aef9c6f2b2da5707604"
+  integrity sha512-I1Cu8hc3RPPTZ7p946q6qQB+n68JuhoiOxclV+wft8bplYGHFLjbNmF59wQMTN6oRZD42QuVtTxDv7LIi0eB8w==
+  dependencies:
+    "@babel/runtime" "^7.1.5"
+    "@material-ui/types" "^4.1.1"
+    classnames "^2.2.6"
+    prop-types "^15.0.0"
+
 md5.js@^1.3.4:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/md5.js/-/md5.js-1.3.5.tgz#b5d07b8e3216e3e27cd728d72f70d1e6a342005f"
@@ -8846,7 +8895,7 @@ prompts@^2.0.1:
     kleur "^3.0.3"
     sisteransi "^1.0.3"
 
-prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@^15.0.0, prop-types@^15.6.0, prop-types@^15.6.1, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==

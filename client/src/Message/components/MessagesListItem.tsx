@@ -14,14 +14,13 @@ import {
 import {Edit} from "@material-ui/icons";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
-import ReactMarkdown from "react-markdown";
 import {MenuItemType, MessageMenu} from "./MessageMenu";
 import {ReferredMessageContent} from "./ReferredMessageContent";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
+import {MarkdownTextWithEmoji} from "../../Emoji/components";
 
-const breaks = require("remark-breaks");
 const {Link} = require("mobx-router");
 
 interface MessagesListItemProps {
@@ -174,8 +173,8 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                     {message.deleted
                         ? <i>{l("message.deleted")}</i>
                         : (
-                            <ReactMarkdown source={message.text}
-                                           plugins={[breaks]}
+                            <MarkdownTextWithEmoji text={message.text}
+                                                   emojiData={message.emoji}
                             />
                         )
                     }

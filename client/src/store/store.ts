@@ -53,6 +53,7 @@ import {
 import {UploadsStore, UploadImageStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation/stores";
+import {EmojiSettingsStore} from "../Emoji/stores";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -128,6 +129,7 @@ const passwordChange = new PasswordChangeStore(
     passwordChangeStep,
     authorization
 );
+const emoji = new EmojiSettingsStore();
 
 export const store: IAppState = {
     authorization,
@@ -169,5 +171,6 @@ export const store: IAppState = {
     passwordChangeEmailConfirmationCodeCheck,
     passwordChangeEmailConfirmationCodeSending,
     passwordChangeForm,
-    passwordChange
+    passwordChange,
+    emoji
 };

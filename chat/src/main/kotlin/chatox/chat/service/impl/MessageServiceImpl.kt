@@ -14,9 +14,12 @@ import chatox.chat.repository.MessageReadRepository
 import chatox.chat.repository.MessageRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.MessagePermissions
+import chatox.chat.service.EmojiParserService
 import chatox.chat.service.MessageService
 import chatox.chat.support.pagination.PaginationRequest
 import chatox.chat.util.isDateBeforeOrEquals
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
@@ -35,7 +38,8 @@ class MessageServiceImpl(
         private val messageReadRepository: MessageReadRepository,
         private val chatParticipationRepository: ChatParticipationRepository,
         private val authenticationFacade: AuthenticationFacade,
-        private val messageMapper: MessageMapper) : MessageService {
+        private val messageMapper: MessageMapper,
+        private val emojiParserService: EmojiParserService) : MessageService {
 
     private lateinit var messagePermissions: MessagePermissions
 
@@ -45,38 +49,40 @@ class MessageServiceImpl(
     }
 
     override fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse> {
-        val chat = findChatById(chatId)
 
-        return assertCanCreateMessage(chatId)
-                .flatMap {
-                    if (createMessageRequest.referredMessageId != null) {
-                        chat.zipWith(findMessageEntityById(createMessageRequest.referredMessageId))
-                                .zipWith(authenticationFacade.getCurrentUser())
-                                .map { messageMapper.fromCreateMessageRequest(
-                                        createMessageRequest,
-                                        sender = it.t2,
-                                        referredMessage = it.t1.t2,
-                                        chat = it.t1.t1
-                                ) }
-                                .map { messageRepository.save(it) }
-                                .flatMap { it }
-                    } else {
-                        chat.zipWith(authenticationFacade.getCurrentUser())
-                                .map { messageMapper.fromCreateMessageRequest(
-                                        createMessageRequest,
-                                        sender = it.t2,
-                                        referredMessage = null,
-                                        chat = it.t1
-                                ) }
-                                .map { messageRepository.save(it) }
-                                .flatMap { it }
-                    }
-                }
-                .map { messageMapper.toMessageResponse(
-                        message = it,
-                        mapReferredMessage = true,
-                        readByCurrentUser = true
-                ) }
+        return mono {
+            assertCanCreateMessage(chatId).awaitFirst()
+
+            val chat = findChatById(chatId).awaitFirst()
+            var referredMessage: Message? = null
+
+            if (createMessageRequest.referredMessageId != null) {
+                referredMessage = findMessageEntityById(createMessageRequest.referredMessageId)
+                        .awaitFirst()
+            }
+
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val emoji = emojiParserService.parseEmoji(
+                    text = createMessageRequest.text,
+                    emojiSet = createMessageRequest.emojisSet
+            )
+                    .awaitFirst()
+            var message = messageMapper.fromCreateMessageRequest(
+                    createMessageRequest = createMessageRequest,
+                    sender = currentUser,
+                    referredMessage = referredMessage,
+                    chat = chat,
+                    emoji = emoji
+            )
+
+            message = messageRepository.save(message).awaitFirst()
+
+            messageMapper.toMessageResponse(
+                    message = message,
+                    readByCurrentUser = true,
+                    mapReferredMessage = true
+            )
+        }
     }
 
     private fun assertCanCreateMessage(chatId: String): Mono<Boolean> {
@@ -92,15 +98,32 @@ class MessageServiceImpl(
     }
 
     override fun updateMessage(id: String, chatId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
-        return assertCanUpdateMessage(id, chatId)
-                .flatMap { findMessageEntityById(id) }
-                .map { messageMapper.mapMessageUpdate(updateMessageRequest, it) }
-                .flatMap { messageRepository.save(it) }
-                .map { messageMapper.toMessageResponse(
-                        message = it,
-                        mapReferredMessage = true,
-                        readByCurrentUser = true
-                ) }
+        return mono {
+            assertCanUpdateMessage(id, chatId).awaitFirst()
+            var message = findMessageEntityById(id).awaitFirst()
+            val originalMessageText = message.text
+            message = messageMapper.mapMessageUpdate(
+                    updateMessageRequest = updateMessageRequest,
+                    originalMessage = message
+            )
+
+            if (originalMessageText != message.text) {
+                val emoji = emojiParserService.parseEmoji(
+                        text = message.text,
+                        emojiSet = updateMessageRequest.emojisSet
+                )
+                        .awaitFirst()
+                message = message.copy(emoji = emoji)
+            }
+
+            message = messageRepository.save(message).awaitFirst()
+
+            messageMapper.toMessageResponse(
+                    message = message,
+                    mapReferredMessage = true,
+                    readByCurrentUser = true
+            )
+        }
     }
 
     private fun assertCanUpdateMessage(id: String, chatId: String): Mono<Boolean> {

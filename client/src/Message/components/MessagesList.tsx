@@ -31,7 +31,8 @@ export const MessagesList: FunctionComponent = observer(() => {
             referredMessageId,
             createMessageForm: {
                 text
-            }
+            },
+            emojiPickerExpanded
         },
     } = useStore();
     const [reachedBottom, setReachedBottom] = useState(true);
@@ -86,7 +87,7 @@ export const MessagesList: FunctionComponent = observer(() => {
         setReachedBottom( documentHeight - windowBottom <= 1);
     }
 
-    useEffect(scrollToBottom, [messagesOfChat]);
+    useEffect(scrollToBottom, [messagesOfChat, emojiPickerExpanded]);
     useEffect(() => {
         const handleResize = () => {
             setStyles(calculateStyles());
@@ -109,7 +110,8 @@ export const MessagesList: FunctionComponent = observer(() => {
             messagesOfChat,
             referredMessageId,
             text,
-            onSmallScreen
+            onSmallScreen,
+            emojiPickerExpanded
         ]
     );
 
