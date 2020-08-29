@@ -7,9 +7,10 @@ import {MessageEmoji} from "../../api/types/response";
 
 export class EmojiParser {
     private readonly emojiRegExp = createRegEmojiRegExp();
+    private readonly emojiColonsRegexp = /:[^:\s]*(?:::[^:\s]*)*:/g;
 
     public parseEmoji(text: string, options: ParseEmojiOptions): ReactNode | ReactNode[] {
-        if (text.match(this.emojiRegExp)) {
+        if (text.match(this.emojiRegExp) || text.match(this.emojiColonsRegexp)) {
             if (options.emojiData && options.emojiData.emojiPositions.length !== 0) {
                 return this.parseWithBackendEmojiData(text, options.emojiData, options.set);
             } else {
