@@ -41,7 +41,8 @@ class EmojiParserServiceImpl(private val loadBalancerClient: LoadBalancerClient)
                             .body(BodyInserters.fromValue(
                                     ParseEmojiRequest(
                                             text = text,
-                                            emojiSet = emojiSet
+                                            emojiSet = emojiSet,
+                                            parseColons = true
                                     )
                             ))
                             .retrieve()
