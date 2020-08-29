@@ -6,6 +6,9 @@ export class EmojiSettingsStore {
     @observable
     selectedEmojiSet: ExtendedEmojiSet = "apple";
 
+    @observable
+    useEmojiCodes: boolean = false;
+
     constructor() {
         const emojiSet = localStorage.getItem("emojiSet");
 
@@ -14,7 +17,15 @@ export class EmojiSettingsStore {
         } else {
             this.setSelectedEmojiSet("apple");
         }
-    }
+
+        const useEmojiCodes = localStorage.getItem("useEmojiCodes");
+
+        if (useEmojiCodes && `${useEmojiCodes}` === "true") {
+            this.setUseEmojiCodes(true);
+        } else {
+            this.setUseEmojiCodes(false);
+        }
+    };
 
     @action
     setSelectedEmojiSet = (emojiSet: ExtendedEmojiSet, skipSettingToLocalstorage: boolean = false): void => {
@@ -22,5 +33,13 @@ export class EmojiSettingsStore {
             localStorage.setItem("emojiSet", emojiSet);
         }
         this.selectedEmojiSet = emojiSet;
-    }
+    };
+
+    @action
+    setUseEmojiCodes = (useEmojiCodes: boolean, skippSettingToLocalStorage: boolean = false): void => {
+        if (!skippSettingToLocalStorage) {
+            localStorage.setItem("useEmojiCodes", `${useEmojiCodes}`);
+        }
+        this.useEmojiCodes = useEmojiCodes;
+    };
 }
