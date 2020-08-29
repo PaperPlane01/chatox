@@ -98,15 +98,32 @@ class MessageServiceImpl(
     }
 
     override fun updateMessage(id: String, chatId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
-        return assertCanUpdateMessage(id, chatId)
-                .flatMap { findMessageEntityById(id) }
-                .map { messageMapper.mapMessageUpdate(updateMessageRequest, it) }
-                .flatMap { messageRepository.save(it) }
-                .map { messageMapper.toMessageResponse(
-                        message = it,
-                        mapReferredMessage = true,
-                        readByCurrentUser = true
-                ) }
+        return mono {
+            assertCanUpdateMessage(id, chatId).awaitFirst()
+            var message = findMessageEntityById(id).awaitFirst()
+            val originalMessageText = message.text
+            message = messageMapper.mapMessageUpdate(
+                    updateMessageRequest = updateMessageRequest,
+                    originalMessage = message
+            )
+
+            if (originalMessageText != message.text) {
+                val emoji = emojiParserService.parseEmoji(
+                        text = message.text,
+                        emojiSet = updateMessageRequest.emojisSet
+                )
+                        .awaitFirst()
+                message = message.copy(emoji = emoji)
+            }
+
+            message = messageRepository.save(message).awaitFirst()
+
+            messageMapper.toMessageResponse(
+                    message = message,
+                    mapReferredMessage = true,
+                    readByCurrentUser = true
+            )
+        }
     }
 
     private fun assertCanUpdateMessage(id: String, chatId: String): Mono<Boolean> {
