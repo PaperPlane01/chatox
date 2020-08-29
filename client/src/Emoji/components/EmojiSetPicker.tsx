@@ -2,6 +2,7 @@ import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, FormControlLabel, Radio, RadioGroup, Typography} from "@material-ui/core";
 import {EmojiSetDemo} from "./EmojiSetDemo";
+import {UseEmojiCodesSwitch} from "./UseEmojiCodesSwitch";
 import {ExtendedEmojiSet} from "../types";
 import {ALLOWED_EMOJI_SETS} from "../internal/constants";
 import {useLocalization, useStore} from "../../store/hooks";
@@ -43,6 +44,7 @@ export const EmojiSetPicker: FunctionComponent<EmojiSetPickerProps> = observer((
                         />
                     ))}
                 </RadioGroup>
+                <UseEmojiCodesSwitch/>
             </CardContent>
         </Card>
     )

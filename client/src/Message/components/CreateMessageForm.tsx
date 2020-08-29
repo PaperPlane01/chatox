@@ -56,7 +56,8 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             selectedChatId
         },
         emoji: {
-            selectedEmojiSet
+            selectedEmojiSet,
+            useEmojiCodes
         }
     } = useStore();
     const {l} = useLocalization();
@@ -115,7 +116,15 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
 
     const handleEmojiSelect = (emoji: EmojiData): void => {
         if (inputRef && inputRef.current) {
-            inputRef.current.value = `${inputRef.current.value}${(emoji as any).native}`;
+            if (!useEmojiCodes) {
+                inputRef.current.value = `${inputRef.current.value}${(emoji as any).native}`;
+            } else {
+                if (inputRef.current.value.length !== 0) {
+                    inputRef.current.value = `${inputRef.current.value} ${emoji.colons}`;
+                } else {
+                    inputRef.current.value = `${emoji.colons}`;
+                }
+            }
             updateText();
         }
     }

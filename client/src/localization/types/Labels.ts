@@ -204,5 +204,6 @@ export interface Labels {
     "emoji.set.native": string,
     "emoji.set.facebook": string,
     "emoji.set.messenger": string,
-    "settings.appearance": string
+    "settings.appearance": string,
+    "emoji.use-codes": string
 }

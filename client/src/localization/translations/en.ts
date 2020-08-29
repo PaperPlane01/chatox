@@ -206,5 +206,6 @@ export const en: Labels = {
     "emoji.set.native": "Native",
     "emoji.set.facebook": "Facebook",
     "emoji.set.messenger": "Messenger",
-    "settings.appearance": "Appearance"
+    "settings.appearance": "Appearance",
+    "emoji.use-codes": "Use emoji codes for input"
 };
