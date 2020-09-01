@@ -49,7 +49,14 @@ public class EmailConfirmationCodeServiceImpl implements EmailConfirmationCodeSe
     private String chatoxEmail;
 
     @Override
-    public EmailConfirmationCodeResponse sendVerificationEmail(CreateEmailConfirmationCodeRequest createEmailConfirmationCodeRequest) {
+    public EmailConfirmationCodeResponse sendEmailConfirmationCode(CreateEmailConfirmationCodeRequest createEmailConfirmationCodeRequest) {
+        if (createEmailConfirmationCodeRequest.getType().equals(EmailConfirmationCodeType.CONFIRM_PASSWORD_RECOVERY)) {
+            throw new UnsupportedOperationException(String.format(
+                    "Email confirmation code type %s is not yet supported",
+                    EmailConfirmationCodeType.CONFIRM_PASSWORD_RECOVERY
+            ));
+        }
+
         if (createEmailConfirmationCodeRequest.getType().equals(EmailConfirmationCodeType.CONFIRM_EMAIL)
                 && accountRepository.existsByEmail(createEmailConfirmationCodeRequest.getEmail())) {
             throw new EmailHasAlreadyBeenTakenException(
@@ -131,19 +138,19 @@ public class EmailConfirmationCodeServiceImpl implements EmailConfirmationCodeSe
     }
 
     @Override
-    public EmailConfirmationCodeValidityResponse checkEmailVerificationCode(String emailVerificationId, CheckEmailConfirmationCodeValidityRequest checkEmailVerificationCodeValidityRequest) {
-        EmailConfirmationCode emailVerification = emailVerificationRepository.findById(emailVerificationId)
+    public EmailConfirmationCodeValidityResponse checkEmailConfirmationCode(String emailConfirmationCodeId, CheckEmailConfirmationCodeValidityRequest checkEmailVerificationCodeValidityRequest) {
+        EmailConfirmationCode emailConfirmationCode = emailVerificationRepository.findById(emailConfirmationCodeId)
                 .orElseThrow(() -> new EmailConfirmationCodeNotFoundException(
-                        String.format("Could not find email verification with id %s", emailVerificationId)
+                        String.format("Could not find email verification with id %s", emailConfirmationCodeId)
                 ));
 
-        if (emailVerification.getExpiresAt().isBefore(ZonedDateTime.now())) {
-            throw new EmailConfirmationCodeExpiredException();
+        if (emailConfirmationCode.getExpiresAt().isBefore(ZonedDateTime.now())) {
+            throw new EmailConfirmationCodeExpiredException("This email confirmation code has expired");
         }
 
         boolean valid = passwordEncoder.matches(
                 checkEmailVerificationCodeValidityRequest.getConfirmationCode(),
-                emailVerification.getConfirmationCodeHash()
+                emailConfirmationCode.getConfirmationCodeHash()
         );
 
         return EmailConfirmationCodeValidityResponse.builder().valid(valid).build();

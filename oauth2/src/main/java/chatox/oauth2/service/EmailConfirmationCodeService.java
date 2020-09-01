@@ -7,7 +7,7 @@ import chatox.oauth2.api.response.EmailConfirmationCodeValidityResponse;
 import chatox.oauth2.api.response.EmailConfirmationCodeResponse;
 
 public interface EmailConfirmationCodeService {
-    EmailConfirmationCodeResponse sendVerificationEmail(CreateEmailConfirmationCodeRequest sendVerificationEmailRequest);
+    EmailConfirmationCodeResponse sendEmailConfirmationCode(CreateEmailConfirmationCodeRequest sendVerificationEmailRequest);
     EmailAvailabilityResponse checkEmailAvailability(String email);
-    EmailConfirmationCodeValidityResponse checkEmailVerificationCode(String emailVerificationId, CheckEmailConfirmationCodeValidityRequest checkEmailVerificationCodeValidityRequest);
+    EmailConfirmationCodeValidityResponse checkEmailConfirmationCode(String emailConfirmationCodeId, CheckEmailConfirmationCodeValidityRequest checkEmailVerificationCodeValidityRequest);
 }

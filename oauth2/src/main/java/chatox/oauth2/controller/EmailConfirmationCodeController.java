@@ -19,14 +19,14 @@ import javax.validation.Valid;
 @RequestMapping("/oauth/emailConfirmationCode")
 @RequiredArgsConstructor
 public class EmailConfirmationCodeController {
-    private final EmailConfirmationCodeService emailVerificationService;
+    private final EmailConfirmationCodeService emailConfirmationCodeService;
 
     @PreAuthorize("@emailConfirmationCodePermissions.canCreateEmailConfirmationCode(#createEmailConfirmationCodeRequest)")
     @PostMapping
     public EmailConfirmationCodeResponse sendVerificationEmail(
             @RequestBody @Valid CreateEmailConfirmationCodeRequest createEmailConfirmationCodeRequest
     ) {
-        return emailVerificationService.sendVerificationEmail(createEmailConfirmationCodeRequest);
+        return emailConfirmationCodeService.sendEmailConfirmationCode(createEmailConfirmationCodeRequest);
     }
 
     @PostMapping("/{id}/isValid")
@@ -34,6 +34,6 @@ public class EmailConfirmationCodeController {
             @PathVariable String id,
             @RequestBody @Valid CheckEmailConfirmationCodeValidityRequest checkEmailConfirmationCodeValidityRequest
     ) {
-        return emailVerificationService.checkEmailVerificationCode(id, checkEmailConfirmationCodeValidityRequest);
+        return emailConfirmationCodeService.checkEmailConfirmationCode(id, checkEmailConfirmationCodeValidityRequest);
     }
 }

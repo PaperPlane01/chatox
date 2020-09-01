@@ -11,12 +11,12 @@ import chatox.oauth2.domain.Client;
 import chatox.oauth2.domain.Role;
 import chatox.oauth2.exception.AccountNotFoundException;
 import chatox.oauth2.exception.ClientNotFoundException;
-import chatox.oauth2.exception.EmailConfirmationIdRequiredException;
-import chatox.oauth2.exception.EmailConfirmationCodeRequiredException;
-import chatox.oauth2.exception.EmailHasAlreadyBeenTakenException;
-import chatox.oauth2.exception.metadata.EmailMismatchException;
 import chatox.oauth2.exception.EmailConfirmationCodeExpiredException;
 import chatox.oauth2.exception.EmailConfirmationCodeNotFoundException;
+import chatox.oauth2.exception.EmailConfirmationCodeRequiredException;
+import chatox.oauth2.exception.EmailConfirmationIdRequiredException;
+import chatox.oauth2.exception.EmailHasAlreadyBeenTakenException;
+import chatox.oauth2.exception.metadata.EmailMismatchException;
 import chatox.oauth2.exception.metadata.InvalidEmailConfirmationCodeCodeException;
 import chatox.oauth2.exception.metadata.InvalidPasswordException;
 import chatox.oauth2.mapper.AccountMapper;
@@ -29,7 +29,6 @@ import chatox.oauth2.security.CustomClientDetails;
 import chatox.oauth2.security.CustomUserDetails;
 import chatox.oauth2.service.AccountService;
 import chatox.oauth2.service.TimeService;
-import chatox.oauth2.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -52,9 +51,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -85,17 +86,21 @@ public class AccountServiceImpl implements AccountService {
     public CreateAccountResponse createAccount(CreateAccountRequest createAccountRequest) {
         var client = findClientById(createAccountRequest.getClientId());
 
-        if (Util.allNotNull(
+        var emailInfoPresent = Stream.of(
                 createAccountRequest.getEmail(),
                 createAccountRequest.getEmailConfirmationCode(),
-                createAccountRequest.getEmailConfirmationCodeId())) {
+                createAccountRequest.getEmailConfirmationCodeId()
+        )
+                .allMatch(Objects::nonNull);
+
+        if (emailInfoPresent) {
             if (accountRepository.existsByEmail(createAccountRequest.getEmail())) {
                 throw new EmailHasAlreadyBeenTakenException(String.format(
                         "Email %s has already been taken", createAccountRequest.getEmail()
                 ));
             }
 
-            var emailVerification = emailConfirmationCodeRepository.findById(createAccountRequest.getEmailConfirmationCodeId())
+            var emailConfirmationCode = emailConfirmationCodeRepository.findById(createAccountRequest.getEmailConfirmationCodeId())
                     .orElseThrow(() -> new EmailConfirmationCodeNotFoundException(
                             String.format(
                                     "Could not find email confirmation code with id %s",
@@ -103,7 +108,7 @@ public class AccountServiceImpl implements AccountService {
                             )
                     ));
 
-            if (!emailVerification.getEmail().equals(createAccountRequest.getEmail())) {
+            if (!emailConfirmationCode.getEmail().equals(createAccountRequest.getEmail())) {
                 throw new EmailMismatchException(
                         "Email provided in request does not match with email in email verification with the specified id"
                 );
@@ -111,11 +116,11 @@ public class AccountServiceImpl implements AccountService {
 
             if (!passwordEncoder.matches(
                     createAccountRequest.getEmailConfirmationCode(),
-                    emailVerification.getConfirmationCodeHash())) {
+                    emailConfirmationCode.getConfirmationCodeHash())) {
                 throw new InvalidEmailConfirmationCodeCodeException("Provided email confirmation code is invalid");
             }
 
-            if (ZonedDateTime.now().isAfter(emailVerification.getExpiresAt())) {
+            if (ZonedDateTime.now().isAfter(emailConfirmationCode.getExpiresAt())) {
                 throw new EmailConfirmationCodeExpiredException("This email confirmation code has expired");
             }
         }

@@ -16,34 +16,34 @@ import java.util.Map;
 public class EmailPropertiesProvider {
     private Map<EmailConfirmationCodeType, EmailProperties> propertiesMap;
 
-    public ZonedDateTime getExpirationDate(EmailConfirmationCodeType emailVerificationType) {
-        return getExpirationDate(emailVerificationType, ZonedDateTime.now());
+    public ZonedDateTime getExpirationDate(EmailConfirmationCodeType emailConfirmationCodeType) {
+        return getExpirationDate(emailConfirmationCodeType, ZonedDateTime.now());
     }
 
-    public ZonedDateTime getExpirationDate(EmailConfirmationCodeType emailVerificationType, ZonedDateTime now) {
-        var emailProperties = propertiesMap.get(emailVerificationType);
+    public ZonedDateTime getExpirationDate(EmailConfirmationCodeType emailConfirmationCodeType, ZonedDateTime now) {
+        var emailProperties = propertiesMap.get(emailConfirmationCodeType);
         var amountToAdd = emailProperties.getExpirationAmount();
         var chronoUnit = emailProperties.getExpirationChronoUnit();
 
         return now.plus(amountToAdd, chronoUnit);
     }
 
-    public String getSubject(EmailConfirmationCodeType emailVerificationType, Language language) {
-        return propertiesMap.get(emailVerificationType).getSubjectsMap().get(language);
+    public String getSubject(EmailConfirmationCodeType emailConfirmationCodeType, Language language) {
+        return propertiesMap.get(emailConfirmationCodeType).getSubjectsMap().get(language);
     }
 
-    public String getThymeleafTemplate(EmailConfirmationCodeType emailVerificationType, Language language) {
-        var emailProperties = propertiesMap.get(emailVerificationType);
+    public String getThymeleafTemplate(EmailConfirmationCodeType emailConfirmationCodeType, Language language) {
+        var emailProperties = propertiesMap.get(emailConfirmationCodeType);
 
         return String.format("%s_%s.html", emailProperties.getTemplateBaseName(), language.getPrimaryAliasLowerCase());
     }
 
-    public EmailSourceStrategy getEmailSourceStrategy(EmailConfirmationCodeType emailVerificationType) {
-        return propertiesMap.get(emailVerificationType).getEmailSourceStrategy();
+    public EmailSourceStrategy getEmailSourceStrategy(EmailConfirmationCodeType emailConfirmationCodeType) {
+        return propertiesMap.get(emailConfirmationCodeType).getEmailSourceStrategy();
     }
 
-    public boolean requiresCheckingAccountExistence(EmailConfirmationCodeType emailVerificationType) {
-        return propertiesMap.get(emailVerificationType).isRequiresCheckingAccountExistence();
+    public boolean requiresCheckingAccountExistence(EmailConfirmationCodeType emailConfirmationCodeType) {
+        return propertiesMap.get(emailConfirmationCodeType).isRequiresCheckingAccountExistence();
     }
 
     @PostConstruct

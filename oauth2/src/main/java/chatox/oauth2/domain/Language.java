@@ -3,7 +3,9 @@ package chatox.oauth2.domain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public enum Language {
     EN("EN", "english"),
@@ -24,7 +26,10 @@ public enum Language {
         String stringRepresentation = string.trim().toUpperCase();
 
         return Arrays.stream(Language.values())
-                .filter(enumValue -> enumValue.aliases.contains(stringRepresentation))
+                .filter(enumValue -> enumValue.aliases.stream()
+                        .map(String::toUpperCase)
+                        .anyMatch(alias -> alias.equals(stringRepresentation))
+                )
                 .findFirst()
                 .orElse(Language.EN);
     }
