@@ -2,7 +2,8 @@ export enum SettingsTab {
     PROFILE = "profile",
     LANGUAGE = "language",
     SECURITY = "security",
-    APPEARANCE = "appearance"
+    APPEARANCE = "appearance",
+    CHATS = "chats"
 }
 
 export const getSettingsTabFromString = (settingsTab?: string): SettingsTab => {
@@ -19,6 +20,8 @@ export const getSettingsTabFromString = (settingsTab?: string): SettingsTab => {
             return SettingsTab.SECURITY;
         case "appearance":
             return SettingsTab.APPEARANCE;
+        case "chats":
+            return SettingsTab.CHATS;
         default:
             return SettingsTab.PROFILE;
     }

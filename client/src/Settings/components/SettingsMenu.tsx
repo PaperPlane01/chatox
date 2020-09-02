@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {createStyles, List, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
-import {Language, Palette, Person, Security} from "@material-ui/icons";
+import {ChatBubble, Language, Palette, Person, Security} from "@material-ui/icons";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
 import {ChangePasswordContainer, EditProfileForm} from "../../User";
 import {EmojiSetPicker} from "../../Emoji";
@@ -9,6 +9,7 @@ import {LanguagePicker} from "../../localization";
 import {SettingsTab} from "../types";
 import {Routes} from "../../router";
 import {useLocalization, useRouter, useStore} from "../../store";
+import {ChatsPreferencesCard} from "../../Chat/components";
 
 const {Link} = require("mobx-router");
 
@@ -88,6 +89,20 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                         </ListItemText>
                     </MenuItem>
                 </Link>
+                <Link className={classes.undecoratedLink}
+                      view={Routes.settingsTabPage}
+                      params={{tab: SettingsTab.CHATS}}
+                      store={routerStore}
+                >
+                    <MenuItem>
+                        <ListItemIcon>
+                            <ChatBubble/>
+                        </ListItemIcon>
+                        <ListItemText>
+                            {l("settings.chats")}
+                        </ListItemText>
+                    </MenuItem>
+                </Link>
             </List>
             <SettingsFullScreenDialog title={l("user.edit-profile")}
                                       open={activeTab === SettingsTab.PROFILE}
@@ -108,6 +123,11 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                                       open={activeTab === SettingsTab.APPEARANCE}
             >
                 <EmojiSetPicker/>
+            </SettingsFullScreenDialog>
+            <SettingsFullScreenDialog title={l("settings.chats")}
+                                      open={activeTab === SettingsTab.CHATS}
+            >
+                <ChatsPreferencesCard/>
             </SettingsFullScreenDialog>
         </Fragment>
     )

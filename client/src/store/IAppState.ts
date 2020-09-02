@@ -6,7 +6,7 @@ import {RegistrationDialogStore, SendConfirmationCodeStore, UserRegistrationStor
 import {
     ChatInfoDialogStore,
     ChatParticipantsStore,
-    ChatsOfCurrentUserStore,
+    ChatsOfCurrentUserStore, ChatsPreferencesStore,
     ChatStore,
     CreateChatStore,
     JoinChatStore,
@@ -80,5 +80,6 @@ export interface IAppState {
     passwordChangeStep: PasswordChangeStepStore,
     passwordChangeEmailConfirmationCodeSending: SendPasswordChangeEmailConfirmationCodeStore,
     emoji: EmojiSettingsStore,
+    chatsPreferences: ChatsPreferencesStore,
     store?: any
 }

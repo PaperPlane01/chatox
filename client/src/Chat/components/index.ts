@@ -17,3 +17,4 @@ export * from "./OnlineChatParticipantsList";
 export * from "./EditChatMenuItem";
 export * from "./UpdateChatDialog";
 export * from "./ChatAvatarUpload";
+export * from "./ChatsPreferencesCard";

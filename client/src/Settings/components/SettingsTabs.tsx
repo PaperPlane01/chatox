@@ -11,11 +11,12 @@ import {
     Typography
 } from "@material-ui/core";
 import {TabContext, TabList, TabPanel} from "@material-ui/lab";
-import {Language, Palette, Person, Security} from "@material-ui/icons";
+import {Language, Palette, Person, Security, ChatBubble} from "@material-ui/icons";
 import {SettingsTab} from "../types";
 import {HasRole} from "../../Authorization";
 import {EditProfileForm, ChangePasswordContainer} from "../../User";
 import {EmojiSetPicker} from "../../Emoji";
+import {ChatsPreferencesCard} from "../../Chat";
 import {LanguagePicker} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
@@ -113,6 +114,18 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                              </MenuItem>
                          }
                     />
+                    <Tab value={SettingsTab.CHATS}
+                         label={
+                             <MenuItem>
+                                 <ListItemIcon>
+                                     <ChatBubble/>
+                                 </ListItemIcon>
+                                 <ListItemText>
+                                     {l("settings.chats")}
+                                 </ListItemText>
+                             </MenuItem>
+                         }
+                    />
                 </TabList>
                 <TabPanel value={SettingsTab.PROFILE}
                           className={classes.fullWidth}
@@ -149,6 +162,11 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                     >
                         <ChangePasswordContainer/>
                     </HasRole>
+                </TabPanel>
+                <TabPanel value={SettingsTab.CHATS}
+                          className={classes.fullWidth}
+                >
+                    <ChatsPreferencesCard/>
                 </TabPanel>
             </TabContext>
         </div>

@@ -9,3 +9,4 @@ export * from "./JoinChatStore";
 export * from "./ChatInfoDialogStore";
 export * from "./OnlineChatParticipantsStore";
 export * from "./UpdateChatStore";
+export * from "./ChatsPreferencesStore";

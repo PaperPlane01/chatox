@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, memo} from "react";
 import {observer} from "mobx-react";
 import {
     Card,
@@ -9,7 +9,8 @@ import {
     makeStyles,
     Theme,
     Tooltip,
-    Typography
+    Typography,
+    useTheme
 } from "@material-ui/core";
 import {Edit} from "@material-ui/icons";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
@@ -44,7 +45,7 @@ const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messageListItemWrapper: {
         display: "flex",
-        marginBottom: theme.spacing(1)
+        paddingBottom: theme.spacing(1)
     },
     messageOfCurrentUserListItemWrapper: {
         [theme.breakpoints.down("md")]: {
@@ -53,7 +54,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     messageCard: {
         borderRadius: 8,
-        marginLeft: theme.spacing(1),
         wordBreak: "break-word",
         [theme.breakpoints.up("lg")]: {
             maxWidth: "50%"
@@ -63,13 +63,15 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         },
         [theme.breakpoints.down("sm")]: {
             maxWidth: "70%"
-        }
+        },
+        overflowX: "auto"
     },
     messageCardFullWidth: {
         borderRadius: 8,
         marginLeft: theme.spacing(1),
         wordBreak: "break-word",
-        width: "100%"
+        width: "100%",
+        overflowX: "auto"
     },
     messageOfCurrentUserCard: {
         backgroundColor: theme.palette.primary.light,
@@ -97,10 +99,21 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     undecoratedLink: {
         textDecoration: "none",
         color: "inherit"
+    },
+    avatarOfCurrentUserContainer: {
+        [theme.breakpoints.up("lg")]: {
+            paddingRight: theme.spacing(1),
+        },
+        [theme.breakpoints.down("md")]: {
+            paddingLeft: theme.spacing(1),
+        }
+    },
+    avatarContainer: {
+        paddingRight: theme.spacing(1),
     }
 }));
 
-export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
+const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     messageId,
     fullWidth = false,
     onMenuItemClick
@@ -138,7 +151,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
              id={`message-${messageId}`}
         >
             <Link store={routerStore}
-                  className={classes.undecoratedLink}
+                  className={`${classes.undecoratedLink} ${sentByCurrentUser ? classes.avatarOfCurrentUserContainer : classes.avatarContainer}`}
                   view={Routes.userPage}
                   params={{slug: sender.slug || sender.id}}
             >
@@ -200,3 +213,5 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
         </div>
     )
 });
+
+export const MessagesListItem = memo(_MessagesListItem);

@@ -17,7 +17,7 @@ import {
     JoinChatStore,
     ChatInfoDialogStore,
     OnlineChatParticipantsStore,
-    UpdateChatStore
+    UpdateChatStore, ChatsPreferencesStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
@@ -130,6 +130,7 @@ const passwordChange = new PasswordChangeStore(
     authorization
 );
 const emoji = new EmojiSettingsStore();
+const chatsPreferences = new ChatsPreferencesStore();
 
 export const store: IAppState = {
     authorization,
@@ -172,5 +173,6 @@ export const store: IAppState = {
     passwordChangeEmailConfirmationCodeSending,
     passwordChangeForm,
     passwordChange,
+    chatsPreferences,
     emoji
 };

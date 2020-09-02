@@ -1,6 +1,16 @@
-import React, {Fragment, FunctionComponent, UIEvent, useEffect, useLayoutEffect, useRef, useState} from "react";
+import React, {
+    Fragment,
+    FunctionComponent,
+    UIEvent,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState
+} from "react";
 import {observer} from "mobx-react";
 import {createStyles, makeStyles, Theme, useMediaQuery, useTheme} from "@material-ui/core";
+import VisibilitySensor from "react-visibility-sensor";
+import {Virtuoso} from "react-virtuoso";
 import {MessagesListItem} from "./MessagesListItem";
 import {MessagesListBottom} from "./MessagesListBottom";
 import {useStore} from "../../store";
@@ -12,13 +22,13 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         },
         [theme.breakpoints.down("md")]: {
             overflowY: "auto",
-            height: "100%"
+            overflowX: "auto"
         }
     }
 }));
 
 interface MessagesListStyles {
-    height: string,
+    height: string | number,
     paddingBottom: number
 }
 
@@ -34,27 +44,40 @@ export const MessagesList: FunctionComponent = observer(() => {
             },
             emojiPickerExpanded
         },
+        chatsPreferences: {
+            useVirtualScroll
+        }
     } = useStore();
     const [reachedBottom, setReachedBottom] = useState(true);
     const theme = useTheme();
     const phantomBottomRef = useRef<HTMLDivElement>(null);
-    const messagesListBottomRef = useRef<HTMLDivElement>(null)
+    const messagesListBottomRef = useRef<HTMLDivElement>(null);
+    const classes = useStyles();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
     const calculateStyles = (): MessagesListStyles => {
-        let height: string;
+        let height: string | number;
         let paddingBottom: number = 0;
 
         if (onSmallScreen) {
-            height = "100%";
+            if (useVirtualScroll) {
+                if (messagesListBottomRef && messagesListBottomRef.current) {
+                    const heightToSubtract = theme.spacing(7) + messagesListBottomRef.current.getBoundingClientRect().height;
+                    height = window.innerHeight - heightToSubtract;
+                } else {
+                    height = `calc(100vh - ${referredMessageId ? 238 : 154}px)`;
+                }
+            } else {
+                height = "100%";
 
-            if (messagesListBottomRef && messagesListBottomRef.current) {
-                paddingBottom = messagesListBottomRef.current.getBoundingClientRect().height;
+                if (messagesListBottomRef && messagesListBottomRef.current) {
+                    paddingBottom = messagesListBottomRef.current.getBoundingClientRect().height;
+                }
             }
         } else {
             if (messagesListBottomRef && messagesListBottomRef.current) {
                 const heightToSubtract = theme.spacing(8) + messagesListBottomRef.current.getBoundingClientRect().height + theme.spacing(2);
-                height = `calc(100vh - ${heightToSubtract}px)`
+                height = window.innerHeight - heightToSubtract;
             } else {
                 height = `calc(100vh - ${referredMessageId ? 238 : 154}px)`;
             }
@@ -67,7 +90,7 @@ export const MessagesList: FunctionComponent = observer(() => {
 
     const scrollToBottom = (): void => {
         if (reachedBottom && phantomBottomRef && phantomBottomRef.current) {
-            phantomBottomRef.current.scrollIntoView();
+            setTimeout(() => phantomBottomRef!.current!.scrollIntoView());
         }
     };
 
@@ -115,23 +138,45 @@ export const MessagesList: FunctionComponent = observer(() => {
         ]
     );
 
-    const classes = useStyles({referredMessageId});
-
-    return (
-        <Fragment>
-            <div className={classes.messagesList}
-                 onScroll={handleDivScroll}
-                 id="messagesList"
-                 style={styles}
-            >
-                {messagesOfChat.map(messageId => (
-                    <MessagesListItem messageId={messageId}
-                                      key={messageId}
-                    />
-                ))}
-                <div id="phantomBottom" ref={phantomBottomRef}/>
-            </div>
+    if (!useVirtualScroll) {
+        return (
+            <Fragment>
+                <div className={classes.messagesList}
+                     onScroll={handleDivScroll}
+                     id="messagesList"
+                     style={styles}
+                >
+                    {messagesOfChat.map(messageId => (
+                        <MessagesListItem messageId={messageId}
+                                          key={messageId}
+                        />
+                    ))}
+                    <div id="phantomBottom" ref={phantomBottomRef}/>
+                </div>
+                <MessagesListBottom ref={messagesListBottomRef}/>
+            </Fragment>
+        )
+    } else {
+        return <div id="messagesList">
+            <Virtuoso totalCount={messagesOfChat.length}
+                      item={index => {
+                          if (index === messagesOfChat.length - 1) {
+                              return (
+                                  <VisibilitySensor onChange={isVisible => setReachedBottom(isVisible)}>
+                                      <MessagesListItem messageId={messagesOfChat[index]} key={messagesOfChat[index]}/>
+                                  </VisibilitySensor>
+                              )
+                          } else {
+                              return <MessagesListItem messageId={messagesOfChat[index]} key={messagesOfChat[index]}/>
+                          }
+                      }}
+                      style={styles}
+                      defaultItemHeight={120}
+                      overscan={2400}
+                      footer={() => <div id="phantomBottom" ref={phantomBottomRef}/>}
+                      followOutput
+            />
             <MessagesListBottom ref={messagesListBottomRef}/>
-        </Fragment>
-    );
+        </div>
+    }
 });
