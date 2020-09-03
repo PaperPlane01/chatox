@@ -15,6 +15,7 @@ import {
 import {Edit} from "@material-ui/icons";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
+import ReactVisibilitySensor from "react-visibility-sensor";
 import {MenuItemType, MessageMenu} from "./MessageMenu";
 import {ReferredMessageContent} from "./ReferredMessageContent";
 import {Avatar} from "../../Avatar";
@@ -27,7 +28,8 @@ const {Link} = require("mobx-router");
 interface MessagesListItemProps {
     messageId: string,
     fullWidth?: boolean,
-    onMenuItemClick?: (menuItemType: MenuItemType) => void
+    onMenuItemClick?: (menuItemType: MenuItemType) => void,
+    onVisibilityChange?: (visible: boolean) => void
 }
 
 const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
@@ -116,7 +118,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     messageId,
     fullWidth = false,
-    onMenuItemClick
+    onMenuItemClick,
+    onVisibilityChange
 }) => {
     const {
         entities: {
@@ -147,70 +150,72 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     };
 
     return (
-        <div className={`${classes.messageListItemWrapper} ${sentByCurrentUser && !fullWidth && classes.messageOfCurrentUserListItemWrapper}`}
-             id={`message-${messageId}`}
-        >
-            <Link store={routerStore}
-                  className={`${classes.undecoratedLink} ${sentByCurrentUser ? classes.avatarOfCurrentUserContainer : classes.avatarContainer}`}
-                  view={Routes.userPage}
-                  params={{slug: sender.slug || sender.id}}
+        <ReactVisibilitySensor onChange={onVisibilityChange}>
+            <div className={`${classes.messageListItemWrapper} ${sentByCurrentUser && !fullWidth && classes.messageOfCurrentUserListItemWrapper}`}
+                 id={`message-${messageId}`}
             >
-                <Avatar avatarLetter={avatarLetter}
-                        avatarColor={color}
-                        avatarId={sender.avatarId}
-                />
-            </Link>
-            <Card className={`${fullWidth ? classes.messageCardFullWidth : classes.messageCard} ${sentByCurrentUser && classes.messageOfCurrentUserCard}`}>
-                <CardHeader title={
-                    <Link store={routerStore}
-                          className={classes.undecoratedLink}
-                          view={Routes.userPage}
-                          params={{slug: sender.slug || sender.id}}
-                    >
-                        <Typography variant="body1" style={{color}}>
-                            <strong>{sender.firstName} {sender.lastName && sender.lastName}</strong>
-                        </Typography>
-                    </Link>
-                }
-                            classes={{
-                                root: classes.cardHeaderRoot,
-                                action: classes.cardHeaderAction,
-                                content: classes.cardHeaderContent
-                            }}
-                            action={<MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>}
-                />
-                <CardContent classes={{
-                    root: classes.cardContentRoot
-                }}>
-                    <ReferredMessageContent messageId={message.referredMessageId}/>
-                    {message.deleted
-                        ? <i>{l("message.deleted")}</i>
-                        : (
-                            <MarkdownTextWithEmoji text={message.text}
-                                                   emojiData={message.emoji}
-                            />
-                        )
+                <Link store={routerStore}
+                      className={`${classes.undecoratedLink} ${sentByCurrentUser ? classes.avatarOfCurrentUserContainer : classes.avatarContainer}`}
+                      view={Routes.userPage}
+                      params={{slug: sender.slug || sender.id}}
+                >
+                    <Avatar avatarLetter={avatarLetter}
+                            avatarColor={color}
+                            avatarId={sender.avatarId}
+                    />
+                </Link>
+                <Card className={`${fullWidth ? classes.messageCardFullWidth : classes.messageCard} ${sentByCurrentUser && classes.messageOfCurrentUserCard}`}>
+                    <CardHeader title={
+                        <Link store={routerStore}
+                              className={classes.undecoratedLink}
+                              view={Routes.userPage}
+                              params={{slug: sender.slug || sender.id}}
+                        >
+                            <Typography variant="body1" style={{color}}>
+                                <strong>{sender.firstName} {sender.lastName && sender.lastName}</strong>
+                            </Typography>
+                        </Link>
                     }
-                </CardContent>
-                <CardActions classes={{
-                    root: classes.cardActionsRoot
-                }}>
-                    <Typography variant="caption" color="textSecondary">
-                        {createAtLabel}
-                        {message.updatedAt && (
-                            <Tooltip title={l("message.updated-at", {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)})}>
+                                classes={{
+                                    root: classes.cardHeaderRoot,
+                                    action: classes.cardHeaderAction,
+                                    content: classes.cardHeaderContent
+                                }}
+                                action={<MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>}
+                    />
+                    <CardContent classes={{
+                        root: classes.cardContentRoot
+                    }}>
+                        <ReferredMessageContent messageId={message.referredMessageId}/>
+                        {message.deleted
+                            ? <i>{l("message.deleted")}</i>
+                            : (
+                                <MarkdownTextWithEmoji text={message.text}
+                                                       emojiData={message.emoji}
+                                />
+                            )
+                        }
+                    </CardContent>
+                    <CardActions classes={{
+                        root: classes.cardActionsRoot
+                    }}>
+                        <Typography variant="caption" color="textSecondary">
+                            {createAtLabel}
+                            {message.updatedAt && (
+                                <Tooltip title={l("message.updated-at", {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)})}>
                                 <span>
                                     ,
                                     {" "}
                                     <Edit fontSize="inherit"/>
                                     {l("message.edited")}
                                 </span>
-                            </Tooltip>
-                        )}
-                    </Typography>
-                </CardActions>
-            </Card>
-        </div>
+                                </Tooltip>
+                            )}
+                        </Typography>
+                    </CardActions>
+                </Card>
+            </div>
+        </ReactVisibilitySensor>
     )
 });
 
