@@ -34,14 +34,52 @@ interface VirtuosoInitialTopMostIndexMap {
 // Map for keeping scroll position after switching chats
 const virtuosoInitialTopMostIndexMap: VirtuosoInitialTopMostIndexMap = {};
 
-// Current top item index
-let initialTopMostItem = 0;
-
 interface VirtuosoLastVisibleIndexMap {
     [chatId: string]: number
 }
 
 const virtuosoLastVisibleIndexMap: VirtuosoLastVisibleIndexMap = {};
+
+const setInitialTopMostItem = (index: number, chatId: string, previousChatId?: string) => {
+    if (!virtuosoInitialTopMostIndexMap[chatId]) {
+        virtuosoInitialTopMostIndexMap[chatId] = {
+            index: 0,
+            previous: []
+        }
+    }
+
+    if (virtuosoInitialTopMostIndexMap[chatId].previous && virtuosoInitialTopMostIndexMap[chatId].previous.length !== 0) {
+        const previous = virtuosoInitialTopMostIndexMap[chatId].previous[virtuosoInitialTopMostIndexMap[chatId].previous.length - 1];
+
+        // For some reason react-virtuoso shifts visible position by 1 even if it's not been visible
+        // if this item has low height
+        // This causes scroll position to shift by 1 upwards for no reason
+        if ((previous - index) === 1) {
+            // Negate this effect
+            index = previous;
+        } else if ((previous - index) > 20) {
+            // Looks like some kind of race condition happens when switching between chats.
+            // For some reason position of current chat is set to previous chat on first render.
+            // We detect too large difference between current position and previous position of chat to avoid
+            // scrolling to incorrect position when switching back.
+            // This is a hacky work-around but I can't see any other way currently :(
+            index = previous;
+        }
+    }
+
+    // Save scroll position for selected chat
+    virtuosoInitialTopMostIndexMap[chatId].index = index;
+
+    if (virtuosoInitialTopMostIndexMap[chatId].previous) {
+        virtuosoInitialTopMostIndexMap[chatId].previous.push(index);
+
+        if (virtuosoInitialTopMostIndexMap[chatId].previous.length > 30) {
+            virtuosoInitialTopMostIndexMap[chatId].previous = virtuosoInitialTopMostIndexMap[chatId].previous.splice(0, 25);
+        }
+    } else {
+        virtuosoInitialTopMostIndexMap[chatId].previous = [index];
+    }
+}
 
 export const MessagesList: FunctionComponent = observer(() => {
     const {
@@ -59,7 +97,7 @@ export const MessagesList: FunctionComponent = observer(() => {
             useVirtualScroll
         },
         chat: {
-            selectedChatId
+            selectedChatId,
         }
     } = useStore();
     const [reachedBottom, setReachedBottom] = useState(true);
@@ -143,52 +181,17 @@ export const MessagesList: FunctionComponent = observer(() => {
         }
     });
     useEffect(() => {
-        // Code for saving & restoring scroll position upon chat switch
-
         // Check if we have saved top item index for this chat
         if (!onSmallScreen) {
             // Look for initial top most item if we are not on small screen
             if (virtuosoRef && virtuosoRef.current && selectedChatId && virtuosoInitialTopMostIndexMap[selectedChatId]) {
                 // Scroll to the top item to restore scroll position
-                virtuosoRef.current.scrollToIndex(virtuosoInitialTopMostIndexMap[selectedChatId]);
+                virtuosoRef.current.scrollToIndex(virtuosoInitialTopMostIndexMap[selectedChatId].index);
             }
         } else {
             // Look for last visible index if we are on small screen
             if (virtuosoRef && virtuosoRef.current && selectedChatId && virtuosoLastVisibleIndexMap[selectedChatId]) {
                 virtuosoRef.current.scrollToIndex(virtuosoLastVisibleIndexMap[selectedChatId]);
-            }
-        }
-
-        return () => {
-            if (!onSmallScreen) {
-                // Populate top item map entry it's not present
-                if (!virtuosoInitialTopMostIndexMap[selectedChatId!]) {
-                    virtuosoInitialTopMostIndexMap[selectedChatId!] = {
-                        index: 0,
-                        previous: []
-                    }
-                }
-
-                if (virtuosoInitialTopMostIndexMap[selectedChatId!].previous && virtuosoInitialTopMostIndexMap[selectedChatId!].previous.length !== 0) {
-                    const previous = virtuosoInitialTopMostIndexMap[selectedChatId!].previous[virtuosoInitialTopMostIndexMap[selectedChatId!].previous.length - 1];
-
-                    // For some reason react-virtuoso shifts visible position by 1 even if it's not been visible
-                    // if this item has low height
-                    // This causes scroll position to shift by 1 upwards for no reason
-                    if ((previous - initialTopMostItem) === 1) {
-                        // Negate this effect
-                        initialTopMostItem = previous;
-                    }
-                }
-
-                // Save scroll position for selected chat
-                virtuosoInitialTopMostIndexMap[selectedChatId!].index = initialTopMostItem;
-
-                if (virtuosoInitialTopMostIndexMap[selectedChatId!].previous) {
-                    virtuosoInitialTopMostIndexMap[selectedChatId!].previous.push(initialTopMostItem);
-                } else {
-                    virtuosoInitialTopMostIndexMap[selectedChatId!].previous = [initialTopMostItem];
-                }
             }
         }
     }, [selectedChatId, onSmallScreen])
@@ -242,8 +245,8 @@ export const MessagesList: FunctionComponent = observer(() => {
                               footer={() => <div id="phantomBottom" ref={phantomBottomRef}/>}
                               followOutput
                               rangeChanged={({startIndex}) => {
-                                  if (startIndex !== 0) {
-                                      initialTopMostItem = startIndex;
+                                  if (startIndex > 5) {
+                                      setInitialTopMostItem(startIndex, selectedChatId!);
                                   }
                               }}
                               ref={virtuosoRef}
