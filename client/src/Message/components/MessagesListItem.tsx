@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, memo, useEffect} from "react";
 import {observer} from "mobx-react";
 import {
     Card,
@@ -9,11 +9,12 @@ import {
     makeStyles,
     Theme,
     Tooltip,
-    Typography
+    Typography,
 } from "@material-ui/core";
 import {Edit} from "@material-ui/icons";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
+import ReactVisibilitySensor from "react-visibility-sensor";
 import {MenuItemType, MessageMenu} from "./MessageMenu";
 import {ReferredMessageContent} from "./ReferredMessageContent";
 import {Avatar} from "../../Avatar";
@@ -26,7 +27,8 @@ const {Link} = require("mobx-router");
 interface MessagesListItemProps {
     messageId: string,
     fullWidth?: boolean,
-    onMenuItemClick?: (menuItemType: MenuItemType) => void
+    onMenuItemClick?: (menuItemType: MenuItemType) => void,
+    onVisibilityChange?: (visible: boolean) => void
 }
 
 const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
@@ -44,7 +46,12 @@ const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messageListItemWrapper: {
         display: "flex",
-        marginBottom: theme.spacing(1)
+        paddingBottom: theme.spacing(1),
+        "& p, ol, ul, pre": {
+            marginBlockStart: "unset !important",
+            marginBlockEnd: "unset !important",
+            paddingBottom: theme.spacing(1)
+        }
     },
     messageOfCurrentUserListItemWrapper: {
         [theme.breakpoints.down("md")]: {
@@ -53,7 +60,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     messageCard: {
         borderRadius: 8,
-        marginLeft: theme.spacing(1),
         wordBreak: "break-word",
         [theme.breakpoints.up("lg")]: {
             maxWidth: "50%"
@@ -63,13 +69,15 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         },
         [theme.breakpoints.down("sm")]: {
             maxWidth: "70%"
-        }
+        },
+        overflowX: "auto"
     },
     messageCardFullWidth: {
         borderRadius: 8,
         marginLeft: theme.spacing(1),
         wordBreak: "break-word",
-        width: "100%"
+        width: "100%",
+        overflowX: "auto"
     },
     messageOfCurrentUserCard: {
         backgroundColor: theme.palette.primary.light,
@@ -97,13 +105,28 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     undecoratedLink: {
         textDecoration: "none",
         color: "inherit"
+    },
+    avatarOfCurrentUserContainer: {
+        [theme.breakpoints.up("lg")]: {
+            paddingRight: theme.spacing(1),
+        },
+        [theme.breakpoints.down("md")]: {
+            paddingLeft: theme.spacing(1),
+        }
+    },
+    avatarContainer: {
+        paddingRight: theme.spacing(1),
+    },
+    withCode: {
+        maxWidth: "100%"
     }
 }));
 
-export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
+const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     messageId,
     fullWidth = false,
-    onMenuItemClick
+    onMenuItemClick,
+    onVisibilityChange
 }) => {
     const {
         entities: {
@@ -120,12 +143,21 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const routerStore = useRouter();
     const classes = useStyles();
 
+    useEffect(() => {
+        return () => {
+            if (onVisibilityChange) {
+                onVisibilityChange(false);
+            }
+        }
+    }, [])
+
     const message = findMessage(messageId);
     const sender = findUser(message.sender);
     const createAtLabel = getCreatedAtLabel(message.createdAt, dateFnsLocale);
     const color = randomColor({seed: sender.id});
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
     const sentByCurrentUser = currentUser && currentUser.id === sender.id;
+    const containsCode = message.text.includes("`");
 
     const handleMenuItemClick = (menuItemType: MenuItemType): void => {
         if (onMenuItemClick) {
@@ -134,69 +166,73 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     };
 
     return (
-        <div className={`${classes.messageListItemWrapper} ${sentByCurrentUser && !fullWidth && classes.messageOfCurrentUserListItemWrapper}`}
-             id={`message-${messageId}`}
-        >
-            <Link store={routerStore}
-                  className={classes.undecoratedLink}
-                  view={Routes.userPage}
-                  params={{slug: sender.slug || sender.id}}
+        <ReactVisibilitySensor onChange={onVisibilityChange}>
+            <div className={`${classes.messageListItemWrapper} ${sentByCurrentUser && !fullWidth && classes.messageOfCurrentUserListItemWrapper}`}
+                 id={`message-${messageId}`}
             >
-                <Avatar avatarLetter={avatarLetter}
-                        avatarColor={color}
-                        avatarId={sender.avatarId}
-                />
-            </Link>
-            <Card className={`${fullWidth ? classes.messageCardFullWidth : classes.messageCard} ${sentByCurrentUser && classes.messageOfCurrentUserCard}`}>
-                <CardHeader title={
-                    <Link store={routerStore}
-                          className={classes.undecoratedLink}
-                          view={Routes.userPage}
-                          params={{slug: sender.slug || sender.id}}
-                    >
-                        <Typography variant="body1" style={{color}}>
-                            <strong>{sender.firstName} {sender.lastName && sender.lastName}</strong>
-                        </Typography>
-                    </Link>
-                }
-                            classes={{
-                                root: classes.cardHeaderRoot,
-                                action: classes.cardHeaderAction,
-                                content: classes.cardHeaderContent
-                            }}
-                            action={<MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>}
-                />
-                <CardContent classes={{
-                    root: classes.cardContentRoot
-                }}>
-                    <ReferredMessageContent messageId={message.referredMessageId}/>
-                    {message.deleted
-                        ? <i>{l("message.deleted")}</i>
-                        : (
-                            <MarkdownTextWithEmoji text={message.text}
-                                                   emojiData={message.emoji}
-                            />
-                        )
+                <Link store={routerStore}
+                      className={`${classes.undecoratedLink} ${sentByCurrentUser ? classes.avatarOfCurrentUserContainer : classes.avatarContainer}`}
+                      view={Routes.userPage}
+                      params={{slug: sender.slug || sender.id}}
+                >
+                    <Avatar avatarLetter={avatarLetter}
+                            avatarColor={color}
+                            avatarId={sender.avatarId}
+                    />
+                </Link>
+                <Card className={`${fullWidth ? classes.messageCardFullWidth : classes.messageCard} ${sentByCurrentUser && classes.messageOfCurrentUserCard} ${containsCode && classes.withCode}`}>
+                    <CardHeader title={
+                        <Link store={routerStore}
+                              className={classes.undecoratedLink}
+                              view={Routes.userPage}
+                              params={{slug: sender.slug || sender.id}}
+                        >
+                            <Typography variant="body1" style={{color}}>
+                                <strong>{sender.firstName} {sender.lastName && sender.lastName}</strong>
+                            </Typography>
+                        </Link>
                     }
-                </CardContent>
-                <CardActions classes={{
-                    root: classes.cardActionsRoot
-                }}>
-                    <Typography variant="caption" color="textSecondary">
-                        {createAtLabel}
-                        {message.updatedAt && (
-                            <Tooltip title={l("message.updated-at", {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)})}>
+                                classes={{
+                                    root: classes.cardHeaderRoot,
+                                    action: classes.cardHeaderAction,
+                                    content: classes.cardHeaderContent
+                                }}
+                                action={<MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>}
+                    />
+                    <CardContent classes={{
+                        root: classes.cardContentRoot
+                    }}>
+                        <ReferredMessageContent messageId={message.referredMessageId}/>
+                        {message.deleted
+                            ? <i>{l("message.deleted")}</i>
+                            : (
+                                <MarkdownTextWithEmoji text={message.text}
+                                                       emojiData={message.emoji}
+                                />
+                            )
+                        }
+                    </CardContent>
+                    <CardActions classes={{
+                        root: classes.cardActionsRoot
+                    }}>
+                        <Typography variant="caption" color="textSecondary">
+                            {createAtLabel}
+                            {message.updatedAt && (
+                                <Tooltip title={l("message.updated-at", {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)})}>
                                 <span>
                                     ,
                                     {" "}
                                     <Edit fontSize="inherit"/>
                                     {l("message.edited")}
                                 </span>
-                            </Tooltip>
-                        )}
-                    </Typography>
-                </CardActions>
-            </Card>
-        </div>
+                                </Tooltip>
+                            )}
+                        </Typography>
+                    </CardActions>
+                </Card>
+            </div>
+        </ReactVisibilitySensor>
     )
 });
+
+export const MessagesListItem = memo(_MessagesListItem);

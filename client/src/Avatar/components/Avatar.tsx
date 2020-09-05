@@ -12,7 +12,8 @@ interface AvatarProps {
     avatarColor: string,
     width?: number,
     height?: number,
-    pending?: boolean
+    pending?: boolean,
+    className?: string
 }
 
 export const Avatar: FunctionComponent<AvatarProps> = observer(({
@@ -23,6 +24,7 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
     width = 40,
     height = 40,
     pending,
+    className
 }) => {
     const {
         entities: {
@@ -61,6 +63,7 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
                                width: imageProps.width,
                                height: imageProps.height
                            }}
+                           className={className}
                 >
                     {avatarLetter}
                 </MuiAvatar>
@@ -72,6 +75,7 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
                                width: imageProps.width,
                                height: imageProps.height
                            }}
+                           className={className}
                 />
             )
         }

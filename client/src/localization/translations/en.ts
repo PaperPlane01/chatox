@@ -207,5 +207,7 @@ export const en: Labels = {
     "emoji.set.facebook": "Facebook",
     "emoji.set.messenger": "Messenger",
     "settings.appearance": "Appearance",
-    "emoji.use-codes": "Use emoji codes for input"
+    "emoji.use-codes": "Use emoji codes for input",
+    "settings.chats": "Chats",
+    "settings.chats.use-virtual-scroll": "Use virtual scroll"
 };

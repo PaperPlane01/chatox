@@ -207,5 +207,7 @@ export const ru: Labels = {
     "emoji.set.facebook": "Facebook",
     "emoji.set.messenger": "Messenger",
     "settings.appearance": "Внешний вид",
-    "emoji.use-codes": "Использовать коды эмоджи при вводе текста"
+    "emoji.use-codes": "Использовать коды эмоджи при вводе текста",
+    "settings.chats": "Чаты",
+    "settings.chats.use-virtual-scroll": "Использовать виртуальный скролл"
 };

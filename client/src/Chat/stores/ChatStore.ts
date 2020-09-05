@@ -13,6 +13,9 @@ export class ChatStore {
     @observable
     error?: ApiError = undefined;
 
+    @observable
+    previousChatId?: string = undefined;
+
     constructor(private readonly entities: EntitiesStore) {}
 
     @action
@@ -23,7 +26,9 @@ export class ChatStore {
         }
 
         const chat = this.entities.chats.findBySlug(slug);
+
         if (chat) {
+            this.previousChatId = this.selectedChatId;
             this.selectedChatId = chat.id;
         } else {
             this.pending = true;
@@ -33,6 +38,7 @@ export class ChatStore {
                         ...data,
                         unreadMessagesCount: 0
                     });
+                    this.previousChatId = this.selectedChatId;
                     this.selectedChatId = data.id;
                 })
                 .catch(error => this.error = getInitialApiErrorFromResponse(error))

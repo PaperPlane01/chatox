@@ -18,7 +18,7 @@ const addRefreshTokenSubscriber = (subscriber: RefreshTokenCallbackFunction) => 
 const _axiosInstance = axios.create({
     baseURL: `${process.env.REACT_APP_API_BASE_URL}/${API_ROOT}`,
     headers: {
-        contentType: "application/json"
+        "Content-Type": "application/json"
     }
 });
 

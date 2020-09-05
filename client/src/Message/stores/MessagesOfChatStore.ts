@@ -30,7 +30,7 @@ export class MessagesOfChatStore {
     get messagesOfChat(): string[] {
         if (this.selectedChatId) {
             const messages = this.entities.chats.findById(this.selectedChatId).messages;
-            return messages.sort((left, right) => {
+            return messages.slice().sort((left, right) => {
                 const leftMessage = this.entities.messages.findById(left);
                 const rightMessage = this.entities.messages.findById(right);
 

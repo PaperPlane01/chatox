@@ -205,5 +205,7 @@ export interface Labels {
     "emoji.set.facebook": string,
     "emoji.set.messenger": string,
     "settings.appearance": string,
-    "emoji.use-codes": string
+    "emoji.use-codes": string,
+    "settings.chats": string,
+    "settings.chats.use-virtual-scroll": string
 }
