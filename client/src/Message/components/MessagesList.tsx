@@ -1,7 +1,6 @@
 import React, {Fragment, FunctionComponent, UIEvent, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {createStyles, Hidden, makeStyles, Theme, useMediaQuery, useTheme} from "@material-ui/core";
-import VisibilitySensor from "react-visibility-sensor";
 import {Virtuoso} from "react-virtuoso";
 import {MessagesListItem} from "./MessagesListItem";
 import {MessagesListBottom} from "./MessagesListBottom";
@@ -38,9 +37,11 @@ interface VirtuosoLastVisibleIndexMap {
     [chatId: string]: number
 }
 
+// Map for keeping last visible item of list
+// This is used on mobile devices
 const virtuosoLastVisibleIndexMap: VirtuosoLastVisibleIndexMap = {};
 
-const setInitialTopMostItem = (index: number, chatId: string, previousChatId?: string) => {
+const setInitialTopMostItem = (index: number, chatId: string) => {
     if (!virtuosoInitialTopMostIndexMap[chatId]) {
         virtuosoInitialTopMostIndexMap[chatId] = {
             index: 0,
@@ -51,8 +52,7 @@ const setInitialTopMostItem = (index: number, chatId: string, previousChatId?: s
     if (virtuosoInitialTopMostIndexMap[chatId].previous && virtuosoInitialTopMostIndexMap[chatId].previous.length !== 0) {
         const previous = virtuosoInitialTopMostIndexMap[chatId].previous[virtuosoInitialTopMostIndexMap[chatId].previous.length - 1];
 
-        // For some reason react-virtuoso shifts visible position by 1 even if it's not been visible
-        // if this item has low height
+        // For some reason react-virtuoso shifts startIndex position by 1 even if it's not been visible (even if overscan is not used)
         // This causes scroll position to shift by 1 upwards for no reason
         if ((previous - index) === 1) {
             // Negate this effect
@@ -74,7 +74,8 @@ const setInitialTopMostItem = (index: number, chatId: string, previousChatId?: s
         virtuosoInitialTopMostIndexMap[chatId].previous.push(index);
 
         if (virtuosoInitialTopMostIndexMap[chatId].previous.length > 30) {
-            virtuosoInitialTopMostIndexMap[chatId].previous = virtuosoInitialTopMostIndexMap[chatId].previous.splice(0, 25);
+            // Do cleanup if we have too many items in scroll history array
+            virtuosoInitialTopMostIndexMap[chatId].previous = virtuosoInitialTopMostIndexMap[chatId].previous.slice(25)
         }
     } else {
         virtuosoInitialTopMostIndexMap[chatId].previous = [index];
@@ -154,13 +155,15 @@ export const MessagesList: FunctionComponent = observer(() => {
     };
 
     const handleWindowScroll = (): void => {
-        const windowHeight = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
-        const body = document.body;
-        const html = document.documentElement;
-        const documentHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-        const windowBottom = windowHeight + window.pageYOffset;
+        if (!useVirtualScroll) {
+            const windowHeight = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
+            const body = document.body;
+            const html = document.documentElement;
+            const documentHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+            const windowBottom = windowHeight + window.pageYOffset;
 
-        setReachedBottom( documentHeight - windowBottom <= 1);
+            setReachedBottom( documentHeight - windowBottom <= 1);
+        }
     }
 
     useEffect(scrollToBottom, [messagesOfChat, emojiPickerExpanded]);
@@ -230,20 +233,21 @@ export const MessagesList: FunctionComponent = observer(() => {
                 <Hidden mdDown>
                     <Virtuoso totalCount={messagesOfChat.length}
                               item={index => {
-                                  if (index === messagesOfChat.length - 1) {
-                                      return (
-                                          <VisibilitySensor onChange={isVisible => setReachedBottom(isVisible)}>
-                                              <MessagesListItem messageId={messagesOfChat[index]} key={messagesOfChat[index]}/>
-                                          </VisibilitySensor>
-                                      )
-                                  } else {
-                                      return <MessagesListItem messageId={messagesOfChat[index]} key={messagesOfChat[index]}/>
-                                  }
+                                  return (
+                                      <MessagesListItem messageId={messagesOfChat[index]}
+                                                        key={messagesOfChat[index]}
+                                                        onVisibilityChange={visible => {
+                                                            if (index === messagesOfChat.length - 1) {
+                                                                setReachedBottom(visible);
+                                                            }
+                                                        }}
+                                      />
+                                  )
                               }}
                               style={styles}
-                              defaultItemHeight={120}
-                              footer={() => <div id="phantomBottom" ref={phantomBottomRef}/>}
+                              defaultItemHeight={128}
                               followOutput
+                              footer={() => <div id="phantomBottom" ref={phantomBottomRef}/>}
                               rangeChanged={({startIndex}) => {
                                   if (startIndex > 5) {
                                       setInitialTopMostItem(startIndex, selectedChatId!);
