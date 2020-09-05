@@ -10,18 +10,24 @@ data class Message(
         @Id
         var id: String,
         var text: String,
+
         @DBRef
         var referredMessage: Message?,
+
         @DBRef
         var sender: User,
+
         @DBRef(lazy = true)
         val chat: Chat,
         var createdAt: ZonedDateTime,
         var updatedAt: ZonedDateTime?,
         var deleted: Boolean,
         var deletedAt: ZonedDateTime?,
+
         @DBRef
         var deletedBy: User?,
-        var attachments: List<MessageAttachment> = arrayListOf(),
+
+        @DBRef
+        var uploadAttachments: List<ChatUploadAttachment<Any>> = listOf(),
         var emoji: EmojiInfo = EmojiInfo()
 )

@@ -9,7 +9,7 @@ data class UpdateMessageRequest(
         @field:NotBlank
         @field:Size(max = 2000)
         @field:JsonProperty("text")
-        val _text: String?,
+        private val _text: String?,
 
         @field:StringIn(["apple", "facebook", "twitter", "native"])
         val emojisSet: String = "apple"

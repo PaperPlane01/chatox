@@ -6,12 +6,16 @@ import chatox.chat.api.response.MessageResponse
 import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.exception.MessageNotFoundException
 import chatox.chat.mapper.MessageMapper
+import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.Message
 import chatox.chat.model.MessageRead
+import chatox.chat.model.Upload
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
+import chatox.chat.repository.ChatUploadAttachmentRepository
 import chatox.chat.repository.MessageReadRepository
 import chatox.chat.repository.MessageRepository
+import chatox.chat.repository.UploadRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.MessagePermissions
 import chatox.chat.service.EmojiParserService
@@ -37,6 +41,8 @@ class MessageServiceImpl(
         private val chatRepository: ChatRepository,
         private val messageReadRepository: MessageReadRepository,
         private val chatParticipationRepository: ChatParticipationRepository,
+        private val uploadRepository: UploadRepository,
+        private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
         private val authenticationFacade: AuthenticationFacade,
         private val messageMapper: MessageMapper,
         private val emojiParserService: EmojiParserService) : MessageService {
@@ -67,14 +73,47 @@ class MessageServiceImpl(
                     emojiSet = createMessageRequest.emojisSet
             )
                     .awaitFirst()
+            var uploadAttachments: List<ChatUploadAttachment<Any>> = listOf()
+
+            if (createMessageRequest.uploadAttachments.isNotEmpty()) {
+                val uploads = uploadRepository.findAllById<Any>(createMessageRequest.uploadAttachments)
+                        .collectList()
+                        .awaitFirst()
+
+                uploadAttachments = uploads.map { upload ->
+                    ChatUploadAttachment(
+                            id = UUID.randomUUID().toString(),
+                            chat = chat,
+                            upload = upload,
+                            type = upload.type,
+                            uploadCreator = upload.user,
+                            uploadSender = currentUser,
+                            message = null,
+                            createdAt = ZonedDateTime.now()
+                    )
+                 }
+            }
+
             var message = messageMapper.fromCreateMessageRequest(
                     createMessageRequest = createMessageRequest,
                     sender = currentUser,
                     referredMessage = referredMessage,
                     chat = chat,
-                    emoji = emoji
+                    emoji = emoji,
+                    chatUploadAttachments = uploadAttachments
             )
 
+            if (uploadAttachments.isNotEmpty()) {
+                uploadAttachments = uploadAttachments.map { uploadAttachment ->
+                    uploadAttachment.copy(message = message, createdAt = message.createdAt)
+                }
+                uploadAttachments = chatUploadAttachmentRepository.saveAll(uploadAttachments)
+                        .collectList()
+                        .awaitFirst()
+            }
+
+
+            message.uploadAttachments = uploadAttachments
             message = messageRepository.save(message).awaitFirst()
 
             messageMapper.toMessageResponse(

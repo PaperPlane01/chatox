@@ -13,7 +13,10 @@ data class CreateMessageRequest(
         val referredMessageId: String?,
 
         @field:StringIn(["apple", "facebook", "twitter", "native"])
-        val emojisSet: String = "apple"
+        val emojisSet: String = "apple",
+
+        @Size(max = 10)
+        val uploadAttachments: List<String> = listOf()
 ) {
         val text: String
                 get() = _text!!
