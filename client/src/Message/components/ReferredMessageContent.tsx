@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {CardContent, CardHeader, createStyles, makeStyles, Theme} from "@material-ui/core";
+import {CardContent, CardHeader, createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
 import {UserLink} from "../../UserLink";
 import {trimString} from "../../utils/string-utils";
 import {useLocalization, useStore} from "../../store";
@@ -65,7 +65,11 @@ export const ReferredMessageContent: FunctionComponent<ReferredMessageContentPro
             >
                 {message.deleted
                     ? <i>{l("message.deleted")}</i>
-                    : parseEmoji(trimString(message.text, 150), message.emoji)
+                    : (
+                        <Typography>
+                            {parseEmoji(trimString(message.text, 150), message.emoji)}
+                        </Typography>
+                    )
                 }
             </CardContent>
         </Fragment>

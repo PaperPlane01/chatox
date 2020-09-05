@@ -1,4 +1,4 @@
-import React, {FunctionComponent, memo} from "react";
+import React, {FunctionComponent, memo, useEffect} from "react";
 import {observer} from "mobx-react";
 import {
     Card,
@@ -10,7 +10,6 @@ import {
     Theme,
     Tooltip,
     Typography,
-    useTheme
 } from "@material-ui/core";
 import {Edit} from "@material-ui/icons";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
@@ -47,7 +46,12 @@ const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messageListItemWrapper: {
         display: "flex",
-        paddingBottom: theme.spacing(1)
+        paddingBottom: theme.spacing(1),
+        "& p, ol, ul, pre": {
+            marginBlockStart: "unset !important",
+            marginBlockEnd: "unset !important",
+            paddingBottom: theme.spacing(1)
+        }
     },
     messageOfCurrentUserListItemWrapper: {
         [theme.breakpoints.down("md")]: {
@@ -112,6 +116,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     avatarContainer: {
         paddingRight: theme.spacing(1),
+    },
+    withCode: {
+        maxWidth: "100%"
     }
 }));
 
@@ -136,12 +143,21 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     const routerStore = useRouter();
     const classes = useStyles();
 
+    useEffect(() => {
+        return () => {
+            if (onVisibilityChange) {
+                onVisibilityChange(false);
+            }
+        }
+    }, [])
+
     const message = findMessage(messageId);
     const sender = findUser(message.sender);
     const createAtLabel = getCreatedAtLabel(message.createdAt, dateFnsLocale);
     const color = randomColor({seed: sender.id});
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
     const sentByCurrentUser = currentUser && currentUser.id === sender.id;
+    const containsCode = message.text.includes("`");
 
     const handleMenuItemClick = (menuItemType: MenuItemType): void => {
         if (onMenuItemClick) {
@@ -164,7 +180,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                             avatarId={sender.avatarId}
                     />
                 </Link>
-                <Card className={`${fullWidth ? classes.messageCardFullWidth : classes.messageCard} ${sentByCurrentUser && classes.messageOfCurrentUserCard}`}>
+                <Card className={`${fullWidth ? classes.messageCardFullWidth : classes.messageCard} ${sentByCurrentUser && classes.messageOfCurrentUserCard} ${containsCode && classes.withCode}`}>
                     <CardHeader title={
                         <Link store={routerStore}
                               className={classes.undecoratedLink}
