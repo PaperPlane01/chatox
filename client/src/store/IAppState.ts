@@ -14,7 +14,7 @@ import {
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
-import {CreateMessageStore, MessageDialogStore, MessagesOfChatStore, UpdateMessageStore} from "../Message";
+import {CreateMessageStore, MessageDialogStore, MessagesOfChatStore, UpdateMessageStore, UploadMessageAttachmentsStore} from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
     EditProfileStore,
@@ -81,5 +81,6 @@ export interface IAppState {
     passwordChangeEmailConfirmationCodeSending: SendPasswordChangeEmailConfirmationCodeStore,
     emoji: EmojiSettingsStore,
     chatsPreferences: ChatsPreferencesStore,
+    messageUploads: UploadMessageAttachmentsStore,
     store?: any
 }

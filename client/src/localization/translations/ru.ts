@@ -209,5 +209,13 @@ export const ru: Labels = {
     "settings.appearance": "Внешний вид",
     "emoji.use-codes": "Использовать коды эмоджи при вводе текста",
     "settings.chats": "Чаты",
-    "settings.chats.use-virtual-scroll": "Использовать виртуальный скролл"
+    "settings.chats.use-virtual-scroll": "Использовать виртуальный скролл",
+    "file.too-large": "Файл слишком большой",
+    "file.too-large.with-file-name": "Файл {fileName} слишком большой",
+    "file.image": "Изображение",
+    "file.audio": "Аудио",
+    "file.video": "Видео",
+    "file.file": "Файл",
+    "file.show-files": "Показать файлы",
+    "files.attached-files": "Прикреплённые файлы"
 };

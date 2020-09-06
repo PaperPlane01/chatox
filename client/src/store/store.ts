@@ -2,22 +2,23 @@ import {IAppState} from "./IAppState";
 import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore} from "../Authorization/stores";
 import {
-    UserRegistrationStore,
-    SendConfirmationCodeStore,
+    createSetRegistrationStepCallback,
     RegistrationDialogStore,
-    createSetRegistrationStepCallback
+    SendConfirmationCodeStore,
+    UserRegistrationStore
 } from "../Registration";
 import {
-    ChatsStore,
+    ChatInfoDialogStore,
+    ChatParticipantsStore,
+    ChatParticipationsStore,
     ChatsOfCurrentUserStore,
+    ChatsPreferencesStore,
+    ChatsStore,
     ChatStore,
     CreateChatStore,
-    ChatParticipationsStore,
-    ChatParticipantsStore,
     JoinChatStore,
-    ChatInfoDialogStore,
     OnlineChatParticipantsStore,
-    UpdateChatStore, ChatsPreferencesStore
+    UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
@@ -34,23 +35,24 @@ import {
 } from "../User";
 import {
     CreateMessageStore,
+    MessageDialogStore,
     MessagesOfChatStore,
     MessagesStore,
-    MessageDialogStore,
-    UpdateMessageStore
+    UpdateMessageStore,
+    UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
-    ChatBlockingsStore,
-    CreateChatBlockingStore,
-    ChatBlockingsOfChatStore,
-    ChatBlockingsDialogStore,
+    BlockUserInChatByIdOrSlugStore,
     CancelChatBlockingStore,
     ChatBlockingInfoDialogStore,
-    UpdateChatBlockingStore,
-    BlockUserInChatByIdOrSlugStore
+    ChatBlockingsDialogStore,
+    ChatBlockingsOfChatStore,
+    ChatBlockingsStore,
+    CreateChatBlockingStore,
+    UpdateChatBlockingStore
 } from "../ChatBlocking";
-import {UploadsStore, UploadImageStore} from "../Upload";
+import {UploadImageStore, UploadsStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation/stores";
 import {EmojiSettingsStore} from "../Emoji/stores";
@@ -92,7 +94,8 @@ const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entities);
 const chatCreation = new CreateChatStore(entities);
 const chat = new ChatStore(entities);
 const chatParticipants = new ChatParticipantsStore(entities, chat);
-const messageCreation = new CreateMessageStore(chat, entities);
+const messageUploads = new UploadMessageAttachmentsStore();
+const messageCreation = new CreateMessageStore(chat, entities, messageUploads);
 const messagesOfChat = new MessagesOfChatStore(entities, chat);
 const joinChat = new JoinChatStore(entities, authorization);
 const websocket = new WebsocketStore(authorization, entities);
@@ -174,5 +177,6 @@ export const store: IAppState = {
     passwordChangeForm,
     passwordChange,
     chatsPreferences,
-    emoji
+    emoji,
+    messageUploads
 };

@@ -208,4 +208,12 @@ export interface Labels {
     "emoji.use-codes": string,
     "settings.chats": string,
     "settings.chats.use-virtual-scroll": string
+    "file.too-large": string,
+    "file.too-large.with-file-name": string,
+    "file.image": string,
+    "file.video": string,
+    "file.audio": string,
+    "file.file": string,
+    "file.show-files": string,
+    "files.attached-files": string
 }

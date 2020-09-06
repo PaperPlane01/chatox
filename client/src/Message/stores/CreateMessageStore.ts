@@ -5,6 +5,7 @@ import {ChatStore} from "../../Chat";
 import {FormErrors} from "../../utils/types";
 import {MessageApi, ApiError, getInitialApiErrorFromResponse} from "../../api";
 import {EntitiesStore} from "../../entities-store";
+import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
 
 export class CreateMessageStore {
     @observable
@@ -35,6 +36,13 @@ export class CreateMessageStore {
     }
 
     @computed
+    get attachmentsIds(): string[] {
+        return this.messageUploads.messageAttachmentsFiles
+            .filter(fileContainer => fileContainer.uploadedFile !== undefined && fileContainer.uploadedFile !== null)
+            .map(fileContainer => fileContainer.uploadedFile!.id!)
+    }
+
+    @computed
     get shouldSendReferredMessageId(): boolean {
         if (this.referredMessageId && this.selectedChatId) {
             const referredMessage = this.entitiesStore.messages.findById(this.referredMessageId);
@@ -47,7 +55,8 @@ export class CreateMessageStore {
 
     constructor(
         private readonly chatStore: ChatStore,
-        private readonly entitiesStore: EntitiesStore
+        private readonly entitiesStore: EntitiesStore,
+        private readonly messageUploads: UploadMessageAttachmentsStore
     ) {
         reaction(
             () => this.createMessageForm.text,
@@ -76,7 +85,8 @@ export class CreateMessageStore {
 
                     MessageApi.createMessage(chatId, {
                         text: this.createMessageForm.text,
-                        referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined
+                        referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined,
+                        uploadAttachments: this.attachmentsIds
                     })
                         .then(({data}) => {
                             this.entitiesStore.insertMessage(data);
@@ -103,6 +113,7 @@ export class CreateMessageStore {
             text: ""
         };
         this.referredMessageId = undefined;
+        this.messageUploads.reset();
         setTimeout(() => {
             this.formErrors = {
                 text: undefined
