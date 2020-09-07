@@ -1,6 +1,7 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, useCallback, useState} from "react";
 import {observer} from "mobx-react";
 import {GridList, GridListTile, useTheme, useMediaQuery} from "@material-ui/core";
+import Carousel, {ModalGateway, Modal} from "react-images";
 import {useStore} from "../../store/hooks";
 import {ImageUploadMetadata, Upload} from "../../api/types/response";
 
@@ -41,10 +42,26 @@ export const MessageImagesSimplifiedGridList: FunctionComponent<MessageImagesGri
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("xs"));
     const targetOneColWidth = onSmallScreen ? 256 : 400;
+    const [currentImage, setCurrentImage] = useState(0);
+    const [viewerIsOpen, setViewerIsOpen] = useState(false);
+
+    const openLightbox = useCallback((index: number) => {
+        setCurrentImage(index);
+        setViewerIsOpen(true);
+    }, []);
+
+    const closeLightbox = () => {
+        setCurrentImage(0);
+        setViewerIsOpen(false);
+    };
 
     const images = chatUploadsIds
         .map(chatUploadId => findChatUpload(chatUploadId))
-        .map(chatUpload => findImage(chatUpload.uploadId));
+        .map(chatUpload => findImage(chatUpload.uploadId))
+        .map(image => ({
+            ...image,
+            source: image.uri
+        }));
 
     const totalCols = chatUploadsIds.length < 4 ? chatUploadsIds.length : 4;
 
@@ -54,11 +71,27 @@ export const MessageImagesSimplifiedGridList: FunctionComponent<MessageImagesGri
                   style={{margin: "0px! important"}}
                   spacing={0}
         >
-            {images.map(image => (
-                <GridListTile cols={getThumbnailCols(image, totalCols)}>
-                    <img src={`${image.uri}?size=${totalCols === 1 ? targetOneColWidth : 512}`}/>
+            {images.map((image, index) => (
+                <GridListTile cols={getThumbnailCols(image, totalCols)}
+                              style={{cursor: "pointer"}}
+                              onClick={() => openLightbox(index)}
+                >
+                    <img src={`${image.source}?size=${totalCols === 1 ? targetOneColWidth : 512}`}/>
                 </GridListTile>
             ))}
+            <ModalGateway>
+                {viewerIsOpen
+                    ? (
+                        <Modal onClose={closeLightbox}>
+                            <Carousel
+                                currentIndex={currentImage}
+                                views={images}
+                            />
+                        </Modal>
+                    )
+                    : null
+                }
+            </ModalGateway>
         </GridList>
     )
 })

@@ -1,9 +1,10 @@
-import React, {FunctionComponent, memo, useLayoutEffect, useState} from "react";
+import React, {FunctionComponent, memo, useCallback, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
-import Gallery, {PhotoProps} from "react-photo-gallery";
-import {useStore} from "../../store/hooks";
-import {MessageImagesSimplifiedGridList} from "./MessageImagesSimplifiedGridList";
 import {useMediaQuery, useTheme} from "@material-ui/core";
+import Gallery, {PhotoProps} from "react-photo-gallery";
+import Carousel, {Modal, ModalGateway} from "react-images";
+import {MessageImagesSimplifiedGridList} from "./MessageImagesSimplifiedGridList";
+import {useStore} from "../../store/hooks";
 
 interface MessageImagesGridProps {
     chatUploadsIds: string[],
@@ -52,9 +53,7 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
 
         return width;
     }
-
     const [galleryWidth, setGalleryWidth] = useState(calculateWidth())
-
     useLayoutEffect(
         () => {
             const setWidth = (): void => setGalleryWidth(calculateWidth());
@@ -64,7 +63,6 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
             return () => window.removeEventListener("resize", setWidth);
         }
     );
-
     useLayoutEffect(
         () => {
             setGalleryWidth(calculateWidth());
@@ -72,18 +70,31 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
         [parentWidth]
     );
 
+    const [currentImage, setCurrentImage] = useState(0);
+    const [viewerIsOpen, setViewerIsOpen] = useState(false);
+
+    const openLightbox = useCallback((index: number) => {
+        setCurrentImage(index);
+        setViewerIsOpen(true);
+    }, []);
+
+    const closeLightbox = () => {
+        setCurrentImage(0);
+        setViewerIsOpen(false);
+    };
+
     if (chatUploadsIds.length === 1) {
         return <MessageImagesSimplifiedGridList chatUploadsIds={chatUploadsIds} messageId="test"/>
     }
 
-    const images: PhotoProps<{fullSizeUri: string}>[] = chatUploadsIds
+    const images: PhotoProps<{source: string}>[] = chatUploadsIds
         .map(chatUploadId => findChatUpload(chatUploadId))
         .map(chatUpload => findImage(chatUpload.uploadId))
         .map(image => ({
             src: `${image.uri}?size=512`,
             height: image.meta!.height,
             width: image.meta!.width,
-            fullSizeUri: image.uri
+            source: image.uri
         }));
 
     return (
@@ -91,7 +102,20 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
             <Gallery photos={images}
                      margin={0}
                      targetRowHeight={180}
+                     onClick={(event, {index}) => openLightbox(index)}
             />
+            <ModalGateway>
+                {viewerIsOpen
+                    ? (
+                        <Modal onClose={closeLightbox}>
+                            <Carousel
+                                currentIndex={currentImage}
+                                views={images}
+                            />
+                        </Modal>
+                    )
+                    : null}
+            </ModalGateway>
         </div>
     )
 })
