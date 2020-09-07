@@ -18,7 +18,8 @@ import {
     CreateChatStore,
     JoinChatStore,
     OnlineChatParticipantsStore,
-    UpdateChatStore
+    UpdateChatStore,
+    ChatUploadsStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
@@ -63,13 +64,15 @@ const usersStore = new UsersStore();
 const chatParticipations = new ChatParticipationsStore();
 const chatBlockings = new ChatBlockingsStore(usersStore);
 const uploads = new UploadsStore();
+const chatUploads = new ChatUploadsStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
     usersStore,
     chatParticipations,
     chatBlockings,
-    uploads
+    uploads,
+    chatUploads
 );
 const authorization = new AuthorizationStore(entities);
 

@@ -16,7 +16,8 @@ export class MessagesStore extends SoftDeletableEntityStore<MessageEntity, Messa
             previousMessageId: denormalizedEntity.previousMessageId,
             nextMessageId: denormalizedEntity.nextMessageId,
             chatId: denormalizedEntity.chatId,
-            emoji: denormalizedEntity.emoji
+            emoji: denormalizedEntity.emoji,
+            uploads: denormalizedEntity.uploads.map(upload => upload.id)
         };
     }
 }

@@ -1,5 +1,5 @@
 import {action, computed} from "mobx";
-import {ChatParticipationsStore, ChatsStore} from "../Chat";
+import {ChatParticipationsStore, ChatsStore, ChatUploadsStore} from "../Chat";
 import {UsersStore} from "../User";
 import {
     Chat,
@@ -35,13 +35,14 @@ export class EntitiesStore {
         public users: UsersStore,
         public chatParticipations: ChatParticipationsStore,
         public chatBlockings: ChatBlockingsStore,
-        public uploads: UploadsStore
+        public uploads: UploadsStore,
+        public chatUploads: ChatUploadsStore
     ) {
     }
 
     @action
     insertMessages = (messages: Message[]): void => {
-        messages.forEach((message, index, messagesArray) => {
+        messages.reverse().forEach((message, index, messagesArray) => {
             if (index !== 0) {
                 message.previousMessageId = messagesArray[index - 1].id;
             }
@@ -62,6 +63,8 @@ export class EntitiesStore {
             this.insertMessage(message.referredMessage);
         }
 
+        this.uploads.insertAll(message.uploads.map(chatUpload => chatUpload.upload));
+        this.chatUploads.insertAll(message.uploads);
         this.messages.insert(message);
         this.chats.addMessageToChat(message.chatId, message.id);
     };

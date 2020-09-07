@@ -38,6 +38,7 @@ export const AttachImageMenuItem: FunctionComponent<AttachImageMenuItemProps> = 
                     {l("file.image")}
                 </ListItemText>
                 <input type="file"
+                       multiple
                        value={dummyInputValue}
                        style={{display: "none"}}
                        accept="image/png, image/jpg, image/jpeg"
