@@ -1,4 +1,4 @@
-import React, {FunctionComponent, memo, useEffect, useLayoutEffect, useState} from "react";
+import React, {FunctionComponent, memo, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
 import Gallery, {PhotoProps} from "react-photo-gallery";
 import {useStore} from "../../store/hooks";
@@ -65,8 +65,10 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
         }
     );
 
-    useEffect(
-        () => setGalleryWidth(calculateWidth()),
+    useLayoutEffect(
+        () => {
+            setGalleryWidth(calculateWidth());
+        },
         [parentWidth]
     );
 

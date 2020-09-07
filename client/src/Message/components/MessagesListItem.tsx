@@ -22,6 +22,7 @@ import {Avatar} from "../../Avatar";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {MarkdownTextWithEmoji} from "../../Emoji/components";
+import {MessageImagesSimplifiedGridList} from "./MessageImagesSimplifiedGridList";
 
 const {Link} = require("mobx-router");
 
@@ -142,6 +143,9 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
             messages: {
                 findById: findMessage
             }
+        },
+        chatsPreferences: {
+            useVirtualScroll
         }
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
@@ -153,9 +157,13 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
 
     useLayoutEffect(
         () => {
-            if (messagesListItemRef.current) {
-                setWidth(messagesListItemRef.current.clientWidth);
-            }
+            setTimeout(
+                () => {
+                    if (messagesListItemRef.current) {
+                        setWidth(messagesListItemRef.current.clientWidth);
+                    }
+                }
+            )
         },
         [messagesListItemRef]
     );
@@ -244,9 +252,9 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                                            emojiData={message.emoji}
                                     />
                                     {!hideAttachments && message.uploads.length !== 0 && (
-                                        <MessageImagesGrid chatUploadsIds={message.uploads}
-                                                           parentWidth={width}
-                                        />
+                                        useVirtualScroll
+                                            ? <MessageImagesSimplifiedGridList chatUploadsIds={message.uploads} messageId={messageId}/>
+                                            : <MessageImagesGrid chatUploadsIds={message.uploads} parentWidth={width}/>
                                     )}
                                 </Fragment>
                             )
