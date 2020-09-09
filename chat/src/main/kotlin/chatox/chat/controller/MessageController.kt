@@ -7,6 +7,7 @@ import chatox.chat.support.pagination.PaginationRequest
 import chatox.chat.support.pagination.annotation.PageSize
 import chatox.chat.support.pagination.annotation.PaginationConfig
 import chatox.chat.support.pagination.annotation.SortBy
+import chatox.chat.support.pagination.annotation.SortDirection
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -42,7 +43,8 @@ class MessageController(private val messageService: MessageService) {
 
     @PaginationConfig(
             pageSize = PageSize(default = 200, max = 300),
-            sortBy = SortBy(default = "createdAt", allowed = ["createdAt"])
+            sortBy = SortBy(default = "createdAt", allowed = ["createdAt"]),
+            sortingDirection = SortDirection(default = "desc")
     )
     @GetMapping("/api/v1/chat/{chatId}/messages")
     fun findMessagesByChat(@PathVariable chatId: String,
