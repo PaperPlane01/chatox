@@ -17,12 +17,13 @@ import randomColor from "randomcolor";
 import ReactVisibilitySensor from "react-visibility-sensor";
 import {MenuItemType, MessageMenu} from "./MessageMenu";
 import {MessageImagesGrid} from "./MessageImagesGrid";
+import {MessageImagesSimplifiedGrid} from "./MessageImagesSimplifiedGrid";
 import {ReferredMessageContent} from "./ReferredMessageContent";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {MarkdownTextWithEmoji} from "../../Emoji/components";
-import {MessageImagesSimplifiedGridList} from "./MessageImagesSimplifiedGridList";
+import {ReverseScrollDirectionOption} from "../../Chat/types";
 
 const {Link} = require("mobx-router");
 
@@ -31,7 +32,8 @@ interface MessagesListItemProps {
     fullWidth?: boolean,
     onMenuItemClick?: (menuItemType: MenuItemType) => void,
     onVisibilityChange?: (visible: boolean) => void,
-    hideAttachments?: boolean
+    hideAttachments?: boolean,
+    inverted?: boolean
 }
 
 const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
@@ -133,7 +135,8 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     fullWidth = false,
     onMenuItemClick,
     onVisibilityChange,
-    hideAttachments = false
+    hideAttachments = false,
+    inverted = false
 }) => {
     const {
         entities: {
@@ -145,7 +148,8 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
             }
         },
         chatsPreferences: {
-            useVirtualScroll
+            enableVirtualScroll,
+            useSimplifiedGalleryForVirtualScroll
         }
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
@@ -210,6 +214,10 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
             <div className={`${classes.messageListItemWrapper} ${sentByCurrentUser && !fullWidth && classes.messageOfCurrentUserListItemWrapper}`}
                  id={`message-${messageId}`}
                  ref={messagesListItemRef}
+                 style={{transform: inverted
+                         ? "scaleY(-1)"
+                         : "unset"
+                 }}
             >
                 <Link store={routerStore}
                       className={`${classes.undecoratedLink} ${sentByCurrentUser ? classes.avatarOfCurrentUserContainer : classes.avatarContainer}`}
@@ -252,8 +260,8 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                                            emojiData={message.emoji}
                                     />
                                     {!hideAttachments && message.uploads.length !== 0 && (
-                                        useVirtualScroll
-                                            ? <MessageImagesSimplifiedGridList chatUploadsIds={message.uploads} messageId={messageId}/>
+                                        (enableVirtualScroll && useSimplifiedGalleryForVirtualScroll)
+                                            ? <MessageImagesSimplifiedGrid chatUploadsIds={message.uploads} messageId={messageId}/>
                                             : <MessageImagesGrid chatUploadsIds={message.uploads} parentWidth={width}/>
                                     )}
                                 </Fragment>

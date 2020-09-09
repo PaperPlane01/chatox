@@ -14,6 +14,7 @@ import {Virtuoso, VirtuosoMethods} from "react-virtuoso";
 import {MessagesListItem} from "./MessagesListItem";
 import {MessagesListBottom} from "./MessagesListBottom";
 import {useStore} from "../../store";
+import {ReverseScrollDirectionOption} from "../../Chat/types";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messagesList: {
@@ -29,7 +30,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 interface MessagesListStyles {
     height: string | number,
-    paddingBottom: number
+    paddingBottom: number,
+    transform?: string
 }
 
 interface VirtuosoInitialTopMostIndexMap {
@@ -91,6 +93,24 @@ const setInitialTopMostItem = (index: number, chatId: string) => {
     }
 }
 
+class ScrollHandler {
+    private lastCallDate?: Date;
+
+    public handleScroll(virtuosoDiv: Element, event: WheelEvent, restoredScrollingSpeedCoefficient: number): void {
+        if (this.lastCallDate) {
+            if (new Date().getTime() - this.lastCallDate.getTime() > 10) {
+                virtuosoDiv.scrollTop -= event.deltaY * restoredScrollingSpeedCoefficient;
+                this.lastCallDate = new Date();
+            }
+        } else {
+            virtuosoDiv.scrollTop -= event.deltaY * restoredScrollingSpeedCoefficient;
+            this.lastCallDate = new Date();
+        }
+    }
+}
+
+const virtuosoScrollHandler = new ScrollHandler();
+
 export const MessagesList: FunctionComponent = observer(() => {
     const {
         messagesOfChat: {
@@ -104,7 +124,10 @@ export const MessagesList: FunctionComponent = observer(() => {
             emojiPickerExpanded
         },
         chatsPreferences: {
-            useVirtualScroll
+            enableVirtualScroll,
+            virtualScrollOverscan,
+            restoredScrollingSpeedCoefficient,
+            reverseScrollingDirectionOption
         },
         chat: {
             selectedChatId,
@@ -121,9 +144,14 @@ export const MessagesList: FunctionComponent = observer(() => {
     const calculateStyles = (): MessagesListStyles => {
         let height: string | number;
         let paddingBottom: number = 0;
+        let transform: string | undefined = undefined;
+
+        if (enableVirtualScroll && reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
+            transform = "scaleY(-1)"
+        }
 
         if (onSmallScreen) {
-            if (useVirtualScroll) {
+            if (enableVirtualScroll) {
                 if (messagesListBottomRef && messagesListBottomRef.current) {
                     const heightToSubtract = theme.spacing(7) + messagesListBottomRef.current.getBoundingClientRect().height;
                     height = window.innerHeight - heightToSubtract;
@@ -146,7 +174,7 @@ export const MessagesList: FunctionComponent = observer(() => {
             }
         }
 
-        return {height, paddingBottom};
+        return {height, paddingBottom, transform};
     }
 
     const [styles, setStyles] = useState(calculateStyles());
@@ -164,7 +192,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     };
 
     const handleWindowScroll = (): void => {
-        if (!useVirtualScroll) {
+        if (!enableVirtualScroll) {
             const windowHeight = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
             const body = document.body;
             const html = document.documentElement;
@@ -208,8 +236,34 @@ export const MessagesList: FunctionComponent = observer(() => {
             emojiPickerExpanded
         ]
     );
+    useLayoutEffect(
+        () => {
+            if (virtuosoRef) {
+                const messagesListDiv = document.getElementById("messagesList");
 
-    if (!useVirtualScroll) {
+                if (messagesListDiv) {
+                    const virtuosoDiv = messagesListDiv.children[0];
+
+                    if (virtuosoDiv) {
+                        virtuosoDiv.addEventListener("wheel", event => {
+                            if (reverseScrollingDirectionOption === ReverseScrollDirectionOption.REVERSE_AND_TRY_TO_RESTORE) {
+                                event.preventDefault();
+                                virtuosoScrollHandler.handleScroll(
+                                    virtuosoDiv,
+                                    event as WheelEvent,
+                                    restoredScrollingSpeedCoefficient
+                                )
+                            }
+                        }, {
+                            passive: false
+                        })
+                    }
+                }
+            }
+        }
+    )
+
+    if (!enableVirtualScroll) {
         return (
             <Fragment>
                 <div className={classes.messagesList}
@@ -239,18 +293,25 @@ export const MessagesList: FunctionComponent = observer(() => {
                                                         setInitialTopMostItem(index, selectedChatId!);
                                                     }
 
-                                                    if (index === messagesOfChat.length - 1) {
-                                                        setReachedBottom(visible);
+                                                    if (reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
+                                                        if (index === 0) {
+                                                            setReachedBottom(visible);
+                                                        }
+                                                    } else {
+                                                        if (index === messagesOfChat.length - 1) {
+                                                            setReachedBottom(visible);
+                                                        }
                                                     }
                                                 }}
+                                                inverted={reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE}
                               />
                           )}
                           style={styles}
                           defaultItemHeight={120}
-                          overscan={onSmallScreen ? 4000 : 2000}
-                          footer={() => <div id="phantomBottom" ref={phantomBottomRef}/>}
-                          followOutput
+                          overscan={virtualScrollOverscan}
+                          header={() => <div id="phantomBottom" ref={phantomBottomRef}/>}
                           ref={virtuosoRef}
+                          computeItemKey={index => messagesOfChat[index]}
                 />
                 <MessagesListBottom ref={messagesListBottomRef}/>
             </div>

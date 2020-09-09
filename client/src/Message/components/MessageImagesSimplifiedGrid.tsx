@@ -1,11 +1,12 @@
 import React, {FunctionComponent, useCallback, useState} from "react";
 import {observer} from "mobx-react";
 import {GridList, GridListTile, useTheme, useMediaQuery} from "@material-ui/core";
+import {Skeleton} from "@material-ui/lab";
 import Carousel, {ModalGateway, Modal} from "react-images";
 import {useStore} from "../../store/hooks";
 import {ImageUploadMetadata, Upload} from "../../api/types/response";
 
-interface MessageImagesGridListProps {
+interface MessageImagesSimplifiedGridProps {
     chatUploadsIds: string[],
     messageId: string
 }
@@ -17,7 +18,7 @@ const getThumbnailCols = (image: Upload<ImageUploadMetadata>, maxCols: number): 
         return 1;
     }
 
-    const cols = Math.round(1 / ratio);
+    const cols = Math.ceil(1 / ratio);
 
     if (cols > maxCols) {
         return maxCols;
@@ -26,7 +27,11 @@ const getThumbnailCols = (image: Upload<ImageUploadMetadata>, maxCols: number): 
     }
 }
 
-export const MessageImagesSimplifiedGridList: FunctionComponent<MessageImagesGridListProps> = observer(({
+interface ImagesLoadingStateMap {
+    [index: number]: boolean
+}
+
+export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplifiedGridProps> = observer(({
     chatUploadsIds,
 }) => {
     const {
@@ -44,6 +49,7 @@ export const MessageImagesSimplifiedGridList: FunctionComponent<MessageImagesGri
     const targetOneColWidth = onSmallScreen ? 256 : 400;
     const [currentImage, setCurrentImage] = useState(0);
     const [viewerIsOpen, setViewerIsOpen] = useState(false);
+    const [imagesLoadingState, setImagesLoadingState] = useState<ImagesLoadingStateMap>({});
 
     const openLightbox = useCallback((index: number) => {
         setCurrentImage(index);
@@ -63,7 +69,8 @@ export const MessageImagesSimplifiedGridList: FunctionComponent<MessageImagesGri
             source: image.uri
         }));
 
-    const totalCols = chatUploadsIds.length < 4 ? chatUploadsIds.length : 4;
+    const maxCols = onSmallScreen ? 2 : 4
+    const totalCols = chatUploadsIds.length < maxCols ? chatUploadsIds.length : maxCols;
 
     return (
         <GridList cellHeight={totalCols === 1 ? (images[0].meta!.height * (targetOneColWidth / images[0].meta!.width)) : 180}
@@ -76,7 +83,23 @@ export const MessageImagesSimplifiedGridList: FunctionComponent<MessageImagesGri
                               style={{cursor: "pointer"}}
                               onClick={() => openLightbox(index)}
                 >
-                    <img src={`${image.source}?size=${totalCols === 1 ? targetOneColWidth : 512}`}/>
+                    {!imagesLoadingState[index] && (
+                        <Skeleton style={{
+                            width: targetOneColWidth * getThumbnailCols(image, maxCols),
+                            height: "100%"
+                        }}
+                                  variant="rect"
+                        />
+                    )}
+                    <img src={`${image.source}?size=${totalCols === 1 ? targetOneColWidth : 512}`}
+                         style={{
+                             display: imagesLoadingState[index] ? "block" : "none"
+                         }}
+                         onLoad={() => setImagesLoadingState({
+                             ...imagesLoadingState,
+                             [index]: true
+                         })}
+                    />
                 </GridListTile>
             ))}
             <ModalGateway>

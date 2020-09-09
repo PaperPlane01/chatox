@@ -207,7 +207,6 @@ export interface Labels {
     "settings.appearance": string,
     "emoji.use-codes": string,
     "settings.chats": string,
-    "settings.chats.use-virtual-scroll": string
     "file.too-large": string,
     "file.too-large.with-file-name": string,
     "file.image": string,
@@ -215,5 +214,13 @@ export interface Labels {
     "file.audio": string,
     "file.file": string,
     "file.show-files": string,
-    "files.attached-files": string
+    "files.attached-files": string,
+    "settings.chats.virtual-scroll.enable-virtual-scroll": string
+    "settings.chat.virtual-scroll.overscan-value": string,
+    "settings.chat.virtual-scroll.scroll-direction-behavior": string,
+    "settings.chat.virtual-scroll.scroll-direction-behavior.do-not-reverse": string,
+    "settings.chat.virtual-scroll.scroll-direction-behavior.reverse": string,
+    "settings.chat.virtual-scroll.scroll-direction-behavior.reverse-and-try-to-restore": string,
+    "settings.chat.virtual-scroll.use-simplified-gallery": string,
+    "setting.chat.virtual-scroll.reversed-scroll-speed-coefficient": string
 }

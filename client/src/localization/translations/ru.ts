@@ -209,7 +209,6 @@ export const ru: Labels = {
     "settings.appearance": "Внешний вид",
     "emoji.use-codes": "Использовать коды эмоджи при вводе текста",
     "settings.chats": "Чаты",
-    "settings.chats.use-virtual-scroll": "Использовать виртуальный скролл",
     "file.too-large": "Файл слишком большой",
     "file.too-large.with-file-name": "Файл {fileName} слишком большой",
     "file.image": "Изображение",
@@ -217,5 +216,13 @@ export const ru: Labels = {
     "file.video": "Видео",
     "file.file": "Файл",
     "file.show-files": "Показать файлы",
-    "files.attached-files": "Прикреплённые файлы"
+    "files.attached-files": "Прикреплённые файлы",
+    "settings.chats.virtual-scroll.enable-virtual-scroll": "Включить виртуальный скролл (экспериментальный функционал)",
+    "settings.chat.virtual-scroll.overscan-value": "Дополнительное пространство для виртуального скролла",
+    "settings.chat.virtual-scroll.scroll-direction-behavior": "Действия с направлением скролла",
+    "settings.chat.virtual-scroll.scroll-direction-behavior.do-not-reverse": "Не инвертировать",
+    "settings.chat.virtual-scroll.scroll-direction-behavior.reverse": "Инвертировать",
+    "settings.chat.virtual-scroll.scroll-direction-behavior.reverse-and-try-to-restore": "Инвертировать и попытаться восстановить",
+    "settings.chat.virtual-scroll.use-simplified-gallery": "Использовать упрощённую галерею при включённом виртуальном скролле",
+    "setting.chat.virtual-scroll.reversed-scroll-speed-coefficient": "Скорость скролла"
 };

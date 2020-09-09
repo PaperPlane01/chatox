@@ -4,3 +4,4 @@ export * from "./ChatOfCurrentUserEntity";
 export * from "./ChatParticipationEntity";
 export * from "./UpdateChatFormData";
 export * from "./ChatUploadEntity";
+export * from "./ReverseScrollDirectionOption";

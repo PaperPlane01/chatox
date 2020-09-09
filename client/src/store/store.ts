@@ -99,7 +99,8 @@ const chat = new ChatStore(entities);
 const chatParticipants = new ChatParticipantsStore(entities, chat);
 const messageUploads = new UploadMessageAttachmentsStore();
 const messageCreation = new CreateMessageStore(chat, entities, messageUploads);
-const messagesOfChat = new MessagesOfChatStore(entities, chat);
+const chatsPreferences = new ChatsPreferencesStore();
+const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences);
 const joinChat = new JoinChatStore(entities, authorization);
 const websocket = new WebsocketStore(authorization, entities);
 const userProfile = new UserProfileStore(entities);
@@ -136,7 +137,6 @@ const passwordChange = new PasswordChangeStore(
     authorization
 );
 const emoji = new EmojiSettingsStore();
-const chatsPreferences = new ChatsPreferencesStore();
 
 export const store: IAppState = {
     authorization,

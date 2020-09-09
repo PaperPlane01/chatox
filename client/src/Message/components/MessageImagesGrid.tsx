@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {useMediaQuery, useTheme} from "@material-ui/core";
 import Gallery, {PhotoProps} from "react-photo-gallery";
 import Carousel, {Modal, ModalGateway} from "react-images";
-import {MessageImagesSimplifiedGridList} from "./MessageImagesSimplifiedGridList";
+import {MessageImagesSimplifiedGrid} from "./MessageImagesSimplifiedGrid";
 import {useStore} from "../../store/hooks";
 
 interface MessageImagesGridProps {
@@ -84,7 +84,7 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
     };
 
     if (chatUploadsIds.length === 1) {
-        return <MessageImagesSimplifiedGridList chatUploadsIds={chatUploadsIds} messageId="test"/>
+        return <MessageImagesSimplifiedGrid chatUploadsIds={chatUploadsIds} messageId="test"/>
     }
 
     const images: PhotoProps<{source: string}>[] = chatUploadsIds
@@ -96,6 +96,7 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
             width: image.meta!.width,
             source: image.uri
         }));
+    Object.freeze(images);
 
     return (
         <div style={{width: galleryWidth}}>
@@ -114,7 +115,8 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
                             />
                         </Modal>
                     )
-                    : null}
+                    : null
+                }
             </ModalGateway>
         </div>
     )
