@@ -36,9 +36,9 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
         if (onSmallScreen) {
             multiplier = 0.85;
         } else if (onMediumScreen) {
-            multiplier = chatUploadsIds.length > 3 ? 0.6 : 0.5;
+            multiplier = 0.6
         } else {
-            multiplier = chatUploadsIds.length > 3 ? 0.6 : 0.5;
+            multiplier = 0.5
         }
 
         if (parentWidth) {
@@ -104,6 +104,8 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
                      margin={0}
                      targetRowHeight={180}
                      onClick={(event, {index}) => openLightbox(index)}
+                     useParentContainerWidth
+                     parentContainerWidth={galleryWidth}
             />
             <ModalGateway>
                 {viewerIsOpen

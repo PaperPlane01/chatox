@@ -139,7 +139,8 @@ export const MessagesList: FunctionComponent = observer(() => {
     const messagesListBottomRef = useRef<HTMLDivElement>(null);
     const classes = useStyles();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-    const virtuosoRef = useRef<VirtuosoMethods>() as RefObject<VirtuosoMethods>;
+    const virtuosoRef = useRef<VirtuosoMethods>() as RefObject<VirtuosoMethods>
+    const messagesDivRef = useRef<HTMLDivElement>(null);
 
     const calculateStyles = (): MessagesListStyles => {
         let height: string | number;
@@ -180,8 +181,22 @@ export const MessagesList: FunctionComponent = observer(() => {
     const [styles, setStyles] = useState(calculateStyles());
 
     const scrollToBottom = (): void => {
-        if (reachedBottom && phantomBottomRef && phantomBottomRef.current) {
-            phantomBottomRef!.current!.scrollIntoView();
+        if (reachedBottom) {
+            setTimeout(
+                () => {
+                    if (enableVirtualScroll && virtuosoRef && virtuosoRef.current) {
+                        if (reverseScrollingDirectionOption === ReverseScrollDirectionOption.DO_NOT_REVERSE) {
+                            virtuosoRef.current.scrollToIndex(messagesOfChat.length - 1)
+                        } else {
+                            virtuosoRef.current.scrollToIndex(0);
+                        }
+                    } else {
+                        if (phantomBottomRef && phantomBottomRef.current) {
+                            phantomBottomRef.current.scrollIntoView();
+                        }
+                    }
+                }
+            )
         }
     };
 
@@ -238,8 +253,8 @@ export const MessagesList: FunctionComponent = observer(() => {
     );
     useLayoutEffect(
         () => {
-            if (virtuosoRef) {
-                const messagesListDiv = document.getElementById("messagesList");
+            if (messagesDivRef && messagesDivRef.current) {
+                const messagesListDiv = messagesDivRef.current;
 
                 if (messagesListDiv) {
                     const virtuosoDiv = messagesListDiv.children[0];
@@ -260,7 +275,8 @@ export const MessagesList: FunctionComponent = observer(() => {
                     }
                 }
             }
-        }
+        },
+        [messagesDivRef]
     )
 
     if (!enableVirtualScroll) {
@@ -283,7 +299,9 @@ export const MessagesList: FunctionComponent = observer(() => {
         )
     } else {
         return (
-            <div id="messagesList">
+            <div id="messagesList"
+                 ref={messagesDivRef}
+            >
                 <Virtuoso totalCount={messagesOfChat.length}
                           item={index => (
                               <MessagesListItem messageId={messagesOfChat[index]}
@@ -299,17 +317,26 @@ export const MessagesList: FunctionComponent = observer(() => {
                                                         }
                                                     } else {
                                                         if (index === messagesOfChat.length - 1) {
+                                                            console.log(`Setting reacedBottom to ${visible}`)
                                                             setReachedBottom(visible);
                                                         }
                                                     }
                                                 }}
                                                 inverted={reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE}
+                                                messagesListHeight={typeof styles.height === "number" ? styles.height : undefined}
                               />
                           )}
                           style={styles}
                           defaultItemHeight={120}
                           overscan={virtualScrollOverscan}
-                          header={() => <div id="phantomBottom" ref={phantomBottomRef}/>}
+                          header={() => reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE
+                              ? <div id="phantomBottom" ref={phantomBottomRef}/>
+                              : <Fragment/>
+                          }
+                          footer={() => reverseScrollingDirectionOption === ReverseScrollDirectionOption.DO_NOT_REVERSE
+                              ? <div id="phantomBottom" ref={phantomBottomRef}/>
+                              : <Fragment/>
+                          }
                           ref={virtuosoRef}
                           computeItemKey={index => messagesOfChat[index]}
                 />
