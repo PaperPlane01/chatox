@@ -1,4 +1,4 @@
-import React, {FunctionComponent, memo, useEffect} from "react";
+import React, {Fragment, FunctionComponent, memo, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {
     Card,
@@ -15,7 +15,10 @@ import {Edit} from "@material-ui/icons";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactVisibilitySensor from "react-visibility-sensor";
+import clsx from "clsx";
 import {MenuItemType, MessageMenu} from "./MessageMenu";
+import {MessageImagesGrid} from "./MessageImagesGrid";
+import {MessageImagesSimplifiedGrid} from "./MessageImagesSimplifiedGrid";
 import {ReferredMessageContent} from "./ReferredMessageContent";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
@@ -28,7 +31,10 @@ interface MessagesListItemProps {
     messageId: string,
     fullWidth?: boolean,
     onMenuItemClick?: (menuItemType: MenuItemType) => void,
-    onVisibilityChange?: (visible: boolean) => void
+    onVisibilityChange?: (visible: boolean) => void,
+    hideAttachments?: boolean,
+    inverted?: boolean,
+    messagesListHeight?: number
 }
 
 const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
@@ -68,7 +74,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             maxWidth: "60%"
         },
         [theme.breakpoints.down("sm")]: {
-            maxWidth: "70%"
+            maxWidth: "85%"
         },
         overflowX: "auto"
     },
@@ -119,6 +125,17 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     withCode: {
         maxWidth: "100%"
+    },
+    withOneImage: {
+        [theme.breakpoints.up("lg")]: {
+            maxWidth: "50% !important"
+        },
+        [theme.breakpoints.down("md")]: {
+            maxWidth: "70% !important"
+        },
+        [theme.breakpoints.down("sm")]: {
+            maxWidth: "85% !important"
+        },
     }
 }));
 
@@ -126,7 +143,10 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     messageId,
     fullWidth = false,
     onMenuItemClick,
-    onVisibilityChange
+    onVisibilityChange,
+    hideAttachments = false,
+    inverted = false,
+    messagesListHeight
 }) => {
     const {
         entities: {
@@ -136,12 +156,47 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
             messages: {
                 findById: findMessage
             }
+        },
+        chatsPreferences: {
+            enableVirtualScroll,
+            useSimplifiedGalleryForVirtualScroll
         }
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
     const {currentUser} = useAuthorization();
     const routerStore = useRouter();
     const classes = useStyles();
+    const [width, setWidth] = useState<number | undefined>(undefined);
+    const [height, setHeight] = useState<number | undefined>(undefined);
+    const messagesListItemRef = useRef<HTMLDivElement>(null)
+
+    useLayoutEffect(
+        () => {
+            setTimeout(
+                () => {
+                    if (messagesListItemRef.current) {
+                        setWidth(messagesListItemRef.current.clientWidth);
+                        setHeight(messagesListItemRef.current.clientHeight);
+                    }
+                }
+            )
+        },
+        [messagesListItemRef]
+    );
+
+    useLayoutEffect(
+        () => {
+            const updateWidth = (): void => {
+                if (messagesListItemRef.current) {
+                    setWidth(messagesListItemRef.current.clientWidth);
+                }
+            };
+
+            window.addEventListener("resize", updateWidth);
+
+            return () => window.removeEventListener("resize", updateWidth);
+        }
+    )
 
     useEffect(() => {
         return () => {
@@ -158,6 +213,24 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
     const sentByCurrentUser = currentUser && currentUser.id === sender.id;
     const containsCode = message.text.includes("`");
+    const hasOneImage = message.uploads.length === 1;
+
+    const cardClasses = clsx({
+        [classes.messageCardFullWidth]: fullWidth,
+        [classes.messageCard]: !fullWidth,
+        [classes.messageOfCurrentUserCard]: sentByCurrentUser,
+        [classes.withCode]: containsCode,
+        [classes.withOneImage]: hasOneImage
+    });
+    const wrapperClasses = clsx({
+        [classes.messageListItemWrapper]: true,
+        [classes.messageOfCurrentUserListItemWrapper]: sentByCurrentUser && !fullWidth
+    });
+    const userAvatarLinkClasses = clsx({
+        [classes.undecoratedLink]: true,
+        [classes.avatarOfCurrentUserContainer]: sentByCurrentUser,
+        [classes.avatarContainer]: !sentByCurrentUser
+    })
 
     const handleMenuItemClick = (menuItemType: MenuItemType): void => {
         if (onMenuItemClick) {
@@ -166,12 +239,19 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     };
 
     return (
-        <ReactVisibilitySensor onChange={onVisibilityChange}>
-            <div className={`${classes.messageListItemWrapper} ${sentByCurrentUser && !fullWidth && classes.messageOfCurrentUserListItemWrapper}`}
+        <ReactVisibilitySensor onChange={onVisibilityChange}
+                               partialVisibility={Boolean(messagesListHeight && height && height > messagesListHeight)}
+        >
+            <div className={wrapperClasses}
                  id={`message-${messageId}`}
+                 ref={messagesListItemRef}
+                 style={{transform: inverted
+                         ? "scaleY(-1)"
+                         : "unset"
+                 }}
             >
                 <Link store={routerStore}
-                      className={`${classes.undecoratedLink} ${sentByCurrentUser ? classes.avatarOfCurrentUserContainer : classes.avatarContainer}`}
+                      className={userAvatarLinkClasses}
                       view={Routes.userPage}
                       params={{slug: sender.slug || sender.id}}
                 >
@@ -180,7 +260,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                             avatarId={sender.avatarId}
                     />
                 </Link>
-                <Card className={`${fullWidth ? classes.messageCardFullWidth : classes.messageCard} ${sentByCurrentUser && classes.messageOfCurrentUserCard} ${containsCode && classes.withCode}`}>
+                <Card className={cardClasses}>
                     <CardHeader title={
                         <Link store={routerStore}
                               className={classes.undecoratedLink}
@@ -206,9 +286,16 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                         {message.deleted
                             ? <i>{l("message.deleted")}</i>
                             : (
-                                <MarkdownTextWithEmoji text={message.text}
-                                                       emojiData={message.emoji}
-                                />
+                                <Fragment>
+                                    <MarkdownTextWithEmoji text={message.text}
+                                                           emojiData={message.emoji}
+                                    />
+                                    {!hideAttachments && message.uploads.length !== 0 && (
+                                        (enableVirtualScroll && useSimplifiedGalleryForVirtualScroll)
+                                            ? <MessageImagesSimplifiedGrid chatUploadsIds={message.uploads} messageId={messageId}/>
+                                            : <MessageImagesGrid chatUploadsIds={message.uploads} parentWidth={width}/>
+                                    )}
+                                </Fragment>
                             )
                         }
                     </CardContent>

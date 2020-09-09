@@ -209,5 +209,20 @@ export const en: Labels = {
     "settings.appearance": "Appearance",
     "emoji.use-codes": "Use emoji codes for input",
     "settings.chats": "Chats",
-    "settings.chats.use-virtual-scroll": "Use virtual scroll"
+    "file.too-large": "File is too large",
+    "file.too-large.with-file-name": "File {fileName} is too large",
+    "file.image": "Image",
+    "file.audio": "Audio",
+    "file.video": "Video",
+    "file.file": "File",
+    "file.show-files": "Show files",
+    "files.attached-files": "Attached files",
+    "settings.chats.virtual-scroll.enable-virtual-scroll": "Enable virtual scroll (experimental)",
+    "settings.chat.virtual-scroll.overscan-value": "Virtual scroll overscan value",
+    "settings.chat.virtual-scroll.scroll-direction-behavior": "Scroll direction behavior",
+    "settings.chat.virtual-scroll.scroll-direction-behavior.do-not-reverse": "Do not reverse",
+    "settings.chat.virtual-scroll.scroll-direction-behavior.reverse": "Reverse",
+    "settings.chat.virtual-scroll.scroll-direction-behavior.reverse-and-try-to-restore": "Reverse and try to restore",
+    "settings.chat.virtual-scroll.use-simplified-gallery": "Use simplified gallery when virtual scroll is enabled",
+    "setting.chat.virtual-scroll.reversed-scroll-speed-coefficient": "Reversed scroll speed coefficient"
 };

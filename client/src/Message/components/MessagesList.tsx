@@ -1,10 +1,20 @@
-import React, {Fragment, FunctionComponent, UIEvent, useEffect, useLayoutEffect, useRef, useState} from "react";
+import React, {
+    Fragment,
+    FunctionComponent,
+    RefObject,
+    UIEvent,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState
+} from "react";
 import {observer} from "mobx-react";
-import {createStyles, Hidden, makeStyles, Theme, useMediaQuery, useTheme} from "@material-ui/core";
-import {Virtuoso} from "react-virtuoso";
+import {createStyles, makeStyles, Theme, useMediaQuery, useTheme} from "@material-ui/core";
+import {Virtuoso, VirtuosoMethods} from "react-virtuoso";
 import {MessagesListItem} from "./MessagesListItem";
 import {MessagesListBottom} from "./MessagesListBottom";
 import {useStore} from "../../store";
+import {ReverseScrollDirectionOption} from "../../Chat/types";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messagesList: {
@@ -20,7 +30,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 interface MessagesListStyles {
     height: string | number,
-    paddingBottom: number
+    paddingBottom: number,
+    transform?: string
 }
 
 interface VirtuosoInitialTopMostIndexMap {
@@ -82,6 +93,24 @@ const setInitialTopMostItem = (index: number, chatId: string) => {
     }
 }
 
+class ScrollHandler {
+    private lastCallDate?: Date;
+
+    public handleScroll(virtuosoDiv: Element, event: WheelEvent, restoredScrollingSpeedCoefficient: number): void {
+        if (this.lastCallDate) {
+            if (new Date().getTime() - this.lastCallDate.getTime() > 10) {
+                virtuosoDiv.scrollTop -= event.deltaY * restoredScrollingSpeedCoefficient;
+                this.lastCallDate = new Date();
+            }
+        } else {
+            virtuosoDiv.scrollTop -= event.deltaY * restoredScrollingSpeedCoefficient;
+            this.lastCallDate = new Date();
+        }
+    }
+}
+
+const virtuosoScrollHandler = new ScrollHandler();
+
 export const MessagesList: FunctionComponent = observer(() => {
     const {
         messagesOfChat: {
@@ -95,7 +124,10 @@ export const MessagesList: FunctionComponent = observer(() => {
             emojiPickerExpanded
         },
         chatsPreferences: {
-            useVirtualScroll
+            enableVirtualScroll,
+            virtualScrollOverscan,
+            restoredScrollingSpeedCoefficient,
+            reverseScrollingDirectionOption
         },
         chat: {
             selectedChatId,
@@ -107,14 +139,20 @@ export const MessagesList: FunctionComponent = observer(() => {
     const messagesListBottomRef = useRef<HTMLDivElement>(null);
     const classes = useStyles();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-    const virtuosoRef = useRef<any>();
+    const virtuosoRef = useRef<VirtuosoMethods>() as RefObject<VirtuosoMethods>
+    const messagesDivRef = useRef<HTMLDivElement>(null);
 
     const calculateStyles = (): MessagesListStyles => {
         let height: string | number;
         let paddingBottom: number = 0;
+        let transform: string | undefined = undefined;
+
+        if (enableVirtualScroll && reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
+            transform = "scaleY(-1)"
+        }
 
         if (onSmallScreen) {
-            if (useVirtualScroll) {
+            if (enableVirtualScroll) {
                 if (messagesListBottomRef && messagesListBottomRef.current) {
                     const heightToSubtract = theme.spacing(7) + messagesListBottomRef.current.getBoundingClientRect().height;
                     height = window.innerHeight - heightToSubtract;
@@ -137,14 +175,28 @@ export const MessagesList: FunctionComponent = observer(() => {
             }
         }
 
-        return {height, paddingBottom};
+        return {height, paddingBottom, transform};
     }
 
     const [styles, setStyles] = useState(calculateStyles());
 
     const scrollToBottom = (): void => {
-        if (reachedBottom && phantomBottomRef && phantomBottomRef.current) {
-            setTimeout(() => phantomBottomRef!.current!.scrollIntoView());
+        if (reachedBottom) {
+            setTimeout(
+                () => {
+                    if (enableVirtualScroll && virtuosoRef && virtuosoRef.current) {
+                        if (reverseScrollingDirectionOption === ReverseScrollDirectionOption.DO_NOT_REVERSE) {
+                            virtuosoRef.current.scrollToIndex(messagesOfChat.length - 1)
+                        } else {
+                            virtuosoRef.current.scrollToIndex(0);
+                        }
+                    } else {
+                        if (phantomBottomRef && phantomBottomRef.current) {
+                            phantomBottomRef.current.scrollIntoView();
+                        }
+                    }
+                }
+            )
         }
     };
 
@@ -155,7 +207,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     };
 
     const handleWindowScroll = (): void => {
-        if (!useVirtualScroll) {
+        if (!enableVirtualScroll) {
             const windowHeight = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
             const body = document.body;
             const html = document.documentElement;
@@ -184,18 +236,9 @@ export const MessagesList: FunctionComponent = observer(() => {
         }
     });
     useEffect(() => {
-        // Check if we have saved top item index for this chat
-        if (!onSmallScreen) {
-            // Look for initial top most item if we are not on small screen
-            if (virtuosoRef && virtuosoRef.current && selectedChatId && virtuosoInitialTopMostIndexMap[selectedChatId]) {
-                // Scroll to the top item to restore scroll position
-                virtuosoRef.current.scrollToIndex(virtuosoInitialTopMostIndexMap[selectedChatId].index);
-            }
-        } else {
-            // Look for last visible index if we are on small screen
-            if (virtuosoRef && virtuosoRef.current && selectedChatId && virtuosoLastVisibleIndexMap[selectedChatId]) {
-                virtuosoRef.current.scrollToIndex(virtuosoLastVisibleIndexMap[selectedChatId]);
-            }
+        if (virtuosoRef && virtuosoRef.current && selectedChatId && virtuosoInitialTopMostIndexMap[selectedChatId]) {
+            // Scroll to the top item to restore scroll position
+            virtuosoRef.current.scrollToIndex(virtuosoInitialTopMostIndexMap[selectedChatId].index);
         }
     }, [selectedChatId, onSmallScreen])
     useLayoutEffect(
@@ -208,8 +251,35 @@ export const MessagesList: FunctionComponent = observer(() => {
             emojiPickerExpanded
         ]
     );
+    useLayoutEffect(
+        () => {
+            if (messagesDivRef && messagesDivRef.current) {
+                const messagesListDiv = messagesDivRef.current;
 
-    if (!useVirtualScroll) {
+                if (messagesListDiv) {
+                    const virtuosoDiv = messagesListDiv.children[0];
+
+                    if (virtuosoDiv) {
+                        virtuosoDiv.addEventListener("wheel", event => {
+                            if (reverseScrollingDirectionOption === ReverseScrollDirectionOption.REVERSE_AND_TRY_TO_RESTORE) {
+                                event.preventDefault();
+                                virtuosoScrollHandler.handleScroll(
+                                    virtuosoDiv,
+                                    event as WheelEvent,
+                                    restoredScrollingSpeedCoefficient
+                                )
+                            }
+                        }, {
+                            passive: false
+                        })
+                    }
+                }
+            }
+        },
+        [messagesDivRef]
+    )
+
+    if (!enableVirtualScroll) {
         return (
             <Fragment>
                 <div className={classes.messagesList}
@@ -229,63 +299,47 @@ export const MessagesList: FunctionComponent = observer(() => {
         )
     } else {
         return (
-            <div id="messagesList">
-                <Hidden mdDown>
-                    <Virtuoso totalCount={messagesOfChat.length}
-                              item={index => {
-                                  return (
-                                      <MessagesListItem messageId={messagesOfChat[index]}
-                                                        key={messagesOfChat[index]}
-                                                        onVisibilityChange={visible => {
-                                                            if (index === messagesOfChat.length - 1) {
-                                                                setReachedBottom(visible);
-                                                            }
-                                                        }}
-                                      />
-                                  )
-                              }}
-                              style={styles}
-                              defaultItemHeight={128}
-                              followOutput
-                              footer={() => <div id="phantomBottom" ref={phantomBottomRef}/>}
-                              rangeChanged={({startIndex}) => {
-                                  if (startIndex > 5) {
-                                      setInitialTopMostItem(startIndex, selectedChatId!);
-                                  }
-                              }}
-                              ref={virtuosoRef}
-                    />
-                </Hidden>
-                <Hidden lgUp>
-                    <Virtuoso totalCount={messagesOfChat.length}
-                              item={index => (
-                                  <MessagesListItem messageId={messagesOfChat[index]}
-                                                    key={messagesOfChat[index]}
-                                                    onVisibilityChange={visible => {
-                                                        if (visible) {
-                                                            if (virtuosoLastVisibleIndexMap[selectedChatId!]) {
-                                                                if (Math.abs(index - virtuosoLastVisibleIndexMap[selectedChatId!]) > 3) {
-                                                                    virtuosoLastVisibleIndexMap[selectedChatId!] = index;
-                                                                }
-                                                            } else {
-                                                                virtuosoLastVisibleIndexMap[selectedChatId!] = index;
-                                                            }
-                                                        }
+            <div id="messagesList"
+                 ref={messagesDivRef}
+            >
+                <Virtuoso totalCount={messagesOfChat.length}
+                          item={index => (
+                              <MessagesListItem messageId={messagesOfChat[index]}
+                                                key={messagesOfChat[index]}
+                                                onVisibilityChange={visible => {
+                                                    if (visible) {
+                                                        setInitialTopMostItem(index, selectedChatId!);
+                                                    }
 
-                                                        if (index === messagesOfChat.length - 1) {
+                                                    if (reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
+                                                        if (index === 0) {
                                                             setReachedBottom(visible);
                                                         }
-                                                    }}
-                                  />
-                              )}
-                              style={styles}
-                              defaultItemHeight={120}
-                              overscan={2400}
-                              footer={() => <div id="phantomBottom" ref={phantomBottomRef}/>}
-                              followOutput
-                              ref={virtuosoRef}
-                    />
-                </Hidden>
+                                                    } else {
+                                                        if (index === messagesOfChat.length - 1) {
+                                                            console.log(`Setting reacedBottom to ${visible}`)
+                                                            setReachedBottom(visible);
+                                                        }
+                                                    }
+                                                }}
+                                                inverted={reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE}
+                                                messagesListHeight={typeof styles.height === "number" ? styles.height : undefined}
+                              />
+                          )}
+                          style={styles}
+                          defaultItemHeight={120}
+                          overscan={virtualScrollOverscan}
+                          header={() => reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE
+                              ? <div id="phantomBottom" ref={phantomBottomRef}/>
+                              : <Fragment/>
+                          }
+                          footer={() => reverseScrollingDirectionOption === ReverseScrollDirectionOption.DO_NOT_REVERSE
+                              ? <div id="phantomBottom" ref={phantomBottomRef}/>
+                              : <Fragment/>
+                          }
+                          ref={virtuosoRef}
+                          computeItemKey={index => messagesOfChat[index]}
+                />
                 <MessagesListBottom ref={messagesListBottomRef}/>
             </div>
         )
