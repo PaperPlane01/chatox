@@ -9,7 +9,6 @@ import chatox.chat.mapper.MessageMapper
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.Message
 import chatox.chat.model.MessageRead
-import chatox.chat.model.Upload
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.ChatUploadAttachmentRepository
@@ -102,19 +101,16 @@ class MessageServiceImpl(
                     emoji = emoji,
                     chatUploadAttachments = uploadAttachments
             )
+            message = messageRepository.save(message).awaitFirst()
 
             if (uploadAttachments.isNotEmpty()) {
                 uploadAttachments = uploadAttachments.map { uploadAttachment ->
                     uploadAttachment.copy(message = message, createdAt = message.createdAt)
                 }
-                uploadAttachments = chatUploadAttachmentRepository.saveAll(uploadAttachments)
+                chatUploadAttachmentRepository.saveAll(uploadAttachments)
                         .collectList()
                         .awaitFirst()
             }
-
-
-            message.uploadAttachments = uploadAttachments
-            message = messageRepository.save(message).awaitFirst()
 
             messageMapper.toMessageResponse(
                     message = message,

@@ -24,6 +24,8 @@ class UploadEventsListener(private val uploadService: UploadService) {
                     .doOnSuccess { channel.basicAck(tag, false) }
                     .doOnError { channel.basicNack(tag, true, true) }
                     .subscribe()
+        } else {
+            channel.basicAck(tag, false)
         }
     }
 

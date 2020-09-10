@@ -1,12 +1,15 @@
 package chatox.chat.api.request
 
+import chatox.chat.support.validation.annotation.AllowFieldToBeBlankIfOtherFieldIsNotEmpty
 import chatox.chat.support.validation.annotation.StringIn
 import com.fasterxml.jackson.annotation.JsonProperty
-import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
+@AllowFieldToBeBlankIfOtherFieldIsNotEmpty(
+        checkedField = "_text",
+        otherField = "uploadAttachments"
+)
 data class CreateMessageRequest(
-        @field:NotBlank
         @field:Size(max = 2000)
         @field:JsonProperty("text")
         private val _text: String?,
