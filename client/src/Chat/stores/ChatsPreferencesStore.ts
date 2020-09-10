@@ -57,7 +57,7 @@ export class ChatsPreferencesStore {
 
     @action
     setVirtualScrollOverscan = (virtualScrollOverscan: number): void => {
-        if (virtualScrollOverscan > 0) {
+        if (virtualScrollOverscan >= 0) {
             this.virtualScrollOverscan = virtualScrollOverscan;
             localStorage.setItem("virtualScrollOverscan", `${virtualScrollOverscan}`);
         }

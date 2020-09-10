@@ -1,5 +1,5 @@
 import {action, observable, reaction} from "mobx";
-import _ from "lodash";
+import {throttle} from "lodash";
 import {CreateChatFormData, TagErrorsMapContainer} from "../types";
 import {
     validateChatDescription,
@@ -51,7 +51,7 @@ export class CreateChatStore {
     createChatDialogOpen: boolean = false;
 
     constructor(private readonly entities: EntitiesStore) {
-        this.checkSlugAvailability = _.throttle(this.checkSlugAvailability, 300);
+        this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300);
 
         reaction(
             () => this.createChatForm.name,

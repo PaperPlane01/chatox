@@ -51,6 +51,9 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                                value={virtualScrollOverscan}
                                label={l("settings.chat.virtual-scroll.overscan-value")}
                                type="number"
+                               inputProps={{
+                                   min: 0
+                               }}
                     />
                 )}
                 {enableVirtualScroll && (
