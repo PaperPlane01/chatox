@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import {
     createStyles,
     Badge,
+    CircularProgress,
     Divider,
     IconButton,
     ListItemIcon,
@@ -36,7 +37,8 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
 }) => {
     const {
         messageUploads: {
-            uploadedAttachmentsCount
+            uploadedAttachmentsCount,
+            uploadPending
         }
     } = useStore();
     const {l} = useLocalization();
@@ -51,10 +53,17 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
             <IconButton className={className}
                         {...bindToggle(attachFileMenuPopupState)}
             >
-                <Badge badgeContent={uploadedAttachmentsCount}
-                       color="primary"
+                <Badge badgeContent={uploadPending && <CircularProgress size={14} color="primary"/>}
+                       anchorOrigin={{
+                           vertical: "bottom",
+                           horizontal: "right"
+                       }}
                 >
-                    <AttachFile/>
+                    <Badge badgeContent={uploadedAttachmentsCount}
+                           color="primary"
+                    >
+                        <AttachFile/>
+                    </Badge>
                 </Badge>
             </IconButton>
             <Menu {...bindMenu(attachFileMenuPopupState)}

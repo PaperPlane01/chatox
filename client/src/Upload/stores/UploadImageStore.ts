@@ -1,10 +1,11 @@
-import {observable, action} from "mobx";
+import {action, observable} from "mobx";
 import {UploadApi} from "../../api/clients";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ImageUploadMetadata} from "../../api/types/response";
 import {EntitiesStore} from "../../entities-store";
 import {Labels} from "../../localization/types";
 import {ApiError, getInitialApiErrorFromResponse} from "../../api";
+import {UploadType} from "../../api/types/response/UploadType";
 
 const IMAGE_MAX_SIZE = 10485760;
 
@@ -25,7 +26,7 @@ export class UploadImageStore {
 
     @action
     uploadFile = (file: File): void => {
-        this.imageContainer = new UploadedFileContainer<ImageUploadMetadata>(file);
+        this.imageContainer = new UploadedFileContainer<ImageUploadMetadata>(file, UploadType.IMAGE);
 
         if (!this.validateFile()) {
             return;

@@ -10,7 +10,9 @@ export const AttachedFilesDialog: FunctionComponent = observer(() => {
         messageUploads: {
             messageAttachmentsFiles,
             attachedFilesDialogOpen,
-            setAttachedFilesDialogOpen
+            uploadPercentageMap,
+            setAttachedFilesDialogOpen,
+            removeAttachment
         }
     } = useStore();
     const {l} = useLocalization();
@@ -31,6 +33,8 @@ export const AttachedFilesDialog: FunctionComponent = observer(() => {
                     {messageAttachmentsFiles.map(fileContainer => (
                         <CreateMessageFormMediaAttachment fileContainer={fileContainer}
                                                           key={fileContainer.localId}
+                                                          onDelete={removeAttachment}
+                                                          progress={uploadPercentageMap[fileContainer.localId]}
                         />
                     ))}
                 </List>
