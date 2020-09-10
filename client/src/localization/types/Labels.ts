@@ -222,5 +222,13 @@ export interface Labels {
     "settings.chat.virtual-scroll.scroll-direction-behavior.reverse": string,
     "settings.chat.virtual-scroll.scroll-direction-behavior.reverse-and-try-to-restore": string,
     "settings.chat.virtual-scroll.use-simplified-gallery": string,
-    "setting.chat.virtual-scroll.reversed-scroll-speed-coefficient": string
+    "setting.chat.virtual-scroll.reversed-scroll-speed-coefficient": string,
+    "message.attachments.image": string,
+    "message.attachments.image.plural": string,
+    "message.attachments.file": string,
+    "message.attachments.file.plural": string,
+    "message.attachments.audio": string,
+    "message.attachments.audio.plural": string,
+    "message.attachments.video": string,
+    "message.attachments.video.plural": string
 }

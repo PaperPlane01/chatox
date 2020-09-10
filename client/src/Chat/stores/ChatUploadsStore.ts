@@ -9,7 +9,7 @@ export class ChatUploadsStore extends AbstractEntityStore<ChatUploadEntity, Chat
             uploadSenderId: denormalizedEntity.uploadSender.id,
             uploadedCreatorId: denormalizedEntity.uploadCreator ? denormalizedEntity.uploadCreator.id : undefined,
             createdAt: new Date(denormalizedEntity.createdAt),
-            type: denormalizedEntity.type,
+            type: denormalizedEntity.upload.type,
             uploadId: denormalizedEntity.upload.id
         };
     }

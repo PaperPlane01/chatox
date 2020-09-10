@@ -13,5 +13,9 @@ export interface MessageEntity {
     nextMessageId?: string,
     chatId: string,
     emoji: MessageEmoji,
-    uploads: string[]
+    uploads: string[],
+    imagesCount: number,
+    audiosCount: number,
+    videosCount: number,
+    filesCount: number
 }

@@ -224,5 +224,13 @@ export const ru: Labels = {
     "settings.chat.virtual-scroll.scroll-direction-behavior.reverse": "Инвертировать",
     "settings.chat.virtual-scroll.scroll-direction-behavior.reverse-and-try-to-restore": "Инвертировать и попытаться восстановить",
     "settings.chat.virtual-scroll.use-simplified-gallery": "Использовать упрощённую галерею при включённом виртуальном скролле",
-    "setting.chat.virtual-scroll.reversed-scroll-speed-coefficient": "Скорость скролла"
+    "setting.chat.virtual-scroll.reversed-scroll-speed-coefficient": "Скорость скролла",
+    "message.attachments.image": "фото",
+    "message.attachments.image.plural": "фото",
+    "message.attachments.file": "файл",
+    "message.attachments.file.plural": "файлов",
+    "message.attachments.audio": "аудио",
+    "message.attachments.audio.plural": "аудио",
+    "message.attachments.video": "видео",
+    "message.attachments.video.plural": "видео"
 };
