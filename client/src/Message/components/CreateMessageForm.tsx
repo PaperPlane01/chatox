@@ -45,6 +45,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             submissionError,
             emojiPickerExpanded,
             referredMessageId,
+            attachmentsIds,
             setFormValue,
             createMessage,
         },
@@ -185,7 +186,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                                </IconButton>
                                            </Hidden>
                                        </Fragment>
-                                       {formValues.text.length
+                                       {formValues.text.length !== 0 || attachmentsIds.length !== 0
                                            ? (
                                                <IconButton onClick={createMessage}
                                                            color="primary"
