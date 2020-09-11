@@ -30,3 +30,5 @@ export const HomePage: FunctionComponent = () => (
         </Grid>
     </Grid>
 );
+
+export default HomePage;

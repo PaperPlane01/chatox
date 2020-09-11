@@ -16,3 +16,5 @@ export const SettingsPage: FunctionComponent = () => (
         </Grid>
     </Grid>
 );
+
+export default SettingsPage;
