@@ -53,7 +53,6 @@ export class SendConfirmationCodeStore {
 
     @action
     sendVerificationEmail = (): void => {
-        console.log("Sending verification email");
         this.validateForm()
             .then(formValid => {
                 if (!formValid) {

@@ -33,14 +33,14 @@ export class CreateMessageStore {
     @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
-    }
+    };
 
     @computed
     get attachmentsIds(): string[] {
         return this.messageUploads.messageAttachmentsFiles
             .filter(fileContainer => fileContainer.uploadedFile !== undefined && fileContainer.uploadedFile !== null)
             .map(fileContainer => fileContainer.uploadedFile!.id!)
-    }
+    };
 
     @computed
     get shouldSendReferredMessageId(): boolean {
@@ -51,7 +51,7 @@ export class CreateMessageStore {
         }
 
         return false;
-    }
+    };
 
     constructor(
         private readonly chatStore: ChatStore,
@@ -60,9 +60,9 @@ export class CreateMessageStore {
     ) {
         reaction(
             () => this.createMessageForm.text,
-            text => this.formErrors.text = validateMessageText(text)
+            text => this.formErrors.text = validateMessageText(text, {acceptEmpty: this.attachmentsIds.length !== 0})
         )
-    }
+    };
 
     @action
     setReferredMessageId = (referredMessageId?: string): void => {
@@ -102,7 +102,7 @@ export class CreateMessageStore {
     @action
     validateForm = (): Promise<boolean> => {
         return new Promise<boolean>(resolve => {
-            this.formErrors.text = validateMessageText(this.createMessageForm.text);
+            this.formErrors.text = validateMessageText(this.createMessageForm.text, {acceptEmpty: this.attachmentsIds.length !== 0});
             resolve(!Boolean(this.formErrors.text));
         });
     };
@@ -119,10 +119,10 @@ export class CreateMessageStore {
                 text: undefined
             }
         })
-    }
+    };
 
     @action
     setEmojiPickerExpanded = (emojiPickerExpanded: boolean): void => {
         this.emojiPickerExpanded = emojiPickerExpanded;
-    }
+    };
 }

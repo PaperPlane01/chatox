@@ -19,6 +19,7 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
         this.insertEntity = this.insertEntity.bind(this);
         this.insertAllEntities = this.insertAllEntities.bind(this);
         this.findByIdOptional = this.findByIdOptional.bind(this);
+        this.findAllById = this.findAllById.bind(this);
     }
 
     @action
@@ -47,7 +48,7 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
     };
 
     @action
-    insertAll(entities: DenormalizedEntity[]): void {
+    public insertAll(entities: DenormalizedEntity[]): void {
         entities.forEach(entity => this.insert(entity));
     };
 
@@ -66,6 +67,10 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
         }
         return entity;
     };
+
+    public findAllById = createTransformer((ids: string[]) => {
+        return ids.map(id => this.findById(id));
+    })
 
     protected abstract convertToNormalizedForm(denormalizedEntity: DenormalizedEntity): Entity;
 }

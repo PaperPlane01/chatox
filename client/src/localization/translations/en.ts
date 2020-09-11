@@ -224,5 +224,13 @@ export const en: Labels = {
     "settings.chat.virtual-scroll.scroll-direction-behavior.reverse": "Reverse",
     "settings.chat.virtual-scroll.scroll-direction-behavior.reverse-and-try-to-restore": "Reverse and try to restore",
     "settings.chat.virtual-scroll.use-simplified-gallery": "Use simplified gallery when virtual scroll is enabled",
-    "setting.chat.virtual-scroll.reversed-scroll-speed-coefficient": "Reversed scroll speed coefficient"
+    "setting.chat.virtual-scroll.reversed-scroll-speed-coefficient": "Reversed scroll speed coefficient",
+    "message.attachments.image": "image",
+    "message.attachments.image.plural": "images",
+    "message.attachments.file": "file",
+    "message.attachments.file.plural": "files",
+    "message.attachments.audio": "audio",
+    "message.attachments.audio.plural": "audios",
+    "message.attachments.video": "video",
+    "message.attachments.video.plural": "videos"
 };

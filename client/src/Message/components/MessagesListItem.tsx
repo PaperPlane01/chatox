@@ -136,6 +136,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         [theme.breakpoints.down("sm")]: {
             maxWidth: "85% !important"
         },
+    },
+    inverted: {
+        transform: "scaleY(-1)"
     }
 }));
 
@@ -220,11 +223,12 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         [classes.messageCard]: !fullWidth,
         [classes.messageOfCurrentUserCard]: sentByCurrentUser,
         [classes.withCode]: containsCode,
-        [classes.withOneImage]: hasOneImage
+        [classes.withOneImage]: hasOneImage,
     });
     const wrapperClasses = clsx({
         [classes.messageListItemWrapper]: true,
-        [classes.messageOfCurrentUserListItemWrapper]: sentByCurrentUser && !fullWidth
+        [classes.messageOfCurrentUserListItemWrapper]: sentByCurrentUser && !fullWidth,
+        [classes.inverted]: inverted
     });
     const userAvatarLinkClasses = clsx({
         [classes.undecoratedLink]: true,
@@ -245,10 +249,6 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
             <div className={wrapperClasses}
                  id={`message-${messageId}`}
                  ref={messagesListItemRef}
-                 style={{transform: inverted
-                         ? "scaleY(-1)"
-                         : "unset"
-                 }}
             >
                 <Link store={routerStore}
                       className={userAvatarLinkClasses}

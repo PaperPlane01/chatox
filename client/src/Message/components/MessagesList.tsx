@@ -13,6 +13,7 @@ import {createStyles, makeStyles, Theme, useMediaQuery, useTheme} from "@materia
 import {Virtuoso, VirtuosoMethods} from "react-virtuoso";
 import {MessagesListItem} from "./MessagesListItem";
 import {MessagesListBottom} from "./MessagesListBottom";
+import {ReversedScrollHandler, VirtuosoInitialTopMostItemHandler} from "../utils";
 import {useStore} from "../../store";
 import {ReverseScrollDirectionOption} from "../../Chat/types";
 
@@ -34,82 +35,8 @@ interface MessagesListStyles {
     transform?: string
 }
 
-interface VirtuosoInitialTopMostIndexMap {
-    [chatId: string]: {
-        index: number,
-        previous: number[]
-    }
-}
-
-// Map for keeping scroll position after switching chats
-const virtuosoInitialTopMostIndexMap: VirtuosoInitialTopMostIndexMap = {};
-
-interface VirtuosoLastVisibleIndexMap {
-    [chatId: string]: number
-}
-
-// Map for keeping last visible item of list
-// This is used on mobile devices
-const virtuosoLastVisibleIndexMap: VirtuosoLastVisibleIndexMap = {};
-
-const setInitialTopMostItem = (index: number, chatId: string) => {
-    if (!virtuosoInitialTopMostIndexMap[chatId]) {
-        virtuosoInitialTopMostIndexMap[chatId] = {
-            index: 0,
-            previous: []
-        }
-    }
-
-    if (virtuosoInitialTopMostIndexMap[chatId].previous && virtuosoInitialTopMostIndexMap[chatId].previous.length !== 0) {
-        const previous = virtuosoInitialTopMostIndexMap[chatId].previous[virtuosoInitialTopMostIndexMap[chatId].previous.length - 1];
-
-        // For some reason react-virtuoso shifts startIndex position by 1 even if it's not been visible (even if overscan is not used)
-        // This causes scroll position to shift by 1 upwards for no reason
-        if ((previous - index) === 1) {
-            // Negate this effect
-            index = previous;
-        } else if ((previous - index) > 20) {
-            // Looks like some kind of race condition happens when switching between chats.
-            // For some reason position of current chat is set to previous chat on first render.
-            // We detect too large difference between current position and previous position of chat to avoid
-            // scrolling to incorrect position when switching back.
-            // This is a hacky work-around but I can't see any other way currently :(
-            index = previous;
-        }
-    }
-
-    // Save scroll position for selected chat
-    virtuosoInitialTopMostIndexMap[chatId].index = index;
-
-    if (virtuosoInitialTopMostIndexMap[chatId].previous) {
-        virtuosoInitialTopMostIndexMap[chatId].previous.push(index);
-
-        if (virtuosoInitialTopMostIndexMap[chatId].previous.length > 30) {
-            // Do cleanup if we have too many items in scroll history array
-            virtuosoInitialTopMostIndexMap[chatId].previous = virtuosoInitialTopMostIndexMap[chatId].previous.slice(25)
-        }
-    } else {
-        virtuosoInitialTopMostIndexMap[chatId].previous = [index];
-    }
-}
-
-class ScrollHandler {
-    private lastCallDate?: Date;
-
-    public handleScroll(virtuosoDiv: Element, event: WheelEvent, restoredScrollingSpeedCoefficient: number): void {
-        if (this.lastCallDate) {
-            if (new Date().getTime() - this.lastCallDate.getTime() > 10) {
-                virtuosoDiv.scrollTop -= event.deltaY * restoredScrollingSpeedCoefficient;
-                this.lastCallDate = new Date();
-            }
-        } else {
-            virtuosoDiv.scrollTop -= event.deltaY * restoredScrollingSpeedCoefficient;
-            this.lastCallDate = new Date();
-        }
-    }
-}
-
-const virtuosoScrollHandler = new ScrollHandler();
+const virtuosoTopMostItemHandler = new VirtuosoInitialTopMostItemHandler();
+const virtuosoScrollHandler = new ReversedScrollHandler();
 
 export const MessagesList: FunctionComponent = observer(() => {
     const {
@@ -236,9 +163,9 @@ export const MessagesList: FunctionComponent = observer(() => {
         }
     });
     useEffect(() => {
-        if (virtuosoRef && virtuosoRef.current && selectedChatId && virtuosoInitialTopMostIndexMap[selectedChatId]) {
+        if (virtuosoRef && virtuosoRef.current && selectedChatId && virtuosoTopMostItemHandler.getInitialTopMostItem(selectedChatId)) {
             // Scroll to the top item to restore scroll position
-            virtuosoRef.current.scrollToIndex(virtuosoInitialTopMostIndexMap[selectedChatId].index);
+            virtuosoRef.current.scrollToIndex(virtuosoTopMostItemHandler.getInitialTopMostItem(selectedChatId)!);
         }
     }, [selectedChatId, onSmallScreen])
     useLayoutEffect(
@@ -305,10 +232,9 @@ export const MessagesList: FunctionComponent = observer(() => {
                 <Virtuoso totalCount={messagesOfChat.length}
                           item={index => (
                               <MessagesListItem messageId={messagesOfChat[index]}
-                                                key={messagesOfChat[index]}
                                                 onVisibilityChange={visible => {
                                                     if (visible) {
-                                                        setInitialTopMostItem(index, selectedChatId!);
+                                                        virtuosoTopMostItemHandler.setInitialTopMostItem(selectedChatId!, index);
                                                     }
 
                                                     if (reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
@@ -317,7 +243,6 @@ export const MessagesList: FunctionComponent = observer(() => {
                                                         }
                                                     } else {
                                                         if (index === messagesOfChat.length - 1) {
-                                                            console.log(`Setting reacedBottom to ${visible}`)
                                                             setReachedBottom(visible);
                                                         }
                                                     }
@@ -329,14 +254,6 @@ export const MessagesList: FunctionComponent = observer(() => {
                           style={styles}
                           defaultItemHeight={120}
                           overscan={virtualScrollOverscan}
-                          header={() => reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE
-                              ? <div id="phantomBottom" ref={phantomBottomRef}/>
-                              : <Fragment/>
-                          }
-                          footer={() => reverseScrollingDirectionOption === ReverseScrollDirectionOption.DO_NOT_REVERSE
-                              ? <div id="phantomBottom" ref={phantomBottomRef}/>
-                              : <Fragment/>
-                          }
                           ref={virtuosoRef}
                           computeItemKey={index => messagesOfChat[index]}
                 />
