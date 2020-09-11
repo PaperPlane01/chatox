@@ -41,7 +41,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     playerControlsWrapper: {
         display: "flex",
         width: "80%",
-        alignItems: "flex-start"
+        alignItems: "flex-start",
+        [theme.breakpoints.down("sm")]: {
+            width: "90%"
+        }
     },
     playerSliderContainer: {
         width: "100%"
