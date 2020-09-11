@@ -1,7 +1,7 @@
-import {Body, Controller, Get, Param, Post, Res, UploadedFile, UseGuards, UseInterceptors} from "@nestjs/common";
+import {Body, Controller, Get, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors} from "@nestjs/common";
 import {FileInterceptor} from "@nestjs/platform-express";
 import {AuthGuard} from "@nestjs/passport";
-import {Response} from "express";
+import {Request, Response} from "express";
 import {AudiosUploadService} from "./AudiosUploadService";
 import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
@@ -40,5 +40,12 @@ export class AudiosUploadController {
     public async downloadAudio(@Param("audioName") audioName: string,
                                @Res() response: Response): Promise<void> {
         await this.audioUploadService.downloadAudio(audioName, response);
+    }
+
+    @Get(":audioName/stream")
+    public async streamAudio(@Param("audioName") audioName: string,
+                             @Req() request: Request,
+                             @Res() response: Response): Promise<void> {
+        await this.audioUploadService.streamAudio(audioName, request, response);
     }
 }
