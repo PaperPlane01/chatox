@@ -21,10 +21,10 @@ class AllowFieldToBeBlankOfOtherFieldIsNotEmptyValidator
         val checkedFieldValue = beanWrapper.getPropertyValue(checkedField)
         val otherPropertyValue = beanWrapper.getPropertyValue(otherField)
 
-        return if (ObjectUtils.isEmpty(otherPropertyValue)) {
+        return if (!ObjectUtils.isEmpty(otherPropertyValue)) {
             true
         } else {
-            ObjectUtils.isEmpty(checkedFieldValue)
+            !ObjectUtils.isEmpty(checkedFieldValue)
         }
     }
 }
