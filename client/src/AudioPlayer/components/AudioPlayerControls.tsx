@@ -3,8 +3,8 @@ import {observer} from "mobx-react";
 import {createStyles, IconButton, makeStyles, Mark, Menu, Slider, Theme, Typography} from "@material-ui/core";
 import {Pause, PlayArrow, VolumeDown, VolumeOff, VolumeUp} from "@material-ui/icons";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
-import {useStore} from "../../store/hooks";
 import {format} from "date-fns";
+import {useStore} from "../../store/hooks";
 
 interface AudioPlayerControlsProps {
     audioId: string
