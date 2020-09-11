@@ -15,8 +15,15 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         width: 0,
         height: 0
     },
+    trackMarkLabel: {
+        top: theme.spacing(3) + 2,
+        [theme.breakpoints.down("sm")]: {
+            top: theme.spacing(2)
+        }
+    },
     trackSliderMarked: {
-        paddingBottom: 20
+        paddingBottom: theme.spacing(4),
+        marginBottom: 0
     },
     trackSliderRoot: {
       paddingTop: theme.spacing(1)
@@ -119,6 +126,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                                 root: classes.trackSliderRoot,
                                 mark: classes.trackSliderMark,
                                 marked: classes.trackSliderMarked,
+                                markLabel: classes.trackMarkLabel
                             }}
                             onChange={(_, value) => {
                                 if (currentTrackId === audioId) {
