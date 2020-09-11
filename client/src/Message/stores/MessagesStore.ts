@@ -10,6 +10,13 @@ interface MessageUploadsStats {
     filesCount: number
 }
 
+interface UploadsGroupedByType {
+    images: string[],
+    videos: string[],
+    audios: string[],
+    files: string[]
+}
+
 export class MessagesStore extends SoftDeletableEntityStore<MessageEntity, Message> {
     protected convertToNormalizedForm(denormalizedEntity: Message): MessageEntity {
         const uploadStats: MessageUploadsStats = {
@@ -18,22 +25,37 @@ export class MessagesStore extends SoftDeletableEntityStore<MessageEntity, Messa
             filesCount: 0,
             videosCount: 0
         };
+        const uploadsByType: UploadsGroupedByType = {
+            images: [],
+            audios: [],
+            files: [],
+            videos: []
+        };
+
 
         if (denormalizedEntity.uploads.length !== 0) {
             for (let upload of denormalizedEntity.uploads) {
                 switch (upload.upload.type) {
                     case UploadType.FILE:
                         uploadStats.filesCount++;
+                        uploadsByType.files.push(upload.id);
                         break;
                     case UploadType.VIDEO:
                         uploadStats.videosCount++;
+                        uploadsByType.videos.push(upload.id);
                         break;
                     case UploadType.IMAGE:
                     case UploadType.GIF:
                         uploadStats.imagesCount++;
+                        uploadsByType.images.push(upload.id);
+                        break;
+                    case UploadType.AUDIO:
+                        uploadStats.audiosCount++;
+                        uploadsByType.audios.push(upload.id);
                         break;
                     default:
                         uploadStats.filesCount++;
+                        uploadsByType.files.push(upload.id);
                         break;
                 }
             }
@@ -53,7 +75,8 @@ export class MessagesStore extends SoftDeletableEntityStore<MessageEntity, Messa
             chatId: denormalizedEntity.chatId,
             emoji: denormalizedEntity.emoji,
             uploads: denormalizedEntity.uploads.map(upload => upload.id),
-            ...uploadStats
+            ...uploadStats,
+            ...uploadsByType
         };
     }
 }

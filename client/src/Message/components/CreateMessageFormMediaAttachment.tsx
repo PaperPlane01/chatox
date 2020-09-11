@@ -1,9 +1,8 @@
-import React, {FunctionComponent, useState} from "react";
-import {CircularProgress, ListItem, ListItemText, IconButton, createStyles, makeStyles, Theme} from "@material-ui/core";
-import {Close} from "@material-ui/icons";
+import React, {CSSProperties, FunctionComponent, useState} from "react";
+import {CircularProgress, createStyles, IconButton, ListItem, ListItemText, makeStyles, Theme} from "@material-ui/core";
+import {Audiotrack, Close, FileCopy, VideoLibrary} from "@material-ui/icons";
 import {UploadedFileContainer} from "../../utils/file-utils";
-import {observer} from "mobx-react";
-import {useStore} from "../../store/hooks";
+import {UploadType} from "../../api/types/response";
 
 interface CreateMessageFormMediaAttachmentProps {
     fileContainer: UploadedFileContainer,
@@ -18,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         justifyContent: "center",
         height: "100%"
     },
-    mediaFile: {
+    imagePreviewContainer: {
         position: "relative",
         width: 100,
         height: 100,
@@ -26,6 +25,21 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         marginRight: theme.spacing(2),
         backgroundSize: "cover",
         backgroundPosition: "center"
+    },
+    uploadIconContainer: {
+        position: "relative",
+        width: 100,
+        height: 100,
+        minWidth: 100,
+        marginRight: theme.spacing(2),
+    },
+    absolutePositioned: {
+        position: "absolute",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
+        width: "100%"
     },
     circularProgress: {
         color: theme.palette.common.white
@@ -35,6 +49,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
+const iconsMap = {
+    [UploadType.AUDIO]: <Audiotrack fontSize="large"/>,
+    [UploadType.FILE]: <FileCopy/>,
+    [UploadType.VIDEO]: <VideoLibrary/>
+}
+
 export const CreateMessageFormMediaAttachment: FunctionComponent<CreateMessageFormMediaAttachmentProps> = ({
     fileContainer,
     onDelete,
@@ -43,16 +63,16 @@ export const CreateMessageFormMediaAttachment: FunctionComponent<CreateMessageFo
     const [hovered, setHovered] = useState(false);
     const classes = useStyles();
 
-    console.log(progress);
-
-    const hoveredStyle = {
-        backgroundImage: `url(${fileContainer.url})`,
+    const hoveredStyle: CSSProperties = {
         boxShadow: "inset 0 0 0 1000px rgba(0, 0, 0, 0.2)"
     };
 
-    const notHoveredStyle = {
-        backgroundImage: `url(${fileContainer.url})`
-    };
+    const notHoveredStyle: CSSProperties = {};
+
+    if (fileContainer.expectedUploadType === UploadType.IMAGE || fileContainer.expectedUploadType === UploadType.GIF) {
+        hoveredStyle.backgroundImage = `url(${fileContainer.url})`;
+        notHoveredStyle.backgroundImage = `url(${fileContainer.url})`;
+    }
 
     const handleDelete = (): void => {
         if (onDelete) {
@@ -62,23 +82,49 @@ export const CreateMessageFormMediaAttachment: FunctionComponent<CreateMessageFo
 
     return (
         <ListItem>
-            <div className={classes.mediaFile}
-                 style={hovered ? hoveredStyle : notHoveredStyle}
-                 onMouseOver={() => setHovered(true)}
-                 onMouseOut={() => setHovered(false)}
-                 onTouchStart={() => setHovered(true)}
-                 onTouchEnd={() => setHovered(false)}
-            >
-                {fileContainer.pending && (
-                    <div className={classes.centered}>
-                        <CircularProgress size={25}
-                                          className={classes.circularProgress}
-                                          value={progress}
-                                          variant={progress === 100 ? "indeterminate": "static"}
-                        />
+            {fileContainer.expectedUploadType === UploadType.IMAGE || fileContainer.expectedUploadType === UploadType.GIF
+                ? (
+                    <div className={classes.imagePreviewContainer}
+                         style={hovered ? hoveredStyle : notHoveredStyle}
+                         onMouseOver={() => setHovered(true)}
+                         onMouseOut={() => setHovered(false)}
+                         onTouchStart={() => setHovered(true)}
+                         onTouchEnd={() => setHovered(false)}
+                    >
+                        {fileContainer.pending && (
+                            <div className={classes.centered}>
+                                <CircularProgress size={25}
+                                                  className={classes.circularProgress}
+                                                  value={progress}
+                                                  variant={progress === 100 ? "indeterminate": "static"}
+                                />
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+                )
+                : (
+                    <div className={classes.uploadIconContainer}
+                         style={hovered ? hoveredStyle : notHoveredStyle}
+                         onMouseOver={() => setHovered(true)}
+                         onMouseOut={() => setHovered(false)}
+                         onTouchStart={() => setHovered(true)}
+                         onTouchEnd={() => setHovered(false)}
+                    >
+                        <div className={classes.centered} style={{position: "relative"}}>
+                            {iconsMap[fileContainer.expectedUploadType]}
+                            {fileContainer.pending && (
+                                <div className={classes.absolutePositioned}>
+                                    <CircularProgress size={25}
+                                                      color="primary"
+                                                      value={progress}
+                                                      variant={(progress === 100 || progress === 0) ? "indeterminate": "static"}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )
+            }
             <ListItemText classes={{
                 root: classes.listItemTextRoot
             }}>

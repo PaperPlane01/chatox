@@ -57,6 +57,7 @@ import {UploadImageStore, UploadsStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation/stores";
 import {EmojiSettingsStore} from "../Emoji/stores";
+import {AudioPlayerStore} from "../AudioPlayer/stores";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -137,6 +138,7 @@ const passwordChange = new PasswordChangeStore(
     authorization
 );
 const emoji = new EmojiSettingsStore();
+const audioPlayer = new AudioPlayerStore();
 
 export const store: IAppState = {
     authorization,
@@ -181,5 +183,6 @@ export const store: IAppState = {
     passwordChange,
     chatsPreferences,
     emoji,
-    messageUploads
+    messageUploads,
+    audioPlayer
 };

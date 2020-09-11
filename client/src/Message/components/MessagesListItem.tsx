@@ -24,6 +24,7 @@ import {Avatar} from "../../Avatar";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {MarkdownTextWithEmoji} from "../../Emoji/components";
+import {MessageAudios} from "./MessageAudios";
 
 const {Link} = require("mobx-router");
 
@@ -128,13 +129,13 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     withOneImage: {
         [theme.breakpoints.up("lg")]: {
-            maxWidth: "50% !important"
+            width: "50% !important"
         },
         [theme.breakpoints.down("md")]: {
-            maxWidth: "70% !important"
+            width: "70% !important"
         },
         [theme.breakpoints.down("sm")]: {
-            maxWidth: "85% !important"
+            width: "85% !important"
         },
     },
     inverted: {
@@ -217,13 +218,14 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     const sentByCurrentUser = currentUser && currentUser.id === sender.id;
     const containsCode = message.text.includes("`");
     const hasOneImage = message.uploads.length === 1;
+    const withAudio = message.audios.length !== 0;
 
     const cardClasses = clsx({
         [classes.messageCardFullWidth]: fullWidth,
         [classes.messageCard]: !fullWidth,
         [classes.messageOfCurrentUserCard]: sentByCurrentUser,
         [classes.withCode]: containsCode,
-        [classes.withOneImage]: hasOneImage,
+        [classes.withOneImage]: hasOneImage || withAudio,
     });
     const wrapperClasses = clsx({
         [classes.messageListItemWrapper]: true,
@@ -290,10 +292,13 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                     <MarkdownTextWithEmoji text={message.text}
                                                            emojiData={message.emoji}
                                     />
-                                    {!hideAttachments && message.uploads.length !== 0 && (
+                                    {!hideAttachments && message.images.length !== 0 && (
                                         (enableVirtualScroll && useSimplifiedGalleryForVirtualScroll)
-                                            ? <MessageImagesSimplifiedGrid chatUploadsIds={message.uploads} messageId={messageId}/>
-                                            : <MessageImagesGrid chatUploadsIds={message.uploads} parentWidth={width}/>
+                                            ? <MessageImagesSimplifiedGrid chatUploadsIds={message.images} messageId={messageId}/>
+                                            : <MessageImagesGrid chatUploadsIds={message.images} parentWidth={width}/>
+                                    )}
+                                    {!hideAttachments && message.audios.length !== 0 && (
+                                        <MessageAudios audios={message.audios}/>
                                     )}
                                 </Fragment>
                             )

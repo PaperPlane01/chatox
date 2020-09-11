@@ -15,11 +15,11 @@ export class UploadApi {
     }
 
     public static uploadAudio(file: File, onUploadProgress?: OnUploadProcessCallback): AxiosPromise<Upload<AudioUploadMetadata>> {
-        return UploadApi.doUpload<AudioUploadMetadata>(file, `/${UPLOADS}/${AUDIOS}`);
+        return UploadApi.doUpload<AudioUploadMetadata>(file, `/${UPLOADS}/${AUDIOS}`, onUploadProgress);
     }
 
     public static uploadFile(file: File, onUploadProgress?: OnUploadProcessCallback): AxiosPromise<Upload<any>> {
-        return UploadApi.doUpload<any>(file, `/${UPLOADS}/${FILES}`);
+        return UploadApi.doUpload<any>(file, `/${UPLOADS}/${FILES}`, onUploadProgress);
     }
 
     public static doUpload<MetadataType>(file: File, url: string, onUploadProgress?: OnUploadProcessCallback): AxiosPromise<Upload<MetadataType>> {
