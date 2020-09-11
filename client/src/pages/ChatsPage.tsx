@@ -64,3 +64,5 @@ export const ChatsPage: FunctionComponent = () => {
         </Fragment>
     )
 };
+
+export default ChatsPage;

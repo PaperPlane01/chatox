@@ -37,6 +37,7 @@ import {UploadImageStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings/stores";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
 import {EmojiSettingsStore} from "../Emoji/stores";
+import {AudioPlayerStore} from "../AudioPlayer/stores";
 
 export interface IAppState {
     language: LocaleStore,
@@ -82,5 +83,6 @@ export interface IAppState {
     emoji: EmojiSettingsStore,
     chatsPreferences: ChatsPreferencesStore,
     messageUploads: UploadMessageAttachmentsStore,
+    audioPlayer: AudioPlayerStore,
     store?: any
 }

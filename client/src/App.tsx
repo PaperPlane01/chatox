@@ -9,6 +9,7 @@ import {SnackbarProvider} from "notistack";
 import {cyan} from "./themes";
 import {LoadingCurrentUserProgressIndicator} from "./Authorization";
 import {useLocalization} from "./store/hooks";
+import {AudioPlayerContainer} from "./AudioPlayer/components";
 
 const {MobxRouter} = require("mobx-router");
 
@@ -27,6 +28,7 @@ export const App: FunctionComponent = observer(() => {
                     <LoadingCurrentUserProgressIndicator/>
                     <CssBaseline/>
                     <MobxRouter/>
+                    <AudioPlayerContainer/>
                 </MuiThemeProvider>
             </SnackbarProvider>
         </MuiPickersUtilsProvider>

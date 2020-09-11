@@ -56,3 +56,5 @@ export const ChatPage: FunctionComponent = () => (
         </Grid>
     </Fragment>
 );
+
+export default ChatPage;

@@ -17,6 +17,7 @@ import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks
 import {useLocalization, useStore} from "../../store/hooks";
 import {AttachImageMenuItem} from "./AttachImageMenuItem";
 import {ShowAttachedFilesMenuItem} from "./ShowAttachedFiledMenuItem";
+import {AttachAudioMenuItem} from "./AttachAudioMenuItem";
 
 interface AttachFilesButtonProps {
     className?: string
@@ -82,16 +83,9 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
                         {l("file.video")}
                     </ListItemText>
                 </MenuItem>
-                <MenuItem button
-                          disabled
-                >
-                    <ListItemIcon>
-                        <Audiotrack/>
-                    </ListItemIcon>
-                    <ListItemText>
-                        {l("file.audio")}
-                    </ListItemText>
-                </MenuItem>
+                <AttachAudioMenuItem onClick={attachFileMenuPopupState.close}
+                                     buttonClassName={classes.attachFileButton}
+                />
                 <MenuItem button
                           disabled
                 >

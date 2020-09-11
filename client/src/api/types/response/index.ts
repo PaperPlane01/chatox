@@ -23,3 +23,4 @@ export * from "./EmojiMap";
 export * from "./EmojiPosition";
 export * from "./MessageEmoji";
 export * from "./ChatUploadAttachment";
+export * from "./UploadType";

@@ -1,21 +1,19 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {Badge, CardHeader, createStyles, Divider, ListItem, makeStyles, Theme, Typography} from "@material-ui/core";
-import {Image, VideoLibrary, Audiotrack, FileCopy} from "@material-ui/icons";
+import {Audiotrack, FileCopy, Image, VideoLibrary} from "@material-ui/icons";
 import randomColor from "randomcolor";
+import {ChatUploadEntity} from "../types";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {useEmojiParser} from "../../Emoji/hooks";
-import {isStringEmpty, upperCaseFirstLetter} from "../../utils/string-utils";
+import {useEmojiParser, ParseEmojiFunction} from "../../Emoji";
+import {upperCaseFirstLetter} from "../../utils/string-utils";
 import {MessageEntity} from "../../Message/types";
-import {ChatUploadAttachment} from "../../api/types/response";
-import {ChatUploadEntity} from "../types";
-import {Labels, TranslationFunction} from "../../localization/types";
+import {Labels, TranslationFunction} from "../../localization";
 import {UserEntity} from "../../User/types";
-import {ParseEmojiFunction} from "../../Emoji";
-import {UploadType} from "../../api/types/response/UploadType";
+import {UploadType} from "../../api/types/response";
 
 const {Link} = require("mobx-router");
 
@@ -156,6 +154,14 @@ const getLastMessageText: GetLastMessageTextFunction = ({
                         </Fragment>
                     );
                     break;
+                case UploadType.AUDIO:
+                    uploadDisplay = (
+                        <Fragment>
+                            <Audiotrack fontSize="inherit"/>
+                            {" "}
+                            {upperCaseFirstLetter(l("message.attachments.audio"))}
+                        </Fragment>
+                    )
             }
 
             return (
