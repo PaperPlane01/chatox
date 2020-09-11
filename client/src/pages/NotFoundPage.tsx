@@ -22,3 +22,5 @@ export const NotFoundPage: FunctionComponent = () => {
         </Grid>
     )
 };
+
+export default NotFoundPage;
