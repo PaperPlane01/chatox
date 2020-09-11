@@ -16,9 +16,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         height: 0
     },
     trackMarkLabel: {
-        top: theme.spacing(3) + 2,
+        top: 0,
+        paddingTop: theme.spacing(3) + 2,
         [theme.breakpoints.down("sm")]: {
-            top: theme.spacing(2)
+            paddingTop: theme.spacing(2)
         }
     },
     trackSliderMarked: {
