@@ -13,6 +13,9 @@ export class AudioPlayerStore {
     @observable
     currentPosition: number = 0;
 
+    @observable
+    seekTo: number | undefined = undefined;
+
     constructor() {
         reaction(
             () => this.currentTrackId,
@@ -39,4 +42,10 @@ export class AudioPlayerStore {
     setCurrentPosition = (currentPosition: number): void => {
         this.currentPosition = currentPosition;
     };
+
+    @observable
+    setSeekTo = (seekTo: number): void => {
+        console.log(seekTo);
+        this.seekTo = seekTo;
+    }
 }

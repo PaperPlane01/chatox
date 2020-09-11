@@ -59,7 +59,8 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
             volume,
             setCurrentTrackId,
             setPlaying,
-            setVolume
+            setVolume,
+            setSeekTo
         }
     } = useStore();
     const classes = useStyles();
@@ -73,12 +74,21 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
         {
             value: 0,
             label: currentTrackId === audioId
-                ? format(new Date(0, 0, 0, 0, 0, Math.round((audio.meta!.duration / 1000) * currentPosition)), "mm:ss")
-                : format(new Date(0, 0, 0, 0, 0, 0), "mm:ss")
+                ? format(
+                    new Date(0, 0, 0, 0, 0, Math.round((audio.meta!.duration / 1000) * currentPosition)),
+                    "mm:ss"
+                )
+                : format(
+                    new Date(0, 0, 0, 0, 0, 0),
+                    "mm:ss"
+                )
         },
         {
             value: 1,
-            label: format(new Date(0, 0, 0, 0, 0, Math.round(audio.meta!.duration) / 1000), "mm:ss")
+            label: format(
+                new Date(0, 0, 0, 0, 0, Math.round(audio.meta!.duration) / 1000),
+                "mm:ss"
+            )
         }
     ]
 
@@ -110,6 +120,12 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                                 mark: classes.trackSliderMark,
                                 marked: classes.trackSliderMarked,
                             }}
+                            onChange={(_, value) => {
+                                if (currentTrackId === audioId) {
+                                    setSeekTo(value as number);
+                                }
+                            }}
+                            step={0.01}
                     />
                 </div>
                 <Fragment>

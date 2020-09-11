@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import ReactPlayer from "react-player";
 import {useStore} from "../../store/hooks";
@@ -10,7 +10,8 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
             playing,
             volume,
             setCurrentPosition,
-            setPlaying
+            setPlaying,
+            seekTo
         },
         entities: {
             uploads: {
@@ -19,6 +20,17 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
         },
     } = useStore();
 
+    const playerRef = useRef<ReactPlayer>(null);
+
+    useEffect(
+        () => {
+            if (playerRef.current && seekTo !== undefined) {
+                playerRef.current.seekTo(seekTo, "fraction");
+            }
+        },
+        [seekTo]
+    );
+
     if (!currentTrackId) {
         return null;
     }
@@ -26,11 +38,9 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
     const audio = findAudio(currentTrackId);
 
     return (
-        <ReactPlayer url={audio.uri}
+        <ReactPlayer url={`${audio.uri}/stream`}
                      playing={playing}
-                     onProgress={progress => {
-                         setCurrentPosition(progress.played);
-                     }}
+                     onProgress={progress => setCurrentPosition(progress.played)}
                      style={{
                          display: "none"
                      }}
@@ -41,6 +51,7 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
                          setCurrentPosition(0);
                      }}
                      volume={volume}
+                     ref={playerRef}
         />
     )
 })
