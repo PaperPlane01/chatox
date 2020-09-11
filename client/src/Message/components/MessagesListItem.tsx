@@ -75,7 +75,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             maxWidth: "60%"
         },
         [theme.breakpoints.down("sm")]: {
-            maxWidth: "85%"
+            maxWidth: "80%"
         },
         overflowX: "auto"
     },
@@ -135,7 +135,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             width: "70% !important"
         },
         [theme.breakpoints.down("sm")]: {
-            width: "85% !important"
+            width: "80% !important"
         },
     },
     inverted: {

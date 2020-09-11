@@ -73,14 +73,17 @@ export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplif
     const totalCols = chatUploadsIds.length < maxCols ? chatUploadsIds.length : maxCols;
 
     return (
-        <GridList cellHeight={totalCols === 1 ? (images[0].meta!.height * (targetOneColWidth / images[0].meta!.width)) : 180}
+        <GridList cellHeight={totalCols === 1 ? Math.ceil(images[0].meta!.height * (targetOneColWidth / images[0].meta!.width)) : 180}
                   cols={totalCols}
                   style={{margin: "0px! important"}}
                   spacing={0}
         >
             {images.map((image, index) => (
                 <GridListTile cols={getThumbnailCols(image, totalCols)}
-                              style={{cursor: "pointer"}}
+                              style={{
+                                  cursor: "pointer",
+                                  width: totalCols === 1 ? targetOneColWidth : undefined
+                              }}
                               onClick={() => openLightbox(index)}
                 >
                     {!imagesLoadingState[index] && (

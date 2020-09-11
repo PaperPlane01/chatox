@@ -34,7 +34,7 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
         let multiplier;
 
         if (onSmallScreen) {
-            multiplier = 0.85;
+            multiplier = 0.8;
         } else if (onMediumScreen) {
             multiplier = 0.6
         } else {
