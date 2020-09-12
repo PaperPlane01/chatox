@@ -5,6 +5,7 @@ import Gallery, {PhotoProps} from "react-photo-gallery";
 import Carousel, {Modal, ModalGateway} from "react-images";
 import {MessageImagesSimplifiedGrid} from "./MessageImagesSimplifiedGrid";
 import {useStore} from "../../store/hooks";
+import {useMessageGalleryWidthMultiplier} from "../hooks";
 
 interface MessageImagesGridProps {
     chatUploadsIds: string[],
@@ -25,24 +26,13 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
             }
         }
     } = useStore();
-    const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-    const onMediumScreen = useMediaQuery(theme.breakpoints.down("md"));
+    const parentWidthMultiplier = useMessageGalleryWidthMultiplier();
 
     const calculateWidth = (): number => {
         let width: number;
-        let multiplier;
-
-        if (onSmallScreen) {
-            multiplier = 0.85;
-        } else if (onMediumScreen) {
-            multiplier = 0.6
-        } else {
-            multiplier = 0.5
-        }
 
         if (parentWidth) {
-            width = parentWidth * multiplier - 32
+            width = parentWidth * parentWidthMultiplier - 32
         } else {
             width = window.innerWidth / 3.84
 
@@ -53,7 +43,9 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
 
         return width;
     }
+
     const [galleryWidth, setGalleryWidth] = useState(calculateWidth())
+
     useLayoutEffect(
         () => {
             const setWidth = (): void => setGalleryWidth(calculateWidth());

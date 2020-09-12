@@ -75,7 +75,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             maxWidth: "60%"
         },
         [theme.breakpoints.down("sm")]: {
-            maxWidth: "85%"
+            maxWidth: "80%"
         },
         overflowX: "auto"
     },
@@ -102,8 +102,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         paddingRight: theme.spacing(1)
     },
     cardContentRoot: {
-        paddingTop: 0,
-        paddingBottom: 0
+        padding: 0
+    },
+    cardContentWithPadding: {
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2)
     },
     cardActionsRoot: {
         paddingTop: 0,
@@ -135,7 +138,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             width: "70% !important"
         },
         [theme.breakpoints.down("sm")]: {
-            width: "85% !important"
+            width: "80% !important"
         },
     },
     inverted: {
@@ -289,13 +292,24 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                             ? <i>{l("message.deleted")}</i>
                             : (
                                 <Fragment>
-                                    <MarkdownTextWithEmoji text={message.text}
-                                                           emojiData={message.emoji}
-                                    />
-                                    {!hideAttachments && message.images.length !== 0 && (
-                                        (enableVirtualScroll && useSimplifiedGalleryForVirtualScroll)
-                                            ? <MessageImagesSimplifiedGrid chatUploadsIds={message.images} messageId={messageId}/>
-                                            : <MessageImagesGrid chatUploadsIds={message.images} parentWidth={width}/>
+                                    <div className={classes.cardContentWithPadding}>
+                                        <MarkdownTextWithEmoji text={message.text}
+                                                               emojiData={message.emoji}
+                                        />
+                                    </div>
+                                    {!hideAttachments && message.images.length === 1 && (
+                                        <MessageImagesSimplifiedGrid chatUploadsIds={message.images}
+                                                                     messageId={message.id}
+                                                                     parentWidth={width}
+                                        />
+                                    )}
+                                    {!hideAttachments && message.images.length !== 0 && message.images.length !== 1 && (
+                                        <div className={classes.cardContentWithPadding}>
+                                            {enableVirtualScroll && useSimplifiedGalleryForVirtualScroll
+                                                ? <MessageImagesSimplifiedGrid chatUploadsIds={message.images} messageId={messageId}/>
+                                                : <MessageImagesGrid chatUploadsIds={message.images} parentWidth={width}/>
+                                            }
+                                        </div>
                                     )}
                                     {!hideAttachments && message.audios.length !== 0 && (
                                         <MessageAudios audios={message.audios}/>
