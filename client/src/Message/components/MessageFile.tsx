@@ -50,8 +50,6 @@ export const MessageFile: FunctionComponent<MessageFileProps> = observer(({
         }
     }
 
-    console.log(toJS(file));
-
     return (
         <div className={classes.fileContainer}>
             <IconButton onClick={handleDownloadButtonClick}>

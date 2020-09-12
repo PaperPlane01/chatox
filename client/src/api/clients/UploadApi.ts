@@ -45,7 +45,6 @@ export class UploadApi {
 
         if (onDownloadProgress) {
             config.onDownloadProgress = progressEvent => {
-                console.log(progressEvent);
                 const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                 onDownloadProgress(percentage);
             }
