@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
 import {
     Badge,
@@ -14,6 +14,7 @@ import {
 } from "@material-ui/core";
 import {AttachFile, VideoLibrary} from "@material-ui/icons";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
+import {useSnackbar} from "notistack";
 import {AttachImageMenuItem} from "./AttachImageMenuItem";
 import {ShowAttachedFilesMenuItem} from "./ShowAttachedFiledMenuItem";
 import {AttachAudioMenuItem} from "./AttachAudioMenuItem";
@@ -41,7 +42,9 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
         messageUploads: {
             uploadedAttachmentsCount,
             uploadPending,
-            messageAttachmentsFiles
+            messageAttachmentsFiles,
+            fileValidationErrors,
+            setFileValidationErrors
         }
     } = useStore();
     const {l} = useLocalization();
@@ -50,6 +53,19 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
         popupId: "attachFileMenu"
     });
     const classes = useStyles();
+    const {enqueueSnackbar} = useSnackbar();
+
+    useEffect(
+        () => {
+            if (fileValidationErrors.length !== 0) {
+                fileValidationErrors.forEach(validationError => enqueueSnackbar(l(validationError.label, validationError.bindings), {
+                    variant: "error"
+                }));
+                setFileValidationErrors([]);
+            }
+        },
+        [fileValidationErrors]
+    );
 
     return (
         <Fragment>

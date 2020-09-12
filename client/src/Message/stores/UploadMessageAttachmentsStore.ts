@@ -17,15 +17,17 @@ interface UploadPercentageMap {
     [localId: string]: number
 }
 
+interface ValidationError {
+    label: keyof Labels,
+    bindings?: any
+}
+
 export class UploadMessageAttachmentsStore {
     @observable
     messageAttachmentsFiles: UploadedFileContainer[] = [];
 
     @observable
-    errorSnackbarLabel: keyof Labels | undefined = undefined;
-
-    @observable
-    errorSnackbarBindings: any = undefined;
+    fileValidationErrors: ValidationError[] = [];
 
     @observable
     attachedFilesDialogOpen: boolean = false;
@@ -36,11 +38,6 @@ export class UploadMessageAttachmentsStore {
     @computed
     get uploadPending(): boolean {
         return this.messageAttachmentsFiles.filter(fileContainer => fileContainer.pending).length !== 0;
-    };
-
-    @computed
-    get showErrorSnackbarLabel(): boolean {
-        return this.errorSnackbarLabel !== undefined;
     };
 
     @computed
@@ -82,10 +79,20 @@ export class UploadMessageAttachmentsStore {
 
     @action
     attachFiles = (files: FileList, fileMaxSize: number, uploadFile: UploadFileFunction, expectedUploadType: UploadType): void => {
+        let validationErrors: ValidationError[] = [];
+
         for (let file of files) {
             if (file.size > fileMaxSize) {
-                this.errorSnackbarLabel = "file.too-large";
-                this.errorSnackbarBindings = {fileName: file.name};
+                if (file.name && file.name.length !== 0) {
+                    validationErrors.push({
+                        label: "file.too-large.with-file-name",
+                        bindings: {
+                            fileName: file.name
+                        }
+                    });
+                } else {
+                    validationErrors.push({label: "file.too-large"});
+                }
                 continue;
             }
 
@@ -95,6 +102,10 @@ export class UploadMessageAttachmentsStore {
                 fileContainer
             ];
             this.uploadFile(fileContainer.file, fileContainer.localId, uploadFile);
+        }
+
+        if (validationErrors.length !== 0) {
+            this.setFileValidationErrors(validationErrors);
         }
     };
 
@@ -134,6 +145,11 @@ export class UploadMessageAttachmentsStore {
                     return fileContainer;
                 })
             })
+    };
+
+    @action
+    setFileValidationErrors = (validationErrors: ValidationError[]): void => {
+        this.fileValidationErrors = validationErrors;
     };
 
     @action
