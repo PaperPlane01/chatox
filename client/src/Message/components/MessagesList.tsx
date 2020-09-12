@@ -1,10 +1,21 @@
-import React, {Fragment, FunctionComponent, UIEvent, useEffect, useLayoutEffect, useRef, useState} from "react";
+import React, {
+    Fragment,
+    FunctionComponent,
+    RefObject,
+    UIEvent,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState
+} from "react";
 import {observer} from "mobx-react";
-import {createStyles, Hidden, makeStyles, Theme, useMediaQuery, useTheme} from "@material-ui/core";
-import {Virtuoso} from "react-virtuoso";
+import {createStyles, makeStyles, Theme, useMediaQuery, useTheme} from "@material-ui/core";
+import {Virtuoso, VirtuosoMethods} from "react-virtuoso";
 import {MessagesListItem} from "./MessagesListItem";
 import {MessagesListBottom} from "./MessagesListBottom";
+import {ReversedScrollHandler, VirtuosoInitialTopMostItemHandler} from "../utils";
 import {useStore} from "../../store";
+import {ReverseScrollDirectionOption} from "../../Chat/types";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messagesList: {
@@ -20,67 +31,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 interface MessagesListStyles {
     height: string | number,
-    paddingBottom: number
+    paddingBottom: number,
+    transform?: string
 }
 
-interface VirtuosoInitialTopMostIndexMap {
-    [chatId: string]: {
-        index: number,
-        previous: number[]
-    }
-}
-
-// Map for keeping scroll position after switching chats
-const virtuosoInitialTopMostIndexMap: VirtuosoInitialTopMostIndexMap = {};
-
-interface VirtuosoLastVisibleIndexMap {
-    [chatId: string]: number
-}
-
-// Map for keeping last visible item of list
-// This is used on mobile devices
-const virtuosoLastVisibleIndexMap: VirtuosoLastVisibleIndexMap = {};
-
-const setInitialTopMostItem = (index: number, chatId: string) => {
-    if (!virtuosoInitialTopMostIndexMap[chatId]) {
-        virtuosoInitialTopMostIndexMap[chatId] = {
-            index: 0,
-            previous: []
-        }
-    }
-
-    if (virtuosoInitialTopMostIndexMap[chatId].previous && virtuosoInitialTopMostIndexMap[chatId].previous.length !== 0) {
-        const previous = virtuosoInitialTopMostIndexMap[chatId].previous[virtuosoInitialTopMostIndexMap[chatId].previous.length - 1];
-
-        // For some reason react-virtuoso shifts startIndex position by 1 even if it's not been visible (even if overscan is not used)
-        // This causes scroll position to shift by 1 upwards for no reason
-        if ((previous - index) === 1) {
-            // Negate this effect
-            index = previous;
-        } else if ((previous - index) > 20) {
-            // Looks like some kind of race condition happens when switching between chats.
-            // For some reason position of current chat is set to previous chat on first render.
-            // We detect too large difference between current position and previous position of chat to avoid
-            // scrolling to incorrect position when switching back.
-            // This is a hacky work-around but I can't see any other way currently :(
-            index = previous;
-        }
-    }
-
-    // Save scroll position for selected chat
-    virtuosoInitialTopMostIndexMap[chatId].index = index;
-
-    if (virtuosoInitialTopMostIndexMap[chatId].previous) {
-        virtuosoInitialTopMostIndexMap[chatId].previous.push(index);
-
-        if (virtuosoInitialTopMostIndexMap[chatId].previous.length > 30) {
-            // Do cleanup if we have too many items in scroll history array
-            virtuosoInitialTopMostIndexMap[chatId].previous = virtuosoInitialTopMostIndexMap[chatId].previous.slice(25)
-        }
-    } else {
-        virtuosoInitialTopMostIndexMap[chatId].previous = [index];
-    }
-}
+const virtuosoTopMostItemHandler = new VirtuosoInitialTopMostItemHandler();
+const virtuosoScrollHandler = new ReversedScrollHandler();
 
 export const MessagesList: FunctionComponent = observer(() => {
     const {
@@ -95,7 +51,10 @@ export const MessagesList: FunctionComponent = observer(() => {
             emojiPickerExpanded
         },
         chatsPreferences: {
-            useVirtualScroll
+            enableVirtualScroll,
+            virtualScrollOverscan,
+            restoredScrollingSpeedCoefficient,
+            reverseScrollingDirectionOption
         },
         chat: {
             selectedChatId,
@@ -107,14 +66,20 @@ export const MessagesList: FunctionComponent = observer(() => {
     const messagesListBottomRef = useRef<HTMLDivElement>(null);
     const classes = useStyles();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-    const virtuosoRef = useRef<any>();
+    const virtuosoRef = useRef<VirtuosoMethods>() as RefObject<VirtuosoMethods>
+    const messagesDivRef = useRef<HTMLDivElement>(null);
 
     const calculateStyles = (): MessagesListStyles => {
         let height: string | number;
         let paddingBottom: number = 0;
+        let transform: string | undefined = undefined;
+
+        if (enableVirtualScroll && reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
+            transform = "scaleY(-1)"
+        }
 
         if (onSmallScreen) {
-            if (useVirtualScroll) {
+            if (enableVirtualScroll) {
                 if (messagesListBottomRef && messagesListBottomRef.current) {
                     const heightToSubtract = theme.spacing(7) + messagesListBottomRef.current.getBoundingClientRect().height;
                     height = window.innerHeight - heightToSubtract;
@@ -137,14 +102,28 @@ export const MessagesList: FunctionComponent = observer(() => {
             }
         }
 
-        return {height, paddingBottom};
+        return {height, paddingBottom, transform};
     }
 
     const [styles, setStyles] = useState(calculateStyles());
 
     const scrollToBottom = (): void => {
-        if (reachedBottom && phantomBottomRef && phantomBottomRef.current) {
-            setTimeout(() => phantomBottomRef!.current!.scrollIntoView());
+        if (reachedBottom) {
+            setTimeout(
+                () => {
+                    if (enableVirtualScroll && virtuosoRef && virtuosoRef.current) {
+                        if (reverseScrollingDirectionOption === ReverseScrollDirectionOption.DO_NOT_REVERSE) {
+                            virtuosoRef.current.scrollToIndex(messagesOfChat.length - 1)
+                        } else {
+                            virtuosoRef.current.scrollToIndex(0);
+                        }
+                    } else {
+                        if (phantomBottomRef && phantomBottomRef.current) {
+                            phantomBottomRef.current.scrollIntoView();
+                        }
+                    }
+                }
+            )
         }
     };
 
@@ -155,7 +134,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     };
 
     const handleWindowScroll = (): void => {
-        if (!useVirtualScroll) {
+        if (!enableVirtualScroll) {
             const windowHeight = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
             const body = document.body;
             const html = document.documentElement;
@@ -184,18 +163,9 @@ export const MessagesList: FunctionComponent = observer(() => {
         }
     });
     useEffect(() => {
-        // Check if we have saved top item index for this chat
-        if (!onSmallScreen) {
-            // Look for initial top most item if we are not on small screen
-            if (virtuosoRef && virtuosoRef.current && selectedChatId && virtuosoInitialTopMostIndexMap[selectedChatId]) {
-                // Scroll to the top item to restore scroll position
-                virtuosoRef.current.scrollToIndex(virtuosoInitialTopMostIndexMap[selectedChatId].index);
-            }
-        } else {
-            // Look for last visible index if we are on small screen
-            if (virtuosoRef && virtuosoRef.current && selectedChatId && virtuosoLastVisibleIndexMap[selectedChatId]) {
-                virtuosoRef.current.scrollToIndex(virtuosoLastVisibleIndexMap[selectedChatId]);
-            }
+        if (virtuosoRef && virtuosoRef.current && selectedChatId && virtuosoTopMostItemHandler.getInitialTopMostItem(selectedChatId)) {
+            // Scroll to the top item to restore scroll position
+            virtuosoRef.current.scrollToIndex(virtuosoTopMostItemHandler.getInitialTopMostItem(selectedChatId)!);
         }
     }, [selectedChatId, onSmallScreen])
     useLayoutEffect(
@@ -208,8 +178,35 @@ export const MessagesList: FunctionComponent = observer(() => {
             emojiPickerExpanded
         ]
     );
+    useLayoutEffect(
+        () => {
+            if (messagesDivRef && messagesDivRef.current) {
+                const messagesListDiv = messagesDivRef.current;
 
-    if (!useVirtualScroll) {
+                if (messagesListDiv) {
+                    const virtuosoDiv = messagesListDiv.children[0];
+
+                    if (virtuosoDiv) {
+                        virtuosoDiv.addEventListener("wheel", event => {
+                            if (reverseScrollingDirectionOption === ReverseScrollDirectionOption.REVERSE_AND_TRY_TO_RESTORE) {
+                                event.preventDefault();
+                                virtuosoScrollHandler.handleScroll(
+                                    virtuosoDiv,
+                                    event as WheelEvent,
+                                    restoredScrollingSpeedCoefficient
+                                )
+                            }
+                        }, {
+                            passive: false
+                        })
+                    }
+                }
+            }
+        },
+        [messagesDivRef]
+    )
+
+    if (!enableVirtualScroll) {
         return (
             <Fragment>
                 <div className={classes.messagesList}
@@ -229,63 +226,37 @@ export const MessagesList: FunctionComponent = observer(() => {
         )
     } else {
         return (
-            <div id="messagesList">
-                <Hidden mdDown>
-                    <Virtuoso totalCount={messagesOfChat.length}
-                              item={index => {
-                                  return (
-                                      <MessagesListItem messageId={messagesOfChat[index]}
-                                                        key={messagesOfChat[index]}
-                                                        onVisibilityChange={visible => {
-                                                            if (index === messagesOfChat.length - 1) {
-                                                                setReachedBottom(visible);
-                                                            }
-                                                        }}
-                                      />
-                                  )
-                              }}
-                              style={styles}
-                              defaultItemHeight={128}
-                              followOutput
-                              footer={() => <div id="phantomBottom" ref={phantomBottomRef}/>}
-                              rangeChanged={({startIndex}) => {
-                                  if (startIndex > 5) {
-                                      setInitialTopMostItem(startIndex, selectedChatId!);
-                                  }
-                              }}
-                              ref={virtuosoRef}
-                    />
-                </Hidden>
-                <Hidden lgUp>
-                    <Virtuoso totalCount={messagesOfChat.length}
-                              item={index => (
-                                  <MessagesListItem messageId={messagesOfChat[index]}
-                                                    key={messagesOfChat[index]}
-                                                    onVisibilityChange={visible => {
-                                                        if (visible) {
-                                                            if (virtuosoLastVisibleIndexMap[selectedChatId!]) {
-                                                                if (Math.abs(index - virtuosoLastVisibleIndexMap[selectedChatId!]) > 3) {
-                                                                    virtuosoLastVisibleIndexMap[selectedChatId!] = index;
-                                                                }
-                                                            } else {
-                                                                virtuosoLastVisibleIndexMap[selectedChatId!] = index;
-                                                            }
-                                                        }
+            <div id="messagesList"
+                 ref={messagesDivRef}
+            >
+                <Virtuoso totalCount={messagesOfChat.length}
+                          item={index => (
+                              <MessagesListItem messageId={messagesOfChat[index]}
+                                                onVisibilityChange={visible => {
+                                                    if (visible) {
+                                                        virtuosoTopMostItemHandler.setInitialTopMostItem(selectedChatId!, index);
+                                                    }
 
+                                                    if (reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
+                                                        if (index === 0) {
+                                                            setReachedBottom(visible);
+                                                        }
+                                                    } else {
                                                         if (index === messagesOfChat.length - 1) {
                                                             setReachedBottom(visible);
                                                         }
-                                                    }}
-                                  />
-                              )}
-                              style={styles}
-                              defaultItemHeight={120}
-                              overscan={2400}
-                              footer={() => <div id="phantomBottom" ref={phantomBottomRef}/>}
-                              followOutput
-                              ref={virtuosoRef}
-                    />
-                </Hidden>
+                                                    }
+                                                }}
+                                                inverted={reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE}
+                                                messagesListHeight={typeof styles.height === "number" ? styles.height : undefined}
+                              />
+                          )}
+                          style={styles}
+                          defaultItemHeight={120}
+                          overscan={virtualScrollOverscan}
+                          ref={virtuosoRef}
+                          computeItemKey={index => messagesOfChat[index]}
+                />
                 <MessagesListBottom ref={messagesListBottomRef}/>
             </div>
         )

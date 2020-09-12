@@ -5,6 +5,7 @@ import {ChatStore} from "../../Chat";
 import {FormErrors} from "../../utils/types";
 import {MessageApi, ApiError, getInitialApiErrorFromResponse} from "../../api";
 import {EntitiesStore} from "../../entities-store";
+import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
 
 export class CreateMessageStore {
     @observable
@@ -32,7 +33,14 @@ export class CreateMessageStore {
     @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
-    }
+    };
+
+    @computed
+    get attachmentsIds(): string[] {
+        return this.messageUploads.messageAttachmentsFiles
+            .filter(fileContainer => fileContainer.uploadedFile !== undefined && fileContainer.uploadedFile !== null)
+            .map(fileContainer => fileContainer.uploadedFile!.id!)
+    };
 
     @computed
     get shouldSendReferredMessageId(): boolean {
@@ -43,17 +51,18 @@ export class CreateMessageStore {
         }
 
         return false;
-    }
+    };
 
     constructor(
         private readonly chatStore: ChatStore,
-        private readonly entitiesStore: EntitiesStore
+        private readonly entitiesStore: EntitiesStore,
+        private readonly messageUploads: UploadMessageAttachmentsStore
     ) {
         reaction(
             () => this.createMessageForm.text,
-            text => this.formErrors.text = validateMessageText(text)
+            text => this.formErrors.text = validateMessageText(text, {acceptEmpty: this.attachmentsIds.length !== 0})
         )
-    }
+    };
 
     @action
     setReferredMessageId = (referredMessageId?: string): void => {
@@ -76,7 +85,8 @@ export class CreateMessageStore {
 
                     MessageApi.createMessage(chatId, {
                         text: this.createMessageForm.text,
-                        referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined
+                        referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined,
+                        uploadAttachments: this.attachmentsIds
                     })
                         .then(({data}) => {
                             this.entitiesStore.insertMessage(data);
@@ -92,7 +102,7 @@ export class CreateMessageStore {
     @action
     validateForm = (): Promise<boolean> => {
         return new Promise<boolean>(resolve => {
-            this.formErrors.text = validateMessageText(this.createMessageForm.text);
+            this.formErrors.text = validateMessageText(this.createMessageForm.text, {acceptEmpty: this.attachmentsIds.length !== 0});
             resolve(!Boolean(this.formErrors.text));
         });
     };
@@ -103,15 +113,16 @@ export class CreateMessageStore {
             text: ""
         };
         this.referredMessageId = undefined;
+        this.messageUploads.reset();
         setTimeout(() => {
             this.formErrors = {
                 text: undefined
             }
         })
-    }
+    };
 
     @action
     setEmojiPickerExpanded = (emojiPickerExpanded: boolean): void => {
         this.emojiPickerExpanded = emojiPickerExpanded;
-    }
+    };
 }

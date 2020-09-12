@@ -64,8 +64,9 @@ export class FilesUploadService {
         }
 
         const contentDispositionHeader = contentDisposition(file.originalName);
-        response.header("Content-Disposition", contentDispositionHeader);
-        response.header("Content-Type", file.mimeType);
+        response.setHeader("Content-Disposition", contentDispositionHeader);
+        response.setHeader("Content-Type", file.mimeType);
+        response.setHeader("Content-Length", file.size);
         const filePath = path.join(config.FILES_DIRECTORY, file.name);
         createReadStream(filePath).pipe(response);
     }

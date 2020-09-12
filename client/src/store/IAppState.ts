@@ -14,7 +14,14 @@ import {
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
-import {CreateMessageStore, MessageDialogStore, MessagesOfChatStore, UpdateMessageStore} from "../Message";
+import {
+    CreateMessageStore,
+    DownloadMessageFileStore,
+    MessageDialogStore,
+    MessagesOfChatStore,
+    UpdateMessageStore,
+    UploadMessageAttachmentsStore
+} from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
     EditProfileStore,
@@ -37,6 +44,7 @@ import {UploadImageStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings/stores";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
 import {EmojiSettingsStore} from "../Emoji/stores";
+import {AudioPlayerStore} from "../AudioPlayer/stores";
 
 export interface IAppState {
     language: LocaleStore,
@@ -81,5 +89,8 @@ export interface IAppState {
     passwordChangeEmailConfirmationCodeSending: SendPasswordChangeEmailConfirmationCodeStore,
     emoji: EmojiSettingsStore,
     chatsPreferences: ChatsPreferencesStore,
+    messageUploads: UploadMessageAttachmentsStore,
+    audioPlayer: AudioPlayerStore,
+    messageFileDownload: DownloadMessageFileStore,
     store?: any
 }

@@ -7,7 +7,7 @@ import {useStore} from "../../store/hooks";
 
 const emojiParser = new EmojiParser();
 
-type ParseEmojiFunction = (text: string, emojiData?: MessageEmoji) => ReactNode | ReactNode[];
+export type ParseEmojiFunction = (text: string, emojiData?: MessageEmoji) => ReactNode | ReactNode[];
 
 interface UseEmojiParser {
     parseEmoji: ParseEmojiFunction

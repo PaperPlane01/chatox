@@ -9,6 +9,7 @@ import {SettingsMenuItem} from "./SettingsMenuItem";
 import {HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {useStore} from "../../store";
+import {DrawerAudioControls} from "./DrawerAudioControls";
 
 export const NavigationalDrawer: FunctionComponent = observer(() => {
     const {appBar} = useStore();
@@ -51,6 +52,7 @@ export const NavigationalDrawer: FunctionComponent = observer(() => {
                         <LogOutMenuItem onClick={closeDrawer}/>
                     </HasRole>
                 </List>
+                <DrawerAudioControls/>
             </SwipeableDrawer>
             <LoginDialog/>
             <RegistrationDialog/>

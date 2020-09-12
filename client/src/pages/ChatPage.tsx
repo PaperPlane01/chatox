@@ -8,7 +8,7 @@ import {
     MessagesList,
     UpdateChatDialog
 } from "../Chat";
-import {MessageDialog, UpdateMessageDialog} from "../Message";
+import {MessageDialog, UpdateMessageDialog, AttachedFilesDialog} from "../Message";
 import {
     BlockUserInChatByIdOrSlugDialog,
     ChatBlockingInfoDialog,
@@ -52,6 +52,7 @@ export const ChatPage: FunctionComponent = () => (
             <UpdateChatDialog/>
             <MessageDialog/>
             <UpdateMessageDialog/>
+            <AttachedFilesDialog/>
         </Grid>
     </Fragment>
 );

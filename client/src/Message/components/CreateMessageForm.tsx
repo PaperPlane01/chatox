@@ -14,10 +14,11 @@ import {
     useMediaQuery,
     useTheme
 } from "@material-ui/core";
-import {AttachFile, InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
+import {InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {EmojiData, Picker} from "emoji-mart";
 import 'emoji-mart/css/emoji-mart.css';
+import {AttachFilesButton} from "./AttachFilesButton";
 import {ReferredMessageCard} from "./ReferredMessageCard";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
@@ -44,6 +45,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             submissionError,
             emojiPickerExpanded,
             referredMessageId,
+            attachmentsIds,
             setFormValue,
             createMessage,
         },
@@ -146,15 +148,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                            disableUnderline: true,
                            startAdornment: (
                                <InputAdornment position="start">
-                                   <Tooltip title={l("feature.not-available")}>
-                                       <div>
-                                           <IconButton disabled
-                                                       className={classes.inputIconButton}
-                                           >
-                                               <AttachFile/>
-                                           </IconButton>
-                                       </div>
-                                   </Tooltip>
+                                   <AttachFilesButton className={classes.inputIconButton}/>
                                </InputAdornment>
                            ),
                            endAdornment: (
@@ -192,7 +186,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                                </IconButton>
                                            </Hidden>
                                        </Fragment>
-                                       {formValues.text.length
+                                       {formValues.text.length !== 0 || attachmentsIds.length !== 0
                                            ? (
                                                <IconButton onClick={createMessage}
                                                            color="primary"

@@ -2,22 +2,24 @@ import {IAppState} from "./IAppState";
 import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore} from "../Authorization/stores";
 import {
-    UserRegistrationStore,
-    SendConfirmationCodeStore,
+    createSetRegistrationStepCallback,
     RegistrationDialogStore,
-    createSetRegistrationStepCallback
+    SendConfirmationCodeStore,
+    UserRegistrationStore
 } from "../Registration";
 import {
-    ChatsStore,
+    ChatInfoDialogStore,
+    ChatParticipantsStore,
+    ChatParticipationsStore,
     ChatsOfCurrentUserStore,
+    ChatsPreferencesStore,
+    ChatsStore,
     ChatStore,
     CreateChatStore,
-    ChatParticipationsStore,
-    ChatParticipantsStore,
     JoinChatStore,
-    ChatInfoDialogStore,
     OnlineChatParticipantsStore,
-    UpdateChatStore, ChatsPreferencesStore
+    UpdateChatStore,
+    ChatUploadsStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
@@ -33,27 +35,29 @@ import {
     UsersStore
 } from "../User";
 import {
-    CreateMessageStore,
+    CreateMessageStore, DownloadMessageFileStore,
+    MessageDialogStore,
     MessagesOfChatStore,
     MessagesStore,
-    MessageDialogStore,
-    UpdateMessageStore
+    UpdateMessageStore,
+    UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
-    ChatBlockingsStore,
-    CreateChatBlockingStore,
-    ChatBlockingsOfChatStore,
-    ChatBlockingsDialogStore,
+    BlockUserInChatByIdOrSlugStore,
     CancelChatBlockingStore,
     ChatBlockingInfoDialogStore,
-    UpdateChatBlockingStore,
-    BlockUserInChatByIdOrSlugStore
+    ChatBlockingsDialogStore,
+    ChatBlockingsOfChatStore,
+    ChatBlockingsStore,
+    CreateChatBlockingStore,
+    UpdateChatBlockingStore
 } from "../ChatBlocking";
-import {UploadsStore, UploadImageStore} from "../Upload";
+import {UploadImageStore, UploadsStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation/stores";
 import {EmojiSettingsStore} from "../Emoji/stores";
+import {AudioPlayerStore} from "../AudioPlayer/stores";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -61,13 +65,15 @@ const usersStore = new UsersStore();
 const chatParticipations = new ChatParticipationsStore();
 const chatBlockings = new ChatBlockingsStore(usersStore);
 const uploads = new UploadsStore();
+const chatUploads = new ChatUploadsStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
     usersStore,
     chatParticipations,
     chatBlockings,
-    uploads
+    uploads,
+    chatUploads
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -92,8 +98,10 @@ const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entities);
 const chatCreation = new CreateChatStore(entities);
 const chat = new ChatStore(entities);
 const chatParticipants = new ChatParticipantsStore(entities, chat);
-const messageCreation = new CreateMessageStore(chat, entities);
-const messagesOfChat = new MessagesOfChatStore(entities, chat);
+const messageUploads = new UploadMessageAttachmentsStore();
+const messageCreation = new CreateMessageStore(chat, entities, messageUploads);
+const chatsPreferences = new ChatsPreferencesStore();
+const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences);
 const joinChat = new JoinChatStore(entities, authorization);
 const websocket = new WebsocketStore(authorization, entities);
 const userProfile = new UserProfileStore(entities);
@@ -130,7 +138,8 @@ const passwordChange = new PasswordChangeStore(
     authorization
 );
 const emoji = new EmojiSettingsStore();
-const chatsPreferences = new ChatsPreferencesStore();
+const audioPlayer = new AudioPlayerStore();
+const messageFileDownload = new DownloadMessageFileStore();
 
 export const store: IAppState = {
     authorization,
@@ -174,5 +183,8 @@ export const store: IAppState = {
     passwordChangeForm,
     passwordChange,
     chatsPreferences,
-    emoji
+    emoji,
+    messageUploads,
+    audioPlayer,
+    messageFileDownload
 };

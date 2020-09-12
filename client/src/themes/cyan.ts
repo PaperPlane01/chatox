@@ -45,6 +45,10 @@ export const cyan = createMuiTheme({
                 },
                 ".emoji-mart-anchor-selected" : {
                     color: `${PRIMARY_MAIN} !important`
+                },
+                ".react-images__view-image": {
+                    maxHeight: "90% !important",
+                    maxWidth: "90% !important"
                 }
             }
         }
