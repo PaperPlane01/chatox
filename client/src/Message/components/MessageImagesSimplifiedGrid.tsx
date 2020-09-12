@@ -1,14 +1,16 @@
-import React, {FunctionComponent, useCallback, useState} from "react";
+import React, {FunctionComponent, useCallback, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {GridList, GridListTile, useTheme, useMediaQuery} from "@material-ui/core";
 import {Skeleton} from "@material-ui/lab";
 import Carousel, {ModalGateway, Modal} from "react-images";
 import {useStore} from "../../store/hooks";
 import {ImageUploadMetadata, Upload} from "../../api/types/response";
+import {useMessageGalleryWidthMultiplier} from "../hooks";
 
 interface MessageImagesSimplifiedGridProps {
     chatUploadsIds: string[],
-    messageId: string
+    messageId: string,
+    parentWidth?: number
 }
 
 const getThumbnailCols = (image: Upload<ImageUploadMetadata>, maxCols: number): number => {
@@ -33,6 +35,7 @@ interface ImagesLoadingStateMap {
 
 export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplifiedGridProps> = observer(({
     chatUploadsIds,
+    parentWidth
 }) => {
     const {
         entities: {
@@ -46,10 +49,39 @@ export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplif
     } = useStore();
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("xs"));
-    const targetOneColWidth = onSmallScreen ? 256 : 400;
+    const galleryWidthMultiplier = useMessageGalleryWidthMultiplier();
     const [currentImage, setCurrentImage] = useState(0);
     const [viewerIsOpen, setViewerIsOpen] = useState(false);
     const [imagesLoadingState, setImagesLoadingState] = useState<ImagesLoadingStateMap>({});
+
+    const calculateTargetOneColWidth = (): number => {
+        if (chatUploadsIds.length === 1) {
+            if (parentWidth) {
+                return galleryWidthMultiplier * parentWidth;
+            } else {
+                if (onSmallScreen) {
+                    return 256;
+                } else {
+                    return 512;
+                }
+            }
+        } else {
+            if (onSmallScreen) {
+                return 256;
+            } else {
+                return 512
+            }
+        }
+    };
+
+    const [targetOneColWidth, setTargetOneColWidth] = useState(calculateTargetOneColWidth());
+
+    useLayoutEffect(
+        () => {
+            setTargetOneColWidth(calculateTargetOneColWidth())
+        },
+        [parentWidth]
+    );
 
     const openLightbox = useCallback((index: number) => {
         setCurrentImage(index);
@@ -69,7 +101,7 @@ export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplif
             source: image.uri
         }));
 
-    const maxCols = onSmallScreen ? 2 : 4
+    const maxCols =  4
     const totalCols = chatUploadsIds.length < maxCols ? chatUploadsIds.length : maxCols;
 
     return (
@@ -82,19 +114,18 @@ export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplif
                 <GridListTile cols={getThumbnailCols(image, totalCols)}
                               style={{
                                   cursor: "pointer",
-                                  width: totalCols === 1 ? targetOneColWidth : undefined
                               }}
                               onClick={() => openLightbox(index)}
                 >
                     {!imagesLoadingState[index] && (
                         <Skeleton style={{
-                            width: targetOneColWidth * getThumbnailCols(image, maxCols),
+                            width: totalCols === 1 ? "100%" : targetOneColWidth * getThumbnailCols(image, maxCols),
                             height: "100%"
                         }}
                                   variant="rect"
                         />
                     )}
-                    <img src={`${image.source}?size=${totalCols === 1 ? targetOneColWidth : 512}`}
+                    <img src={`${image.source}?size=512`}
                          style={{
                              display: imagesLoadingState[index] ? "block" : "none"
                          }}
