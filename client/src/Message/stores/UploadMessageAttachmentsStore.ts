@@ -1,18 +1,17 @@
 import {action, computed, observable} from "mobx";
 import {AxiosPromise} from "axios";
-import {getInitialApiErrorFromResponse, OnUploadProcessCallback} from "../../api";
+import {getInitialApiErrorFromResponse, ProgressCallback} from "../../api";
 import {UploadApi} from "../../api/clients";
-import {Upload} from "../../api/types/response";
+import {Upload, UploadType} from "../../api/types/response";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {Labels} from "../../localization/types";
-import {UploadType} from "../../api/types/response/UploadType";
 
 const IMAGE_MAX_SIZE = Number(process.env.REACT_APP_IMAGE_MAX_SIZE);
 const VIDEO_MAX_SIZE = Number(process.env.REACT_APP_VIDEO_MAX_SIZE)
 const AUDIO_MAX_SIZE = Number(process.env.REACT_APP_AUDIO_MAX_SIZE);
 const FILE_MAX_SIZE = Number(process.env.REACT_APP_FILE_MAX_SIZE);
 
-type UploadFileFunction = (file: File, onUploadProgress?: OnUploadProcessCallback) => AxiosPromise<Upload<any>>;
+type UploadFileFunction = (file: File, onUploadProgress?: ProgressCallback) => AxiosPromise<Upload<any>>;
 
 interface UploadPercentageMap {
     [localId: string]: number

@@ -35,7 +35,7 @@ import {
     UsersStore
 } from "../User";
 import {
-    CreateMessageStore,
+    CreateMessageStore, DownloadMessageFileStore,
     MessageDialogStore,
     MessagesOfChatStore,
     MessagesStore,
@@ -139,6 +139,7 @@ const passwordChange = new PasswordChangeStore(
 );
 const emoji = new EmojiSettingsStore();
 const audioPlayer = new AudioPlayerStore();
+const messageFileDownload = new DownloadMessageFileStore();
 
 export const store: IAppState = {
     authorization,
@@ -184,5 +185,6 @@ export const store: IAppState = {
     chatsPreferences,
     emoji,
     messageUploads,
-    audioPlayer
+    audioPlayer,
+    messageFileDownload
 };

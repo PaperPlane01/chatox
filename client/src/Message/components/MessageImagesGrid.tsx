@@ -1,6 +1,5 @@
 import React, {FunctionComponent, memo, useCallback, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {useMediaQuery, useTheme} from "@material-ui/core";
 import Gallery, {PhotoProps} from "react-photo-gallery";
 import Carousel, {Modal, ModalGateway} from "react-images";
 import {MessageImagesSimplifiedGrid} from "./MessageImagesSimplifiedGrid";

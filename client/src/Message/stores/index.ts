@@ -4,3 +4,4 @@ export * from "./MessagesStore";
 export * from "./MessageDialogStore";
 export * from "./UpdateMessageStore";
 export * from "./UploadMessageAttachmentsStore";
+export * from "./DownloadMessageFileStore";

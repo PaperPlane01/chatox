@@ -25,6 +25,7 @@ import {useAuthorization, useLocalization, useRouter, useStore} from "../../stor
 import {Routes} from "../../router";
 import {MarkdownTextWithEmoji} from "../../Emoji/components";
 import {MessageAudios} from "./MessageAudios";
+import {MessageFiles} from "./MessageFiles";
 
 const {Link} = require("mobx-router");
 
@@ -313,6 +314,9 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                     )}
                                     {!hideAttachments && message.audios.length !== 0 && (
                                         <MessageAudios audios={message.audios}/>
+                                    )}
+                                    {!hideAttachments && message.files.length !== 0 && (
+                                        <MessageFiles chatUploadIds={message.files}/>
                                     )}
                                 </Fragment>
                             )
