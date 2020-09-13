@@ -75,6 +75,9 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 chatParticipation = chatParticipationRepository.save(chatParticipation).awaitFirst()
             }
 
+            chat.numberOfParticipants += 1
+            chatRepository.save(chat).awaitFirst()
+            chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(chatParticipation))
             chatParticipationMapper.toMinifiedChatParticipationResponse(chatParticipation)
         }
     }
@@ -105,6 +108,8 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                     .awaitFirst()
             chatParticipation = chatParticipation.copy(deleted = true)
             chatParticipation = chatParticipationRepository.save(chatParticipation).awaitFirst()
+            chat.numberOfParticipants -= 1
+            chatRepository.save(chat).awaitFirst()
             chatEventsPublisher.userLeftChat(chatParticipation.chat.id, chatParticipation.id!!)
 
             Mono.empty<Void>()

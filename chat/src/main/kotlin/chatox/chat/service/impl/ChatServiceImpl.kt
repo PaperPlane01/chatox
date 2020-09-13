@@ -175,7 +175,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         return mono {
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
             val chatParticipations = chatParticipationRepository
-                    .findAllByUser(currentUser)
+                    .findAllByUserAndDeletedFalse(currentUser)
                     .collectList()
                     .awaitFirst()
             val unreadMessagesMap: MutableMap<String, Int> = HashMap()
