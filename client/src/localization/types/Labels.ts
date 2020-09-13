@@ -230,5 +230,7 @@ export interface Labels {
     "message.attachments.audio": string,
     "message.attachments.audio.plural": string,
     "message.attachments.video": string,
-    "message.attachments.video.plural": string
+    "message.attachments.video.plural": string,
+    "error-boundary.stacktrace.show": string,
+    "error-boundary.stacktrace.hide": string
 }

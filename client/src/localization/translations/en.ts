@@ -232,5 +232,7 @@ export const en: Labels = {
     "message.attachments.audio": "audio",
     "message.attachments.audio.plural": "audios",
     "message.attachments.video": "video",
-    "message.attachments.video.plural": "videos"
+    "message.attachments.video.plural": "videos",
+    "error-boundary.stacktrace.show": "Show stacktrace",
+    "error-boundary.stacktrace.hide": "Hide stacktrace"
 };

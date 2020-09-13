@@ -2,6 +2,7 @@ import React, {lazy, Suspense} from "react";
 import {CircularProgress} from "@material-ui/core";
 import {store} from "../store";
 import {getSettingsTabFromString} from "../Settings";
+import {ErrorBoundary} from "../ErrorBoundary";
 
 const fallback = (
     <div style={{
@@ -28,33 +29,41 @@ export const Routes = {
     home: new Route({
         path: "/",
         component: (
-            <Suspense fallback={fallback}>
-                <HomePage/>
-            </Suspense>
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <HomePage/>
+                </Suspense>
+            </ErrorBoundary>
         )
     }),
     notFound: new Route({
         path: "/404",
         component: (
-            <Suspense fallback={fallback}>
-                <NotFoundPage/>
-            </Suspense>
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <NotFoundPage/>
+                </Suspense>
+            </ErrorBoundary>
         )
     }),
     myChats: new Route({
         path: "/chats",
         component: (
-            <Suspense fallback={fallback}>
-                <ChatsPage/>
-            </Suspense>
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <ChatsPage/>
+                </Suspense>
+            </ErrorBoundary>
         )
     }),
     chatPage: new Route({
         path: "/chat/:slug",
         component: (
-          <Suspense fallback={fallback}>
-              <ChatPage/>
-          </Suspense>
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <ChatPage/>
+                </Suspense>
+            </ErrorBoundary>
         ),
         onEnter: (view: any, params: any, _: any, queryParams: any) => {
             store.chat.setSelectedChat(params.slug);
@@ -71,9 +80,11 @@ export const Routes = {
     userPage: new Route({
         path: "/user/:slug",
         component: (
-            <Suspense fallback={fallback}>
-                <UserPage/>
-            </Suspense>
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <UserPage/>
+                </Suspense>
+            </ErrorBoundary>
         ),
         onEnter: (view: any, params: any) => {
             store.userProfile.setSelectedUser(params.slug)
@@ -85,17 +96,21 @@ export const Routes = {
     settingsPage: new Route({
         path: "/settings",
         component: (
-            <Suspense fallback={fallback}>
-                <SettingsPage/>
-            </Suspense>
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <SettingsPage/>
+                </Suspense>
+            </ErrorBoundary>
         )
     }),
     settingsTabPage: new Route({
         path: "/settings/:tab",
         component: (
-            <Suspense fallback={fallback}>
-                <SettingsPage/>
-            </Suspense>
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <SettingsPage/>
+                </Suspense>
+            </ErrorBoundary>
         ),
         onEnter: (view: any, params: any) => {
             store.settingsTabs.setActiveTab(getSettingsTabFromString(params.tab as string))
