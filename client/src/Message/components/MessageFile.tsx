@@ -4,7 +4,6 @@ import {Badge, IconButton, CircularProgress, Typography, createStyles, makeStyle
 import {FileCopy} from "@material-ui/icons";
 import prettyBytes from "pretty-bytes";
 import {useStore} from "../../store/hooks";
-import {toJS} from "mobx";
 
 interface MessageFileProps {
     chatUploadId: string

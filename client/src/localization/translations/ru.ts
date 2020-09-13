@@ -232,5 +232,7 @@ export const ru: Labels = {
     "message.attachments.audio": "аудио",
     "message.attachments.audio.plural": "аудио",
     "message.attachments.video": "видео",
-    "message.attachments.video.plural": "видео"
+    "message.attachments.video.plural": "видео",
+    "error-boundary.stacktrace.show": "Показать стек ошибки",
+    "error-boundary.stacktrace.hide": "Скрыть стек ошибки"
 };

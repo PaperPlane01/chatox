@@ -10,6 +10,7 @@ import {cyan} from "./themes";
 import {LoadingCurrentUserProgressIndicator} from "./Authorization";
 import {useLocalization} from "./store/hooks";
 import {AudioPlayerContainer} from "./AudioPlayer/components";
+import {ErrorBoundary} from "./ErrorBoundary/components";
 
 const {MobxRouter} = require("mobx-router");
 
@@ -17,20 +18,22 @@ export const App: FunctionComponent = observer(() => {
     const {dateFnsLocale} = useLocalization();
 
     return (
-        <MuiPickersUtilsProvider utils={DateFnsUtils}
-                                 locale={dateFnsLocale}
-        >
-            <Helmet>
-                <meta name="theme-color" content={`#${rgbToHex(cyan.palette.primary.main)}`}/>
-            </Helmet>
-            <SnackbarProvider maxSnack={3}>
-                <MuiThemeProvider theme={cyan}>
-                    <LoadingCurrentUserProgressIndicator/>
-                    <CssBaseline/>
-                    <MobxRouter/>
-                    <AudioPlayerContainer/>
-                </MuiThemeProvider>
-            </SnackbarProvider>
-        </MuiPickersUtilsProvider>
+       <ErrorBoundary>
+           <MuiPickersUtilsProvider utils={DateFnsUtils}
+                                    locale={dateFnsLocale}
+           >
+               <Helmet>
+                   <meta name="theme-color" content={`#${rgbToHex(cyan.palette.primary.main)}`}/>
+               </Helmet>
+               <SnackbarProvider maxSnack={3}>
+                   <MuiThemeProvider theme={cyan}>
+                       <LoadingCurrentUserProgressIndicator/>
+                       <CssBaseline/>
+                       <MobxRouter/>
+                       <AudioPlayerContainer/>
+                   </MuiThemeProvider>
+               </SnackbarProvider>
+           </MuiPickersUtilsProvider>
+       </ErrorBoundary>
     )
 });
