@@ -271,23 +271,6 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 .flatMapMany { Flux.fromIterable(it) }
     }
 
-    fun executeUpdateScript(): Mono<Void> {
-        return mono {
-            log.info("Started updating chat participations")
-            val users = userRepository.findAll().collectList().awaitFirst()
-
-            for (user in users) {
-                log.info("Updating chat participations of user ${user.id}")
-                chatParticipationRepository.updateDisplayedNameOfChatParticipationsByUser(user)
-                        .awaitFirst()
-            }
-        }
-                .flatMap {
-                    log.info("Updating chat participations is completed")
-                    Mono.empty<Void>()
-                }
-    }
-
     private fun findChatById(chatId: String): Mono<Chat> {
         return chatRepository
                 .findById(chatId)
