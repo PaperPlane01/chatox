@@ -11,3 +11,4 @@ export * from "./OnlineChatParticipantsStore";
 export * from "./UpdateChatStore";
 export * from "./ChatsPreferencesStore";
 export * from "./ChatUploadsStore";
+export * from "./LeaveChatStore";

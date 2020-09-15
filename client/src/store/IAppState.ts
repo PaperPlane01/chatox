@@ -9,7 +9,7 @@ import {
     ChatsOfCurrentUserStore, ChatsPreferencesStore,
     ChatStore,
     CreateChatStore,
-    JoinChatStore,
+    JoinChatStore, LeaveChatStore,
     OnlineChatParticipantsStore,
     UpdateChatStore
 } from "../Chat";
@@ -92,5 +92,6 @@ export interface IAppState {
     messageUploads: UploadMessageAttachmentsStore,
     audioPlayer: AudioPlayerStore,
     messageFileDownload: DownloadMessageFileStore,
+    leaveChat: LeaveChatStore,
     store?: any
 }

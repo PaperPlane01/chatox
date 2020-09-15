@@ -19,7 +19,8 @@ import {
     JoinChatStore,
     OnlineChatParticipantsStore,
     UpdateChatStore,
-    ChatUploadsStore
+    ChatUploadsStore,
+    LeaveChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
@@ -140,6 +141,7 @@ const passwordChange = new PasswordChangeStore(
 const emoji = new EmojiSettingsStore();
 const audioPlayer = new AudioPlayerStore();
 const messageFileDownload = new DownloadMessageFileStore();
+const leaveChat = new LeaveChatStore(entities);
 
 export const store: IAppState = {
     authorization,
@@ -186,5 +188,6 @@ export const store: IAppState = {
     emoji,
     messageUploads,
     audioPlayer,
-    messageFileDownload
+    messageFileDownload,
+    leaveChat
 };
