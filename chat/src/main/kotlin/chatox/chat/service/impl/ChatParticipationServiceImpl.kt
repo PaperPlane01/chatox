@@ -21,6 +21,7 @@ import chatox.chat.support.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
@@ -39,6 +40,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                                    private val chatEventsPublisher: ChatEventsPublisher,
                                    private val authenticationFacade: AuthenticationFacade): ChatParticipationService {
     private lateinit var chatParticipationPermissions: ChatParticipationPermissions
+    private val log = LoggerFactory.getLogger(this::class.java)
 
     @Autowired
     fun setChatParticipationPermissions(chatParticipationPermissions: ChatParticipationPermissions) {
@@ -64,17 +66,27 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 )
                 chatParticipation = chatParticipationRepository.save(chatParticipation).awaitFirst()
             } else {
+                var userDisplayedName = currentUser.firstName
+
+                if (currentUser.lastName != null) {
+                    userDisplayedName = "${currentUser.firstName} ${currentUser.lastName}"
+                }
+
                 chatParticipation = ChatParticipation(
                         id = UUID.randomUUID().toString(),
                         user = currentUser,
                         chat = chat,
                         createdAt = ZonedDateTime.now(),
                         role = ChatRole.USER,
-                        lastMessageRead = null
+                        lastMessageRead = null,
+                        userDisplayedName = userDisplayedName
                 )
                 chatParticipation = chatParticipationRepository.save(chatParticipation).awaitFirst()
             }
 
+            chat.numberOfParticipants += 1
+            chatRepository.save(chat).awaitFirst()
+            chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(chatParticipation))
             chatParticipationMapper.toMinifiedChatParticipationResponse(chatParticipation)
         }
     }
@@ -105,6 +117,8 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                     .awaitFirst()
             chatParticipation = chatParticipation.copy(deleted = true)
             chatParticipation = chatParticipationRepository.save(chatParticipation).awaitFirst()
+            chat.numberOfParticipants -= 1
+            chatRepository.save(chat).awaitFirst()
             chatEventsPublisher.userLeftChat(chatParticipation.chat.id, chatParticipation.id!!)
 
             Mono.empty<Void>()
@@ -195,9 +209,9 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
     override fun searchChatParticipants(chatId: String, query: String, paginationRequest: PaginationRequest): Flux<ChatParticipationResponse> {
         return chatRepository.findById(chatId)
                 .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
-                .map { chatParticipationRepository.findByChatAndUserFirstNameContainsAndDeletedFalse(
+                .map { chatParticipationRepository.searchChatParticipants(
                         it,
-                        username = query,
+                        query = query,
                         pageable = paginationRequest.toPageRequest()
                 ) }
                 .map { it.map { chatParticipation -> chatParticipationMapper.toChatParticipationResponse(chatParticipation) } }
@@ -255,6 +269,23 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
             onlineParticipants.map { chatParticipationMapper.toChatParticipationResponse(it) }
         }
                 .flatMapMany { Flux.fromIterable(it) }
+    }
+
+    fun executeUpdateScript(): Mono<Void> {
+        return mono {
+            log.info("Started updating chat participations")
+            val users = userRepository.findAll().collectList().awaitFirst()
+
+            for (user in users) {
+                log.info("Updating chat participations of user ${user.id}")
+                chatParticipationRepository.updateDisplayedNameOfChatParticipationsByUser(user)
+                        .awaitFirst()
+            }
+        }
+                .flatMap {
+                    log.info("Updating chat participations is completed")
+                    Mono.empty<Void>()
+                }
     }
 
     private fun findChatById(chatId: String): Mono<Chat> {

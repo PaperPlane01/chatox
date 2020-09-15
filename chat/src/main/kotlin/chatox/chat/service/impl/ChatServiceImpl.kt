@@ -58,13 +58,20 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 .map { chatRepository.save(it) }
                 .flatMap { it }
                 .map {
+                    var userDisplayedName = it.createdBy.firstName
+
+                    if (it.createdBy.lastName != null) {
+                        userDisplayedName = "$userDisplayedName ${it.createdBy.lastName}"
+                    }
+
                     chatParticipationRepository.save(
                             chatParticipation = ChatParticipation(
                                     user = it.createdBy,
                                     chat = it,
                                     role = ChatRole.ADMIN,
                                     lastMessageRead = null,
-                                    createdAt = ZonedDateTime.now()
+                                    createdAt = ZonedDateTime.now(),
+                                    userDisplayedName = userDisplayedName
                             )
                     )
                 }
@@ -175,7 +182,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         return mono {
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
             val chatParticipations = chatParticipationRepository
-                    .findAllByUser(currentUser)
+                    .findAllByUserAndDeletedFalse(currentUser)
                     .collectList()
                     .awaitFirst()
             val unreadMessagesMap: MutableMap<String, Int> = HashMap()

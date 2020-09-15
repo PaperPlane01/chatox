@@ -92,6 +92,9 @@ class UserEventsListener(private val userRepository: UserRepository,
                         avatar = avatar
                 ))
                         .awaitFirst()
+                chatParticipationRepository
+                        .updateDisplayedNameOfChatParticipationsByUser(user)
+                        .awaitFirst()
             }
         }
                 .doOnSuccess { channel.basicAck(tag, false) }
