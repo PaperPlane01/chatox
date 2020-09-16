@@ -9,3 +9,5 @@ export * from "./CheckEmailConfirmationCodeValidityRequest";
 export * from "./UpdateUserRequest";
 export * from "./UpdateMessageRequest";
 export * from "./EmailConfirmationCodeType";
+export * from "./UpdatePasswordRequest";
+export * from "./RecoverPasswordRequest";

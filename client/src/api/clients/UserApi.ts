@@ -7,6 +7,7 @@ import {
     ME,
     OAUTH,
     PASSWORD,
+    RECOVERY,
     REGISTRATION,
     REVOKE,
     SLUG,
@@ -14,9 +15,14 @@ import {
     USER,
     USERNAME
 } from "../endpoints";
-import {RegistrationRequest, RevokeTokenRequest, UpdateUserRequest} from "../types/request";
+import {
+    RecoverPasswordRequest,
+    RegistrationRequest,
+    RevokeTokenRequest,
+    UpdatePasswordRequest,
+    UpdateUserRequest
+} from "../types/request";
 import {AvailabilityResponse, CurrentUser, OAuth2Response, RegistrationResponse, User} from "../types/response";
-import {UpdatePasswordRequest} from "../types/request/UpdatePasswordRequest";
 
 export class UserApi {
     public static registerUser(registrationRequest: RegistrationRequest): AxiosPromise<RegistrationResponse> {
@@ -95,6 +101,21 @@ export class UserApi {
             },
             data: {
                 ...updatePasswordRequest
+            }
+        });
+    }
+
+    public static recoverPassword(recoverPasswordRequest: RecoverPasswordRequest): AxiosPromise<void> {
+        return axiosInstance({
+            method: "PUT",
+            baseURL: process.env.REACT_APP_API_BASE_URL,
+            url: `/${OAUTH}/${ACCOUNT}/${PASSWORD}/${RECOVERY}`,
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            data: {
+                ...recoverPasswordRequest
             }
         });
     }
