@@ -2,6 +2,7 @@ package chatox.oauth2.service.impl;
 
 import chatox.oauth2.api.request.CreateAccountRequest;
 import chatox.oauth2.api.request.CreateAnonymousAccountRequest;
+import chatox.oauth2.api.request.RecoverPasswordRequest;
 import chatox.oauth2.api.request.UpdatePasswordRequest;
 import chatox.oauth2.api.response.AccountResponse;
 import chatox.oauth2.api.response.CreateAccountResponse;
@@ -11,11 +12,12 @@ import chatox.oauth2.domain.Client;
 import chatox.oauth2.domain.Role;
 import chatox.oauth2.exception.AccountNotFoundException;
 import chatox.oauth2.exception.ClientNotFoundException;
-import chatox.oauth2.exception.EmailConfirmationCodeExpiredException;
+import chatox.oauth2.exception.metadata.EmailConfirmationCodeExpiredException;
 import chatox.oauth2.exception.EmailConfirmationCodeNotFoundException;
 import chatox.oauth2.exception.EmailConfirmationCodeRequiredException;
 import chatox.oauth2.exception.EmailConfirmationIdRequiredException;
 import chatox.oauth2.exception.EmailHasAlreadyBeenTakenException;
+import chatox.oauth2.exception.metadata.EmailConfirmationCodeHasAlreadyBeenUsedException;
 import chatox.oauth2.exception.metadata.EmailMismatchException;
 import chatox.oauth2.exception.metadata.InvalidEmailConfirmationCodeCodeException;
 import chatox.oauth2.exception.metadata.InvalidPasswordException;
@@ -277,6 +279,10 @@ public class AccountServiceImpl implements AccountService {
                             "Could not find email confirmation with provided id"
                     ));
 
+            if (emailVerification.getCompletedAt() != null) {
+                throw new EmailConfirmationCodeHasAlreadyBeenUsedException("This email confirmation code has already been used");
+            }
+
             if (timeService.now().isAfter(emailVerification.getExpiresAt())) {
                 throw new EmailConfirmationCodeExpiredException("This email confirmation has expired");
             }
@@ -288,6 +294,9 @@ public class AccountServiceImpl implements AccountService {
             if (!passwordEncoder.matches(updatePasswordRequest.getEmailConfirmationCode(), emailVerification.getConfirmationCodeHash())) {
                 throw new InvalidEmailConfirmationCodeCodeException("Provided email verification code is invalid");
             }
+
+            emailVerification.setCompletedAt(timeService.now());
+            emailConfirmationCodeRepository.save(emailVerification);
         }
 
         currentAccount.setPasswordHash(passwordEncoder.encode(updatePasswordRequest.getPassword()));
@@ -306,6 +315,36 @@ public class AccountServiceImpl implements AccountService {
         var account = findById(accountId);
         account.setUserIds(account.getUserIds().stream().filter(id -> !id.equals(userId)).collect(Collectors.toList()));
         accountRepository.save(account);
+    }
+
+    @Override
+    public void recoverPassword(RecoverPasswordRequest recoverPasswordRequest) {
+        var emailConfirmationCode = emailConfirmationCodeRepository.findById(recoverPasswordRequest.getEmailConfirmationCodeId())
+                .orElseThrow(() -> new EmailConfirmationCodeNotFoundException("Could not find email confirmation code with id " + recoverPasswordRequest.getEmailConfirmationCodeId()));
+
+        var now = timeService.now();
+
+        if (emailConfirmationCode.getCompletedAt() != null) {
+            throw new EmailConfirmationCodeHasAlreadyBeenUsedException("This email confirmation code has already been used");
+        }
+
+        if (emailConfirmationCode.getExpiresAt().isBefore(now)) {
+            throw new EmailConfirmationCodeExpiredException(
+                    "This email confirmation code has expired"
+            );
+        }
+
+        if (!passwordEncoder.matches(recoverPasswordRequest.getEmailConfirmationCode(), emailConfirmationCode.getConfirmationCodeHash())) {
+            throw new InvalidEmailConfirmationCodeCodeException();
+        }
+
+        var email = emailConfirmationCode.getEmail();
+        var account = accountRepository.findByEmail(email)
+                .orElseThrow(AccountNotFoundException::new); // Should never happen
+        account.setPasswordHash(passwordEncoder.encode(recoverPasswordRequest.getPassword()));
+        accountRepository.save(account);
+        emailConfirmationCode.setCompletedAt(timeService.now());
+        emailConfirmationCodeRepository.save(emailConfirmationCode);
     }
 
     @Override

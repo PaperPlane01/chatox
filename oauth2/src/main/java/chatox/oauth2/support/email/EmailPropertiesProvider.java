@@ -81,5 +81,21 @@ public class EmailPropertiesProvider {
                         .requiresCheckingAccountExistence(false)
                         .build()
         );
+        propertiesMap.put(
+                EmailConfirmationCodeType.CONFIRM_PASSWORD_RECOVERY,
+                EmailProperties.builder()
+                        .subjectsMap(
+                                Map.of(
+                                        Language.EN, "Password recovery",
+                                        Language.RU, "Восстановление пароля"
+                                )
+                        )
+                        .emailSourceStrategy(EmailSourceStrategy.USE_REQUEST_BODY_EMAIL)
+                        .templateBaseName("email/password-recovery/passwordRecovery")
+                        .expirationAmount(1L)
+                        .expirationChronoUnit(ChronoUnit.HOURS)
+                        .requiresCheckingAccountExistence(true)
+                        .build()
+        );
     }
 }

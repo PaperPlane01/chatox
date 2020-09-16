@@ -7,8 +7,9 @@ import chatox.oauth2.api.response.EmailConfirmationCodeValidityResponse;
 import chatox.oauth2.api.response.EmailConfirmationCodeResponse;
 import chatox.oauth2.domain.EmailConfirmationCode;
 import chatox.oauth2.domain.EmailConfirmationCodeType;
+import chatox.oauth2.exception.AccountNotFoundException;
 import chatox.oauth2.exception.EmailHasAlreadyBeenTakenException;
-import chatox.oauth2.exception.EmailConfirmationCodeExpiredException;
+import chatox.oauth2.exception.metadata.EmailConfirmationCodeExpiredException;
 import chatox.oauth2.exception.EmailConfirmationCodeNotFoundException;
 import chatox.oauth2.mapper.EmailConfirmationCodeMapper;
 import chatox.oauth2.respository.AccountRepository;
@@ -36,7 +37,7 @@ import java.time.ZonedDateTime;
 @Transactional
 @RequiredArgsConstructor
 public class EmailConfirmationCodeServiceImpl implements EmailConfirmationCodeService {
-    private final EmailConfirmationCodeRepository emailVerificationRepository;
+    private final EmailConfirmationCodeRepository emailConfirmationCodeRepository;
     private final AccountRepository accountRepository;
     private final EmailConfirmationCodeMapper emailVerificationMapper;
     private final PasswordEncoder passwordEncoder;
@@ -50,13 +51,6 @@ public class EmailConfirmationCodeServiceImpl implements EmailConfirmationCodeSe
 
     @Override
     public EmailConfirmationCodeResponse sendEmailConfirmationCode(CreateEmailConfirmationCodeRequest createEmailConfirmationCodeRequest) {
-        if (createEmailConfirmationCodeRequest.getType().equals(EmailConfirmationCodeType.CONFIRM_PASSWORD_RECOVERY)) {
-            throw new UnsupportedOperationException(String.format(
-                    "Email confirmation code type %s is not yet supported",
-                    EmailConfirmationCodeType.CONFIRM_PASSWORD_RECOVERY
-            ));
-        }
-
         if (createEmailConfirmationCodeRequest.getType().equals(EmailConfirmationCodeType.CONFIRM_EMAIL)
                 && accountRepository.existsByEmail(createEmailConfirmationCodeRequest.getEmail())) {
             throw new EmailHasAlreadyBeenTakenException(
@@ -65,7 +59,7 @@ public class EmailConfirmationCodeServiceImpl implements EmailConfirmationCodeSe
         }
 
         if (createEmailConfirmationCodeRequest.getType().equals(EmailConfirmationCodeType.CONFIRM_EMAIL)
-                && emailVerificationRepository.existsByEmailAndExpiresAtBeforeAndCompletedAtNull(
+                && emailConfirmationCodeRepository.existsByEmailAndExpiresAtBeforeAndCompletedAtNull(
                 createEmailConfirmationCodeRequest.getEmail(), ZonedDateTime.now().plusDays(1L)
         )) {
             throw new EmailHasAlreadyBeenTakenException(
@@ -86,22 +80,28 @@ public class EmailConfirmationCodeServiceImpl implements EmailConfirmationCodeSe
             email = createEmailConfirmationCodeRequest.getEmail();
         }
 
-        String verificationCode = RandomStringUtils.randomAlphanumeric(5).toUpperCase();
+        if (emailPropertiesProvider.requiresCheckingAccountExistence(createEmailConfirmationCodeRequest.getType())) {
+            if (!accountRepository.existsByEmail(email)) {
+                throw new AccountNotFoundException("Could not find account associated with this email");
+            }
+        }
 
-        EmailConfirmationCode emailVerification = EmailConfirmationCode.builder()
+        String confirmationCode = RandomStringUtils.randomAlphanumeric(5).toUpperCase();
+
+        EmailConfirmationCode emailConfirmationCode = EmailConfirmationCode.builder()
                 .email(email)
                 .createdAt(now)
                 .expiresAt(expiresAt)
-                .confirmationCodeHash(passwordEncoder.encode(verificationCode))
+                .confirmationCodeHash(passwordEncoder.encode(confirmationCode))
                 .type(createEmailConfirmationCodeRequest.getType())
                 .build();
-        emailVerificationRepository.save(emailVerification);
+        emailConfirmationCodeRepository.save(emailConfirmationCode);
 
         Context context = new Context();
-        context.setVariable("emailConfirmationCode", verificationCode);
-        context.setVariable("emailConfirmationCodeExpirationDate", Date.from(emailVerification.getExpiresAt().toInstant()));
+        context.setVariable("emailConfirmationCode", confirmationCode);
+        context.setVariable("emailConfirmationCodeExpirationDate", Date.from(emailConfirmationCode.getExpiresAt().toInstant()));
 
-        String templateName = emailPropertiesProvider.getThymeleafTemplate(emailVerification.getType(), createEmailConfirmationCodeRequest.getLanguage());
+        String templateName = emailPropertiesProvider.getThymeleafTemplate(emailConfirmationCode.getType(), createEmailConfirmationCodeRequest.getLanguage());
         String emailText = templateEngine.process(templateName, context);
 
         MimeMessagePreparator mimeMessagePreparator = mimeMessage -> {
@@ -111,7 +111,7 @@ public class EmailConfirmationCodeServiceImpl implements EmailConfirmationCodeSe
             mimeMessageHelper.setTo(email);
             mimeMessageHelper.setSubject(
                     emailPropertiesProvider.getSubject(
-                            emailVerification.getType(),
+                            emailConfirmationCode.getType(),
                             createEmailConfirmationCodeRequest.getLanguage()
                     )
             );
@@ -120,7 +120,7 @@ public class EmailConfirmationCodeServiceImpl implements EmailConfirmationCodeSe
 
         javaMailSender.send(mimeMessagePreparator);
 
-        return emailVerificationMapper.toEmailVerificationResponse(emailVerification);
+        return emailVerificationMapper.toEmailVerificationResponse(emailConfirmationCode);
     }
 
     @Override
@@ -128,7 +128,7 @@ public class EmailConfirmationCodeServiceImpl implements EmailConfirmationCodeSe
         boolean available = !accountRepository.existsByEmail(email);
 
         if (available) {
-            available = !emailVerificationRepository.existsByEmailAndExpiresAtBeforeAndCompletedAtNull(
+            available = !emailConfirmationCodeRepository.existsByEmailAndExpiresAtBeforeAndCompletedAtNull(
                     email,
                     ZonedDateTime.now().plusDays(1L)
             );
@@ -139,7 +139,7 @@ public class EmailConfirmationCodeServiceImpl implements EmailConfirmationCodeSe
 
     @Override
     public EmailConfirmationCodeValidityResponse checkEmailConfirmationCode(String emailConfirmationCodeId, CheckEmailConfirmationCodeValidityRequest checkEmailVerificationCodeValidityRequest) {
-        EmailConfirmationCode emailConfirmationCode = emailVerificationRepository.findById(emailConfirmationCodeId)
+        EmailConfirmationCode emailConfirmationCode = emailConfirmationCodeRepository.findById(emailConfirmationCodeId)
                 .orElseThrow(() -> new EmailConfirmationCodeNotFoundException(
                         String.format("Could not find email verification with id %s", emailConfirmationCodeId)
                 ));
