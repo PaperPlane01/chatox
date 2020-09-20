@@ -234,5 +234,16 @@ export const en: Labels = {
     "message.attachments.video": "video",
     "message.attachments.video.plural": "videos",
     "error-boundary.stacktrace.show": "Show stacktrace",
-    "error-boundary.stacktrace.hide": "Hide stacktrace"
+    "error-boundary.stacktrace.hide": "Hide stacktrace",
+    "password-recovery.forgot-your-password": "Forgot your password?",
+    "password-recovery.enter-your-email": "Enter your email to recover password",
+    "password-recovery.error.account-not-found": "We could not find account associated with this e-mail",
+    "password-recovery.error.unknown": "Error occurred when tried to send email confirmation code, server responded with {errorStatus} status",
+    "password-recovery.error.email-confirmation-code-has-been-used": "This email confirmation code has already been used",
+    "password-recovery.error.email-confirmation-code-expired": "This email confirmation code has expired",
+    "password-recovery.email-confirmation-code.send": "Send email",
+    "password-recovery.email-confirmation-code.sent": "We have sent a confirmation code to recover your password. Enter it below",
+    "password-recovery.password-updated": "Your password has been updated",
+    "password-recovery.log-in": "You can now log in",
+    "error.generic.server-unreachable": "Server is unreachable"
 };

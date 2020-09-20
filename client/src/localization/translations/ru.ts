@@ -234,5 +234,16 @@ export const ru: Labels = {
     "message.attachments.video": "видео",
     "message.attachments.video.plural": "видео",
     "error-boundary.stacktrace.show": "Показать стек ошибки",
-    "error-boundary.stacktrace.hide": "Скрыть стек ошибки"
+    "error-boundary.stacktrace.hide": "Скрыть стек ошибки",
+    "password-recovery.forgot-your-password": "Забыли пароль?",
+    "password-recovery.enter-your-email": "Введите ваш e-mail, чтобы восстановить пароль",
+    "password-recovery.error.account-not-found": "Аккаунта, привязанному к данному e-mail, не найдено e-mail",
+    "password-recovery.error.unknown": "Во время попытки отослать код подтверждения произошла ошибка, сервер ответил со статусом {errorStatus}",
+    "password-recovery.error.email-confirmation-code-has-been-used": "Данный код подтверждения уже был использован",
+    "password-recovery.error.email-confirmation-code-expired": "Данный код подтверждения истёк",
+    "password-recovery.email-confirmation-code.send": "Получить код",
+    "password-recovery.email-confirmation-code.sent": "Мы выслали код подтверждения на ваш e-mail. Введите его в форму ниже",
+    "password-recovery.password-updated": "Ваш пароль был обновлён",
+    "password-recovery.log-in": "Теперь вы можете войти в аккаунт",
+    "error.generic.server-unreachable": "Сервер недоступен"
 };

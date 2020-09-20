@@ -18,12 +18,14 @@ import javax.validation.constraints.NotNull;
 @FieldMustBeNotNullIfEmailConfirmationCodeTypeIs(
         emailConfirmationCodeType = EmailConfirmationCodeType.CONFIRM_EMAIL,
         field = "email",
+        emailConfirmationCodeTypeField = "type",
         message = "CONFIRM_EMAIL confirmation code type requires \"email\" field to be present",
         acceptEmpty = false
 )
 @FieldMustBeNotNullIfEmailConfirmationCodeTypeIs(
         emailConfirmationCodeType = EmailConfirmationCodeType.CONFIRM_PASSWORD_RECOVERY,
         field = "email",
+        emailConfirmationCodeTypeField = "type",
         message = "CONFIRM_PASSWORD_RECOVERY confirmation code type requires \"email\" field to be present",
         acceptEmpty = false
 )

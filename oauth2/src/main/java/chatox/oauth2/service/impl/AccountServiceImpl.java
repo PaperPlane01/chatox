@@ -2,6 +2,7 @@ package chatox.oauth2.service.impl;
 
 import chatox.oauth2.api.request.CreateAccountRequest;
 import chatox.oauth2.api.request.CreateAnonymousAccountRequest;
+import chatox.oauth2.api.request.RecoverPasswordRequest;
 import chatox.oauth2.api.request.UpdatePasswordRequest;
 import chatox.oauth2.api.response.AccountResponse;
 import chatox.oauth2.api.response.CreateAccountResponse;
@@ -11,11 +12,12 @@ import chatox.oauth2.domain.Client;
 import chatox.oauth2.domain.Role;
 import chatox.oauth2.exception.AccountNotFoundException;
 import chatox.oauth2.exception.ClientNotFoundException;
-import chatox.oauth2.exception.EmailConfirmationCodeExpiredException;
 import chatox.oauth2.exception.EmailConfirmationCodeNotFoundException;
 import chatox.oauth2.exception.EmailConfirmationCodeRequiredException;
 import chatox.oauth2.exception.EmailConfirmationIdRequiredException;
 import chatox.oauth2.exception.EmailHasAlreadyBeenTakenException;
+import chatox.oauth2.exception.metadata.EmailConfirmationCodeExpiredException;
+import chatox.oauth2.exception.metadata.EmailConfirmationCodeHasAlreadyBeenUsedException;
 import chatox.oauth2.exception.metadata.EmailMismatchException;
 import chatox.oauth2.exception.metadata.InvalidEmailConfirmationCodeCodeException;
 import chatox.oauth2.exception.metadata.InvalidPasswordException;
@@ -27,32 +29,21 @@ import chatox.oauth2.respository.UserRoleRepository;
 import chatox.oauth2.security.AuthenticationFacade;
 import chatox.oauth2.security.CustomClientDetails;
 import chatox.oauth2.security.CustomUserDetails;
+import chatox.oauth2.security.token.TokenGeneratorHelper;
 import chatox.oauth2.service.AccountService;
 import chatox.oauth2.service.TimeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.util.OAuth2Utils;
-import org.springframework.security.oauth2.provider.ClientDetails;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -68,14 +59,9 @@ public class AccountServiceImpl implements AccountService {
     private final AccountMapper accountMapper;
     private final AuthenticationFacade authenticationFacade;
     private final TimeService timeService;
+    private final TokenGeneratorHelper tokenGeneratorHelper;
 
-    private JdbcTokenStore tokenStore;
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public void setTokenStore(JdbcTokenStore tokenStore) {
-        this.tokenStore = tokenStore;
-    }
 
     @Autowired
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
@@ -138,13 +124,14 @@ public class AccountServiceImpl implements AccountService {
 
         accountRepository.save(account);
 
-        var accessToken = createTokenForRegisteredUser(new CustomUserDetails(account), new CustomClientDetails(client));
-        var refreshToken = accessToken.getRefreshToken();
+        var tokenPair = tokenGeneratorHelper.generateTokenPair(new CustomUserDetails(account), new CustomClientDetails(client));
+        var accessToken = tokenPair.getAccessToken();
+        var refreshToken = tokenPair.getRefreshToken();
 
         return CreateAccountResponse.builder()
                 .account(accountMapper.toAccountResponse(account))
-                .accessToken(accessToken.getValue())
-                .refreshToken(refreshToken.getValue())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -164,64 +151,15 @@ public class AccountServiceImpl implements AccountService {
 
         accountRepository.save(account);
 
-        var accessToken = createTokenForRegisteredUser(new CustomUserDetails(account), new CustomClientDetails(client));
-        var refreshToken = accessToken.getRefreshToken();
+        var tokenPair = tokenGeneratorHelper.generateTokenPair(new CustomUserDetails(account), new CustomClientDetails(client));
+        var accessToken = tokenPair.getAccessToken();
+        var refreshToken = tokenPair.getRefreshToken();
 
         return CreateAccountResponse.builder()
                 .account(accountMapper.toAccountResponse(account))
-                .accessToken(accessToken.getValue())
-                .refreshToken(refreshToken.getValue())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
-    }
-
-    private OAuth2AccessToken createTokenForRegisteredUser(UserDetails userDetails, ClientDetails clientDetails) {
-        HashMap<String, String> authorizationParameters = new LinkedHashMap<>();
-        authorizationParameters.put(OAuth2Utils.SCOPE, convertScopeToString(clientDetails.getScope()));
-        authorizationParameters.put(OAuth2Utils.CLIENT_ID, clientDetails.getClientId());
-        authorizationParameters.put(OAuth2Utils.GRANT_TYPE, "implicit");
-
-        String redirectUri = null;
-
-        if (clientDetails.getRegisteredRedirectUri() != null
-                && !clientDetails.getRegisteredRedirectUri().isEmpty()) {
-            redirectUri = (new ArrayList<>(clientDetails.getRegisteredRedirectUri())).get(0);
-        }
-        OAuth2Request oAuth2Request = new OAuth2Request(
-                authorizationParameters,
-                clientDetails.getClientId(),
-                userDetails.getAuthorities(),
-                true,
-                clientDetails.getScope(),
-                clientDetails.getResourceIds(),
-                redirectUri,
-                clientDetails.getAuthorizedGrantTypes(),
-                new HashMap<>()
-        );
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
-                = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request,
-                usernamePasswordAuthenticationToken);
-        DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
-        defaultTokenServices.setSupportRefreshToken(true);
-        defaultTokenServices.setTokenStore(tokenStore);
-        defaultTokenServices.setAccessTokenValiditySeconds(clientDetails.getAccessTokenValiditySeconds());
-        defaultTokenServices.setRefreshTokenValiditySeconds(clientDetails.getRefreshTokenValiditySeconds());
-        return defaultTokenServices.createAccessToken(oAuth2Authentication);
-    }
-
-    private String convertScopeToString(Set<String> scope) {
-        StringBuilder stringBuilder = new StringBuilder();
-        List<String> scopeList = new ArrayList<>(scope);
-
-        for (int index = 0; index < scopeList.size(); index++) {
-            stringBuilder.append(scopeList.get(index));
-
-            if (index != scopeList.size() - 1) {
-                stringBuilder.append(" ");
-            }
-        }
-
-        return stringBuilder.toString();
     }
 
     @Override
@@ -277,6 +215,10 @@ public class AccountServiceImpl implements AccountService {
                             "Could not find email confirmation with provided id"
                     ));
 
+            if (emailVerification.getCompletedAt() != null) {
+                throw new EmailConfirmationCodeHasAlreadyBeenUsedException("This email confirmation code has already been used");
+            }
+
             if (timeService.now().isAfter(emailVerification.getExpiresAt())) {
                 throw new EmailConfirmationCodeExpiredException("This email confirmation has expired");
             }
@@ -288,6 +230,9 @@ public class AccountServiceImpl implements AccountService {
             if (!passwordEncoder.matches(updatePasswordRequest.getEmailConfirmationCode(), emailVerification.getConfirmationCodeHash())) {
                 throw new InvalidEmailConfirmationCodeCodeException("Provided email verification code is invalid");
             }
+
+            emailVerification.setCompletedAt(timeService.now());
+            emailConfirmationCodeRepository.save(emailVerification);
         }
 
         currentAccount.setPasswordHash(passwordEncoder.encode(updatePasswordRequest.getPassword()));
@@ -306,6 +251,36 @@ public class AccountServiceImpl implements AccountService {
         var account = findById(accountId);
         account.setUserIds(account.getUserIds().stream().filter(id -> !id.equals(userId)).collect(Collectors.toList()));
         accountRepository.save(account);
+    }
+
+    @Override
+    public void recoverPassword(RecoverPasswordRequest recoverPasswordRequest) {
+        var emailConfirmationCode = emailConfirmationCodeRepository.findById(recoverPasswordRequest.getEmailConfirmationCodeId())
+                .orElseThrow(() -> new EmailConfirmationCodeNotFoundException("Could not find email confirmation code with id " + recoverPasswordRequest.getEmailConfirmationCodeId()));
+
+        var now = timeService.now();
+
+        if (emailConfirmationCode.getCompletedAt() != null) {
+            throw new EmailConfirmationCodeHasAlreadyBeenUsedException("This email confirmation code has already been used");
+        }
+
+        if (emailConfirmationCode.getExpiresAt().isBefore(now)) {
+            throw new EmailConfirmationCodeExpiredException(
+                    "This email confirmation code has expired"
+            );
+        }
+
+        if (!passwordEncoder.matches(recoverPasswordRequest.getEmailConfirmationCode(), emailConfirmationCode.getConfirmationCodeHash())) {
+            throw new InvalidEmailConfirmationCodeCodeException();
+        }
+
+        var email = emailConfirmationCode.getEmail();
+        var account = accountRepository.findByEmail(email)
+                .orElseThrow(AccountNotFoundException::new); // Should never happen
+        account.setPasswordHash(passwordEncoder.encode(recoverPasswordRequest.getPassword()));
+        accountRepository.save(account);
+        emailConfirmationCode.setCompletedAt(timeService.now());
+        emailConfirmationCodeRepository.save(emailConfirmationCode);
     }
 
     @Override

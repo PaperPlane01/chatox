@@ -232,5 +232,16 @@ export interface Labels {
     "message.attachments.video": string,
     "message.attachments.video.plural": string,
     "error-boundary.stacktrace.show": string,
-    "error-boundary.stacktrace.hide": string
+    "error-boundary.stacktrace.hide": string,
+    "password-recovery.forgot-your-password": string,
+    "password-recovery.enter-your-email": string,
+    "password-recovery.error.account-not-found": string,
+    "password-recovery.error.unknown": string,
+    "password-recovery.email-confirmation-code.send": string,
+    "password-recovery.email-confirmation-code.sent": string,
+    "password-recovery.password-updated": string,
+    "password-recovery.log-in": string,
+    "password-recovery.error.email-confirmation-code-has-been-used": string,
+    "password-recovery.error.email-confirmation-code-expired": string,
+    "error.generic.server-unreachable": string
 }

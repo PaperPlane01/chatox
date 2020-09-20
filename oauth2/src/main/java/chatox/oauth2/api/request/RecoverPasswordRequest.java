@@ -14,19 +14,22 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @Builder
 @FieldsValueMatch(
-        field = "repeatedPassword",
-        mustMatchField = "password",
-        message = "password and repeatedPassword must be equal"
+        field = "password",
+        mustMatchField = "repeatedPassword",
+        message = "password and repeatedPassword fields must be equal"
 )
-public class UpdatePasswordRequest {
-    @NotBlank
-    private String currentPassword;
+public class RecoverPasswordRequest {
     @NotBlank
     @Size(min = 4, max = 20)
     private String password;
+
     @NotBlank
     @Size(min = 4, max = 20)
     private String repeatedPassword;
-    private String emailConfirmationCodeId;
+
+    @NotBlank
     private String emailConfirmationCode;
+
+    @NotBlank
+    private String emailConfirmationCodeId;
 }

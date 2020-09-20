@@ -2,6 +2,7 @@ package chatox.oauth2.controller;
 
 import chatox.oauth2.api.request.CreateAccountRequest;
 import chatox.oauth2.api.request.CreateAnonymousAccountRequest;
+import chatox.oauth2.api.request.RecoverPasswordRequest;
 import chatox.oauth2.api.request.UpdatePasswordRequest;
 import chatox.oauth2.api.response.AccountResponse;
 import chatox.oauth2.api.response.CreateAccountResponse;
@@ -47,6 +48,13 @@ public class AccountController {
     @PutMapping("/password")
     public ResponseEntity<?> updatePassword(@RequestBody @Valid UpdatePasswordRequest updatePasswordRequest) {
         accountService.updateCurrentAccountPassword(updatePasswordRequest);
+
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @PutMapping("/password/recovery")
+    public ResponseEntity<?> recoverPassword(@RequestBody @Valid RecoverPasswordRequest recoverPasswordRequest) {
+        accountService.recoverPassword(recoverPasswordRequest);
 
         return ResponseEntity.ok(Map.of("success", true));
     }

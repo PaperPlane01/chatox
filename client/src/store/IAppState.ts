@@ -6,7 +6,8 @@ import {RegistrationDialogStore, SendConfirmationCodeStore, UserRegistrationStor
 import {
     ChatInfoDialogStore,
     ChatParticipantsStore,
-    ChatsOfCurrentUserStore, ChatsPreferencesStore,
+    ChatsOfCurrentUserStore,
+    ChatsPreferencesStore,
     ChatStore,
     CreateChatStore,
     JoinChatStore, LeaveChatStore,
@@ -45,6 +46,11 @@ import {SettingsTabsStore} from "../Settings/stores";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
 import {EmojiSettingsStore} from "../Emoji/stores";
 import {AudioPlayerStore} from "../AudioPlayer/stores";
+import {
+    PasswordRecoveryDialogStore,
+    RecoverPasswordStore,
+    SendPasswordRecoveryEmailConfirmationCodeStore
+} from "../PasswordRecovery";
 
 export interface IAppState {
     language: LocaleStore,
@@ -92,6 +98,10 @@ export interface IAppState {
     messageUploads: UploadMessageAttachmentsStore,
     audioPlayer: AudioPlayerStore,
     messageFileDownload: DownloadMessageFileStore,
+    passwordRecoveryDialog: PasswordRecoveryDialogStore,
+    passwordRecoveryForm: RecoverPasswordStore,
+    passwordRecoveryEmailConfirmationCodeSending: SendPasswordRecoveryEmailConfirmationCodeStore,
+    passwordRecoveryEmailConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
     leaveChat: LeaveChatStore,
     store?: any
 }

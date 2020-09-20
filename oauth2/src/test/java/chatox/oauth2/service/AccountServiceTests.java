@@ -1,13 +1,15 @@
 package chatox.oauth2.service;
 
+import chatox.oauth2.api.request.RecoverPasswordRequest;
 import chatox.oauth2.api.request.UpdatePasswordRequest;
 import chatox.oauth2.domain.Account;
 import chatox.oauth2.domain.EmailConfirmationCode;
 import chatox.oauth2.domain.EmailConfirmationCodeType;
 import chatox.oauth2.exception.EmailConfirmationCodeRequiredException;
 import chatox.oauth2.exception.EmailConfirmationIdRequiredException;
+import chatox.oauth2.exception.metadata.EmailConfirmationCodeHasAlreadyBeenUsedException;
 import chatox.oauth2.exception.metadata.EmailMismatchException;
-import chatox.oauth2.exception.EmailConfirmationCodeExpiredException;
+import chatox.oauth2.exception.metadata.EmailConfirmationCodeExpiredException;
 import chatox.oauth2.exception.EmailConfirmationCodeNotFoundException;
 import chatox.oauth2.exception.metadata.InvalidEmailConfirmationCodeCodeException;
 import chatox.oauth2.exception.metadata.InvalidPasswordException;
@@ -349,5 +351,148 @@ public class AccountServiceTests {
                 .repeatedPassword("test")
                 .build();
         accountService.updateCurrentAccountPassword(updatePasswordRequest);
+    }
+
+    @Test
+    public void recoverPassword_recoversPassword() {
+        //Setup
+        var now = ZonedDateTime.now();
+        var fiftyMinutesAfter = now.plusMinutes(50L);
+        var emailConfirmationCode = EmailConfirmationCode
+                .builder()
+                .id("1")
+                .email("test@gmail.com")
+                .expiresAt(fiftyMinutesAfter)
+                .type(EmailConfirmationCodeType.CONFIRM_PASSWORD_RECOVERY)
+                .confirmationCodeHash("confirmationCodeHash")
+                .build();
+        var account = Account.builder()
+                .id("1")
+                .email("test@gmail.com")
+                .passwordHash("currentPasswordHash")
+                .build();
+        when(timeService.now()).thenReturn(now);
+        when(emailConfirmationCodeRepository.findById("1")).thenReturn(Optional.of(emailConfirmationCode));
+        when(passwordEncoder.matches("confirmationCode", "confirmationCodeHash")).thenReturn(true);
+        when(passwordEncoder.encode("newPassword")).thenReturn("newPasswordHash");
+        when(accountRepository.findByEmail("test@gmail.com")).thenReturn(Optional.of(account));
+
+        // Run test
+        var recoverPasswordRequest = RecoverPasswordRequest.builder()
+                .emailConfirmationCode("confirmationCode")
+                .emailConfirmationCodeId("1")
+                .password("newPassword")
+                .repeatedPassword("newPassword")
+                .build();
+        accountService.recoverPassword(recoverPasswordRequest);
+
+        // Verify results
+        var resultAccount = Account.builder()
+                .id("1")
+                .email("test@gmail.com")
+                .passwordHash("newPasswordHash")
+                .build();
+        var resultEmailConfirmationCode = EmailConfirmationCode.builder()
+                .id("1")
+                .email("test@gmail.com")
+                .expiresAt(fiftyMinutesAfter)
+                .type(EmailConfirmationCodeType.CONFIRM_PASSWORD_RECOVERY)
+                .confirmationCodeHash("confirmationCodeHash")
+                .completedAt(now)
+                .build();
+        verify(accountRepository, times(1)).save(resultAccount);
+        verify(emailConfirmationCodeRepository, times(1)).save(resultEmailConfirmationCode);
+    }
+
+    @Test(expected = EmailConfirmationCodeNotFoundException.class)
+    public void recoverPassword_throwsException_whenEmailConfirmationCodeIsNotFound() {
+        // Setup
+        when(emailConfirmationCodeRepository.findById("1")).thenReturn(Optional.empty());
+
+        //Run test
+        var recoverPasswordRequest = RecoverPasswordRequest.builder()
+                .emailConfirmationCodeId("1")
+                .emailConfirmationCode("emailConfirmationCode")
+                .password("newPassword")
+                .repeatedPassword("newPassword")
+                .build();
+        accountService.recoverPassword(recoverPasswordRequest);
+    }
+
+    @Test(expected = EmailConfirmationCodeHasAlreadyBeenUsedException.class)
+    public void recoverPassword_throwsException_whenEmailConfirmationCodeHasBeenUsed() {
+        // Setup
+        var now = ZonedDateTime.now();
+        var fiftyMinutesAgo = now.minusMinutes(50);
+        var emailConfirmationCode = EmailConfirmationCode
+                .builder()
+                .id("1")
+                .email("test@gmail.com")
+                .type(EmailConfirmationCodeType.CONFIRM_PASSWORD_RECOVERY)
+                .completedAt(fiftyMinutesAgo)
+                .confirmationCodeHash("confirmationCodeHash")
+                .build();
+        when(emailConfirmationCodeRepository.findById("1")).thenReturn(Optional.of(emailConfirmationCode));
+
+        // Run test
+        var recoverPasswordRequest = RecoverPasswordRequest.builder()
+                .emailConfirmationCodeId("1")
+                .emailConfirmationCode("emailConfirmationCode")
+                .password("newPassword")
+                .repeatedPassword("newPassword")
+                .build();
+        accountService.recoverPassword(recoverPasswordRequest);
+    }
+
+    @Test(expected = EmailConfirmationCodeExpiredException.class)
+    public void recoverPassword_throwsException_whenEmailConfirmationCodeHasExpired() {
+        // Setup
+        var now = ZonedDateTime.now();
+        var fiftyMinutesBefore = now.minusMinutes(50L);
+        var emailConfirmationCode = EmailConfirmationCode
+                .builder()
+                .id("1")
+                .email("test@gmail.com")
+                .expiresAt(fiftyMinutesBefore)
+                .type(EmailConfirmationCodeType.CONFIRM_PASSWORD_RECOVERY)
+                .confirmationCodeHash("confirmationCodeHash")
+                .build();
+        when(emailConfirmationCodeRepository.findById("1")).thenReturn(Optional.of(emailConfirmationCode));
+        when(timeService.now()).thenReturn(now);
+
+        // Run test
+        var recoverPasswordRequest = RecoverPasswordRequest.builder()
+                .emailConfirmationCodeId("1")
+                .emailConfirmationCode("emailConfirmationCode")
+                .password("newPassword")
+                .repeatedPassword("newPassword")
+                .build();
+        accountService.recoverPassword(recoverPasswordRequest);
+    }
+
+    @Test(expected = InvalidEmailConfirmationCodeCodeException.class)
+    public void recoverPassword_throwsException_whenEmailConfirmationCodeIsInvalid() {
+        var now = ZonedDateTime.now();
+        var fiftyMinutesAfter = now.plusMinutes(50L);
+        var emailConfirmationCode = EmailConfirmationCode
+                .builder()
+                .id("1")
+                .email("test@gmail.com")
+                .expiresAt(fiftyMinutesAfter)
+                .type(EmailConfirmationCodeType.CONFIRM_PASSWORD_RECOVERY)
+                .confirmationCodeHash("confirmationCodeHash")
+                .build();
+        when(timeService.now()).thenReturn(now);
+        when(emailConfirmationCodeRepository.findById("1")).thenReturn(Optional.of(emailConfirmationCode));
+        when(passwordEncoder.matches("wrongConfirmationCode", "confirmationCodeHash")).thenReturn(false);
+
+        // Run test
+        var recoverPasswordRequest = RecoverPasswordRequest.builder()
+                .emailConfirmationCodeId("1")
+                .emailConfirmationCode("wrongConfirmationCode")
+                .password("newPassword")
+                .repeatedPassword("newPassword")
+                .build();
+        accountService.recoverPassword(recoverPasswordRequest);
     }
 }

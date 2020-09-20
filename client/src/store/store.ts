@@ -1,6 +1,12 @@
 import {IAppState} from "./IAppState";
 import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore} from "../Authorization/stores";
+import {AuthorizationStore, LoginStore,} from "../Authorization/stores";
+import {
+    createSetPasswordRecoveryStepCallback,
+    PasswordRecoveryDialogStore,
+    RecoverPasswordStore,
+    SendPasswordRecoveryEmailConfirmationCodeStore
+} from "../PasswordRecovery";
 import {
     createSetRegistrationStepCallback,
     RegistrationDialogStore,
@@ -15,9 +21,11 @@ import {
     ChatsPreferencesStore,
     ChatsStore,
     ChatStore,
+    ChatUploadsStore,
     CreateChatStore,
     JoinChatStore,
     OnlineChatParticipantsStore,
+    UpdateChatStore
     UpdateChatStore,
     ChatUploadsStore,
     LeaveChatStore
@@ -36,7 +44,8 @@ import {
     UsersStore
 } from "../User";
 import {
-    CreateMessageStore, DownloadMessageFileStore,
+    CreateMessageStore,
+    DownloadMessageFileStore,
     MessageDialogStore,
     MessagesOfChatStore,
     MessagesStore,
@@ -141,6 +150,19 @@ const passwordChange = new PasswordChangeStore(
 const emoji = new EmojiSettingsStore();
 const audioPlayer = new AudioPlayerStore();
 const messageFileDownload = new DownloadMessageFileStore();
+const passwordRecoveryDialog = new PasswordRecoveryDialogStore();
+const passwordRecoveryEmailConfirmationCodeSending = new SendPasswordRecoveryEmailConfirmationCodeStore(
+    passwordRecoveryDialog,
+    language
+);
+const passwordRecoveryEmailConfirmationCodeCheck = new CheckEmailConfirmationCodeStore(
+    createSetPasswordRecoveryStepCallback(passwordRecoveryDialog)
+);
+const passwordRecoveryForm = new RecoverPasswordStore(
+    passwordRecoveryDialog,
+    passwordRecoveryEmailConfirmationCodeSending,
+    passwordRecoveryEmailConfirmationCodeCheck
+);
 const leaveChat = new LeaveChatStore(entities);
 
 export const store: IAppState = {
@@ -189,5 +211,9 @@ export const store: IAppState = {
     messageUploads,
     audioPlayer,
     messageFileDownload,
+    passwordRecoveryDialog,
+    passwordRecoveryEmailConfirmationCodeCheck,
+    passwordRecoveryEmailConfirmationCodeSending,
+    passwordRecoveryForm
     leaveChat
 };
