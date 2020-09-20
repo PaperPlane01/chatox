@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
 public @interface FieldMustBeNotNullIfEmailConfirmationCodeTypeIs {
     String field();
     EmailConfirmationCodeType emailConfirmationCodeType();
-    String emailConfirmationCodeTypeField() default "emailConfirmationCodeType";
+    String emailConfirmationCodeTypeField() default "type";
     String message() default "";
     boolean acceptEmpty() default true;
 
