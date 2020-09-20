@@ -3,18 +3,36 @@ import {observer} from "mobx-react";
 import {
     Button,
     CircularProgress,
+    createStyles,
     Dialog,
     DialogContent,
     DialogTitle,
     IconButton,
     InputAdornment,
+    makeStyles,
     TextField,
+    Theme,
     Typography
 } from "@material-ui/core";
-import VisibilityIcon from "@material-ui/icons/Visibility";
-import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
+import {Visibility, VisibilityOff} from "@material-ui/icons";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
+import {PasswordRecoveryStep} from "../../PasswordRecovery/types";
+
+const useStyles = makeStyles((theme: Theme) => createStyles({
+    dialogActionButton: {
+        marginTop: theme.spacing(2),
+        width: "100%"
+    },
+    forgotYourPasswordTypography: {
+        float: "right",
+        cursor: "pointer",
+        color: theme.palette.text.secondary,
+        "&:hover": {
+            color: theme.palette.text.primary
+        }
+    }
+}));
 
 export const LoginDialog: FunctionComponent = observer(() => {
     const {l} = useLocalization();
@@ -30,9 +48,20 @@ export const LoginDialog: FunctionComponent = observer(() => {
             setDisplayPassword,
             setLoginDialogOpen,
             doLogin
+        },
+        passwordRecoveryDialog: {
+            setPasswordRecoveryDialogOpen,
+            setCurrentStep
         }
     } = useStore();
     const {fullScreen} = useMobileDialog();
+    const classes = useStyles();
+
+    const handlePasswordRecoveryClick = (): void => {
+        setLoginDialogOpen(false);
+        setCurrentStep(PasswordRecoveryStep.CREATE_EMAIL_CONFIRMATION_CODE);
+        setPasswordRecoveryDialogOpen(true);
+    };
 
     return (
         <Dialog open={loginDialogOpen}
@@ -64,14 +93,19 @@ export const LoginDialog: FunctionComponent = observer(() => {
                                    <InputAdornment position="end">
                                        <IconButton onClick={() => setDisplayPassword(!displayPassword)}>
                                            {displayPassword
-                                               ? <VisibilityOffIcon/>
-                                               : <VisibilityIcon/>
+                                               ? <VisibilityOff/>
+                                               : <Visibility/>
                                            }
                                        </IconButton>
                                    </InputAdornment>
                                )
                            }}
                 />
+                <Typography className={classes.forgotYourPasswordTypography}
+                            onClick={handlePasswordRecoveryClick}
+                >
+                    {l("password-recovery.forgot-your-password")}
+                </Typography>
                 {error && (
                     <Typography variant="body1"
                                 style={{color: "red"}}
@@ -81,10 +115,7 @@ export const LoginDialog: FunctionComponent = observer(() => {
                 )}
                 <Button variant="contained"
                         color="primary"
-                        style={{
-                            width: "100%",
-                            marginBottom: 10
-                        }}
+                        className={classes.dialogActionButton}
                         disabled={pending}
                         onClick={doLogin}
                 >
@@ -96,7 +127,7 @@ export const LoginDialog: FunctionComponent = observer(() => {
                 </Button>
                 <Button variant="outlined"
                         color="secondary"
-                        style={{width: "100%"}}
+                        className={classes.dialogActionButton}
                         onClick={() => setLoginDialogOpen(false)}
                 >
                     {l("close")}

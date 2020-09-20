@@ -6,10 +6,11 @@ import {ProfileMenuItem} from "./ProfileMenuItem";
 import {HomeMenuItem} from "./HomeMenuItem";
 import {MyChatsMenuItem} from "./MyChatsMenuItem";
 import {SettingsMenuItem} from "./SettingsMenuItem";
+import {DrawerAudioControls} from "./DrawerAudioControls";
 import {HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
+import {PasswordRecoveryDialog} from "../../PasswordRecovery";
 import {useStore} from "../../store";
-import {DrawerAudioControls} from "./DrawerAudioControls";
 
 export const NavigationalDrawer: FunctionComponent = observer(() => {
     const {appBar} = useStore();
@@ -56,6 +57,7 @@ export const NavigationalDrawer: FunctionComponent = observer(() => {
             </SwipeableDrawer>
             <LoginDialog/>
             <RegistrationDialog/>
+            <PasswordRecoveryDialog/>
         </Fragment>
     )
 });

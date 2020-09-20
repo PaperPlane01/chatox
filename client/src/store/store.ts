@@ -1,13 +1,12 @@
 import {IAppState} from "./IAppState";
 import {AppBarStore} from "../AppBar";
+import {AuthorizationStore, LoginStore,} from "../Authorization/stores";
 import {
     createSetPasswordRecoveryStepCallback,
-    AuthorizationStore,
-    LoginStore,
     PasswordRecoveryDialogStore,
     RecoverPasswordStore,
     SendPasswordRecoveryEmailConfirmationCodeStore
-} from "../Authorization";
+} from "../PasswordRecovery";
 import {
     createSetRegistrationStepCallback,
     RegistrationDialogStore,
@@ -158,8 +157,8 @@ const passwordRecoveryEmailConfirmationCodeCheck = new CheckEmailConfirmationCod
 );
 const passwordRecoveryForm = new RecoverPasswordStore(
     passwordRecoveryDialog,
-    passwordChangeEmailConfirmationCodeSending,
-    passwordChangeEmailConfirmationCodeCheck
+    passwordRecoveryEmailConfirmationCodeSending,
+    passwordRecoveryEmailConfirmationCodeCheck
 );
 
 export const store: IAppState = {

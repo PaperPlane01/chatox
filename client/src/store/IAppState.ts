@@ -1,18 +1,13 @@
 import {EntitiesStore} from "../entities-store";
 import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
-import {
-    AuthorizationStore,
-    LoginStore,
-    PasswordRecoveryDialogStore,
-    RecoverPasswordStore,
-    SendPasswordRecoveryEmailConfirmationCodeStore
-} from "../Authorization";
+import {AuthorizationStore, LoginStore} from "../Authorization";
 import {RegistrationDialogStore, SendConfirmationCodeStore, UserRegistrationStore} from "../Registration";
 import {
     ChatInfoDialogStore,
     ChatParticipantsStore,
-    ChatsOfCurrentUserStore, ChatsPreferencesStore,
+    ChatsOfCurrentUserStore,
+    ChatsPreferencesStore,
     ChatStore,
     CreateChatStore,
     JoinChatStore,
@@ -51,6 +46,11 @@ import {SettingsTabsStore} from "../Settings/stores";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
 import {EmojiSettingsStore} from "../Emoji/stores";
 import {AudioPlayerStore} from "../AudioPlayer/stores";
+import {
+    PasswordRecoveryDialogStore,
+    RecoverPasswordStore,
+    SendPasswordRecoveryEmailConfirmationCodeStore
+} from "../PasswordRecovery";
 
 export interface IAppState {
     language: LocaleStore,

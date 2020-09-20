@@ -1,5 +1,5 @@
 import {action, observable, reaction} from "mobx";
-import {SendPasswordRecoveryEmailConfirmationCodeStore} from "./CreatePasswordRecoveryEmailConfirmationCodeStore";
+import {SendPasswordRecoveryEmailConfirmationCodeStore} from "./SendPasswordRecoveryEmailConfirmationCodeStore";
 import {PasswordRecoveryDialogStore} from "./PasswordRecoveryDialogStore";
 import {PasswordRecoveryStep, RecoverPasswordForm} from "../types";
 import {FormErrors} from "../../utils/types";
@@ -25,6 +25,9 @@ export class RecoverPasswordStore {
 
     @observable
     error?: ApiError = undefined;
+
+    @observable
+    showPassword: boolean = false;
 
     constructor(private readonly passwordRecoveryDialogStore: PasswordRecoveryDialogStore,
                 private readonly createPasswordRecoveryEmailConfirmationCodeStore: SendPasswordRecoveryEmailConfirmationCodeStore,
@@ -55,7 +58,7 @@ export class RecoverPasswordStore {
             return;
         }
 
-        this.pending = false;
+        this.pending = true;
         this.error = undefined;
 
         UserApi.recoverPassword({
@@ -79,5 +82,10 @@ export class RecoverPasswordStore {
         const {password, repeatedPassword} = this.formErrors;
 
         return !Boolean(password || repeatedPassword);
+    };
+
+    @action
+    setShowPassword = (showPassword: boolean): void => {
+        this.showPassword = showPassword;
     };
  }

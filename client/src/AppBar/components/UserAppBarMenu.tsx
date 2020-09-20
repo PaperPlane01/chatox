@@ -6,6 +6,7 @@ import {AccountCircle} from "@material-ui/icons";
 import randomColor from "randomcolor";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
+import {PasswordRecoveryDialog} from "../../PasswordRecovery";
 import {Avatar} from "../../Avatar";
 import {useAuthorization} from "../../store";
 
@@ -84,6 +85,7 @@ export const UserAppBarMenu: FunctionComponent = observer(() => {
                 </Menu>
                 <LoginDialog/>
                 <RegistrationDialog/>
+                <PasswordRecoveryDialog/>
             </Fragment>
         )
     }
