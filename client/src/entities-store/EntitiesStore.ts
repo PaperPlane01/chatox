@@ -149,6 +149,16 @@ export class EntitiesStore {
     };
 
     @action
+    deleteChatParticipation = (id: string): void => {
+        const chatParticipation = this.chatParticipations.findById(id);
+        const chat = this.chats.findById(chatParticipation.chatId);
+        chat.currentUserParticipationId = undefined;
+        chat.participantsCount -= 1;
+        this.chats.insertEntity(chat);
+        this.chatParticipations.deleteById(id);
+    }
+
+    @action
     insertUser = (user: User): void => {
         if (user.avatar) {
             this.uploads.insert(user.avatar);

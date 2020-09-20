@@ -20,6 +20,7 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
         this.insertAllEntities = this.insertAllEntities.bind(this);
         this.findByIdOptional = this.findByIdOptional.bind(this);
         this.findAllById = this.findAllById.bind(this);
+        this.findAll = this.findAll.bind(this);
     }
 
     @action
@@ -71,6 +72,10 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
     public findAllById = createTransformer((ids: string[]) => {
         return ids.map(id => this.findById(id));
     })
+
+    public findAll() {
+        return this.findAllById(this.ids);
+    };
 
     protected abstract convertToNormalizedForm(denormalizedEntity: DenormalizedEntity): Entity;
 }

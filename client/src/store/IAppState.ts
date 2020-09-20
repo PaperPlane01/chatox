@@ -10,7 +10,7 @@ import {
     ChatsPreferencesStore,
     ChatStore,
     CreateChatStore,
-    JoinChatStore,
+    JoinChatStore, LeaveChatStore,
     OnlineChatParticipantsStore,
     UpdateChatStore
 } from "../Chat";
@@ -102,5 +102,6 @@ export interface IAppState {
     passwordRecoveryForm: RecoverPasswordStore,
     passwordRecoveryEmailConfirmationCodeSending: SendPasswordRecoveryEmailConfirmationCodeStore,
     passwordRecoveryEmailConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
+    leaveChat: LeaveChatStore,
     store?: any
 }
