@@ -45,6 +45,15 @@ export class RecoverPasswordStore {
                 }
             }
         );
+
+        reaction(
+            () => passwordRecoveryDialogStore.currentStep,
+            currentStep => {
+                if (currentStep === PasswordRecoveryStep.NONE) {
+                    this.reset();
+                }
+            }
+        )
     }
 
     @action
@@ -88,4 +97,19 @@ export class RecoverPasswordStore {
     setShowPassword = (showPassword: boolean): void => {
         this.showPassword = showPassword;
     };
+
+    @action
+    reset = (): void => {
+        this.recoverPasswordForm = {
+            repeatedPassword: "",
+            password: ""
+        };
+        this.error = undefined;
+        this.showPassword = false;
+        this.pending = false;
+        setTimeout(() => this.formErrors = {
+            repeatedPassword: undefined,
+            password: undefined
+        });
+    }
  }

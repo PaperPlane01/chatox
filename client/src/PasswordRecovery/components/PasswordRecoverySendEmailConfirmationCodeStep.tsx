@@ -24,6 +24,9 @@ export const PasswordRecoverySendEmailConfirmationCodeStep: FunctionComponent = 
             pending,
             sendPasswordRecoveryEmailConfirmationCode,
             error
+        },
+        passwordRecoveryDialog: {
+            setPasswordRecoveryDialogOpen
         }
     } = useStore();
     const {l} = useLocalization();
@@ -49,6 +52,12 @@ export const PasswordRecoverySendEmailConfirmationCodeStep: FunctionComponent = 
                 )}
             </DialogContent>
             <DialogActions>
+                <Button variant="outlined"
+                        color="secondary"
+                        onClick={() => setPasswordRecoveryDialogOpen(false)}
+                >
+                    {l("close")}
+                </Button>
                 <Button variant="contained"
                         onClick={sendPasswordRecoveryEmailConfirmationCode}
                         color="primary"

@@ -8,12 +8,17 @@ export const PasswordRecoveryCheckEmailConfirmationCodeStep: FunctionComponent =
         passwordRecoveryEmailConfirmationCodeSending: {
             emailConfirmationCode
         },
-        passwordRecoveryEmailConfirmationCodeCheck
+        passwordRecoveryEmailConfirmationCodeCheck,
+        passwordRecoveryDialog: {
+            setPasswordRecoveryDialogOpen
+        }
     } = useStore();
 
     return (
         <CheckEmailConfirmationCodeDialogContent checkEmailConfirmationCodeStore={passwordRecoveryEmailConfirmationCodeCheck}
                                                  confirmationCodeId={emailConfirmationCode && emailConfirmationCode.id}
+                                                 closeable
+                                                 onClose={() => setPasswordRecoveryDialogOpen(false)}
         />
     )
 })

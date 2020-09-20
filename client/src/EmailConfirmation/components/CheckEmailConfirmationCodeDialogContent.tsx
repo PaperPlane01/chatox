@@ -8,7 +8,9 @@ import {TranslationFunction} from "../../localization/types";
 
 interface CheckEmailConfirmationCodeDialogContentProps {
     confirmationCodeId?: string,
-    checkEmailConfirmationCodeStore: CheckEmailConfirmationCodeStore
+    checkEmailConfirmationCodeStore: CheckEmailConfirmationCodeStore,
+    closeable?: boolean,
+    onClose?: () => void
 }
 
 const getErrorText = (apiError: ApiError, l: TranslationFunction): string => {
@@ -21,7 +23,12 @@ const getErrorText = (apiError: ApiError, l: TranslationFunction): string => {
 
 
 export const CheckEmailConfirmationCodeDialogContent: FunctionComponent<CheckEmailConfirmationCodeDialogContentProps>
-    = observer(({checkEmailConfirmationCodeStore, confirmationCodeId}) => {
+    = observer(({
+                    checkEmailConfirmationCodeStore,
+                    confirmationCodeId,
+                    closeable = false,
+                    onClose
+    }) => {
         const {l} = useLocalization();
         const {
             setFormValue,
@@ -35,6 +42,12 @@ export const CheckEmailConfirmationCodeDialogContent: FunctionComponent<CheckEma
         if (!confirmationCodeId) {
             return null;
         }
+
+        const handleClose = (): void => {
+            if (closeable && onClose) {
+                onClose();
+            }
+        };
 
         return (
             <Fragment>
@@ -60,6 +73,14 @@ export const CheckEmailConfirmationCodeDialogContent: FunctionComponent<CheckEma
                     )}
                 </DialogContent>
                 <DialogActions>
+                    {closeable && (
+                        <Button variant="outlined"
+                                color="secondary"
+                                onClick={handleClose}
+                        >
+                            {l("close")}
+                        </Button>
+                    )}
                     <Button variant="contained"
                             color="primary"
                             disabled={pending}

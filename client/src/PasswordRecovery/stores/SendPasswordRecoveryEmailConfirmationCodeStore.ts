@@ -1,6 +1,6 @@
 import {action, observable, reaction} from "mobx";
 import {PasswordRecoveryDialogStore} from "./PasswordRecoveryDialogStore";
-import {SendPasswordRecoveryEmailConfirmationCodeFormData, PasswordRecoveryStep} from "../types";
+import {PasswordRecoveryStep, SendPasswordRecoveryEmailConfirmationCodeFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {validateEmail} from "../../Registration/validation";
 import {ApiError, EmailConfirmationCodeApi, getInitialApiErrorFromResponse} from "../../api";
@@ -34,6 +34,15 @@ export class SendPasswordRecoveryEmailConfirmationCodeStore {
             () => this.sendPasswordRecoveryEmailConfirmationCodeForm.email,
             email => this.formErrors.email = validateEmail(email)
         );
+
+        reaction(
+            () => this.passwordRecoveryDialogStore.currentStep,
+            currentStep => {
+                if (currentStep === PasswordRecoveryStep.NONE) {
+                    this.reset();
+                }
+            }
+        )
     }
 
     @action
@@ -75,4 +84,18 @@ export class SendPasswordRecoveryEmailConfirmationCodeStore {
 
         return !Boolean(this.formErrors.email);
     };
+
+    @action
+    reset = (): void => {
+        this.emailConfirmationCode = undefined;
+        this.sendPasswordRecoveryEmailConfirmationCodeForm = {
+            email: ""
+        };
+        this.error = undefined;
+        setTimeout(
+            () => this.formErrors = {
+                email: undefined
+            }
+        );
+    }
 }

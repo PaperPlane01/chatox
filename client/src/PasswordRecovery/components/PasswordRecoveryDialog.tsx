@@ -17,7 +17,8 @@ const recoverPasswordStepsMap: RecoverPasswordStepsMap = {
     [PasswordRecoveryStep.CREATE_EMAIL_CONFIRMATION_CODE]: <PasswordRecoverySendEmailConfirmationCodeStep/>,
     [PasswordRecoveryStep.CHECK_EMAIL_CONFIRMATION_CODE]: <PasswordRecoveryCheckEmailConfirmationCodeStep/>,
     [PasswordRecoveryStep.CHANGE_PASSWORD]: <PasswordRecoveryChangePasswordStep/>,
-    [PasswordRecoveryStep.PASSWORD_RECOVERY_COMPLETED]: <PasswordRecoveryCompletedStep/>
+    [PasswordRecoveryStep.PASSWORD_RECOVERY_COMPLETED]: <PasswordRecoveryCompletedStep/>,
+    [PasswordRecoveryStep.NONE]: null
 };
 
 export const PasswordRecoveryDialog: FunctionComponent = observer(() => {

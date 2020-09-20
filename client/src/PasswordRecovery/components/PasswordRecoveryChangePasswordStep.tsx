@@ -55,6 +55,9 @@ export const PasswordRecoveryChangePasswordStep: FunctionComponent = observer(()
             setFormValue,
             recoverPassword,
             setShowPassword
+        },
+        passwordRecoveryDialog: {
+            setPasswordRecoveryDialogOpen
         }
     } = useStore();
     const {l} = useLocalization();
@@ -109,6 +112,12 @@ export const PasswordRecoveryChangePasswordStep: FunctionComponent = observer(()
                 )}
             </DialogContent>
             <DialogActions>
+                <Button variant="outlined"
+                        color="secondary"
+                        onClick={() => setPasswordRecoveryDialogOpen(false)}
+                >
+                    {l("close")}
+                </Button>
                 <Button variant="contained"
                         color="primary"
                         onClick={recoverPassword}
