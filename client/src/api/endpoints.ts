@@ -29,3 +29,4 @@ export const EMAIL = "email";
 export const EMAIL_CONFIRMATION_CODE = "emailConfirmationCode";
 export const IS_VALID = "isValid";
 export const PASSWORD = "password";
+export const RECOVERY = "recovery";

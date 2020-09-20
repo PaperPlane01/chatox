@@ -1,7 +1,13 @@
 import {EntitiesStore} from "../entities-store";
 import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore} from "../Authorization";
+import {
+    AuthorizationStore,
+    LoginStore,
+    PasswordRecoveryDialogStore,
+    RecoverPasswordStore,
+    SendPasswordRecoveryEmailConfirmationCodeStore
+} from "../Authorization";
 import {RegistrationDialogStore, SendConfirmationCodeStore, UserRegistrationStore} from "../Registration";
 import {
     ChatInfoDialogStore,
@@ -92,5 +98,9 @@ export interface IAppState {
     messageUploads: UploadMessageAttachmentsStore,
     audioPlayer: AudioPlayerStore,
     messageFileDownload: DownloadMessageFileStore,
+    passwordRecoveryDialog: PasswordRecoveryDialogStore,
+    passwordRecoveryForm: RecoverPasswordStore,
+    passwordRecoveryEmailConfirmationCodeSending: SendPasswordRecoveryEmailConfirmationCodeStore,
+    passwordRecoveryEmailConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
     store?: any
 }

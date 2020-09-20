@@ -1,6 +1,13 @@
 import {IAppState} from "./IAppState";
 import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore} from "../Authorization/stores";
+import {
+    createSetPasswordRecoveryStepCallback,
+    AuthorizationStore,
+    LoginStore,
+    PasswordRecoveryDialogStore,
+    RecoverPasswordStore,
+    SendPasswordRecoveryEmailConfirmationCodeStore
+} from "../Authorization";
 import {
     createSetRegistrationStepCallback,
     RegistrationDialogStore,
@@ -15,11 +22,11 @@ import {
     ChatsPreferencesStore,
     ChatsStore,
     ChatStore,
+    ChatUploadsStore,
     CreateChatStore,
     JoinChatStore,
     OnlineChatParticipantsStore,
-    UpdateChatStore,
-    ChatUploadsStore
+    UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
@@ -35,7 +42,8 @@ import {
     UsersStore
 } from "../User";
 import {
-    CreateMessageStore, DownloadMessageFileStore,
+    CreateMessageStore,
+    DownloadMessageFileStore,
     MessageDialogStore,
     MessagesOfChatStore,
     MessagesStore,
@@ -140,6 +148,19 @@ const passwordChange = new PasswordChangeStore(
 const emoji = new EmojiSettingsStore();
 const audioPlayer = new AudioPlayerStore();
 const messageFileDownload = new DownloadMessageFileStore();
+const passwordRecoveryDialog = new PasswordRecoveryDialogStore();
+const passwordRecoveryEmailConfirmationCodeSending = new SendPasswordRecoveryEmailConfirmationCodeStore(
+    passwordRecoveryDialog,
+    language
+);
+const passwordRecoveryEmailConfirmationCodeCheck = new CheckEmailConfirmationCodeStore(
+    createSetPasswordRecoveryStepCallback(passwordRecoveryDialog)
+);
+const passwordRecoveryForm = new RecoverPasswordStore(
+    passwordRecoveryDialog,
+    passwordChangeEmailConfirmationCodeSending,
+    passwordChangeEmailConfirmationCodeCheck
+);
 
 export const store: IAppState = {
     authorization,
@@ -186,5 +207,9 @@ export const store: IAppState = {
     emoji,
     messageUploads,
     audioPlayer,
-    messageFileDownload
+    messageFileDownload,
+    passwordRecoveryDialog,
+    passwordRecoveryEmailConfirmationCodeCheck,
+    passwordRecoveryEmailConfirmationCodeSending,
+    passwordRecoveryForm
 };
