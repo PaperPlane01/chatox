@@ -2,7 +2,7 @@ import {AxiosPromise} from "axios";
 import {stringify} from "query-string";
 import {axiosInstance} from "../axios-instance";
 import {
-    ACCOUNT,
+    ACCOUNTS,
     IS_AVAILABLE,
     ME,
     OAUTH,
@@ -12,7 +12,7 @@ import {
     REVOKE,
     SLUG,
     TOKEN,
-    USER,
+    USERS,
     USERNAME
 } from "../endpoints";
 import {
@@ -33,7 +33,7 @@ export class UserApi {
         return axiosInstance({
             method: "GET",
             baseURL: process.env.REACT_APP_API_BASE_URL,
-            url: `/${OAUTH}/${ACCOUNT}/${USERNAME}/${username}/${IS_AVAILABLE}`,
+            url: `/${OAUTH}/${ACCOUNTS}/${USERNAME}/${username}/${IS_AVAILABLE}`,
             headers: {
                 Accept: "application/json"
             }
@@ -41,15 +41,15 @@ export class UserApi {
     }
 
     public static isSlugAvailable(slug: string): AxiosPromise<AvailabilityResponse> {
-        return axiosInstance.get(`/${USER}/${SLUG}/${slug}/${IS_AVAILABLE}`);
+        return axiosInstance.get(`/${USERS}/${SLUG}/${slug}/${IS_AVAILABLE}`);
     }
 
     public static getCurrentUser(): AxiosPromise<CurrentUser> {
-        return axiosInstance.get(`/${USER}/${ME}`);
+        return axiosInstance.get(`/${USERS}/${ME}`);
     }
 
     public static getUserByIdOrSlug(idOrSlug: string): AxiosPromise<User> {
-        return axiosInstance.get(`/${USER}/${idOrSlug}`);
+        return axiosInstance.get(`/${USERS}/${idOrSlug}`);
     }
 
     public static doLogin(username: string, password: string): AxiosPromise<OAuth2Response> {
@@ -87,14 +87,14 @@ export class UserApi {
     }
 
     public static updateUser(id: string, updateUserRequest: UpdateUserRequest): AxiosPromise<User> {
-        return axiosInstance.put(`/${USER}/${id}`, updateUserRequest);
+        return axiosInstance.put(`/${USERS}/${id}`, updateUserRequest);
     }
 
     public static updatePassword(updatePasswordRequest: UpdatePasswordRequest): AxiosPromise<void> {
         return axiosInstance({
             method: "PUT",
             baseURL: process.env.REACT_APP_API_BASE_URL,
-            url: `/${OAUTH}/${ACCOUNT}/${PASSWORD}`,
+            url: `/${OAUTH}/${ACCOUNTS}/${PASSWORD}`,
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json"
@@ -109,7 +109,7 @@ export class UserApi {
         return axiosInstance({
             method: "PUT",
             baseURL: process.env.REACT_APP_API_BASE_URL,
-            url: `/${OAUTH}/${ACCOUNT}/${PASSWORD}/${RECOVERY}`,
+            url: `/${OAUTH}/${ACCOUNTS}/${PASSWORD}/${RECOVERY}`,
             headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json"

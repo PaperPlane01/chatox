@@ -15,27 +15,29 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import javax.validation.Valid
 
 @RestController
+@RequestMapping("/api/v1/chats")
 class MessageController(private val messageService: MessageService) {
 
-    @PostMapping("/api/v1/chat/{chatId}/messages")
+    @PostMapping("/{chatId}/messages")
     @PreAuthorize("hasRole('USER')")
     fun createMessage(@PathVariable chatId: String,
                       @RequestBody @Valid createMessageRequest: CreateMessageRequest
     ) = messageService.createMessage(chatId, createMessageRequest)
 
-    @PutMapping("/api/v1/chat/{chatId}/messages/{messageId}")
+    @PutMapping("/{chatId}/messages/{messageId}")
     @PreAuthorize("hasRole('USER')")
     fun updateMessage(@PathVariable chatId: String,
                       @PathVariable messageId: String,
                       @RequestBody @Valid updateMessageRequest: UpdateMessageRequest
     ) = messageService.updateMessage(messageId, chatId,updateMessageRequest)
 
-    @DeleteMapping("/api/v1/chat/{chatId}/messages/{messageId}")
+    @DeleteMapping("/{chatId}/messages/{messageId}")
     @PreAuthorize("hasRole('USER')")
     fun deleteMessage(@PathVariable chatId: String,
                       @PathVariable messageId: String
@@ -46,7 +48,7 @@ class MessageController(private val messageService: MessageService) {
             sortBy = SortBy(default = "createdAt", allowed = ["createdAt"]),
             sortingDirection = SortDirection(default = "desc")
     )
-    @GetMapping("/api/v1/chat/{chatId}/messages")
+    @GetMapping("/{chatId}/messages")
     fun findMessagesByChat(@PathVariable chatId: String,
                            paginationRequest: PaginationRequest
     ) = messageService.findMessagesByChat(chatId, paginationRequest)
@@ -55,7 +57,7 @@ class MessageController(private val messageService: MessageService) {
             pageSize = PageSize(default = 200, max = 300),
             sortBy = SortBy(default = "createdAt", allowed = ["createdAt"])
     )
-    @GetMapping("/api/v1/chat/{chatId}/messages", params = ["beforeId"])
+    @GetMapping("/{chatId}/messages", params = ["beforeId"])
     fun findMessagesByChatBeforeMessage(
             @PathVariable chatId: String,
             @RequestParam beforeId: String,
@@ -66,14 +68,14 @@ class MessageController(private val messageService: MessageService) {
             pageSize = PageSize(default = 200, max = 300),
             sortBy = SortBy(default = "createdAt", allowed = ["createdAt"])
     )
-    @GetMapping("/api/v1/chat/{chatId}/messages", params = ["afterId"])
+    @GetMapping("/{chatId}/messages", params = ["afterId"])
     fun findMessagesByChatAfterMessage(
             @PathVariable chatId: String,
             @RequestParam afterId: String,
             paginationRequest: PaginationRequest
     ) = messageService.findMessagesSinceMessageByChat(chatId, afterId, paginationRequest)
 
-    @PostMapping("/api/v1/chat/{chatId}/messages/{messageId}/read")
+    @PostMapping("/{chatId}/messages/{messageId}/read")
     fun markMessageRead(@PathVariable chatId: String,
                         @PathVariable messageId: String
     ) = messageService.markMessageRead(messageId)

@@ -23,7 +23,7 @@ public class OAuthServiceClientImpl implements OAuthServiceClient {
     @Override
     public Mono<CreateAccountResponse> createAccount(CreateAccountRequest createAccountRequest) {
         return webClient.post()
-                .uri("/oauth/account")
+                .uri("/oauth/accounts")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(createAccountRequest), CreateAccountRequest.class)
@@ -58,7 +58,7 @@ public class OAuthServiceClientImpl implements OAuthServiceClient {
     @Override
     public Mono<Void> addUserToAccount(String accountId, String userId) {
         return webClient.put()
-                .uri("/oauth/account/" + accountId + "/users/" + userId)
+                .uri("/oauth/accounts/" + accountId + "/users/" + userId)
                 .retrieve()
                 .bodyToMono(Void.class);
     }

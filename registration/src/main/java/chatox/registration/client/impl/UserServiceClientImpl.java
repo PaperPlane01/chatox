@@ -18,7 +18,7 @@ public class UserServiceClientImpl implements UserServiceClient {
     public Mono<CreateUserResponse> createUser(CreateUserRequest createUserRequest) {
         return webClient
                 .post()
-                .uri("/api/v1/user")
+                .uri("/api/v1/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(Mono.just(createUserRequest), CreateUserRequest.class)

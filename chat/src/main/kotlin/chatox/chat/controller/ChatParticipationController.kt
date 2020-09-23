@@ -14,31 +14,33 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import javax.validation.Valid
 
 @RestController
+@RequestMapping("/api/v1/chats")
 class ChatParticipationController(private val chatParticipationService: ChatParticipationService) {
 
-    @PostMapping("/api/v1/chat/{chatId}/join")
+    @PostMapping("/{chatId}/join")
     @PreAuthorize("hasRole('USER')")
     fun joinChat(@PathVariable chatId: String) = chatParticipationService.joinChat(chatId)
 
-    @DeleteMapping("/api/v1/chat/{chatId}/leave")
+    @DeleteMapping("/{chatId}/leave")
     @PreAuthorize("hasRole('USER')")
     fun leaveChat(@PathVariable chatId: String) = chatParticipationService.leaveChat(chatId)
 
-    @GetMapping("/api/v1/chat/{chatId}/participants/online")
+    @GetMapping("/participants/online")
     fun getOnlineChatParticipants(@PathVariable chatId: String) = chatParticipationService.findOnlineParticipants(chatId)
 
-    @DeleteMapping("/api/v1/chat/{chatId}/participants/{participationId}")
+    @DeleteMapping("/participants/{participationId}")
     @PreAuthorize("hasRole('USER')")
     fun kickParticipant(@PathVariable chatId: String,
                         @PathVariable participationId: String
     ) = chatParticipationService.deleteChatParticipation(participationId, chatId)
 
-    @PutMapping("/api/v1/chat/{chatId}/participants/{participationId}")
+    @PutMapping("/{participationId}")
     @PreAuthorize("hasRole('USER')")
     fun updateChatParticipant(@PathVariable chatId: String,
                               @PathVariable participationId: String,
@@ -49,7 +51,7 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
             sortBy = SortBy(allowed = ["createdAt"], default = "createdAt"),
             sortingDirection = SortDirection(default = "asc")
     )
-    @GetMapping("/api/v1/chat/{chatId}/participants")
+    @GetMapping("/{chatId}/participants")
     fun getChatParticipants(@PathVariable chatId: String,
                             paginationRequest: PaginationRequest
     ) = chatParticipationService.findParticipantsOfChat(chatId, paginationRequest)
@@ -58,7 +60,7 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
             sortBy = SortBy(allowed = ["userDisplayedName", "createdAt"], default = "userDisplayedName"),
             sortingDirection = SortDirection(default = "asc")
     )
-    @GetMapping("/api/v1/chat/{chatId}/participants/search")
+    @GetMapping("/{chatId}/participants/search")
     fun searchChatParticipants(@PathVariable chatId: String,
                                @RequestParam query: String = "",
                                paginationRequest: PaginationRequest

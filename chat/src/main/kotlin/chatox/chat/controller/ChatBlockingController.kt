@@ -14,14 +14,16 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import javax.validation.Valid
 
 @RestController
+@RequestMapping("/api/v1/chats")
 class ChatBlockingController(private val chatBlockingService: ChatBlockingService) {
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping("/api/v1/chat/{chatId}/blockings")
+    @PostMapping("/{chatId}/blockings")
     fun createChatBlocking(@PathVariable chatId: String,
                            @RequestBody @Valid createChatBlockingRequest: CreateChatBlockingRequest
     ) = chatBlockingService.blockUser(chatId, createChatBlockingRequest)
@@ -36,7 +38,7 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
             ),
             sortingDirection = SortDirection(default = "desc")
     )
-    @GetMapping("/api/v1/chat/{chatId}/blockings")
+    @GetMapping("/{chatId}/blockings")
     fun getAllBlockingsByChat(@PathVariable chatId: String,
                               paginationRequest: PaginationRequest
     ) = chatBlockingService.getAllBlockingsByChat(chatId, paginationRequest)
@@ -51,7 +53,7 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
             ),
             sortingDirection = SortDirection(default = "desc")
     )
-    @GetMapping("/api/v1/chat/{chatId}/blockings/active")
+    @GetMapping("/{chatId}/blockings/active")
     fun getActiveBlockingsByChat(@PathVariable chatId: String,
                                  paginationRequest: PaginationRequest
     ) = chatBlockingService.getActiveBlockingsByChat(chatId, paginationRequest)
@@ -66,26 +68,26 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
             ),
             sortingDirection = SortDirection(default = "desc")
     )
-    @GetMapping("/api/v1/chat/{chatId}/blockings/nonActive")
+    @GetMapping("/{chatId}/blockings/nonActive")
     fun getNonActiveBlockingsByChat(@PathVariable chatId: String,
                                     paginationRequest: PaginationRequest
     ) = chatBlockingService.getNonActiveBlockingsByChat(chatId, paginationRequest)
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping("/api/v1/chat/{chatId}/blockings/{blockingId}")
+    @GetMapping("/{chatId}/blockings/{blockingId}")
     fun findChatBlockingById(@PathVariable chatId: String,
                              @PathVariable blockingId: String
     ) = chatBlockingService.getBlockingById(chatId, blockingId)
 
     @PreAuthorize("hasRole('USER')")
-    @PutMapping("/api/v1/chat/{chatId}/blockings/{blockingId}")
+    @PutMapping("/{chatId}/blockings/{blockingId}")
     fun updateChatBlocking(@PathVariable chatId: String,
                            @PathVariable blockingId: String,
                            @RequestBody @Valid updateChatBlockingRequest: UpdateChatBlockingRequest
     ) = chatBlockingService.updateBlocking(chatId, blockingId, updateChatBlockingRequest)
 
     @PreAuthorize("hasRole('USER')")
-    @DeleteMapping("/api/v1/chat/{chatId}/blockings/{blockingId}")
+    @DeleteMapping("/{chatId}/blockings/{blockingId}")
     fun cancelChatBlocking(@PathVariable chatId: String,
                            @PathVariable blockingId: String
     ) = chatBlockingService.unblockUser(chatId, blockingId)
