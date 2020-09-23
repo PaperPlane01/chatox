@@ -186,13 +186,9 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     .collectList()
                     .awaitFirst()
             val unreadMessagesMap: MutableMap<String, Int> = HashMap()
-            val onlineParticipantsCountMap: MutableMap<String, Int> = HashMap()
 
             chatParticipations.forEach { chatParticipation ->
                 unreadMessagesMap[chatParticipation.chat.id] = countUnreadMessages(Mono.just(chatParticipation))
-                        .awaitFirst()
-                onlineParticipantsCountMap[chatParticipation.chat.id] = chatParticipationRepository
-                        .countByChatAndUserOnlineTrue(chatParticipation.chat)
                         .awaitFirst()
             }
 
@@ -202,9 +198,9 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                         chatParticipation = chatParticipation,
                         lastReadMessage = if (chatParticipation.lastMessageRead != null) chatParticipation.lastMessageRead!!.message else null,
                         lastMessage = chatParticipation.chat.lastMessage,
-                        onlineParticipantsCount = onlineParticipantsCountMap[chatParticipation.chat.id]!!,
+                        onlineParticipantsCount = chatParticipation.chat.numberOfOnlineParticipants,
                         unreadMessagesCount = unreadMessagesMap[chatParticipation.chat.id]!!
-                        )
+                )
             }
         }
                 .flatMapMany { Flux.fromIterable(it) }

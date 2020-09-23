@@ -12,6 +12,7 @@ import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
 import chatox.chat.model.User
 import chatox.chat.repository.ChatParticipationRepository
+import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.UploadRepository
 import chatox.chat.repository.UserRepository
 import com.rabbitmq.client.Channel
@@ -29,6 +30,7 @@ import java.time.ZonedDateTime
 class UserEventsListener(private val userRepository: UserRepository,
                          private val chatParticipationRepository: ChatParticipationRepository,
                          private val uploadRepository: UploadRepository,
+                         private val chatRepository: ChatRepository,
                          private val chatParticipationMapper: ChatParticipationMapper,
                          private val chatEventsPublisher: ChatEventsPublisher) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -139,6 +141,10 @@ class UserEventsListener(private val userRepository: UserRepository,
                 }
                 chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
 
+                for (chatParticipation in chatParticipations) {
+                    chatRepository.increaseNumberOfOnlineParticipants(chatParticipation.chat.id).subscribe()
+                }
+
                 chatEventsPublisher.chatParticipantsWentOnline(
                         chatParticipants = chatParticipations.map { chatParticipation ->
                             chatParticipationMapper.toChatParticipationResponse(chatParticipation)
@@ -175,6 +181,11 @@ class UserEventsListener(private val userRepository: UserRepository,
                     chatParticipation.copy(userOnline = false, lastModifiedAt = ZonedDateTime.now())
                 }
                 chatParticipations = chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
+
+                for (chatParticipation in chatParticipations) {
+                    chatRepository.decreaseNumberOfOnlineParticipants(chatParticipation.chat.id).subscribe()
+                }
+
                 chatEventsPublisher.chatParticipantsWentOffline(
                         chatParticipants = chatParticipations.map { chatParticipation ->
                             chatParticipationMapper.toChatParticipationResponse(chatParticipation)
