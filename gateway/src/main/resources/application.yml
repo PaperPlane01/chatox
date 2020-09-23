@@ -43,11 +43,11 @@ spring:
         - id: chat-service
           uri: lb://chat-service
           predicates:
-            - Path=/api/v1/chat/**
+            - Path=/api/v1/chats/**
         - id: user-service
           uri: lb://user-service
           predicates:
-            - Path=/api/v1/user/**
+            - Path=/api/v1/users/**
         - id: registration-service
           uri: lb://registration-service
           predicates:

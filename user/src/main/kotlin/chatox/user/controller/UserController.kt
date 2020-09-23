@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/users")
 class UserController(private val userService: UserService,
                      private val userSessionService: UserSessionService,
                      private val authenticationFacade: AuthenticationFacade) {

@@ -26,7 +26,7 @@ import javax.validation.Valid;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/oauth/account")
+@RequestMapping("/oauth/accounts")
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
