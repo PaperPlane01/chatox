@@ -8,44 +8,44 @@ import {
     ChatParticipation,
     ChatParticipationWithoutUser
 } from "../types/response";
-import {CHAT, IS_AVAILABLE, JOIN, LEAVE, MY, ONLINE, PARTICIPANTS, SLUG} from "../endpoints";
+import {CHATS, IS_AVAILABLE, JOIN, LEAVE, MY, ONLINE, PARTICIPANTS, SLUG} from "../endpoints";
 import {UpdateChatRequest} from "../types/request/UpdateChatRequest";
 
 export class ChatApi {
 
     public static createChat(createChatRequest: CreateChatRequest): AxiosPromise<ChatOfCurrentUser> {
-        return axiosInstance.post(`/${CHAT}`, createChatRequest);
+        return axiosInstance.post(`/${CHATS}`, createChatRequest);
     }
 
     public static checkChatSlugAvailability(slug: string): AxiosPromise<AvailabilityResponse> {
-        return axiosInstance.get(`/${CHAT}/${SLUG}/${slug}/${IS_AVAILABLE}`);
+        return axiosInstance.get(`/${CHATS}/${SLUG}/${slug}/${IS_AVAILABLE}`);
     }
 
     public static getChatsOfCurrentUser(): AxiosPromise<ChatOfCurrentUser[]> {
-        return axiosInstance.get(`/${CHAT}/${MY}`);
+        return axiosInstance.get(`/${CHATS}/${MY}`);
     }
 
     public static joinChat(chatId: string): AxiosPromise<ChatParticipationWithoutUser> {
-        return axiosInstance.post(`/${CHAT}/${chatId}/${JOIN}`);
+        return axiosInstance.post(`/${CHATS}/${chatId}/${JOIN}`);
     }
 
     public static leaveChat(chatId: string): AxiosPromise<void> {
-        return axiosInstance.delete(`/${CHAT}/${chatId}/${LEAVE}`);
+        return axiosInstance.delete(`/${CHATS}/${chatId}/${LEAVE}`);
     }
 
     public static findChatByIdOrSlug(idOrSlug: string): AxiosPromise<Chat> {
-        return axiosInstance.get(`/${CHAT}/${idOrSlug}`);
+        return axiosInstance.get(`/${CHATS}/${idOrSlug}`);
     }
 
     public static getChatParticipants(chatId: string, page: number): AxiosPromise<ChatParticipation[]> {
-        return axiosInstance.get(`/${CHAT}/${chatId}/${PARTICIPANTS}?page=${page}`);
+        return axiosInstance.get(`/${CHATS}/${chatId}/${PARTICIPANTS}?page=${page}`);
     }
 
     public static getOnlineChatParticipants(chatId: string): AxiosPromise<ChatParticipation[]> {
-        return axiosInstance.get(`/${CHAT}/${chatId}/${PARTICIPANTS}/${ONLINE}`);
+        return axiosInstance.get(`/${CHATS}/${chatId}/${PARTICIPANTS}/${ONLINE}`);
     }
 
     public static updateChat(chatId: string, updateChatRequest: UpdateChatRequest): AxiosPromise<ChatOfCurrentUser> {
-        return axiosInstance.put(`/${CHAT}/${chatId}`, updateChatRequest);
+        return axiosInstance.put(`/${CHATS}/${chatId}`, updateChatRequest);
     }
 }
