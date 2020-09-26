@@ -13,4 +13,5 @@ interface ChatRepository : ReactiveMongoRepository<Chat, String>, ChatCustomRepo
     fun existsBySlugOrId(slug: String, id: String): Mono<Boolean>
     fun findByIdEqualsOrSlugEquals(id: String, slug: String): Mono<Chat>
     fun findByNameContainsOrDescriptionContainsOrTagsContains(name: String, description: String, tags: String, pageable: Pageable): Flux<Chat>
+    fun findAllBy(pageable: Pageable): Flux<Chat>
 }

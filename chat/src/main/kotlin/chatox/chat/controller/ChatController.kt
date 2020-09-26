@@ -52,4 +52,11 @@ class ChatController(private val chatService: ChatService) {
 
     @GetMapping("/slug/{slug}/isAvailable")
     fun isChatSlugAvailable(@PathVariable slug: String) = chatService.checkChatSlugAvailability(slug)
+
+    @PaginationConfig(
+            pageSize = PageSize(default = 10, max = 300),
+            sortBy = SortBy(allowed = [], default = "")
+    )
+    @GetMapping("/popular")
+    fun getPopularChats(paginationRequest: PaginationRequest) = chatService.getPopularChats(paginationRequest)
 }

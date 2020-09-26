@@ -28,6 +28,8 @@ import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -232,5 +234,41 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     override fun checkChatSlugAvailability(slug: String): Mono<AvailabilityResponse> {
         return chatRepository.existsBySlugOrId(slug, slug)
                 .map { AvailabilityResponse(available = !it) }
+    }
+
+    override fun getPopularChats(paginationRequest: PaginationRequest): Flux<ChatResponse> {
+        return mono {
+            val pageRequest = PageRequest.of(
+                    paginationRequest.page!!,
+                    paginationRequest.pageSize!!,
+                    Sort.by(
+                            Sort.Order.desc("numberOfOnlineParticipants"),
+                            Sort.Order.desc("numberOfParticipants")
+                    )
+            )
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            var currentUserId: String? = null
+
+            if (currentUser != authenticationFacade.EMPTY_USER) {
+                currentUserId = currentUser.id
+            }
+
+            chatRepository
+                    .findAllBy(pageRequest)
+                    .map { chat -> chatMapper.toChatResponse(chat = chat, currentUserId = currentUserId) }
+        }
+                .flatMapMany { chat -> chat }
+    }
+
+    private fun getCorrectChatSortBy(sortBy: String?): String? {
+        if (sortBy == null) {
+            return null
+        }
+
+        return when (sortBy.trim().toLowerCase()) {
+            "onlineParticipantsCount".toLowerCase() -> "numberOfOnlineParticipants"
+            "participantsCount".toLowerCase() -> "numberOfParticipants"
+            else -> sortBy
+        }
     }
 }
