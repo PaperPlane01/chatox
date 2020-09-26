@@ -8,6 +8,12 @@ spring:
       database: chatox_user_service
       host: localhost
       port: 27017
+  rabbitmq:
+    listener:
+      direct:
+        acknowledge-mode: manual
+      simple:
+        acknowledge-mode: manual
 server:
   port: 8083
 eureka:
@@ -37,3 +43,8 @@ logging:
           mongodb:
             core:
               ReactiveMongoTemplate: DEBUG
+    chatox:
+      user:
+        service:
+          impl:
+            UserSessionServiceImpl: DEBUG

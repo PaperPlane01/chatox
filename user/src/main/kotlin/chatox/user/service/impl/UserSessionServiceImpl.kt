@@ -42,6 +42,7 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
 
     override fun userConnected(userConnected: UserConnected): Mono<Void> {
         return mono {
+            log.debug("Received userConnected event")
             var user = userRepository.findById(userConnected.userId).awaitFirstOrNull()
 
             if (user != null) {
@@ -66,6 +67,7 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                 userRepository.save(user).awaitFirst()
 
                 if (shouldPublishUserWentOnline) {
+                    log.debug("Publishing userWentOnline event")
                     userEventsProducer.userWentOnline(UserOnline(
                             userId = user.id,
                             lastSeen = user.lastSeen
@@ -80,6 +82,7 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
 
     override fun userDisconnected(userDisconnected: UserDisconnected): Mono<Void> {
         return mono {
+            log.debug("Received userDisconnected event")
             var userSession = userSessionRepository
                     .findBySocketIoId(userDisconnected.socketIoId)
                     .awaitFirstOrNull()
@@ -100,6 +103,7 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                 userRepository.save(user).awaitFirst()
 
                 if (shouldPublishUserDisconnected) {
+                    log.debug("publishing userWentOffline event")
                     userEventsProducer.userWentOffline(
                             UserOffline(
                                     userId = user.id,
@@ -135,7 +139,7 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                 .flatMapMany { it }
     }
 
-    @Scheduled(cron = "0 0/15 * * * *")
+    @Scheduled(cron = "0 0/5 * * * *")
     override fun lookForInactiveSessions() {
         log.info("Looking for inactive sessions")
         val webClient = WebClient.create()
@@ -143,7 +147,7 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
 
         mono {
             val activeSessions = userSessionRepository.findByDisconnectedAtNullAndCreatedAtBefore(
-                    ZonedDateTime.now().minusMinutes(10L)
+                    ZonedDateTime.now().minusMinutes(5L)
             )
                     .collectList()
                     .awaitFirst()

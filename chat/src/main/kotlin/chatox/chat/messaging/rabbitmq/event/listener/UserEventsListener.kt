@@ -125,6 +125,8 @@ class UserEventsListener(private val userRepository: UserRepository,
                          channel: Channel,
                          @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
         mono {
+            log.info("userWentOnline event received")
+            log.info("$userWentOnline")
             var user = userRepository.findById(userWentOnline.userId).awaitFirstOrNull()
 
             if (user != null) {
@@ -133,16 +135,17 @@ class UserEventsListener(private val userRepository: UserRepository,
                         lastSeen = userWentOnline.lastSeen
                 )
                 userRepository.save(user).awaitFirst()
-                var chatParticipations = chatParticipationRepository.findAllByUserAndDeletedFalse(user)
+                val chatParticipations = chatParticipationRepository.findAllByUserAndDeletedFalse(user)
                         .collectList()
                         .awaitFirst()
-                chatParticipations = chatParticipations.map { chatParticipation ->
-                    chatParticipation.copy(userOnline = true, lastModifiedAt = ZonedDateTime.now())
-                }
-                chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
-
-                for (chatParticipation in chatParticipations) {
-                    chatRepository.increaseNumberOfOnlineParticipants(chatParticipation.chat.id).subscribe()
+                chatParticipations.forEach { chatParticipation ->
+                    println("SAVING CHAT PARTICIPATION")
+                    chatParticipationRepository.save(
+                            chatParticipation.copy(userOnline = true, lastModifiedAt = ZonedDateTime.now())
+                    )
+                            .awaitFirst()
+                    println("INCREASING NUMBER OF ONLINE PARTICIPANTS")
+                    chatRepository.increaseNumberOfOnlineParticipants(chatParticipation.chat.id).awaitFirst()
                 }
 
                 chatEventsPublisher.chatParticipantsWentOnline(
@@ -162,8 +165,8 @@ class UserEventsListener(private val userRepository: UserRepository,
     fun onUserWentOffline(userWentOffline: UserWentOffline,
                           channel: Channel,
                           @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
-        log.debug("userWentOffline event received")
-        log.debug("$userWentOffline")
+        log.info("userWentOffline event received")
+        log.info("$userWentOffline")
         mono {
             var user = userRepository.findById(userWentOffline.userId).awaitFirstOrNull()
 

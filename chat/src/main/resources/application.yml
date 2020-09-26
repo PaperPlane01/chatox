@@ -46,3 +46,9 @@ logging:
           mongodb:
             core:
               ReactiveMongoTemplate: DEBUG
+    chatox:
+      messaging:
+        rabbitmq:
+          event:
+            listener:
+              UserEventsListener: DEBUG

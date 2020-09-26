@@ -47,6 +47,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
                 this.usersAndClientsMap[jwtPayload.user_id] = [client];
             }
 
+            console.log("Publishing user connected event");
             this.amqpConnection.publish(
                 "websocket.events",
                 "user.connected.#",
@@ -83,6 +84,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         usersToDelete.forEach(userId => delete this.usersAndClientsMap[userId]);
 
         if (disconnectedUserId) {
+            console.log("Publishing user disconnected event");
             this.amqpConnection.publish(
                 "websocket.events",
                 "user.disconnected.#",
