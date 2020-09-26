@@ -12,3 +12,4 @@ export * from "./UpdateChatStore";
 export * from "./ChatsPreferencesStore";
 export * from "./ChatUploadsStore";
 export * from "./LeaveChatStore";
+export * from "./PopularChatsStore";

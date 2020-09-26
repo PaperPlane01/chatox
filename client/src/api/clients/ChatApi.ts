@@ -1,6 +1,6 @@
 import {AxiosPromise} from "axios";
 import {axiosInstance} from "../axios-instance";
-import {CreateChatRequest} from "../types/request";
+import {CreateChatRequest, PaginationRequest} from "../types/request";
 import {
     AvailabilityResponse,
     Chat,
@@ -8,8 +8,9 @@ import {
     ChatParticipation,
     ChatParticipationWithoutUser
 } from "../types/response";
-import {CHATS, IS_AVAILABLE, JOIN, LEAVE, MY, ONLINE, PARTICIPANTS, SLUG} from "../endpoints";
+import {CHATS, IS_AVAILABLE, JOIN, LEAVE, MY, ONLINE, PARTICIPANTS, POPULAR, SLUG} from "../endpoints";
 import {UpdateChatRequest} from "../types/request/UpdateChatRequest";
+import {stringify} from "query-string";
 
 export class ChatApi {
 
@@ -47,5 +48,17 @@ export class ChatApi {
 
     public static updateChat(chatId: string, updateChatRequest: UpdateChatRequest): AxiosPromise<ChatOfCurrentUser> {
         return axiosInstance.put(`/${CHATS}/${chatId}`, updateChatRequest);
+    }
+
+    public static getPopularChats(paginationRequest: PaginationRequest): AxiosPromise<Chat[]> {
+        delete paginationRequest.sortBy;
+        delete paginationRequest.sortingDirection;
+
+        if (!paginationRequest.page) paginationRequest.page = 0;
+        if (!paginationRequest.pageSize) paginationRequest.pageSize = 10;
+
+        const queryString = stringify(paginationRequest);
+
+        return axiosInstance.get(`/${CHATS}/${POPULAR}?${queryString}`);
     }
 }

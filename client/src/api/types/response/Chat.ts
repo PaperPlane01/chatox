@@ -8,6 +8,7 @@ export interface Chat {
     id: string,
     name: string,
     participantsCount: number,
+    onlineParticipantsCount: number,
     slug?: string,
     tags: string[],
     createdAt: string,
