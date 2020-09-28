@@ -25,7 +25,7 @@ import {
     CreateChatStore,
     JoinChatStore,
     LeaveChatStore,
-    OnlineChatParticipantsStore,
+    OnlineChatParticipantsStore, PopularChatsStore,
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
@@ -162,6 +162,7 @@ const passwordRecoveryForm = new RecoverPasswordStore(
     passwordRecoveryEmailConfirmationCodeCheck
 );
 const leaveChat = new LeaveChatStore(entities);
+const popularChats = new PopularChatsStore(entities);
 
 export const store: IAppState = {
     authorization,
@@ -213,5 +214,6 @@ export const store: IAppState = {
     passwordRecoveryEmailConfirmationCodeCheck,
     passwordRecoveryEmailConfirmationCodeSending,
     passwordRecoveryForm,
-    leaveChat
+    leaveChat,
+    popularChats
 };
