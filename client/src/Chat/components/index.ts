@@ -18,3 +18,5 @@ export * from "./EditChatMenuItem";
 export * from "./UpdateChatDialog";
 export * from "./ChatAvatarUpload";
 export * from "./ChatsPreferencesCard";
+export * from "./PopularChatsList";
+export * from "./PopularChatsListItem";

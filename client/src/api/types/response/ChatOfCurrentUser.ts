@@ -14,6 +14,7 @@ export interface ChatOfCurrentUser {
     chatParticipation?: ChatParticipationWithoutUser,
     unreadMessagesCount: number,
     participantsCount: number,
+    onlineParticipantsCount: number,
     description?: string,
     avatar?: Upload<ImageUploadMetadata>,
     createdByCurrentUser: boolean,
