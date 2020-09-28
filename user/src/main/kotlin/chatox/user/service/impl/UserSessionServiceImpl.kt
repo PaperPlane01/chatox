@@ -43,12 +43,11 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
     override fun userConnected(userConnected: UserConnected): Mono<Void> {
         return mono {
             log.debug("Received userConnected event")
-            var user = userRepository.findById(userConnected.userId).awaitFirstOrNull()
+            val user = userRepository.findAndIncreaseActiveSessionsCount(userConnected.userId).awaitFirstOrNull()
 
             if (user != null) {
-                val shouldPublishUserWentOnline = userSessionRepository
-                        .countByUserAndDisconnectedAtNull(user)
-                        .awaitFirst() == 0L
+                log.debug("Number of active sessions of user ${user.id} is ${user.activeSessionsCount}")
+                val shouldPublishUserWentOnline = user.activeSessionsCount == 1
                 val userSession = UserSession(
                         id = UUID.randomUUID().toString(),
                         userAgent = userConnected.userAgent,
@@ -61,10 +60,7 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                 )
                 userSessionRepository.save(userSession).awaitFirst()
 
-                user = user.copy(
-                        lastSeen = userSession.createdAt
-                )
-                userRepository.save(user).awaitFirst()
+                userRepository.updateLastSeenDateIfNecessary(user.id, userSession.createdAt).subscribe()
 
                 if (shouldPublishUserWentOnline) {
                     log.debug("Publishing userWentOnline event")
@@ -86,24 +82,27 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
             var userSession = userSessionRepository
                     .findBySocketIoId(userDisconnected.socketIoId)
                     .awaitFirstOrNull()
+            var user = userRepository.findAndDecreaseActiveSessionsCount(userDisconnected.userId).awaitFirstOrNull()
 
-            if (userSession != null) {
-                val shouldPublishUserDisconnected = userSessionRepository
-                        .countByUserAndDisconnectedAtNullAndIdNotIn(userSession.user, listOf(userSession.id))
-                        .awaitFirst() == 0L
+            if (userSession != null && user != null) {
+                log.debug("Number of active sessions of user ${user.id} is ${user.activeSessionsCount}")
+                if (user.activeSessionsCount < 0) {
+                    user = userRepository.findAndIncreaseActiveSessionsCount(
+                            user.id,
+                            user.activeSessionsCount * (-1)
+                    )
+                            .awaitFirst()
+                }
+
+                val shouldPublishUserDisconnected = user!!.activeSessionsCount == 0
                 userSession = userSession.copy(
                         disconnectedAt = ZonedDateTime.now()
                 )
                 userSessionRepository.save(userSession).awaitFirst()
-
-                var user = userSession.user
-                user = user.copy(
-                        lastSeen = userSession.disconnectedAt!!
-                )
-                userRepository.save(user).awaitFirst()
+                userRepository.updateLastSeenDateIfNecessary(user.id, userSession.disconnectedAt!!).subscribe()
 
                 if (shouldPublishUserDisconnected) {
-                    log.debug("publishing userWentOffline event")
+                    log.debug("Publishing userWentOffline event")
                     userEventsProducer.userWentOffline(
                             UserOffline(
                                     userId = user.id,
@@ -184,15 +183,11 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                             .filter { session -> !sessionActivityMap[session.id]!! }
                             .map { session -> session.copy(disconnectedAt = ZonedDateTime.now()) }
                     userSessionRepository.saveAll(nonActiveSessions).collectList().awaitFirst()
-                    val sessionIds = nonActiveSessions.map { session -> session.id }
 
                     nonActiveSessions.forEach { session ->
-                        val shouldPublishWentOffline = userSessionRepository
-                                .countByUserAndDisconnectedAtNullAndIdNotIn(
-                                        user = session.user,
-                                        ids = sessionIds
-                                )
-                                .awaitFirst() == 0L
+                        val user = userRepository.findAndDecreaseActiveSessionsCount(session.user.id).awaitFirst()
+                        userRepository.updateLastSeenDateIfNecessary(session.user.id, session.disconnectedAt!!).subscribe()
+                        val shouldPublishWentOffline = user.activeSessionsCount == 0
 
                         if (shouldPublishWentOffline) {
                             userEventsProducer.userWentOffline(

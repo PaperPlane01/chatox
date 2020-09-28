@@ -17,6 +17,7 @@ data class User(
         var deleted: Boolean,
         var dateOfBirth: ZonedDateTime?,
         var email: String?,
+        var activeSessionsCount: Int = 0,
         @DBRef(lazy = true)
         var avatar: Upload<ImageUploadMetadata>?
 ) {

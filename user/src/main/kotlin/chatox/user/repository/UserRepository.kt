@@ -1,11 +1,12 @@
 package chatox.user.repository
 
 import chatox.user.domain.User
-import org.springframework.data.repository.reactive.ReactiveCrudRepository
+import chatox.user.repository.custom.UserCustomRepository
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-interface UserRepository : ReactiveCrudRepository<User, String> {
+interface UserRepository : ReactiveMongoRepository<User, String>, UserCustomRepository {
     fun save(user: User): Mono<User>
     override fun findById(id: String): Mono<User>
     fun findByIdOrSlug(id: String, slug: String): Mono<User>
