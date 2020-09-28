@@ -1,4 +1,4 @@
-import {forwardRef, Inject} from "@nestjs/common";
+import {forwardRef, Inject, Logger} from "@nestjs/common";
 import {
     ConnectedSocket,
     MessageBody,
@@ -17,6 +17,7 @@ import {SessionActivityStatusResponse} from "./types/SessionActivityStatusRespon
 import {Chat, ChatBlocking, ChatMessage} from "../common/types";
 import {ChatParticipationService} from "../chat-participation";
 import {ChatParticipationDto} from "../chat-participation/types";
+import {LoggerFactory} from "../logging";
 
 @WebSocketGateway({
     path: "/api/v1/events/",
@@ -29,6 +30,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
     private usersAndClientsMap: {[userId: string]: Socket[]} = {};
     private chatSubscriptionsMap: {[chatId: string]: Socket[]} = {};
     private connectedClients: Socket[] = [];
+    private log: Logger = LoggerFactory.getLogger(WebsocketEventsPublisher);
 
     constructor(private readonly jwtService: JwtService,
                 private readonly amqpConnection: AmqpConnection,
@@ -47,7 +49,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
                 this.usersAndClientsMap[jwtPayload.user_id] = [client];
             }
 
-            console.log("Publishing user connected event");
+            this.log.debug("Publishing user connected event");
             this.amqpConnection.publish(
                 "websocket.events",
                 "user.connected.#",
@@ -84,7 +86,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         usersToDelete.forEach(userId => delete this.usersAndClientsMap[userId]);
 
         if (disconnectedUserId) {
-            console.log("Publishing user disconnected event");
+            this.log.debug("Publishing user disconnected event");
             this.amqpConnection.publish(
                 "websocket.events",
                 "user.disconnected.#",
@@ -141,7 +143,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.MESSAGE_CREATED,
             payload: message
         };
-        console.log("publishing new message");
+        this.log.debug("Publishing new message");
         await this.publishEventToChatParticipants(message.chatId, messageCreatedEvent);
         await this.publishEventToUsersSubscribedToChat(message.chatId, messageCreatedEvent);
     }

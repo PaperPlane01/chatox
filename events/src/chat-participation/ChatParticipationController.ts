@@ -3,6 +3,7 @@ import {RabbitSubscribe} from "@nestjs-plus/rabbitmq";
 import {ChatParticipationService} from "./ChatParticipationService";
 import {ChatParticipationDto} from "./types";
 import {WebsocketEventsPublisher} from "../websocket";
+import {config} from "../env-config";
 
 @Injectable()
 export class ChatParticipationController {
@@ -12,7 +13,7 @@ export class ChatParticipationController {
     @RabbitSubscribe({
         exchange: "chat.events",
         routingKey: "chat.user.joined.#",
-        queue: `events_service_user_joined-${process.env.SERVER_PORT}`
+        queue: `events_service_user_joined-${config.EVENTS_SERVICE_PORT}`
     })
     public async onUserJoinedChat(createChatParticipationDto: ChatParticipationDto): Promise<void> {
         console.log("Received userJoinedChat event");
@@ -22,7 +23,7 @@ export class ChatParticipationController {
     @RabbitSubscribe({
         exchange: "chat.events",
         routingKey: "chat.participants.online.#",
-        queue: `events_service_chat_participant_online-${process.env.SERVER_PORT}`
+        queue: `events_service_chat_participant_online-${config.EVENTS_SERVICE_PORT}`
     })
     public async onChatParticipantsWentOnline(chatParticipants: ChatParticipationDto[]): Promise<void> {
         await this.websocketEventsPublisher.publishChatParticipantsWentOnline(chatParticipants);
@@ -31,7 +32,7 @@ export class ChatParticipationController {
     @RabbitSubscribe({
         exchange: "chat.events",
         routingKey: "chat.participants.offline.#",
-        queue: `events_service_chat_participants_offline-${process.env.SERVER_PORT}`
+        queue: `events_service_chat_participants_offline-${config.EVENTS_SERVICE_PORT}`
     })
     public async onCHatParticipantsWentOffline(chatParticipants: ChatParticipationDto[]): Promise<void> {
         await this.websocketEventsPublisher.publishChatParticipantsWentOffline(chatParticipants);
