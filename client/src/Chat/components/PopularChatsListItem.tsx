@@ -7,6 +7,7 @@ import {useStore, useLocalization, useRouter} from "../../store/hooks";
 import {Routes} from "../../router";
 import {Avatar} from "../../Avatar/components";
 import {getAvatarLabel} from "../utils";
+import {useLuminosity} from "../../utils/hooks";
 
 const {Link} = require("mobx-router");
 const breaks = require("remark-breaks");
@@ -37,9 +38,10 @@ export const PopularChatsListItem: FunctionComponent<PopularChatsListItemProps> 
     const {l} = useLocalization();
     const routerStore = useRouter();
     const classes = useStyles();
+    const luminosity = useLuminosity();
 
     const chat = findChat(chatId);
-    const chatColor = randomColor({seed: chat.id, luminosity: "dark"});
+    const chatColor = randomColor({seed: chat.id, luminosity});
 
     return (
         <Card>
