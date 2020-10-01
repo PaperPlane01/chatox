@@ -19,4 +19,5 @@ interface ChatService {
     fun getChatsOfCurrentUser(): Flux<ChatOfCurrentUserResponse>
     fun isChatCreatedByUser(chatId: String, userId: String): Mono<Boolean>
     fun checkChatSlugAvailability(slug: String): Mono<AvailabilityResponse>
+    fun getPopularChats(paginationRequest: PaginationRequest): Flux<ChatResponse>
 }

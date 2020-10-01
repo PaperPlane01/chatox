@@ -11,7 +11,7 @@ import {
     ChatStore,
     CreateChatStore,
     JoinChatStore, LeaveChatStore,
-    OnlineChatParticipantsStore,
+    OnlineChatParticipantsStore, PopularChatsStore,
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
@@ -103,5 +103,6 @@ export interface IAppState {
     passwordRecoveryEmailConfirmationCodeSending: SendPasswordRecoveryEmailConfirmationCodeStore,
     passwordRecoveryEmailConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
     leaveChat: LeaveChatStore,
+    popularChats: PopularChatsStore,
     store?: any
 }

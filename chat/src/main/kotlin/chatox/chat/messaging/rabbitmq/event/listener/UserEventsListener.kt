@@ -12,6 +12,7 @@ import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
 import chatox.chat.model.User
 import chatox.chat.repository.ChatParticipationRepository
+import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.UploadRepository
 import chatox.chat.repository.UserRepository
 import com.rabbitmq.client.Channel
@@ -29,6 +30,7 @@ import java.time.ZonedDateTime
 class UserEventsListener(private val userRepository: UserRepository,
                          private val chatParticipationRepository: ChatParticipationRepository,
                          private val uploadRepository: UploadRepository,
+                         private val chatRepository: ChatRepository,
                          private val chatParticipationMapper: ChatParticipationMapper,
                          private val chatEventsPublisher: ChatEventsPublisher) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -123,6 +125,8 @@ class UserEventsListener(private val userRepository: UserRepository,
                          channel: Channel,
                          @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
         mono {
+            log.info("userWentOnline event received")
+            log.info("$userWentOnline")
             var user = userRepository.findById(userWentOnline.userId).awaitFirstOrNull()
 
             if (user != null) {
@@ -131,13 +135,18 @@ class UserEventsListener(private val userRepository: UserRepository,
                         lastSeen = userWentOnline.lastSeen
                 )
                 userRepository.save(user).awaitFirst()
-                var chatParticipations = chatParticipationRepository.findAllByUserAndDeletedFalse(user)
+                val chatParticipations = chatParticipationRepository.findAllByUserAndDeletedFalse(user)
                         .collectList()
                         .awaitFirst()
-                chatParticipations = chatParticipations.map { chatParticipation ->
-                    chatParticipation.copy(userOnline = true, lastModifiedAt = ZonedDateTime.now())
+                chatParticipations.forEach { chatParticipation ->
+                    println("SAVING CHAT PARTICIPATION")
+                    chatParticipationRepository.save(
+                            chatParticipation.copy(userOnline = true, lastModifiedAt = ZonedDateTime.now())
+                    )
+                            .awaitFirst()
+                    println("INCREASING NUMBER OF ONLINE PARTICIPANTS")
+                    chatRepository.increaseNumberOfOnlineParticipants(chatParticipation.chat.id).awaitFirst()
                 }
-                chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
 
                 chatEventsPublisher.chatParticipantsWentOnline(
                         chatParticipants = chatParticipations.map { chatParticipation ->
@@ -156,8 +165,8 @@ class UserEventsListener(private val userRepository: UserRepository,
     fun onUserWentOffline(userWentOffline: UserWentOffline,
                           channel: Channel,
                           @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
-        log.debug("userWentOffline event received")
-        log.debug("$userWentOffline")
+        log.info("userWentOffline event received")
+        log.info("$userWentOffline")
         mono {
             var user = userRepository.findById(userWentOffline.userId).awaitFirstOrNull()
 
@@ -175,6 +184,11 @@ class UserEventsListener(private val userRepository: UserRepository,
                     chatParticipation.copy(userOnline = false, lastModifiedAt = ZonedDateTime.now())
                 }
                 chatParticipations = chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
+
+                for (chatParticipation in chatParticipations) {
+                    chatRepository.decreaseNumberOfOnlineParticipants(chatParticipation.chat.id).subscribe()
+                }
+
                 chatEventsPublisher.chatParticipantsWentOffline(
                         chatParticipants = chatParticipations.map { chatParticipation ->
                             chatParticipationMapper.toChatParticipationResponse(chatParticipation)

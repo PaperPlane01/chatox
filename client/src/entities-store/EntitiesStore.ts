@@ -16,6 +16,7 @@ import {AuthorizationStore} from "../Authorization";
 import {ChatBlockingsStore} from "../ChatBlocking/stores";
 import {UploadsStore} from "../Upload/stores";
 import {ChatUpdated} from "../api/types/websocket";
+import {PartialBy} from "../utils/types";
 
 export class EntitiesStore {
     private authorizationStore: AuthorizationStore;
@@ -88,45 +89,59 @@ export class EntitiesStore {
     };
 
     @action
-    insertChats = (chatsOfCurrentUser: ChatOfCurrentUser[]): void => {
+    insertChats = (chatsOfCurrentUser: PartialBy<ChatOfCurrentUser, "unreadMessagesCount">[]): void => {
         chatsOfCurrentUser.forEach(chat => this.insertChat(chat));
     };
 
     @action
-    insertChat = (chatOfCurrentUser: ChatOfCurrentUser): void => {
-        const chat = this.chats.insert(chatOfCurrentUser);
+    insertChat = (chat: PartialBy<ChatOfCurrentUser, "unreadMessagesCount">): void => {
+        let unreadMessagesCount: number;
 
-        if (chatOfCurrentUser.lastMessage) {
-            this.insertMessage(chatOfCurrentUser.lastMessage);
+        if (chat.unreadMessagesCount === undefined || chat.unreadMessagesCount === null) {
+            const existingChat = this.chats.findByIdOptional(chat.id);
+
+            if (existingChat) {
+                unreadMessagesCount = existingChat.unreadMessagesCount;
+            } else {
+                unreadMessagesCount = 0;
+            }
+        } else {
+            unreadMessagesCount = chat.unreadMessagesCount;
         }
 
-        if (chatOfCurrentUser.lastReadMessage) {
-            this.insertMessage(chatOfCurrentUser.lastReadMessage);
+        const chatEntity = this.chats.insert({...chat, unreadMessagesCount});
+
+        if (chat.lastMessage) {
+            this.insertMessage(chat.lastMessage);
         }
 
-        if (chatOfCurrentUser.avatar) {
-            this.uploads.insert(chatOfCurrentUser.avatar);
+        if (chat.lastReadMessage) {
+            this.insertMessage(chat.lastReadMessage);
         }
 
-        if (this.currentUser && chatOfCurrentUser.chatParticipation) {
-            if (chatOfCurrentUser.chatParticipation.activeChatBlocking) {
-                this.chatBlockings.insert(chatOfCurrentUser.chatParticipation.activeChatBlocking);
+        if (chat.avatar) {
+            this.uploads.insert(chat.avatar);
+        }
+
+        if (this.currentUser && chat.chatParticipation) {
+            if (chat.chatParticipation.activeChatBlocking) {
+                this.chatBlockings.insert(chat.chatParticipation.activeChatBlocking);
             }
 
             this.chatParticipations.insert({
-                ...chatOfCurrentUser.chatParticipation,
+                ...chat.chatParticipation,
                 user: {
                     ...this.currentUser,
                     deleted: false,
                     online: true
                 },
-                chatId: chatOfCurrentUser.id,
-                activeChatBlocking: chatOfCurrentUser.chatParticipation.activeChatBlocking
+                chatId: chat.id,
+                activeChatBlocking: chat.chatParticipation.activeChatBlocking
             });
 
-            chat.participants = Array.from(new Set([
-                ...chat.participants,
-                chatOfCurrentUser.chatParticipation.id
+            chatEntity.participants = Array.from(new Set([
+                ...chatEntity.participants,
+                chat.chatParticipation.id
             ]))
         }
     };

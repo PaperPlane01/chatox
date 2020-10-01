@@ -2,6 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {RabbitSubscribe} from "@nestjs-plus/rabbitmq";
 import {WebsocketEventsPublisher} from "../websocket";
 import {ChatBlocking} from "../common/types";
+import {config} from "../env-config";
 
 @Injectable()
 export class ChatBlockingsController {
@@ -10,7 +11,7 @@ export class ChatBlockingsController {
 
     @RabbitSubscribe({
         exchange: "chat.events",
-        queue: `events_service_chat_blocking_created-${process.env.SERVER_PORT}`,
+        queue: `events_service_chat_blocking_created-${config.EVENTS_SERVICE_PORT}`,
         routingKey: "chat.blocking.created.#"
     })
     public async onChatBlockingCreated(chatBlocking: ChatBlocking): Promise<void> {
@@ -19,7 +20,7 @@ export class ChatBlockingsController {
 
     @RabbitSubscribe({
         exchange: "chat.events",
-        queue: `events_service_chat_blocking_updated-${process.env.SERVER_PORT}`,
+        queue: `events_service_chat_blocking_updated-${config.EVENTS_SERVICE_PORT}`,
         routingKey: "chat.blocking.updated.#"
     })
     public async onChatBlockingUpdated(chatBlocking: ChatBlocking): Promise<void> {

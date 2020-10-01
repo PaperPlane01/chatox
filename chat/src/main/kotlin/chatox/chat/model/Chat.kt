@@ -25,6 +25,7 @@ data class Chat(
         var deletedBy: User?,
         var type: ChatType,
         var numberOfParticipants: Int,
+        var numberOfOnlineParticipants: Int = 0,
         @DBRef(lazy = true)
         var lastMessage: Message?,
         var lastMessageDate: ZonedDateTime?

@@ -245,5 +245,7 @@ export const en: Labels = {
     "password-recovery.email-confirmation-code.sent": "We have sent a confirmation code to recover your password. Enter it below",
     "password-recovery.password-updated": "Your password has been updated",
     "password-recovery.log-in": "You can now log in",
-    "error.generic.server-unreachable": "Server is unreachable"
+    "error.generic.server-unreachable": "Server is unreachable",
+    "chats.popular": "Popular chats",
+    "chats.popular.load-more": "Load more"
 };

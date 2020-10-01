@@ -30,3 +30,4 @@ export const EMAIL_CONFIRMATION_CODES = "emailConfirmationCodes";
 export const IS_VALID = "isValid";
 export const PASSWORD = "password";
 export const RECOVERY = "recovery";
+export const POPULAR = "popular";

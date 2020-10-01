@@ -34,7 +34,13 @@ export const Routes = {
                     <HomePage/>
                 </Suspense>
             </ErrorBoundary>
-        )
+        ),
+        onEnter: () => {
+            store.popularChats.fetchPopularChats();
+        },
+        onExit: () => {
+            store.popularChats.reset();
+        }
     }),
     notFound: new Route({
         path: "/404",

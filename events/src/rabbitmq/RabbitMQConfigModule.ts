@@ -1,10 +1,11 @@
 import {Module} from "@nestjs/common";
 import {RabbitMQModule} from "@nestjs-plus/rabbitmq";
+import {config} from "../env-config";
 
 @Module({
     imports: [
         RabbitMQModule.forRoot({
-            uri: `amqp://${process.env.RABBITMQ_USERNAME}:${process.env.RABBITMQ_PASSWORD}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}`,
+            uri: `amqp://${config.RABBITMQ_USERNAME}:${config.RABBITMQ_PASSWORD}@${config.RABBITMQ_HOST}:${config.RABBITMQ_PORT}`,
             exchanges: [
                 {
                     name: "websocket.events",
