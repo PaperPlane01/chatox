@@ -243,5 +243,7 @@ export interface Labels {
     "password-recovery.log-in": string,
     "password-recovery.error.email-confirmation-code-has-been-used": string,
     "password-recovery.error.email-confirmation-code-expired": string,
-    "error.generic.server-unreachable": string
+    "error.generic.server-unreachable": string,
+    "chats.popular": string,
+    "chats.popular.load-more": string
 }

@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {CircularProgress, createStyles, Grid, makeStyles} from "@material-ui/core";
+import {Button, CircularProgress, createStyles, Grid, makeStyles, Typography} from "@material-ui/core";
 import {PopularChatsListItem} from "./PopularChatsListItem";
-import {useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store/hooks";
 
 const useStyles = makeStyles(() => createStyles({
     centered: {
@@ -20,18 +20,34 @@ export const PopularChatsList: FunctionComponent = observer(() => {
             popularChats,
             paginationState: {
                 pending
-            }
+            },
+            fetchPopularChats
         }
     } = useStore();
+    const {l} = useLocalization();
     const classes = useStyles();
 
     return (
-        <Grid container spacing={2} alignItems="stretch">
+        <Grid container spacing={2}>
+            <Grid item xs={12}>
+                <Typography variant="h6">
+                    {l("chats.popular")}
+                </Typography>
+            </Grid>
             {popularChats.map(popularChatId => (
                 <Grid item xs={12} key={popularChatId}>
                     <PopularChatsListItem chatId={popularChatId}/>
                 </Grid>
             ))}
+            <Grid item xs={12}>
+                <Button variant="outlined"
+                        color="primary"
+                        disabled={pending}
+                        onClick={fetchPopularChats}
+                >
+                    {l("chats.popular.load-more")}
+                </Button>
+            </Grid>
             {pending && (
                 <CircularProgress size={50}
                                   color="primary"

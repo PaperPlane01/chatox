@@ -245,5 +245,7 @@ export const ru: Labels = {
     "password-recovery.email-confirmation-code.sent": "Мы выслали код подтверждения на ваш e-mail. Введите его в форму ниже",
     "password-recovery.password-updated": "Ваш пароль был обновлён",
     "password-recovery.log-in": "Теперь вы можете войти в аккаунт",
-    "error.generic.server-unreachable": "Сервер недоступен"
+    "error.generic.server-unreachable": "Сервер недоступен",
+    "chats.popular": "Популярные чаты",
+    "chats.popular.load-more": "Загрузить ещё"
 };
