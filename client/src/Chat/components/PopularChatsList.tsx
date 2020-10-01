@@ -19,7 +19,8 @@ export const PopularChatsList: FunctionComponent = observer(() => {
         popularChats: {
             popularChats,
             paginationState: {
-                pending
+                pending,
+                noMoreItems
             },
             fetchPopularChats
         }
@@ -39,15 +40,17 @@ export const PopularChatsList: FunctionComponent = observer(() => {
                     <PopularChatsListItem chatId={popularChatId}/>
                 </Grid>
             ))}
-            <Grid item xs={12}>
-                <Button variant="outlined"
-                        color="primary"
-                        disabled={pending}
-                        onClick={fetchPopularChats}
-                >
-                    {l("chats.popular.load-more")}
-                </Button>
-            </Grid>
+            {!noMoreItems && (
+                <Grid item xs={12}>
+                    <Button variant="outlined"
+                            color="primary"
+                            disabled={pending}
+                            onClick={fetchPopularChats}
+                    >
+                        {l("chats.popular.load-more")}
+                    </Button>
+                </Grid>
+            )}
             {pending && (
                 <CircularProgress size={50}
                                   color="primary"
