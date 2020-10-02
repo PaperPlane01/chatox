@@ -51,7 +51,7 @@
     "react-markdown": "^4.3.1",
     "react-photo-gallery": "https://github.com/PaperPlane01/react-photo-gallery.git",
     "react-player": "^2.6.2",
-    "react-scripts": "3.3.0",
+    "react-scripts": "^3.4.3",
     "react-scrolllock": "^5.0.1",
     "react-virtuoso": "^0.20.0",
     "react-visibility-sensor": "^5.1.1",

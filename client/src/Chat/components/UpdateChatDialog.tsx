@@ -9,8 +9,7 @@ import {
     DialogTitle,
     InputAdornment,
     TextField,
-    Typography,
-    withMobileDialog
+    Typography
 } from "@material-ui/core";
 import ChipInput from "material-ui-chip-input";
 import {useSnackbar} from "notistack";
@@ -20,6 +19,7 @@ import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {Language, TranslationFunction} from "../../localization";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
 import {useLocalization, useStore} from "../../store";
+import {useMobileDialog} from "../../utils/hooks";
 
 const notFoundErrorTranslations = {
     en: () => (
@@ -80,7 +80,7 @@ const getErrorNode = (error: ApiError, l: TranslationFunction, language: Languag
     }
 };
 
-export const UpdateChatDialog: FunctionComponent = withMobileDialog()(observer(({fullScreen}) => {
+export const UpdateChatDialog: FunctionComponent = observer(() => {
     const {
         chat: {
             selectedChatId
@@ -107,6 +107,7 @@ export const UpdateChatDialog: FunctionComponent = withMobileDialog()(observer((
     } = useStore();
     const {l, locale} = useLocalization();
     const {enqueueSnackbar} = useSnackbar();
+    const {fullScreen} = useMobileDialog();
 
     if (!selectedChatId) {
         return null;
@@ -217,4 +218,4 @@ export const UpdateChatDialog: FunctionComponent = withMobileDialog()(observer((
             <MarkdownPreviewDialog text={updateChatForm.description || ""}/>
         </Dialog>
     )
-})) as FunctionComponent;
+});

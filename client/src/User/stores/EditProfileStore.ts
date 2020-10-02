@@ -77,7 +77,7 @@ export class EditProfileStore {
     constructor(private readonly authorizationStore: AuthorizationStore,
                 private readonly uploadUserAvatarStore: UploadImageStore,
                 private readonly entities: EntitiesStore) {
-        this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300);
+        this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300) as () => Promise<void>;
 
         reaction(
             () => this.currentUser,

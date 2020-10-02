@@ -9,12 +9,12 @@ import {
     DialogTitle,
     InputAdornment,
     TextField,
-    Typography,
-    withMobileDialog
+    Typography
 } from "@material-ui/core";
 import {TranslationFunction} from "../../localization";
 import {ApiError} from "../../api";
 import {useLocalization, useStore} from "../../store";
+import {useMobileDialog} from "../../utils/hooks";
 
 const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
     if (error.status === 404) {
@@ -24,9 +24,7 @@ const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
     }
 };
 
-export const BlockUserInChatByIdOrSlugDialog: FunctionComponent = withMobileDialog()(observer(({
-    fullScreen
-}) => {
+export const BlockUserInChatByIdOrSlugDialog: FunctionComponent = observer(() => {
     const {
         chat: {
             selectedChatId
@@ -46,6 +44,7 @@ export const BlockUserInChatByIdOrSlugDialog: FunctionComponent = withMobileDial
         }
     } = useStore();
     const {l} = useLocalization();
+    const {fullScreen} = useMobileDialog();
 
     if (!selectedChatId) {
         return null;
@@ -95,4 +94,4 @@ export const BlockUserInChatByIdOrSlugDialog: FunctionComponent = withMobileDial
             </DialogActions>
         </Dialog>
     )
-})) as FunctionComponent;
+});

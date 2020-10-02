@@ -17,8 +17,7 @@ import {
     Switch,
     TextField,
     Typography,
-    useTheme,
-    withMobileDialog
+    useTheme
 } from "@material-ui/core";
 import {DateTimePicker} from "@material-ui/pickers";
 import {useSnackbar} from "notistack";
@@ -28,6 +27,7 @@ import {Labels, TranslationFunction} from "../../localization";
 import {Avatar} from "../../Avatar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {useLocalization, useStore} from "../../store";
+import {useMobileDialog} from "../../utils/hooks";
 
 const useStyles = makeStyles(() => createStyles({
     blockedUserContainer: {
@@ -49,7 +49,7 @@ const getMessagesDeletionPeriodLabelCode = (messagesDeletionPeriod: RecentMessag
     return `chat.blocking.messages-deletion-period.${messagesDeletionPeriod}` as keyof Labels;
 };
 
-export const CreateChatBlockingDialog: FunctionComponent = withMobileDialog()(observer(({fullScreen}) => {
+export const CreateChatBlockingDialog: FunctionComponent = observer(() => {
     const {
         createChatBlocking: {
             createChatBlockingFormData: formData,
@@ -77,6 +77,7 @@ export const CreateChatBlockingDialog: FunctionComponent = withMobileDialog()(ob
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
     const classes = useStyles();
+    const {fullScreen} = useMobileDialog();
 
     if (!chatId || !formData.blockedUserId) {
         return null;
@@ -199,4 +200,4 @@ export const CreateChatBlockingDialog: FunctionComponent = withMobileDialog()(ob
             </DialogActions>
         </Dialog>
     )
-})) as FunctionComponent;
+});
