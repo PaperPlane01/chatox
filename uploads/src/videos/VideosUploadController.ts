@@ -15,7 +15,7 @@ export class VideosUploadController {
     constructor(private readonly videosUploadService: VideosUploadService) {}
 
     @UseGuards(AuthGuard("jwt"), RolesGuard)
-    @HasAnyRole("ROLE_USER")
+    @HasAnyRole("ROLE_USER", "ROLE_ANONYMOUS_USER")
     @UseInterceptors(FileInterceptor(
         "file",
         {
@@ -31,7 +31,7 @@ export class VideosUploadController {
 
     @Get(":videoName")
     public async getVideo(@Param("videoName") videoName: string,
-                    @Res() response: Response): Promise<void> {
+                          @Res() response: Response): Promise<void> {
         await this.videosUploadService.getVideo(videoName, response);
     }
 }
