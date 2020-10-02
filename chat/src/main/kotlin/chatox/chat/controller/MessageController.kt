@@ -8,6 +8,7 @@ import chatox.chat.support.pagination.annotation.PageSize
 import chatox.chat.support.pagination.annotation.PaginationConfig
 import chatox.chat.support.pagination.annotation.SortBy
 import chatox.chat.support.pagination.annotation.SortDirection
+import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import javax.validation.Valid
 
@@ -38,6 +40,7 @@ class MessageController(private val messageService: MessageService) {
     ) = messageService.updateMessage(messageId, chatId,updateMessageRequest)
 
     @DeleteMapping("/{chatId}/messages/{messageId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('USER')")
     fun deleteMessage(@PathVariable chatId: String,
                       @PathVariable messageId: String
