@@ -1,5 +1,6 @@
 package chatox.registration.controller;
 
+import chatox.registration.api.request.AnonymousUserRegistrationRequest;
 import chatox.registration.api.request.RegistrationRequest;
 import chatox.registration.api.response.RegistrationResponse;
 import chatox.registration.service.RegistrationService;
@@ -21,5 +22,10 @@ public class RegistrationController {
     @PostMapping
     public Mono<RegistrationResponse> registerUser(@RequestBody @Valid RegistrationRequest registrationRequest) {
         return registrationService.registerUser(registrationRequest);
+    }
+
+    @PostMapping("/anonymous")
+    public Mono<RegistrationResponse> registerAnonymousUser(@RequestBody @Valid AnonymousUserRegistrationRequest anonymousUserRegistrationRequest) {
+        return registrationService.registerAnonymousUser(anonymousUserRegistrationRequest);
     }
 }

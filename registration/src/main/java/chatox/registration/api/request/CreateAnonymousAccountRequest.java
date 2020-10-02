@@ -9,12 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateUserRequest {
+public class CreateAnonymousAccountRequest {
     private String id;
-    private String accountId;
-    private String firstName;
-    private String lastName;
-    private String slug;
-    private String email;
-    private boolean anonymous;
+    private String userId;
+    private String clientId;
 }
