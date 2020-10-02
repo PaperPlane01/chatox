@@ -13,9 +13,11 @@ import {
     SLUG,
     TOKEN,
     USERS,
-    USERNAME
+    USERNAME,
+    ANONYMOUS
 } from "../endpoints";
 import {
+    AnonymousUserRegistrationRequest,
     RecoverPasswordRequest,
     RegistrationRequest,
     RevokeTokenRequest,
@@ -27,6 +29,10 @@ import {AvailabilityResponse, CurrentUser, OAuth2Response, RegistrationResponse,
 export class UserApi {
     public static registerUser(registrationRequest: RegistrationRequest): AxiosPromise<RegistrationResponse> {
         return axiosInstance.post(`/${REGISTRATION}`, registrationRequest);
+    }
+
+    public static registerAnonymousUser(anonymousUserRegistrationRequest: AnonymousUserRegistrationRequest): AxiosPromise<RegistrationResponse> {
+        return axiosInstance.post(`/${REGISTRATION}/${ANONYMOUS}`, anonymousUserRegistrationRequest);
     }
 
     public static isUsernameAvailable(username: string): AxiosPromise<AvailabilityResponse> {
