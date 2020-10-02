@@ -290,7 +290,11 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                     }}>
                         <ReferredMessageContent messageId={message.referredMessageId}/>
                         {message.deleted
-                            ? <i>{l("message.deleted")}</i>
+                            ? (
+                                <div className={classes.cardContentWithPadding}>
+                                    <i>{l("message.deleted")}</i>
+                                </div>
+                            )
                             : (
                                 <Fragment>
                                     <div className={classes.cardContentWithPadding}>

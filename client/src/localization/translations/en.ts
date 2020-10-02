@@ -247,5 +247,6 @@ export const en: Labels = {
     "password-recovery.log-in": "You can now log in",
     "error.generic.server-unreachable": "Server is unreachable",
     "chats.popular": "Popular chats",
-    "chats.popular.load-more": "Load more"
+    "chats.popular.load-more": "Load more",
+    "common.delete": "Delete"
 };

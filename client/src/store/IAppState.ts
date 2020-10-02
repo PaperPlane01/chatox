@@ -51,6 +51,7 @@ import {
     RecoverPasswordStore,
     SendPasswordRecoveryEmailConfirmationCodeStore
 } from "../PasswordRecovery";
+import {DeleteMessageStore} from "../Message/stores/DeleteMessageStore";
 
 export interface IAppState {
     language: LocaleStore,
@@ -104,5 +105,6 @@ export interface IAppState {
     passwordRecoveryEmailConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
     leaveChat: LeaveChatStore,
     popularChats: PopularChatsStore,
+    messageDeletion: DeleteMessageStore,
     store?: any
 }

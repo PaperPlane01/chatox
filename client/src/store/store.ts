@@ -66,6 +66,7 @@ import {SettingsTabsStore} from "../Settings";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation/stores";
 import {EmojiSettingsStore} from "../Emoji/stores";
 import {AudioPlayerStore} from "../AudioPlayer/stores";
+import {DeleteMessageStore} from "../Message/stores/DeleteMessageStore";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -163,6 +164,7 @@ const passwordRecoveryForm = new RecoverPasswordStore(
 );
 const leaveChat = new LeaveChatStore(entities);
 const popularChats = new PopularChatsStore(entities);
+const messageDeletion = new DeleteMessageStore(entities, chat);
 
 export const store: IAppState = {
     authorization,
@@ -215,5 +217,6 @@ export const store: IAppState = {
     passwordRecoveryEmailConfirmationCodeSending,
     passwordRecoveryForm,
     leaveChat,
-    popularChats
+    popularChats,
+    messageDeletion
 };

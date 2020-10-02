@@ -16,6 +16,8 @@ export abstract class SoftDeletableEntityStore<Entity extends SoftDeletableEntit
 
     @action
     public deleteById(idToDelete: string): void {
-        this.entities[idToDelete].deleted = true;
+        if (this.entities[idToDelete]) {
+            this.entities[idToDelete].deleted = true;
+        }
     };
 }

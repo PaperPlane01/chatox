@@ -1,4 +1,4 @@
-import {forwardRef, Inject, Logger} from "@nestjs/common";
+import {forwardRef, Inject} from "@nestjs/common";
 import {
     ConnectedSocket,
     MessageBody,
@@ -30,7 +30,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
     private usersAndClientsMap: {[userId: string]: Socket[]} = {};
     private chatSubscriptionsMap: {[chatId: string]: Socket[]} = {};
     private connectedClients: Socket[] = [];
-    private log: Logger = LoggerFactory.getLogger(WebsocketEventsPublisher);
+    private readonly log = LoggerFactory.getLogger(WebsocketEventsPublisher);
 
     constructor(private readonly jwtService: JwtService,
                 private readonly amqpConnection: AmqpConnection,
@@ -162,6 +162,8 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.MESSAGE_DELETED,
             payload: messageDeleted
         };
+        this.log.debug(`Publishing ${EventType.MESSAGES_DELETED} event`);
+        this.log.debug(JSON.stringify(messageDeleted));
         await this.publishEventToChatParticipants(messageDeleted.chatId, messageDeletedEvent);
         await this.publishEventToUsersSubscribedToChat(messageDeleted.chatId, messageDeletedEvent);
     }
@@ -233,10 +235,14 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {
         const chatParticipants = await this.chatParticipationService.findByChatId(chatId);
+        this.log.debug("Publishing event to chat participants");
+        this.log.verbose(`The following chat participants will receive an event: ${JSON.stringify(chatParticipants.map(chatParticipant => chatParticipant.id))}`);
+        this.log.consoleLog(event);
 
         chatParticipants.forEach(participant => {
             if (this.usersAndClientsMap[participant.userId] !== undefined) {
                 this.usersAndClientsMap[participant.userId].forEach(client => {
+                    this.log.verbose(`Publishing event to ${client.id}`);
                     client.emit(event.type, event);
                 })
             }
