@@ -36,7 +36,7 @@ class ChatController(private val chatService: ChatService) {
     @DeleteMapping("/{id}")
     fun deleteChat(@PathVariable id: String) = chatService.deleteChat(id)
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @GetMapping("/my")
     fun getChatsOfCurrentUser() = chatService.getChatsOfCurrentUser()
 
