@@ -12,13 +12,13 @@ import {
     InputAdornment,
     makeStyles,
     TextField,
-    Typography,
-    withMobileDialog
+    Typography
 } from "@material-ui/core";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
+import {useMobileDialog} from "../../utils/hooks";
 
 const useStyles = makeStyles(theme => createStyles({
     errorLabel: {
@@ -26,7 +26,7 @@ const useStyles = makeStyles(theme => createStyles({
     }
 }));
 
-export const CreateChatDialog: FunctionComponent = withMobileDialog()(observer(({fullScreen}) => {
+export const CreateChatDialog: FunctionComponent = observer(() => {
     const {
         chatCreation: {
             createdChat,
@@ -49,6 +49,7 @@ export const CreateChatDialog: FunctionComponent = withMobileDialog()(observer((
     const routerStore = useRouter();
     const {l} = useLocalization();
     const classes = useStyles();
+    const {fullScreen} = useMobileDialog();
 
     if (createdChat) {
         setCreateChatDialogOpen(false);
@@ -192,4 +193,4 @@ export const CreateChatDialog: FunctionComponent = withMobileDialog()(observer((
             <MarkdownPreviewDialog text={createChatForm.description || ""}/>
         </Dialog>
     );
-})) as FunctionComponent;
+});

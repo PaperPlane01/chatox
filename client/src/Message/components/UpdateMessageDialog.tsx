@@ -16,6 +16,7 @@ import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Mark
 import {Language, TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
+import {useMobileDialog} from "../../utils/hooks";
 
 const forbiddenErrorTranslations = {
     en: (
@@ -81,9 +82,7 @@ const getErrorText = (apiError: ApiError, l: TranslationFunction, currentLanguag
     );
 };
 
-export const UpdateMessageDialog: FunctionComponent = withMobileDialog()(observer(({
-    fullScreen
-}) => {
+export const UpdateMessageDialog: FunctionComponent = observer(() => {
     const {
         messageUpdate: {
             updatedMessageId,
@@ -97,6 +96,7 @@ export const UpdateMessageDialog: FunctionComponent = withMobileDialog()(observe
         }
     } = useStore();
     const {l, locale} = useLocalization();
+    const {fullScreen} = useMobileDialog();
 
     if (!updatedMessageId) {
         return null;
@@ -151,4 +151,4 @@ export const UpdateMessageDialog: FunctionComponent = withMobileDialog()(observe
             <MarkdownPreviewDialog text={updateMessageForm.text}/>
         </Dialog>
     )
-})) as FunctionComponent;
+});

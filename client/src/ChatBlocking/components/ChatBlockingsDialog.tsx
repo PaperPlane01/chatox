@@ -1,12 +1,13 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Hidden, withMobileDialog} from "@material-ui/core";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Hidden} from "@material-ui/core";
 import {ChatBlockingsTable} from "./ChatBlockingsTable";
 import {ChatBlockingsList} from "./ChatBlockingsList";
 import {ShowActiveOnlySwitch} from "./ShowActiveOnlySwitch";
 import {useLocalization, useStore} from "../../store";
+import {useMobileDialog} from "../../utils/hooks";
 
-export const ChatBlockingsDialog: FunctionComponent = withMobileDialog()(observer(({fullScreen}) => {
+export const ChatBlockingsDialog: FunctionComponent = observer(() => {
     const {
         chat: {
             selectedChatId
@@ -22,6 +23,7 @@ export const ChatBlockingsDialog: FunctionComponent = withMobileDialog()(observe
         }
     } = useStore();
     const {l} = useLocalization();
+    const {fullScreen} = useMobileDialog();
 
     if (!selectedChatId) {
         return null;
@@ -62,4 +64,4 @@ export const ChatBlockingsDialog: FunctionComponent = withMobileDialog()(observe
             </DialogActions>
         </Dialog>
     )
-})) as FunctionComponent;
+});
