@@ -1,8 +1,9 @@
-import {isBefore, differenceInDays} from "date-fns";
+import {differenceInDays, isBefore} from "date-fns";
 import {MessageEntity} from "../types";
 import {ChatParticipationEntity} from "../../Chat";
 import {ChatBlockingEntity} from "../../ChatBlocking";
 import {isDefined} from "../../utils/object-utils";
+import {ChatRole} from "../../api/types/response";
 
 export const canEditMessage = (
     message: MessageEntity,
@@ -10,6 +11,10 @@ export const canEditMessage = (
     activeChatBlocking?: ChatBlockingEntity
 ): boolean => {
     if (!chatParticipation) {
+        return false;
+    }
+
+    if (message.deleted) {
         return false;
     }
 
@@ -31,3 +36,12 @@ export const canCreateMessage = (chatParticipation?: ChatParticipationEntity, ac
 
     return !(isDefined(activeChatBlocking) && isBefore(new Date(), activeChatBlocking!.blockedUntil))
 };
+
+export const canDeleteMessage = (message: MessageEntity, chatParticipation?: ChatParticipationEntity): boolean => {
+    if (!chatParticipation || message.deleted) {
+        return false;
+    }
+
+    return chatParticipation.role === ChatRole.ADMIN || chatParticipation.role === ChatRole.MODERATOR
+        || message.sender === chatParticipation.userId;
+}

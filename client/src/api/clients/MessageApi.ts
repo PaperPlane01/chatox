@@ -24,4 +24,8 @@ export class MessageApi {
     public static updateMessage(chatId: string, messageId: string, updateMessageRequest: UpdateMessageRequest): AxiosPromise<Message> {
         return axiosInstance.put(`/${CHATS}/${chatId}/${MESSAGES}/${messageId}`, updateMessageRequest);
     }
+
+    public static deleteMessage(chatId: string, messageId: string): AxiosPromise<void> {
+        return axiosInstance.delete(`/${CHATS}/${chatId}/${MESSAGES}/${messageId}`);
+    }
 }

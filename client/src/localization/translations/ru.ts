@@ -247,5 +247,6 @@ export const ru: Labels = {
     "password-recovery.log-in": "Теперь вы можете войти в аккаунт",
     "error.generic.server-unreachable": "Сервер недоступен",
     "chats.popular": "Популярные чаты",
-    "chats.popular.load-more": "Загрузить ещё"
+    "chats.popular.load-more": "Загрузить ещё",
+    "common.delete": "Удалить"
 };

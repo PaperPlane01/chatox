@@ -5,11 +5,12 @@ import {MoreVert} from "@material-ui/icons";
 import {BlockMessageAuthorInChatMenuItem} from "./BlockMessageAuthorInChatMenuItem";
 import {ReplyToMessageMenuItem} from "./ReplyToMessageMenuItem";
 import {EditMessageMenuItem} from "./EditMessageMenuItem";
-import {canCreateMessage, canEditMessage} from "../permissions";
+import {DeleteMessageMenuItem} from "./DeleteMessageMenuItem";
+import {canCreateMessage, canDeleteMessage, canEditMessage} from "../permissions";
 import {useAuthorization, useStore} from "../../store";
 import {canBlockUsersInChat, ChatBlockingEntity} from "../../ChatBlocking";
 
-export type MenuItemType = "blockMessageAuthorInChat" | "replyToMessage" | "editMessage";
+export type MenuItemType = "blockMessageAuthorInChat" | "replyToMessage" | "editMessage" | "deleteMessage";
 
 interface MessageMenuProps {
     messageId: string,
@@ -73,6 +74,10 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messa
 
     if (canCreateMessage(chatParticipation, activeChatBlocking)) {
         menuItems.push(<ReplyToMessageMenuItem messageId={messageId} onClick={handleClose("replyToMessage")}/>);
+    }
+
+    if (canDeleteMessage(message, chatParticipation)) {
+        menuItems.push(<DeleteMessageMenuItem messageId={messageId} onClick={handleClose("deleteMessage")}/>)
     }
 
     if (menuItems.length === 0) {

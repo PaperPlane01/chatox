@@ -245,5 +245,6 @@ export interface Labels {
     "password-recovery.error.email-confirmation-code-expired": string,
     "error.generic.server-unreachable": string,
     "chats.popular": string,
-    "chats.popular.load-more": string
+    "chats.popular.load-more": string,
+    "common.delete": string
 }
