@@ -37,6 +37,8 @@ export class MessagesController {
         routingKey: "chat.message.deleted.#"
     })
     public async onMessageDeleted(messageDeleted: MessageDeleted): Promise<void> {
+        this.log.debug("Received messageDeleted event");
+        this.log.consoleLog(messageDeleted, "debug");
         await this.websocketEventsPublisher.publishMessageDeleted(messageDeleted);
     }
 
