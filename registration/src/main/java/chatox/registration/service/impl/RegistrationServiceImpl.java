@@ -79,6 +79,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .build();
 
         var createUserRequest = CreateUserRequest.builder()
+                .id(userId)
                 .firstName(anonymousUserRegistrationRequest.getFirstName())
                 .lastName(anonymousUserRegistrationRequest.getLastName())
                 .accountId(accountId)
