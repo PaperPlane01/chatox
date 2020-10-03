@@ -84,7 +84,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 chatParticipation = chatParticipationRepository.save(chatParticipation).awaitFirst()
             }
 
-            chatRepository.increaseNumberOfOnlineParticipants(chat.id).awaitFirst()
+            chatRepository.increaseNumberOfParticipants(chat.id).awaitFirst()
             chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(chatParticipation))
             chatParticipationMapper.toMinifiedChatParticipationResponse(chatParticipation)
         }
