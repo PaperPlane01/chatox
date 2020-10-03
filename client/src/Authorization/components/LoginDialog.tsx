@@ -31,6 +31,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         "&:hover": {
             color: theme.palette.text.primary
         }
+    },
+    loginAsAnonymousButton: {
+        textTransform: "none",
+        width: "100%"
     }
 }));
 
@@ -52,6 +56,9 @@ export const LoginDialog: FunctionComponent = observer(() => {
         passwordRecoveryDialog: {
             setPasswordRecoveryDialogOpen,
             setCurrentStep
+        },
+        anonymousRegistration: {
+            setAnonymousRegistrationDialogOpen
         }
     } = useStore();
     const {fullScreen} = useMobileDialog();
@@ -120,10 +127,20 @@ export const LoginDialog: FunctionComponent = observer(() => {
                         onClick={doLogin}
                 >
                     {pending && <CircularProgress size={15}
-                                                        color="primary"
-                                                        style={{marginRight: 5}}
+                                                  color="primary"
+                                                  style={{marginRight: 5}}
                     />}
                     {l("login")}
+                </Button>
+                <Button variant="text"
+                        color="default"
+                        className={classes.loginAsAnonymousButton}
+                        onClick={() => {
+                            setLoginDialogOpen(false);
+                            setAnonymousRegistrationDialogOpen(true)
+                        }}
+                >
+                    {l("login.as-anonymous")}
                 </Button>
                 <Button variant="outlined"
                         color="secondary"

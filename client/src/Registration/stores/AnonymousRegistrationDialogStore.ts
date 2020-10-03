@@ -1,7 +1,7 @@
 import {action, observable, reaction} from "mobx";
 import {RegisterAnonymousUserFormData} from "../types";
 import {FormErrors} from "../../utils/types";
-import {ApiError, UserApi} from "../../api";
+import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {AuthorizationStore} from "../../Authorization/stores";
 import {validateFirstName, validateLastName} from "../validation";
 
@@ -74,6 +74,8 @@ export class AnonymousRegistrationDialogStore {
                 });
                 this.authorizationStore.setTokens(data.accessToken, data.refreshToken);
             })
+            .catch(error => this.error = getInitialApiErrorFromResponse(error))
+            .finally(() => this.pending = false);
     };
 
     @action

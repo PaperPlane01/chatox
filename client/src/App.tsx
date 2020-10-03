@@ -11,6 +11,7 @@ import {LoadingCurrentUserProgressIndicator} from "./Authorization";
 import {useLocalization} from "./store/hooks";
 import {AudioPlayerContainer} from "./AudioPlayer/components";
 import {ErrorBoundary} from "./ErrorBoundary/components";
+import {AnonymousRegistrationDialog} from "./Registration/components";
 
 const {MobxRouter} = require("mobx-router");
 
@@ -31,6 +32,7 @@ export const App: FunctionComponent = observer(() => {
                        <CssBaseline/>
                        <MobxRouter/>
                        <AudioPlayerContainer/>
+                       <AnonymousRegistrationDialog/>
                    </MuiThemeProvider>
                </SnackbarProvider>
            </MuiPickersUtilsProvider>

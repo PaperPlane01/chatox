@@ -248,5 +248,6 @@ export const ru: Labels = {
     "error.generic.server-unreachable": "Сервер недоступен",
     "chats.popular": "Популярные чаты",
     "chats.popular.load-more": "Загрузить ещё",
-    "common.delete": "Удалить"
+    "common.delete": "Удалить",
+    "login.as-anonymous": "Войти под анонимным аккаунтом"
 };

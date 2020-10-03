@@ -248,5 +248,6 @@ export const en: Labels = {
     "error.generic.server-unreachable": "Server is unreachable",
     "chats.popular": "Popular chats",
     "chats.popular.load-more": "Load more",
-    "common.delete": "Delete"
+    "common.delete": "Delete",
+    "login.as-anonymous": "Log in as anonymous"
 };
