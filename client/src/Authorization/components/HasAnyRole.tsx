@@ -10,7 +10,7 @@ interface HasAnyRoleProps {
 
 export const HasAnyRole: FunctionComponent<HasAnyRoleProps> = observer(({
     roles,
-    additionalCondition,
+    additionalCondition = true,
     alternative,
     children
 }) => {
@@ -18,7 +18,7 @@ export const HasAnyRole: FunctionComponent<HasAnyRoleProps> = observer(({
     let shouldRender = false;
 
     if (roles.includes("ROLE_NOT_LOGGED_IN")) {
-        if (currentUser === undefined && additionalCondition) {
+        if (currentUser === undefined) {
             shouldRender = true
         }
     }
@@ -32,6 +32,8 @@ export const HasAnyRole: FunctionComponent<HasAnyRoleProps> = observer(({
     if (!shouldRender) {
         shouldRender = Boolean(currentUser) && currentUser!.roles.some(userRole => roles.includes(userRole));
     }
+
+    shouldRender = shouldRender && additionalCondition;
 
     return shouldRender
         ? (
