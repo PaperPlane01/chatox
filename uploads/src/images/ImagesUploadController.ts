@@ -16,7 +16,7 @@ export class ImagesUploadController {
     constructor(private readonly imagesUploadService: ImagesUploadService) {}
 
     @UseGuards(AuthGuard("jwt"), RolesGuard)
-    @HasAnyRole("ROLE_USER")
+    @HasAnyRole("ROLE_USER", "ROLE_ANONYMOUS_USER")
     @UseInterceptors(FileInterceptor(
         "file",
         {

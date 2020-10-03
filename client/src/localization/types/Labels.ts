@@ -246,5 +246,6 @@ export interface Labels {
     "error.generic.server-unreachable": string,
     "chats.popular": string,
     "chats.popular.load-more": string,
-    "common.delete": string
+    "common.delete": string,
+    "login.as-anonymous": string
 }

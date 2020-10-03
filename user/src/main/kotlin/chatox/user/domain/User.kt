@@ -19,7 +19,8 @@ data class User(
         var email: String?,
         var activeSessionsCount: Int = 0,
         @DBRef(lazy = true)
-        var avatar: Upload<ImageUploadMetadata>?
+        var avatar: Upload<ImageUploadMetadata>?,
+        var anonymous: Boolean = false
 ) {
         override fun toString(): String {
                 return "User(id='$id', slug=$slug, firstName='$firstName', lastName=$lastName, bio=$bio, createdAt=$createdAt, lastSeen=$lastSeen, accountId='$accountId', deleted=$deleted, dateOfBirth=$dateOfBirth, email=$email)"

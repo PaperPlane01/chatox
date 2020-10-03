@@ -5,16 +5,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateUserRequest {
-    private String id;
-    private String accountId;
+public class AnonymousUserRegistrationRequest {
+    @NotBlank
+    @Size(min = 2, max = 20)
     private String firstName;
+
+    @Size(min = 2, max = 20)
     private String lastName;
-    private String slug;
-    private String email;
-    private boolean anonymous;
+
+    @NotBlank
+    private String clientId;
 }

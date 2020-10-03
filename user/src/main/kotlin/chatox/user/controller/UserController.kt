@@ -41,7 +41,7 @@ class UserController(private val userService: UserService,
                 .map { ResponseEntity.noContent().build<Void>() }
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') || hasRole('ANONYMOUS_USER')")
     @GetMapping("/me")
     fun getCurrentUser() = authenticationFacade.getCurrentUser()
 

@@ -7,7 +7,7 @@ import {HomeMenuItem} from "./HomeMenuItem";
 import {MyChatsMenuItem} from "./MyChatsMenuItem";
 import {SettingsMenuItem} from "./SettingsMenuItem";
 import {DrawerAudioControls} from "./DrawerAudioControls";
-import {HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
+import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {PasswordRecoveryDialog} from "../../PasswordRecovery";
 import {useStore} from "../../store";
@@ -30,28 +30,28 @@ export const NavigationalDrawer: FunctionComponent = observer(() => {
                                  }
                              }}
             >
-                <HasRole role="ROLE_USER">
+                <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
                     <DrawerUserInfo/>
                     <Divider/>
-                </HasRole>
+                </HasAnyRole>
                 <List>
                     <HomeMenuItem onClick={closeDrawer}/>
                     <Divider/>
-                    <HasRole role="ROLE_USER">
+                    <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
                         <ProfileMenuItem onClick={closeDrawer}/>
-                    </HasRole>
+                    </HasAnyRole>
                     <HasRole role="ROLE_NOT_LOGGED_IN">
                         <LoginMenuItem onClick={closeDrawer}/>
                         <RegistrationMenuItem onClick={closeDrawer}/>
                     </HasRole>
-                    <HasRole role="ROLE_USER">
+                    <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
                         <MyChatsMenuItem onClick={closeDrawer}/>
-                    </HasRole>
+                    </HasAnyRole>
                     <SettingsMenuItem onClick={closeDrawer}/>
-                    <HasRole role="ROLE_USER">
+                    <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
                         <Divider/>
                         <LogOutMenuItem onClick={closeDrawer}/>
-                    </HasRole>
+                    </HasAnyRole>
                 </List>
                 <DrawerAudioControls/>
             </SwipeableDrawer>

@@ -18,6 +18,7 @@ class UserMapper(private val uploadMapper: UploadMapper) {
             dateOfBirth = user.dateOfBirth,
             createdAt = user.createdAt,
             online = user.online,
-            avatar = if (user.avatar != null) uploadMapper.toUploadResponse(user.avatar!!) else null
+            avatar = if (user.avatar != null) uploadMapper.toUploadResponse(user.avatar!!) else null,
+            anonymous = user.anonymoys
     )
 }

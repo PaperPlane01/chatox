@@ -28,6 +28,7 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
                            @RequestBody @Valid createChatBlockingRequest: CreateChatBlockingRequest
     ) = chatBlockingService.blockUser(chatId, createChatBlockingRequest)
 
+    @PreAuthorize("hasRole('USER')")
     @PaginationConfig(
             sortBy = SortBy(
                     allowed = [
@@ -43,6 +44,7 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
                               paginationRequest: PaginationRequest
     ) = chatBlockingService.getAllBlockingsByChat(chatId, paginationRequest)
 
+    @PreAuthorize("hasRole('USER')")
     @PaginationConfig(
             sortBy = SortBy(
                     allowed = [
@@ -58,6 +60,7 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
                                  paginationRequest: PaginationRequest
     ) = chatBlockingService.getActiveBlockingsByChat(chatId, paginationRequest)
 
+    @PreAuthorize("hasRole('USER')")
     @PaginationConfig(
             sortBy = SortBy(
                     allowed = [

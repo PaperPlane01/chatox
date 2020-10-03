@@ -31,3 +31,4 @@ export const IS_VALID = "isValid";
 export const PASSWORD = "password";
 export const RECOVERY = "recovery";
 export const POPULAR = "popular";
+export const ANONYMOUS = "anonymous";

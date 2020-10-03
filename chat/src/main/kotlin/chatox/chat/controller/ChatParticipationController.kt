@@ -23,25 +23,25 @@ import javax.validation.Valid
 @RequestMapping("/api/v1/chats")
 class ChatParticipationController(private val chatParticipationService: ChatParticipationService) {
 
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @PostMapping("/{chatId}/join")
-    @PreAuthorize("hasRole('USER')")
     fun joinChat(@PathVariable chatId: String) = chatParticipationService.joinChat(chatId)
 
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @DeleteMapping("/{chatId}/leave")
-    @PreAuthorize("hasRole('USER')")
     fun leaveChat(@PathVariable chatId: String) = chatParticipationService.leaveChat(chatId)
 
     @GetMapping("/participants/online")
     fun getOnlineChatParticipants(@PathVariable chatId: String) = chatParticipationService.findOnlineParticipants(chatId)
 
-    @DeleteMapping("/participants/{participationId}")
     @PreAuthorize("hasRole('USER')")
+    @DeleteMapping("/participants/{participationId}")
     fun kickParticipant(@PathVariable chatId: String,
                         @PathVariable participationId: String
     ) = chatParticipationService.deleteChatParticipation(participationId, chatId)
 
-    @PutMapping("/{participationId}")
     @PreAuthorize("hasRole('USER')")
+    @PutMapping("/{participationId}")
     fun updateChatParticipant(@PathVariable chatId: String,
                               @PathVariable participationId: String,
                               @RequestBody @Valid updateChatParticipationRequest: UpdateChatParticipationRequest

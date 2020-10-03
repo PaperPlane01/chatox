@@ -26,22 +26,22 @@ import javax.validation.Valid
 @RequestMapping("/api/v1/chats")
 class MessageController(private val messageService: MessageService) {
 
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @PostMapping("/{chatId}/messages")
-    @PreAuthorize("hasRole('USER')")
     fun createMessage(@PathVariable chatId: String,
                       @RequestBody @Valid createMessageRequest: CreateMessageRequest
     ) = messageService.createMessage(chatId, createMessageRequest)
 
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @PutMapping("/{chatId}/messages/{messageId}")
-    @PreAuthorize("hasRole('USER')")
     fun updateMessage(@PathVariable chatId: String,
                       @PathVariable messageId: String,
                       @RequestBody @Valid updateMessageRequest: UpdateMessageRequest
     ) = messageService.updateMessage(messageId, chatId,updateMessageRequest)
 
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @DeleteMapping("/{chatId}/messages/{messageId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasRole('USER')")
     fun deleteMessage(@PathVariable chatId: String,
                       @PathVariable messageId: String
     ) = messageService.deleteMessage(messageId, chatId)
@@ -78,6 +78,7 @@ class MessageController(private val messageService: MessageService) {
             paginationRequest: PaginationRequest
     ) = messageService.findMessagesSinceMessageByChat(chatId, afterId, paginationRequest)
 
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @PostMapping("/{chatId}/messages/{messageId}/read")
     fun markMessageRead(@PathVariable chatId: String,
                         @PathVariable messageId: String
