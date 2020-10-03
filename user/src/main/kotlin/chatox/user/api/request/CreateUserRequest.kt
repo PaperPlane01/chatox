@@ -33,7 +33,7 @@ data class CreateUserRequest(
 
         @field:NotNull
         @field:JsonProperty("anonymous")
-        val _anonymous: Boolean?
+        private val _anonymous: Boolean?
 ) {
         val id: String
                 get() = _id!!
@@ -41,7 +41,6 @@ data class CreateUserRequest(
                 get() = _accountId!!
         val firstName: String
                 get() = _firstName!!
-
         val anonymous: Boolean
                 get() = _anonymous!!
 }
