@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {createStyles, Hidden, makeStyles, Theme, Typography} from "@material-ui/core";
 import ChatBubbleIcon from "@material-ui/icons/ChatBubble"
-import {HasRole} from "../../Authorization";
+import {HasAnyRole, HasRole} from "../../Authorization";
 import {Routes} from "../../router";
 import {useLocalization, useRouter} from "../../store";
 
@@ -35,7 +35,7 @@ export const AppBarMenu: FunctionComponent = observer(() => {
     return (
         <div className={classes.appBarLinks}>
             <Hidden xsDown>
-                <HasRole role="ROLE_USER">
+                <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
                     <Link view={Routes.myChats}
                           store={routerStore}
                           className={classes.appBarLink}
@@ -49,7 +49,7 @@ export const AppBarMenu: FunctionComponent = observer(() => {
                             </Typography>
                         </div>
                     </Link>
-                </HasRole>
+                </HasAnyRole>
             </Hidden>
         </div>
     )
