@@ -30,10 +30,10 @@ export const NavigationalDrawer: FunctionComponent = observer(() => {
                                  }
                              }}
             >
-                <HasRole role="ROLE_USER">
+                <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
                     <DrawerUserInfo/>
                     <Divider/>
-                </HasRole>
+                </HasAnyRole>
                 <List>
                     <HomeMenuItem onClick={closeDrawer}/>
                     <Divider/>
