@@ -11,8 +11,7 @@ import {
     makeStyles,
     TextField,
     Typography,
-    useTheme,
-    withMobileDialog
+    useTheme
 } from "@material-ui/core";
 import {DateTimePicker} from "@material-ui/pickers";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
@@ -21,6 +20,7 @@ import {getUserAvatarLabel} from "../../User/utils/get-user-avatar-label";
 import {Avatar} from "../../Avatar/components";
 import {TranslationFunction} from "../../localization/types";
 import {useLocalization, useStore} from "../../store";
+import {useMobileDialog} from "../../utils/hooks";
 
 const useStyles = makeStyles(() => createStyles({
     blockedUserContainer: {
@@ -38,9 +38,7 @@ const getErrorLabel = (apiError: ApiError, l: TranslationFunction): string => {
     }
 };
 
-export const UpdateChatBlockingDialog: FunctionComponent = withMobileDialog()(observer(({
-    fullScreen
-}) => {
+export const UpdateChatBlockingDialog: FunctionComponent = observer(() => {
     const {
         updateChatBlocking: {
             updateChatBlockingForm: formData,
@@ -65,6 +63,7 @@ export const UpdateChatBlockingDialog: FunctionComponent = withMobileDialog()(ob
     const {l} = useLocalization();
     const classes = useStyles();
     const theme = useTheme();
+    const {fullScreen} = useMobileDialog();
 
     if (!updatedChatBlocking) {
         return null;
@@ -153,4 +152,4 @@ export const UpdateChatBlockingDialog: FunctionComponent = withMobileDialog()(ob
             </DialogActions>
         </Dialog>
     )
-})) as FunctionComponent;
+});

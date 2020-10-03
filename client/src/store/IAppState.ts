@@ -2,7 +2,12 @@ import {EntitiesStore} from "../entities-store";
 import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore} from "../Authorization";
-import {RegistrationDialogStore, SendConfirmationCodeStore, UserRegistrationStore} from "../Registration";
+import {
+    AnonymousRegistrationDialogStore,
+    RegistrationDialogStore,
+    SendConfirmationCodeStore,
+    UserRegistrationStore
+} from "../Registration";
 import {
     ChatInfoDialogStore,
     ChatParticipantsStore,
@@ -106,5 +111,6 @@ export interface IAppState {
     leaveChat: LeaveChatStore,
     popularChats: PopularChatsStore,
     messageDeletion: DeleteMessageStore,
+    anonymousRegistration: AnonymousRegistrationDialogStore,
     store?: any
 }

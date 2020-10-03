@@ -3,3 +3,4 @@ export * from "./SendVerificationEmailFormData";
 export * from "./EmailVerificationStep";
 export * from "./CheckEmailConfirmationCodeFormData";
 export * from "./RegistrationStep";
+export * from "./RegisterAnonymousUserFormData";

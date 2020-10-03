@@ -37,7 +37,7 @@ export class SendConfirmationCodeStore {
 
     constructor(private readonly registrationDialogStore: RegistrationDialogStore,
                 private readonly localeStore: LocaleStore) {
-        this.checkEmailAvailability = throttle(this.checkEmailAvailability, 300);
+        this.checkEmailAvailability = throttle(this.checkEmailAvailability, 300) as () => Promise<void>;
 
         reaction(
             () => this.sendVerificationEmailForm.email,

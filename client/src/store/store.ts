@@ -8,6 +8,7 @@ import {
     SendPasswordRecoveryEmailConfirmationCodeStore
 } from "../PasswordRecovery";
 import {
+    AnonymousRegistrationDialogStore,
     createSetRegistrationStepCallback,
     RegistrationDialogStore,
     SendConfirmationCodeStore,
@@ -165,6 +166,7 @@ const passwordRecoveryForm = new RecoverPasswordStore(
 const leaveChat = new LeaveChatStore(entities);
 const popularChats = new PopularChatsStore(entities);
 const messageDeletion = new DeleteMessageStore(entities, chat);
+const anonymousRegistration = new AnonymousRegistrationDialogStore(authorization);
 
 export const store: IAppState = {
     authorization,
@@ -218,5 +220,6 @@ export const store: IAppState = {
     passwordRecoveryForm,
     leaveChat,
     popularChats,
-    messageDeletion
+    messageDeletion,
+    anonymousRegistration
 };
