@@ -42,7 +42,8 @@ class MessageMapper(private val userMapper: UserMapper) {
                     chatUploadAttachmentMapper.toChatUploadAttachmentResponse(
                             chatUploadAttachment
                     )
-                }
+                },
+                index = message.index
         )
     }
 
@@ -52,7 +53,8 @@ class MessageMapper(private val userMapper: UserMapper) {
             chat: Chat,
             referredMessage: Message?,
             emoji: EmojiInfo = EmojiInfo(),
-            chatUploadAttachments: List<ChatUploadAttachment<Any>> = listOf()
+            chatUploadAttachments: List<ChatUploadAttachment<Any>> = listOf(),
+            index: Long
     ) = Message(
             id = UUID.randomUUID().toString(),
             createdAt = ZonedDateTime.now(),
@@ -65,7 +67,8 @@ class MessageMapper(private val userMapper: UserMapper) {
             text = createMessageRequest.text,
             sender = sender,
             emoji = emoji,
-            uploadAttachments = chatUploadAttachments
+            uploadAttachments = chatUploadAttachments,
+            index = index
     )
 
     fun mapMessageUpdate(updateMessageRequest: UpdateMessageRequest,

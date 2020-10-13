@@ -7,6 +7,7 @@ import chatox.chat.api.response.ChatResponse
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.messaging.rabbitmq.event.ChatUpdated
 import chatox.chat.model.Chat
+import chatox.chat.model.ChatMessagesCounter
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatType
 import chatox.chat.model.Message
@@ -91,7 +92,11 @@ class ChatMapper(
         )
     }
 
-    fun fromCreateChatRequest(createChatRequest: CreateChatRequest, currentUser: User): Chat {
+    fun fromCreateChatRequest(
+            createChatRequest: CreateChatRequest,
+            currentUser: User,
+            messagesCounter: ChatMessagesCounter
+    ): Chat {
         val id = UUID.randomUUID().toString()
         val createdAt = ZonedDateTime.now()
 
@@ -111,7 +116,8 @@ class ChatMapper(
                 deletedBy = null,
                 numberOfParticipants = 1,
                 lastMessage = null,
-                lastMessageDate = createdAt
+                lastMessageDate = createdAt,
+                messagesCounter = messagesCounter
         )
     }
 
