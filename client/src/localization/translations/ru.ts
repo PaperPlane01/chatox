@@ -249,5 +249,8 @@ export const ru: Labels = {
     "chats.popular": "Популярные чаты",
     "chats.popular.load-more": "Загрузить ещё",
     "common.delete": "Удалить",
-    "login.as-anonymous": "Войти под анонимным аккаунтом"
+    "login.as-anonymous": "Войти под анонимным аккаунтом",
+    "chat.participant.kick": "Выгнать из чата",
+    "chat.participant.kick.success": "Участник чата был выгнан",
+    "chat.participant.kick.error": "Во время попытки выгнать участника чата произошла ошибка"
 };

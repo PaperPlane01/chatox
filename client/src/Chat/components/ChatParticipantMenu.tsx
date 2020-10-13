@@ -1,9 +1,11 @@
-import React, {FunctionComponent, MouseEvent, ReactNode, useState} from "react";
+import React, {FunctionComponent, Fragment, MouseEvent, ReactNode, useState} from "react";
 import {observer} from "mobx-react";
 import {IconButton, Menu} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {BlockChatParticipantMenuItem} from "./BlockChatParticipantMenuItem";
+import {KickChatParticipantMenuItem} from "./KickChatParticipantMenuItem";
 import {ChatParticipationEntity} from "../types";
+import {canKickChatParticipant} from "../permissions";
 import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
 import {useAuthorization, useStore} from "../../store";
 
@@ -40,6 +42,14 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
 
     const menuItems: ReactNode[] = [];
 
+    if (canKickChatParticipant(chatParticipation, currentUserChatParticipation)) {
+        menuItems.push(
+            <KickChatParticipantMenuItem chatParticipationId={chatParticipation.id}
+                                         onClick={handleClose}
+            />
+        );
+    }
+
     if (canBlockUsersInChat(currentUserChatParticipation)) {
         menuItems.push(
             <BlockChatParticipantMenuItem userId={chatParticipation.userId}
@@ -53,7 +63,7 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
     }
 
     return (
-        <div>
+        <Fragment>
             <IconButton onClick={handleOpenClick}
                         size="small"
             >
@@ -65,6 +75,6 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
             >
                 {menuItems}
             </Menu>
-        </div>
+        </Fragment>
     );
 });

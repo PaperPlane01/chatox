@@ -20,3 +20,4 @@ export * from "./ChatAvatarUpload";
 export * from "./ChatsPreferencesCard";
 export * from "./PopularChatsList";
 export * from "./PopularChatsListItem";
+export * from "./KickChatParticipantMenuItem";

@@ -15,7 +15,7 @@ import {
     ChatsPreferencesStore,
     ChatStore,
     CreateChatStore,
-    JoinChatStore, LeaveChatStore,
+    JoinChatStore, KickChatParticipantStore, LeaveChatStore,
     OnlineChatParticipantsStore, PopularChatsStore,
     UpdateChatStore
 } from "../Chat";
@@ -112,5 +112,6 @@ export interface IAppState {
     popularChats: PopularChatsStore,
     messageDeletion: DeleteMessageStore,
     anonymousRegistration: AnonymousRegistrationDialogStore,
+    kickFromChat: KickChatParticipantStore,
     store?: any
 }

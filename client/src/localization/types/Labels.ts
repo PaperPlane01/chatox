@@ -247,5 +247,8 @@ export interface Labels {
     "chats.popular": string,
     "chats.popular.load-more": string,
     "common.delete": string,
-    "login.as-anonymous": string
+    "login.as-anonymous": string,
+    "chat.participant.kick": string,
+    "chat.participant.kick.success": string,
+    "chat.participant.kick.error": string
 }
