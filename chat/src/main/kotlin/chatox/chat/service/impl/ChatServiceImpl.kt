@@ -8,7 +8,6 @@ import chatox.chat.api.response.ChatResponse
 import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.exception.SlugIsAlreadyInUseException
 import chatox.chat.exception.UploadNotFoundException
-import chatox.chat.exception.WrongUploadTypeException
 import chatox.chat.mapper.ChatMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.ChatParticipation
@@ -23,6 +22,8 @@ import chatox.chat.repository.UploadRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatPermissions
 import chatox.chat.service.ChatService
+import chatox.chat.support.log.LogExecution
+import chatox.chat.support.log.LogLevel
 import chatox.chat.support.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -39,6 +40,11 @@ import java.time.ZonedDateTime
 
 @Service
 @Transactional
+@LogExecution(
+        logParametersLogLevel = LogLevel.INFO,
+        logExecutionLogLevel = LogLevel.INFO,
+        logReturnValueLevel = LogLevel.INFO
+)
 class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationRepository: ChatParticipationRepository,
                       private val messageRepository: MessageRepository,
