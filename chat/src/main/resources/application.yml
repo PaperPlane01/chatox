@@ -38,17 +38,3 @@ uploads:
   videos: ${API_HOST:http://localhost:8080}/api/v1/uploads/videos
   files: ${API_HOST:http://localhost:8080}/api/v1/uploads/files
   audios: ${API_HOST:http://localhost:8080}/api/v1/uploads/audios
-logging:
-  level:
-    org:
-      springframework:
-        data:
-          mongodb:
-            core:
-              ReactiveMongoTemplate: DEBUG
-    chatox:
-      messaging:
-        rabbitmq:
-          event:
-            listener:
-              UserEventsListener: DEBUG
