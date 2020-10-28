@@ -48,14 +48,15 @@ class ChatParticipationPermissions(private val chatService: ChatService,
     }
 
     fun canKickChatParticipant(chatId: String, chatParticipationId: String): Mono<Boolean> {
-        return chatParticipationService.findChatParticipationById(chatParticipationId)
-                .zipWith(authenticationFacade.getCurrentUser().map { user -> chatParticipationService.getRoleOfUserInChat(chatId, user) } )
-                .map { it.t2.zipWith(Mono.just(it.t1)) }
-                .flatMap { it }
-                .map { (it.t2.chatId == chatId)
-                        && (it.t2.role != ChatRole.ADMIN && it.t2.role != ChatRole.MODERATOR)
-                        && (it.t1 == ChatRole.ADMIN || it.t1 == ChatRole.MODERATOR)
-                }
+        return mono {
+            val kickedParticipant = chatParticipationService.findChatParticipationById(chatParticipationId).awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val chatRoleOfCurrentUser = chatParticipationService.getRoleOfUserInChat(chatId, currentUser).awaitFirst()
+
+            kickedParticipant.chatId == chatId &&
+                    ((chatRoleOfCurrentUser == ChatRole.MODERATOR || chatRoleOfCurrentUser == ChatRole.ADMIN)
+                            && (kickedParticipant.role !== ChatRole.MODERATOR && kickedParticipant.role !== ChatRole.ADMIN))
+        }
     }
 
     fun canUpdateChatParticipant(chatId: String, chatParticipationId: String): Mono<Boolean> {
