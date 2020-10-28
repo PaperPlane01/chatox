@@ -3,6 +3,7 @@ package chatox.chat.support.log.aspect
 import chatox.chat.support.log.LogExecution
 import chatox.chat.support.log.LogLevel
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
@@ -79,10 +80,17 @@ class MethodExecutionLoggingAspect {
                 when (result) {
                     is Mono<*> -> {
                         return mono {
-                            val loggableResult = result.awaitFirst()
-                            log("$executionId - Method $methodName returned the following result: $loggableResult")
-                            loggableResult
+                            val loggableResult = result.awaitFirstOrNull()
+
+                            if (loggableResult == null) {
+                                log("$executionId - method $methodName returned no results")
+                                Mono.empty<Void>()
+                            } else {
+                                log("$executionId - Method $methodName returned the following result: $loggableResult")
+                                Mono.just(loggableResult)
+                            }
                         }
+                                .flatMap { it }
                     }
                     is Flux<*> -> {
                         return mono {
