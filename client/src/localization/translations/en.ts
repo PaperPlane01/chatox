@@ -250,7 +250,7 @@ export const en: Labels = {
     "chats.popular.load-more": "Load more",
     "common.delete": "Delete",
     "login.as-anonymous": "Log in as anonymous",
-    "chat.participant.kick": "Kick",
+    "chat.participant.kick": "Kick user",
     "chat.participant.kick.success": "Chat participant has been kicked",
     "chat.participant.kick.error": "Error occurred when tried to kick chat participant"
 };
