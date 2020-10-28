@@ -127,7 +127,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                          @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
         mono {
             log.info("userWentOnline event received")
-            log.info("$userWentOnline")
+            log.debug("$userWentOnline")
             var user = userRepository.findById(userWentOnline.userId).awaitFirstOrNull()
 
             if (user != null) {
@@ -140,12 +140,12 @@ class UserEventsListener(private val userRepository: UserRepository,
                         .collectList()
                         .awaitFirst()
                 chatParticipations.forEach { chatParticipation ->
-                    println("SAVING CHAT PARTICIPATION")
+                    log.debug("Saving chat participation")
                     chatParticipationRepository.save(
                             chatParticipation.copy(userOnline = true, lastModifiedAt = ZonedDateTime.now())
                     )
                             .awaitFirst()
-                    println("INCREASING NUMBER OF ONLINE PARTICIPANTS")
+                    log.debug("Increasing number of online participants")
                     chatRepository.increaseNumberOfOnlineParticipants(chatParticipation.chat.id).awaitFirst()
                 }
 
