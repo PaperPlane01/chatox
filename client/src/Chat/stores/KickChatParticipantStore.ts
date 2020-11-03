@@ -16,7 +16,7 @@ export class KickChatParticipantStore {
     }
 
     constructor(private readonly entities: EntitiesStore,
-                private readonly chatStore: ChatStore){
+                private readonly chatStore: ChatStore) {
     }
 
     @action
@@ -28,7 +28,10 @@ export class KickChatParticipantStore {
         this.error = undefined;
 
         ChatApi.deleteChatParticipation(this.selectedChatId, chatParticipantId)
-            .then(() => this.setShowSnackbar(true))
+            .then(() => {
+                this.entities.deleteChatParticipation(chatParticipantId);
+                this.setShowSnackbar(true);
+            })
             .catch(error => this.error = getInitialApiErrorFromResponse(error))
             .finally(() => this.setShowSnackbar(true));
     };
