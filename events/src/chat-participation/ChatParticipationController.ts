@@ -18,6 +18,7 @@ export class ChatParticipationController {
     })
     public async onUserJoinedChat(createChatParticipationDto: ChatParticipationDto): Promise<void> {
         await this.chatParticipationService.saveChatParticipation(createChatParticipationDto);
+        await this.websocketEventsPublisher.publishUserJoinedChat(createChatParticipationDto);
     }
 
     @RabbitSubscribe({

@@ -1,13 +1,11 @@
-import {forwardRef, Inject, Injectable} from "@nestjs/common";
+import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
 import {ChatParticipation, ChatParticipationDto} from "./types";
-import {WebsocketEventsPublisher} from "../websocket";
 
 @Injectable()
 export class ChatParticipationService {
-    constructor(@InjectModel("chatParticipation") private readonly chatParticipationModel: Model<ChatParticipation>,
-                @Inject(forwardRef(() => WebsocketEventsPublisher)) private readonly websocketEventsPublisher: WebsocketEventsPublisher) {}
+    constructor(@InjectModel("chatParticipation") private readonly chatParticipationModel: Model<ChatParticipation>) {}
 
     public async saveChatParticipation(createChatParticipationDto: ChatParticipationDto): Promise<void> {
         const chatParticipation = new this.chatParticipationModel({
@@ -18,11 +16,10 @@ export class ChatParticipationService {
             deleted: false
         });
         await chatParticipation.save();
-        await this.websocketEventsPublisher.publishUserJoinedChat(createChatParticipationDto);
     }
 
     public async deleteChatParticipation(id: string): Promise<void> {
-        const chatParticipation = await this.chatParticipationModel.findOne({_id: id}).exec();
+        const chatParticipation = await this.chatParticipationModel.findOne({id}).exec();
 
         if (chatParticipation) {
             chatParticipation.deleted = true;
@@ -31,7 +28,7 @@ export class ChatParticipationService {
     }
 
     public findChatParticipationById(id: string): Promise<ChatParticipation> {
-        return this.chatParticipationModel.findOne({_id: id}).exec();
+        return this.chatParticipationModel.findOne({id}).exec();
     }
 
     public async findByChatId(chatId: string): Promise<ChatParticipation[]> {
