@@ -4,5 +4,6 @@ export const ChatParticipationSchema = new Schema({
     id: String,
     chatId: String,
     userId: String,
-    role: String
+    role: String,
+    deleted: Boolean
 });

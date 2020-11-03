@@ -19,4 +19,8 @@ data class Upload<MetadataType>(
         var preview: Upload<ImageUploadMetadata>?,
         @DBRef(lazy = true)
         var user: User?
-)
+) {
+        override fun toString(): String {
+                return "Upload(id='$id', name='$name', originalName='$originalName', type=$type, meta=$meta, extension=$extension, mimeType='$mimeType', size=$size, isPreview=$isPreview, isThumbnail=$isThumbnail, preview=$preview)"
+        }
+}
