@@ -43,6 +43,26 @@ export class ChatsStore extends AbstractEntityStore<ChatOfCurrentUserEntity, Cha
         this.insertEntity(chat);
     };
 
+    @action
+    increaseChatParticipantsCount = (chatId: string): void => {
+        const chat = this.findByIdOptional(chatId);
+
+        if (chat) {
+            chat.participantsCount++;
+            this.insertEntity(chat);
+        }
+    };
+
+    @action
+    decreaseChatParticipantsCount = (chatId: string): void => {
+        const chat = this.findByIdOptional(chatId);
+
+        if (chat) {
+            chat.participantsCount--;
+            this.insertEntity(chat);
+        }
+    };
+
     protected convertToNormalizedForm(denormalizedEntity: ChatOfCurrentUser): ChatOfCurrentUserEntity {
         return {
             id: denormalizedEntity.id,

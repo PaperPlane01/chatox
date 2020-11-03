@@ -4,6 +4,7 @@ import {ChatParticipationService} from "./ChatParticipationService";
 import {ChatParticipationDto} from "./types";
 import {WebsocketEventsPublisher} from "../websocket";
 import {config} from "../env-config";
+import {UserKickedFromChat, UserLeftChat} from "../common/types/events";
 
 @Injectable()
 export class ChatParticipationController {
@@ -16,8 +17,28 @@ export class ChatParticipationController {
         queue: `events_service_user_joined-${config.EVENTS_SERVICE_PORT}`
     })
     public async onUserJoinedChat(createChatParticipationDto: ChatParticipationDto): Promise<void> {
-        console.log("Received userJoinedChat event");
         await this.chatParticipationService.saveChatParticipation(createChatParticipationDto);
+        await this.websocketEventsPublisher.publishUserJoinedChat(createChatParticipationDto);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        routingKey: "chat.user.left.#",
+        queue: `events_service_user_left-${config.EVENTS_SERVICE_PORT}`
+    })
+    public async onUserLeftChat(userLeftChat: UserLeftChat): Promise<void> {
+        await this.chatParticipationService.deleteChatParticipation(userLeftChat.chatParticipationId);
+        await this.websocketEventsPublisher.publishUserLeftChat(userLeftChat);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        routingKey: "chat.participation.deleted.#",
+        queue: `events_service_chat_participation_deleted-${config.EVENTS_SERVICE_PORT}`
+    })
+    public async onUserKickedFromChat(userKickedFromChat: UserKickedFromChat): Promise<void> {
+        await this.chatParticipationService.deleteChatParticipation(userKickedFromChat.chatParticipationId);
+        await this.websocketEventsPublisher.publishUserKickedFromChat(userKickedFromChat);
     }
 
     @RabbitSubscribe({
@@ -34,7 +55,7 @@ export class ChatParticipationController {
         routingKey: "chat.participants.offline.#",
         queue: `events_service_chat_participants_offline-${config.EVENTS_SERVICE_PORT}`
     })
-    public async onCHatParticipantsWentOffline(chatParticipants: ChatParticipationDto[]): Promise<void> {
+    public async onChatParticipantsWentOffline(chatParticipants: ChatParticipationDto[]): Promise<void> {
         await this.websocketEventsPublisher.publishChatParticipantsWentOffline(chatParticipants);
     }
 }

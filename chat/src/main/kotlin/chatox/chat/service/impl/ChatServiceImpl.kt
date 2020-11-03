@@ -44,11 +44,7 @@ import java.util.UUID
 
 @Service
 @Transactional
-@LogExecution(
-        logParametersLogLevel = LogLevel.INFO,
-        logExecutionLogLevel = LogLevel.INFO,
-        logReturnValueLevel = LogLevel.INFO
-)
+@LogExecution
 class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationRepository: ChatParticipationRepository,
                       private val messageRepository: MessageRepository,

@@ -61,4 +61,8 @@ export class ChatApi {
 
         return axiosInstance.get(`/${CHATS}/${POPULAR}?${queryString}`);
     }
+
+    public static deleteChatParticipation(chatId: string, chatParticipationId: string): AxiosPromise<void> {
+        return axiosInstance.delete(`/${CHATS}/${chatId}/${PARTICIPANTS}/${chatParticipationId}`);
+    }
 }

@@ -5,5 +5,6 @@ export interface ChatParticipation extends Document {
     id: string,
     chatId: string,
     userId: string,
-    role: ChatRole
+    role: ChatRole,
+    deleted: boolean
 }

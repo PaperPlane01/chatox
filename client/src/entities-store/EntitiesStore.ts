@@ -1,5 +1,5 @@
 import {action, computed} from "mobx";
-import {ChatParticipationsStore, ChatsStore, ChatUploadsStore} from "../Chat";
+import {ChatParticipationEntity, ChatParticipationsStore, ChatsStore, ChatUploadsStore} from "../Chat";
 import {UsersStore} from "../User";
 import {
     Chat,
@@ -17,6 +17,8 @@ import {ChatBlockingsStore} from "../ChatBlocking/stores";
 import {UploadsStore} from "../Upload/stores";
 import {ChatUpdated} from "../api/types/websocket";
 import {PartialBy} from "../utils/types";
+
+type DecreaseChatParticipantsCountCallback = (chatParticipation?: ChatParticipationEntity, currentUser?: CurrentUser) => boolean;
 
 export class EntitiesStore {
     private authorizationStore: AuthorizationStore;
@@ -158,20 +160,40 @@ export class EntitiesStore {
         const chat = this.chats.findByIdOptional(chatParticipation.chatId);
         if (chat && currentUser) {
             chat.currentUserParticipationId = chatParticipation.id;
-            chat.participantsCount += 1;
-            this.chats.insertEntity(chat);
+            this.chats.increaseChatParticipantsCount(chat.id);
         }
     };
 
     @action
-    deleteChatParticipation = (id: string): void => {
+    deleteChatParticipation = (id: string, decreaseChatParticipantsCount: boolean | DecreaseChatParticipantsCountCallback = false, chatId?: string): void => {
         const chatParticipation = this.chatParticipations.findById(id);
-        const chat = this.chats.findById(chatParticipation.chatId);
-        chat.currentUserParticipationId = undefined;
-        chat.participantsCount -= 1;
-        this.chats.insertEntity(chat);
-        this.chatParticipations.deleteById(id);
-    }
+
+        if (chatParticipation) {
+            const chat = this.chats.findById(chatParticipation.chatId);
+
+            if (chat.currentUserParticipationId === id) {
+                chat.currentUserParticipationId = undefined;
+            }
+
+            this.chatParticipations.deleteById(id);
+
+            if (typeof decreaseChatParticipantsCount === "function") {
+                if (decreaseChatParticipantsCount(chatParticipation, this.authorizationStore.currentUser)) {
+                    this.chats.decreaseChatParticipantsCount(chat.id);
+                }
+            } else if (decreaseChatParticipantsCount) {
+                this.chats.decreaseChatParticipantsCount(chat.id);
+            }
+        } else if (chatId) {
+            if (typeof decreaseChatParticipantsCount === "function") {
+                if (decreaseChatParticipantsCount(undefined, this.currentUser)) {
+                    this.chats.decreaseChatParticipantsCount(chatId);
+                }
+            } else if (decreaseChatParticipantsCount) {
+                this.chats.decreaseChatParticipantsCount(chatId);
+            }
+        }
+    };
 
     @action
     insertUser = (user: User): void => {
