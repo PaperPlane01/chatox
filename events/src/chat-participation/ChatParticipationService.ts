@@ -14,20 +14,30 @@ export class ChatParticipationService {
             id: createChatParticipationDto.id,
             chatId: createChatParticipationDto.chatId,
             role: createChatParticipationDto.role,
-            userId: createChatParticipationDto.user.id
+            userId: createChatParticipationDto.user.id,
+            deleted: false
         });
         await chatParticipation.save();
         await this.websocketEventsPublisher.publishUserJoinedChat(createChatParticipationDto);
     }
 
-    public async deleteChatParticipation(id: string): Promise<{deletedCount?: number}> {
-        return this.chatParticipationModel.deleteOne({id})
-            .exec();
+    public async deleteChatParticipation(id: string): Promise<void> {
+        const chatParticipation = await this.chatParticipationModel.findOne({_id: id}).exec();
+
+        if (chatParticipation) {
+            chatParticipation.deleted = true;
+            await chatParticipation.save();
+        }
+    }
+
+    public findChatParticipationById(id: string): Promise<ChatParticipation> {
+        return this.chatParticipationModel.findOne({_id: id}).exec();
     }
 
     public async findByChatId(chatId: string): Promise<ChatParticipation[]> {
         return this.chatParticipationModel.find({
-            chatId
+            chatId,
+            deleted: false
         })
             .exec();
     }

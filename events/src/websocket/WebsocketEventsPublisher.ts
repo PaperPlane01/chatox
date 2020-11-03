@@ -11,13 +11,21 @@ import {JwtService} from "@nestjs/jwt";
 import {AmqpConnection} from "@nestjs-plus/rabbitmq";
 import {Socket} from "socket.io";
 import {parse} from "querystring";
-import {ChatSubscription, ChatUnsubscription, EventType, JwtPayload, MessageDeleted, WebsocketEvent} from "./types";
+import {
+    ChatSubscription,
+    ChatUnsubscription,
+    EventType,
+    JwtPayload,
+    MessageDeleted,
+    WebsocketEvent
+} from "./types";
 import {MessagesDeleted} from "./types/MessagesDeleted";
 import {SessionActivityStatusResponse} from "./types/SessionActivityStatusResponse";
 import {Chat, ChatBlocking, ChatMessage} from "../common/types";
 import {ChatParticipationService} from "../chat-participation";
 import {ChatParticipationDto} from "../chat-participation/types";
 import {LoggerFactory} from "../logging";
+import {UserKickedFromChat, UserLeftChat} from "../common/types/events";
 
 @WebSocketGateway({
     path: "/api/v1/events/",
@@ -184,6 +192,26 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         };
         await this.publishEventToChatParticipants(createChatParticipationDto.chatId, userJoinedEvent);
         await this.publishEventToUsersSubscribedToChat(createChatParticipationDto.chatId, userJoinedEvent);
+    }
+
+    public async publishUserLeftChat(userLeftChat: UserLeftChat) {
+        const userLeftEvent: WebsocketEvent<UserLeftChat> = {
+            type: EventType.USER_LEFT_CHAT,
+            payload: userLeftChat
+        };
+        await this.publishEventToChatParticipants(userLeftChat.chatId, userLeftEvent);
+        await this.publishEventToUsersSubscribedToChat(userLeftChat.chatId, userLeftEvent);
+        await this.publishEventToUser(userLeftChat.userId, userLeftEvent);
+    }
+
+    public async publishUserKickedFromChat(userKickedFromChat: UserKickedFromChat) {
+        const userKickedEvent: WebsocketEvent<UserKickedFromChat> = {
+            type: EventType.USER_KICKED_FROM_CHAT,
+            payload: userKickedFromChat
+        };
+        await this.publishEventToChatParticipants(userKickedFromChat.chatId, userKickedEvent);
+        await this.publishEventToUsersSubscribedToChat(userKickedFromChat.chatId, userKickedEvent);
+        await this.publishEventToUser(userKickedFromChat.userId, userKickedEvent);
     }
 
     public async publishChatBlockingCreated(chatBlocking: ChatBlocking) {

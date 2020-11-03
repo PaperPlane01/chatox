@@ -6,6 +6,8 @@ import chatox.chat.api.response.ChatParticipationResponse
 import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.exception.ChatParticipationNotFoundException
 import chatox.chat.mapper.ChatParticipationMapper
+import chatox.chat.messaging.rabbitmq.event.ChatParticipationDeleted
+import chatox.chat.messaging.rabbitmq.event.UserLeftChat
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatParticipation
@@ -126,7 +128,13 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
             )
             chatParticipation = chatParticipationRepository.save(chatParticipation).awaitFirst()
             chatRepository.decreaseNumberOfOnlineParticipants(chat.id).awaitFirst()
-            chatEventsPublisher.userLeftChat(chatParticipation.chat.id, chatParticipation.id!!)
+            chatEventsPublisher.userLeftChat(
+                    UserLeftChat(
+                            userId = chatParticipation.user.id,
+                            chatId = chatParticipation.chat.id,
+                            chatParticipationId = chatParticipation.id!!
+                    )
+            )
 
             Mono.empty<Void>()
         }
@@ -203,8 +211,11 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
 
             log.info("Publishing chatParticipationDeleted event")
             chatEventsPublisher.chatParticipationDeleted(
-                    chatId = chatId,
-                    chatParticipationId = id
+                    ChatParticipationDeleted(
+                            userId = chatParticipation.user.id,
+                            chatId = chatParticipation.chat.id,
+                            chatParticipationId = chatParticipation.id!!
+                    )
             )
 
             Mono.empty<Void>()
