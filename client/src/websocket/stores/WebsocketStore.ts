@@ -5,7 +5,7 @@ import {EntitiesStore} from "../../entities-store";
 import {
     ChatUpdated,
     MessageDeleted,
-    MessagesDeleted,
+    MessagesDeleted, UserKickedFromChat, UserLeftChat,
     WebsocketEvent,
     WebsocketEventType
 } from "../../api/types/websocket";
@@ -95,6 +95,22 @@ export class WebsocketStore {
             this.socketIoClient.on(
                 WebsocketEventType.MESSAGE_DELETED,
                 (event: WebsocketEvent<MessageDeleted>) => this.entities.messages.deleteById(event.payload.messageId)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.USER_KICKED_FROM_CHAT,
+                (event: WebsocketEvent<UserKickedFromChat>) => this.entities.deleteChatParticipation(
+                    event.payload.chatParticipationId,
+                    true,
+                    event.payload.chatId
+                )
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.USER_LEFT_CHAT,
+                (event: WebsocketEvent<UserLeftChat>) => this.entities.deleteChatParticipation(
+                    event.payload.chatParticipationId,
+                    true,
+                    event.payload.chatId
+                )
             );
         }
     };
