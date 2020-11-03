@@ -10,11 +10,13 @@ import chatox.chat.exception.SlugIsAlreadyInUseException
 import chatox.chat.exception.UploadNotFoundException
 import chatox.chat.mapper.ChatMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
+import chatox.chat.model.ChatMessagesCounter
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
+import chatox.chat.repository.ChatMessagesCounterRepository
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.MessageRepository
@@ -28,6 +30,7 @@ import chatox.chat.support.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -37,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
+import java.util.UUID
 
 @Service
 @Transactional
@@ -49,11 +53,13 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationRepository: ChatParticipationRepository,
                       private val messageRepository: MessageRepository,
                       private val uploadRepository: UploadRepository,
+                      private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
                       private val chatMapper: ChatMapper,
                       private val authenticationFacade: AuthenticationFacade,
                       private val chatEventsPublisher: ChatEventsPublisher) : ChatService {
 
     private lateinit var chatPermissions: ChatPermissions
+    private val log = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
     fun setChatPermissions(chatPermissions: ChatPermissions) {
@@ -61,37 +67,49 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     }
 
     override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatOfCurrentUserResponse> {
-        return authenticationFacade.getCurrentUser()
-                .map { user -> chatMapper.fromCreateChatRequest(createChatRequest, user) }
-                .map { chatRepository.save(it) }
-                .flatMap { it }
-                .map {
-                    var userDisplayedName = it.createdBy.firstName
+        return mono {
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val chatMessagesCounter = ChatMessagesCounter(
+                    id = UUID.randomUUID().toString(),
+                    chat = null,
+                    messagesCount = 0L
+            )
+            val chat = chatMapper.fromCreateChatRequest(
+                    createChatRequest = createChatRequest,
+                    currentUser = currentUser,
+                    messagesCounter = chatMessagesCounter
+            )
+            chatMessagesCounter.chat = chat
+            chatMessagesCounterRepository.save(chatMessagesCounter).awaitFirst()
+            chatRepository.save(chat).awaitFirst()
 
-                    if (it.createdBy.lastName != null) {
-                        userDisplayedName = "$userDisplayedName ${it.createdBy.lastName}"
-                    }
+            var creatorDisplayedName = chat.createdBy.firstName
 
-                    chatParticipationRepository.save(
-                            chatParticipation = ChatParticipation(
-                                    user = it.createdBy,
-                                    chat = it,
-                                    role = ChatRole.ADMIN,
-                                    lastMessageRead = null,
-                                    createdAt = ZonedDateTime.now(),
-                                    userDisplayedName = userDisplayedName
-                            )
+            if (chat.createdBy.lastName != null) {
+                creatorDisplayedName = "$creatorDisplayedName ${chat.createdBy.lastName}"
+            }
+
+            val creatorChatParticipation = chatParticipationRepository.save(
+                    chatParticipation = ChatParticipation(
+                            user = chat.createdBy,
+                            chat = chat,
+                            role = ChatRole.ADMIN,
+                            lastMessageRead = null,
+                            createdAt = ZonedDateTime.now(),
+                            userDisplayedName = creatorDisplayedName
                     )
-                }
-                .flatMap { it }
-                .map { chatMapper.toChatOfCurrentUserResponse(
-                        chat = it.chat,
-                        chatParticipation = it,
-                        unreadMessagesCount = 0,
-                        lastMessage = null,
-                        lastReadMessage = null,
-                        onlineParticipantsCount = 1
-                ) }
+            )
+                    .awaitFirst()
+
+            chatMapper.toChatOfCurrentUserResponse(
+                    chat = chat,
+                    chatParticipation = creatorChatParticipation,
+                    unreadMessagesCount = 0,
+                    lastMessage = null,
+                    lastReadMessage = null,
+                    onlineParticipantsCount = 1
+            )
+        }
     }
 
     override fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse> {
@@ -264,6 +282,52 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     .map { chat -> chatMapper.toChatResponse(chat = chat, currentUserId = currentUserId) }
         }
                 .flatMapMany { chat -> chat }
+    }
+
+    fun createChatMessagesCounters(): Mono<Void> {
+        log.info("Creating chat messages counters")
+        return mono {
+            val chats = chatRepository.findAll().collectList().awaitFirst()
+
+            chats.forEach { chat ->
+                log.info("Creating chat messages counter for chat ${chat.id}")
+                val chatMessagesCounter = ChatMessagesCounter(
+                        id = UUID.randomUUID().toString(),
+                        chat = chat,
+                        messagesCount = 0L
+                )
+                chatMessagesCounterRepository.save(chatMessagesCounter).awaitFirst()
+                log.info("Chat messages counter for ${chat.id} has been created")
+            }
+
+            Mono.empty<Void>()
+        }
+                .flatMap { it }
+    }
+
+    fun populateChatMessageCounters(): Mono<Void> {
+        log.info("Populating chat messages counters")
+        return mono {
+            val chats = chatRepository.findAll().collectList().awaitFirst()
+
+            for (chat in chats) {
+                log.info("Populating chat messages counter for chat ${chat.id}")
+                val messages = messageRepository.findAllByChatOrderByCreatedAtAsc(chat).collectList().awaitFirst()
+
+                for (message in messages) {
+                    val nextCounterValue = chatMessagesCounterRepository.getNextCounterValue(chat).awaitFirst()
+                    log.info("Next counter value for chat ${chat.id} is $nextCounterValue")
+                    message.index = nextCounterValue
+                    messageRepository.save(message).awaitFirst()
+                }
+
+                log.info("Populating chat messages counter for ${chat.id} has been finished")
+            }
+
+            log.info("Populating chat messages counters has been finished")
+            Mono.empty<Void>()
+        }
+                .flatMap { it }
     }
 
     private fun getCorrectChatSortBy(sortBy: String?): String? {

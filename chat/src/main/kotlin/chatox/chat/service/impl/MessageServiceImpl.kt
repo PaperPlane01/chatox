@@ -9,6 +9,7 @@ import chatox.chat.mapper.MessageMapper
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.Message
 import chatox.chat.model.MessageRead
+import chatox.chat.repository.ChatMessagesCounterRepository
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.ChatUploadAttachmentRepository
@@ -48,6 +49,7 @@ class MessageServiceImpl(
         private val chatParticipationRepository: ChatParticipationRepository,
         private val uploadRepository: UploadRepository,
         private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
+        private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
         private val authenticationFacade: AuthenticationFacade,
         private val messageMapper: MessageMapper,
         private val emojiParserService: EmojiParserService) : MessageService {
@@ -99,13 +101,15 @@ class MessageServiceImpl(
                  }
             }
 
+            val messageIndex = chatMessagesCounterRepository.getNextCounterValue(chat).awaitFirst()
             var message = messageMapper.fromCreateMessageRequest(
                     createMessageRequest = createMessageRequest,
                     sender = currentUser,
                     referredMessage = referredMessage,
                     chat = chat,
                     emoji = emoji,
-                    chatUploadAttachments = uploadAttachments
+                    chatUploadAttachments = uploadAttachments,
+                    index = messageIndex
             )
             message = messageRepository.save(message).awaitFirst()
 
