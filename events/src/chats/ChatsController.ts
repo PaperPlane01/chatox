@@ -2,6 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {RabbitSubscribe} from "@nestjs-plus/rabbitmq";
 import {WebsocketEventsPublisher} from "../websocket";
 import {Chat} from "../common/types";
+import {ChatDeleted} from "../common/types/events";
 import {config} from "../env-config";
 
 @Injectable()
@@ -15,5 +16,14 @@ export class ChatsController {
     })
     public async onChatUpdated(chat: Chat): Promise<void> {
         await this.websocketEventsPublisher.publishChatUpdated(chat);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        routingKey: "chat.deleted.#",
+        queue: `events_service_chat_deleted-${config.EVENTS_SERVICE_PORT}`
+    })
+    public async onChatDeleted(chatDeleted: ChatDeleted): Promise<void> {
+        await this.websocketEventsPublisher.publishChatDeleted(chatDeleted);
     }
 }

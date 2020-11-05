@@ -1,6 +1,7 @@
 package chatox.chat.controller
 
 import chatox.chat.api.request.CreateChatRequest
+import chatox.chat.api.request.DeleteChatRequest
 import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.service.ChatService
 import chatox.chat.support.pagination.PaginationRequest
@@ -34,7 +35,8 @@ class ChatController(private val chatService: ChatService) {
 
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}")
-    fun deleteChat(@PathVariable id: String) = chatService.deleteChat(id)
+    fun deleteChat(@PathVariable id: String,
+                   @RequestBody(required = false) deleteChatRequest: DeleteChatRequest?) = chatService.deleteChat(id, deleteChatRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @GetMapping("/my")

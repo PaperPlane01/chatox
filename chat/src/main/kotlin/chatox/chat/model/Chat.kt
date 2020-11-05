@@ -34,7 +34,10 @@ data class Chat(
         var lastMessageDate: ZonedDateTime?,
 
         @DBRef
-        var messagesCounter: ChatMessagesCounter?
+        var messagesCounter: ChatMessagesCounter?,
+
+        @DBRef
+        var chatDeletion: ChatDeletion? = null
 ) {
         override fun toString(): String {
                 return "Chat(id='$id', name='$name', description=$description, tags=$tags, avatarUri=$avatarUri, slug='$slug', createdAt=$createdAt, createdBy=$createdBy, updatedAt=$updatedAt, deletedAt=$deletedAt, deleted=$deleted, deletedBy=$deletedBy, type=$type, numberOfParticipants=$numberOfParticipants, lastMessage=${lastMessage?.id}, lastMessageDate=$lastMessageDate)"

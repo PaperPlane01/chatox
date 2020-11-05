@@ -32,4 +32,15 @@ class ChatParticipationCustomRepositoryImpl(
                 .updateMulti(query, update, ChatParticipation::class.java)
     }
 
+    override fun updateChatDeleted(chatId: String, chatDeleted: Boolean): Mono<UpdateResult> {
+        val query = Query()
+        query.addCriteria(Criteria.where("chat.\$id").`is`(chatId))
+
+        val update = Update()
+        update.set("chatDeleted", chatDeleted)
+
+        return reactiveMongoTemplate
+                .updateMulti(query, update, ChatParticipation::class.java)
+    }
+
 }

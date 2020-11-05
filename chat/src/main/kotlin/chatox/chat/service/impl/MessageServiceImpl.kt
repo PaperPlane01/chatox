@@ -3,8 +3,8 @@ package chatox.chat.service.impl
 import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
-import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.exception.MessageNotFoundException
+import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.MessageMapper
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.Message

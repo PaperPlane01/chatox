@@ -52,4 +52,7 @@ class CustomUserDetails : UserDetails {
         return true
     }
 
+    fun isAdmin(): Boolean {
+        return authorities.stream().anyMatch { authority -> authority.authority == "ROLE_ADMIN"}
+    }
 }

@@ -3,8 +3,9 @@ package chatox.chat.service.impl
 import chatox.chat.api.request.UpdateChatParticipationRequest
 import chatox.chat.api.response.ChatParticipationMinifiedResponse
 import chatox.chat.api.response.ChatParticipationResponse
-import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.exception.ChatParticipationNotFoundException
+import chatox.chat.exception.metadata.ChatDeletedException
+import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.messaging.rabbitmq.event.ChatParticipationDeleted
 import chatox.chat.messaging.rabbitmq.event.UserLeftChat
@@ -20,7 +21,6 @@ import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatParticipationPermissions
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.support.log.LogExecution
-import chatox.chat.support.log.LogLevel
 import chatox.chat.support.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -57,6 +57,11 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
             assertCanJoinChat(chatId).awaitFirst()
 
             val chat = chatRepository.findById(chatId).awaitFirst()
+
+            if (chat.deleted) {
+                throw ChatDeletedException(chat.chatDeletion)
+            }
+
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
 
             var chatParticipation = chatParticipationRepository.findByChatAndUserAndDeletedTrue(
