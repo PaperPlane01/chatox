@@ -4,6 +4,7 @@ import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.exception.MessageNotFoundException
+import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.MessageMapper
 import chatox.chat.model.ChatUploadAttachment
@@ -67,6 +68,11 @@ class MessageServiceImpl(
             assertCanCreateMessage(chatId).awaitFirst()
 
             val chat = findChatById(chatId).awaitFirst()
+
+            if (chat.deleted) {
+                throw ChatDeletedException(chat.chatDeletion)
+            }
+
             var referredMessage: Message? = null
 
             if (createMessageRequest.referredMessageId != null) {
