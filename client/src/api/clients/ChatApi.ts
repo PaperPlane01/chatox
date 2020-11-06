@@ -1,6 +1,7 @@
 import {AxiosPromise} from "axios";
+import {stringify} from "query-string";
 import {axiosInstance} from "../axios-instance";
-import {CreateChatRequest, DeleteChatRequest, PaginationRequest} from "../types/request";
+import {CreateChatRequest, DeleteChatRequest, PaginationRequest, UpdateChatRequest} from "../types/request";
 import {
     AvailabilityResponse,
     Chat,
@@ -9,8 +10,6 @@ import {
     ChatParticipationWithoutUser
 } from "../types/response";
 import {CHATS, IS_AVAILABLE, JOIN, LEAVE, MY, ONLINE, PARTICIPANTS, POPULAR, SLUG} from "../endpoints";
-import {UpdateChatRequest} from "../types/request/UpdateChatRequest";
-import {stringify} from "query-string";
 
 export class ChatApi {
 
