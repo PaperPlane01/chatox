@@ -88,7 +88,10 @@ class ChatMapper(
                 tags = chat.tags,
                 participantsCount = chat.numberOfParticipants,
                 avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
-                createdByCurrentUser = chat.createdBy.id == chatParticipation.user.id
+                createdByCurrentUser = chat.createdBy.id == chatParticipation.user.id,
+                deleted = chat.deleted,
+                deletionReason = chat.chatDeletion?.deletionReason,
+                deletionComment = chat.chatDeletion?.comment
         )
     }
 
