@@ -261,5 +261,10 @@ export interface Labels {
     "chat.delete.reason.CHILD_ABUSE": string,
     "chat.delete.reason.ILLEGAL_CONTENT": string,
     "chat.delete.reason.PORNOGRAPHY": string,
-    "chat.delete.reason.OTHER": string
+    "chat.delete.reason.OTHER": string,
+    "chat.delete.error.server-unreachable": string,
+    "chat.delete.error.already-deleted": string,
+    "chat.delete.error.unknown": string,
+    "chat.delete.success": string,
+    "chat.delete.specify-reason": string
 }

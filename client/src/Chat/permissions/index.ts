@@ -1,5 +1,5 @@
 import {ChatOfCurrentUserEntity, ChatParticipationEntity} from "../types";
-import {ChatRole} from "../../api/types/response";
+import {ChatRole, CurrentUser, UserRole} from "../../api/types/response";
 
 export const canUpdateChat = (chat: ChatOfCurrentUserEntity): boolean => {
     return chat.createdByCurrentUser;
@@ -22,4 +22,15 @@ export const canKickChatParticipant = (
     }
 
     return currentUserChatParticipation.role === ChatRole.MODERATOR || currentUserChatParticipation.role === ChatRole.ADMIN;
-}
+};
+
+export const canDeleteChat = (
+    chat: ChatOfCurrentUserEntity,
+    currentUser?: CurrentUser
+): boolean => {
+    if (!currentUser) {
+        return false;
+    }
+
+    return chat.createdByCurrentUser || currentUser.roles.includes(UserRole.ROLE_ADMIN);
+};

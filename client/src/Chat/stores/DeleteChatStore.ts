@@ -118,6 +118,7 @@ export class DeleteChatStore {
                 }
 
                 this.setShowSnackbar(true);
+                this.setCurrentStep(ChatDeletionStep.NONE);
             })
             .catch(error => this.error = getInitialApiErrorFromResponse(error))
             .finally(() => this.pending = false);

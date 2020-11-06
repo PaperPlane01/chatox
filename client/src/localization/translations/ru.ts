@@ -263,5 +263,10 @@ export const ru: Labels = {
     "chat.delete.reason.CHILD_ABUSE": "Жестокое обращение с детьми",
     "chat.delete.reason.ILLEGAL_CONTENT": "Незаконный контент",
     "chat.delete.reason.PORNOGRAPHY": "Порнография",
-    "chat.delete.reason.OTHER": "Другое"
+    "chat.delete.reason.OTHER": "Другое",
+    "chat.delete.error.server-unreachable": "Ошибка при удалении чата: сервер недоступен",
+    "chat.delete.error.already-deleted": "Чат уже был удалён",
+    "chat.delete.error.unknown": "При удалении чата произошла ошибка, сервер ответил со статусом {errorStatus}",
+    "chat.delete.success": "Чат успешно удалён",
+    "chat.delete.specify-reason": "Укажите причину удаления чата"
 };

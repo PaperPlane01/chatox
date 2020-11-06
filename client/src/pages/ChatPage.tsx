@@ -5,10 +5,12 @@ import {
     ChatInfoContainer,
     ChatInfoDialog,
     ChatsOfCurrentUserList,
+    ConfirmChatDeletionDialog,
     MessagesList,
+    SpecifyChatDeletionReasonDialog,
     UpdateChatDialog
 } from "../Chat";
-import {MessageDialog, UpdateMessageDialog, AttachedFilesDialog} from "../Message";
+import {AttachedFilesDialog, MessageDialog, UpdateMessageDialog} from "../Message";
 import {
     BlockUserInChatByIdOrSlugDialog,
     ChatBlockingInfoDialog,
@@ -53,6 +55,8 @@ export const ChatPage: FunctionComponent = () => (
             <MessageDialog/>
             <UpdateMessageDialog/>
             <AttachedFilesDialog/>
+            <ConfirmChatDeletionDialog/>
+            <SpecifyChatDeletionReasonDialog/>
         </Grid>
     </Fragment>
 );

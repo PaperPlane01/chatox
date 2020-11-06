@@ -263,5 +263,10 @@ export const en: Labels = {
     "chat.delete.reason.CHILD_ABUSE": "Child abuse",
     "chat.delete.reason.ILLEGAL_CONTENT": "Illegal content",
     "chat.delete.reason.PORNOGRAPHY": "Pornography",
-    "chat.delete.reason.OTHER": "Other"
+    "chat.delete.reason.OTHER": "Other",
+    "chat.delete.error.server-unreachable": "Could not delete chat, server is unreachable",
+    "chat.delete.error.already-deleted": "Chat has already been deleted",
+    "chat.delete.error.unknown": "Error occurred when tried to delete chat, server responded with {errorStatus} status",
+    "chat.delete.success": "Chat has been deleted",
+    "chat.delete.specify-reason": "Specify chat deletion reason"
 };

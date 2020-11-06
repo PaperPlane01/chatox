@@ -91,8 +91,11 @@ export class EntitiesStore {
     };
 
     @action
-    insertChats = (chatsOfCurrentUser: PartialBy<ChatOfCurrentUser, "unreadMessagesCount">[]): void => {
-        chatsOfCurrentUser.forEach(chat => this.insertChat(chat));
+    insertChats = (chatsOfCurrentUser: PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted">[]): void => {
+        chatsOfCurrentUser.forEach(chat => this.insertChat({
+            ...chat,
+            deleted: chat.deleted === undefined ? false : chat.deleted
+        }));
     };
 
     @action
@@ -111,7 +114,7 @@ export class EntitiesStore {
             unreadMessagesCount = chat.unreadMessagesCount;
         }
 
-        const chatEntity = this.chats.insert({...chat, unreadMessagesCount});
+        const chatEntity = this.chats.insert({...chat, deleted: false, unreadMessagesCount});
 
         if (chat.lastMessage) {
             this.insertMessage(chat.lastMessage);

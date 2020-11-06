@@ -5,6 +5,7 @@ import {CreateChatRequest, DeleteChatRequest, PaginationRequest, UpdateChatReque
 import {
     AvailabilityResponse,
     Chat,
+    ChatDeletionReason,
     ChatOfCurrentUser,
     ChatParticipation,
     ChatParticipationWithoutUser
@@ -67,7 +68,12 @@ export class ChatApi {
 
     public static deleteChat(chatId: string, deleteChatRequest?: DeleteChatRequest): AxiosPromise<void> {
         return axiosInstance.delete(`/${CHATS}/${chatId}`, {
-            data: deleteChatRequest
+            // Need to send dummy request body here because otherwise Axios will not send
+            // content-type header properly and the request will be rejected by Spring backend
+            data: deleteChatRequest ? deleteChatRequest : {reason: ChatDeletionReason.SPAM},
+            headers: {
+                "Content-Type": "application/json"
+            }
         });
     }
 }
