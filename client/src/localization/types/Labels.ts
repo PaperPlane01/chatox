@@ -266,5 +266,8 @@ export interface Labels {
     "chat.delete.error.already-deleted": string,
     "chat.delete.error.unknown": string,
     "chat.delete.success": string,
-    "chat.delete.specify-reason": string
+    "chat.delete.specify-reason": string,
+    "chat.deleted.by-creator": string,
+    "chat.deleted.with-reason": string,
+    "chat.deleted.with-reason-and-comment": string
 }

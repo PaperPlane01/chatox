@@ -114,7 +114,7 @@ export class EntitiesStore {
             unreadMessagesCount = chat.unreadMessagesCount;
         }
 
-        const chatEntity = this.chats.insert({...chat, deleted: false, unreadMessagesCount});
+        const chatEntity = this.chats.insert({...chat, unreadMessagesCount});
 
         if (chat.lastMessage) {
             this.insertMessage(chat.lastMessage);

@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
 import {format} from "date-fns";
 import {CreateMessageForm} from "./CreateMessageForm";
-import {JoinChatButton} from "../../Chat";
+import {ChatOfCurrentUserEntity, JoinChatButton} from "../../Chat";
 import {ChatParticipationEntity} from "../../Chat/types";
 import {useAuthorization, useLocalization, useStore} from "../../store";
 import {ChatBlockingEntity} from "../../ChatBlocking/types";
@@ -11,7 +11,6 @@ import {isChatBlockingActive} from "../../ChatBlocking/utils";
 import {isStringEmpty} from "../../utils/string-utils";
 import {UserEntity} from "../../User/types";
 import {Labels, TranslationFunction} from "../../localization";
-
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messagesListBottom: {
@@ -64,6 +63,23 @@ const getBlockingLabel = (
     return l(labelCode, bindings);
 };
 
+const getChatDeletionLabel = (chat: ChatOfCurrentUserEntity, l: TranslationFunction): string => {
+    if (chat.deletionReason) {
+        if (!isStringEmpty(chat.deletionComment)) {
+            return l("chat.deleted.with-reason-and-comment", {
+                reason: l(`chat.delete.reason.${chat.deletionReason}` as keyof Labels),
+                comment: chat.deletionComment
+            });
+        } else {
+            return l("chat.deleted.with-reason", {
+                reason: l(`chat.delete.reason.${chat.deletionReason}` as keyof Labels)
+            });
+        }
+    } else {
+        return l("chat.deleted.by-creator");
+    }
+}
+
 const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
     const {
         entities: {
@@ -75,6 +91,9 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
             },
             users: {
                 findById: findUser
+            },
+            chats: {
+                findById: findChat
             }
         },
         chat: {
@@ -88,11 +107,21 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
     let chatParticipation: ChatParticipationEntity | undefined;
     let activeChatBlocking: ChatBlockingEntity | undefined;
     let messagesListBottomContent: ReactNode;
+
     if (selectedChatId && currentUser) {
         chatParticipation = findChatParticipation({
             userId: currentUser.id,
             chatId: selectedChatId
         });
+        const chat = findChat(selectedChatId);
+
+        if (chat.deleted) {
+            return (
+                <Typography color="primary">
+                    {getChatDeletionLabel(chat, l)}
+                </Typography>
+            );
+        }
 
         if (chatParticipation) {
             if (chatParticipation.activeChatBlockingId) {

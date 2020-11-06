@@ -268,5 +268,8 @@ export const en: Labels = {
     "chat.delete.error.already-deleted": "Chat has already been deleted",
     "chat.delete.error.unknown": "Error occurred when tried to delete chat, server responded with {errorStatus} status",
     "chat.delete.success": "Chat has been deleted",
-    "chat.delete.specify-reason": "Specify chat deletion reason"
+    "chat.delete.specify-reason": "Specify chat deletion reason",
+    "chat.deleted.by-creator": "This chat has been deleted by its creator",
+    "chat.deleted.with-reason": "This chat has been deleted by our moderators because of the following reason: {reason}",
+    "chat.deleted.with-reason-and-comment": "This chat has been deleted by our moderators because of the following reason: {reason}. Moderator left the following comment: {comment}"
 };

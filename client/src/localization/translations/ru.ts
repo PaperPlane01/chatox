@@ -268,5 +268,8 @@ export const ru: Labels = {
     "chat.delete.error.already-deleted": "Чат уже был удалён",
     "chat.delete.error.unknown": "При удалении чата произошла ошибка, сервер ответил со статусом {errorStatus}",
     "chat.delete.success": "Чат успешно удалён",
-    "chat.delete.specify-reason": "Укажите причину удаления чата"
+    "chat.delete.specify-reason": "Укажите причину удаления чата",
+    "chat.deleted.by-creator": "Данный чат был удалён создателем",
+    "chat.deleted.with-reason": "Данный чат был удалён модераторами по следующей причине: {reason}",
+    "chat.deleted.with-reason-and-comment": "Данный чат был удалён модераторами по следующей причине: {reason}. Модератор оставил следующий комментарий: {comment}"
 };
