@@ -187,7 +187,11 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
             var chatDeletion: ChatDeletion? = null
 
-            if (currentUser.id !== chat.createdBy.id) {
+            if (currentUser.id != chat.createdBy.id) {
+                log.debug("Chat $id is deleted not by its creator")
+                log.trace("Current user id is ${currentUser.id}")
+                log.trace("Chat creator id is ${chat.createdBy.id}")
+
                 if (deleteChatRequest == null) {
                     throw InvalidChatDeletionReasonException(
                             "Chat deletion reason must be specified if chat is deleted not by its creator"

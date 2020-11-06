@@ -8,7 +8,7 @@ import javax.validation.constraints.Size
 data class DeleteChatRequest(
         @field:NotNull
         @field:JsonProperty("reason")
-        val _reason: ChatDeletionReason?,
+        private val _reason: ChatDeletionReason?,
 
         @field:Size(max = 250)
         val comment: String?
