@@ -5,3 +5,4 @@ export * from "./ChatUpdated";
 export * from "./MessageDeleted";
 export * from "./UserKickedFromChat";
 export * from "./UserLeftChat";
+export * from "./ChatDeleted";
