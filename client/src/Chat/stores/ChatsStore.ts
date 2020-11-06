@@ -1,10 +1,10 @@
 import {action} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatOfCurrentUserEntity} from "../types";
-import {AbstractEntityStore} from "../../entity-store";
-import {ChatOfCurrentUser} from "../../api/types/response";
+import {AbstractEntityStore, SoftDeletableEntityStore} from "../../entity-store";
+import {ChatDeletionReason, ChatOfCurrentUser} from "../../api/types/response";
 
-export class ChatsStore extends AbstractEntityStore<ChatOfCurrentUserEntity, ChatOfCurrentUser> {
+export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity, ChatOfCurrentUser> {
     constructor() {
         super();
     }
@@ -63,6 +63,20 @@ export class ChatsStore extends AbstractEntityStore<ChatOfCurrentUserEntity, Cha
         }
     };
 
+    @action
+    setDeletionReasonAndComment = (chatId: string, deletionReason?: ChatDeletionReason, comment?: string): void => {
+        const chat = this.findByIdOptional(chatId);
+
+        if (!chat) {
+            return;
+        }
+
+        chat.deletionReason = deletionReason;
+        chat.deletionComment = comment;
+
+        this.insertEntity(chat);
+    };
+
     protected convertToNormalizedForm(denormalizedEntity: ChatOfCurrentUser): ChatOfCurrentUserEntity {
         return {
             id: denormalizedEntity.id,
@@ -82,7 +96,10 @@ export class ChatsStore extends AbstractEntityStore<ChatOfCurrentUserEntity, Cha
             avatarId: denormalizedEntity.avatar && denormalizedEntity.avatar.id,
             createdByCurrentUser: denormalizedEntity.createdByCurrentUser,
             tags: denormalizedEntity.tags,
-            onlineParticipantsCount: denormalizedEntity.onlineParticipantsCount
+            onlineParticipantsCount: denormalizedEntity.onlineParticipantsCount,
+            deleted: denormalizedEntity.deleted,
+            deletionComment: denormalizedEntity.deletionComment,
+            deletionReason: denormalizedEntity.deletionReason
         }
     }
 }

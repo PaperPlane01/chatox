@@ -252,5 +252,16 @@ export const en: Labels = {
     "login.as-anonymous": "Log in as anonymous",
     "chat.participant.kick": "Kick user",
     "chat.participant.kick.success": "Chat participant has been kicked",
-    "chat.participant.kick.error": "Error occurred when tried to kick chat participant"
+    "chat.participant.kick.error": "Error occurred when tried to kick chat participant",
+    "chat.delete": "Delete chat",
+    "chat.delete.with-name": "Delete chat {chatName}",
+    "chat.delete.comment-required-if-reason-is-other": "Comment must be provided is chat deletion reason is set to \"Other\"",
+    "chat.delete.comment-is-too-long": "Comment is too long",
+    "chat.delete.comment": "Comment",
+    "chat.delete.reason": "Reason",
+    "chat.delete.reason.SPAM": "Spam",
+    "chat.delete.reason.CHILD_ABUSE": "Child abuse",
+    "chat.delete.reason.ILLEGAL_CONTENT": "Illegal content",
+    "chat.delete.reason.PORNOGRAPHY": "Pornography",
+    "chat.delete.reason.OTHER": "Other"
 };

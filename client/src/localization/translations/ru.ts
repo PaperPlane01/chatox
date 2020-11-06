@@ -252,5 +252,16 @@ export const ru: Labels = {
     "login.as-anonymous": "Войти под анонимным аккаунтом",
     "chat.participant.kick": "Выгнать из чата",
     "chat.participant.kick.success": "Участник чата был выгнан",
-    "chat.participant.kick.error": "Во время попытки выгнать участника чата произошла ошибка"
+    "chat.participant.kick.error": "Во время попытки выгнать участника чата произошла ошибка",
+    "chat.delete": "Удалить чат",
+    "chat.delete.with-name": "Удалить чат {chatName}",
+    "chat.delete.comment-required-if-reason-is-other": "Комментарий обязателен, если причиной удаления указано \"Другое\"",
+    "chat.delete.comment-is-too-long": "Комментарий слишком длинный",
+    "chat.delete.comment": "Комментарий",
+    "chat.delete.reason": "Причина",
+    "chat.delete.reason.SPAM": "Спам",
+    "chat.delete.reason.CHILD_ABUSE": "Жестокое обращение с детьми",
+    "chat.delete.reason.ILLEGAL_CONTENT": "Незаконный контент",
+    "chat.delete.reason.PORNOGRAPHY": "Порнография",
+    "chat.delete.reason.OTHER": "Другое"
 };

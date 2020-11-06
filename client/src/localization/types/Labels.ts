@@ -250,5 +250,16 @@ export interface Labels {
     "login.as-anonymous": string,
     "chat.participant.kick": string,
     "chat.participant.kick.success": string,
-    "chat.participant.kick.error": string
+    "chat.participant.kick.error": string,
+    "chat.delete": string,
+    "chat.delete.with-name": string
+    "chat.delete.comment-required-if-reason-is-other": string,
+    "chat.delete.comment-is-too-long": string,
+    "chat.delete.comment": string,
+    "chat.delete.reason": string,
+    "chat.delete.reason.SPAM": string,
+    "chat.delete.reason.CHILD_ABUSE": string,
+    "chat.delete.reason.ILLEGAL_CONTENT": string,
+    "chat.delete.reason.PORNOGRAPHY": string,
+    "chat.delete.reason.OTHER": string
 }
