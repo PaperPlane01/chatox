@@ -1,6 +1,6 @@
 import {AxiosPromise} from "axios";
 import {axiosInstance} from "../axios-instance";
-import {CreateChatRequest, PaginationRequest} from "../types/request";
+import {CreateChatRequest, DeleteChatRequest, PaginationRequest} from "../types/request";
 import {
     AvailabilityResponse,
     Chat,
@@ -64,5 +64,11 @@ export class ChatApi {
 
     public static deleteChatParticipation(chatId: string, chatParticipationId: string): AxiosPromise<void> {
         return axiosInstance.delete(`/${CHATS}/${chatId}/${PARTICIPANTS}/${chatParticipationId}`);
+    }
+
+    public static deleteChat(chatId: string, deleteChatRequest?: DeleteChatRequest): AxiosPromise<void> {
+        return axiosInstance.delete(`/${CHATS}/${chatId}`, {
+            data: deleteChatRequest
+        });
     }
 }
