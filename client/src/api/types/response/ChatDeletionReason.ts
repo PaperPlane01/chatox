@@ -1,0 +1,7 @@
+export enum ChatDeletionReason {
+    ILLEGAL_CONTENT= "ILLEGAL_CONTENT",
+    SPAM = "SPAM",
+    CHILD_ABUSE = "CHILD_ABUSE",
+    PORNOGRAPHY = "PORNOGRAPHY",
+    OTHER = "OTHER"
+}

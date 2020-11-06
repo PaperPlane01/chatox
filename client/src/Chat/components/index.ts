@@ -21,3 +21,7 @@ export * from "./ChatsPreferencesCard";
 export * from "./PopularChatsList";
 export * from "./PopularChatsListItem";
 export * from "./KickChatParticipantMenuItem";
+export * from "./DeleteChatMenuItem";
+export * from "./ChatDeletionReasonSelect";
+export * from "./ConfirmChatDeletionDialog";
+export * from "./SpecifyChatDeletionReasonDialog";

@@ -15,8 +15,12 @@ import {
     ChatsPreferencesStore,
     ChatStore,
     CreateChatStore,
-    JoinChatStore, KickChatParticipantStore, LeaveChatStore,
-    OnlineChatParticipantsStore, PopularChatsStore,
+    DeleteChatStore,
+    JoinChatStore,
+    KickChatParticipantStore,
+    LeaveChatStore,
+    OnlineChatParticipantsStore,
+    PopularChatsStore,
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
@@ -113,5 +117,6 @@ export interface IAppState {
     messageDeletion: DeleteMessageStore,
     anonymousRegistration: AnonymousRegistrationDialogStore,
     kickFromChat: KickChatParticipantStore,
+    chatDeletion: DeleteChatStore,
     store?: any
 }

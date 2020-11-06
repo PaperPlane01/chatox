@@ -1,5 +1,6 @@
 import {Labels} from "../../localization/types";
 import {isStringEmpty} from "../../utils/string-utils";
+import {ChatDeletionReason} from "../../api/types/response";
 
 const SLUG_REGEXP = /^[a-zA-Z0-9_.]+$/;
 
@@ -58,6 +59,22 @@ export const validateChatSlug = (slug?: string): keyof Labels | undefined => {
 
     if (slug!.length > 25) {
         return "chat.slug.too-long";
+    }
+
+    return undefined;
+};
+
+export const validateChatDeletionComment = (comment: string | undefined, chatDeletionReason: ChatDeletionReason): keyof Labels | undefined => {
+    if (isStringEmpty(comment)) {
+        if (chatDeletionReason === ChatDeletionReason.OTHER) {
+            return "chat.delete.comment-required-if-reason-is-other";
+        }
+
+        return undefined;
+    }
+
+    if (comment!.length > 1000) {
+        return "chat.delete.comment-is-too-long";
     }
 
     return undefined;

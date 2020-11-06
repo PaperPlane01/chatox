@@ -14,3 +14,4 @@ export * from "./ChatUploadsStore";
 export * from "./LeaveChatStore";
 export * from "./PopularChatsStore";
 export * from "./KickChatParticipantStore";
+export * from "./DeleteChatStore";

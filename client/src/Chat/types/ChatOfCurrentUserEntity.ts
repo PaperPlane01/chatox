@@ -1,3 +1,5 @@
+import {ChatDeletionReason} from "../../api/types/response";
+
 export interface ChatOfCurrentUserEntity {
     id: string,
     name: string,
@@ -15,5 +17,8 @@ export interface ChatOfCurrentUserEntity {
     description?: string,
     avatarId?: string,
     createdByCurrentUser: boolean,
-    tags: string[]
+    tags: string[],
+    deleted: boolean,
+    deletionReason?: ChatDeletionReason,
+    deletionComment?: string
 }

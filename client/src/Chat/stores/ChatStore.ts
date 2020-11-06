@@ -36,6 +36,9 @@ export class ChatStore {
                 .then(({data}) => {
                     this.entities.insertChat({
                         ...data,
+                        deletionReason: undefined,
+                        deletionComment: undefined,
+                        deleted: false,
                         unreadMessagesCount: 0
                     });
                     this.previousChatId = this.selectedChatId;

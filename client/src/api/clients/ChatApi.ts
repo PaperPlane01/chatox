@@ -1,16 +1,16 @@
 import {AxiosPromise} from "axios";
+import {stringify} from "query-string";
 import {axiosInstance} from "../axios-instance";
-import {CreateChatRequest, PaginationRequest} from "../types/request";
+import {CreateChatRequest, DeleteChatRequest, PaginationRequest, UpdateChatRequest} from "../types/request";
 import {
     AvailabilityResponse,
     Chat,
+    ChatDeletionReason,
     ChatOfCurrentUser,
     ChatParticipation,
     ChatParticipationWithoutUser
 } from "../types/response";
 import {CHATS, IS_AVAILABLE, JOIN, LEAVE, MY, ONLINE, PARTICIPANTS, POPULAR, SLUG} from "../endpoints";
-import {UpdateChatRequest} from "../types/request/UpdateChatRequest";
-import {stringify} from "query-string";
 
 export class ChatApi {
 
@@ -64,5 +64,16 @@ export class ChatApi {
 
     public static deleteChatParticipation(chatId: string, chatParticipationId: string): AxiosPromise<void> {
         return axiosInstance.delete(`/${CHATS}/${chatId}/${PARTICIPANTS}/${chatParticipationId}`);
+    }
+
+    public static deleteChat(chatId: string, deleteChatRequest?: DeleteChatRequest): AxiosPromise<void> {
+        return axiosInstance.delete(`/${CHATS}/${chatId}`, {
+            // Need to send dummy request body here because otherwise Axios will not send
+            // content-type header properly and the request will be rejected by Spring backend
+            data: deleteChatRequest ? deleteChatRequest : {reason: ChatDeletionReason.SPAM},
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
     }
 }
