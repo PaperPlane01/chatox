@@ -1,8 +1,8 @@
 package chatox.chat.api.response
 
+import chatox.chat.model.ChatDeletionReason
 import chatox.chat.model.ImageUploadMetadata
 import java.time.ZonedDateTime
-import java.util.Date
 
 data class ChatOfCurrentUserResponse(
         val id: String?,
@@ -19,5 +19,8 @@ data class ChatOfCurrentUserResponse(
         val participantsCount: Int = 0,
         val onlineParticipantsCount: Int = 0,
         val avatar: UploadResponse<ImageUploadMetadata>?,
-        val createdByCurrentUser: Boolean
+        val createdByCurrentUser: Boolean,
+        val deleted: Boolean,
+        val deletionReason: ChatDeletionReason?,
+        val deletionComment: String?
 )
