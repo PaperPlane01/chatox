@@ -22,7 +22,8 @@ class AuthenticationFacade(private val userRepository: UserRepository,
                 .map {
                     UserIdAndRolesHolder(
                             id = it.customUserDetails.id,
-                            roles = it.customUserDetails.authorities.map { authority -> authority.authority }
+                            roles = it.customUserDetails.authorities.map { authority -> authority.authority },
+                            userDetails = it.customUserDetails
                     )
                 }
                 .map { Tuples.of(
@@ -42,9 +43,10 @@ class AuthenticationFacade(private val userRepository: UserRepository,
                         roles = it.t2.roles,
                         bio = it.t1.bio,
                         createdAt = it.t1.createdAt,
-                        dateOfBirth = it.t1.dateOfBirth
+                        dateOfBirth = it.t1.dateOfBirth,
+                        email = it.t2.userDetails.email
                 ) }
     }
 
-    data class UserIdAndRolesHolder(val id: String, val roles: List<String>)
+    data class UserIdAndRolesHolder(val id: String, val roles: List<String>, val userDetails: CustomUserDetails)
 }

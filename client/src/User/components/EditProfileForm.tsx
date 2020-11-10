@@ -1,5 +1,5 @@
 import React, {FunctionComponent, useEffect} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {
     Button,
     Card,
@@ -13,46 +13,31 @@ import {
 import {DatePicker} from "@material-ui/pickers";
 import {useSnackbar} from "notistack";
 import {UserAvatarUpload} from "./UserAvatarUpload";
-import {EditProfileFormData} from "../types";
-import {MakrdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
-import {localized, Localized} from "../../localization";
-import {FormErrors} from "../../utils/types";
-import {ApiError} from "../../api";
-import {MapMobxToProps} from "../../store";
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
+import {useLocalization, useStore} from "../../store";
 
-interface EditProfileFormOwnProps {
+interface EditProfileFormProps {
     hideHeader?: boolean
 }
 
-interface EditProfileFormMobxProps {
-    editProfileForm: EditProfileFormData,
-    formErrors: FormErrors<EditProfileFormData>,
-    pending: boolean,
-    error?: ApiError,
-    checkingSlugAvailability: boolean,
-    avatarUploadPending: boolean,
-    showSnackbar: boolean,
-    setFormValue: <Key extends keyof EditProfileFormData>(key: Key, value: EditProfileFormData[Key]) => void,
-    setShowSnackbar: (showSnackbar: boolean) => void,
-    updateProfile: () => void
-}
-
-type EditProfileFormProps = EditProfileFormOwnProps & EditProfileFormMobxProps & Localized;
-
-const _EditProfileForm: FunctionComponent<EditProfileFormProps> = ({
-    hideHeader = false,
-    editProfileForm,
-    formErrors,
-    pending,
-    error,
-    checkingSlugAvailability,
-    avatarUploadPending,
-    showSnackbar,
-    setFormValue,
-    setShowSnackbar,
-    updateProfile,
-    l
+export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer(({
+    hideHeader = false
 }) => {
+    const {
+        editProfile: {
+            editProfileForm,
+            formErrors,
+            pending,
+            error,
+            checkingSlugAvailability,
+            avatarUploadPending,
+            showSnackbar,
+            setFormValue,
+            setShowSnackbar,
+            updateProfile
+        }
+    } = useStore();
+    const {l} = useLocalization();
     const {enqueueSnackbar} = useSnackbar();
 
     useEffect(() => {
@@ -137,26 +122,7 @@ const _EditProfileForm: FunctionComponent<EditProfileFormProps> = ({
                     {l("user.edit-profile.save-changes")}
                 </Button>
             </CardActions>
-            <MakrdownPreviewDialog text={editProfileForm.bio || ""}/>
+            <MarkdownPreviewDialog text={editProfileForm.bio || ""}/>
         </Card>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<EditProfileFormMobxProps> = ({
-    editProfile
-}) => ({
-    editProfileForm: editProfile.editProfileForm,
-    formErrors: editProfile.formErrors,
-    pending: editProfile.pending,
-    error: editProfile.error,
-    checkingSlugAvailability: editProfile.checkingSlugAvailability,
-    avatarUploadPending: editProfile.avatarUploadPending,
-    showSnackbar: editProfile.showSnackbar,
-    setFormValue: editProfile.setFormValue,
-    setShowSnackbar: editProfile.setShowSnackbar,
-    updateProfile: editProfile.updateProfile
 });
-
-export const EditProfileForm = localized(
-    inject(mapMobxToProps)(observer(_EditProfileForm))
-) as FunctionComponent<EditProfileFormOwnProps>;

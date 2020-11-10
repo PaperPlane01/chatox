@@ -1,48 +1,75 @@
 import {IAppState} from "./IAppState";
 import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore} from "../Authorization";
+import {AuthorizationStore, LoginStore,} from "../Authorization/stores";
 import {
-    UserRegistrationStore,
-    SendVerificationEmailStore,
-    CheckEmailVerificationCodeStore,
-    RegistrationDialogStore
+    createSetPasswordRecoveryStepCallback,
+    PasswordRecoveryDialogStore,
+    RecoverPasswordStore,
+    SendPasswordRecoveryEmailConfirmationCodeStore
+} from "../PasswordRecovery";
+import {
+    AnonymousRegistrationDialogStore,
+    createSetRegistrationStepCallback,
+    RegistrationDialogStore,
+    SendConfirmationCodeStore,
+    UserRegistrationStore
 } from "../Registration";
 import {
-    ChatsStore,
-    ChatsOfCurrentUserStore,
-    ChatStore,
-    CreateChatStore,
-    ChatParticipationsStore,
-    ChatParticipantsStore,
-    JoinChatStore,
     ChatInfoDialogStore,
+    ChatParticipantsStore,
+    ChatParticipationsStore,
+    ChatsOfCurrentUserStore,
+    ChatsPreferencesStore,
+    ChatsStore,
+    ChatStore,
+    ChatUploadsStore,
+    CreateChatStore, DeleteChatStore,
+    JoinChatStore,
+    KickChatParticipantStore,
+    LeaveChatStore,
     OnlineChatParticipantsStore,
+    PopularChatsStore,
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
 import {EntitiesStore} from "../entities-store";
-import {UsersStore, UserProfileStore, EditProfileStore} from "../User";
+import {
+    createSetChangePasswordStepCallback,
+    EditProfileStore,
+    PasswordChangeFormSubmissionStore,
+    PasswordChangeStepStore,
+    PasswordChangeStore,
+    SendPasswordChangeEmailConfirmationCodeStore,
+    UserProfileStore,
+    UsersStore
+} from "../User";
 import {
     CreateMessageStore,
+    DownloadMessageFileStore,
+    MessageDialogStore,
     MessagesOfChatStore,
     MessagesStore,
-    MessageDialogStore,
-    UpdateMessageStore
+    UpdateMessageStore,
+    UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
-    ChatBlockingsStore,
-    CreateChatBlockingStore,
-    ChatBlockingsOfChatStore,
-    ChatBlockingsDialogStore,
+    BlockUserInChatByIdOrSlugStore,
     CancelChatBlockingStore,
     ChatBlockingInfoDialogStore,
-    UpdateChatBlockingStore,
-    BlockUserInChatByIdOrSlugStore
+    ChatBlockingsDialogStore,
+    ChatBlockingsOfChatStore,
+    ChatBlockingsStore,
+    CreateChatBlockingStore,
+    UpdateChatBlockingStore
 } from "../ChatBlocking";
-import {UploadsStore, UploadImageStore} from "../Upload";
+import {UploadImageStore, UploadsStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings";
+import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation/stores";
+import {EmojiSettingsStore} from "../Emoji/stores";
+import {AudioPlayerStore} from "../AudioPlayer/stores";
+import {DeleteMessageStore} from "../Message/stores/DeleteMessageStore";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -50,13 +77,15 @@ const usersStore = new UsersStore();
 const chatParticipations = new ChatParticipationsStore();
 const chatBlockings = new ChatBlockingsStore(usersStore);
 const uploads = new UploadsStore();
+const chatUploads = new ChatUploadsStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
     usersStore,
     chatParticipations,
     chatBlockings,
-    uploads
+    uploads,
+    chatUploads
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -65,12 +94,14 @@ entities.setAuthorizationStore(authorization);
 const login = new LoginStore(authorization);
 const registrationDialog = new RegistrationDialogStore();
 const language = new LocaleStore();
-const sendVerificationEmail = new SendVerificationEmailStore(registrationDialog, language);
-const verificationCodeCheck = new CheckEmailVerificationCodeStore(registrationDialog, sendVerificationEmail);
+const sendVerificationEmail = new SendConfirmationCodeStore(registrationDialog, language);
+const registrationEmailConfirmationCodeCheck = new CheckEmailConfirmationCodeStore(
+    createSetRegistrationStepCallback(registrationDialog)
+);
 const userRegistration = new UserRegistrationStore(
     authorization,
     sendVerificationEmail,
-    verificationCodeCheck,
+    registrationEmailConfirmationCodeCheck,
     registrationDialog
 );
 const appBar = new AppBarStore();
@@ -79,8 +110,10 @@ const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entities);
 const chatCreation = new CreateChatStore(entities);
 const chat = new ChatStore(entities);
 const chatParticipants = new ChatParticipantsStore(entities, chat);
-const messageCreation = new CreateMessageStore(chat, entities);
-const messagesOfChat = new MessagesOfChatStore(entities, chat);
+const messageUploads = new UploadMessageAttachmentsStore();
+const messageCreation = new CreateMessageStore(chat, entities, messageUploads);
+const chatsPreferences = new ChatsPreferencesStore();
+const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences);
 const joinChat = new JoinChatStore(entities, authorization);
 const websocket = new WebsocketStore(authorization, entities);
 const userProfile = new UserProfileStore(entities);
@@ -100,6 +133,44 @@ const userAvatarUpload = new UploadImageStore(entities);
 const editProfile = new EditProfileStore(authorization, userAvatarUpload, entities);
 const settingsTabs = new SettingsTabsStore();
 const messageUpdate = new UpdateMessageStore(chat, entities);
+const passwordChangeStep = new PasswordChangeStepStore();
+const passwordChangeForm = new PasswordChangeFormSubmissionStore(passwordChangeStep);
+const passwordChangeEmailConfirmationCodeSending = new SendPasswordChangeEmailConfirmationCodeStore(
+    language,
+    passwordChangeStep
+);
+const  passwordChangeEmailConfirmationCodeCheck = new CheckEmailConfirmationCodeStore(
+    createSetChangePasswordStepCallback(passwordChangeStep)
+);
+const passwordChange = new PasswordChangeStore(
+    passwordChangeForm,
+    passwordChangeEmailConfirmationCodeSending,
+    passwordChangeEmailConfirmationCodeCheck,
+    passwordChangeStep,
+    authorization
+);
+const emoji = new EmojiSettingsStore();
+const audioPlayer = new AudioPlayerStore();
+const messageFileDownload = new DownloadMessageFileStore();
+const passwordRecoveryDialog = new PasswordRecoveryDialogStore();
+const passwordRecoveryEmailConfirmationCodeSending = new SendPasswordRecoveryEmailConfirmationCodeStore(
+    passwordRecoveryDialog,
+    language
+);
+const passwordRecoveryEmailConfirmationCodeCheck = new CheckEmailConfirmationCodeStore(
+    createSetPasswordRecoveryStepCallback(passwordRecoveryDialog)
+);
+const passwordRecoveryForm = new RecoverPasswordStore(
+    passwordRecoveryDialog,
+    passwordRecoveryEmailConfirmationCodeSending,
+    passwordRecoveryEmailConfirmationCodeCheck
+);
+const leaveChat = new LeaveChatStore(entities);
+const popularChats = new PopularChatsStore(entities);
+const messageDeletion = new DeleteMessageStore(entities, chat);
+const anonymousRegistration = new AnonymousRegistrationDialogStore(authorization);
+const kickFromChat = new KickChatParticipantStore(entities, chat);
+const chatDeletion = new DeleteChatStore(entities, chat);
 
 export const store: IAppState = {
     authorization,
@@ -130,15 +201,31 @@ export const store: IAppState = {
     chatAvatarUpload,
     chatUpdate,
     sendVerificationEmail,
-    verificationCodeCheck,
+    registrationEmailConfirmationCodeCheck,
     registrationDialog,
     messageDialog,
     userAvatarUpload,
     editProfile,
     settingsTabs,
-    messageUpdate
+    messageUpdate,
+    passwordChangeStep,
+    passwordChangeEmailConfirmationCodeCheck,
+    passwordChangeEmailConfirmationCodeSending,
+    passwordChangeForm,
+    passwordChange,
+    chatsPreferences,
+    emoji,
+    messageUploads,
+    audioPlayer,
+    messageFileDownload,
+    passwordRecoveryDialog,
+    passwordRecoveryEmailConfirmationCodeCheck,
+    passwordRecoveryEmailConfirmationCodeSending,
+    passwordRecoveryForm,
+    leaveChat,
+    popularChats,
+    messageDeletion,
+    anonymousRegistration,
+    kickFromChat,
+    chatDeletion
 };
-
-export interface MapMobxToProps<ComponentProps = {}> {
-    (state: IAppState): ComponentProps
-}

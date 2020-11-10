@@ -1,25 +1,15 @@
 import React, {FunctionComponent, ReactNode} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {Card, CardHeader, CircularProgress, createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
-import {format, formatDistanceStrict, Locale, isSameDay, isSameYear} from "date-fns";
+import {format, formatDistanceStrict, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
-import {UserEntity} from "../types";
 import {Avatar} from "../../Avatar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {localized, Localized, TranslationFunction} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {TranslationFunction} from "../../localization";
+import {useLocalization, useStore} from "../../store";
 
 const breaks = require("remark-breaks");
-
-interface UserProfileInfoMobxProps {
-    pending: boolean,
-    error?: ApiError,
-    userId: string | undefined,
-    findUser: (id: string) => UserEntity
-}
-
-type UserProfileInfoProps = UserProfileInfoMobxProps & Localized;
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     centered: {
@@ -71,14 +61,20 @@ const getLastSeenLabel = (lastSeen: Date, locale: Locale): string => {
     }
 };
 
-const _UserProfileInfo: FunctionComponent<UserProfileInfoProps> = ({
-    pending,
-    error,
-    findUser,
-    userId,
-    l,
-    dateFnsLocale
-}) => {
+export const UserProfileInfo: FunctionComponent = observer(() => {
+    const {
+        userProfile: {
+            pending,
+            error,
+            selectedUserId: userId
+        },
+        entities: {
+            users: {
+                findById: findUser
+            }
+        }
+    } = useStore();
+    const {l, dateFnsLocale} = useLocalization();
     const classes = useStyles();
 
     if (pending) {
@@ -196,15 +192,4 @@ const _UserProfileInfo: FunctionComponent<UserProfileInfoProps> = ({
     } else {
         return null;
     }
-};
-
-const mapMobxToProps: MapMobxToProps<UserProfileInfoMobxProps> = ({entities, userProfile}) => ({
-    userId: userProfile.selectedUserId,
-    pending: userProfile.pending,
-    error: userProfile.error,
-    findUser: entities.users.findById
 });
-
-export const UserProfileInfo = localized(
-    inject(mapMobxToProps)(observer(_UserProfileInfo))
-) as FunctionComponent;

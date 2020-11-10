@@ -1,11 +1,7 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {Backdrop, CircularProgress, createStyles, makeStyles, Theme} from "@material-ui/core";
-import {MapMobxToProps} from "../../store";
-
-interface LoadingCurrentUserProgressIndicatorMobxProps {
-    fetchingCurrentUser: boolean
-}
+import {useAuthorization} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     backdrop: {
@@ -14,10 +10,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-const _LoadingCurrentUserProgressIndicator: FunctionComponent<LoadingCurrentUserProgressIndicatorMobxProps> = ({
-    fetchingCurrentUser
-}) => {
+export const LoadingCurrentUserProgressIndicator: FunctionComponent = observer(() => {
     const classes = useStyles();
+    const {fetchingCurrentUser} = useAuthorization();
 
     if (!fetchingCurrentUser) {
         return null;
@@ -30,10 +25,4 @@ const _LoadingCurrentUserProgressIndicator: FunctionComponent<LoadingCurrentUser
             <CircularProgress color="primary"/>
         </Backdrop>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<LoadingCurrentUserProgressIndicatorMobxProps> = ({authorization}) => ({
-    fetchingCurrentUser: authorization.fetchingCurrentUser
 });
-
-export const LoadingCurrentUserProgressIndicator = inject(mapMobxToProps)(observer(_LoadingCurrentUserProgressIndicator) as FunctionComponent);

@@ -1,22 +1,15 @@
 import React, {FunctionComponent} from "react";
-import {inject} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText, createStyles, makeStyles} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {createStyles, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
 import HomeIcon from "@material-ui/icons/Home";
 import {Routes} from "../../router";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useRouter} from "../../store";
 
 const {Link} = require("mobx-router");
 
-interface HomeMenuItemMobxProps {
-    routerStore?: any
-}
-
-interface HomeMenuItemOwnProps {
+interface HomeMenuItemProps {
     onClick?: () => void
 }
-
-type HomeMenuItemProps = HomeMenuItemMobxProps & HomeMenuItemOwnProps & Localized;
 
 const useStyles = makeStyles(() => createStyles({
     undecoratedLink: {
@@ -25,12 +18,10 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-const _HomeMenuItem: FunctionComponent<HomeMenuItemProps> = ({
-    onClick,
-    routerStore,
-    l
-}) => {
+export const HomeMenuItem: FunctionComponent<HomeMenuItemProps> = observer(({onClick}) => {
     const classes = useStyles();
+    const {l} = useLocalization();
+    const routerStore = useRouter();
 
     const handleClick = (): void => {
         if (onClick) {
@@ -53,12 +44,4 @@ const _HomeMenuItem: FunctionComponent<HomeMenuItemProps> = ({
             </MenuItem>
         </Link>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<HomeMenuItemMobxProps> = ({store}) => ({
-    routerStore: store
 });
-
-export const HomeMenuItem = localized(
-    inject(mapMobxToProps)(_HomeMenuItem)
-) as FunctionComponent<HomeMenuItemOwnProps>;

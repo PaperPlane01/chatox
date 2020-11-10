@@ -1,9 +1,9 @@
 import {action, computed} from "mobx";
-import {ChatParticipationsStore, ChatsStore} from "../Chat";
+import {ChatParticipationEntity, ChatParticipationsStore, ChatsStore, ChatUploadsStore} from "../Chat";
 import {UsersStore} from "../User";
 import {
-    Chat,
     ChatBlocking,
+    ChatDeletionReason,
     ChatOfCurrentUser,
     ChatParticipation,
     ChatRole,
@@ -16,6 +16,9 @@ import {AuthorizationStore} from "../Authorization";
 import {ChatBlockingsStore} from "../ChatBlocking/stores";
 import {UploadsStore} from "../Upload/stores";
 import {ChatUpdated} from "../api/types/websocket";
+import {PartialBy} from "../utils/types";
+
+type DecreaseChatParticipantsCountCallback = (chatParticipation?: ChatParticipationEntity, currentUser?: CurrentUser) => boolean;
 
 export class EntitiesStore {
     private authorizationStore: AuthorizationStore;
@@ -35,13 +38,14 @@ export class EntitiesStore {
         public users: UsersStore,
         public chatParticipations: ChatParticipationsStore,
         public chatBlockings: ChatBlockingsStore,
-        public uploads: UploadsStore
+        public uploads: UploadsStore,
+        public chatUploads: ChatUploadsStore
     ) {
     }
 
     @action
     insertMessages = (messages: Message[]): void => {
-        messages.forEach((message, index, messagesArray) => {
+        messages.reverse().forEach((message, index, messagesArray) => {
             if (index !== 0) {
                 message.previousMessageId = messagesArray[index - 1].id;
             }
@@ -62,6 +66,8 @@ export class EntitiesStore {
             this.insertMessage(message.referredMessage);
         }
 
+        this.uploads.insertAll(message.uploads.map(chatUpload => chatUpload.upload));
+        this.chatUploads.insertAll(message.uploads);
         this.messages.insert(message);
         this.chats.addMessageToChat(message.chatId, message.id);
     };
@@ -85,45 +91,62 @@ export class EntitiesStore {
     };
 
     @action
-    insertChats = (chatsOfCurrentUser: ChatOfCurrentUser[]): void => {
-        chatsOfCurrentUser.forEach(chat => this.insertChat(chat));
+    insertChats = (chatsOfCurrentUser: PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted">[]): void => {
+        chatsOfCurrentUser.forEach(chat => this.insertChat({
+            ...chat,
+            deleted: chat.deleted === undefined ? false : chat.deleted
+        }));
     };
 
     @action
-    insertChat = (chatOfCurrentUser: ChatOfCurrentUser): void => {
-        const chat = this.chats.insert(chatOfCurrentUser);
+    insertChat = (chat: PartialBy<ChatOfCurrentUser, "unreadMessagesCount">): void => {
+        let unreadMessagesCount: number;
 
-        if (chatOfCurrentUser.lastMessage) {
-            this.insertMessage(chatOfCurrentUser.lastMessage);
+        if (chat.unreadMessagesCount === undefined || chat.unreadMessagesCount === null) {
+            const existingChat = this.chats.findByIdOptional(chat.id);
+
+            if (existingChat) {
+                unreadMessagesCount = existingChat.unreadMessagesCount;
+            } else {
+                unreadMessagesCount = 0;
+            }
+        } else {
+            unreadMessagesCount = chat.unreadMessagesCount;
         }
 
-        if (chatOfCurrentUser.lastReadMessage) {
-            this.insertMessage(chatOfCurrentUser.lastReadMessage);
+        const chatEntity = this.chats.insert({...chat, unreadMessagesCount});
+
+        if (chat.lastMessage) {
+            this.insertMessage(chat.lastMessage);
         }
 
-        if (chatOfCurrentUser.avatar) {
-            this.uploads.insert(chatOfCurrentUser.avatar);
+        if (chat.lastReadMessage) {
+            this.insertMessage(chat.lastReadMessage);
         }
 
-        if (this.currentUser && chatOfCurrentUser.chatParticipation) {
-            if (chatOfCurrentUser.chatParticipation.activeChatBlocking) {
-                this.chatBlockings.insert(chatOfCurrentUser.chatParticipation.activeChatBlocking);
+        if (chat.avatar) {
+            this.uploads.insert(chat.avatar);
+        }
+
+        if (this.currentUser && chat.chatParticipation) {
+            if (chat.chatParticipation.activeChatBlocking) {
+                this.chatBlockings.insert(chat.chatParticipation.activeChatBlocking);
             }
 
             this.chatParticipations.insert({
-                ...chatOfCurrentUser.chatParticipation,
+                ...chat.chatParticipation,
                 user: {
                     ...this.currentUser,
                     deleted: false,
                     online: true
                 },
-                chatId: chatOfCurrentUser.id,
-                activeChatBlocking: chatOfCurrentUser.chatParticipation.activeChatBlocking
+                chatId: chat.id,
+                activeChatBlocking: chat.chatParticipation.activeChatBlocking
             });
 
-            chat.participants = Array.from(new Set([
-                ...chat.participants,
-                chatOfCurrentUser.chatParticipation.id
+            chatEntity.participants = Array.from(new Set([
+                ...chatEntity.participants,
+                chat.chatParticipation.id
             ]))
         }
     };
@@ -140,8 +163,38 @@ export class EntitiesStore {
         const chat = this.chats.findByIdOptional(chatParticipation.chatId);
         if (chat && currentUser) {
             chat.currentUserParticipationId = chatParticipation.id;
-            chat.participantsCount += 1;
-            this.chats.insertEntity(chat);
+            this.chats.increaseChatParticipantsCount(chat.id);
+        }
+    };
+
+    @action
+    deleteChatParticipation = (id: string, decreaseChatParticipantsCount: boolean | DecreaseChatParticipantsCountCallback = false, chatId?: string): void => {
+        const chatParticipation = this.chatParticipations.findById(id);
+
+        if (chatParticipation) {
+            const chat = this.chats.findById(chatParticipation.chatId);
+
+            if (chat.currentUserParticipationId === id) {
+                chat.currentUserParticipationId = undefined;
+            }
+
+            this.chatParticipations.deleteById(id);
+
+            if (typeof decreaseChatParticipantsCount === "function") {
+                if (decreaseChatParticipantsCount(chatParticipation, this.authorizationStore.currentUser)) {
+                    this.chats.decreaseChatParticipantsCount(chat.id);
+                }
+            } else if (decreaseChatParticipantsCount) {
+                this.chats.decreaseChatParticipantsCount(chat.id);
+            }
+        } else if (chatId) {
+            if (typeof decreaseChatParticipantsCount === "function") {
+                if (decreaseChatParticipantsCount(undefined, this.currentUser)) {
+                    this.chats.decreaseChatParticipantsCount(chatId);
+                }
+            } else if (decreaseChatParticipantsCount) {
+                this.chats.decreaseChatParticipantsCount(chatId);
+            }
         }
     };
 
@@ -177,5 +230,15 @@ export class EntitiesStore {
                 this.chatParticipations.insertEntity(chatParticipation);
             }
         }
+    };
+
+    @action
+    deleteChat = (chatId: string, deletionReason?: ChatDeletionReason, deletionComment?: string): void => {
+        this.chats.deleteById(chatId);
+        this.chats.setDeletionReasonAndComment(
+            chatId,
+            deletionReason,
+            deletionComment
+        );
     };
 }

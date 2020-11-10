@@ -2,15 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {Provider} from "mobx-react";
 import {App} from "./App";
-import {store} from "./store";
+import {store, routerStore} from "./store";
 import {Routes} from "./router";
 import * as serviceWorker from "./serviceWorker";
 
-const {RouterStore, startRouter} = require("mobx-router");
-
-const routerStore = {
-    router: new RouterStore()
-};
+const {startRouter} = require("mobx-router");
 
 startRouter(Routes, routerStore, {
     notfound: () => {
@@ -27,8 +23,7 @@ ReactDOM.render(
 
 if (localStorage.getItem("accessToken")) {
     store.authorization.fetchCurrentUser()
-        .then(() => store.chatsOfCurrentUser.fetchChatsOfCurrentUser())
-        .then(() => store.websocket.startListening());
+        .then(() => store.chatsOfCurrentUser.fetchChatsOfCurrentUser());
 } else {
     store.websocket.startListening();
 }

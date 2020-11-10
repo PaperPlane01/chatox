@@ -1,7 +1,7 @@
 package chatox.chat.api.response
 
+import chatox.chat.model.EmojiInfo
 import java.time.ZonedDateTime
-import java.util.Date
 
 data class MessageResponse(
         val id: String,
@@ -12,5 +12,8 @@ data class MessageResponse(
         val createdAt: ZonedDateTime,
         val updatedAt: ZonedDateTime?,
         val readByCurrentUser: Boolean,
-        val chatId: String
+        val chatId: String,
+        val emoji: EmojiInfo = EmojiInfo(),
+        val uploads: List<ChatUploadAttachmentResponse<Any>> = listOf(),
+        val index: Long = 0L
 )

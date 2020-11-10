@@ -4,16 +4,22 @@ import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.model.Chat
+import chatox.chat.model.ChatUploadAttachment
+import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.User
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
-import java.time.Instant
 import java.time.ZonedDateTime
-import java.util.Date
 import java.util.UUID
 
 @Component
 class MessageMapper(private val userMapper: UserMapper) {
+    @Autowired
+    @Lazy
+    private lateinit var chatUploadAttachmentMapper: ChatUploadAttachmentMapper
+
     fun toMessageResponse(message: Message, mapReferredMessage: Boolean, readByCurrentUser: Boolean): MessageResponse {
         var referredMessage: MessageResponse? = null
 
@@ -30,7 +36,14 @@ class MessageMapper(private val userMapper: UserMapper) {
                 readByCurrentUser = readByCurrentUser,
                 referredMessage = referredMessage,
                 updatedAt = message.updatedAt,
-                chatId = message.chat.id
+                chatId = message.chat.id,
+                emoji = message.emoji,
+                uploads = message.uploadAttachments.map { chatUploadAttachment ->
+                    chatUploadAttachmentMapper.toChatUploadAttachmentResponse(
+                            chatUploadAttachment
+                    )
+                },
+                index = message.index
         )
     }
 
@@ -38,7 +51,10 @@ class MessageMapper(private val userMapper: UserMapper) {
             createMessageRequest: CreateMessageRequest,
             sender: User,
             chat: Chat,
-            referredMessage: Message?
+            referredMessage: Message?,
+            emoji: EmojiInfo = EmojiInfo(),
+            chatUploadAttachments: List<ChatUploadAttachment<Any>> = listOf(),
+            index: Long
     ) = Message(
             id = UUID.randomUUID().toString(),
             createdAt = ZonedDateTime.now(),
@@ -49,13 +65,18 @@ class MessageMapper(private val userMapper: UserMapper) {
             updatedAt = null,
             referredMessage = referredMessage,
             text = createMessageRequest.text,
-            sender = sender
+            sender = sender,
+            emoji = emoji,
+            uploadAttachments = chatUploadAttachments,
+            index = index
     )
 
     fun mapMessageUpdate(updateMessageRequest: UpdateMessageRequest,
-                         originalMessage: Message
+                         originalMessage: Message,
+                         emojis: EmojiInfo = originalMessage.emoji
     ) = originalMessage.copy(
-            text = updateMessageRequest.text ?: originalMessage.text,
-            updatedAt = ZonedDateTime.now()
+            text = updateMessageRequest.text,
+            updatedAt = ZonedDateTime.now(),
+            emoji = emojis
     )
 }

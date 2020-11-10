@@ -1,5 +1,5 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {
     Button,
     CircularProgress,
@@ -9,39 +9,17 @@ import {
     DialogTitle,
     InputAdornment,
     TextField,
-    Typography,
-    withMobileDialog,
-    WithMobileDialog
+    Typography
 } from "@material-ui/core";
 import ChipInput from "material-ui-chip-input";
-import {withSnackbar, WithSnackbarProps} from "notistack";
+import {useSnackbar} from "notistack";
 import {ChatAvatarUpload} from "./ChatAvatarUpload";
-import {MakrdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
-import {ChatOfCurrentUserEntity, TagErrorsMapContainer, UpdateChatFormData} from "../types";
-import {FormErrors} from "../../utils/types";
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {Language, localized, Localized, TranslationFunction} from "../../localization";
+import {Language, TranslationFunction} from "../../localization";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
-import {MapMobxToProps} from "../../store";
-
-interface UpdateChatDialogMobxProps {
-    updateChatForm: UpdateChatFormData,
-    formErrors: FormErrors<UpdateChatFormData> & TagErrorsMapContainer,
-    updateChatDialogOpen: boolean,
-    pending: boolean,
-    avatarUploadPending: boolean,
-    checkingSlugAvailability: boolean,
-    error?: ApiError,
-    selectedChatId?: string,
-    showSnackbar: boolean,
-    setFormValue: <Key extends keyof UpdateChatFormData>(key: Key, value: UpdateChatFormData[Key]) => void,
-    updateChat: () => void,
-    setUpdateChatDialogOpen: (updateChatDialogOpen: boolean) => void,
-    findChat: (id: string) => ChatOfCurrentUserEntity,
-    setShowSnackbar: (showSnackbar: boolean) => void
-}
-
-type UpdateChatDialogProps = UpdateChatDialogMobxProps & Localized & WithMobileDialog & WithSnackbarProps;
+import {useLocalization, useStore} from "../../store";
+import {useMobileDialog} from "../../utils/hooks";
 
 const notFoundErrorTranslations = {
     en: () => (
@@ -102,26 +80,35 @@ const getErrorNode = (error: ApiError, l: TranslationFunction, language: Languag
     }
 };
 
-const _UpdateChatDialog: FunctionComponent<UpdateChatDialogProps> = ({
-    updateChatForm,
-    formErrors,
-    updateChatDialogOpen,
-    pending,
-    checkingSlugAvailability,
-    avatarUploadPending,
-    error,
-    showSnackbar,
-    setUpdateChatDialogOpen,
-    updateChat,
-    setFormValue,
-    selectedChatId,
-    findChat,
-    setShowSnackbar,
-    l,
-    locale,
-    fullScreen,
-    enqueueSnackbar
-}) => {
+export const UpdateChatDialog: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            selectedChatId
+        },
+        chatUpdate: {
+            updateChatForm,
+            formErrors,
+            updateChatDialogOpen,
+            pending,
+            checkingSlugAvailability,
+            avatarUploadPending,
+            error,
+            showSnackbar,
+            setShowSnackbar,
+            setUpdateChatDialogOpen,
+            setFormValue,
+            updateChat
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            }
+        }
+    } = useStore();
+    const {l, locale} = useLocalization();
+    const {enqueueSnackbar} = useSnackbar();
+    const {fullScreen} = useMobileDialog();
+
     if (!selectedChatId) {
         return null;
     }
@@ -228,36 +215,7 @@ const _UpdateChatDialog: FunctionComponent<UpdateChatDialogProps> = ({
                     {l("chat.update.save-changes")}
                 </Button>
             </DialogActions>
-            <MakrdownPreviewDialog text={updateChatForm.description || ""}/>
+            <MarkdownPreviewDialog text={updateChatForm.description || ""}/>
         </Dialog>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<UpdateChatDialogMobxProps> = ({
-    chatUpdate,
-    chat,
-    entities
-}) => ({
-    updateChatDialogOpen: chatUpdate.updateChatDialogOpen,
-    updateChatForm: chatUpdate.updateChatForm,
-    formErrors: chatUpdate.formErrors,
-    pending: chatUpdate.pending,
-    avatarUploadPending: chatUpdate.avatarUploadPending,
-    checkingSlugAvailability: chatUpdate.checkingSlugAvailability,
-    error: chatUpdate.error,
-    selectedChatId: chat.selectedChatId,
-    setFormValue: chatUpdate.setFormValue,
-    setUpdateChatDialogOpen: chatUpdate.setUpdateChatDialogOpen,
-    updateChat: chatUpdate.updateChat,
-    findChat: entities.chats.findById,
-    showSnackbar: chatUpdate.showSnackbar,
-    setShowSnackbar: chatUpdate.setShowSnackbar
 });
-
-export const UpdateChatDialog = withMobileDialog()(
-    withSnackbar(
-        localized(
-            inject(mapMobxToProps)(observer(_UpdateChatDialog))
-        ) as FunctionComponent
-    )
-);

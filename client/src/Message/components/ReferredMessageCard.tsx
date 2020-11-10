@@ -1,5 +1,5 @@
 import React, {FunctionComponent, useLayoutEffect, useState} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {
     Card,
     CardContent,
@@ -12,21 +12,8 @@ import {
 } from "@material-ui/core";
 import {Close} from "@material-ui/icons";
 import randomColor from "randomcolor";
-import {MessageEntity} from "../types";
-import {UserEntity} from "../../User";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
-
-interface ReferredMessageCardMobxProps {
-    referredMessageId?: string,
-    selectedChatId?: string,
-    setReferredMessageId: (referredMessageId?: string) => void,
-    setMessageDialogMessageId: (messageId?: string) => void,
-    findMessage: (id: string) => MessageEntity,
-    findUser: (id: string) => UserEntity,
-}
-
-type ReferredMessageCardProps = ReferredMessageCardMobxProps & Localized;
+import {useLocalization, useStore} from "../../store";
+import {useEmojiParser} from "../../Emoji/hooks";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     cardContentRoot: {
@@ -47,16 +34,30 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-const _ReferredMessageCard: FunctionComponent<ReferredMessageCardProps> = ({
-    referredMessageId,
-    selectedChatId,
-    setReferredMessageId,
-    setMessageDialogMessageId,
-    findMessage,
-    findUser,
-    l
-}) => {
+export const ReferredMessageCard: FunctionComponent = observer(() => {
+    const {
+        messageCreation: {
+            referredMessageId,
+            setReferredMessageId
+        },
+        chat: {
+            selectedChatId
+        },
+        messageDialog: {
+            setMessageId: setMessageDialogMessageId
+        },
+        entities: {
+            messages: {
+                findById: findMessage
+            },
+            users: {
+                findById: findUser
+            }
+        }
+    } = useStore();
+    const {l} = useLocalization();
     const classes = useStyles();
+    const {parseEmoji} = useEmojiParser();
 
     const messagesListElement = document.getElementById("messagesList");
     const messagesListWidth = messagesListElement
@@ -118,27 +119,9 @@ const _ReferredMessageCard: FunctionComponent<ReferredMessageCardProps> = ({
             >
                 {message.deleted
                     ? <i>{l("message.deleted")}</i>
-                    : message.text
+                    : parseEmoji(message.text, message.emoji)
                 }
             </CardContent>
         </Card>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ReferredMessageCardMobxProps> = ({
-    messageCreation,
-    chat,
-    entities,
-    messageDialog
-}) => ({
-    referredMessageId: messageCreation.referredMessageId,
-    setReferredMessageId: messageCreation.setReferredMessageId,
-    selectedChatId: chat.selectedChatId,
-    findMessage: entities.messages.findById,
-    findUser: entities.users.findById,
-    setMessageDialogMessageId: messageDialog.setMessageId
 });
-
-export const ReferredMessageCard = localized(
-    inject(mapMobxToProps)(observer(_ReferredMessageCard))
-) as FunctionComponent;

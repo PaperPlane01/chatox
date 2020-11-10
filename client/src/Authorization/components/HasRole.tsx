@@ -1,27 +1,21 @@
 import React, {Fragment, FunctionComponent, ReactElement} from "react";
-import {inject, observer} from "mobx-react";
-import {convertStringToUserRole, CurrentUser} from "../../api/types/response";
-import {IAppState} from "../../store";
+import {observer} from "mobx-react";
+import {convertStringToUserRole} from "../../api/types/response";
+import {useAuthorization} from "../../store";
 
-interface HasRoleMobxProps {
-    currentUser?: CurrentUser
-}
-
-interface HasRoleOwnProps {
+interface HasRoleProps {
     role: "ROLE_ADMIN" | "ROLE_USER" | "ROLE_ANONYMOUS_USER" | "ROLE_ACCESS_TOKEN_PRESENT" | "ROLE_NOT_LOGGED_IN",
     additionalCondition?: boolean,
     alternative?: ReactElement
 }
 
-type HasRoleProps = HasRoleMobxProps & HasRoleOwnProps;
-
-const _HasRole: FunctionComponent<HasRoleProps> = ({
-    currentUser,
+export const HasRole: FunctionComponent<HasRoleProps> = observer(({
     role,
     additionalCondition = true,
     children,
     alternative
 }) => {
+    const {currentUser} = useAuthorization();
     let shouldRender = false;
 
     if (role === "ROLE_NOT_LOGGED_IN") {
@@ -41,10 +35,4 @@ const _HasRole: FunctionComponent<HasRoleProps> = ({
             </Fragment>
         )
         : alternative ? alternative : null;
-};
-
-const mapMobxToProps = (state: IAppState): HasRoleMobxProps => ({
-    currentUser: state.authorization.currentUser,
 });
-
-export const HasRole = inject(mapMobxToProps)(observer(_HasRole as FunctionComponent<HasRoleOwnProps>));

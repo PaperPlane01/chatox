@@ -1,32 +1,25 @@
-import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import React, {Fragment, FunctionComponent, ReactNode} from "react";
+import {observer} from "mobx-react";
 import {Badge, CardHeader, createStyles, Divider, ListItem, makeStyles, Theme, Typography} from "@material-ui/core";
+import {Audiotrack, FileCopy, Image, VideoLibrary} from "@material-ui/icons";
 import randomColor from "randomcolor";
-import {ChatOfCurrentUserEntity} from "../types";
+import {ChatUploadEntity} from "../types";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
-import {MessageEntity} from "../../Message/types";
-import {UserEntity} from "../../User/types";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {Localized, localized} from "../../localization";
+import {useEmojiParser, ParseEmojiFunction} from "../../Emoji";
+import {upperCaseFirstLetter} from "../../utils/string-utils";
+import {MessageEntity} from "../../Message/types";
+import {Labels, TranslationFunction} from "../../localization";
+import {UserEntity} from "../../User/types";
+import {UploadType} from "../../api/types/response";
 
 const {Link} = require("mobx-router");
 
-interface ChatsOfCurrentUserListItemMobxProps {
-    selectedChat?: string,
-    findChat: (id: string) => ChatOfCurrentUserEntity,
-    findUser: (id: string) => UserEntity,
-    findMessage: (id: string) => MessageEntity,
-    routerStore?: any
-}
-
-interface ChatsOfCurrentUserListItemOwnProps {
+interface ChatsOfCurrentUserListItemProps {
     chatId: string
 }
-
-type ChatsOfCurrentUserListItemProps = ChatsOfCurrentUserListItemMobxProps
-    & ChatsOfCurrentUserListItemOwnProps & Localized;
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatsOfCurrentUserListItem: {
@@ -85,20 +78,161 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemProps> = ({
-    chatId,
-    selectedChat,
-    findChat,
-    findUser,
-    findMessage,
-    routerStore,
+interface GetLastMessageTextParameters {
+    message: MessageEntity,
+    messageSender: UserEntity,
+    messageUploads: ChatUploadEntity[],
+    l: TranslationFunction,
+    parseEmoji: ParseEmojiFunction
+}
+
+type GetLastMessageTextFunction = (parameters: GetLastMessageTextParameters) => ReactNode
+
+const getSingularOrPluralLabel = (count: number, singularLabel: keyof Labels): keyof Labels => {
+    if (count > 1) {
+        return `${singularLabel}.plural` as keyof Labels;
+    } else {
+        return singularLabel;
+    }
+}
+
+const getLastMessageText: GetLastMessageTextFunction = ({
+    message,
+    messageSender,
+    messageUploads,
+    parseEmoji,
     l
+}): ReactNode => {
+    if (message.deleted) {
+        return <i>{l("message.deleted")}</i>
+    }
+
+    const messageSenderName = messageSender.firstName;
+
+    if (message.text && message.text.length !== 0) {
+        return (
+            <Fragment>
+                {messageSenderName}
+                {": "}
+                {parseEmoji(message.text, message.emoji)}
+            </Fragment>
+        )
+    }
+
+    if (messageUploads.length !== 0) {
+        if (messageUploads.length === 1) {
+            const upload = messageUploads[0];
+            let uploadDisplay: ReactNode;
+
+            switch (upload.type) {
+                case UploadType.IMAGE:
+                case UploadType.GIF:
+                    uploadDisplay = (
+                        <Fragment>
+                            <Image fontSize="inherit"/>
+                            {" "}
+                            {upperCaseFirstLetter(l("message.attachments.image"))}
+                        </Fragment>
+                    );
+                    break;
+                case UploadType.FILE:
+                default:
+                    uploadDisplay = (
+                        <Fragment>
+                            <FileCopy fontSize="inherit"/>
+                            {" "}
+                            {upperCaseFirstLetter(l("message.attachments.file"))}
+                        </Fragment>
+                    );
+                    break;
+                case UploadType.VIDEO:
+                    uploadDisplay = (
+                        <Fragment>
+                            <VideoLibrary fontSize="inherit"/>
+                            {" "}
+                            {upperCaseFirstLetter(l("message.attachments.video"))}
+                        </Fragment>
+                    );
+                    break;
+                case UploadType.AUDIO:
+                    uploadDisplay = (
+                        <Fragment>
+                            <Audiotrack fontSize="inherit"/>
+                            {" "}
+                            {upperCaseFirstLetter(l("message.attachments.audio"))}
+                        </Fragment>
+                    )
+            }
+
+            return (
+                <Fragment>
+                    {messageSenderName}
+                    {": "}
+                    {uploadDisplay}
+                </Fragment>
+            );
+        } else {
+            const imagesText = message.imagesCount !== 0
+                ? `${message.imagesCount} ${l(getSingularOrPluralLabel(message.imagesCount, "message.attachments.image"))}`
+                : "";
+            const videosText = message.videosCount !== 0
+                ? `${message.videosCount} ${l(getSingularOrPluralLabel(message.videosCount, "message.attachments.video"))}`
+                : "";
+            const audiosText = message.audiosCount !== 0
+                ? `${message.audiosCount} ${l(getSingularOrPluralLabel(message.audiosCount, "message.attachments.audio"))}`
+                : "";
+            const filesText = message.filesCount !== 0
+                ? `${message.filesCount} ${l(getSingularOrPluralLabel(message.filesCount, "message.attachments.file"))}`
+                : "";
+            let attachmentsText = [imagesText, videosText, audiosText, filesText]
+                .filter(text => text !== "")
+                .reduce((left, right) => `${left}, ${right}`)
+            attachmentsText = `[${attachmentsText}]`;
+
+            return  (
+                <Fragment>
+                    {messageSenderName}
+                    {": "}
+                    {attachmentsText}
+                </Fragment>
+            )
+        }
+    }
+}
+
+export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemProps> = observer(({
+    chatId
 }) => {
+    const {
+        chat: {
+            selectedChatId
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            },
+            messages: {
+                findById: findMessage
+            },
+            users: {
+                findById: findUser
+            },
+            chatUploads: {
+                findAllById: findChatUploads
+            }
+        }
+    } = useStore();
+    const routerStore = useRouter();
+    const {l} = useLocalization();
     const classes = useStyles();
+    const {parseEmoji} = useEmojiParser();
     const chat = findChat(chatId);
     const lastMessage = chat.lastMessage && findMessage(chat.lastMessage);
     const lastMessageSender = lastMessage && findUser(lastMessage.sender);
-    const selected = selectedChat === chatId;
+    const selected = selectedChatId === chatId;
+    const lastMessageUploads = lastMessage
+        ? findChatUploads(lastMessage.uploads)
+        : []
 
     return (
         <Link store={routerStore}
@@ -133,7 +267,13 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
                                     <div className={classes.flexWrapper}>
                                         <div className={classes.flexTruncatedTextContainer}>
                                             <Typography className={`${classes.flexTruncatedText} ${selected && classes.selected}`}>
-                                                {lastMessage.deleted ? <i>{l("message.deleted")}</i> : `${lastMessageSender.firstName}: ${lastMessage.text}`}
+                                                {getLastMessageText({
+                                                    message: lastMessage,
+                                                    messageUploads: lastMessageUploads,
+                                                    messageSender: lastMessageSender,
+                                                    parseEmoji,
+                                                    l
+                                                })}
                                             </Typography>
                                         </div>
                                     </div>
@@ -153,16 +293,4 @@ const _ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemP
             </ListItem>
         </Link>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatsOfCurrentUserListItemMobxProps> = ({entities, chat, store}) => ({
-    findChat: entities.chats.findById,
-    selectedChat: chat.selectedChatId,
-    findMessage: entities.messages.findById,
-    findUser: entities.users.findById,
-    routerStore: store
 });
-
-export const ChatsOfCurrentUserListItem = localized(
-    inject(mapMobxToProps)(observer(_ChatsOfCurrentUserListItem))
-) as FunctionComponent<ChatsOfCurrentUserListItemOwnProps>;

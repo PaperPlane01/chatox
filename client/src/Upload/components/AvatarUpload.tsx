@@ -1,13 +1,14 @@
-import React, {ChangeEvent, FunctionComponent, Fragment, useState} from "react";
-import {Button, CircularProgress, Typography, createStyles, makeStyles, Theme} from "@material-ui/core";
+import React, {ChangeEvent, Fragment, FunctionComponent, useState} from "react";
+import {Button, CircularProgress, createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
 import {Image} from "@material-ui/icons";
-import {Labels, localized, Localized} from "../../localization";
+import {Labels} from "../../localization";
 import {ApiError} from "../../api";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ImageUploadMetadata} from "../../api/types/response";
 import {Avatar} from "../../Avatar";
+import {useLocalization} from "../../store/hooks";
 
-interface AvatarUploadOwnProps {
+interface AvatarUploadProps {
     onFileAttached: (file: File) => void,
     pending: boolean,
     validationError?: keyof Labels,
@@ -18,15 +19,13 @@ interface AvatarUploadOwnProps {
     avatarColor: string
 }
 
-type AvatarUploadProps = AvatarUploadOwnProps & Localized;
-
 const useStyles = makeStyles((theme: Theme) => createStyles({
     avatarUploadButton: {
         marginTop: theme.spacing(1)
     }
 }));
 
-const _AvatarUpload: FunctionComponent<AvatarUploadProps> = ({
+export const AvatarUpload: FunctionComponent<AvatarUploadProps> = ({
     onFileAttached,
     pending,
     validationError,
@@ -34,9 +33,9 @@ const _AvatarUpload: FunctionComponent<AvatarUploadProps> = ({
     imageContainer,
     defaultAvatarLabel,
     defaultAvatarId,
-    avatarColor,
-    l
+    avatarColor
 }) => {
+    const {l} = useLocalization();
     const [value, setValue] = useState("");
     const classes = useStyles();
 
@@ -82,5 +81,3 @@ const _AvatarUpload: FunctionComponent<AvatarUploadProps> = ({
         </Fragment>
     )
 };
-
-export const AvatarUpload = localized(_AvatarUpload) as FunctionComponent<AvatarUploadOwnProps>;

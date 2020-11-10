@@ -1,6 +1,6 @@
 import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
-import {Response} from "express";
+import {Request, Response} from "express";
 import {Model, Types} from "mongoose";
 import {createReadStream, promises as fileSystem} from "fs";
 import path from "path";
@@ -101,6 +101,38 @@ export class AudiosUploadService {
         response.header("Content-Disposition", contentDispositionHeader);
         const audioPath = path.join(config.AUDIOS_DIRECTORY, audio.name);
         createReadStream(audioPath).pipe(response);
+    }
+
+    public async streamAudio(audioName: string, request: Request, response: Response): Promise<void> {
+        const audio = await this.findAudioByName(audioName);
+        const rangeHeader = request.headers.range;
+
+        if (rangeHeader) {
+            const rangeHeaderSplit = rangeHeader
+                .replace(/bytes=/, "")
+                .split("-");
+            const rangeStart = rangeHeaderSplit[0];
+            const rangeEnd = rangeHeaderSplit[1];
+
+            const start = parseInt(rangeStart);
+            const end = rangeEnd
+                ? parseInt(rangeEnd)
+                : audio.size - 1;
+            const chunkSize = (end - start) + 1;
+
+            const audioStream = createReadStream(path.join(config.AUDIOS_DIRECTORY, audioName), {start, end});
+
+            response.writeHead(
+                206,
+                {
+                    "Content-Range": `bytes ${start}-${end}/${audio.size}`,
+                    "Accept-Ranges": "bytes",
+                    "Content-Length": chunkSize,
+                    "Content-Type": audio.mimeType
+                }
+            );
+            audioStream.pipe(response);
+        }
     }
 
     private async findAudioByName(audioName: string): Promise<Upload<AudioUploadMetadata>> {

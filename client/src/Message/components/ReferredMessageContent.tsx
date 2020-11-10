@@ -1,24 +1,14 @@
 import React, {Fragment, FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
-import {CardContent, CardHeader, createStyles, makeStyles, Theme} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {CardContent, CardHeader, createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
 import {UserLink} from "../../UserLink";
-import {MessageEntity} from "../types";
-import {UserEntity} from "../../User";
 import {trimString} from "../../utils/string-utils";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useStore} from "../../store";
+import {useEmojiParser} from "../../Emoji/hooks";
 
-interface ReferredMessageContentMobxProps {
-    findMessage: (id: string) => MessageEntity,
-    findUser: (id: string) => UserEntity,
-    setMessageDialogMessageId: (messageId?: string) => void
-}
-
-interface ReferredMessageContentOwnProps {
+interface ReferredMessageContentProps {
     messageId?: string
 }
-
-type ReferredMessageContentProps = ReferredMessageContentMobxProps & ReferredMessageContentOwnProps & Localized;
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     cardContentRoot: {
@@ -36,14 +26,23 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-const _ReferredMessageContent: FunctionComponent<ReferredMessageContentProps> = ({
-    messageId,
-    findMessage,
-    findUser,
-    setMessageDialogMessageId,
-    l
-}) => {
+export const ReferredMessageContent: FunctionComponent<ReferredMessageContentProps> = observer(({messageId}) => {
+    const {
+        entities: {
+            messages: {
+                findById: findMessage
+            },
+            users: {
+                findById: findUser
+            }
+        },
+        messageDialog: {
+            setMessageId: setMessageDialogMessageId
+        }
+    } = useStore();
+    const {l} = useLocalization();
     const classes = useStyles();
+    const {parseEmoji} = useEmojiParser();
 
     if (!messageId) {
         return null;
@@ -66,22 +65,13 @@ const _ReferredMessageContent: FunctionComponent<ReferredMessageContentProps> = 
             >
                 {message.deleted
                     ? <i>{l("message.deleted")}</i>
-                    : trimString(message.text, 150)
+                    : (
+                        <Typography>
+                            {parseEmoji(trimString(message.text, 150), message.emoji)}
+                        </Typography>
+                    )
                 }
             </CardContent>
         </Fragment>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ReferredMessageContentMobxProps> = ({
-    messageDialog,
-    entities
-}) => ({
-    setMessageDialogMessageId: messageDialog.setMessageId,
-    findMessage: entities.messages.findById,
-    findUser: entities.users.findById
 });
-
-export const ReferredMessageContent = localized(
-    inject(mapMobxToProps)(observer(_ReferredMessageContent))
-) as FunctionComponent<ReferredMessageContentOwnProps>;

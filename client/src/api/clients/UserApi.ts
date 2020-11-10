@@ -1,8 +1,29 @@
 import {AxiosPromise} from "axios";
 import {stringify} from "query-string";
 import {axiosInstance} from "../axios-instance";
-import {ACCOUNT, IS_AVAILABLE, ME, OAUTH, REGISTRATION, REVOKE, SLUG, TOKEN, USER, USERNAME} from "../endpoints";
-import {RegistrationRequest, RevokeTokenRequest, UpdateUserRequest} from "../types/request";
+import {
+    ACCOUNTS,
+    IS_AVAILABLE,
+    ME,
+    OAUTH,
+    PASSWORD,
+    RECOVERY,
+    REGISTRATION,
+    REVOKE,
+    SLUG,
+    TOKEN,
+    USERS,
+    USERNAME,
+    ANONYMOUS
+} from "../endpoints";
+import {
+    AnonymousUserRegistrationRequest,
+    RecoverPasswordRequest,
+    RegistrationRequest,
+    RevokeTokenRequest,
+    UpdatePasswordRequest,
+    UpdateUserRequest
+} from "../types/request";
 import {AvailabilityResponse, CurrentUser, OAuth2Response, RegistrationResponse, User} from "../types/response";
 
 export class UserApi {
@@ -10,11 +31,15 @@ export class UserApi {
         return axiosInstance.post(`/${REGISTRATION}`, registrationRequest);
     }
 
+    public static registerAnonymousUser(anonymousUserRegistrationRequest: AnonymousUserRegistrationRequest): AxiosPromise<RegistrationResponse> {
+        return axiosInstance.post(`/${REGISTRATION}/${ANONYMOUS}`, anonymousUserRegistrationRequest);
+    }
+
     public static isUsernameAvailable(username: string): AxiosPromise<AvailabilityResponse> {
         return axiosInstance({
             method: "GET",
             baseURL: process.env.REACT_APP_API_BASE_URL,
-            url: `/${OAUTH}/${ACCOUNT}/${USERNAME}/${username}/${IS_AVAILABLE}`,
+            url: `/${OAUTH}/${ACCOUNTS}/${USERNAME}/${username}/${IS_AVAILABLE}`,
             headers: {
                 Accept: "application/json"
             }
@@ -22,15 +47,15 @@ export class UserApi {
     }
 
     public static isSlugAvailable(slug: string): AxiosPromise<AvailabilityResponse> {
-        return axiosInstance.get(`/${USER}/${SLUG}/${slug}/${IS_AVAILABLE}`);
+        return axiosInstance.get(`/${USERS}/${SLUG}/${slug}/${IS_AVAILABLE}`);
     }
 
     public static getCurrentUser(): AxiosPromise<CurrentUser> {
-        return axiosInstance.get(`/${USER}/${ME}`);
+        return axiosInstance.get(`/${USERS}/${ME}`);
     }
 
     public static getUserByIdOrSlug(idOrSlug: string): AxiosPromise<User> {
-        return axiosInstance.get(`/${USER}/${idOrSlug}`);
+        return axiosInstance.get(`/${USERS}/${idOrSlug}`);
     }
 
     public static doLogin(username: string, password: string): AxiosPromise<OAuth2Response> {
@@ -68,6 +93,36 @@ export class UserApi {
     }
 
     public static updateUser(id: string, updateUserRequest: UpdateUserRequest): AxiosPromise<User> {
-        return axiosInstance.put(`/${USER}/${id}`, updateUserRequest);
+        return axiosInstance.put(`/${USERS}/${id}`, updateUserRequest);
+    }
+
+    public static updatePassword(updatePasswordRequest: UpdatePasswordRequest): AxiosPromise<void> {
+        return axiosInstance({
+            method: "PUT",
+            baseURL: process.env.REACT_APP_API_BASE_URL,
+            url: `/${OAUTH}/${ACCOUNTS}/${PASSWORD}`,
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            data: {
+                ...updatePasswordRequest
+            }
+        });
+    }
+
+    public static recoverPassword(recoverPasswordRequest: RecoverPasswordRequest): AxiosPromise<void> {
+        return axiosInstance({
+            method: "PUT",
+            baseURL: process.env.REACT_APP_API_BASE_URL,
+            url: `/${OAUTH}/${ACCOUNTS}/${PASSWORD}/${RECOVERY}`,
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            data: {
+                ...recoverPasswordRequest
+            }
+        });
     }
 }

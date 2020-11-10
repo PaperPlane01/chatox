@@ -1,39 +1,30 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
-import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Hidden,
-    withMobileDialog,
-    WithMobileDialog
-} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Hidden} from "@material-ui/core";
 import {ChatBlockingsTable} from "./ChatBlockingsTable";
 import {ChatBlockingsList} from "./ChatBlockingsList";
-import {localized, Localized} from "../../localization";
-import {ChatOfCurrentUserEntity} from "../../Chat/types";
-import {MapMobxToProps} from "../../store";
 import {ShowActiveOnlySwitch} from "./ShowActiveOnlySwitch";
+import {useLocalization, useStore} from "../../store";
+import {useMobileDialog} from "../../utils/hooks";
 
-interface ChatBlockingsDialogMobxProps {
-    chatBlockingsDialogOpen: boolean,
-    selectedChatId?: string,
-    setChatBlockingsDialogOpen: (chatBlockingsDialogOpen: boolean) => void,
-    findChat: (id: string) => ChatOfCurrentUserEntity
-}
+export const ChatBlockingsDialog: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            selectedChatId
+        },
+        chatBlockingsDialog: {
+            chatBlockingsDialogOpen,
+            setChatBlockingsDialogOpen
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            }
+        }
+    } = useStore();
+    const {l} = useLocalization();
+    const {fullScreen} = useMobileDialog();
 
-type ChatBlockingsDialogProps = ChatBlockingsDialogMobxProps & Localized & WithMobileDialog;
-
-const _ChatBlockingsDialog: FunctionComponent<ChatBlockingsDialogProps> = ({
-    chatBlockingsDialogOpen,
-    selectedChatId,
-    findChat,
-    setChatBlockingsDialogOpen,
-    l,
-    fullScreen
-}) => {
     if (!selectedChatId) {
         return null;
     }
@@ -73,21 +64,4 @@ const _ChatBlockingsDialog: FunctionComponent<ChatBlockingsDialogProps> = ({
             </DialogActions>
         </Dialog>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatBlockingsDialogMobxProps> = ({
-    chat,
-    chatBlockingsDialog,
-    entities
-}) => ({
-    chatBlockingsDialogOpen: chatBlockingsDialog.chatBlockingsDialogOpen,
-    selectedChatId: chat.selectedChatId,
-    setChatBlockingsDialogOpen: chatBlockingsDialog.setChatBlockingsDialogOpen,
-    findChat: entities.chats.findById
 });
-
-export const ChatBlockingsDialog = localized(
-    withMobileDialog()(
-        inject(mapMobxToProps)(observer(_ChatBlockingsDialog))
-    )
-) as FunctionComponent;

@@ -11,12 +11,21 @@ import {JwtService} from "@nestjs/jwt";
 import {AmqpConnection} from "@nestjs-plus/rabbitmq";
 import {Socket} from "socket.io";
 import {parse} from "querystring";
-import {ChatSubscription, ChatUnsubscription, EventType, JwtPayload, MessageDeleted, WebsocketEvent} from "./types";
-import {MessagesDeleted} from "./types/MessagesDeleted";
-import {SessionActivityStatusResponse} from "./types/SessionActivityStatusResponse";
+import {
+    ChatSubscription,
+    ChatUnsubscription,
+    EventType,
+    JwtPayload,
+    MessageDeleted,
+    MessagesDeleted,
+    SessionActivityStatusResponse,
+    WebsocketEvent
+} from "./types";
 import {Chat, ChatBlocking, ChatMessage} from "../common/types";
+import {ChatDeleted, UserKickedFromChat, UserLeftChat} from "../common/types/events";
 import {ChatParticipationService} from "../chat-participation";
 import {ChatParticipationDto} from "../chat-participation/types";
+import {LoggerFactory} from "../logging";
 
 @WebSocketGateway({
     path: "/api/v1/events/",
@@ -29,6 +38,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
     private usersAndClientsMap: {[userId: string]: Socket[]} = {};
     private chatSubscriptionsMap: {[chatId: string]: Socket[]} = {};
     private connectedClients: Socket[] = [];
+    private readonly log = LoggerFactory.getLogger(WebsocketEventsPublisher);
 
     constructor(private readonly jwtService: JwtService,
                 private readonly amqpConnection: AmqpConnection,
@@ -47,6 +57,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
                 this.usersAndClientsMap[jwtPayload.user_id] = [client];
             }
 
+            this.log.debug("Publishing user connected event");
             this.amqpConnection.publish(
                 "websocket.events",
                 "user.connected.#",
@@ -83,6 +94,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         usersToDelete.forEach(userId => delete this.usersAndClientsMap[userId]);
 
         if (disconnectedUserId) {
+            this.log.debug("Publishing user disconnected event");
             this.amqpConnection.publish(
                 "websocket.events",
                 "user.disconnected.#",
@@ -139,7 +151,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.MESSAGE_CREATED,
             payload: message
         };
-        console.log("publishing new message");
+        this.log.debug("Publishing new message");
         await this.publishEventToChatParticipants(message.chatId, messageCreatedEvent);
         await this.publishEventToUsersSubscribedToChat(message.chatId, messageCreatedEvent);
     }
@@ -158,6 +170,8 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.MESSAGE_DELETED,
             payload: messageDeleted
         };
+        this.log.debug(`Publishing ${EventType.MESSAGES_DELETED} event`);
+        this.log.debug(JSON.stringify(messageDeleted));
         await this.publishEventToChatParticipants(messageDeleted.chatId, messageDeletedEvent);
         await this.publishEventToUsersSubscribedToChat(messageDeleted.chatId, messageDeletedEvent);
     }
@@ -178,6 +192,26 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         };
         await this.publishEventToChatParticipants(createChatParticipationDto.chatId, userJoinedEvent);
         await this.publishEventToUsersSubscribedToChat(createChatParticipationDto.chatId, userJoinedEvent);
+    }
+
+    public async publishUserLeftChat(userLeftChat: UserLeftChat) {
+        const userLeftEvent: WebsocketEvent<UserLeftChat> = {
+            type: EventType.USER_LEFT_CHAT,
+            payload: userLeftChat
+        };
+        await this.publishEventToChatParticipants(userLeftChat.chatId, userLeftEvent);
+        await this.publishEventToUsersSubscribedToChat(userLeftChat.chatId, userLeftEvent);
+        await this.publishEventToUser(userLeftChat.userId, userLeftEvent);
+    }
+
+    public async publishUserKickedFromChat(userKickedFromChat: UserKickedFromChat) {
+        const userKickedEvent: WebsocketEvent<UserKickedFromChat> = {
+            type: EventType.USER_KICKED_FROM_CHAT,
+            payload: userKickedFromChat
+        };
+        await this.publishEventToChatParticipants(userKickedFromChat.chatId, userKickedEvent);
+        await this.publishEventToUsersSubscribedToChat(userKickedFromChat.chatId, userKickedEvent);
+        await this.publishEventToUser(userKickedFromChat.userId, userKickedEvent);
     }
 
     public async publishChatBlockingCreated(chatBlocking: ChatBlocking) {
@@ -227,12 +261,25 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         this.publishEventToUsersSubscribedToChat(chat.id, chatUpdated);
     }
 
+    public async publishChatDeleted(chatDeleted: ChatDeleted) {
+        const chatDeletedEvent: WebsocketEvent<ChatDeleted> = {
+            payload: chatDeleted,
+            type: EventType.CHAT_DELETED
+        };
+        this.publishEventToChatParticipants(chatDeleted.id, chatDeletedEvent);
+        this.publishEventToUsersSubscribedToChat(chatDeleted.id, chatDeletedEvent);
+    }
+
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {
         const chatParticipants = await this.chatParticipationService.findByChatId(chatId);
+        this.log.debug("Publishing event to chat participants");
+        this.log.verbose(`The following chat participants will receive an event: ${JSON.stringify(chatParticipants.map(chatParticipant => chatParticipant.id))}`);
+        this.log.consoleLog(event);
 
         chatParticipants.forEach(participant => {
             if (this.usersAndClientsMap[participant.userId] !== undefined) {
                 this.usersAndClientsMap[participant.userId].forEach(client => {
+                    this.log.verbose(`Publishing event to ${client.id}`);
                     client.emit(event.type, event);
                 })
             }

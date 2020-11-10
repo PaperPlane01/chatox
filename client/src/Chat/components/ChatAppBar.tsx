@@ -1,49 +1,78 @@
 import React, {Fragment, FunctionComponent, ReactElement} from "react";
-import {inject, observer} from "mobx-react";
-import {AppBar, CardHeader, Toolbar, Typography, Hidden, IconButton} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {
+    AppBar,
+    CardHeader,
+    createStyles,
+    Hidden,
+    IconButton,
+    makeStyles,
+    Toolbar,
+    Typography,
+    useMediaQuery,
+    useTheme
+} from "@material-ui/core";
 import {Skeleton} from "@material-ui/lab";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import randomColor from "randomcolor";
 import {ChatMenu} from "./ChatMenu";
-import {ChatOfCurrentUserEntity} from "../types";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
-import {OpenDrawerButton, NavigationalDrawer} from "../../AppBar";
+import {NavigationalDrawer, OpenDrawerButton} from "../../AppBar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {Labels, localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {Labels} from "../../localization";
+import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
+import {trimString} from "../../utils/string-utils";
 
 const {Link} = require("mobx-router");
-
-interface ChatAppBarMobxProps {
-    selectedChatId?: string,
-    pending: boolean,
-    error?: ApiError,
-    onlineParticipantsCount: number,
-    routerStore?: any,
-    findChat: (id: string) => ChatOfCurrentUserEntity,
-    setChatInfoDialogOpen: (chatInfoDialogOpen: boolean) => void
-}
 
 const getLabelFromError = (error: ApiError): keyof Labels => {
     if (error.status === API_UNREACHABLE_STATUS) {
         return "server.unreachable";
+    } else if (error.status === 404) {
+        if (error.metadata && error.metadata.errorCode === "CHAT_DELETED") {
+            return "chat.deleted"
+        } else {
+            return "chat.not-found";
+        }
     } else {
         return "error.unknown";
     }
 };
 
-const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
-    selectedChatId,
-    pending,
-    error,
-    onlineParticipantsCount,
-    routerStore,
-    findChat,
-    setChatInfoDialogOpen,
-    l
-}) => {
+const useStyles = makeStyles(() => createStyles({
+    cardHeaderRoot: {
+        padding: 0
+    }
+}));
+
+export const ChatAppBar: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            pending,
+            errorsMap,
+            selectedChatId,
+            currentSlug
+        },
+        onlineChatParticipants: {
+            onlineParticipantsCount
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            }
+        },
+        chatInfoDialog: {
+            setChatInfoDialogOpen
+        }
+    } = useStore();
+    const {l} = useLocalization();
+    const routerStore = useRouter();
+    const classes = useStyles();
+    const theme = useTheme();
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
     let appBarContent: ReactElement;
 
     if (pending) {
@@ -57,12 +86,14 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
         const chat = findChat(selectedChatId);
         appBarContent = (
             <CardHeader title={(
-                <Typography variant="body1"
-                            style={{cursor: "pointer"}}
-                            onClick={() => setChatInfoDialogOpen(true)}
-                >
-                    {chat.name}
-                </Typography>
+                <div style={{display: "flex"}}>
+                    <Typography variant="body1"
+                                style={{cursor: "pointer"}}
+                                onClick={() => setChatInfoDialogOpen(true)}
+                    >
+                        {onSmallScreen ? trimString(chat.name, 25) : chat.name}
+                    </Typography>
+                </div>
             )}
                         subheader={(
                             <Typography variant="body2"
@@ -95,12 +126,15 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
                         style={{
                             width: "100%"
                         }}
+                        classes={{
+                            root: classes.cardHeaderRoot
+                        }}
             />
         )
-    } else if (error) {
+    } else if (currentSlug && errorsMap[currentSlug]) {
         appBarContent = (
             <Typography>
-                {l(getLabelFromError(error))}
+                {l(getLabelFromError(errorsMap[currentSlug]))}
             </Typography>
         )
     } else {
@@ -109,10 +143,7 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
 
     return (
         <Fragment>
-            <AppBar position="sticky" style={{
-                zIndex: 1300,
-                maxHeight:64
-            }}>
+            <AppBar position="fixed">
                 <Toolbar>
                     <Hidden mdDown>
                         <OpenDrawerButton/>
@@ -135,27 +166,8 @@ const _ChatAppBar: FunctionComponent<ChatAppBarMobxProps & Localized> = ({
                     {appBarContent}
                 </Toolbar>
             </AppBar>
+            <Toolbar/>
             <NavigationalDrawer/>
         </Fragment>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatAppBarMobxProps> = ({
-    chat,
-    onlineChatParticipants,
-    entities,
-    chatInfoDialog,
-    store
-}) => ({
-    pending: chat.pending,
-    error: chat.error,
-    selectedChatId: chat.selectedChatId,
-    onlineParticipantsCount: onlineChatParticipants.onlineParticipantsCount,
-    routerStore: store,
-    findChat: entities.chats.findById,
-    setChatInfoDialogOpen: chatInfoDialog.setChatInfoDialogOpen
 });
-
-export const ChatAppBar = localized(
-    inject(mapMobxToProps)(observer(_ChatAppBar))
-) as FunctionComponent;

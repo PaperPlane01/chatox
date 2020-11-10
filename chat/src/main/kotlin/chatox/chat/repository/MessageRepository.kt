@@ -20,4 +20,5 @@ interface MessageRepository : ReactiveMongoRepository<Message, String> {
     fun findByChatAndCreatedAtGreaterThanEqual(chat: Chat, date: ZonedDateTime, pageable: Pageable): Flux<Message>
     fun findByChatAndCreatedAtLessThanEqual(chat: Chat, date: ZonedDateTime, pageable: Pageable): Flux<Message>
     fun findBySenderAndCreatedAtAfter(user: User, date: ZonedDateTime): Flux<Message>
+    fun findAllByChatOrderByCreatedAtAsc(chat: Chat): Flux<Message>
 }

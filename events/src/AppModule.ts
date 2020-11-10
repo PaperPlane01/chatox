@@ -7,6 +7,7 @@ import {ChatParticipationModule} from "./chat-participation";
 import {MessagesModule} from "./messages";
 import {ChatBlockingsModule} from "./chat-blockings";
 import {ChatsModule} from "./chats";
+import {config} from "./env-config";
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import {ChatsModule} from "./chats";
       MessagesModule,
       ChatBlockingsModule,
       ChatsModule,
-      MongooseModule.forRoot(`mongodb://${process.env.MONGODB_HOST}:${process.env.MONGODB_PORT}/${process.env.MONGODB_DATABASE_NAME}`)
+      MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.EVENTS_SERVICE_DATABASE_NAME}`)
   ]
 })
 export class AppModule {}

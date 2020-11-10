@@ -29,7 +29,8 @@ class UserMapper(private val uploadMapper: UploadMapper) {
             dateOfBirth = user.dateOfBirth,
             online = online,
             email = if (mapEmail) user.email else null,
-            avatar = if (user.avatar != null) uploadMapper.toUploadResponse(user.avatar!!) else null
+            avatar = if (user.avatar != null) uploadMapper.toUploadResponse(user.avatar!!) else null,
+            anonymous = user.anonymous
     )
 
     fun fromCreateUserRequest(createUserRequest: CreateUserRequest) = User(
@@ -44,7 +45,8 @@ class UserMapper(private val uploadMapper: UploadMapper) {
             deleted = false,
             dateOfBirth = null,
             email = createUserRequest.email,
-            avatar = null
+            avatar = null,
+            anonymous = createUserRequest.anonymous
     )
 
     fun mapUserUpdate(

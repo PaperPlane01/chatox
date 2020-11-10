@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/oauth/client")
+@RequestMapping("/oauth/clients")
 @RequiredArgsConstructor
 public class ClientController {
     private final ClientService clientService;

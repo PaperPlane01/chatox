@@ -1,19 +1,14 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
-import {createStyles, Hidden, makeStyles, Typography} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {createStyles, Hidden, makeStyles, Theme, Typography} from "@material-ui/core";
 import ChatBubbleIcon from "@material-ui/icons/ChatBubble"
-import {HasRole} from "../../Authorization";
-import {localized, Localized} from "../../localization";
+import {HasAnyRole, HasRole} from "../../Authorization";
 import {Routes} from "../../router";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useRouter} from "../../store";
 
 const {Link} = require("mobx-router");
 
-interface AppBarMenuMobxProps {
-    routerStore?: any
-}
-
-const useStyles = makeStyles(theme => createStyles({
+const useStyles = makeStyles((theme: Theme) => createStyles({
     appBarLinks: {
         marginLeft: theme.spacing(6),
         display: "flex"
@@ -32,16 +27,15 @@ const useStyles = makeStyles(theme => createStyles({
     }
 }));
 
-const _AppBarMenu: FunctionComponent<AppBarMenuMobxProps & Localized> = ({
-    routerStore,
-    l
-}) => {
+export const AppBarMenu: FunctionComponent = observer(() => {
     const classes = useStyles();
+    const {l} = useLocalization();
+    const routerStore = useRouter();
 
     return (
         <div className={classes.appBarLinks}>
             <Hidden xsDown>
-                <HasRole role="ROLE_USER">
+                <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
                     <Link view={Routes.myChats}
                           store={routerStore}
                           className={classes.appBarLink}
@@ -55,16 +49,8 @@ const _AppBarMenu: FunctionComponent<AppBarMenuMobxProps & Localized> = ({
                             </Typography>
                         </div>
                     </Link>
-                </HasRole>
+                </HasAnyRole>
             </Hidden>
         </div>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<AppBarMenuMobxProps> = ({store}) => ({
-    routerStore: store
 });
-
-export const AppBarMenu = localized(
-    inject(mapMobxToProps)(observer(_AppBarMenu))
-) as FunctionComponent;

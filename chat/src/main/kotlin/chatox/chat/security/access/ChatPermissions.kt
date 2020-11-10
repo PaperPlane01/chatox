@@ -2,6 +2,8 @@ package chatox.chat.security.access
 
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatService
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
@@ -22,9 +24,15 @@ class ChatPermissions(private val authenticationFacade: AuthenticationFacade) {
     }
 
     fun canDeleteChat(chatId: String): Mono<Boolean> {
-        return authenticationFacade.getCurrentUser()
-                .map { it.id }
-                .map { chatService.isChatCreatedByUser(chatId, userId = it) }
-                .flatMap { it }
+        return mono {
+            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val chatCreatedByCurrentUser = chatService.isChatCreatedByUser(
+                    chatId = chatId,
+                    userId = currentUser.id
+            )
+                    .awaitFirst()
+
+            chatCreatedByCurrentUser || currentUser.isAdmin()
+        }
     }
 }

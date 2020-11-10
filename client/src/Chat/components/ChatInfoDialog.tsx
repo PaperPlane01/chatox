@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {
     Button,
     Card,
@@ -10,28 +10,16 @@ import {
     DialogContent,
     DialogTitle,
     makeStyles,
-    Theme,
-    withMobileDialog,
-    WithMobileDialog
+    Theme
 } from "@material-ui/core";
 import randomColor from "randomcolor";
 import {ChatDescription} from "./ChatDescription";
 import {AllChatParticipantsList} from "./AllChatParticipantsList";
 import {ChatMenu} from "./ChatMenu";
-import {ChatOfCurrentUserEntity} from "../types";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
-
-interface ChatInfoDialogMobxProps {
-    chatInfoDialogOpen: boolean,
-    setChatInfoDialogOpen: (chatInfoDialogOpen: boolean) => void,
-    selectedChatId?: string,
-    findChat: (chatId: string) => ChatOfCurrentUserEntity
-}
-
-type ChatInfoDialogProps = ChatInfoDialogMobxProps & Localized & WithMobileDialog;
+import {useLocalization, useStore} from "../../store";
+import {useMobileDialog} from "../../utils/hooks";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatInfoContainer: {
@@ -50,14 +38,23 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-const _ChatInfoDialog: FunctionComponent<ChatInfoDialogProps> = ({
-    chatInfoDialogOpen,
-    selectedChatId,
-    setChatInfoDialogOpen,
-    findChat,
-    fullScreen,
-    l
-}) => {
+export const ChatInfoDialog: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            selectedChatId
+        },
+        chatInfoDialog: {
+            chatInfoDialogOpen,
+            setChatInfoDialogOpen
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            }
+        }
+    } = useStore();
+    const {l} = useLocalization();
+    const {fullScreen} = useMobileDialog();
     const classes = useStyles();
 
     if (!selectedChatId) {
@@ -114,17 +111,4 @@ const _ChatInfoDialog: FunctionComponent<ChatInfoDialogProps> = ({
             </DialogActions>
         </Dialog>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatInfoDialogMobxProps> = ({chatInfoDialog, chat, entities}) => ({
-    chatInfoDialogOpen: chatInfoDialog.chatInfoDialogOpen,
-    setChatInfoDialogOpen: chatInfoDialog.setChatInfoDialogOpen,
-    selectedChatId: chat.selectedChatId,
-    findChat: entities.chats.findById
 });
-
-export const ChatInfoDialog = localized(
-    withMobileDialog()(
-        inject(mapMobxToProps)(observer(_ChatInfoDialog))
-    )
-) as FunctionComponent;

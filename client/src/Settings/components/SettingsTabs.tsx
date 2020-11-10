@@ -1,5 +1,5 @@
 import React, {ChangeEvent, FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {
     createStyles,
     ListItemIcon,
@@ -11,23 +11,15 @@ import {
     Typography
 } from "@material-ui/core";
 import {TabContext, TabList, TabPanel} from "@material-ui/lab";
-import {Person, Settings} from "@material-ui/icons";
-import {Language} from "@material-ui/icons";
+import {Language, Palette, Person, Security, ChatBubble} from "@material-ui/icons";
 import {SettingsTab} from "../types";
 import {HasRole} from "../../Authorization";
-import {EditProfileForm} from "../../User";
-import {LanguagePicker, localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {EditProfileForm, ChangePasswordContainer} from "../../User";
+import {EmojiSetPicker} from "../../Emoji";
+import {ChatsPreferencesCard} from "../../Chat";
+import {LanguagePicker} from "../../localization";
+import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-
-const {Link} = require("mobx-router");
-
-interface SettingsTabsMobxProps {
-    activeTab?: SettingsTab,
-    routerStore?: any
-}
-
-type SettingsTabsProps = SettingsTabsMobxProps & Localized;
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     undecoratedLink: {
@@ -49,16 +41,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-const tabsMapping = {
-    [SettingsTab.PROFILE]: "0",
-    [SettingsTab.LANGUAGE]: "1"
-};
-
-const _SettingsTabs: FunctionComponent<SettingsTabsProps> = ({
-    activeTab,
-    routerStore,
-    l
-}) => {
+export const SettingsTabs: FunctionComponent = observer(() => {
+    const {
+        settingsTabs: {
+            activeTab
+        }
+    } = useStore();
+    const routerStore = useRouter();
+    const {l} = useLocalization();
     const classes = useStyles();
 
     const goTo = (settingsTab: string) => {
@@ -100,6 +90,42 @@ const _SettingsTabs: FunctionComponent<SettingsTabsProps> = ({
                              </MenuItem>
                          }
                     />
+                    <Tab value={SettingsTab.APPEARANCE}
+                         label={
+                             <MenuItem>
+                                 <ListItemIcon>
+                                     <Palette/>
+                                 </ListItemIcon>
+                                 <ListItemText>
+                                     {l("settings.appearance")}
+                                 </ListItemText>
+                             </MenuItem>
+                         }
+                    />
+                    <Tab value={SettingsTab.SECURITY}
+                         label={
+                             <MenuItem>
+                                 <ListItemIcon>
+                                     <Security/>
+                                 </ListItemIcon>
+                                 <ListItemText>
+                                     {l("settings.security")}
+                                 </ListItemText>
+                             </MenuItem>
+                         }
+                    />
+                    <Tab value={SettingsTab.CHATS}
+                         label={
+                             <MenuItem>
+                                 <ListItemIcon>
+                                     <ChatBubble/>
+                                 </ListItemIcon>
+                                 <ListItemText>
+                                     {l("settings.chats")}
+                                 </ListItemText>
+                             </MenuItem>
+                         }
+                    />
                 </TabList>
                 <TabPanel value={SettingsTab.PROFILE}
                           className={classes.fullWidth}
@@ -119,16 +145,30 @@ const _SettingsTabs: FunctionComponent<SettingsTabsProps> = ({
                 >
                     <LanguagePicker/>
                 </TabPanel>
+                <TabPanel value={SettingsTab.APPEARANCE}
+                          className={classes.fullWidth}
+                >
+                    <EmojiSetPicker/>
+                </TabPanel>
+                <TabPanel value={SettingsTab.SECURITY}
+                          className={classes.fullWidth}
+                >
+                    <HasRole role="ROLE_USER"
+                             alternative={
+                                 <Typography>
+                                     {l("settings.security.authorization-required")}
+                                 </Typography>
+                             }
+                    >
+                        <ChangePasswordContainer/>
+                    </HasRole>
+                </TabPanel>
+                <TabPanel value={SettingsTab.CHATS}
+                          className={classes.fullWidth}
+                >
+                    <ChatsPreferencesCard/>
+                </TabPanel>
             </TabContext>
         </div>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<SettingsTabsMobxProps> = ({settingsTabs, store}) => ({
-    activeTab: settingsTabs.activeTab,
-    routerStore: store
 });
-
-export const SettingsTabs = localized(
-    inject(mapMobxToProps)(observer(_SettingsTabs))
-) as FunctionComponent;

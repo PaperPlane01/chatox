@@ -11,4 +11,11 @@ data class PaginationRequest(
 ) {
 
     fun toPageRequest() = PageRequest.of(page!!, pageSize!!, Sort.Direction.fromString(direction!!), sortBy)
+
+    fun toPageRequest(sortByMapper: (sortBy: String?) -> String?) = PageRequest.of(
+            page!!,
+            pageSize!!,
+            Sort.Direction.fromString(direction!!),
+            sortByMapper(sortBy)
+    )
 }

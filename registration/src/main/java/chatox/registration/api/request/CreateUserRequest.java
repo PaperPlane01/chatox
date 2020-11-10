@@ -16,4 +16,5 @@ public class CreateUserRequest {
     private String lastName;
     private String slug;
     private String email;
+    private boolean anonymous;
 }

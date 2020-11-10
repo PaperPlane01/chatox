@@ -111,7 +111,7 @@ export const validateEmail = (email?: string): keyof Labels | undefined => {
     return undefined;
 };
 
-export const validateVerificationCode = (verificationCode: string): keyof Labels | undefined => {
+export const validateConfirmationCode = (verificationCode: string): keyof Labels | undefined => {
     if (isStringEmpty(verificationCode)) {
         return "email.verification.code.empty";
     }

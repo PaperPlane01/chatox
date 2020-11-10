@@ -1,29 +1,27 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {ChatParticipantsList} from "./ChatParticipantsList";
-import {ChatOfCurrentUserEntity} from "../types"
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
-import {PaginationState} from "../../utils/types";
+import {useLocalization, useStore} from "../../store";
 
-interface AllChatParticipantsListMobxProps {
-    participants: string[],
-    selectedChatId?: string,
-    onlineParticipantsCount: number,
-    findChat: (chatId: string) => ChatOfCurrentUserEntity,
-    getPaginationState: (chatId: string) => PaginationState
-}
-
-type AllChatParticipantsListProps = AllChatParticipantsListMobxProps & Localized;
-
-const _AllChatParticipantsList: FunctionComponent<AllChatParticipantsListProps> = ({
-    participants,
-    onlineParticipantsCount,
-    selectedChatId,
-    findChat,
-    getPaginationState,
-    l
-}) => {
+export const AllChatParticipantsList: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            selectedChatId
+        },
+        chatParticipants: {
+            getPaginationState,
+            chatParticipants
+        },
+        onlineChatParticipants: {
+            onlineParticipantsCount
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            }
+        }
+    } = useStore();
+    const {l} = useLocalization();
 
     if (!selectedChatId) {
         return null;
@@ -33,7 +31,7 @@ const _AllChatParticipantsList: FunctionComponent<AllChatParticipantsListProps> 
     const chat = findChat(selectedChatId);
 
     return (
-        <ChatParticipantsList participantsIds={participants}
+        <ChatParticipantsList participantsIds={chatParticipants}
                               fetchingState={fetchingState}
                               label={l(
                                   "chat.number-of-participants",
@@ -45,21 +43,4 @@ const _AllChatParticipantsList: FunctionComponent<AllChatParticipantsListProps> 
                               highlightOnline
         />
     )
-};
-
-const mapMobxToProps: MapMobxToProps<AllChatParticipantsListMobxProps> = ({
-    entities,
-    chatParticipants,
-    onlineChatParticipants,
-    chat
-}) => ({
-    participants: chatParticipants.chatParticipants,
-    selectedChatId: chat.selectedChatId,
-    findChat: entities.chats.findById,
-    getPaginationState: chatParticipants.getPaginationState,
-    onlineParticipantsCount: onlineChatParticipants.onlineParticipantsCount
 });
-
-export const AllChatParticipantsList = localized(
-    inject(mapMobxToProps)(observer(_AllChatParticipantsList))
-) as FunctionComponent;

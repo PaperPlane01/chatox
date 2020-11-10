@@ -12,5 +12,6 @@ data class UploadResponse<MetadataType>(
         val preview: UploadResponse<ImageUploadMetadata>?,
         val type: UploadType,
         val originalName: String,
-        val uri: String
+        val uri: String,
+        val size: Int
 )

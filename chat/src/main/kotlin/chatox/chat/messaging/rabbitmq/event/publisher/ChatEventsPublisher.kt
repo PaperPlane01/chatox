@@ -3,7 +3,10 @@ package chatox.chat.messaging.rabbitmq.event.publisher
 import chatox.chat.api.response.ChatBlockingResponse
 import chatox.chat.api.response.ChatParticipationResponse
 import chatox.chat.api.response.MessageResponse
+import chatox.chat.messaging.rabbitmq.event.ChatDeleted
+import chatox.chat.messaging.rabbitmq.event.ChatParticipationDeleted
 import chatox.chat.messaging.rabbitmq.event.ChatUpdated
+import chatox.chat.messaging.rabbitmq.event.UserLeftChat
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
 
@@ -46,22 +49,16 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             chatParticipationResponse
     )
 
-    fun userLeftChat(chatId: String, chatParticipationId: String) = rabbitTemplate.convertAndSend(
+    fun userLeftChat(userLeftChat: UserLeftChat) = rabbitTemplate.convertAndSend(
             "chat.events",
             "chat.user.left.#",
-            hashMapOf(
-                    Pair("chatParticipationId", chatParticipationId),
-                    Pair("chatId", chatId)
-            )
+            userLeftChat
     )
 
-    fun chatParticipationDeleted(chatId: String, chatParticipationId: String) = rabbitTemplate.convertAndSend(
+    fun chatParticipationDeleted(chatParticipationDeleted: ChatParticipationDeleted) = rabbitTemplate.convertAndSend(
             "chat.events",
             "chat.participation.deleted.#",
-            hashMapOf(
-                    Pair("chatParticipationId", chatParticipationId),
-                    Pair("chatId", chatId)
-            )
+            chatParticipationDeleted
     )
 
     fun chatParticipationUpdated(chatParticipationResponse: ChatParticipationResponse) = rabbitTemplate.convertAndSend(
@@ -98,5 +95,11 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.events",
             "chat.updated.#",
             chatUpdated
+    )
+
+    fun chatDeleted(chatDeleted: ChatDeleted) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.deleted.#",
+            chatDeleted
     )
 }

@@ -5,3 +5,4 @@ export * from "./ListFetchingState";
 export * from "./FetchOptions";
 export * from "./PaginationWithSortingState";
 export * from "./SortingDirection";
+export * from "./PartialBy";

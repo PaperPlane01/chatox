@@ -8,3 +8,8 @@ export * from "./ReferredMessageCard";
 export * from "./MessageDialog";
 export * from "./EditMessageMenuItem";
 export * from "./UpdateMessageDialog";
+export * from "./AttachFilesButton";
+export * from "./AttachImageMenuItem";
+export * from "./CreateMessageFormMediaAttachment";
+export * from "./AttachedFilesDialog";
+export * from "./MessagesListWrapper";

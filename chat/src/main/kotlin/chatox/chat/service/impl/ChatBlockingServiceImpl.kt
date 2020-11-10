@@ -4,8 +4,8 @@ import chatox.chat.api.request.CreateChatBlockingRequest
 import chatox.chat.api.request.UpdateChatBlockingRequest
 import chatox.chat.api.response.ChatBlockingResponse
 import chatox.chat.exception.ChatBlockingNotFoundException
-import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.exception.UserNotFoundException
+import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.ChatBlockingMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat

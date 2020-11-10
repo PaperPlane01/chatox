@@ -1,27 +1,39 @@
 import React, {Fragment, FunctionComponent, useState} from "react";
-import {inject, observer} from "mobx-react";
-import {Button, IconButton, Menu} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {Button, createStyles, Hidden, IconButton, makeStyles, Menu, Theme} from "@material-ui/core";
 import {Skeleton} from "@material-ui/lab";
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+import {AccountCircle} from "@material-ui/icons";
 import randomColor from "randomcolor";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
+import {PasswordRecoveryDialog} from "../../PasswordRecovery";
 import {Avatar} from "../../Avatar";
-import {CurrentUser} from "../../api/types/response";
-import {IAppState} from "../../store";
+import {useAuthorization} from "../../store";
 
-interface UserAppBarMenuMobxProps {
-    currentUser?: CurrentUser,
-    fetchingCurrentUser: boolean
-}
+const useStyles = makeStyles((theme: Theme) => createStyles({
+    userButton: {
+        textTransform: "none"
+    },
+    userAvatarContainer: {
+        [theme.breakpoints.up("md")]: {
+            paddingRight: theme.spacing(2)
+        }
+    }
+}));
 
-const _UserAppBarMenu: FunctionComponent<UserAppBarMenuMobxProps> = ({currentUser, fetchingCurrentUser}) => {
+export const UserAppBarMenu: FunctionComponent = observer(() => {
     const [anchorElement, setAnchorElement] = useState<Element | null>(null);
+    const {currentUser, fetchingCurrentUser} = useAuthorization();
+    const classes = useStyles();
 
     if (fetchingCurrentUser) {
         return (
             <Fragment>
-                <Skeleton variant="circle" height={40} width={40}/>
+                <Skeleton variant="circle"
+                          height={40}
+                          width={40}
+                          className={classes.userAvatarContainer}
+                />
                 <Skeleton variant="text" height={20} width={50}/>
             </Fragment>
         )
@@ -36,15 +48,17 @@ const _UserAppBarMenu: FunctionComponent<UserAppBarMenuMobxProps> = ({currentUse
             <Fragment>
                 <Button onClick={event => setAnchorElement(event.currentTarget)}
                         color="inherit"
+                        className={classes.userButton}
                 >
-                    <div style={{marginRight: 14}}>
+                    <div className={classes.userAvatarContainer}>
                         <Avatar avatarLetter={avatarLetter}
                                 avatarColor={randomColor({seed: currentUser.id})}
-                                avatarUri={currentUser.avatarUri}
                                 avatarId={currentUser.avatarId}
                         />
                     </div>
-                    {currentUser.firstName}{currentUser.lastName && ` ${currentUser.lastName}`}
+                    <Hidden smDown>
+                        {currentUser.firstName}{currentUser.lastName && ` ${currentUser.lastName}`}
+                    </Hidden>
                 </Button>
                 <Menu open={Boolean(anchorElement)}
                       anchorEl={anchorElement}
@@ -60,7 +74,7 @@ const _UserAppBarMenu: FunctionComponent<UserAppBarMenuMobxProps> = ({currentUse
                 <IconButton color="inherit"
                             onClick={event => setAnchorElement(event.currentTarget)}
                 >
-                    <AccountCircleIcon/>
+                    <AccountCircle/>
                 </IconButton>
                 <Menu open={Boolean(anchorElement)}
                       anchorEl={anchorElement}
@@ -71,14 +85,8 @@ const _UserAppBarMenu: FunctionComponent<UserAppBarMenuMobxProps> = ({currentUse
                 </Menu>
                 <LoginDialog/>
                 <RegistrationDialog/>
+                <PasswordRecoveryDialog/>
             </Fragment>
         )
     }
-};
-
-const mapMobxToProps = (state: IAppState): UserAppBarMenuMobxProps => ({
-    currentUser: state.authorization.currentUser,
-    fetchingCurrentUser: state.authorization.fetchingCurrentUser
 });
-
-export const UserAppBarMenu = inject(mapMobxToProps)(observer(_UserAppBarMenu as FunctionComponent));

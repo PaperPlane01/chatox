@@ -1,7 +1,7 @@
-import {action, reaction, observable, computed} from "mobx";
+import {action, computed, observable, reaction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {EntitiesStore} from "../../entities-store";
-import {ChatStore} from "../../Chat";
+import {ChatsPreferencesStore, ChatStore, ReverseScrollDirectionOption} from "../../Chat";
 import {FetchingState, FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api/clients";
 
@@ -19,7 +19,8 @@ export class MessagesOfChatStore {
     }
 
     constructor(private readonly entities: EntitiesStore,
-                private readonly chatStore: ChatStore) {
+                private readonly chatStore: ChatStore,
+                private readonly chatPreferencesStore: ChatsPreferencesStore) {
         reaction(
             () => this.selectedChatId,
             () => this.fetchMessages({abortIfInitiallyFetched: true})
@@ -30,11 +31,16 @@ export class MessagesOfChatStore {
     get messagesOfChat(): string[] {
         if (this.selectedChatId) {
             const messages = this.entities.chats.findById(this.selectedChatId).messages;
-            return messages.sort((left, right) => {
+            return messages.slice().sort((left, right) => {
                 const leftMessage = this.entities.messages.findById(left);
                 const rightMessage = this.entities.messages.findById(right);
 
-                return leftMessage.createdAt.getTime() - rightMessage.createdAt.getTime();
+                if (this.chatPreferencesStore.enableVirtualScroll
+                    && this.chatPreferencesStore.reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
+                    return rightMessage.createdAt.getTime() - leftMessage.createdAt.getTime();
+                } else {
+                    return leftMessage.createdAt.getTime() - rightMessage.createdAt.getTime();
+                }
             })
         } else {
             return [];
@@ -54,7 +60,6 @@ export class MessagesOfChatStore {
 
     @action
     fetchMessages = (options: FetchOptions = {abortIfInitiallyFetched: false}): void => {
-        console.log("in fetchMessages()");
         if (this.selectedChatId) {
             if (this.messagesOfChat.length > 50) {
                 return;

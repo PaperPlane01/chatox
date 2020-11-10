@@ -1,5 +1,5 @@
-import React, {FunctionComponent, Fragment, KeyboardEvent} from "react";
-import {inject, observer} from "mobx-react";
+import React, {Fragment, FunctionComponent, KeyboardEvent} from "react";
+import {observer} from "mobx-react";
 import {
     Button,
     Chip,
@@ -12,40 +12,13 @@ import {
     InputAdornment,
     makeStyles,
     TextField,
-    Typography,
-    withMobileDialog,
-    WithMobileDialog
+    Typography
 } from "@material-ui/core";
-import {CreateChatFormData, TagErrorsMapContainer} from "../types";
-import {FormErrors} from "../../utils/types";
-import {ApiError} from "../../api";
-import {Chat, ChatOfCurrentUser} from "../../api/types/response";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
-import {MakrdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
-
-interface CreateChatDialogMobxProps {
-    createChatForm: CreateChatFormData,
-    formErrors: FormErrors<CreateChatFormData> & TagErrorsMapContainer,
-    pending: boolean,
-    currentTag: string,
-    submissionError?: ApiError,
-    checkingSlugAvailability: boolean,
-    createChatDialogOpen: boolean,
-    createdChat?: ChatOfCurrentUser,
-    createChat: () => void,
-    setCreateChatDialogOpen: (createChatDialogOpen: boolean) => void,
-    setFormValue: <Key extends keyof CreateChatFormData>(key: Key, value: CreateChatFormData[Key]) => void,
-    addTag: (tag: string) => void,
-    removeTagByIndex: (index: number) => void,
-    setCurrentTag: (tag: string) => void,
-    reset: () => void,
-    routerStore?: any
-}
-
-type CreateChatDialogProps = CreateChatDialogMobxProps & WithMobileDialog & Localized;
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
+import {useMobileDialog} from "../../utils/hooks";
 
 const useStyles = makeStyles(theme => createStyles({
     errorLabel: {
@@ -53,27 +26,30 @@ const useStyles = makeStyles(theme => createStyles({
     }
 }));
 
-const _CreateChatDialog: FunctionComponent<CreateChatDialogProps> = ({
-    createChatForm,
-    formErrors,
-    currentTag,
-    submissionError,
-    pending,
-    createChatDialogOpen,
-    checkingSlugAvailability,
-    createdChat,
-    createChat,
-    setCreateChatDialogOpen,
-    setFormValue,
-    addTag,
-    removeTagByIndex,
-    setCurrentTag,
-    reset,
-    fullScreen,
-    l,
-    routerStore
-}) => {
+export const CreateChatDialog: FunctionComponent = observer(() => {
+    const {
+        chatCreation: {
+            createdChat,
+            createChatDialogOpen,
+            createChatForm,
+            formErrors,
+            submissionError,
+            pending,
+            currentTag,
+            checkingSlugAvailability,
+            setCurrentTag,
+            setFormValue,
+            addTag,
+            removeTagByIndex,
+            reset,
+            createChat,
+            setCreateChatDialogOpen
+        }
+    } = useStore();
+    const routerStore = useRouter();
+    const {l} = useLocalization();
     const classes = useStyles();
+    const {fullScreen} = useMobileDialog();
 
     if (createdChat) {
         setCreateChatDialogOpen(false);
@@ -214,32 +190,7 @@ const _CreateChatDialog: FunctionComponent<CreateChatDialogProps> = ({
                     {l("chat.create-chat")}
                 </Button>
             </DialogActions>
-            <MakrdownPreviewDialog text={createChatForm.description || ""}/>
+            <MarkdownPreviewDialog text={createChatForm.description || ""}/>
         </Dialog>
     );
-};
-
-const mapMobxToProps: MapMobxToProps<CreateChatDialogMobxProps> = ({chatCreation, store}) => ({
-    createChatForm: chatCreation.createChatForm,
-    formErrors: chatCreation.formErrors,
-    pending: chatCreation.pending,
-    createChatDialogOpen: chatCreation.createChatDialogOpen,
-    createdChat: chatCreation.createdChat,
-    checkingSlugAvailability: chatCreation.checkingSlugAvailability,
-    setFormValue: chatCreation.setFormValue,
-    createChat: chatCreation.createChat,
-    setCreateChatDialogOpen: chatCreation.setCreateChatDialogOpen,
-    submissionError: chatCreation.submissionError,
-    currentTag: chatCreation.currentTag,
-    addTag: chatCreation.addTag,
-    removeTagByIndex: chatCreation.removeTagByIndex,
-    setCurrentTag: chatCreation.setCurrentTag,
-    reset: chatCreation.reset,
-    routerStore: store
 });
-
-export const CreateChatDialog = withMobileDialog()(
-    localized(
-        inject(mapMobxToProps)(observer(_CreateChatDialog))
-    ) as FunctionComponent
-);

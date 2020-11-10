@@ -1,18 +1,46 @@
 package chatox.user.api.request
 
+import com.fasterxml.jackson.annotation.JsonProperty
+import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
+import javax.validation.constraints.Pattern
+import javax.validation.constraints.Size
 
 data class CreateUserRequest(
-        @field:NotBlank(message = "ID must be present")
-        val id: String,
+        @field:NotBlank
+        @field:JsonProperty("id")
+        private val _id: String?,
 
-        @field:NotBlank(message = "Account ID must be present")
-        val accountId: String,
+        @field:NotBlank
+        @field:JsonProperty("accountId")
+        private val _accountId: String?,
 
-        @field:NotBlank(message = "First name mist be present")
-        val firstName: String,
+        @field:NotBlank
+        @field:Size(min = 2, max = 20)
+        @field:JsonProperty("firstName")
+        private val _firstName: String?,
 
+        @field:Size(min = 3, max = 30)
+        @field:Pattern(regexp = "^[a-zA-Z0-9_.]+\$")
         val slug: String?,
+
+        @field:Size(min = 2, max = 20)
         val lastName: String?,
-        val email: String?
-)
+
+        @field:Email
+        val email: String?,
+
+        @field:NotNull
+        @field:JsonProperty("anonymous")
+        private val _anonymous: Boolean?
+) {
+        val id: String
+                get() = _id!!
+        val accountId: String
+                get() = _accountId!!
+        val firstName: String
+                get() = _firstName!!
+        val anonymous: Boolean
+                get() = _anonymous!!
+}

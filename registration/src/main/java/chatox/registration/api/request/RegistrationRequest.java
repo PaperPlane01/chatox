@@ -1,5 +1,7 @@
 package chatox.registration.api.request;
 
+import chatox.registration.support.validation.annotation.FieldsValueMatch;
+import chatox.registration.support.validation.annotation.NotNullIfFieldPresent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,32 +9,57 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@FieldsValueMatch(
+        field = "password",
+        mustMatchField = "repeatedPassword",
+        message = "password and repeatedPassword fields must be equal"
+)
+@NotNullIfFieldPresent(
+        field = "email",
+        validatedFields = {
+                "emailConfirmationCodeId",
+                "emailConfirmationCode"
+        },
+        acceptEmpty = false,
+        message = "emailConfirmationCodeId and emailConfirmationCode parameters must be supplied along with email"
+)
 public class RegistrationRequest {
-    @NotBlank(message = "Username must be present")
+    @NotBlank
+    @Size(min = 4, max = 20)
     private String username;
 
-    @NotBlank(message = "First name must be present")
+    @NotBlank
+    @Size(min = 2, max = 20)
     private String firstName;
+
+    @Size(min = 2, max = 20)
     private String lastName;
 
-    @NotBlank(message = "Password must be present")
+    @NotBlank
+    @Size(min = 5, max = 40)
     private String password;
 
-    @NotBlank(message = "Repeated password must be present")
+    @NotBlank
+    @Size(min = 5, max = 50)
     private String repeatedPassword;
+
+    @Size(min = 3, max = 30)
+    @Pattern(regexp = "^[a-zA-Z0-9_.]+$")
     private String slug;
 
-    @NotBlank(message = "Client id must be specified")
+    @NotBlank
     private String clientId;
 
-    @Email(message = "Email must be a valid email")
+    @Email
     private String email;
 
-    private String emailVerificationId;
-    private String emailVerificationConfirmationCode;
+    private String emailConfirmationCodeId;
+    private String emailConfirmationCode;
 }

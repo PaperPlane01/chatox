@@ -32,7 +32,8 @@ class UploadMapper {
             meta = upload.meta,
             preview = if (upload.preview != null) toUploadResponse(upload.preview!!) else null,
             uri = getUploadUri(upload = upload),
-            originalName = upload.originalName
+            originalName = upload.originalName,
+            size = upload.size
     )
 
     fun <MetadataType>fromUploadCreated(uploadCreated: UploadCreated<MetadataType>,

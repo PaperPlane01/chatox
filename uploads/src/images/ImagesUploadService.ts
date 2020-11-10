@@ -45,7 +45,7 @@ const SUPPORTED_IMAGES_FORMATS = [
 
 const isImageFormatSupported = (imageFormat: string) => SUPPORTED_IMAGES_FORMATS.includes(imageFormat.trim().toLowerCase());
 
-const STANDARD_THUMBNAIL_SIZES = [64, 128, 256, 512, 1024, 2048];
+const STANDARD_THUMBNAIL_SIZES = [64, 128, 256, 300, 400, 512, 1024, 2048];
 
 @Injectable()
 export class ImagesUploadService {
@@ -297,6 +297,8 @@ export class ImagesUploadService {
     }
 
     public async getImage(imageName: string, imageSizeRequest: ImageSizeRequest, response: Response): Promise<void> {
+        response.setHeader("Cache-Control", "max-age=31536000");
+
         if (imageSizeRequest.size) {
             const fileInfo: RedisFileInfo | undefined = await this.cacheManager.get(`fileInfo_${imageName}_${imageSizeRequest.size}`);
 

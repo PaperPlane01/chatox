@@ -1,13 +1,8 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {createStyles, Fab, makeStyles, Theme, Tooltip} from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import {localized, Localized} from "../../localization/components";
-import {MapMobxToProps} from "../../store";
-
-interface CreateChatFloatingActionButtonMobxProps {
-    setCreateChatDialogOpen: (createChatDialogOpen: boolean) => void
-}
+import {useLocalization, useStore} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     createChatFloatingActionButton: {
@@ -17,12 +12,13 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-type CreateChatFloatingActionButtonProps = CreateChatFloatingActionButtonMobxProps & Localized;
-
-const _CreateChatFloatingActionButton: FunctionComponent<CreateChatFloatingActionButtonProps> = ({
-    setCreateChatDialogOpen,
-    l
-}) => {
+export const CreateChatFloatingActionButton: FunctionComponent = observer(() => {
+    const {
+        chatCreation: {
+            setCreateChatDialogOpen
+        }
+    } = useStore();
+    const {l} = useLocalization();
     const classes = useStyles();
 
     return (
@@ -35,12 +31,4 @@ const _CreateChatFloatingActionButton: FunctionComponent<CreateChatFloatingActio
             </Fab>
         </Tooltip>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<CreateChatFloatingActionButtonMobxProps> = ({chatCreation}) => ({
-    setCreateChatDialogOpen: chatCreation.setCreateChatDialogOpen
 });
-
-export const CreateChatFloatingActionButton = localized(
-    inject(mapMobxToProps)(observer(_CreateChatFloatingActionButton))
-) as FunctionComponent;

@@ -1,31 +1,22 @@
 import React, {FunctionComponent} from "react";
-import {inject} from "mobx-react";
+import {observer} from "mobx-react";
 import {IconButton, Tooltip} from "@material-ui/core";
-import CodeIcon from "@material-ui/icons/Code";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {Code} from "@material-ui/icons";
+import {useLocalization, useStore} from "../../store";
 
-interface OpenMardownPreviewDialogButtonMobxProps {
-    setMarkdownPreviewDialogOpen: (markdownPreviewDialogOpen: boolean) => void
-}
+export const OpenMarkdownPreviewDialogButton: FunctionComponent = observer(() => {
+    const {
+        markdownPreviewDialog: {
+            setMarkdownPreviewDialogOpen
+        }
+    } = useStore();
+    const {l} = useLocalization();
 
-type OpenMardownPreviewDialogButtonProps = OpenMardownPreviewDialogButtonMobxProps & Localized;
-
-const _OpenMarkdownPreviewDialogButton: FunctionComponent<OpenMardownPreviewDialogButtonProps> = ({
-    setMarkdownPreviewDialogOpen,
-    l
-}) => (
-    <Tooltip title={l("markdown.preview.show")}>
-        <IconButton onClick={() => setMarkdownPreviewDialogOpen(true)}>
-            <CodeIcon/>
-        </IconButton>
-    </Tooltip>
-);
-
-const mapMobxToProps: MapMobxToProps<OpenMardownPreviewDialogButtonMobxProps> = ({markdownPreviewDialog}) => ({
-    setMarkdownPreviewDialogOpen: markdownPreviewDialog.setMarkdownPreviewDialogOpen
+    return (
+        <Tooltip title={l("markdown.preview.show")}>
+            <IconButton onClick={() => setMarkdownPreviewDialogOpen(true)}>
+                <Code/>
+            </IconButton>
+        </Tooltip>
+    );
 });
-
-export const OpenMarkdownPreviewDialogButton = localized(
-    inject(mapMobxToProps)(_OpenMarkdownPreviewDialogButton)
-) as FunctionComponent;

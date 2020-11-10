@@ -1,25 +1,17 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import {localized, Localized} from "../../localization";
-import {IAppState} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-interface LogOutMenuItemOwnProps {
+interface LogOutMenuItemProps {
     onClick?: () => void
 }
 
-interface LogOutMenuItemMobxProps {
-    logOut: () => void
-}
+export const LogOutMenuItem: FunctionComponent<LogOutMenuItemProps> = observer(({onClick}) => {
+    const {l} = useLocalization();
+    const {authorization: {logOut}} = useStore();
 
-type LogOutMenuItemProps = LogOutMenuItemOwnProps & LogOutMenuItemMobxProps & Localized;
-
-const _LogOutMenuItem: FunctionComponent<LogOutMenuItemProps> = ({
-    onClick,
-    logOut,
-    l
-}) => {
     const handleClick = (): void => {
         if (onClick) {
             onClick();
@@ -38,12 +30,4 @@ const _LogOutMenuItem: FunctionComponent<LogOutMenuItemProps> = ({
             </ListItemText>
         </MenuItem>
     )
-};
-
-const mapMobxToProps = (state: IAppState): LogOutMenuItemMobxProps => ({
-    logOut: state.authorization.logOut
 });
-
-export const LogOutMenuItem = localized(
-    inject(mapMobxToProps)(observer(_LogOutMenuItem))
-) as FunctionComponent<LogOutMenuItemOwnProps>;

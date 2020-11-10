@@ -1,30 +1,32 @@
 import React, {FunctionComponent, MouseEvent, ReactNode, useState} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {IconButton, Menu} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {ChatBlockingsMenuItem} from "./ChatBlockingsMenuItem";
 import {BlockUserInChatByIdOrSlugMenuItem} from "./BlockUserInChatByIdOrSlugMenuItem";
 import {EditChatMenuItem} from "./EditChatMenuItem";
-import {FindChatParticipationByUserAndChatOptions} from "../stores";
-import {ChatOfCurrentUserEntity, ChatParticipationEntity} from "../types";
-import {canUpdateChat} from "../permissions";
-import {CurrentUser} from "../../api/types/response";
+import {LeaveChatMenuItem} from "./LeaveChatMenuItem";
+import {DeleteChatMenuItem} from "./DeleteChatMenuItem";
+import {canDeleteChat, canLeaveChat, canUpdateChat} from "../permissions";
 import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
-import {MapMobxToProps} from "../../store";
+import {useAuthorization, useStore} from "../../store";
 
-interface ChatMenuMobxProps {
-    selectedChatId?: string,
-    currentUser?: CurrentUser,
-    findChat: (chatId: string) => ChatOfCurrentUserEntity,
-    findChatParticipation: (options: FindChatParticipationByUserAndChatOptions) => ChatParticipationEntity | undefined
-}
+export const ChatMenu: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            selectedChatId
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            },
+            chatParticipations: {
+                findByUserAndChat: findChatParticipation
+            }
+        }
+    } = useStore();
+    const {currentUser} = useAuthorization();
 
-const _ChatMenu: FunctionComponent<ChatMenuMobxProps> = ({
-    currentUser,
-    findChatParticipation,
-    findChat,
-    selectedChatId
-}) => {
     const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
     const menuOpen = Boolean(anchorElement);
 
@@ -53,6 +55,8 @@ const _ChatMenu: FunctionComponent<ChatMenuMobxProps> = ({
     canUpdateChat(chat) && menuItems.push(<EditChatMenuItem onClick={handleClose}/>);
     canBlockUsersInChat(chatParticipation) && menuItems.push(<ChatBlockingsMenuItem onClick={handleClose}/>);
     canBlockUsersInChat(chatParticipation) && menuItems.push(<BlockUserInChatByIdOrSlugMenuItem onClick={handleClose}/>);
+    canLeaveChat(chat, chatParticipation) && menuItems.push(<LeaveChatMenuItem onClick={handleClose}/>);
+    canDeleteChat(chat, currentUser) && menuItems.push(<DeleteChatMenuItem onClick={handleClose}/>)
 
     if (menuItems.length === 0) {
         return null;
@@ -71,17 +75,4 @@ const _ChatMenu: FunctionComponent<ChatMenuMobxProps> = ({
             </Menu>
         </div>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatMenuMobxProps> = ({
-    chat,
-    authorization,
-    entities
-}) => ({
-    selectedChatId: chat.selectedChatId,
-    currentUser: authorization.currentUser,
-    findChatParticipation: entities.chatParticipations.findByUserAndChat,
-    findChat: entities.chats.findById
 });
-
-export const ChatMenu = inject(mapMobxToProps)(observer(_ChatMenu) as FunctionComponent);

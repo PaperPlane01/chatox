@@ -1,17 +1,12 @@
 import React, {Fragment, FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
-import {CircularProgress, createStyles, Divider, Hidden, List, makeStyles} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {CircularProgress, createStyles, Divider, Hidden, List, makeStyles, Theme} from "@material-ui/core";
 import {ChatsOfCurrentUserListItem} from "./ChatsOfCurrentUserListItem";
 import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
 import {CreateChatDialog} from "./CreateChatDialog";
-import {MapMobxToProps} from "../../store";
+import {useStore} from "../../store";
 
-interface ChatsOfCurrentUserListMobxProps {
-    chatIds: string[],
-    pending: boolean
-}
-
-const useStyles = makeStyles(theme => createStyles({
+const useStyles = makeStyles((theme: Theme) => createStyles({
     centered: {
         display: "flex",
         alignItems: "center",
@@ -20,9 +15,9 @@ const useStyles = makeStyles(theme => createStyles({
     },
     chatListWrapper: {
         [theme.breakpoints.up("lg")]: {
-            height: "calc(100vh - 68px)",
+            height: `calc(100vh - 64px)`,
             width: 280,
-            display: "flex"
+            display: "flex",
         },
         [theme.breakpoints.down("md")]: {
             width: "100%"
@@ -35,14 +30,18 @@ const useStyles = makeStyles(theme => createStyles({
         }
     },
     padding: {
-        paddingTop: 0
+        paddingTop: 0,
+        paddingBottom: 0
     }
 }));
 
-const _ChatsOfCurrentUserList: FunctionComponent<ChatsOfCurrentUserListMobxProps> = ({
-    chatIds,
-    pending
-}) => {
+export const ChatsOfCurrentUserList: FunctionComponent = observer(() => {
+    const {
+        chatsOfCurrentUser: {
+            chatsOfCurrentUser: chatIds,
+            pending
+        }
+    } = useStore();
     const classes = useStyles();
 
     if (pending) {
@@ -61,7 +60,7 @@ const _ChatsOfCurrentUserList: FunctionComponent<ChatsOfCurrentUserListMobxProps
                  }}
            >
                {chatIds.map(chatId => (
-                   <Fragment>
+                   <Fragment key={chatId}>
                        <ChatsOfCurrentUserListItem chatId={chatId}
                                                    key={chatId}
                        />
@@ -75,11 +74,4 @@ const _ChatsOfCurrentUserList: FunctionComponent<ChatsOfCurrentUserListMobxProps
            <CreateChatDialog/>
        </div>
    )
-};
-
-const mapMobxToProps: MapMobxToProps<ChatsOfCurrentUserListMobxProps> = ({chatsOfCurrentUser}) => ({
-    chatIds: chatsOfCurrentUser.chatsOfCurrentUser,
-    pending: chatsOfCurrentUser.pending
 });
-
-export const ChatsOfCurrentUserList = inject(mapMobxToProps)(observer(_ChatsOfCurrentUserList) as FunctionComponent);

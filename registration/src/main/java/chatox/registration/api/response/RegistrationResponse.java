@@ -24,4 +24,5 @@ public class RegistrationResponse {
     private String avatarUri;
     private String accountId;
     private ZonedDateTime createdAt;
+    private boolean anonymous;
 }

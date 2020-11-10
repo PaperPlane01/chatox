@@ -2,8 +2,17 @@ import {action, computed, reaction} from "mobx";
 import SocketIo from "socket.io-client";
 import {AuthorizationStore} from "../../Authorization/stores";
 import {EntitiesStore} from "../../entities-store";
-import {ChatUpdated, MessagesDeleted, WebsocketEvent, WebsocketEventType} from "../../api/types/websocket";
-import {Message, ChatBlocking, ChatParticipation} from "../../api/types/response";
+import {
+    ChatDeleted,
+    ChatUpdated,
+    MessageDeleted,
+    MessagesDeleted,
+    UserKickedFromChat,
+    UserLeftChat,
+    WebsocketEvent,
+    WebsocketEventType
+} from "../../api/types/websocket";
+import {ChatBlocking, ChatParticipation, Message} from "../../api/types/response";
 
 export class WebsocketStore {
     socketIoClient?: SocketIOClient.Socket;
@@ -85,6 +94,34 @@ export class WebsocketStore {
             this.socketIoClient.on(
                 WebsocketEventType.CHAT_UPDATED,
                 (event: WebsocketEvent<ChatUpdated>) => this.entities.updateChat(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.MESSAGE_DELETED,
+                (event: WebsocketEvent<MessageDeleted>) => this.entities.messages.deleteById(event.payload.messageId)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.USER_KICKED_FROM_CHAT,
+                (event: WebsocketEvent<UserKickedFromChat>) => this.entities.deleteChatParticipation(
+                    event.payload.chatParticipationId,
+                    true,
+                    event.payload.chatId
+                )
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.USER_LEFT_CHAT,
+                (event: WebsocketEvent<UserLeftChat>) => this.entities.deleteChatParticipation(
+                    event.payload.chatParticipationId,
+                    true,
+                    event.payload.chatId
+                )
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_DELETED,
+                (event: WebsocketEvent<ChatDeleted>) => this.entities.deleteChat(
+                    event.payload.id,
+                    event.payload.reason,
+                    event.payload.comment
+                )
             );
         }
     };

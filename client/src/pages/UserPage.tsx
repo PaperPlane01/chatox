@@ -32,3 +32,5 @@ export const UserPage: FunctionComponent = () => {
         </Grid>
     )
 };
+
+export default UserPage;

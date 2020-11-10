@@ -1,28 +1,22 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {Avatar as MuiAvatar} from "@material-ui/core";
 import {Skeleton} from "@material-ui/lab";
 import {isStringEmpty} from "../../utils/string-utils";
-import {ImageUploadMetadata, Upload} from "../../api/types/response";
-import {MapMobxToProps} from "../../store";
+import {useStore} from "../../store";
 
-interface AvatarMobxProps {
-    findImage: (id: string) => Upload<ImageUploadMetadata>
-}
-
-interface AvatarOwnProps {
+interface AvatarProps {
     avatarUri?: string,
     avatarId?: string
     avatarLetter: string,
     avatarColor: string,
     width?: number,
     height?: number,
-    pending?: boolean
+    pending?: boolean,
+    className?: string
 }
 
-type AvatarProps = AvatarMobxProps & AvatarOwnProps;
-
-const _Avatar: FunctionComponent<AvatarProps> = ({
+export const Avatar: FunctionComponent<AvatarProps> = observer(({
     avatarUri,
     avatarId,
     avatarLetter,
@@ -30,8 +24,16 @@ const _Avatar: FunctionComponent<AvatarProps> = ({
     width = 40,
     height = 40,
     pending,
-    findImage
+    className
 }) => {
+    const {
+        entities: {
+            uploads: {
+                findImage
+            }
+        }
+    } = useStore();
+
     if (pending) {
         return (
             <Skeleton variant="circle"
@@ -61,6 +63,7 @@ const _Avatar: FunctionComponent<AvatarProps> = ({
                                width: imageProps.width,
                                height: imageProps.height
                            }}
+                           className={className}
                 >
                     {avatarLetter}
                 </MuiAvatar>
@@ -72,14 +75,9 @@ const _Avatar: FunctionComponent<AvatarProps> = ({
                                width: imageProps.width,
                                height: imageProps.height
                            }}
+                           className={className}
                 />
             )
         }
     }
-};
-
-const mapMobxToProps: MapMobxToProps<AvatarMobxProps> = ({entities}) => ({
-    findImage: entities.uploads.findImage
 });
-
-export const Avatar = inject(mapMobxToProps)(observer(_Avatar as FunctionComponent<AvatarOwnProps>));

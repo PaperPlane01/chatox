@@ -7,6 +7,7 @@ import chatox.chat.api.response.ChatResponse
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.messaging.rabbitmq.event.ChatUpdated
 import chatox.chat.model.Chat
+import chatox.chat.model.ChatMessagesCounter
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatType
 import chatox.chat.model.Message
@@ -40,6 +41,7 @@ class ChatMapper(
             slug = chat.slug,
             avatarUri = chat.avatarUri,
             participantsCount = chat.numberOfParticipants,
+            onlineParticipantsCount = chat.numberOfOnlineParticipants,
             createdByCurrentUser = currentUserId ?: currentUserId === chat.createdBy.id,
             tags = chat.tags,
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null
@@ -56,7 +58,7 @@ class ChatMapper(
         var lastReadMessageMapped: MessageResponse? = null
         var lastMessageMapped: MessageResponse? = null
 
-        if (lastReadMessage != null) {
+        if (lastReadMessage != null && !chat.deleted) {
             lastReadMessageMapped = messageMapper.toMessageResponse(
                     lastReadMessage,
                     readByCurrentUser = true,
@@ -64,12 +66,18 @@ class ChatMapper(
             )
         }
 
-        if (lastMessage != null) {
+        if (lastMessage != null && !chat.deleted) {
             lastMessageMapped = messageMapper.toMessageResponse(
                     lastMessage,
                     readByCurrentUser = lastReadMessage ?: lastReadMessage?.id == lastMessage.id,
                     mapReferredMessage = false
             )
+        }
+
+        val avatar = if (chat.avatar != null && !chat.deleted) {
+            uploadMapper.toUploadResponse(chat.avatar!!)
+        } else {
+            null
         }
 
         return ChatOfCurrentUserResponse(
@@ -85,12 +93,19 @@ class ChatMapper(
                 description = chat.description,
                 tags = chat.tags,
                 participantsCount = chat.numberOfParticipants,
-                avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
-                createdByCurrentUser = chat.createdBy.id == chatParticipation.user.id
+                avatar = avatar,
+                createdByCurrentUser = chat.createdBy.id == chatParticipation.user.id,
+                deleted = chat.deleted,
+                deletionReason = chat.chatDeletion?.deletionReason,
+                deletionComment = chat.chatDeletion?.comment
         )
     }
 
-    fun fromCreateChatRequest(createChatRequest: CreateChatRequest, currentUser: User): Chat {
+    fun fromCreateChatRequest(
+            createChatRequest: CreateChatRequest,
+            currentUser: User,
+            messagesCounter: ChatMessagesCounter
+    ): Chat {
         val id = UUID.randomUUID().toString()
         val createdAt = ZonedDateTime.now()
 
@@ -110,7 +125,8 @@ class ChatMapper(
                 deletedBy = null,
                 numberOfParticipants = 1,
                 lastMessage = null,
-                lastMessageDate = createdAt
+                lastMessageDate = createdAt,
+                messagesCounter = messagesCounter
         )
     }
 

@@ -1,22 +1,15 @@
 import React, {FunctionComponent} from "react";
-import {inject} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText, createStyles, makeStyles} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {createStyles, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
 import ChatBubbleIcon from "@material-ui/icons/ChatBubble";
 import {Routes} from "../../router";
-import {localized, Localized} from "../../localization";
-import {MapMobxToProps} from "../../store";
+import {useLocalization, useRouter} from "../../store";
 
 const {Link} = require("mobx-router");
 
-interface MyChatsMenuItemMobxProps {
-    routerStore?: any
-}
-
-interface MyChatsMenuItemOwnProps {
+interface MyChatsMenuItemProps {
     onClick?: () => void
 }
-
-type MyChatsMenuItemProps = MyChatsMenuItemMobxProps & MyChatsMenuItemOwnProps & Localized;
 
 const useStyles = makeStyles(() => createStyles({
     undecoratedLink: {
@@ -25,12 +18,10 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-const _MyChatsMenuItem: FunctionComponent<MyChatsMenuItemProps> = ({
-    routerStore,
-    onClick,
-    l
-}) => {
+export const MyChatsMenuItem: FunctionComponent<MyChatsMenuItemProps> = observer(({onClick}) => {
     const classes = useStyles();
+    const {l} = useLocalization();
+    const routerStore = useRouter();
 
     const handleClick = (): void => {
         if (onClick) {
@@ -53,12 +44,4 @@ const _MyChatsMenuItem: FunctionComponent<MyChatsMenuItemProps> = ({
             </MenuItem>
         </Link>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<MyChatsMenuItemMobxProps> = ({store}) => ({
-    routerStore: store
 });
-
-export const MyChatsMenuItem = localized(
-    inject(mapMobxToProps)(_MyChatsMenuItem)
-) as FunctionComponent<MyChatsMenuItemOwnProps>;

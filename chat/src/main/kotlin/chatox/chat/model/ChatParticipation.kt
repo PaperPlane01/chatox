@@ -25,5 +25,11 @@ data class ChatParticipation(
         @DBRef
         var lastChatBlocking: ChatBlocking? = null,
         var userOnline: Boolean = false,
-        var deleted: Boolean = false
+        var deleted: Boolean = false,
+        var deletedAt: ZonedDateTime? = null,
+
+        @DBRef
+        var deletedBy: User? = null,
+        var userDisplayedName: String?,
+        var chatDeleted: Boolean = false
 )

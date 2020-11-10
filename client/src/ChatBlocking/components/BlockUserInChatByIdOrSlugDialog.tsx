@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react";
 import {
     Button,
     CircularProgress,
@@ -9,28 +9,12 @@ import {
     DialogTitle,
     InputAdornment,
     TextField,
-    Typography,
-    withMobileDialog,
-    WithMobileDialog
+    Typography
 } from "@material-ui/core";
-import {localized, Localized, TranslationFunction} from "../../localization";
-import {ChatOfCurrentUserEntity} from "../../Chat/types";
+import {TranslationFunction} from "../../localization";
 import {ApiError} from "../../api";
-import {MapMobxToProps} from "../../store";
-
-interface BlockUserInChatByIdOrSlugDialogMobxProps {
-    selectedChatId?: string,
-    checkingUser: boolean,
-    error?: ApiError,
-    blockUserInChatByIdOrSlugDialogOpen: boolean,
-    userIdOrSlug: string,
-    findChat: (chatId: string) => ChatOfCurrentUserEntity,
-    setUserIdOrSlug: (userIdOrSlug: string) => void,
-    setBlockUserInChatByIdOrSlugDialogOpen: (blockUserInChatByIdOrSlugDialogOpen: boolean) => void
-}
-
-type BlockUserInChatByIdOrSlugDialogProps = BlockUserInChatByIdOrSlugDialogMobxProps & Localized
-    & WithMobileDialog;
+import {useLocalization, useStore} from "../../store";
+import {useMobileDialog} from "../../utils/hooks";
 
 const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
     if (error.status === 404) {
@@ -40,18 +24,28 @@ const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
     }
 };
 
-const _BlockUserInChatByIdOrSlugDialog: FunctionComponent<BlockUserInChatByIdOrSlugDialogProps> = ({
-    selectedChatId,
-    checkingUser,
-    error,
-    blockUserInChatByIdOrSlugDialogOpen,
-    userIdOrSlug,
-    findChat,
-    setUserIdOrSlug,
-    setBlockUserInChatByIdOrSlugDialogOpen,
-    l,
-    fullScreen
-}) => {
+export const BlockUserInChatByIdOrSlugDialog: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            selectedChatId
+        },
+        blockUserInChatByIdOrSlug: {
+            blockUserInChatByIdOrSlugDialogOpen,
+            checkingUser,
+            error,
+            userIdOrSlug,
+            setUserIdOrSlug,
+            setBlockUserInChatByIdOrSlugDialogOpen
+        },
+        entities: {
+            chats: {
+                findById: findChat
+            }
+        }
+    } = useStore();
+    const {l} = useLocalization();
+    const {fullScreen} = useMobileDialog();
+
     if (!selectedChatId) {
         return null;
     }
@@ -100,26 +94,4 @@ const _BlockUserInChatByIdOrSlugDialog: FunctionComponent<BlockUserInChatByIdOrS
             </DialogActions>
         </Dialog>
     )
-};
-
-const mapMobxToProps: MapMobxToProps<BlockUserInChatByIdOrSlugDialogMobxProps> = ({
-    chat,
-    blockUserInChatByIdOrSlug,
-    entities
-}) => ({
-    selectedChatId: chat.selectedChatId,
-    userIdOrSlug: blockUserInChatByIdOrSlug.userIdOrSlug,
-    checkingUser: blockUserInChatByIdOrSlug.checkingUser,
-    error: blockUserInChatByIdOrSlug.error,
-    blockUserInChatByIdOrSlugDialogOpen: blockUserInChatByIdOrSlug.blockUserInChatByIdOrSlugDialogOpen,
-    setBlockUserInChatByIdOrSlugDialogOpen: blockUserInChatByIdOrSlug.setBlockUserInChatByIdOrSlugDialogOpen,
-    setUserIdOrSlug: blockUserInChatByIdOrSlug.setUserIdOrSlug,
-    findChat: entities.chats.findById
 });
-
-export const BlockUserInChatByIdOrSlugDialog = localized(
-    withMobileDialog()(
-        inject(mapMobxToProps)(observer(_BlockUserInChatByIdOrSlugDialog))
-    )
-) as FunctionComponent;
-

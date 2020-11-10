@@ -1,4 +1,5 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent} from "react"
+import {observer} from "mobx-react";
 import {
     Button,
     CircularProgress,
@@ -9,25 +10,10 @@ import {
     TextField,
     Typography
 } from "@material-ui/core";
-import {RegistrationStep, SendVerificationEmailFormData} from "../types";
-import {localized, Localized, TranslationFunction} from "../../localization";
-import {FormErrors} from "../../utils/types";
+import {RegistrationStep} from "../types";
+import {TranslationFunction} from "../../localization";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {MapMobxToProps} from "../../store";
-import {inject, observer} from "mobx-react";
-
-interface SendVerificationEmailStepMobxProps {
-    sendVerificationEmailForm: SendVerificationEmailFormData,
-    formErrors: FormErrors<SendVerificationEmailFormData>,
-    error?: ApiError,
-    pending: boolean,
-    checkingEmailAvailability: boolean,
-    setFormValue: <Key extends keyof SendVerificationEmailFormData>(key: Key, value: SendVerificationEmailFormData[Key]) => void,
-    sendVerificationEmail: () => void,
-    setRegistrationStep: (registrationStep: RegistrationStep) => void
-}
-
-type SendVerificationEmailStepProps = SendVerificationEmailStepMobxProps & Localized;
+import {useLocalization, useStore} from "../../store";
 
 const getErrorText = (apiError: ApiError, l: TranslationFunction): string => {
     if (apiError.status === 409) {
@@ -39,75 +25,65 @@ const getErrorText = (apiError: ApiError, l: TranslationFunction): string => {
     }
 };
 
-const _SendVerificationEmailStep: FunctionComponent<SendVerificationEmailStepProps> = ({
-    sendVerificationEmailForm,
-    formErrors,
-    error,
-    pending,
-    checkingEmailAvailability,
-    setFormValue,
-    sendVerificationEmail,
-    setRegistrationStep,
-    l
-}) => (
-    <Fragment>
-        <DialogTitle>
-            {l("registration.provide-your-email")}
-        </DialogTitle>
-        <DialogContent>
-            <TextField label={l("email")}
-                       value={sendVerificationEmailForm.email}
-                       fullWidth
-                       margin="dense"
-                       error={Boolean(formErrors.email)}
-                       helperText={formErrors.email && l(formErrors.email)}
-                       onChange={event => setFormValue("email", event.target.value)}
-                       InputProps={{
-                           endAdornment: checkingEmailAvailability && (
-                               <InputAdornment position="end">
-                                   <CircularProgress size={15} color="primary"/>
-                               </InputAdornment>
-                           )
-                       }}
-            />
-            {error && (
-                <Typography style={{color: "red"}}>
-                    {getErrorText(error, l)}
-                </Typography>
-            )}
-        </DialogContent>
-        <DialogActions>
-            <Button variant="outlined"
-                    onClick={() => setRegistrationStep(RegistrationStep.CONFIRM_SKIPPING_EMAIL)}
-            >
-                {l("registration.skip-email")}
-            </Button>
-            <Button variant="contained"
-                    color="primary"
-                    onClick={() => sendVerificationEmail()}
-                    disabled={pending || checkingEmailAvailability}
-            >
-                {pending && <CircularProgress size={20}/>}
-                {l("registration.send-verification-email")}
-            </Button>
-        </DialogActions>
-    </Fragment>
-);
+export const SendVerificationEmailStep: FunctionComponent = observer(() => {
+    const {
+        sendVerificationEmail: {
+            sendVerificationEmailForm,
+            formErrors,
+            error,
+            pending,
+            checkingEmailAvailability,
+            setFormValue,
+            sendVerificationEmail
+        },
+        registrationDialog: {
+            setCurrentStep: setRegistrationStep
+        }
+    } = useStore();
+    const {l} = useLocalization();
 
-const mapMobxToProps: MapMobxToProps<SendVerificationEmailStepMobxProps> = ({
-    registrationDialog,
-    sendVerificationEmail
-}) => ({
-    sendVerificationEmailForm: sendVerificationEmail.sendVerificationEmailForm,
-    formErrors: sendVerificationEmail.formErrors,
-    error: sendVerificationEmail.error,
-    pending: sendVerificationEmail.pending,
-    checkingEmailAvailability: sendVerificationEmail.checkingEmailAvailability,
-    setFormValue: sendVerificationEmail.setFormValue,
-    sendVerificationEmail: sendVerificationEmail.sendVerificationEmail,
-    setRegistrationStep: registrationDialog.setCurrentStep
+    return (
+        <Fragment>
+            <DialogTitle>
+                {l("registration.provide-your-email")}
+            </DialogTitle>
+            <DialogContent>
+                <TextField label={l("email")}
+                           value={sendVerificationEmailForm.email}
+                           fullWidth
+                           margin="dense"
+                           error={Boolean(formErrors.email)}
+                           helperText={formErrors.email && l(formErrors.email)}
+                           onChange={event => setFormValue("email", event.target.value)}
+                           InputProps={{
+                               endAdornment: checkingEmailAvailability && (
+                                   <InputAdornment position="end">
+                                       <CircularProgress size={15} color="primary"/>
+                                   </InputAdornment>
+                               )
+                           }}
+                />
+                {error && (
+                    <Typography style={{color: "red"}}>
+                        {getErrorText(error, l)}
+                    </Typography>
+                )}
+            </DialogContent>
+            <DialogActions>
+                <Button variant="outlined"
+                        onClick={() => setRegistrationStep(RegistrationStep.CONFIRM_SKIPPING_EMAIL)}
+                >
+                    {l("registration.skip-email")}
+                </Button>
+                <Button variant="contained"
+                        color="primary"
+                        onClick={() => sendVerificationEmail()}
+                        disabled={pending || checkingEmailAvailability}
+                >
+                    {pending && <CircularProgress size={20}/>}
+                    {l("registration.send-verification-email")}
+                </Button>
+            </DialogActions>
+        </Fragment>
+    );
 });
-
-export const SendVerificationEmailStep = localized(
-    inject(mapMobxToProps)(observer(_SendVerificationEmailStep))
-) as FunctionComponent;

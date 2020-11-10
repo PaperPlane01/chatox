@@ -5,14 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class RevokeTokenRequest {
-    @NotEmpty(message = "Access token must be present")
+    @NotBlank(message = "Access token must be present")
     private String accessToken;
     private String refreshToken;
 }
