@@ -15,12 +15,13 @@ public class CustomTokenEnhancer implements TokenEnhancer {
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
         if (authentication.getPrincipal() instanceof CustomUserDetails) {
+            log.trace("Enhancing access token with custom data");
             Map<String, Object> additionalInformation = new HashMap<>();
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             additionalInformation.put("account_id", userDetails.getAccountId());
             additionalInformation.put("user_id", userDetails.getUserId());
             additionalInformation.put("email", userDetails.getEmail());
-            log.info("User email is {}", userDetails.getEmail());
+            log.trace("User email is {}", userDetails.getEmail());
             ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInformation);
         }
 
