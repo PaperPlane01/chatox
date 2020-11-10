@@ -19,12 +19,12 @@ class EmojiParserServiceImpl(private val loadBalancerClient: LoadBalancerClient)
 
     override fun parseEmoji(text: String, emojiSet: String): Mono<EmojiInfo> {
         return mono {
-            log.info("Parsing emoji")
+            log.debug("Parsing emoji")
             var result = EmojiInfo()
             val emojiParserInstance = loadBalancerClient.choose("emoji-parser-service")
 
             if (emojiParserInstance != null) {
-                log.info("Found instance of emoji-parser-service")
+                log.debug("Found instance of emoji-parser-service")
                 val host = emojiParserInstance.host
                 val port = emojiParserInstance.port
                 val url = "http://${host}:${port}/api/v1/emoji-parser"
@@ -32,7 +32,7 @@ class EmojiParserServiceImpl(private val loadBalancerClient: LoadBalancerClient)
                 val webClient = WebClient.create()
 
                 try {
-                    log.info("Trying to fetch result from emoji-parser-service")
+                    log.debug("Trying to fetch result from emoji-parser-service")
                     result = webClient
                             .post()
                             .uri(url)
