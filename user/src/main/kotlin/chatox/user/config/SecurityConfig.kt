@@ -47,7 +47,6 @@ class SecurityConfig {
         val decoded = Base64.getDecoder().decode(publicKey)
         val keyFactory = KeyFactory.getInstance("RSA")
         val rsaPublicKey = keyFactory.generatePublic(X509EncodedKeySpec(decoded))
-        println(rsaPublicKey is RSAPublicKey)
         return rsaPublicKey as RSAPublicKey
     }
 }
