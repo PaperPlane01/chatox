@@ -9,6 +9,7 @@ import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.exception.SlugIsAlreadyInUseException
 import chatox.chat.exception.UploadNotFoundException
 import chatox.chat.mapper.ChatMapper
+import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.ChatMessagesCounter
 import chatox.chat.model.ChatParticipation
@@ -25,7 +26,6 @@ import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatPermissions
 import chatox.chat.service.ChatService
 import chatox.chat.support.log.LogExecution
-import chatox.chat.support.log.LogLevel
 import chatox.chat.support.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -51,6 +51,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val uploadRepository: UploadRepository,
                       private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
                       private val chatMapper: ChatMapper,
+                      private val chatParticipationMapper: ChatParticipationMapper,
                       private val authenticationFacade: AuthenticationFacade,
                       private val chatEventsPublisher: ChatEventsPublisher) : ChatService {
 
@@ -96,6 +97,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     )
             )
                     .awaitFirst()
+            chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(creatorChatParticipation))
 
             chatMapper.toChatOfCurrentUserResponse(
                     chat = chat,
