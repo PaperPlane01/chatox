@@ -13,6 +13,7 @@ import chatox.chat.exception.UploadNotFoundException
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.ChatMapper
+import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.messaging.rabbitmq.event.ChatDeleted
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.ChatDeletion
@@ -60,6 +61,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
                       private val chatDeletionRepository: ChatDeletionRepository,
                       private val chatMapper: ChatMapper,
+                      private val chatParticipationMapper: ChatParticipationMapper,
                       private val authenticationFacade: AuthenticationFacade,
                       private val chatEventsPublisher: ChatEventsPublisher) : ChatService {
 
@@ -105,6 +107,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     )
             )
                     .awaitFirst()
+            chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(creatorChatParticipation))
 
             chatMapper.toChatOfCurrentUserResponse(
                     chat = chat,
