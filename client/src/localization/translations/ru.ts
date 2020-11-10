@@ -271,5 +271,7 @@ export const ru: Labels = {
     "chat.delete.specify-reason": "Укажите причину удаления чата",
     "chat.deleted.by-creator": "Данный чат был удалён создателем",
     "chat.deleted.with-reason": "Данный чат был удалён модераторами по следующей причине: {reason}",
-    "chat.deleted.with-reason-and-comment": "Данный чат был удалён модераторами по следующей причине: {reason}. Модератор оставил следующий комментарий: {comment}"
+    "chat.deleted.with-reason-and-comment": "Данный чат был удалён модераторами по следующей причине: {reason}. Модератор оставил следующий комментарий: {comment}",
+    "chat.not-found": "Чат не найден",
+    "chat.deleted": "Этот чат был удалён"
 };

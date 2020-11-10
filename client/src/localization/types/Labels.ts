@@ -269,5 +269,7 @@ export interface Labels {
     "chat.delete.specify-reason": string,
     "chat.deleted.by-creator": string,
     "chat.deleted.with-reason": string,
-    "chat.deleted.with-reason-and-comment": string
+    "chat.deleted.with-reason-and-comment": string,
+    "chat.not-found": string,
+    "chat.deleted": string
 }

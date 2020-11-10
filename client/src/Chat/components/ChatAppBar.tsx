@@ -1,6 +1,17 @@
 import React, {Fragment, FunctionComponent, ReactElement} from "react";
 import {observer} from "mobx-react";
-import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography, createStyles, makeStyles, useMediaQuery, useTheme} from "@material-ui/core";
+import {
+    AppBar,
+    CardHeader,
+    createStyles,
+    Hidden,
+    IconButton,
+    makeStyles,
+    Toolbar,
+    Typography,
+    useMediaQuery,
+    useTheme
+} from "@material-ui/core";
 import {Skeleton} from "@material-ui/lab";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import randomColor from "randomcolor";
@@ -19,6 +30,12 @@ const {Link} = require("mobx-router");
 const getLabelFromError = (error: ApiError): keyof Labels => {
     if (error.status === API_UNREACHABLE_STATUS) {
         return "server.unreachable";
+    } else if (error.status === 404) {
+        if (error.metadata && error.metadata.errorCode === "CHAT_DELETED") {
+            return "chat.deleted"
+        } else {
+            return "chat.not-found";
+        }
     } else {
         return "error.unknown";
     }
@@ -28,14 +45,15 @@ const useStyles = makeStyles(() => createStyles({
     cardHeaderRoot: {
         padding: 0
     }
-}))
+}));
 
 export const ChatAppBar: FunctionComponent = observer(() => {
     const {
         chat: {
             pending,
-            error,
-            selectedChatId
+            errorsMap,
+            selectedChatId,
+            currentSlug
         },
         onlineChatParticipants: {
             onlineParticipantsCount
@@ -113,10 +131,10 @@ export const ChatAppBar: FunctionComponent = observer(() => {
                         }}
             />
         )
-    } else if (error) {
+    } else if (currentSlug && errorsMap[currentSlug]) {
         appBarContent = (
             <Typography>
-                {l(getLabelFromError(error))}
+                {l(getLabelFromError(errorsMap[currentSlug]))}
             </Typography>
         )
     } else {
