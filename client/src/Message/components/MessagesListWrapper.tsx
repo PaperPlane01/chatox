@@ -4,7 +4,6 @@ import {createStyles, makeStyles} from "@material-ui/core";
 import {MessagesList} from "./MessagesList";
 import {ChatDeletionLabel} from "../../Chat";
 import {useStore} from "../../store/hooks";
-import {toJS} from "mobx";
 
 const useStyles = makeStyles(() => createStyles({
     centered: {
@@ -31,8 +30,6 @@ export const MessagesListWrapper = observer(() => {
     const classes = useStyles();
 
     const error = currentSlug ? errorsMap[currentSlug] : undefined;
-    console.log(toJS(errorsMap));
-    console.log(toJS(currentSlug));
 
     if (error && error.metadata && error.metadata.errorCode === "CHAT_DELETED") {
         const comment = error.metadata.additional ? error.metadata.additional.comment : undefined;
