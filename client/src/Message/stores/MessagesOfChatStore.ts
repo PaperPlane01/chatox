@@ -60,7 +60,6 @@ export class MessagesOfChatStore {
 
     @action
     fetchMessages = (options: FetchOptions = {abortIfInitiallyFetched: false}): void => {
-        console.log("in fetchMessages()");
         if (this.selectedChatId) {
             if (this.messagesOfChat.length > 50) {
                 return;
