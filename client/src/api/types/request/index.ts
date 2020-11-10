@@ -12,3 +12,5 @@ export * from "./EmailConfirmationCodeType";
 export * from "./UpdatePasswordRequest";
 export * from "./RecoverPasswordRequest";
 export * from "./AnonymousUserRegistrationRequest";
+export * from "./DeleteChatRequest";
+export * from "./UpdateChatRequest";

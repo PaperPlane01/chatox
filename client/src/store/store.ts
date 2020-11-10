@@ -23,7 +23,7 @@ import {
     ChatsStore,
     ChatStore,
     ChatUploadsStore,
-    CreateChatStore,
+    CreateChatStore, DeleteChatStore,
     JoinChatStore,
     KickChatParticipantStore,
     LeaveChatStore,
@@ -170,6 +170,7 @@ const popularChats = new PopularChatsStore(entities);
 const messageDeletion = new DeleteMessageStore(entities, chat);
 const anonymousRegistration = new AnonymousRegistrationDialogStore(authorization);
 const kickFromChat = new KickChatParticipantStore(entities, chat);
+const chatDeletion = new DeleteChatStore(entities, chat);
 
 export const store: IAppState = {
     authorization,
@@ -225,5 +226,6 @@ export const store: IAppState = {
     popularChats,
     messageDeletion,
     anonymousRegistration,
-    kickFromChat
+    kickFromChat,
+    chatDeletion
 };

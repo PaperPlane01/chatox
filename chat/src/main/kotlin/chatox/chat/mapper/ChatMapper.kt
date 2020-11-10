@@ -58,7 +58,7 @@ class ChatMapper(
         var lastReadMessageMapped: MessageResponse? = null
         var lastMessageMapped: MessageResponse? = null
 
-        if (lastReadMessage != null) {
+        if (lastReadMessage != null && !chat.deleted) {
             lastReadMessageMapped = messageMapper.toMessageResponse(
                     lastReadMessage,
                     readByCurrentUser = true,
@@ -66,12 +66,18 @@ class ChatMapper(
             )
         }
 
-        if (lastMessage != null) {
+        if (lastMessage != null && !chat.deleted) {
             lastMessageMapped = messageMapper.toMessageResponse(
                     lastMessage,
                     readByCurrentUser = lastReadMessage ?: lastReadMessage?.id == lastMessage.id,
                     mapReferredMessage = false
             )
+        }
+
+        val avatar = if (chat.avatar != null && !chat.deleted) {
+            uploadMapper.toUploadResponse(chat.avatar!!)
+        } else {
+            null
         }
 
         return ChatOfCurrentUserResponse(
@@ -87,8 +93,11 @@ class ChatMapper(
                 description = chat.description,
                 tags = chat.tags,
                 participantsCount = chat.numberOfParticipants,
-                avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
-                createdByCurrentUser = chat.createdBy.id == chatParticipation.user.id
+                avatar = avatar,
+                createdByCurrentUser = chat.createdBy.id == chatParticipation.user.id,
+                deleted = chat.deleted,
+                deletionReason = chat.chatDeletion?.deletionReason,
+                deletionComment = chat.chatDeletion?.comment
         )
     }
 

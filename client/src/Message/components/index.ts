@@ -12,3 +12,4 @@ export * from "./AttachFilesButton";
 export * from "./AttachImageMenuItem";
 export * from "./CreateMessageFormMediaAttachment";
 export * from "./AttachedFilesDialog";
+export * from "./MessagesListWrapper";

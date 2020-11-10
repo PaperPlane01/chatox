@@ -3,13 +3,16 @@ import SocketIo from "socket.io-client";
 import {AuthorizationStore} from "../../Authorization/stores";
 import {EntitiesStore} from "../../entities-store";
 import {
+    ChatDeleted,
     ChatUpdated,
     MessageDeleted,
-    MessagesDeleted, UserKickedFromChat, UserLeftChat,
+    MessagesDeleted,
+    UserKickedFromChat,
+    UserLeftChat,
     WebsocketEvent,
     WebsocketEventType
 } from "../../api/types/websocket";
-import {Message, ChatBlocking, ChatParticipation} from "../../api/types/response";
+import {ChatBlocking, ChatParticipation, Message} from "../../api/types/response";
 
 export class WebsocketStore {
     socketIoClient?: SocketIOClient.Socket;
@@ -110,6 +113,14 @@ export class WebsocketStore {
                     event.payload.chatParticipationId,
                     true,
                     event.payload.chatId
+                )
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.CHAT_DELETED,
+                (event: WebsocketEvent<ChatDeleted>) => this.entities.deleteChat(
+                    event.payload.id,
+                    event.payload.reason,
+                    event.payload.comment
                 )
             );
         }

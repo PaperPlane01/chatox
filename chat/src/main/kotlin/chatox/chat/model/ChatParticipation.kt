@@ -30,5 +30,6 @@ data class ChatParticipation(
 
         @DBRef
         var deletedBy: User? = null,
-        var userDisplayedName: String?
+        var userDisplayedName: String?,
+        var chatDeleted: Boolean = false
 )

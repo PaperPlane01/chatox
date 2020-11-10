@@ -10,7 +10,7 @@ data class CreateChatRequest(
         @field:NotBlank
         @field:Size(max = 30)
         @field:JsonProperty("name")
-        val _name: String?,
+        private val _name: String?,
 
         @field:Size(max = 1000)
         val description: String?,

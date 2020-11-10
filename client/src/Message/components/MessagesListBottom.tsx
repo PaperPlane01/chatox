@@ -12,7 +12,6 @@ import {isStringEmpty} from "../../utils/string-utils";
 import {UserEntity} from "../../User/types";
 import {Labels, TranslationFunction} from "../../localization";
 
-
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messagesListBottom: {
         [theme.breakpoints.up("lg")]: {
@@ -75,6 +74,9 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
             },
             users: {
                 findById: findUser
+            },
+            chats: {
+                findById: findChat
             }
         },
         chat: {
@@ -88,11 +90,17 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
     let chatParticipation: ChatParticipationEntity | undefined;
     let activeChatBlocking: ChatBlockingEntity | undefined;
     let messagesListBottomContent: ReactNode;
+
     if (selectedChatId && currentUser) {
         chatParticipation = findChatParticipation({
             userId: currentUser.id,
             chatId: selectedChatId
         });
+        const chat = findChat(selectedChatId);
+
+        if (chat.deleted) {
+            return null;
+        }
 
         if (chatParticipation) {
             if (chatParticipation.activeChatBlockingId) {

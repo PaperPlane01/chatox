@@ -1,22 +1,30 @@
 package chatox.chat.service.impl
 
 import chatox.chat.api.request.CreateChatRequest
+import chatox.chat.api.request.DeleteChatRequest
 import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
-import chatox.chat.exception.ChatNotFoundException
+import chatox.chat.exception.InvalidChatDeletionCommentException
+import chatox.chat.exception.InvalidChatDeletionReasonException
 import chatox.chat.exception.SlugIsAlreadyInUseException
 import chatox.chat.exception.UploadNotFoundException
+import chatox.chat.exception.metadata.ChatDeletedException
+import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.ChatMapper
 import chatox.chat.mapper.ChatParticipationMapper
+import chatox.chat.messaging.rabbitmq.event.ChatDeleted
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
+import chatox.chat.model.ChatDeletion
+import chatox.chat.model.ChatDeletionReason
 import chatox.chat.model.ChatMessagesCounter
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
+import chatox.chat.repository.ChatDeletionRepository
 import chatox.chat.repository.ChatMessagesCounterRepository
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
@@ -37,6 +45,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.util.ObjectUtils
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
@@ -50,6 +59,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val messageRepository: MessageRepository,
                       private val uploadRepository: UploadRepository,
                       private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
+                      private val chatDeletionRepository: ChatDeletionRepository,
                       private val chatMapper: ChatMapper,
                       private val chatParticipationMapper: ChatParticipationMapper,
                       private val authenticationFacade: AuthenticationFacade,
@@ -115,6 +125,10 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             assertCanUpdateChat(id).awaitFirst()
             var chat = chatRepository.findById(id).awaitFirst()
 
+            if (chat.deleted) {
+                throw ChatDeletedException(chat.chatDeletion)
+            }
+
             if (updateChatRequest.slug != null
                     && updateChatRequest.slug != chat.slug
                     && updateChatRequest.slug != chat.id) {
@@ -167,16 +181,64 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 }
     }
 
-    override fun deleteChat(id: String): Mono<Void> {
-        return assertCanDeleteChat(id)
-                .flatMap {
-                    chatRepository.findById(id)
-                            .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
-                            .zipWith(authenticationFacade.getCurrentUser())
-                            .map { it.t1.copy(deleted = true, deletedAt = ZonedDateTime.now(), deletedBy = it.t2) }
-                            .flatMap { chatRepository.save(it) }
-                            .then()
+    override fun deleteChat(id: String, deleteChatRequest: DeleteChatRequest?): Mono<Void> {
+        return mono {
+            assertCanDeleteChat(id).awaitFirst()
+
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            var chat = chatRepository.findById(id).awaitFirst()
+
+            var chatDeletion: ChatDeletion? = null
+
+            if (currentUser.id != chat.createdBy.id) {
+                log.debug("Chat $id is deleted not by its creator")
+                log.trace("Current user id is ${currentUser.id}")
+                log.trace("Chat creator id is ${chat.createdBy.id}")
+
+                if (deleteChatRequest == null) {
+                    throw InvalidChatDeletionReasonException(
+                            "Chat deletion reason must be specified if chat is deleted not by its creator"
+                    )
                 }
+
+                if (deleteChatRequest.reason == ChatDeletionReason.OTHER
+                        && ObjectUtils.isEmpty(deleteChatRequest.comment)) {
+                    throw InvalidChatDeletionCommentException(
+                            "Chat deletion comment must be specified if chat deletion reason is ${ChatDeletionReason.OTHER}"
+                    )
+                }
+
+                chatDeletion = ChatDeletion(
+                        id = UUID.randomUUID().toString(),
+                        comment = deleteChatRequest.comment,
+                        deletionReason = deleteChatRequest.reason
+                )
+                chatDeletionRepository.save(chatDeletion).awaitFirst()
+            }
+
+            chat = chat.copy(
+                    deleted = true,
+                    deletedAt = ZonedDateTime.now(),
+                    deletedBy = currentUser,
+                    chatDeletion = chatDeletion
+            )
+            chatRepository.save(chat).awaitFirst()
+            chatParticipationRepository.updateChatDeleted(
+                    chatId = id,
+                    chatDeleted = true
+            )
+                    .awaitFirst()
+            chatEventsPublisher.chatDeleted(
+                    ChatDeleted(
+                            id = id,
+                            reason = chatDeletion?.deletionReason,
+                            comment = chatDeletion?.comment
+                    )
+            )
+
+            Mono.empty<Void>()
+        }
+                .flatMap { it }
     }
 
     private fun assertCanDeleteChat(chatId: String): Mono<Boolean> {
@@ -191,15 +253,26 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     }
 
     override fun findChatBySlugOrId(slugOrId: String): Mono<ChatResponse> {
-        return chatRepository.findByIdEqualsOrSlugEquals(slugOrId, slugOrId)
-                .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id or slug $slugOrId")))
-                .zipWith(authenticationFacade.getCurrentUser())
-                .map { chatMapper.toChatResponse(it.t1, it.t2.id) }
+        return mono {
+            val chat = chatRepository.findByIdEqualsOrSlugEquals(slugOrId, slugOrId).awaitFirstOrNull()
+                    ?: throw ChatNotFoundException("Could not find chat with id or slug $slugOrId")
+
+            if (chat.deleted) {
+                throw ChatDeletedException(chat.chatDeletion)
+            }
+
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            chatMapper.toChatResponse(
+                    chat = chat,
+                    currentUserId = currentUser.id
+            )
+        }
     }
 
     override fun searchChats(query: String, paginationRequest: PaginationRequest): Flux<ChatResponse> {
-        return chatRepository.findByNameContainsOrDescriptionContainsOrTagsContains(query, query, query, paginationRequest.toPageRequest())
-                .map { chatMapper.toChatResponse(it) }
+        return chatRepository
+                .searchChats(query, paginationRequest.toPageRequest())
+                .map { chat -> chatMapper.toChatResponse(chat) }
     }
 
     override fun getChatsOfCurrentUser(): Flux<ChatOfCurrentUserResponse> {
@@ -276,7 +349,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             }
 
             chatRepository
-                    .findAllBy(pageRequest)
+                    .findAllByDeletedFalse(pageRequest)
                     .map { chat -> chatMapper.toChatResponse(chat = chat, currentUserId = currentUserId) }
         }
                 .flatMapMany { chat -> chat }

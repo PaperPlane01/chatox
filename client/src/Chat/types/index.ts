@@ -5,3 +5,5 @@ export * from "./ChatParticipationEntity";
 export * from "./UpdateChatFormData";
 export * from "./ChatUploadEntity";
 export * from "./ReverseScrollDirectionOption";
+export * from "./ChatDeletionStep";
+export * from "./DeleteChatFormData";

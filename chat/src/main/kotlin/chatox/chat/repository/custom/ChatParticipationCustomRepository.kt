@@ -6,4 +6,5 @@ import reactor.core.publisher.Mono
 
 interface ChatParticipationCustomRepository {
     fun updateDisplayedNameOfChatParticipationsByUser(user: User): Mono<UpdateResult>
+    fun updateChatDeleted(chatId: String, chatDeleted: Boolean): Mono<UpdateResult>
 }

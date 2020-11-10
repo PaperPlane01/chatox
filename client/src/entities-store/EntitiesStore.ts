@@ -2,8 +2,8 @@ import {action, computed} from "mobx";
 import {ChatParticipationEntity, ChatParticipationsStore, ChatsStore, ChatUploadsStore} from "../Chat";
 import {UsersStore} from "../User";
 import {
-    Chat,
     ChatBlocking,
+    ChatDeletionReason,
     ChatOfCurrentUser,
     ChatParticipation,
     ChatRole,
@@ -91,8 +91,11 @@ export class EntitiesStore {
     };
 
     @action
-    insertChats = (chatsOfCurrentUser: PartialBy<ChatOfCurrentUser, "unreadMessagesCount">[]): void => {
-        chatsOfCurrentUser.forEach(chat => this.insertChat(chat));
+    insertChats = (chatsOfCurrentUser: PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted">[]): void => {
+        chatsOfCurrentUser.forEach(chat => this.insertChat({
+            ...chat,
+            deleted: chat.deleted === undefined ? false : chat.deleted
+        }));
     };
 
     @action
@@ -227,5 +230,15 @@ export class EntitiesStore {
                 this.chatParticipations.insertEntity(chatParticipation);
             }
         }
+    };
+
+    @action
+    deleteChat = (chatId: string, deletionReason?: ChatDeletionReason, deletionComment?: string): void => {
+        this.chats.deleteById(chatId);
+        this.chats.setDeletionReasonAndComment(
+            chatId,
+            deletionReason,
+            deletionComment
+        );
     };
 }

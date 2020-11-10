@@ -17,15 +17,15 @@ import {
     EventType,
     JwtPayload,
     MessageDeleted,
+    MessagesDeleted,
+    SessionActivityStatusResponse,
     WebsocketEvent
 } from "./types";
-import {MessagesDeleted} from "./types/MessagesDeleted";
-import {SessionActivityStatusResponse} from "./types/SessionActivityStatusResponse";
 import {Chat, ChatBlocking, ChatMessage} from "../common/types";
+import {ChatDeleted, UserKickedFromChat, UserLeftChat} from "../common/types/events";
 import {ChatParticipationService} from "../chat-participation";
 import {ChatParticipationDto} from "../chat-participation/types";
 import {LoggerFactory} from "../logging";
-import {UserKickedFromChat, UserLeftChat} from "../common/types/events";
 
 @WebSocketGateway({
     path: "/api/v1/events/",
@@ -259,6 +259,15 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         };
         this.publishEventToChatParticipants(chat.id, chatUpdated);
         this.publishEventToUsersSubscribedToChat(chat.id, chatUpdated);
+    }
+
+    public async publishChatDeleted(chatDeleted: ChatDeleted) {
+        const chatDeletedEvent: WebsocketEvent<ChatDeleted> = {
+            payload: chatDeleted,
+            type: EventType.CHAT_DELETED
+        };
+        this.publishEventToChatParticipants(chatDeleted.id, chatDeletedEvent);
+        this.publishEventToUsersSubscribedToChat(chatDeleted.id, chatDeletedEvent);
     }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {

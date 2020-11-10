@@ -3,12 +3,15 @@ package chatox.chat.service.impl
 import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
-import chatox.chat.exception.ChatNotFoundException
 import chatox.chat.exception.MessageNotFoundException
+import chatox.chat.exception.metadata.ChatDeletedException
+import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.MessageMapper
+import chatox.chat.model.Chat
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.Message
 import chatox.chat.model.MessageRead
+import chatox.chat.model.User
 import chatox.chat.repository.ChatMessagesCounterRepository
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
@@ -25,6 +28,7 @@ import chatox.chat.support.log.LogLevel
 import chatox.chat.support.pagination.PaginationRequest
 import chatox.chat.util.isDateBeforeOrEquals
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.access.AccessDeniedException
@@ -32,7 +36,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.util.function.Tuples
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -62,11 +65,15 @@ class MessageServiceImpl(
     }
 
     override fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse> {
-
         return mono {
             assertCanCreateMessage(chatId).awaitFirst()
 
             val chat = findChatById(chatId).awaitFirst()
+
+            if (chat.deleted) {
+                throw ChatDeletedException(chat.chatDeletion)
+            }
+
             var referredMessage: Message? = null
 
             if (createMessageRequest.referredMessageId != null) {
@@ -146,6 +153,11 @@ class MessageServiceImpl(
         return mono {
             assertCanUpdateMessage(id, chatId).awaitFirst()
             var message = findMessageEntityById(id).awaitFirst()
+
+            if (message.chat.deleted) {
+                throw ChatDeletedException(message.chat.chatDeletion)
+            }
+
             val originalMessageText = message.text
             message = messageMapper.mapMessageUpdate(
                     updateMessageRequest = updateMessageRequest,
@@ -216,54 +228,18 @@ class MessageServiceImpl(
     }
 
     override fun findMessagesByChat(chatId: String, paginationRequest: PaginationRequest): Flux<MessageResponse> {
-        val chat = findChatById(chatId)
-        val chatAndCurrentUser = chat.zipWith(authenticationFacade.getCurrentUser())
-        val hasAnyReadMessages = chatAndCurrentUser
-                .map { messageReadRepository.existsByUserAndChat(
-                        user = it.t2,
-                        chat = it.t1
-                ) }
-                .flatMap { it }
+        return mono {
+            val chat = findChatById(chatId).awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val messages = messageRepository.findByChat(chat, paginationRequest.toPageRequest())
+                    .collectList()
+                    .awaitFirst()
+            val hasAnyReadMessages = messageReadRepository.existsByUserAndChat(user = currentUser, chat = chat)
+                    .awaitFirst()
 
-        return hasAnyReadMessages.map { doesHaveReadMessages ->
-            if (doesHaveReadMessages) {
-                val lastMessageRead = chat.zipWith(authenticationFacade.getCurrentUser())
-                        .map { messageReadRepository.findTopByUserAndChatOrderByDateDesc(
-                                user = it.t2,
-                                chat = it.t1
-                        ) }
-
-                var lastReadMessage: Message? = null
-
-                lastMessageRead.zipWith(chat)
-                        .map { it.t1.zipWith(Mono.just(it.t2)) }
-                        .flatMap { it }
-                        .map { Tuples.of(
-                                it.t1,
-                                messageRepository.findByChat(
-                                        chat = it.t2,
-                                        pageable = paginationRequest.toPageRequest()
-                                )
-                        ) }
-                        .map {
-                            lastReadMessage = it.t1.message
-                            it.t2
-                        }
-                        .flatMapMany { it }
-                        .map { messageMapper.toMessageResponse(
-                                message = it,
-                                mapReferredMessage = true,
-                                readByCurrentUser = isDateBeforeOrEquals(it.createdAt, lastReadMessage!!.createdAt)
-                        ) }
-            } else {
-                chat.flatMapMany { messageRepository.findByChat(it, paginationRequest.toPageRequest()) }
-                        .map { messageMapper.toMessageResponse(
-                                message = it,
-                                mapReferredMessage = true,
-                                readByCurrentUser = false
-                        ) }
-            }
-        }.flatMapMany { it }
+            mapMessages(messages = messages, hasAnyReadMessages = hasAnyReadMessages, currentUser = currentUser, chat = chat)
+        }
+                .flatMapMany { it }
     }
 
     override fun findMessagesSinceMessageByChat(
@@ -271,57 +247,26 @@ class MessageServiceImpl(
             sinceMessageId: String,
             paginationRequest: PaginationRequest
     ): Flux<MessageResponse> {
+        return mono {
+            val chat = findChatById(chatId).awaitFirst()
+            val cursorMessage = findMessageEntityById(sinceMessageId).awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val messages = messageRepository.findByChatAndCreatedAtGreaterThanEqual(
+                    chat = chat,
+                    date = cursorMessage.createdAt,
+                    pageable = paginationRequest.toPageRequest()
+            )
+                    .collectList()
+                    .awaitFirst()
+            val hasAnyReadMessages = messageReadRepository.existsByUserAndChat(
+                    user = currentUser,
+                    chat = chat
+            )
+                    .awaitFirst()
 
-        val chat = findChatById(chatId)
-        val cursorMessage = findMessageEntityById(sinceMessageId)
-        val hasAnyReadMessages = chat.zipWith(authenticationFacade.getCurrentUser())
-                .map { messageReadRepository.existsByUserAndChat(
-                        user = it.t2,
-                        chat = it.t1
-                ) }
-                .flatMap { it }
-
-        return hasAnyReadMessages.map { doesHaveReadMessages ->
-            if (doesHaveReadMessages) {
-                val lastMessageRead = chat.zipWith(authenticationFacade.getCurrentUser())
-                        .map { messageReadRepository.findTopByUserAndChatOrderByDateDesc(it.t2, it.t1) }
-                        .flatMap { it }
-
-                var lastReadMessage: Message? = null
-
-                lastMessageRead.zipWith(chat)
-                        .map { Mono.just(it).zipWith(cursorMessage) }
-                        .flatMap { it }
-                        .map { Tuples.of(it.t1.t1, messageRepository.findByChatAndCreatedAtGreaterThanEqual(
-                                chat = it.t1.t2,
-                                date = it.t2.createdAt,
-                                pageable = paginationRequest.toPageRequest()
-                        )) }
-                        .map {
-                            lastReadMessage = it.t1.message
-                            it
-                        }
-                        .map { it.t2.map { message -> messageMapper.toMessageResponse(
-                                message = message,
-                                mapReferredMessage = true,
-                                readByCurrentUser = isDateBeforeOrEquals(message.createdAt, lastReadMessage!!.createdAt)
-                        ) } }
-                        .flatMapMany { it }
-            } else {
-                cursorMessage.zipWith(chat)
-                        .map { messageRepository.findByChatAndCreatedAtGreaterThanEqual(
-                                it.t2,
-                                it.t1.createdAt,
-                                paginationRequest.toPageRequest()
-                        ) }
-                        .flatMapMany { it }
-                        .map { messageMapper.toMessageResponse(
-                                it,
-                                mapReferredMessage = true,
-                                readByCurrentUser = false
-                        ) }
-            }
-        }.flatMapMany { it }
+            mapMessages(messages = messages, hasAnyReadMessages = hasAnyReadMessages, currentUser = currentUser, chat = chat)
+        }
+                .flatMapMany { it }
     }
 
     override fun findMessagesBeforeMessageByChat(
@@ -329,60 +274,60 @@ class MessageServiceImpl(
             beforeMessageId: String,
             paginationRequest: PaginationRequest
     ): Flux<MessageResponse> {
-        val chat = findChatById(chatId)
-        val cursorMessage = findMessageEntityById(beforeMessageId)
-        val hasAnyReadMessages = chat.zipWith(authenticationFacade.getCurrentUser())
-                .map { messageReadRepository.existsByUserAndChat(
-                        user = it.t2,
-                        chat = it.t1
-                ) }
-                .flatMap { it }
+        return mono {
+            val chat = findChatById(chatId).awaitFirst()
+            val cursorMessage = findMessageEntityById(beforeMessageId).awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val messages = messageRepository.findByChatAndCreatedAtLessThanEqual(
+                    chat = chat,
+                    date = cursorMessage.createdAt,
+                    pageable = paginationRequest.toPageRequest()
+            )
+                    .collectList()
+                    .awaitFirst()
+            val hasAnyReadMessages = messageReadRepository.existsByUserAndChat(user = currentUser, chat = chat)
+                    .awaitFirst()
 
-        return hasAnyReadMessages.map { dosesHaveReadMessages ->
-            if (dosesHaveReadMessages) {
-                val lastMessageRead = chat.zipWith(authenticationFacade.getCurrentUser())
-                        .map { messageReadRepository.findTopByUserAndChatOrderByDateDesc(
-                                user = it.t2,
-                                chat = it.t1)
-                        }
-                        .flatMap { it }
+            mapMessages(messages = messages, hasAnyReadMessages = hasAnyReadMessages, currentUser = currentUser, chat = chat)
+        }
+                .flatMapMany { it }
+    }
 
-                var lastReadMessage: Message? = null
-
-                lastMessageRead.zipWith(chat)
-                        .map { Mono.just(it).zipWith(cursorMessage) }
-                        .flatMap { it }
-                        .map { Tuples.of(it.t1.t1, messageRepository.findByChatAndCreatedAtLessThanEqual(
-                                chat = it.t1.t2,
-                                date = it.t2.createdAt,
-                                pageable = paginationRequest.toPageRequest()
-                        )) }
-                        .map {
-                            lastReadMessage = it.t1.message
-                            it
-                        }
-                        .map { it.t2.map { message -> messageMapper.toMessageResponse(
-                                message = message,
-                                mapReferredMessage = true,
-                                readByCurrentUser = isDateBeforeOrEquals(message.createdAt, lastReadMessage!!.createdAt)
-                        ) } }
-                        .flatMapMany { it }
+    private fun mapMessages(messages: List<Message>, hasAnyReadMessages: Boolean, currentUser: User, chat: Chat): Flux<MessageResponse> {
+        return mono {
+            val response = if (hasAnyReadMessages) {
+                val lastMessageRead = messageReadRepository.findTopByUserAndChatOrderByDateDesc(
+                        user = currentUser,
+                        chat = chat
+                )
+                        .awaitFirst()
+                mapMessages(messages, lastMessageRead)
             } else {
-                cursorMessage.zipWith(chat)
-                        .map { messageRepository.findByChatAndCreatedAtLessThanEqual(
-                                it.t2,
-                                it.t1.createdAt,
-                                paginationRequest.toPageRequest()
-                        ) }
-                        .flatMapMany { it }
-                        .map { messageMapper.toMessageResponse(
-                                it,
-                                mapReferredMessage = true,
-                                readByCurrentUser = false
-                        ) }
+                mapMessages(messages)
             }
-         }.flatMapMany { it }
 
+            Flux.fromIterable(response)
+        }
+                .flatMapMany { it }
+    }
+
+    private fun mapMessages(messages: List<Message>, lastMessageRead: MessageRead? = null): List<MessageResponse> {
+        if (lastMessageRead != null) {
+            return messages.map { message -> messageMapper.toMessageResponse(
+                    message = message,
+                    readByCurrentUser = isDateBeforeOrEquals(
+                            dateToCheck = message.createdAt,
+                            dateToCompareWith = lastMessageRead.date
+                    ),
+                    mapReferredMessage = true
+            ) }
+        } else {
+            return messages.map { message -> messageMapper.toMessageResponse(
+                    message = message,
+                    readByCurrentUser = false,
+                    mapReferredMessage = true
+            ) }
+        }
     }
 
     override fun markMessageRead(messageId: String): Mono<Void> {
@@ -412,8 +357,18 @@ class MessageServiceImpl(
                 .flatMap { Mono.empty<Void>() }
     }
 
-    private fun findChatById(chatId: String) = chatRepository.findById(chatId)
-            .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
+    private fun findChatById(chatId: String): Mono<Chat> {
+        return mono {
+            val chat = chatRepository.findById(chatId).awaitFirstOrNull()
+                    ?: throw ChatNotFoundException("Could not find chat with id $chatId")
+
+            if (chat.deleted) {
+                throw ChatDeletedException(chat.chatDeletion)
+            }
+
+            chat
+        }
+    }
 
     private fun findMessageEntityById(id: String) = messageRepository.findById(id)
             .switchIfEmpty(Mono.error(MessageNotFoundException("Could not find message with id $id")))
