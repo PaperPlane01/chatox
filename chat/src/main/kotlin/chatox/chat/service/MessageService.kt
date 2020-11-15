@@ -2,7 +2,6 @@ package chatox.chat.service
 
 import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
-import chatox.chat.api.response.CountMessagesResponse
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.support.pagination.PaginationRequest
 import reactor.core.publisher.Flux

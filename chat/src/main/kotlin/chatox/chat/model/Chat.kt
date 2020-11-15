@@ -10,31 +10,31 @@ data class Chat(
         @Id
         var id: String,
         var name: String,
-        var description: String?,
+        var description: String? = null,
         var tags: List<String> = arrayListOf(),
-        val avatarUri: String?,
+        val avatarUri: String? = null,
         val avatar: Upload<ImageUploadMetadata>? = null,
         var slug: String,
         var createdAt: ZonedDateTime,
 
         @DBRef
         var createdBy: User,
-        var updatedAt: ZonedDateTime?,
-        var deletedAt: ZonedDateTime?,
+        var updatedAt: ZonedDateTime? = null,
+        var deletedAt: ZonedDateTime? = null,
         var deleted: Boolean,
 
         @DBRef
-        var deletedBy: User?,
+        var deletedBy: User? = null,
         var type: ChatType,
-        var numberOfParticipants: Int,
+        var numberOfParticipants: Int = 0,
         var numberOfOnlineParticipants: Int = 0,
 
         @DBRef(lazy = true)
-        var lastMessage: Message?,
-        var lastMessageDate: ZonedDateTime?,
+        var lastMessage: Message? = null,
+        var lastMessageDate: ZonedDateTime? = null,
 
         @DBRef
-        var messagesCounter: ChatMessagesCounter?,
+        var messagesCounter: ChatMessagesCounter? = null,
 
         @DBRef
         var chatDeletion: ChatDeletion? = null

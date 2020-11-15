@@ -11,18 +11,18 @@ data class UpdateChatRequest(
         @field:Size(max = 30)
         @field:JsonProperty("name")
         private val _name: String?,
-        val avatarId: String?,
+        val avatarId: String? = null,
 
         @field:Size(max = 25)
         @field:Pattern(regexp = "^[a-zA-Z0-9_.]+$")
         @field:StringNotIn(["my", "popular"])
-        val slug: String?,
+        val slug: String? = null,
 
         @field:Size(max = 1000)
-        val description: String?,
+        val description: String? = null,
 
         @field:Size(max = 15)
-        val tags: List<@NotBlank @Size(max = 15) String>?
+        val tags: List<@NotBlank @Size(max = 15) String>? = null
 ) {
         val name: String
                 get() = _name!!

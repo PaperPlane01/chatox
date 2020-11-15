@@ -33,6 +33,7 @@ import chatox.chat.repository.UploadRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatPermissions
 import chatox.chat.service.ChatService
+import chatox.chat.support.datetime.TimeService
 import chatox.chat.support.log.LogExecution
 import chatox.chat.support.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
@@ -63,7 +64,8 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatMapper: ChatMapper,
                       private val chatParticipationMapper: ChatParticipationMapper,
                       private val authenticationFacade: AuthenticationFacade,
-                      private val chatEventsPublisher: ChatEventsPublisher) : ChatService {
+                      private val chatEventsPublisher: ChatEventsPublisher,
+                      private val timeService: TimeService) : ChatService {
 
     private lateinit var chatPermissions: ChatPermissions
     private val log = LoggerFactory.getLogger(this.javaClass)
@@ -102,7 +104,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                             chat = chat,
                             role = ChatRole.ADMIN,
                             lastMessageRead = null,
-                            createdAt = ZonedDateTime.now(),
+                            createdAt = timeService.now(),
                             userDisplayedName = creatorDisplayedName
                     )
             )
@@ -123,7 +125,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     override fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse> {
         return mono {
             assertCanUpdateChat(id).awaitFirst()
-            var chat = chatRepository.findById(id).awaitFirst()
+            var chat = findChatById(id).awaitFirst()
 
             if (chat.deleted) {
                 throw ChatDeletedException(chat.chatDeletion)
@@ -218,7 +220,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
             chat = chat.copy(
                     deleted = true,
-                    deletedAt = ZonedDateTime.now(),
+                    deletedAt = timeService.now(),
                     deletedBy = currentUser,
                     chatDeletion = chatDeletion
             )
@@ -400,6 +402,9 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         }
                 .flatMap { it }
     }
+
+    private fun findChatById(id: String) = chatRepository.findById(id)
+            .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
 
     private fun getCorrectChatSortBy(sortBy: String?): String? {
         if (sortBy == null) {

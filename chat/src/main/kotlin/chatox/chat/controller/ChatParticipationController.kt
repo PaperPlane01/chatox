@@ -3,7 +3,6 @@ package chatox.chat.controller
 import chatox.chat.api.request.UpdateChatParticipationRequest
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.support.pagination.PaginationRequest
-import chatox.chat.support.pagination.annotation.PageSize
 import chatox.chat.support.pagination.annotation.PaginationConfig
 import chatox.chat.support.pagination.annotation.SortBy
 import chatox.chat.support.pagination.annotation.SortDirection
