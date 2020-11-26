@@ -1,5 +1,6 @@
 package chatox.user.security
 
+import chatox.user.domain.User
 import chatox.user.exception.UserNotFoundException
 import chatox.user.mapper.UploadMapper
 import chatox.user.repository.UserRepository
@@ -13,6 +14,15 @@ import reactor.util.function.Tuples
 @Transactional
 class AuthenticationFacade(private val userRepository: UserRepository,
                            private val uploadMapper: UploadMapper) {
+
+    fun getCurrentUserEntity(): Mono<User> {
+        return ReactiveSecurityContextHolder.getContext()
+                .map { context -> context.authentication }
+                .filter { authentication -> authentication is CustomAuthentication }
+                .cast(CustomAuthentication::class.java)
+                .map { authentication -> userRepository.findById(authentication.customUserDetails.id) }
+                .flatMap { user -> user }
+    }
 
     fun getCurrentUser(): Mono<CurrentUser> {
         return ReactiveSecurityContextHolder.getContext()
