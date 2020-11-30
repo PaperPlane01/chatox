@@ -14,6 +14,7 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
 	mavenCentral()
+	mavenLocal()
 }
 
 extra["springCloudVersion"] = "Hoxton.SR1"
@@ -31,6 +32,7 @@ dependencies {
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
 	implementation("org.yaml:snakeyaml")
+	implementation("chatox:spring-utils:0.0.3")
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}
