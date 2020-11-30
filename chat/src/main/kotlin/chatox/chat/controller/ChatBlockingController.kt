@@ -3,10 +3,10 @@ package chatox.chat.controller
 import chatox.chat.api.request.CreateChatBlockingRequest
 import chatox.chat.api.request.UpdateChatBlockingRequest
 import chatox.chat.service.ChatBlockingService
-import chatox.chat.support.pagination.PaginationRequest
-import chatox.chat.support.pagination.annotation.PaginationConfig
-import chatox.chat.support.pagination.annotation.SortBy
-import chatox.chat.support.pagination.annotation.SortDirection
+import chatox.platform.pagination.PaginationRequest
+import chatox.platform.pagination.annotation.PaginationConfig
+import chatox.platform.pagination.annotation.SortBy
+import chatox.platform.pagination.annotation.SortDirection
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -35,9 +35,9 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
                         "createdAt",
                         "blockedUntil"
                     ],
-                    default = "createdAt"
+                    defaultValue = "createdAt"
             ),
-            sortingDirection = SortDirection(default = "desc")
+            sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping("/{chatId}/blockings")
     fun getAllBlockingsByChat(@PathVariable chatId: String,
@@ -51,9 +51,9 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
                         "createdAt",
                         "blockedUntil"
                     ],
-                    default = "createdAt"
+                    defaultValue = "createdAt"
             ),
-            sortingDirection = SortDirection(default = "desc")
+            sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping("/{chatId}/blockings/active")
     fun getActiveBlockingsByChat(@PathVariable chatId: String,
@@ -67,9 +67,9 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
                         "createdAt",
                         "blockedUntil"
                     ],
-                    default = "createdAt"
+                    defaultValue = "createdAt"
             ),
-            sortingDirection = SortDirection(default = "desc")
+            sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping("/{chatId}/blockings/nonActive")
     fun getNonActiveBlockingsByChat(@PathVariable chatId: String,

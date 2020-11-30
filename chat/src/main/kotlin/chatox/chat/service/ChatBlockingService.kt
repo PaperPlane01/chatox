@@ -4,7 +4,7 @@ import chatox.chat.api.request.CreateChatBlockingRequest
 import chatox.chat.api.request.UpdateChatBlockingRequest
 import chatox.chat.api.response.ChatBlockingResponse
 import chatox.chat.model.User
-import chatox.chat.support.pagination.PaginationRequest
+import chatox.platform.pagination.PaginationRequest
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 

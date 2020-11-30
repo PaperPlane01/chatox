@@ -2,10 +2,10 @@ package chatox.chat.controller
 
 import chatox.chat.api.request.UpdateChatParticipationRequest
 import chatox.chat.service.ChatParticipationService
-import chatox.chat.support.pagination.PaginationRequest
-import chatox.chat.support.pagination.annotation.PaginationConfig
-import chatox.chat.support.pagination.annotation.SortBy
-import chatox.chat.support.pagination.annotation.SortDirection
+import chatox.platform.pagination.PaginationRequest
+import chatox.platform.pagination.annotation.PaginationConfig
+import chatox.platform.pagination.annotation.SortBy
+import chatox.platform.pagination.annotation.SortDirection
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -51,8 +51,8 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     ) = chatParticipationService.updateChatParticipation(participationId, chatId, updateChatParticipationRequest)
 
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["createdAt"], default = "createdAt"),
-            sortingDirection = SortDirection(default = "asc")
+            sortBy = SortBy(allowed = ["createdAt"], defaultValue = "createdAt"),
+            sortingDirection = SortDirection(defaultValue = "asc")
     )
     @GetMapping("/{chatId}/participants")
     fun getChatParticipants(@PathVariable chatId: String,
@@ -60,8 +60,8 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     ) = chatParticipationService.findParticipantsOfChat(chatId, paginationRequest)
 
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["userDisplayedName", "createdAt"], default = "userDisplayedName"),
-            sortingDirection = SortDirection(default = "asc")
+            sortBy = SortBy(allowed = ["userDisplayedName", "createdAt"], defaultValue = "userDisplayedName"),
+            sortingDirection = SortDirection(defaultValue = "asc")
     )
     @GetMapping("/{chatId}/participants/search")
     fun searchChatParticipants(@PathVariable chatId: String,
