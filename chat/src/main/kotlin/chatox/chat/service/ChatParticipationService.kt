@@ -6,7 +6,7 @@ import chatox.chat.api.response.ChatParticipationResponse
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatRole
 import chatox.chat.model.User
-import chatox.chat.support.pagination.PaginationRequest
+import chatox.platform.pagination.PaginationRequest
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 

@@ -20,7 +20,7 @@ import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatBlockingPermissions
 import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatParticipationService
-import chatox.chat.support.pagination.PaginationRequest
+import chatox.platform.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired

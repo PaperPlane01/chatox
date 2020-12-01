@@ -27,7 +27,7 @@ import chatox.chat.repository.UploadRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatPermissions
 import chatox.chat.service.impl.ChatServiceImpl
-import chatox.chat.support.datetime.TimeService
+import chatox.platform.time.TimeService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested

@@ -20,8 +20,8 @@ import chatox.chat.repository.UserRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatParticipationPermissions
 import chatox.chat.service.ChatParticipationService
-import chatox.chat.support.log.LogExecution
-import chatox.chat.support.pagination.PaginationRequest
+import chatox.platform.log.LogExecution
+import chatox.platform.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
