@@ -5,7 +5,7 @@ import chatox.user.api.request.UpdateUserRequest
 import chatox.user.security.AuthenticationFacade
 import chatox.user.service.UserService
 import chatox.user.service.UserSessionService
-import chatox.user.support.pagination.PaginationRequest
+import chatox.platform.pagination.PaginationRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping

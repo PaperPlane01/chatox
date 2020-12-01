@@ -18,6 +18,7 @@ import chatox.oauth2.respository.EmailConfirmationCodeRepository;
 import chatox.oauth2.security.AuthenticationFacade;
 import chatox.oauth2.security.CustomUserDetails;
 import chatox.oauth2.service.impl.AccountServiceImpl;
+import chatox.platform.time.TimeService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

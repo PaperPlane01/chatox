@@ -23,9 +23,9 @@ import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.MessagePermissions
 import chatox.chat.service.EmojiParserService
 import chatox.chat.service.MessageService
-import chatox.chat.support.log.LogExecution
-import chatox.chat.support.log.LogLevel
-import chatox.chat.support.pagination.PaginationRequest
+import chatox.platform.log.LogExecution
+import chatox.platform.log.LogLevel
+import chatox.platform.pagination.PaginationRequest
 import chatox.chat.util.isDateBeforeOrEquals
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -42,8 +42,8 @@ import java.util.UUID
 @Service
 @Transactional
 @LogExecution(
-        logExecutionLogLevel = LogLevel.INFO,
-        logParametersLogLevel = LogLevel.INFO
+        executionLogLevel = LogLevel.INFO,
+        parametersLogLevel = LogLevel.INFO
 )
 class MessageServiceImpl(
         private val messageRepository: MessageRepository,

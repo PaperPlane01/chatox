@@ -13,7 +13,7 @@ import chatox.user.repository.UserRepository
 import chatox.user.repository.UserSessionRepository
 import chatox.user.security.AuthenticationFacade
 import chatox.user.service.UserSessionService
-import chatox.user.support.pagination.PaginationRequest
+import chatox.platform.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono

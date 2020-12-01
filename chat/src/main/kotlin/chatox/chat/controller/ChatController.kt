@@ -4,10 +4,10 @@ import chatox.chat.api.request.CreateChatRequest
 import chatox.chat.api.request.DeleteChatRequest
 import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.service.ChatService
-import chatox.chat.support.pagination.PaginationRequest
-import chatox.chat.support.pagination.annotation.PageSize
-import chatox.chat.support.pagination.annotation.PaginationConfig
-import chatox.chat.support.pagination.annotation.SortBy
+import chatox.platform.pagination.PaginationRequest
+import chatox.platform.pagination.annotation.PageSize
+import chatox.platform.pagination.annotation.PaginationConfig
+import chatox.platform.pagination.annotation.SortBy
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -46,7 +46,7 @@ class ChatController(private val chatService: ChatService) {
     fun findChatByIdOrSlug(@PathVariable idOrSlug: String) = chatService.findChatBySlugOrId(idOrSlug)
 
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["createdAt", "name"], default = "createdAt")
+            sortBy = SortBy(allowed = ["createdAt", "name"], defaultValue = "createdAt")
     )
     @GetMapping
     fun searchChats(@RequestParam query: String,
@@ -56,8 +56,8 @@ class ChatController(private val chatService: ChatService) {
     fun isChatSlugAvailable(@PathVariable slug: String) = chatService.checkChatSlugAvailability(slug)
 
     @PaginationConfig(
-            pageSize = PageSize(default = 10, max = 300),
-            sortBy = SortBy(allowed = [], default = "")
+            pageSize = PageSize(defaultValue = 10, max = 300),
+            sortBy = SortBy(allowed = [], defaultValue = "")
     )
     @GetMapping("/popular")
     fun getPopularChats(paginationRequest: PaginationRequest) = chatService.getPopularChats(paginationRequest)

@@ -3,11 +3,11 @@ package chatox.chat.controller
 import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.service.MessageService
-import chatox.chat.support.pagination.PaginationRequest
-import chatox.chat.support.pagination.annotation.PageSize
-import chatox.chat.support.pagination.annotation.PaginationConfig
-import chatox.chat.support.pagination.annotation.SortBy
-import chatox.chat.support.pagination.annotation.SortDirection
+import chatox.platform.pagination.PaginationRequest
+import chatox.platform.pagination.annotation.PageSize
+import chatox.platform.pagination.annotation.PaginationConfig
+import chatox.platform.pagination.annotation.SortBy
+import chatox.platform.pagination.annotation.SortDirection
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -47,9 +47,9 @@ class MessageController(private val messageService: MessageService) {
     ) = messageService.deleteMessage(messageId, chatId)
 
     @PaginationConfig(
-            pageSize = PageSize(default = 200, max = 300),
-            sortBy = SortBy(default = "createdAt", allowed = ["createdAt"]),
-            sortingDirection = SortDirection(default = "desc")
+            pageSize = PageSize(defaultValue = 200, max = 300),
+            sortBy = SortBy(defaultValue = "createdAt", allowed = ["createdAt"]),
+            sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping("/{chatId}/messages")
     fun findMessagesByChat(@PathVariable chatId: String,
@@ -57,8 +57,8 @@ class MessageController(private val messageService: MessageService) {
     ) = messageService.findMessagesByChat(chatId, paginationRequest)
 
     @PaginationConfig(
-            pageSize = PageSize(default = 200, max = 300),
-            sortBy = SortBy(default = "createdAt", allowed = ["createdAt"])
+            pageSize = PageSize(defaultValue = 200, max = 300),
+            sortBy = SortBy(defaultValue = "createdAt", allowed = ["createdAt"])
     )
     @GetMapping("/{chatId}/messages", params = ["beforeId"])
     fun findMessagesByChatBeforeMessage(
@@ -68,8 +68,8 @@ class MessageController(private val messageService: MessageService) {
     ) = messageService.findMessagesBeforeMessageByChat(chatId, beforeId, paginationRequest)
 
     @PaginationConfig(
-            pageSize = PageSize(default = 200, max = 300),
-            sortBy = SortBy(default = "createdAt", allowed = ["createdAt"])
+            pageSize = PageSize(defaultValue = 200, max = 300),
+            sortBy = SortBy(defaultValue = "createdAt", allowed = ["createdAt"])
     )
     @GetMapping("/{chatId}/messages", params = ["afterId"])
     fun findMessagesByChatAfterMessage(
