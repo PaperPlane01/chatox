@@ -22,6 +22,11 @@ public class CustomTokenEnhancer implements TokenEnhancer {
             additionalInformation.put("user_id", userDetails.getUserId());
             additionalInformation.put("email", userDetails.getEmail());
             log.trace("User email is {}", userDetails.getEmail());
+
+            if (userDetails.getJwtGlobalBanInfo() != null) {
+                additionalInformation.put("global_ban_info", userDetails.getJwtGlobalBanInfo());
+            }
+
             ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInformation);
         }
 

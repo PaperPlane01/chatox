@@ -1,6 +1,7 @@
 package chatox.oauth2.security;
 
 import chatox.oauth2.domain.Account;
+import chatox.oauth2.domain.GlobalBan;
 import chatox.oauth2.domain.Role;
 import chatox.oauth2.domain.UserRole;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CustomUserDetails implements UserDetails {
@@ -26,8 +28,14 @@ public class CustomUserDetails implements UserDetails {
     private boolean enabled;
     @Getter
     private String email;
+    @Getter
+    private JwtGlobalBanInfo jwtGlobalBanInfo;
 
     public CustomUserDetails(Account account) {
+        this(account, null);
+    }
+
+    public CustomUserDetails(Account account, GlobalBan lastActiveBan) {
         roles = account.getRoles().stream().map(UserRole::getRole).collect(Collectors.toList());
         password = account.getPasswordHash();
         username = account.getUsername();
@@ -38,6 +46,14 @@ public class CustomUserDetails implements UserDetails {
 
         if (account.getUserIds() != null && !account.getUserIds().isEmpty()) {
             userId = account.getUserIds().get(0);
+        }
+
+        if (lastActiveBan != null) {
+            jwtGlobalBanInfo = JwtGlobalBanInfo.builder()
+                    .id(lastActiveBan.getId())
+                    .expiresAt(lastActiveBan.getExpiresAt())
+                    .permanent(lastActiveBan.isPermanent())
+                    .build();
         }
     }
 

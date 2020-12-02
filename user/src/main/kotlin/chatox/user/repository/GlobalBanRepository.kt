@@ -10,7 +10,7 @@ import java.time.ZonedDateTime
 
 interface GlobalBanRepository : ReactiveMongoRepository<GlobalBan, String> {
     override fun findById(id: String): Mono<GlobalBan>
-    fun findByUserAndId(user: User, id: String): Mono<GlobalBan>
+    fun findByBannedUserAndId(user: User, id: String): Mono<GlobalBan>
     fun findByBannedUserAndExpiresAtAfterOrPermanentTrueAndCanceledFalse(
             bannedUser: User,
             date: ZonedDateTime
