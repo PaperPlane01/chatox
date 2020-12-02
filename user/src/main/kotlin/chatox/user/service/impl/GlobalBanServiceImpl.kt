@@ -1,6 +1,8 @@
 package chatox.user.service.impl
 
+import chatox.platform.pagination.PaginationRequest
 import chatox.user.api.request.BanUserRequest
+import chatox.user.api.request.GlobalBanFilters
 import chatox.user.api.request.UpdateBanRequest
 import chatox.user.api.response.GlobalBanResponse
 import chatox.user.domain.GlobalBan
@@ -14,7 +16,6 @@ import chatox.user.repository.GlobalBanRepository
 import chatox.user.repository.UserRepository
 import chatox.user.security.AuthenticationFacade
 import chatox.user.service.GlobalBanService
-import chatox.user.support.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Service
@@ -52,7 +53,6 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
                 )}
                 globalBanRepository.saveAll(otherActiveBans).collectList().awaitFirst()
             }
-
 
             val globalBan = GlobalBan(
                     id = UUID.randomUUID().toString(),
@@ -114,7 +114,7 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
             val currentUser = authenticationFacade.getCurrentUserEntity().awaitFirst()
             var ban = findBanByUserAndBanId(user, banId).awaitFirst()
 
-            if (isBanActive(ban)) {
+            if (!isBanActive(ban)) {
                 throw GlobalBanIsNotActiveException("Cannot cancel ban which is not active")
             }
 
@@ -131,21 +131,9 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
         }
     }
 
-    override fun findBans(excludeExpired: Boolean, excludeCanceled: Boolean, paginationRequest: PaginationRequest): Flux<GlobalBanResponse> {
-        val pageRequest = paginationRequest.toPageRequest()
-        val result = if (excludeExpired) {
-            if (excludeCanceled) {
-                globalBanRepository.findByCanceledFalseAndExpiresAtAfter(ZonedDateTime.now(), pageRequest)
-            } else{
-                globalBanRepository.findByExpiresAtAfter(ZonedDateTime.now(), pageRequest)
-            }
-        } else if (excludeCanceled) {
-            globalBanRepository.findByCanceledFalse(pageRequest)
-        } else {
-            globalBanRepository.findAllBy(pageRequest)
-        }
-
-        return result.map { globalBan -> globalBanMapper.toGlobalBanResponse(globalBan) }
+    override fun findBans(filters: GlobalBanFilters, paginationRequest: PaginationRequest): Flux<GlobalBanResponse> {
+       return globalBanRepository.searchGlobalBans(filters, paginationRequest.toPageRequest())
+               .map { ban -> globalBanMapper.toGlobalBanResponse(ban) }
     }
 
     private fun findUserById(userId: String) = userRepository.findById(userId)

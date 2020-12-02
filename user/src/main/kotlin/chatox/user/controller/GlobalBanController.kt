@@ -1,13 +1,14 @@
 package chatox.user.controller
 
+import chatox.platform.pagination.PaginationRequest
+import chatox.platform.pagination.annotation.PageSize
+import chatox.platform.pagination.annotation.PaginationConfig
+import chatox.platform.pagination.annotation.SortBy
+import chatox.platform.pagination.annotation.SortDirection
 import chatox.user.api.request.BanUserRequest
+import chatox.user.api.request.GlobalBanFilters
 import chatox.user.api.request.UpdateBanRequest
 import chatox.user.service.GlobalBanService
-import chatox.user.support.pagination.PaginationRequest
-import chatox.user.support.pagination.annotation.PageSize
-import chatox.user.support.pagination.annotation.PaginationConfig
-import chatox.user.support.pagination.annotation.SortBy
-import chatox.user.support.pagination.annotation.SortDirection
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -44,12 +45,22 @@ class GlobalBanController(private val globalBanService: GlobalBanService) {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/bans")
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["createdAt", "expiresAt"], default = "createdAt"),
-            sortingDirection = SortDirection(default = "desc"),
-            pageSize = PageSize(default = 30)
+            sortBy = SortBy(allowed = ["createdAt", "expiresAt"], defaultValue = "createdAt"),
+            sortingDirection = SortDirection(defaultValue = "desc"),
+            pageSize = PageSize(defaultValue = 30)
     )
     fun findBans(@RequestParam(value = "excludeExpired", required = false, defaultValue = "false") excludeExpired: Boolean = false,
                  @RequestParam(value = "excludeCanceled", required = false, defaultValue = "false") excludeCanceled: Boolean = false,
+                 @RequestParam(value = "bannedUserId", required = false) bannedUserId: String?,
+                 @RequestParam(value = "bannedById", required = false) bannedById: String?,
                  paginationRequest: PaginationRequest
-    ) = globalBanService.findBans(excludeExpired, excludeCanceled, paginationRequest)
+    ) = globalBanService.findBans(
+            filters = GlobalBanFilters(
+                    excludeCanceled = excludeCanceled,
+                    excludeExpired = excludeExpired,
+                    bannedById = bannedById,
+                    bannedUserId = bannedUserId
+            ),
+            paginationRequest = paginationRequest
+    )
 }
