@@ -14,3 +14,5 @@ export * from "./RecoverPasswordRequest";
 export * from "./AnonymousUserRegistrationRequest";
 export * from "./DeleteChatRequest";
 export * from "./UpdateChatRequest";
+export * from "./BanUserRequest";
+export * from "./UpdateBanRequest";
