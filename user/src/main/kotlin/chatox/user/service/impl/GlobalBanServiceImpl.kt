@@ -38,10 +38,7 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
             val user = findUserById(userId).awaitFirst()
             val currentUser = authenticationFacade.getCurrentUserEntity().awaitFirst()
 
-            var otherActiveBans = globalBanRepository.findByBannedUserAndExpiresAtAfterOrPermanentTrueAndCanceledFalse(
-                    bannedUser = user,
-                    date = ZonedDateTime.now()
-            )
+            var otherActiveBans = globalBanRepository.findActiveByBannedUser(currentUser)
                     .collectList()
                     .awaitFirst()
 
