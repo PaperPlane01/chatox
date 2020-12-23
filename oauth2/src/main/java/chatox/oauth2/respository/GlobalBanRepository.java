@@ -18,7 +18,7 @@ public interface GlobalBanRepository extends JpaRepository<GlobalBan, String> {
     @Query(
             "select globalBan from GlobalBan globalBan " +
             "where globalBan.bannedAccount = :#{#account} " +
-            "and (globalBan.canceled = false or (globalBan.permanent = true or globalBan.expiresAt > current_date))"
+            "and (globalBan.canceled = false and (globalBan.permanent = true or globalBan.expiresAt > current_date))"
     )
     List<GlobalBan> findActiveBansOfAccount(@Param("account") Account account, Pageable pageable);
 
