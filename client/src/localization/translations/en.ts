@@ -301,5 +301,9 @@ export const en: Labels = {
     "global.ban.you-were-banned.with-reason": "You were banned globally by {createdByUsername} with the following reason: {reason}. Your ban expires at {expirationDate}",
     "global.ban.you-were-banned.with-reason-and-comment": "You were banned globally by {createdByUsername} with the following reason: {reason}. The admin left the following comment: \"{comment}\". Your ban expires at {expirationDate}",
     "global.ban.you-were-banned.permanently.with-reason": "You were banned permanently by {createdByUsername} with the following reason: {reason}",
-    "global.ban.you-were-banned.permanently.with-reason-and-comment": "You were banned permanently by {createdByUsername} with the following reason: {reason}. The admin left the following comment: \"{comment}\""
+    "global.ban.you-were-banned.permanently.with-reason-and-comment": "You were banned permanently by {createdByUsername} with the following reason: {reason}. The admin left the following comment: \"{comment}\"",
+    "global.ban.error.no-permission": "You don't have permission to perform this operation",
+    "global.ban.error.unknown": "Unknown error occurred when tried to ban user, server responded with {errorStatus} status",
+    "global.ban.error.server-unreachable": "Error occurred when tried to ban user, server is unreachable",
+    "global.ban.success": "User has been banned"
 };

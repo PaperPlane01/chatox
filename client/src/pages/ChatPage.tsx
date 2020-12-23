@@ -17,6 +17,7 @@ import {
     CreateChatBlockingDialog,
     UpdateChatBlockingDialog
 } from "../ChatBlocking";
+import {BanUserGloballyDialog} from "../GlobalBan";
 
 export const ChatPage: FunctionComponent = () => (
     <Fragment>
@@ -56,6 +57,7 @@ export const ChatPage: FunctionComponent = () => (
             <AttachedFilesDialog/>
             <ConfirmChatDeletionDialog/>
             <SpecifyChatDeletionReasonDialog/>
+            <BanUserGloballyDialog/>
         </Grid>
     </Fragment>
 );

@@ -301,5 +301,9 @@ export const ru: Labels = {
     "global.ban.you-were-banned.with-reason": "Вы были заблокированы глобально администратором {createdByUsername} по следующей причине: {reason}. Данная блокировка закончится {expirationDate}",
     "global.ban.you-were-banned.with-reason-and-comment": "Вы были заблокированы глобально администратором {createdByUsername} по следующей причине: {reason}. Администратор оставил следующий комментарий \"{comment}\". Данная блокировка закончится {expirationDate}",
     "global.ban.you-were-banned.permanently.with-reason": "Вы были заблокированы навсегда администратором {createdByUsername} по следующей причине: {reason}",
-    "global.ban.you-were-banned.permanently.with-reason-and-comment": "Вы были заблокированы навсегда администратором {createdByUsername} по следующей причине: {reason}. Администратор оставил следующий комментарий: \"{comment}\""
+    "global.ban.you-were-banned.permanently.with-reason-and-comment": "Вы были заблокированы навсегда администратором {createdByUsername} по следующей причине: {reason}. Администратор оставил следующий комментарий: \"{comment}\"",
+    "global.ban.error.no-permission": "У вас нет разрешения на выполнение данной операции",
+    "global.ban.error.unknown": "Во время попытки заблокировать пользователя произошла ошибка. Сервер ответил со статусом {errorStatus}",
+    "global.ban.error.server-unreachable": "Во время попытки заблокировать пользователя произошла ошибка. Сервер недоступен",
+    "global.ban.success": "Пользователь был заблокирован"
 };

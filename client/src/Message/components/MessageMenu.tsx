@@ -1,6 +1,6 @@
 import React, {FunctionComponent, MouseEvent, ReactNode, useState} from "react";
 import {observer} from "mobx-react";
-import {IconButton, Menu} from "@material-ui/core";
+import {IconButton, Menu, Divider} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {BlockMessageAuthorInChatMenuItem} from "./BlockMessageAuthorInChatMenuItem";
 import {ReplyToMessageMenuItem} from "./ReplyToMessageMenuItem";
@@ -9,8 +9,13 @@ import {DeleteMessageMenuItem} from "./DeleteMessageMenuItem";
 import {canCreateMessage, canDeleteMessage, canEditMessage} from "../permissions";
 import {useAuthorization, useStore} from "../../store";
 import {canBlockUsersInChat, ChatBlockingEntity} from "../../ChatBlocking";
+import {BanUserGloballyMenuItem, canBanUsersGlobally} from "../../GlobalBan";
 
-export type MenuItemType = "blockMessageAuthorInChat" | "replyToMessage" | "editMessage" | "deleteMessage";
+export type MenuItemType = "blockMessageAuthorInChat"
+    | "replyToMessage"
+    | "editMessage"
+    | "deleteMessage"
+    | "banUserGlobally";
 
 interface MessageMenuProps {
     messageId: string,
@@ -78,6 +83,11 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messa
 
     if (canDeleteMessage(message, chatParticipation)) {
         menuItems.push(<DeleteMessageMenuItem messageId={messageId} onClick={handleClose("deleteMessage")}/>)
+    }
+
+    if (canBanUsersGlobally(currentUser)) {
+        menuItems.push(<Divider/>);
+        menuItems.push(<BanUserGloballyMenuItem userId={message.sender} onClick={handleClose("banUserGlobally")}/>);
     }
 
     if (menuItems.length === 0) {
