@@ -9,22 +9,26 @@ import {GlobalBanReason} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {EntitiesStore} from "../../entities-store";
 
+const BAN_USER_FORM_INITIAL_STATE: BanUserFormData = {
+    comment: "",
+    expiresAt: undefined,
+    permanent: false,
+    reason: GlobalBanReason.SPAM
+};
+
+const FORM_ERRORS_INITIAL_STATE: FormErrors<BanUserFormData> = {
+    comment: undefined,
+    expiresAt: undefined,
+    permanent: undefined,
+    reason: undefined
+};
+
 export class BanUserStore {
     @observable
-    banUserForm: BanUserFormData = {
-        comment: "",
-        expiresAt: undefined,
-        permanent: false,
-        reason: GlobalBanReason.SPAM
-    };
+    banUserForm: BanUserFormData = BAN_USER_FORM_INITIAL_STATE;
 
     @observable
-    formErrors: FormErrors<BanUserFormData> = {
-        comment: undefined,
-        expiresAt: undefined,
-        permanent: undefined,
-        reason: undefined
-    };
+    formErrors: FormErrors<BanUserFormData> = FORM_ERRORS_INITIAL_STATE;
 
     @observable
     banUserDialogOpen: boolean = false;
@@ -37,6 +41,9 @@ export class BanUserStore {
 
     @observable
     error: ApiError | undefined = undefined;
+
+    @observable
+    showSnackbar: boolean = false;
 
     constructor(private readonly entities: EntitiesStore) {
         reaction(
@@ -81,6 +88,11 @@ export class BanUserStore {
     }
 
     @action
+    setShowSnackbar = (showSnackbar: boolean): void => {
+        this.showSnackbar = showSnackbar;
+    }
+
+    @action
     setFormValue = <Key extends keyof BanUserFormData>(key: Key, value: BanUserFormData[Key]): void => {
         this.banUserForm[key] = value;
     }
@@ -106,11 +118,15 @@ export class BanUserStore {
         this.error = undefined;
 
         GlobalBanApi.banUser(this.bannedUserId, banUserRequest)
-            .then(({data}) => this.entities.insertGlobalBan(data))
+            .then(({data}) => {
+                this.entities.insertGlobalBan(data);
+                this.setBanUserDialogOpen(false);
+                this.setShowSnackbar(true);
+                this.resetForm();
+            })
             .catch(error => this.error = getInitialApiErrorFromResponse(error))
             .finally(() => this.pending = false);
     }
-
 
     @action
     validateForm = (): boolean => {
@@ -125,5 +141,11 @@ export class BanUserStore {
         const {comment, reason} = this.formErrors;
 
         return !Boolean(comment || reason);
+    }
+
+    @action
+    resetForm = (): void => {
+        this.banUserForm = BAN_USER_FORM_INITIAL_STATE;
+        setTimeout(() => this.formErrors = FORM_ERRORS_INITIAL_STATE);
     }
 }

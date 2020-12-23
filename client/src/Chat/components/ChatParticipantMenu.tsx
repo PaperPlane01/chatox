@@ -1,12 +1,13 @@
-import React, {FunctionComponent, Fragment, MouseEvent, ReactNode, useState} from "react";
+import React, {Fragment, FunctionComponent, MouseEvent, ReactNode, useState} from "react";
 import {observer} from "mobx-react";
-import {IconButton, Menu} from "@material-ui/core";
+import {Divider, IconButton, Menu} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {BlockChatParticipantMenuItem} from "./BlockChatParticipantMenuItem";
 import {KickChatParticipantMenuItem} from "./KickChatParticipantMenuItem";
 import {ChatParticipationEntity} from "../types";
 import {canKickChatParticipant} from "../permissions";
 import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
+import {BanUserGloballyMenuItem, canBanUsersGlobally} from "../../GlobalBan";
 import {useAuthorization, useStore} from "../../store";
 
 interface ChatParticipantMenuProps {
@@ -54,6 +55,15 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
         menuItems.push(
             <BlockChatParticipantMenuItem userId={chatParticipation.userId}
                                           onClick={handleClose}
+            />
+        );
+    }
+
+    if (canBanUsersGlobally(currentUser)) {
+        menuItems.push(<Divider/>);
+        menuItems.push(
+            <BanUserGloballyMenuItem userId={chatParticipation.userId}
+                                     onClick={handleClose}
             />
         );
     }

@@ -299,5 +299,9 @@ export interface Labels {
     "global.ban.you-were-banned.with-reason": string,
     "global.ban.you-were-banned.with-reason-and-comment": string,
     "global.ban.you-were-banned.permanently.with-reason": string,
-    "global.ban.you-were-banned.permanently.with-reason-and-comment": string
+    "global.ban.you-were-banned.permanently.with-reason-and-comment": string,
+    "global.ban.error.no-permission": string,
+    "global.ban.error.unknown": string,
+    "global.ban.error.server-unreachable": string,
+    "global.ban.success": string
 }
