@@ -1,0 +1,129 @@
+import {action, observable, reaction} from "mobx";
+import {addMonths} from "date-fns";
+import {BanUserFormData} from "../types";
+import {validateGlobalBanComment, validateGlobalBanExpirationDate} from "../validation";
+import {ApiError, getInitialApiErrorFromResponse} from "../../api";
+import {GlobalBanApi} from "../../api/clients";
+import {BanUserRequest} from "../../api/types/request";
+import {GlobalBanReason} from "../../api/types/response";
+import {FormErrors} from "../../utils/types";
+import {EntitiesStore} from "../../entities-store";
+
+export class BanUserStore {
+    @observable
+    banUserForm: BanUserFormData = {
+        comment: "",
+        expiresAt: undefined,
+        permanent: false,
+        reason: GlobalBanReason.SPAM
+    };
+
+    @observable
+    formErrors: FormErrors<BanUserFormData> = {
+        comment: undefined,
+        expiresAt: undefined,
+        permanent: undefined,
+        reason: undefined
+    };
+
+    @observable
+    banUserDialogOpen: boolean = false;
+
+    @observable
+    bannedUserId: string | undefined = undefined;
+
+    @observable
+    pending: boolean = false;
+
+    @observable
+    error: ApiError | undefined = undefined;
+
+    constructor(private readonly entities: EntitiesStore) {
+        reaction(
+            () => this.banUserDialogOpen,
+            dialogOpen => {
+                if (dialogOpen) {
+                    this.setFormValue("expiresAt", addMonths(new Date(), 1));
+                }
+            }
+        );
+
+        reaction(
+            () => this.banUserForm.permanent,
+            permanent => {
+                if (permanent) {
+                    this.setFormValue("expiresAt", undefined);
+                } else {
+                    this.setFormValue("expiresAt", addMonths(new Date(), 1));
+                }
+            }
+        );
+
+        reaction(
+            () => this.banUserForm.reason,
+                reason => validateGlobalBanComment(this.banUserForm.comment, reason)
+        );
+
+        reaction(
+            () => this.banUserForm.expiresAt,
+            expiresAt => validateGlobalBanExpirationDate(expiresAt, this.banUserForm.permanent)
+        );
+    }
+
+    @action
+    setBannedUserId = (bannedUserId: string | undefined): void => {
+        this.bannedUserId = bannedUserId;
+    }
+
+    @action
+    setBanUserDialogOpen = (banUserDialogOpen: boolean): void => {
+        this.banUserDialogOpen = banUserDialogOpen;
+    }
+
+    @action
+    setFormValue = <Key extends keyof BanUserFormData>(key: Key, value: BanUserFormData[Key]): void => {
+        this.banUserForm[key] = value;
+    }
+
+    @action
+    banUser = (): void => {
+        if (!this.bannedUserId) {
+            return;
+        }
+
+        if (!this.validateForm()) {
+            return;
+        }
+
+        const banUserRequest: BanUserRequest = {
+            ...this.banUserForm,
+            expiresAt: (!this.banUserForm.permanent && this.banUserForm.expiresAt)
+                ? this.banUserForm.expiresAt.toISOString()
+                : undefined
+        };
+
+        this.pending = true;
+        this.error = undefined;
+
+        GlobalBanApi.banUser(this.bannedUserId, banUserRequest)
+            .then(({data}) => this.entities.insertGlobalBan(data))
+            .catch(error => this.error = getInitialApiErrorFromResponse(error))
+            .finally(() => this.pending = false);
+    }
+
+
+    @action
+    validateForm = (): boolean => {
+        this.formErrors = {
+            ...this.formErrors,
+            permanent: undefined,
+            expiresAt: validateGlobalBanExpirationDate(this.banUserForm.expiresAt, this.banUserForm.permanent),
+            comment: validateGlobalBanComment(this.banUserForm.comment, this.banUserForm.reason),
+            reason: undefined
+        };
+
+        const {comment, reason} = this.formErrors;
+
+        return !Boolean(comment || reason);
+    }
+}

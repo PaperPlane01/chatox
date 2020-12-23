@@ -8,6 +8,7 @@ import {
     ChatParticipation,
     ChatRole,
     CurrentUser,
+    GlobalBan,
     Message,
     User
 } from "../api/types/response";
@@ -17,6 +18,7 @@ import {ChatBlockingsStore} from "../ChatBlocking/stores";
 import {UploadsStore} from "../Upload/stores";
 import {ChatUpdated} from "../api/types/websocket";
 import {PartialBy} from "../utils/types";
+import {GlobalBansStore} from "../GlobalBan/stores";
 
 type DecreaseChatParticipantsCountCallback = (chatParticipation?: ChatParticipationEntity, currentUser?: CurrentUser) => boolean;
 
@@ -39,7 +41,8 @@ export class EntitiesStore {
         public chatParticipations: ChatParticipationsStore,
         public chatBlockings: ChatBlockingsStore,
         public uploads: UploadsStore,
-        public chatUploads: ChatUploadsStore
+        public chatUploads: ChatUploadsStore,
+        public globalBans: GlobalBansStore
     ) {
     }
 
@@ -56,7 +59,7 @@ export class EntitiesStore {
 
             this.insertMessage(message);
         });
-    };
+    }
 
     @action
     insertMessage = (message: Message): void => {
@@ -70,7 +73,7 @@ export class EntitiesStore {
         this.chatUploads.insertAll(message.uploads);
         this.messages.insert(message);
         this.chats.addMessageToChat(message.chatId, message.id);
-    };
+    }
 
     @action
     updateChat = (chatUpdated: ChatUpdated): void => {
@@ -88,7 +91,7 @@ export class EntitiesStore {
 
             this.chats.insertEntity(chat);
         }
-    };
+    }
 
     @action
     insertChats = (chatsOfCurrentUser: PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted">[]): void => {
@@ -96,7 +99,7 @@ export class EntitiesStore {
             ...chat,
             deleted: chat.deleted === undefined ? false : chat.deleted
         }));
-    };
+    }
 
     @action
     insertChat = (chat: PartialBy<ChatOfCurrentUser, "unreadMessagesCount">): void => {
@@ -149,12 +152,12 @@ export class EntitiesStore {
                 chat.chatParticipation.id
             ]))
         }
-    };
+    }
 
     @action
     insertChatParticipations = (chatParticipations: ChatParticipation[]): void => {
         chatParticipations.forEach(chatParticipation => this.insertChatParticipation(chatParticipation));
-    };
+    }
 
     @action
     insertChatParticipation = (chatParticipation: ChatParticipation, currentUser: boolean = false): void => {
@@ -165,7 +168,7 @@ export class EntitiesStore {
             chat.currentUserParticipationId = chatParticipation.id;
             this.chats.increaseChatParticipantsCount(chat.id);
         }
-    };
+    }
 
     @action
     deleteChatParticipation = (id: string, decreaseChatParticipantsCount: boolean | DecreaseChatParticipantsCountCallback = false, chatId?: string): void => {
@@ -196,21 +199,43 @@ export class EntitiesStore {
                 this.chats.decreaseChatParticipantsCount(chatId);
             }
         }
-    };
+    }
 
     @action
-    insertUser = (user: User): void => {
+    insertUsers = (users: User[], retrieveOnlineStatusFromExistingUser: boolean = false): void => {
+        users.forEach(user => this.insertUser(user, retrieveOnlineStatusFromExistingUser));
+    }
+
+    @action
+    insertUser = (user: User, retrieveOnlineStatusFromExistingUser: boolean = false): void => {
         if (user.avatar) {
             this.uploads.insert(user.avatar);
         }
 
-        this.users.insert(user);
-    };
+        if (retrieveOnlineStatusFromExistingUser) {
+            const existingUser = this.users.findByIdOptional(user.id);
+
+            if (existingUser) {
+                this.users.insert({
+                    ...user,
+                    online: existingUser.online,
+                    lastSeen: existingUser.lastSeen ? existingUser.lastSeen.toISOString() : user.lastSeen
+                });
+            } else {
+                this.users.insert({
+                    ...user,
+                    onlineStatusMightBeInaccurate: true
+                });
+            }
+        } else {
+            this.users.insert(user);
+        }
+    }
 
     @action
     insertChatBlockings = (chatBlockings: ChatBlocking[]): void => {
         chatBlockings.forEach(blocking => this.insertChatBlocking(blocking));
-    };
+    }
 
     @action
     insertChatBlocking = (chatBlocking: ChatBlocking): void => {
@@ -230,7 +255,7 @@ export class EntitiesStore {
                 this.chatParticipations.insertEntity(chatParticipation);
             }
         }
-    };
+    }
 
     @action
     deleteChat = (chatId: string, deletionReason?: ChatDeletionReason, deletionComment?: string): void => {
@@ -240,5 +265,19 @@ export class EntitiesStore {
             deletionReason,
             deletionComment
         );
-    };
+    }
+
+    @action
+    insertGlobalBan = (globalBan: GlobalBan): void => {
+        this.insertUsers([
+            globalBan.createdBy,
+            globalBan.bannedUser,
+            globalBan.canceledBy,
+            globalBan.updatedBy
+        ]
+                .filter(user => Boolean(user)) as User[],
+            true
+        );
+        this.globalBans.insert(globalBan);
+    }
 }

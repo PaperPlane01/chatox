@@ -32,3 +32,4 @@ export const PASSWORD = "password";
 export const RECOVERY = "recovery";
 export const POPULAR = "popular";
 export const ANONYMOUS = "anonymous";
+export const BANS = "bans";
