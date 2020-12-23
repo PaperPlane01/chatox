@@ -289,8 +289,7 @@ public class AccountServiceImpl implements AccountService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var account = accountRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Bad credentials"));
-        var globalBan = globalBanRepository.findLastActiveBanOfAccount(account);
-        return new CustomUserDetails(account, globalBan.orElse(null));
+        return new CustomUserDetails(account);
     }
 
     private Account findById(String id) {

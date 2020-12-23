@@ -28,14 +28,8 @@ public class CustomUserDetails implements UserDetails {
     private boolean enabled;
     @Getter
     private String email;
-    @Getter
-    private JwtGlobalBanInfo jwtGlobalBanInfo;
 
     public CustomUserDetails(Account account) {
-        this(account, null);
-    }
-
-    public CustomUserDetails(Account account, GlobalBan lastActiveBan) {
         roles = account.getRoles().stream().map(UserRole::getRole).collect(Collectors.toList());
         password = account.getPasswordHash();
         username = account.getUsername();
@@ -46,14 +40,6 @@ public class CustomUserDetails implements UserDetails {
 
         if (account.getUserIds() != null && !account.getUserIds().isEmpty()) {
             userId = account.getUserIds().get(0);
-        }
-
-        if (lastActiveBan != null) {
-            jwtGlobalBanInfo = JwtGlobalBanInfo.builder()
-                    .id(lastActiveBan.getId())
-                    .expiresAt(lastActiveBan.getExpiresAt())
-                    .permanent(lastActiveBan.isPermanent())
-                    .build();
         }
     }
 
