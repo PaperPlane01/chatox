@@ -16,7 +16,7 @@ class RequireCommentIfGlobalBanReasonIsValidator
 
     override fun isValid(value: Any?, context: ConstraintValidatorContext?): Boolean {
         val beanWrapper = PropertyAccessorFactory.forDirectFieldAccess(value!!)
-        val reason = beanWrapper.getPropertyValue(reasonField) as GlobalBanReason
+        val reason = beanWrapper.getPropertyValue(reasonField) as GlobalBanReason?
         val comment = beanWrapper.getPropertyValue(commentField)
 
         if (reasons.contains(reason) && ObjectUtils.isEmpty(comment)) {

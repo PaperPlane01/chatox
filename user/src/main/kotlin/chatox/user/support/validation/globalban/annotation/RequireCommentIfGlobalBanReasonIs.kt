@@ -11,7 +11,7 @@ import kotlin.reflect.KClass
 @Constraint(validatedBy = [RequireCommentIfGlobalBanReasonIsValidator::class])
 annotation class RequireCommentIfGlobalBanReasonIs(
         val message: String = "Comment is required if ban reason is \"OTHER\"",
-        val reasonField: String = "reason",
+        val reasonField: String = "_reason",
         val commentField: String = "comment",
         val reasons: Array<GlobalBanReason> = [GlobalBanReason.OTHER],
 
