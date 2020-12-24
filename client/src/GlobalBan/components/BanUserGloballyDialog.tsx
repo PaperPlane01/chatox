@@ -123,6 +123,12 @@ export const BanUserGloballyDialog: FunctionComponent = observer(() => {
                 )}
             </DialogContent>
             <DialogActions>
+                <Button variant="outlined"
+                        color="secondary"
+                        onClick={() => setBanUserDialogOpen(false)}
+                >
+                    {l("close")}
+                </Button>
                 <Button variant="contained"
                         color="primary"
                         onClick={banUser}
@@ -130,12 +136,6 @@ export const BanUserGloballyDialog: FunctionComponent = observer(() => {
                 >
                     {pending && <CircularProgress color="primary" size={15}/>}
                     {l("global.ban.create")}
-                </Button>
-                <Button variant="outlined"
-                        color="secondary"
-                        onClick={() => setBanUserDialogOpen(false)}
-                >
-                    {l("close")}
                 </Button>
             </DialogActions>
         </Dialog>
