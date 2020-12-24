@@ -68,12 +68,17 @@ export class BanUserStore {
 
         reaction(
             () => this.banUserForm.reason,
-                reason => validateGlobalBanComment(this.banUserForm.comment, reason)
+                reason => this.formErrors.comment = validateGlobalBanComment(this.banUserForm.comment, reason)
         );
 
         reaction(
             () => this.banUserForm.expiresAt,
-            expiresAt => validateGlobalBanExpirationDate(expiresAt, this.banUserForm.permanent)
+            expiresAt => this.formErrors.expiresAt = validateGlobalBanExpirationDate(expiresAt, this.banUserForm.permanent)
+        );
+
+        reaction(
+            () => this.banUserForm.comment,
+            comment => this.formErrors.comment = validateGlobalBanComment(comment, this.banUserForm.reason)
         );
     }
 
