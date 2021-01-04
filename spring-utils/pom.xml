@@ -10,7 +10,7 @@
     </parent>
     <groupId>chatox</groupId>
     <artifactId>spring-utils</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <name>spring-utils</name>
     <description>Chatox Spring utilities</description>
 
@@ -37,6 +37,11 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
             <scope>provided</scope>
         </dependency>
 
