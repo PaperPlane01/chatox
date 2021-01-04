@@ -1,6 +1,7 @@
 package chatox.chat.model
 
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
@@ -14,23 +15,32 @@ data class Chat(
         var tags: List<String> = arrayListOf(),
         val avatarUri: String? = null,
         val avatar: Upload<ImageUploadMetadata>? = null,
+
+        @Indexed
         var slug: String,
         var createdAt: ZonedDateTime,
 
         @DBRef
         var createdBy: User,
+
+        @Indexed
+        var createdById: String? = null,
         var updatedAt: ZonedDateTime? = null,
         var deletedAt: ZonedDateTime? = null,
         var deleted: Boolean,
 
         @DBRef
         var deletedBy: User? = null,
+        var deletedById: String? = null,
         var type: ChatType,
         var numberOfParticipants: Int = 0,
         var numberOfOnlineParticipants: Int = 0,
 
         @DBRef(lazy = true)
         var lastMessage: Message? = null,
+
+        @Indexed
+        var lastMessageId: String? = null,
         var lastMessageDate: ZonedDateTime? = null,
 
         @DBRef

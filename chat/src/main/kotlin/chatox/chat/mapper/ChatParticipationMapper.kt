@@ -4,37 +4,52 @@ import chatox.chat.api.request.UpdateChatParticipationRequest
 import chatox.chat.api.response.ChatBlockingResponse
 import chatox.chat.api.response.ChatParticipationMinifiedResponse
 import chatox.chat.api.response.ChatParticipationResponse
-import chatox.chat.model.Chat
-import chatox.chat.model.ChatBlocking
 import chatox.chat.model.ChatParticipation
+import chatox.chat.repository.ChatParticipationRepository
+import chatox.chat.service.ChatBlockingService
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 
 @Component
 class ChatParticipationMapper(private val userMapper: UserMapper,
-                              private val chatBlockingMapper: ChatBlockingMapper) {
+                              private val chatBlockingService: ChatBlockingService,
+                              private val chatParticipationRepository: ChatParticipationRepository) {
 
-    fun toMinifiedChatParticipationResponse(chatParticipation: ChatParticipation): ChatParticipationMinifiedResponse {
-        var activeChatBlocking: ChatBlockingResponse? = null
-        val lastChatBlocking = chatParticipation.lastChatBlocking
+    fun toMinifiedChatParticipationResponse(chatParticipation: ChatParticipation, updateChatBlockingStatusIfNecessary: Boolean = false): Mono<ChatParticipationMinifiedResponse> {
+        return mono {
+            var activeChatBlocking: ChatBlockingResponse? = null
+            val lastChatBlockingId = chatParticipation.lastActiveChatBlockingId
 
-        if (lastChatBlocking != null && !lastChatBlocking.canceled
-                && lastChatBlocking.blockedUntil.isAfter(ZonedDateTime.now())) {
-            activeChatBlocking = chatBlockingMapper.toChatBlockingResponse(lastChatBlocking)
+            if (lastChatBlockingId != null) {
+               val chatBlocking = chatBlockingService.getBlockingById(chatParticipation.chatId, lastChatBlockingId).awaitFirst()
+
+                if (chatBlocking.canceled || chatBlocking.blockedUntil.isAfter(ZonedDateTime.now())) {
+                    if (updateChatBlockingStatusIfNecessary) {
+                        chatParticipationRepository.save(chatParticipation.copy(
+                                lastActiveChatBlockingId = null
+                        )).subscribe()
+                    }
+                } else {
+                    activeChatBlocking = chatBlocking
+                }
+            }
+
+            ChatParticipationMinifiedResponse(
+                    id = chatParticipation.id,
+                    role = chatParticipation.role,
+                    activeChatBlocking = activeChatBlocking
+            )
         }
-
-        return ChatParticipationMinifiedResponse(
-                id = chatParticipation.id,
-                role = chatParticipation.role,
-                activeChatBlocking = activeChatBlocking
-        )
     }
 
     fun toChatParticipationResponse(chatParticipation: ChatParticipation) = ChatParticipationResponse(
             id = chatParticipation.id,
             user = userMapper.toUserResponse(chatParticipation.user),
             role = chatParticipation.role,
-            chatId = chatParticipation.chat.id
+            chatId = chatParticipation.chatId
     )
 
     fun mapChatParticipationUpdate(updateChatParticipationRequest: UpdateChatParticipationRequest,

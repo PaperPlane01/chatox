@@ -14,6 +14,6 @@ data class MessageResponse(
         val readByCurrentUser: Boolean,
         val chatId: String,
         val emoji: EmojiInfo = EmojiInfo(),
-        val uploads: List<ChatUploadAttachmentResponse<Any>> = listOf(),
+        val attachments: List<UploadResponse<Any>> = listOf(),
         val index: Long = 0L
 )

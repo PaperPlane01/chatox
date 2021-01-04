@@ -1,6 +1,5 @@
 package chatox.chat.repository
 
-import chatox.chat.model.Chat
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.User
 import chatox.chat.repository.custom.ChatParticipationCustomRepository
@@ -16,18 +15,14 @@ interface ChatParticipationRepository : ReactiveMongoRepository<ChatParticipatio
     fun save(chatParticipation: ChatParticipation): Mono<ChatParticipation>
     override fun findById(id: String): Mono<ChatParticipation>
     fun findByIdAndDeletedFalse(id: String): Mono<ChatParticipation>
-    fun findAllByUser(user: User): Flux<ChatParticipation>
     fun findAllByUserAndDeletedFalse(user: User): Flux<ChatParticipation>
-    fun findByChat(chat: Chat, pageable: Pageable): Flux<ChatParticipation>
-    fun findByChatAndDeletedFalse(chat: Chat, pageable: Pageable): Flux<ChatParticipation>
-    fun findByChatAndUser(chat: Chat, user: User): Mono<ChatParticipation>
-    fun findByChatAndUserAndDeletedFalse(chat: Chat, user: User): Mono<ChatParticipation>
-    fun findByChatAndUserAndDeletedTrue(chat: Chat, user: User): Mono<ChatParticipation>
-    fun countAllByChat(chat: Chat): Mono<Int>
-    fun countByChatAndDeletedFalse(chat: Chat): Mono<Int>
-    fun findByChatAndUserOnlineTrue(chat: Chat): Flux<ChatParticipation>
-    fun countByChatAndUserOnlineTrue(chat: Chat): Mono<Int>
+    fun findByChatIdAndDeletedFalse(chatId: String, pageable: Pageable): Flux<ChatParticipation>
+    fun findByChatIdAndUser(chatId: String, user: User): Mono<ChatParticipation>
+    fun findByChatIdAndUserId(chatId: String, userId: String): Mono<ChatParticipation>
+    fun findByChatIdAndUserAndDeletedFalse(chatId: String, user: User): Mono<ChatParticipation>
+    fun findByChatIdAndUserAndDeletedTrue(chatId: String, user: User): Mono<ChatParticipation>
+    fun findByChatIdAndUserOnlineTrue(chatId: String): Flux<ChatParticipation>
 
-    @Query("{'chat' : :#{#chat}, 'userDisplayedName': {'\$regex': :#{#query}, '\$options' : 'i' }, 'deleted': false }")
-    fun searchChatParticipants(@Param("chat") chat: Chat, @Param("query") query: String, pageable: Pageable): Flux<ChatParticipation>
+    @Query("{'chatId' : :#{#chatId}, 'userDisplayedName': {'\$regex': :#{#query}, '\$options' : 'i' }, 'deleted': false }")
+    fun searchChatParticipants(@Param("chatId") chatId: String, @Param("query") query: String, pageable: Pageable): Flux<ChatParticipation>
 }

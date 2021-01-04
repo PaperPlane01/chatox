@@ -3,31 +3,58 @@ package chatox.chat.mapper
 import chatox.chat.api.request.CreateChatBlockingRequest
 import chatox.chat.api.request.UpdateChatBlockingRequest
 import chatox.chat.api.response.ChatBlockingResponse
+import chatox.chat.api.response.UserResponse
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatBlocking
 import chatox.chat.model.User
+import chatox.chat.service.UserService
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 import java.util.UUID
 
 @Component
-class ChatBlockingMapper(private val userMapper: UserMapper) {
+class ChatBlockingMapper(private val userService: UserService) {
 
-    fun toChatBlockingResponse(chatBlocking: ChatBlocking): ChatBlockingResponse {
-        return ChatBlockingResponse(
-                id = chatBlocking.id,
-                blockedBy = userMapper.toUserResponse(chatBlocking.blockedBy),
-                blockedUser = userMapper.toUserResponse(chatBlocking.blockedUser),
-                blockedUntil = chatBlocking.blockedUntil,
-                description = chatBlocking.description,
-                canceled = chatBlocking.canceled,
-                canceledBy = if (chatBlocking.canceledBy != null) userMapper.toUserResponse(chatBlocking.canceledBy!!) else null,
-                canceledAt = chatBlocking.canceledAt,
-                lastModifiedAt = chatBlocking.lastModifiedAt,
-                lastModifiedBy = if (chatBlocking.lastModifiedBy != null) userMapper.toUserResponse(chatBlocking.lastModifiedBy!!) else null,
-                chatId = chatBlocking.chat.id,
-                createdAt = chatBlocking.createdAt
-        )
+    fun toChatBlockingResponse(chatBlocking: ChatBlocking, localUserCache: MutableMap<String, UserResponse>? = null): Mono<ChatBlockingResponse> {
+       return mono {
+           val blockedUser = userService.findUserByIdAndPutInLocalCache(chatBlocking.blockedUserId, localUserCache)
+                   .awaitFirst()
+
+           val blockedBy: UserResponse = userService.findUserByIdAndPutInLocalCache(chatBlocking.blockedById, localUserCache)
+                   .awaitFirst()
+
+           var canceledBy: UserResponse? = null
+           var lastModifiedBy: UserResponse? = null
+
+           if (chatBlocking.canceledById != null) {
+              canceledBy = userService.findUserByIdAndPutInLocalCache(chatBlocking.canceledById!!, localUserCache)
+                      .awaitFirst()
+           }
+
+           if (chatBlocking.lastModifiedById != null) {
+               lastModifiedBy = userService.findUserByIdAndPutInLocalCache(chatBlocking.lastModifiedById!!, localUserCache)
+                       .awaitFirst()
+           }
+
+           ChatBlockingResponse(
+                   id = chatBlocking.id,
+                   chatId = chatBlocking.chatId,
+                   canceledAt = chatBlocking.canceledAt,
+                   canceled = chatBlocking.canceled,
+                   createdAt = chatBlocking.createdAt,
+                   canceledBy = canceledBy,
+                   description = chatBlocking.description,
+                   lastModifiedAt = chatBlocking.lastModifiedAt,
+                   lastModifiedBy = lastModifiedBy,
+                   blockedUser = blockedUser,
+                   blockedUntil = chatBlocking.blockedUntil,
+                   blockedBy = blockedBy
+           )
+       }
     }
 
     fun fromCreateChatBlockingRequest(createChatBlockingRequest: CreateChatBlockingRequest,
@@ -36,16 +63,16 @@ class ChatBlockingMapper(private val userMapper: UserMapper) {
                                       currentUser: User): ChatBlocking {
         return ChatBlocking(
                 id = UUID.randomUUID().toString(),
-                blockedBy = currentUser,
+                blockedById = currentUser.id,
                 createdAt = ZonedDateTime.now(),
                 blockedUntil = createChatBlockingRequest.blockedUntil,
-                blockedUser = blockedUser,
-                chat = chat,
+                blockedUserId = blockedUser.id,
+                chatId = chat.id,
                 description = createChatBlockingRequest.description,
                 lastModifiedAt = null,
-                lastModifiedBy = null,
+                lastModifiedById = null,
                 canceledAt = null,
-                canceledBy = null,
+                canceledById = null,
                 canceled = false
         )
     }
@@ -58,7 +85,7 @@ class ChatBlockingMapper(private val userMapper: UserMapper) {
                 blockedUntil = updateChatBlockingRequest.blockedUntil ?: chatBlocking.blockedUntil,
                 description = updateChatBlockingRequest.description ?: chatBlocking.description,
                 lastModifiedAt = ZonedDateTime.now(),
-                lastModifiedBy = currentUser
+                lastModifiedById = currentUser.id
         )
     }
 }

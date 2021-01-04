@@ -3,6 +3,7 @@ package chatox.chat.service
 import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
+import chatox.chat.model.Message
 import chatox.platform.pagination.PaginationRequest
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -16,4 +17,5 @@ interface MessageService {
     fun findMessagesSinceMessageByChat(chatId: String, sinceMessageId: String, paginationRequest: PaginationRequest): Flux<MessageResponse>
     fun findMessagesBeforeMessageByChat(chatId: String, beforeMessageId: String, paginationRequest: PaginationRequest): Flux<MessageResponse>
     fun markMessageRead(messageId: String): Mono<Void>
+    fun findMessageEntityById(messageId: String, retrieveFromCache: Boolean = false): Mono<Message>
 }

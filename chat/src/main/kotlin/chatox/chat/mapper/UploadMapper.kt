@@ -50,7 +50,7 @@ class UploadMapper {
             mimeType = uploadCreated.mimeType,
             size = uploadCreated.size,
             type = uploadCreated.type,
-            user = user,
+            userId = user?.id,
             originalName = uploadCreated.originalName
     )
 

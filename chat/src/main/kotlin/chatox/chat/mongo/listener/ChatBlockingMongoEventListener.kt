@@ -2,6 +2,7 @@ package chatox.chat.mongo.listener
 
 import chatox.chat.model.ChatBlocking
 import chatox.chat.repository.ChatParticipationRepository
+import chatox.platform.cache.ReactiveCacheService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener
 import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent
@@ -12,12 +13,17 @@ class ChatBlockingMongoEventListener : AbstractMongoEventListener<ChatBlocking>(
     @Autowired
     private lateinit var chatParticipationRepository: ChatParticipationRepository
 
+    @Autowired
+    private lateinit var chatBlockingCache: ReactiveCacheService<String, ChatBlocking>
+
     override fun onAfterSave(event: AfterSaveEvent<ChatBlocking>) {
-        chatParticipationRepository.findByChatAndUser(
-                chat = event.source.chat,
-                user = event.source.blockedUser
+        chatBlockingCache.put(event.source).subscribe()
+
+        chatParticipationRepository.findByChatIdAndUserId(
+                chatId = event.source.chatId,
+                userId = event.source.blockedUserId
         )
-                .map { it.copy(lastChatBlocking = event.source) }
+                .map { it.copy(lastActiveChatBlockingId = event.source.id) }
                 .flatMap { chatParticipationRepository.save(it) }
                 .subscribe()
     }

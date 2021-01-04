@@ -3,6 +3,7 @@ package chatox.chat.service.impl
 import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
+import chatox.chat.api.response.UserResponse
 import chatox.chat.exception.MessageNotFoundException
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
@@ -11,6 +12,7 @@ import chatox.chat.model.Chat
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.Message
 import chatox.chat.model.MessageRead
+import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.chat.repository.ChatMessagesCounterRepository
 import chatox.chat.repository.ChatParticipationRepository
@@ -23,10 +25,10 @@ import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.MessagePermissions
 import chatox.chat.service.EmojiParserService
 import chatox.chat.service.MessageService
-import chatox.platform.log.LogExecution
-import chatox.platform.log.LogLevel
-import chatox.platform.pagination.PaginationRequest
 import chatox.chat.util.isDateBeforeOrEquals
+import chatox.platform.cache.ReactiveCacheService
+import chatox.platform.log.LogExecution
+import chatox.platform.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -41,10 +43,7 @@ import java.util.UUID
 
 @Service
 @Transactional
-@LogExecution(
-        executionLogLevel = LogLevel.INFO,
-        parametersLogLevel = LogLevel.INFO
-)
+@LogExecution
 class MessageServiceImpl(
         private val messageRepository: MessageRepository,
         private val chatRepository: ChatRepository,
@@ -54,14 +53,20 @@ class MessageServiceImpl(
         private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
         private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
         private val authenticationFacade: AuthenticationFacade,
-        private val messageMapper: MessageMapper,
-        private val emojiParserService: EmojiParserService) : MessageService {
+        private val emojiParserService: EmojiParserService,
+        private val messageCacheService: ReactiveCacheService<String, Message>) : MessageService {
 
     private lateinit var messagePermissions: MessagePermissions
+    private lateinit var messageMapper: MessageMapper
 
     @Autowired
     fun setMessagePermissions(messagePermissions: MessagePermissions) {
         this.messagePermissions = messagePermissions
+    }
+
+    @Autowired
+    fun setMessageMapper(messageMapper: MessageMapper) {
+        this.messageMapper = messageMapper
     }
 
     override fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse> {
@@ -88,9 +93,10 @@ class MessageServiceImpl(
             )
                     .awaitFirst()
             var uploadAttachments: List<ChatUploadAttachment<Any>> = listOf()
+            var uploads: List<Upload<Any>> = listOf()
 
             if (createMessageRequest.uploadAttachments.isNotEmpty()) {
-                val uploads = uploadRepository.findAllById<Any>(createMessageRequest.uploadAttachments)
+                uploads = uploadRepository.findAllById<Any>(createMessageRequest.uploadAttachments)
                         .collectList()
                         .awaitFirst()
 
@@ -100,10 +106,11 @@ class MessageServiceImpl(
                             chat = chat,
                             upload = upload,
                             type = upload.type,
-                            uploadCreator = upload.user,
-                            uploadSender = currentUser,
-                            message = null,
-                            createdAt = ZonedDateTime.now()
+                            uploadCreatorId = upload.userId,
+                            uploadSenderId = currentUser.id,
+                            messageId = null,
+                            createdAt = ZonedDateTime.now(),
+                            uploadId = upload.id
                     )
                  }
             }
@@ -115,14 +122,15 @@ class MessageServiceImpl(
                     referredMessage = referredMessage,
                     chat = chat,
                     emoji = emoji,
-                    chatUploadAttachments = uploadAttachments,
+                    attachments = uploads,
+                    chatAttachmentsIds = uploadAttachments.map { attachment -> attachment.id },
                     index = messageIndex
             )
             message = messageRepository.save(message).awaitFirst()
 
             if (uploadAttachments.isNotEmpty()) {
                 uploadAttachments = uploadAttachments.map { uploadAttachment ->
-                    uploadAttachment.copy(message = message, createdAt = message.createdAt)
+                    uploadAttachment.copy(messageId = message.id, createdAt = message.createdAt)
                 }
                 chatUploadAttachmentRepository.saveAll(uploadAttachments)
                         .collectList()
@@ -134,6 +142,7 @@ class MessageServiceImpl(
                     readByCurrentUser = true,
                     mapReferredMessage = true
             )
+                    .awaitFirst()
         }
     }
 
@@ -153,9 +162,10 @@ class MessageServiceImpl(
         return mono {
             assertCanUpdateMessage(id, chatId).awaitFirst()
             var message = findMessageEntityById(id).awaitFirst()
+            val chat = findChatById(id).awaitFirst()
 
-            if (message.chat.deleted) {
-                throw ChatDeletedException(message.chat.chatDeletion)
+            if (chat.deleted) {
+                throw ChatDeletedException(chat.chatDeletion)
             }
 
             val originalMessageText = message.text
@@ -180,6 +190,7 @@ class MessageServiceImpl(
                     mapReferredMessage = true,
                     readByCurrentUser = true
             )
+                    .awaitFirst()
         }
     }
 
@@ -201,7 +212,7 @@ class MessageServiceImpl(
                 .map { it.t1.copy(
                         deleted = true,
                         deletedAt = ZonedDateTime.now(),
-                        deletedBy = it.t2
+                        deletedById = it.t2.id
                 ) }
                 .flatMap { messageRepository.save(it) }
                 .flatMap { Mono.empty<Void>() }
@@ -220,7 +231,7 @@ class MessageServiceImpl(
 
     override fun findMessageById(id: String): Mono<MessageResponse> {
         return findMessageEntityById(id)
-                .map { messageMapper.toMessageResponse(
+                .flatMap { messageMapper.toMessageResponse(
                         message = it,
                         mapReferredMessage = true,
                         readByCurrentUser = true
@@ -231,10 +242,11 @@ class MessageServiceImpl(
         return mono {
             val chat = findChatById(chatId).awaitFirst()
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
-            val messages = messageRepository.findByChat(chat, paginationRequest.toPageRequest())
-                    .collectList()
-                    .awaitFirst()
-            val hasAnyReadMessages = messageReadRepository.existsByUserAndChat(user = currentUser, chat = chat)
+            val messages = messageRepository.findByChatId(chat.id, paginationRequest.toPageRequest())
+            val hasAnyReadMessages = messageReadRepository.existsByUserIdAndChatId(
+                    userId = currentUser.id,
+                    chatId = chat.id
+            )
                     .awaitFirst()
 
             mapMessages(messages = messages, hasAnyReadMessages = hasAnyReadMessages, currentUser = currentUser, chat = chat)
@@ -251,20 +263,23 @@ class MessageServiceImpl(
             val chat = findChatById(chatId).awaitFirst()
             val cursorMessage = findMessageEntityById(sinceMessageId).awaitFirst()
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
-            val messages = messageRepository.findByChatAndCreatedAtGreaterThanEqual(
-                    chat = chat,
+            val messages = messageRepository.findByChatIdAndCreatedAtGreaterThanEqual(
+                    chatId = chat.id,
                     date = cursorMessage.createdAt,
                     pageable = paginationRequest.toPageRequest()
             )
-                    .collectList()
-                    .awaitFirst()
-            val hasAnyReadMessages = messageReadRepository.existsByUserAndChat(
-                    user = currentUser,
-                    chat = chat
+            val hasAnyReadMessages = messageReadRepository.existsByUserIdAndChatId(
+                    userId = currentUser.id,
+                    chatId = chat.id
             )
                     .awaitFirst()
 
-            mapMessages(messages = messages, hasAnyReadMessages = hasAnyReadMessages, currentUser = currentUser, chat = chat)
+            mapMessages(
+                    messages = messages,
+                    hasAnyReadMessages = hasAnyReadMessages,
+                    currentUser = currentUser,
+                    chat = chat
+            )
         }
                 .flatMapMany { it }
     }
@@ -278,27 +293,33 @@ class MessageServiceImpl(
             val chat = findChatById(chatId).awaitFirst()
             val cursorMessage = findMessageEntityById(beforeMessageId).awaitFirst()
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
-            val messages = messageRepository.findByChatAndCreatedAtLessThanEqual(
-                    chat = chat,
+            val messages = messageRepository.findByChatIdAndCreatedAtLessThanEqual(
+                    chatId = chat.id,
                     date = cursorMessage.createdAt,
                     pageable = paginationRequest.toPageRequest()
             )
-                    .collectList()
-                    .awaitFirst()
-            val hasAnyReadMessages = messageReadRepository.existsByUserAndChat(user = currentUser, chat = chat)
+            val hasAnyReadMessages = messageReadRepository.existsByUserIdAndChatId(
+                    userId = currentUser.id,
+                    chatId = chat.id
+            )
                     .awaitFirst()
 
-            mapMessages(messages = messages, hasAnyReadMessages = hasAnyReadMessages, currentUser = currentUser, chat = chat)
+            mapMessages(
+                    messages = messages,
+                    hasAnyReadMessages = hasAnyReadMessages,
+                    currentUser = currentUser,
+                    chat = chat
+            )
         }
                 .flatMapMany { it }
     }
 
-    private fun mapMessages(messages: List<Message>, hasAnyReadMessages: Boolean, currentUser: User, chat: Chat): Flux<MessageResponse> {
+    private fun mapMessages(messages: Flux<Message>, hasAnyReadMessages: Boolean, currentUser: User, chat: Chat): Flux<MessageResponse> {
         return mono {
             val response = if (hasAnyReadMessages) {
-                val lastMessageRead = messageReadRepository.findTopByUserAndChatOrderByDateDesc(
-                        user = currentUser,
-                        chat = chat
+                val lastMessageRead = messageReadRepository.findTopByUserIdAndChatIdOrderByDateDesc(
+                        userId = currentUser.id,
+                        chatId = chat.id
                 )
                         .awaitFirst()
                 mapMessages(messages, lastMessageRead)
@@ -306,54 +327,76 @@ class MessageServiceImpl(
                 mapMessages(messages)
             }
 
-            Flux.fromIterable(response)
+            response
         }
                 .flatMapMany { it }
     }
 
-    private fun mapMessages(messages: List<Message>, lastMessageRead: MessageRead? = null): List<MessageResponse> {
+    private fun mapMessages(messages: Flux<Message>, lastMessageRead: MessageRead? = null): Flux<MessageResponse> {
+        val localUsersCache = HashMap<String, UserResponse>()
+        val localReferredMessagesCache = HashMap<String, MessageResponse>()
+
         if (lastMessageRead != null) {
-            return messages.map { message -> messageMapper.toMessageResponse(
+            return messages.flatMap { message -> messageMapper.toMessageResponse(
                     message = message,
                     readByCurrentUser = isDateBeforeOrEquals(
                             dateToCheck = message.createdAt,
                             dateToCompareWith = lastMessageRead.date
                     ),
-                    mapReferredMessage = true
+                    mapReferredMessage = true,
+                    localUsersCache = localUsersCache,
+                    localReferredMessagesCache = localReferredMessagesCache
             ) }
+
         } else {
-            return messages.map { message -> messageMapper.toMessageResponse(
+            return messages.flatMap { message -> messageMapper.toMessageResponse(
                     message = message,
                     readByCurrentUser = false,
-                    mapReferredMessage = true
+                    mapReferredMessage = true,
+                    localReferredMessagesCache = localReferredMessagesCache,
+                    localUsersCache = localUsersCache
             ) }
         }
     }
 
     override fun markMessageRead(messageId: String): Mono<Void> {
-        return authenticationFacade.getCurrentUser()
-                .zipWith(findMessageEntityById(messageId))
-                .map { messageReadRepository.save(MessageRead(
-                        id = UUID.randomUUID().toString(),
-                        date = ZonedDateTime.now(),
-                        message = it.t2,
-                        user = it.t1,
-                        chat = it.t2.chat
-                )) }
-                .flatMap { it }
-                .map { chatParticipationRepository.findByChatAndUser(it.chat, it.user).zipWith(Mono.just(it)) }
-                .flatMap { it }
-                .map {
-                    if (it.t1.lastMessageRead != null) {
-                        if (it.t1.lastMessageRead!!.message.createdAt.isBefore(it.t2.message.createdAt)) {
-                            it.t1.lastMessageRead = it.t2
-                        }
-                    } else {
-                        it.t1.lastMessageRead = it.t2
-                    }
-                    it.t1
+        return mono {
+            val message = findMessageEntityById(messageId = messageId, retrieveFromCache = true)
+                    .awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+
+            val messageRead = messageReadRepository.save(MessageRead(
+                    id = UUID.randomUUID().toString(),
+                    date = ZonedDateTime.now(),
+                    messageId = message.id,
+                    userId = currentUser.id,
+                    chatId = message.chatId
+            ))
+                    .awaitFirst()
+
+            val chatParticipation = chatParticipationRepository.findByChatIdAndUser(
+                    chatId = message.chatId,
+                    user = currentUser
+            )
+                    .awaitFirst()
+
+            if (chatParticipation.lastReadMessageId != null) {
+                val lastReadMessage = findMessageEntityById(
+                        messageId = chatParticipation.lastReadMessageId!!,
+                        retrieveFromCache = true
+                )
+                        .awaitFirst()
+
+                if (isDateBeforeOrEquals(lastReadMessage.createdAt, message.createdAt)) {
+                    chatParticipationRepository.save(chatParticipation.copy(
+                            lastMessageReadId = messageRead.id,
+                            lastReadMessageId = messageId,
+                            lastReadMessageAt = messageRead.date
+                    ))
+                            .awaitFirst()
                 }
-                .map { chatParticipationRepository.save(it) }
+            }
+        }
                 .flatMap { Mono.empty<Void>() }
     }
 
@@ -370,6 +413,23 @@ class MessageServiceImpl(
         }
     }
 
-    private fun findMessageEntityById(id: String) = messageRepository.findById(id)
-            .switchIfEmpty(Mono.error(MessageNotFoundException("Could not find message with id $id")))
+    override fun findMessageEntityById(messageId: String, retrieveFromCache: Boolean): Mono<Message> {
+        return mono {
+            var message: Message? = null
+
+            if (retrieveFromCache) {
+                message = messageCacheService.find(messageId).awaitFirstOrNull()
+            }
+
+            if (message == null) {
+                message = messageRepository.findById(messageId).awaitFirstOrNull()
+            }
+
+            if (message == null) {
+                throw MessageNotFoundException("Could not find message with id $messageId")
+            }
+
+            message
+        }
+    }
 }

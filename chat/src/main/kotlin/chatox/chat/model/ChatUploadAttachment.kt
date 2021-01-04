@@ -1,6 +1,7 @@
 package chatox.chat.model
 
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
@@ -11,19 +12,23 @@ data class ChatUploadAttachment<UploadMetadataType>(
         var id: String,
         var type: UploadType,
 
-        @DBRef
         var upload: Upload<UploadMetadataType>,
 
-        @DBRef(lazy = true)
-        var message: Message?,
+        @Indexed
+        var uploadId: String,
 
-        @DBRef(lazy = true)
+        @Indexed
+        var messageId: String? = null,
+
         var chat: Chat,
 
-        @DBRef
-        var uploadCreator: User?,
+        @Indexed
+        var chatId: String? = null,
 
-        @DBRef
-        var uploadSender: User,
+        @Indexed
+        var uploadCreatorId: String? = null,
+
+        @Indexed
+        var uploadSenderId: String? = null,
         var createdAt: ZonedDateTime
 )
