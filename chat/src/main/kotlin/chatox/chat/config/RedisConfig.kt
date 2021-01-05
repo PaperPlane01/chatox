@@ -8,6 +8,7 @@ import chatox.chat.model.User
 import chatox.platform.cache.CacheKeyGenerator
 import chatox.platform.cache.DefaultCacheKeyGenerator
 import chatox.platform.cache.redis.RedisReactiveCacheService
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -23,6 +24,9 @@ import kotlin.reflect.KClass
 class RedisConfig {
     @Autowired
     private lateinit var connectionFactory: ReactiveRedisConnectionFactory
+
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
 
     @Value("\${spring.application.name}")
     private lateinit var applicationName: String
@@ -76,6 +80,7 @@ class RedisConfig {
     private fun <T: Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
         val stringRedisSerializer = StringRedisSerializer()
         val jackson2JsonRedisSerializer = Jackson2JsonRedisSerializer<T>(clazz.java)
+        jackson2JsonRedisSerializer.setObjectMapper(objectMapper)
         val redisSerializationContext = RedisSerializationContext.newSerializationContext<String, T>(stringRedisSerializer)
                 .value(jackson2JsonRedisSerializer)
                 .build()
