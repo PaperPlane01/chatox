@@ -7,19 +7,16 @@ import {useStore} from "../../store/hooks";
 import {useMessageGalleryWidthMultiplier} from "../hooks";
 
 interface MessageImagesGridProps {
-    chatUploadsIds: string[],
+    imagesIds: string[],
     parentWidth?: number
 }
 
 const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer(({
-    chatUploadsIds,
+    imagesIds,
     parentWidth
 }) => {
     const {
         entities: {
-            chatUploads: {
-                findById: findChatUpload
-            },
             uploads: {
                 findImage
             }
@@ -74,13 +71,12 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
         setViewerIsOpen(false);
     };
 
-    if (chatUploadsIds.length === 1) {
-        return <MessageImagesSimplifiedGrid chatUploadsIds={chatUploadsIds} messageId="test"/>
+    if (imagesIds.length === 1) {
+        return <MessageImagesSimplifiedGrid imagesIds={imagesIds} messageId="test"/>
     }
 
-    const images: PhotoProps<{source: string}>[] = chatUploadsIds
-        .map(chatUploadId => findChatUpload(chatUploadId))
-        .map(chatUpload => findImage(chatUpload.uploadId))
+    const images: PhotoProps<{source: string}>[] = imagesIds
+        .map(id => findImage(id))
         .map(image => ({
             src: `${image.uri}?size=512`,
             height: image.meta!.height,
