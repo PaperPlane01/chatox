@@ -1,7 +1,7 @@
 package chatox.user.domain
 
 import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.mapping.DBRef
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
@@ -17,8 +17,8 @@ data class Upload<MetadataType>(
         var size: Int,
         var isPreview: Boolean,
         var isThumbnail: Boolean,
-        @DBRef(lazy = true)
-        var preview: Upload<ImageUploadMetadata>?,
-        @DBRef
-        var user: User?
+        @Indexed
+        var previewId: String? = null,
+        @Indexed
+        var userId: String? = null
 )

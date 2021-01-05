@@ -9,7 +9,6 @@ data class UploadResponse<MetadataType>(
         val extension: String,
         val mimeType: String,
         val meta: MetadataType,
-        val preview: UploadResponse<ImageUploadMetadata>?,
         val type: UploadType,
         val uri: String,
         val originalName: String
