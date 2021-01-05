@@ -66,8 +66,7 @@ export class EntitiesStore {
             this.insertMessage(message.referredMessage);
         }
 
-        this.uploads.insertAll(message.uploads.map(chatUpload => chatUpload.upload));
-        this.chatUploads.insertAll(message.uploads);
+        this.uploads.insertAll(message.attachments);
         this.messages.insert(message);
         this.chats.addMessageToChat(message.chatId, message.id);
     };

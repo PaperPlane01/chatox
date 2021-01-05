@@ -1,7 +1,6 @@
 import {MessageEntity} from "../types";
-import {Message} from "../../api/types/response";
+import {Message, UploadType} from "../../api/types/response";
 import {SoftDeletableEntityStore} from "../../entity-store";
-import {UploadType} from "../../api/types/response/UploadType";
 
 interface MessageUploadsStats {
     imagesCount: number,
@@ -33,9 +32,9 @@ export class MessagesStore extends SoftDeletableEntityStore<MessageEntity, Messa
         };
 
 
-        if (denormalizedEntity.uploads.length !== 0) {
-            for (let upload of denormalizedEntity.uploads) {
-                switch (upload.upload.type) {
+        if (denormalizedEntity.attachments.length !== 0) {
+            for (let upload of denormalizedEntity.attachments) {
+                switch (upload.type) {
                     case UploadType.FILE:
                         uploadStats.filesCount++;
                         uploadsByType.files.push(upload.id);
@@ -74,7 +73,7 @@ export class MessagesStore extends SoftDeletableEntityStore<MessageEntity, Messa
             nextMessageId: denormalizedEntity.nextMessageId,
             chatId: denormalizedEntity.chatId,
             emoji: denormalizedEntity.emoji,
-            uploads: denormalizedEntity.uploads.map(upload => upload.id),
+            uploads: denormalizedEntity.attachments.map(attachment => attachment.id),
             ...uploadStats,
             ...uploadsByType
         };

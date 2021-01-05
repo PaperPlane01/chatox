@@ -1,6 +1,7 @@
 import {User} from "./User";
 import {MessageEmoji} from "./MessageEmoji";
 import {ChatUploadAttachment} from "./ChatUploadAttachment";
+import {Upload} from "./Upload";
 
 export interface Message {
     id: string,
@@ -15,5 +16,5 @@ export interface Message {
     previousMessageId?: string,
     nextMessageId?: string,
     emoji: MessageEmoji,
-    uploads: ChatUploadAttachment[]
+    attachments: Upload<any>[]
 }

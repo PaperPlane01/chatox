@@ -303,7 +303,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                         />
                                     </div>
                                     {!hideAttachments && message.images.length === 1 && (
-                                        <MessageImagesSimplifiedGrid chatUploadsIds={message.images}
+                                        <MessageImagesSimplifiedGrid imagesIds={message.images}
                                                                      messageId={message.id}
                                                                      parentWidth={width}
                                         />
@@ -311,8 +311,8 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                     {!hideAttachments && message.images.length !== 0 && message.images.length !== 1 && (
                                         <div className={classes.cardContentWithPadding}>
                                             {enableVirtualScroll && useSimplifiedGalleryForVirtualScroll
-                                                ? <MessageImagesSimplifiedGrid chatUploadsIds={message.images} messageId={messageId}/>
-                                                : <MessageImagesGrid chatUploadsIds={message.images} parentWidth={width}/>
+                                                ? <MessageImagesSimplifiedGrid imagesIds={message.images} messageId={messageId}/>
+                                                : <MessageImagesGrid imagesIds={message.images} parentWidth={width}/>
                                             }
                                         </div>
                                     )}
