@@ -19,7 +19,7 @@ class ChatMessagesCounterCustomRepositoryImpl(
 
     override fun getNextCounterValue(chat: Chat): Mono<Long> {
         val query = Query()
-        query.addCriteria(Criteria.where("chat._id").`is`(chat.id))
+        query.addCriteria(Criteria.where("chatId").`is`(chat.id))
 
         val update = Update()
         update.inc("messagesCount", 1)

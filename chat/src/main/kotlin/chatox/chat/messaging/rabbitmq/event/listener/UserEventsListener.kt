@@ -96,7 +96,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                 ))
                         .awaitFirst()
                 chatParticipationRepository
-                        .updateDisplayedNameOfChatParticipationsByUser(user)
+                        .updateChatParticipationsOfUser(user)
                         .awaitFirst()
             }
         }
@@ -146,7 +146,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                     )
                             .awaitFirst()
                     log.debug("Increasing number of online participants")
-                    chatRepository.increaseNumberOfOnlineParticipants(chatParticipation.chat.id).awaitFirst()
+                    chatRepository.increaseNumberOfOnlineParticipants(chatParticipation.chatId).awaitFirst()
                 }
 
                 chatEventsPublisher.chatParticipantsWentOnline(
@@ -187,7 +187,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                 chatParticipations = chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
 
                 for (chatParticipation in chatParticipations) {
-                    chatRepository.decreaseNumberOfOnlineParticipants(chatParticipation.chat.id).subscribe()
+                    chatRepository.decreaseNumberOfOnlineParticipants(chatParticipation.chatId).subscribe()
                 }
 
                 chatEventsPublisher.chatParticipantsWentOffline(
