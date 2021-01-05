@@ -46,7 +46,7 @@ class ChatMapper(
             avatarUri = chat.avatarUri,
             participantsCount = chat.numberOfParticipants,
             onlineParticipantsCount = chat.numberOfOnlineParticipants,
-            createdByCurrentUser = currentUserId ?: currentUserId === chat.createdBy.id,
+            createdByCurrentUser = currentUserId ?: currentUserId === chat.createdById,
             tags = chat.tags,
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null
     )
@@ -109,7 +109,7 @@ class ChatMapper(
                     tags = chat.tags,
                     participantsCount = chat.numberOfParticipants,
                     avatar = avatar,
-                    createdByCurrentUser = chat.createdBy.id == chatParticipation.user.id,
+                    createdByCurrentUser = chat.createdById == chatParticipation.user.id,
                     deleted = chat.deleted,
                     deletionReason = chat.chatDeletion?.deletionReason,
                     deletionComment = chat.chatDeletion?.comment
@@ -119,8 +119,7 @@ class ChatMapper(
 
     fun fromCreateChatRequest(
             createChatRequest: CreateChatRequest,
-            currentUser: User,
-            messagesCounter: ChatMessagesCounter
+            currentUser: User
     ): Chat {
         val id = UUID.randomUUID().toString()
         val createdAt = ZonedDateTime.now()
@@ -132,17 +131,16 @@ class ChatMapper(
                 createdAt = createdAt,
                 type = ChatType.GROUP,
                 deleted = false,
-                createdBy = currentUser,
+                createdById = currentUser.id,
                 tags = createChatRequest.tags,
                 avatarUri = null,
                 deletedAt = null,
                 description = createChatRequest.description,
                 updatedAt = createdAt,
-                deletedBy = null,
+                deletedById = currentUser.id,
                 numberOfParticipants = 1,
-                lastMessage = null,
-                lastMessageDate = createdAt,
-                messagesCounter = messagesCounter
+                lastMessageId = null,
+                lastMessageDate = createdAt
         )
     }
 

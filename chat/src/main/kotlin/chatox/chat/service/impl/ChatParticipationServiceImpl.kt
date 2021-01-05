@@ -311,7 +311,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
         return chatRepository.findById(chatId)
                 .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
                 .flatMap { chatParticipationRepository.findByChatIdAndUserAndDeletedFalse(it.id, user) }
-                .flatMap { chatParticipationMapper.toMinifiedChatParticipationResponse(it) }
+                .flatMap { chatParticipationMapper.toMinifiedChatParticipationResponse(it, true) }
     }
 
     override fun findOnlineParticipants(chatId: String): Flux<ChatParticipationResponse> {

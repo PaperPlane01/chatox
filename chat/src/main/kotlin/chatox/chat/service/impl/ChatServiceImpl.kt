@@ -79,29 +79,27 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatOfCurrentUserResponse> {
         return mono {
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
-            val chatMessagesCounter = ChatMessagesCounter(
-                    id = UUID.randomUUID().toString(),
-                    chat = null,
-                    messagesCount = 0L
-            )
             val chat = chatMapper.fromCreateChatRequest(
                     createChatRequest = createChatRequest,
-                    currentUser = currentUser,
-                    messagesCounter = chatMessagesCounter
+                    currentUser = currentUser
             )
-            chatMessagesCounter.chat = chat
+            val chatMessagesCounter = ChatMessagesCounter(
+                    id = UUID.randomUUID().toString(),
+                    chatId = chat.id,
+                    messagesCount = 0L
+            )
             chatMessagesCounterRepository.save(chatMessagesCounter).awaitFirst()
             chatRepository.save(chat).awaitFirst()
 
-            var creatorDisplayedName = chat.createdBy.firstName
+            var creatorDisplayedName = currentUser.firstName
 
-            if (chat.createdBy.lastName != null) {
-                creatorDisplayedName = "$creatorDisplayedName ${chat.createdBy.lastName}"
+            if (currentUser.lastName != null) {
+                creatorDisplayedName = "$creatorDisplayedName ${currentUser.lastName}"
             }
 
             val creatorChatParticipation = chatParticipationRepository.save(
                     chatParticipation = ChatParticipation(
-                            user = chat.createdBy,
+                            user = currentUser,
                             chatId = chat.id,
                             role = ChatRole.ADMIN,
                             createdAt = timeService.now(),
@@ -192,12 +190,12 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
             var chat = chatRepository.findById(id).awaitFirst()
 
-            var chatDeletion: ChatDeletion? = null
+            val chatDeletion: ChatDeletion? = null
 
-            if (currentUser.id != chat.createdBy.id) {
+            if (currentUser.id != chat.createdById) {
                 log.debug("Chat $id is deleted not by its creator")
                 log.trace("Current user id is ${currentUser.id}")
-                log.trace("Chat creator id is ${chat.createdBy.id}")
+                log.trace("Chat creator id is ${chat.createdById}")
 
                 if (deleteChatRequest == null) {
                     throw InvalidChatDeletionReasonException(
@@ -211,19 +209,12 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                             "Chat deletion comment must be specified if chat deletion reason is ${ChatDeletionReason.OTHER}"
                     )
                 }
-
-                chatDeletion = ChatDeletion(
-                        id = UUID.randomUUID().toString(),
-                        comment = deleteChatRequest.comment,
-                        deletionReason = deleteChatRequest.reason
-                )
-                chatDeletionRepository.save(chatDeletion).awaitFirst()
             }
 
             chat = chat.copy(
                     deleted = true,
                     deletedAt = timeService.now(),
-                    deletedBy = currentUser,
+                    deletedById = currentUser.id,
                     chatDeletion = chatDeletion
             )
             chatRepository.save(chat).awaitFirst()
@@ -340,7 +331,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     override fun isChatCreatedByUser(chatId: String, userId: String): Mono<Boolean> {
         return chatRepository.findById(chatId)
                 .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
-                .map { it.createdBy.id == userId }
+                .map { it.createdById == userId }
     }
 
     override fun checkChatSlugAvailability(slug: String): Mono<AvailabilityResponse> {

@@ -2,7 +2,6 @@ package chatox.chat.model
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
-import org.springframework.data.mongodb.core.mapping.DBRef
 
 data class Upload<MetadataType>(
         @Id
@@ -16,7 +15,6 @@ data class Upload<MetadataType>(
         var size: Int,
         var isPreview: Boolean,
         var isThumbnail: Boolean,
-        @DBRef(lazy = true)
         var preview: Upload<ImageUploadMetadata>?,
 
         @Indexed

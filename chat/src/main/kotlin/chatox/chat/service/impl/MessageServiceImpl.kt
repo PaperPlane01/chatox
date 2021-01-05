@@ -103,7 +103,7 @@ class MessageServiceImpl(
                 uploadAttachments = uploads.map { upload ->
                     ChatUploadAttachment(
                             id = UUID.randomUUID().toString(),
-                            chat = chat,
+                            chatId = chat.id,
                             upload = upload,
                             type = upload.type,
                             uploadCreatorId = upload.userId,
