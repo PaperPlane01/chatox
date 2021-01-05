@@ -30,6 +30,8 @@ public class GlobalBanEventsListener {
     }
 
     private void saveGlobalBan(GlobalBanCreatedOrUpdated globalBanCreatedOrUpdated) {
-        globalBanRepository.save(globalBanMapper.fromGlobalBanCreatedOrUpdated(globalBanCreatedOrUpdated));
+        var globalBan = globalBanMapper.fromGlobalBanCreatedOrUpdated(globalBanCreatedOrUpdated);
+        log.debug("Saving globalBan {}", globalBan);
+        globalBanRepository.save(globalBan);
     }
 }
