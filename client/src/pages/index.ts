@@ -4,3 +4,4 @@ export * from "./ChatPage";
 export * from "./ChatsPage";
 export * from "./UserPage";
 export * from "./SettingsPage";
+export * from "./GlobalBansPage";

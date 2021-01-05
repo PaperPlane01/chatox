@@ -70,7 +70,7 @@ import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation/stores";
 import {EmojiSettingsStore} from "../Emoji/stores";
 import {AudioPlayerStore} from "../AudioPlayer/stores";
 import {DeleteMessageStore} from "../Message/stores/DeleteMessageStore";
-import {BanUserStore, GlobalBansStore} from "../GlobalBan/stores";
+import {BanUserStore, GlobalBansStore, GlobalBansListStore, GlobalBanDetailsDialogStore} from "../GlobalBan/stores";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -175,6 +175,8 @@ const anonymousRegistration = new AnonymousRegistrationDialogStore(authorization
 const kickFromChat = new KickChatParticipantStore(entities, chat);
 const chatDeletion = new DeleteChatStore(entities, chat);
 const userGlobalBan = new BanUserStore(entities);
+const globalBansList = new GlobalBansListStore(entities);
+const globalBanDetailsDialog = new GlobalBanDetailsDialogStore();
 
 export const store: IAppState = {
     authorization,
@@ -232,5 +234,7 @@ export const store: IAppState = {
     anonymousRegistration,
     kickFromChat,
     chatDeletion,
-    userGlobalBan
+    userGlobalBan,
+    globalBansList,
+    globalBanDetailsDialog
 };

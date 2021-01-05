@@ -303,5 +303,12 @@ export interface Labels {
     "global.ban.error.no-permission": string,
     "global.ban.error.unknown": string,
     "global.ban.error.server-unreachable": string,
-    "global.ban.success": string
+    "global.ban.success": string,
+    "global.ban.filters.exclude-expired": string,
+    "global.ban.filters.exclude-canceled": string,
+    "global.ban.banned-users": string,
+    "global.ban.banned-user": string,
+    "global.ban.details": string,
+    "global.ban.no-bans": string,
+    "global.bans": string
 }

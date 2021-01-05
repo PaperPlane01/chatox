@@ -268,6 +268,11 @@ export class EntitiesStore {
     }
 
     @action
+    insertGlobalBans = (globalBans: GlobalBan[]): void => {
+        globalBans.forEach(globalBan => this.insertGlobalBan(globalBan));
+    }
+
+    @action
     insertGlobalBan = (globalBan: GlobalBan): void => {
         this.insertUsers([
             globalBan.createdBy,

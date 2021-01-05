@@ -305,5 +305,12 @@ export const ru: Labels = {
     "global.ban.error.no-permission": "У вас нет разрешения на выполнение данной операции",
     "global.ban.error.unknown": "Во время попытки заблокировать пользователя произошла ошибка. Сервер ответил со статусом {errorStatus}",
     "global.ban.error.server-unreachable": "Во время попытки заблокировать пользователя произошла ошибка. Сервер недоступен",
-    "global.ban.success": "Пользователь был заблокирован"
+    "global.ban.success": "Пользователь был заблокирован",
+    "global.ban.filters.exclude-expired": "Исключить истекшие",
+    "global.ban.filters.exclude-canceled": "Исключить отменённые",
+    "global.ban.banned-users": "Заблокированные пользователи",
+    "global.ban.banned-user": "Заблокированный пользователь",
+    "global.ban.details": "Информация о блокировке пользователя {username}",
+    "global.ban.no-bans": "По данным условиям не было найдено ни одной глобальной блокировки",
+    "global.bans": "Баны"
 };

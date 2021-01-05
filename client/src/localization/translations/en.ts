@@ -305,5 +305,12 @@ export const en: Labels = {
     "global.ban.error.no-permission": "You don't have permission to perform this operation",
     "global.ban.error.unknown": "Unknown error occurred when tried to ban user, server responded with {errorStatus} status",
     "global.ban.error.server-unreachable": "Error occurred when tried to ban user, server is unreachable",
-    "global.ban.success": "User has been banned"
+    "global.ban.success": "User has been banned",
+    "global.ban.filters.exclude-expired": "Exclude expired",
+    "global.ban.filters.exclude-canceled": "Exclude canceled",
+    "global.ban.banned-users": "Banned users",
+    "global.ban.banned-user": "Banned user",
+    "global.ban.details": "User's {username} ban info",
+    "global.ban.no-bans": "The are no global bans satisfying specified conditions",
+    "global.bans": "Global bans"
 };
