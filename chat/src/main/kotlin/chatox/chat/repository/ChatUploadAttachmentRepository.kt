@@ -10,6 +10,6 @@ import reactor.core.publisher.Mono
 
 interface ChatUploadAttachmentRepository : ReactiveMongoRepository<ChatUploadAttachment<Any>, String> {
     fun <UploadMetadataType>save(chatUploadAttachment: ChatUploadAttachment<UploadMetadataType>): Mono<ChatUploadAttachment<UploadMetadataType>>
-    fun <Any> findByChat(chat: Chat, pageable: Pageable): Flux<ChatUploadAttachment<Any>>
-    fun <UploadMetadataType>findByChatAndType(chat: Chat, type: UploadType, pageable: Pageable): Flux<ChatUploadAttachment<UploadMetadataType>>
+    fun <Any> findByChatId(chatId: String, pageable: Pageable): Flux<ChatUploadAttachment<Any>>
+    fun <UploadMetadataType>findByChatIdAndType(chatId: String, type: UploadType, pageable: Pageable): Flux<ChatUploadAttachment<UploadMetadataType>>
 }

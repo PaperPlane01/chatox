@@ -24,7 +24,6 @@ import chatox.chat.model.ChatRole
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
-import chatox.chat.repository.ChatDeletionRepository
 import chatox.chat.repository.ChatMessagesCounterRepository
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
@@ -34,9 +33,9 @@ import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatPermissions
 import chatox.chat.service.ChatService
 import chatox.chat.service.MessageService
-import chatox.platform.time.TimeService
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
+import chatox.platform.time.TimeService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -273,7 +272,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         return mono {
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
             val chatParticipations = chatParticipationRepository
-                    .findAllByUserAndDeletedFalse(currentUser)
+                    .findAllByUserIdAndDeletedFalse(currentUser.id)
                     .collectList()
                     .awaitFirst()
             val unreadMessagesMap: MutableMap<String, Int> = HashMap()

@@ -136,7 +136,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                         lastSeen = userWentOnline.lastSeen
                 )
                 userRepository.save(user).awaitFirst()
-                val chatParticipations = chatParticipationRepository.findAllByUserAndDeletedFalse(user)
+                val chatParticipations = chatParticipationRepository.findAllByUserIdAndDeletedFalse(user.id)
                         .collectList()
                         .awaitFirst()
                 chatParticipations.forEach { chatParticipation ->
@@ -178,7 +178,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                 )
                 userRepository.save(user).awaitFirst()
                 log.debug("User has been updated")
-                var chatParticipations = chatParticipationRepository.findAllByUserAndDeletedFalse(user)
+                var chatParticipations = chatParticipationRepository.findAllByUserIdAndDeletedFalse(user.id)
                         .collectList()
                         .awaitFirst()
                 chatParticipations = chatParticipations.map { chatParticipation ->

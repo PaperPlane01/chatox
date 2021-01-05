@@ -15,11 +15,11 @@ interface ChatParticipationRepository : ReactiveMongoRepository<ChatParticipatio
     fun save(chatParticipation: ChatParticipation): Mono<ChatParticipation>
     override fun findById(id: String): Mono<ChatParticipation>
     fun findByIdAndDeletedFalse(id: String): Mono<ChatParticipation>
-    fun findAllByUserAndDeletedFalse(user: User): Flux<ChatParticipation>
+    fun findAllByUserIdAndDeletedFalse(userId: String): Flux<ChatParticipation>
     fun findByChatIdAndDeletedFalse(chatId: String, pageable: Pageable): Flux<ChatParticipation>
     fun findByChatIdAndUser(chatId: String, user: User): Mono<ChatParticipation>
     fun findByChatIdAndUserId(chatId: String, userId: String): Mono<ChatParticipation>
-    fun findByChatIdAndUserAndDeletedFalse(chatId: String, user: User): Mono<ChatParticipation>
+    fun findByChatIdAndUserIdAndDeletedFalse(chatId: String, userId: String): Mono<ChatParticipation>
     fun findByChatIdAndUserAndDeletedTrue(chatId: String, user: User): Mono<ChatParticipation>
     fun findByChatIdAndUserOnlineTrue(chatId: String): Flux<ChatParticipation>
 
