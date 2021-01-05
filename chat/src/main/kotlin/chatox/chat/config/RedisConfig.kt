@@ -9,6 +9,7 @@ import chatox.platform.cache.CacheKeyGenerator
 import chatox.platform.cache.DefaultCacheKeyGenerator
 import chatox.platform.cache.redis.RedisReactiveCacheService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory
@@ -22,6 +23,9 @@ import kotlin.reflect.KClass
 class RedisConfig {
     @Autowired
     private lateinit var connectionFactory: ReactiveRedisConnectionFactory
+
+    @Value("\${spring.application.name}")
+    private lateinit var applicationName: String
 
     @Bean
     fun chatCacheService() = RedisReactiveCacheService<Chat>(
@@ -52,7 +56,7 @@ class RedisConfig {
     ) { message -> message.id }
 
     @Bean
-    fun cacheKeyGenerator() = DefaultCacheKeyGenerator("chat_service", CacheKeyGenerator.ClassKeyMode.SIMPLE)
+    fun cacheKeyGenerator() = DefaultCacheKeyGenerator(applicationName, CacheKeyGenerator.ClassKeyMode.SIMPLE)
 
     @Bean
     fun userRedisTemplate() = createRedisTemplate(User::class)
