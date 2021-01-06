@@ -26,7 +26,7 @@ class ChatParticipationMapper(private val userMapper: UserMapper,
             if (lastChatBlockingId != null) {
                val chatBlocking = chatBlockingService.findChatBlockingById(lastChatBlockingId).awaitFirst()
 
-                if (chatBlocking.canceled || chatBlocking.blockedUntil.isAfter(ZonedDateTime.now())) {
+                if (chatBlocking.canceled || ZonedDateTime.now().isAfter(chatBlocking.blockedUntil)) {
                     if (updateChatBlockingStatusIfNecessary) {
                         chatParticipationRepository.save(chatParticipation.copy(
                                 lastActiveChatBlockingId = null
