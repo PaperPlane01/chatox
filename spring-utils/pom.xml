@@ -10,7 +10,7 @@
     </parent>
     <groupId>chatox</groupId>
     <artifactId>spring-utils</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
     <name>spring-utils</name>
     <description>Chatox Spring utilities</description>
 

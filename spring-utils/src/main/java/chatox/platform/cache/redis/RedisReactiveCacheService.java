@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-public class RedisReactiveCacheService<T> implements ReactiveCacheService<String, T> {
+public class RedisReactiveCacheService<T> implements ReactiveCacheService<T, String> {
     private final ReactiveRedisTemplate<String, T> redisTemplate;
     private final CacheKeyGenerator cacheKeyGenerator;
     private final Class<T> valueClass;
