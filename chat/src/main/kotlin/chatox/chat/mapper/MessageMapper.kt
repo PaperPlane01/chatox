@@ -11,6 +11,7 @@ import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.chat.service.MessageService
 import chatox.chat.service.UserService
+import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,14 +22,8 @@ import java.util.UUID
 
 @Component
 class MessageMapper(private val userService: UserService,
-                    private val uploadMapper: UploadMapper) {
-
-    private lateinit var messageService: MessageService
-
-    @Autowired
-    fun setMessageService(messageService: MessageService) {
-        this.messageService = messageService
-    }
+                    private val uploadMapper: UploadMapper,
+                    private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>) {
 
     fun toMessageResponse(
             message: Message,
@@ -44,8 +39,7 @@ class MessageMapper(private val userService: UserService,
                 if (localReferredMessagesCache != null && localReferredMessagesCache[message.referredMessageId!!] != null) {
                     referredMessage = localReferredMessagesCache[message.referredMessageId!!]!!
                 } else {
-                    val referredMessageEntity = messageService.findMessageEntityById(message.referredMessageId!!, true)
-                            .awaitFirst()
+                    val referredMessageEntity = messageCacheWrapper.findById(message.referredMessageId!!).awaitFirst()
                     referredMessage = toMessageResponse(
                             message = referredMessageEntity,
                             localUsersCache = localUsersCache,

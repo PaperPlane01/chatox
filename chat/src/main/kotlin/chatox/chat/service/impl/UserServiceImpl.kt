@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono
 @Service
 @Transactional
 class UserServiceImpl(private val userRepository: UserRepository,
-                      private val userCacheService: ReactiveCacheService<String, User>,
+                      private val userCacheService: ReactiveCacheService<User, String>,
                       private val userMapper: UserMapper) : UserService {
 
     override fun findUserById(id: String): Mono<UserResponse> {

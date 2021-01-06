@@ -11,30 +11,29 @@ class ChatBlockingPermissions(private val chatParticipationService: ChatParticip
                               private val authenticationFacade: AuthenticationFacade) {
 
     fun canBlockUser(chatId: String): Mono<Boolean> {
-        return authenticationFacade.getCurrentUser()
-                .flatMap { chatParticipationService.getRoleOfUserInChat(chatId, it) }
+        return authenticationFacade.getCurrentUserDetails()
+                .flatMap { chatParticipationService.getRoleOfUserInChat(chatId, it.id) }
                 .map { it == ChatRole.ADMIN || it == ChatRole.MODERATOR }
     }
 
     fun canUnblockUser(chatId: String): Mono<Boolean> {
-        return authenticationFacade.getCurrentUser()
-                .flatMap { chatParticipationService.getRoleOfUserInChat(chatId, it) }
+        return authenticationFacade.getCurrentUserDetails()
+                .flatMap { chatParticipationService.getRoleOfUserInChat(chatId, it.id) }
                 .map { it == ChatRole.ADMIN || it == ChatRole.MODERATOR }
     }
 
     fun canSeeChatBlockings(chatId: String): Mono<Boolean> {
         return authenticationFacade.getCurrentUserDetails()
                 .filter { it.authorities.map { authority -> authority.authority }.contains("ROLE_USER") }
-                .flatMap { authenticationFacade.getCurrentUser() }
-                .flatMap { chatParticipationService.getRoleOfUserInChat(chatId, it) }
+                .flatMap { chatParticipationService.getRoleOfUserInChat(chatId, it.id) }
                 .map { it == ChatRole.ADMIN || it == ChatRole.MODERATOR }
                 .switchIfEmpty(Mono.just(false))
 
     }
 
     fun canUpdateBlocking(chatId: String): Mono<Boolean> {
-        return authenticationFacade.getCurrentUser()
-                .flatMap { chatParticipationService.getRoleOfUserInChat(chatId, it) }
+        return authenticationFacade.getCurrentUserDetails()
+                .flatMap { chatParticipationService.getRoleOfUserInChat(chatId, it.id) }
                 .map { it == ChatRole.ADMIN || it == ChatRole.USER }
     }
 }

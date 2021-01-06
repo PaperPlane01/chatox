@@ -13,10 +13,12 @@ import chatox.platform.pagination.exception.InvalidSortingDirectionException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.core.annotation.Order;
 
 import java.util.Arrays;
 
 @Aspect
+@Order(1)
 public class PaginationParametersProcessor {
 
     @Around("@annotation(paginationConfig)")
@@ -32,7 +34,7 @@ public class PaginationParametersProcessor {
             }
         });
 
-        return proceedingJoinPoint.proceed();
+        return proceedingJoinPoint.proceed(arguments);
     }
 
     private void validatePage(PaginationRequest paginationRequest, Page pageConfig) {

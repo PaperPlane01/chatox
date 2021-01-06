@@ -43,7 +43,8 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
                               private val authenticationFacade: AuthenticationFacade,
                               private val chatBlockingMapper: ChatBlockingMapper,
                               private val chatEventsPublisher: ChatEventsPublisher,
-                              private val chatBlockingCacheService: ReactiveCacheService<String, ChatBlocking>) : ChatBlockingService {
+                              private val chatBlockingCacheService: ReactiveCacheService<ChatBlocking, String>
+) : ChatBlockingService {
     private lateinit var chatBlockingPermissions: ChatBlockingPermissions
     private lateinit var chatParticipationService: ChatParticipationService
 
@@ -228,14 +229,23 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
     }
 
     override fun isUserBlockedInChat(chatId: String, user: User): Mono<Boolean> {
-        return findChatById(chatId)
-                .map { chat -> chatBlockingRepository.findByChatIdAndBlockedUserIdAndBlockedUntilAfterAndCanceled(
-                        chatId = chat.id,
+        return  chatBlockingRepository.findByChatIdAndBlockedUserIdAndBlockedUntilAfterAndCanceled(
+                        chatId = chatId,
                         blockedUserId = user.id,
                         canceled = false,
                         date = ZonedDateTime.now()
-                )}
-                .flatMapMany { it }
+                )
+                .collectList()
+                .map { it.isNotEmpty() }
+    }
+
+    override fun isUserBlockedInChat(chatId: String, userId: String): Mono<Boolean> {
+        return chatBlockingRepository.findByChatIdAndBlockedUserIdAndBlockedUntilAfterAndCanceled(
+                chatId = chatId,
+                blockedUserId = userId,
+                canceled = false,
+                date = ZonedDateTime.now()
+        )
                 .collectList()
                 .map { it.isNotEmpty() }
     }

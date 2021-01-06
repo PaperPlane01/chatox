@@ -122,7 +122,7 @@ class ChatServiceTests {
                 isThumbnail = false,
                 isPreview = false,
                 userId = "1",
-                preview = null
+                imagePreview = null
         )
 
         @Test

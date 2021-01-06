@@ -39,10 +39,10 @@ class MessagePermissions(private val chatParticipationService: ChatParticipation
     fun canUpdateMessage(messageId: String, chatId: String): Mono<Boolean> {
         return mono {
             val message = messageService.findMessageById(messageId).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
             val userBlockedInChat = chatBlockingService.isUserBlockedInChat(
                     chatId = chatId,
-                    user = currentUser
+                    userId = currentUser.id
             )
                     .awaitFirst()
 

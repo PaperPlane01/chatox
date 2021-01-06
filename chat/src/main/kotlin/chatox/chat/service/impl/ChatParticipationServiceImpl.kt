@@ -40,7 +40,6 @@ import java.util.UUID
 @LogExecution
 class ChatParticipationServiceImpl(private val chatParticipationRepository: ChatParticipationRepository,
                                    private val chatRepository: ChatRepository,
-                                   private val userRepository: UserRepository,
                                    private val chatParticipationMapper: ChatParticipationMapper,
                                    private val chatEventsPublisher: ChatEventsPublisher,
                                    private val authenticationFacade: AuthenticationFacade): ChatParticipationService {
@@ -119,7 +118,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
         return mono {
             assertCanLeaveChat(chatId).awaitFirst()
             val chat = chatRepository.findById(chatId).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
 
             var chatParticipation = chatParticipationRepository
                     .findByChatIdAndUserIdAndDeletedFalse(
@@ -285,8 +284,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
     override fun getRoleOfUserInChat(chatId: String, userId: String): Mono<ChatRole> {
         return chatRepository.findById(chatId)
                 .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
-                .zipWith(userRepository.findById(userId))
-                .map { chatParticipationRepository.findByChatIdAndUserIdAndDeletedFalse(it.t1.id, it.t2.id) }
+                .map { chatParticipationRepository.findByChatIdAndUserIdAndDeletedFalse(it.id, userId) }
                 .flatMap { it }
                 .map { it.role }
     }

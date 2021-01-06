@@ -16,12 +16,14 @@ import chatox.chat.mapper.ChatMapper
 import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.messaging.rabbitmq.event.ChatDeleted
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
+import chatox.chat.model.Chat
 import chatox.chat.model.ChatDeletion
 import chatox.chat.model.ChatDeletionReason
 import chatox.chat.model.ChatMessagesCounter
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.ImageUploadMetadata
+import chatox.chat.model.Message
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
 import chatox.chat.repository.ChatMessagesCounterRepository
@@ -33,6 +35,7 @@ import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatPermissions
 import chatox.chat.service.ChatService
 import chatox.chat.service.MessageService
+import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
 import chatox.platform.time.TimeService
@@ -59,6 +62,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val messageRepository: MessageRepository,
                       private val uploadRepository: UploadRepository,
                       private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
+                      private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
                       private val chatMapper: ChatMapper,
                       private val chatParticipationMapper: ChatParticipationMapper,
                       private val authenticationFacade: AuthenticationFacade,
@@ -285,12 +289,10 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             chatParticipations.map { chatParticipation ->
                 val chat = findChatById(chatParticipation.chatId, true).awaitFirst()
                 val lastReadMessage = if (chatParticipation.lastReadMessageId != null) {
-                    messageService.findMessageEntityById(chatParticipation.lastReadMessageId!!, true)
-                            .awaitFirst()
+                    messageCacheWrapper.findById(chatParticipation.lastReadMessageId!!).awaitFirst()
                 } else null
                 val lastMessage = if (chat.lastMessageId != null) {
-                    messageService.findMessageEntityById(chat.lastMessageId!!, true)
-                            .awaitFirst()
+                    messageCacheWrapper.findById(chat.lastMessageId!!).awaitFirst()
                 } else null
                 chatMapper.toChatOfCurrentUserResponse(
                         chat = chat,
@@ -309,11 +311,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     private fun countUnreadMessages(chatParticipation: ChatParticipation): Mono<Int> {
         return mono {
             if (chatParticipation.lastReadMessageId != null) {
-                val message = messageService.findMessageEntityById(
-                        chatParticipation.lastReadMessageId!!,
-                        true
-                )
-                        .awaitFirst()
+                val message = messageCacheWrapper.findById(chatParticipation.lastReadMessageId!!).awaitFirst()
 
                 messageRepository.countByChatIdAndCreatedAtAfter(
                         chatId = chatParticipation.chatId,
@@ -359,6 +357,10 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     .map { chat -> chatMapper.toChatResponse(chat = chat, currentUserId = currentUserId) }
         }
                 .flatMapMany { chat -> chat }
+    }
+
+    override fun findChatEntityById(id: String): Mono<Chat> {
+        return findChatById(id, true)
     }
 
     private fun findChatById(id: String, retrieveFromCache: Boolean = false) = chatRepository.findById(id)

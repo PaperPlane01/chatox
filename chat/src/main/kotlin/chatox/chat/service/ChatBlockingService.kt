@@ -17,5 +17,6 @@ interface ChatBlockingService {
     fun getNonActiveBlockingsByChat(chatId: String, paginationRequest: PaginationRequest): Flux<ChatBlockingResponse>
     fun getAllBlockingsByChat(chatId: String, paginationRequest: PaginationRequest): Flux<ChatBlockingResponse>
     fun isUserBlockedInChat(chatId: String, user: User): Mono<Boolean>
+    fun isUserBlockedInChat(chatId: String, userId: String): Mono<Boolean>
     fun findChatBlockingById(id: String): Mono<ChatBlockingResponse>
 }

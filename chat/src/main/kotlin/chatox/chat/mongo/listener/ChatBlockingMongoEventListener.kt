@@ -14,7 +14,7 @@ class ChatBlockingMongoEventListener : AbstractMongoEventListener<ChatBlocking>(
     private lateinit var chatParticipationRepository: ChatParticipationRepository
 
     @Autowired
-    private lateinit var chatBlockingCache: ReactiveCacheService<String, ChatBlocking>
+    private lateinit var chatBlockingCache: ReactiveCacheService<ChatBlocking, String>
 
     override fun onAfterSave(event: AfterSaveEvent<ChatBlocking>) {
         chatBlockingCache.put(event.source).subscribe()

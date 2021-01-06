@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 @Component
 class ChatMongoEventListener : AbstractMongoEventListener<Chat>() {
     @Autowired
-    private lateinit var chatCache: ReactiveCacheService<String, Chat>
+    private lateinit var chatCache: ReactiveCacheService<Chat, String>
 
     override fun onAfterSave(event: AfterSaveEvent<Chat>) {
         chatCache.put(event.source).subscribe()

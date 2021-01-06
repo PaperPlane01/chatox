@@ -16,7 +16,6 @@ import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.chat.repository.ChatMessagesCounterRepository
 import chatox.chat.repository.ChatParticipationRepository
-import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.ChatUploadAttachmentRepository
 import chatox.chat.repository.MessageReadRepository
 import chatox.chat.repository.MessageRepository
@@ -27,6 +26,7 @@ import chatox.chat.service.EmojiParserService
 import chatox.chat.service.MessageService
 import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveCacheService
+import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
@@ -46,7 +46,6 @@ import java.util.UUID
 @LogExecution
 class MessageServiceImpl(
         private val messageRepository: MessageRepository,
-        private val chatRepository: ChatRepository,
         private val messageReadRepository: MessageReadRepository,
         private val chatParticipationRepository: ChatParticipationRepository,
         private val uploadRepository: UploadRepository,
@@ -54,19 +53,15 @@ class MessageServiceImpl(
         private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
         private val authenticationFacade: AuthenticationFacade,
         private val emojiParserService: EmojiParserService,
-        private val messageCacheService: ReactiveCacheService<String, Message>) : MessageService {
+        private val messageCacheService: ReactiveCacheService<Message, String>,
+        private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
+        private val messageMapper: MessageMapper) : MessageService {
 
     private lateinit var messagePermissions: MessagePermissions
-    private lateinit var messageMapper: MessageMapper
 
     @Autowired
     fun setMessagePermissions(messagePermissions: MessagePermissions) {
         this.messagePermissions = messagePermissions
-    }
-
-    @Autowired
-    fun setMessageMapper(messageMapper: MessageMapper) {
-        this.messageMapper = messageMapper
     }
 
     override fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse> {
@@ -162,7 +157,7 @@ class MessageServiceImpl(
         return mono {
             assertCanUpdateMessage(id, chatId).awaitFirst()
             var message = findMessageEntityById(id).awaitFirst()
-            val chat = findChatById(id).awaitFirst()
+            val chat = findChatById(chatId).awaitFirst()
 
             if (chat.deleted) {
                 throw ChatDeletedException(chat.chatDeletion)
@@ -230,7 +225,7 @@ class MessageServiceImpl(
     }
 
     override fun findMessageById(id: String): Mono<MessageResponse> {
-        return findMessageEntityById(id)
+        return findMessageEntityById(id, true)
                 .flatMap { messageMapper.toMessageResponse(
                         message = it,
                         mapReferredMessage = true,
@@ -402,7 +397,7 @@ class MessageServiceImpl(
 
     private fun findChatById(chatId: String): Mono<Chat> {
         return mono {
-            val chat = chatRepository.findById(chatId).awaitFirstOrNull()
+            val chat = chatCacheWrapper.findById(chatId).awaitFirstOrNull()
                     ?: throw ChatNotFoundException("Could not find chat with id $chatId")
 
             if (chat.deleted) {
@@ -413,7 +408,7 @@ class MessageServiceImpl(
         }
     }
 
-    override fun findMessageEntityById(messageId: String, retrieveFromCache: Boolean): Mono<Message> {
+    private fun findMessageEntityById(messageId: String, retrieveFromCache: Boolean = false): Mono<Message> {
         return mono {
             var message: Message? = null
 

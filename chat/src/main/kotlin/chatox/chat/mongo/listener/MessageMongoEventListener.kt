@@ -24,7 +24,7 @@ class MessageMongoEventListener : AbstractMongoEventListener<Message>() {
     private lateinit var chatRepository: ChatRepository
 
     @Autowired
-    private lateinit var messageCacheService: ReactiveCacheService<String, Message>
+    private lateinit var messageCacheService: ReactiveCacheService<Message, String>
 
     override fun onAfterSave(event: AfterSaveEvent<Message>) {
         val message = event.source
