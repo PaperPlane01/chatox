@@ -17,7 +17,7 @@ class ChatParticipationCustomRepositoryImpl(
 
     override fun updateChatParticipationsOfUser(user: User): Mono<UpdateResult> {
         val query = Query()
-        query.addCriteria(Criteria.where("user.\$id").`is`(user.id))
+        query.addCriteria(Criteria.where("user._id").`is`(user.id))
 
         var displayedName = user.firstName
 

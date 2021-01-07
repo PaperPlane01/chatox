@@ -8,6 +8,7 @@ import chatox.chat.messaging.rabbitmq.event.UserWentOffline
 import chatox.chat.messaging.rabbitmq.event.UserWentOnline
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
+import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
@@ -74,7 +75,7 @@ class UserEventsListener(private val userRepository: UserRepository,
         mono {
             log.info("User with id ${userUpdated.id} has been updated")
             log.debug("Updated user is $userUpdated")
-            val user = userRepository.findById(userUpdated.id).awaitFirstOrNull()
+            var user = userRepository.findById(userUpdated.id).awaitFirstOrNull()
 
             if (user != null) {
                 var avatar: Upload<ImageUploadMetadata>? = null;
@@ -87,7 +88,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                             .awaitFirstOrNull()
                 }
 
-                userRepository.save(user.copy(
+                user = userRepository.save(user.copy(
                         avatarUri = userUpdated.avatarUri,
                         firstName = userUpdated.firstName,
                         lastName = userUpdated.lastName,
