@@ -7,6 +7,7 @@ import chatox.chat.messaging.rabbitmq.event.UserUpdated
 import chatox.chat.messaging.rabbitmq.event.UserWentOffline
 import chatox.chat.messaging.rabbitmq.event.UserWentOnline
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
+import chatox.chat.model.Chat
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
@@ -15,6 +16,7 @@ import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.UploadRepository
 import chatox.chat.repository.UserRepository
+import chatox.platform.cache.ReactiveCacheService
 import com.rabbitmq.client.Channel
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -32,7 +34,8 @@ class UserEventsListener(private val userRepository: UserRepository,
                          private val uploadRepository: UploadRepository,
                          private val chatRepository: ChatRepository,
                          private val chatParticipationMapper: ChatParticipationMapper,
-                         private val chatEventsPublisher: ChatEventsPublisher) {
+                         private val chatEventsPublisher: ChatEventsPublisher,
+                         private val chatCacheService: ReactiveCacheService<Chat, String>) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     @RabbitListener(queues = ["chat_service_user_created"])
@@ -146,7 +149,9 @@ class UserEventsListener(private val userRepository: UserRepository,
                     )
                             .awaitFirst()
                     log.debug("Increasing number of online participants")
-                    chatRepository.increaseNumberOfOnlineParticipants(chatParticipation.chatId).awaitFirst()
+                    chatRepository.increaseNumberOfOnlineParticipants(chatParticipation.chatId)
+                            .flatMap { chat -> chatCacheService.put(chat) }
+                            .subscribe()
                 }
 
                 chatEventsPublisher.chatParticipantsWentOnline(
@@ -187,7 +192,9 @@ class UserEventsListener(private val userRepository: UserRepository,
                 chatParticipations = chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
 
                 for (chatParticipation in chatParticipations) {
-                    chatRepository.decreaseNumberOfOnlineParticipants(chatParticipation.chatId).subscribe()
+                    chatRepository.decreaseNumberOfOnlineParticipants(chatParticipation.chatId)
+                            .flatMap { chat -> chatCacheService.put(chat) }
+                            .subscribe()
                 }
 
                 chatEventsPublisher.chatParticipantsWentOffline(
