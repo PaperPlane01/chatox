@@ -12,7 +12,7 @@ export class UploadMapper {
             originalName: upload.originalName,
             size: upload.size,
             type: upload.type,
-            preview: upload.preview && this.toUploadInfoResponse(upload.preview),
+            previewImage: upload.previewImage && this.toUploadInfoResponse(upload.previewImage),
             thumbnails: upload.thumbnails.map(thumbnail => this.toUploadInfoResponse(thumbnail)),
             name: upload.name,
             isPreview: upload.isPreview,

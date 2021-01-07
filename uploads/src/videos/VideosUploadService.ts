@@ -54,7 +54,7 @@ export class VideosUploadService {
                 const permanentFilePath = path.join(config.VIDEOS_DIRECTORY, `${id}.${fileInfo.ext}`);
                 await fileSystem.rename(temporaryFilePath, permanentFilePath);
                 const meta = await this.getVideoMetadata(permanentFilePath);
-                const preview = await this.saveVideoPreview(permanentFilePath);
+                const previewImage = await this.saveVideoPreview(permanentFilePath);
                 const thumbnail = await this.saveVideoThumbnail(permanentFilePath);
 
                 const video: Upload<VideoUploadMetadata> = new this.uploadModel({
@@ -62,7 +62,7 @@ export class VideosUploadService {
                     name: `${id}.${fileInfo.ext}`,
                     mimeType: fileInfo.mime,
                     meta,
-                    preview,
+                    previewImage,
                     thumbnail,
                     type: UploadType.VIDEO,
                     isPreview: false,
