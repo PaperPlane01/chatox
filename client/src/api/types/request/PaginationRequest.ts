@@ -2,5 +2,5 @@ export interface PaginationRequest extends Record<string, number | string | unde
     page?: number,
     pageSize?: number,
     sortBy?: string,
-    sortingDirection?: "asc" | "desc"
+    direction?: "asc" | "desc"
 }
