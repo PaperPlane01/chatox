@@ -3,3 +3,4 @@ export * from "./User";
 export * from "./ChatBlocking";
 export * from "./Chat";
 export * from "./Upload";
+export * from "./GlobalBan";

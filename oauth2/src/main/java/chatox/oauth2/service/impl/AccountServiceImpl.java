@@ -25,6 +25,7 @@ import chatox.oauth2.mapper.AccountMapper;
 import chatox.oauth2.respository.AccountRepository;
 import chatox.oauth2.respository.ClientRepository;
 import chatox.oauth2.respository.EmailConfirmationCodeRepository;
+import chatox.oauth2.respository.GlobalBanRepository;
 import chatox.oauth2.respository.UserRoleRepository;
 import chatox.oauth2.security.AuthenticationFacade;
 import chatox.oauth2.security.CustomClientDetails;
@@ -57,6 +58,7 @@ public class AccountServiceImpl implements AccountService {
     private final UserRoleRepository userRoleRepository;
     private final EmailConfirmationCodeRepository emailConfirmationCodeRepository;
     private final AccountMapper accountMapper;
+    private final GlobalBanRepository globalBanRepository;
     private final AuthenticationFacade authenticationFacade;
     private final TimeService timeService;
     private final TokenGeneratorHelper tokenGeneratorHelper;
@@ -285,10 +287,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return new CustomUserDetails(
-                accountRepository.findByUsername(username)
-                        .orElseThrow(() -> new UsernameNotFoundException("Bad credentials"))
-        );
+        var account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Bad credentials"));
+        return new CustomUserDetails(account);
     }
 
     private Account findById(String id) {

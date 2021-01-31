@@ -61,6 +61,7 @@ import {
     SendPasswordRecoveryEmailConfirmationCodeStore
 } from "../PasswordRecovery";
 import {DeleteMessageStore} from "../Message/stores/DeleteMessageStore";
+import {BanUserStore, GlobalBanDetailsDialogStore, GlobalBansListStore} from "../GlobalBan/stores";
 
 export interface IAppState {
     language: LocaleStore,
@@ -118,5 +119,8 @@ export interface IAppState {
     anonymousRegistration: AnonymousRegistrationDialogStore,
     kickFromChat: KickChatParticipantStore,
     chatDeletion: DeleteChatStore,
+    userGlobalBan: BanUserStore,
+    globalBansList: GlobalBansListStore,
+    globalBanDetailsDialog: GlobalBanDetailsDialogStore,
     store?: any
 }
