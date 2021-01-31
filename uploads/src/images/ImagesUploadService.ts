@@ -170,7 +170,7 @@ export class ImagesUploadService {
         const loopCount: number = gifInfo.loopCount;
         const infinite: boolean = animated && loopCount === 0;
 
-        const preview = await this.generateGifPreview(options.filePath);
+        const previewImage = await this.generateGifPreview(options.filePath);
 
         const permanentFilePath = path.join(config.IMAGES_DIRECTORY, `${options.fileId}.${options.fileInfo.ext}`);
         await fileSystem.rename(options.filePath, permanentFilePath);
@@ -183,7 +183,7 @@ export class ImagesUploadService {
             extension: options.fileInfo.ext,
             type: UploadType.GIF,
             originalName: options.multipartFile.originalname,
-            preview,
+            previewImage,
             isThumbnail: false,
             isPreview: false,
             userId: options.userId,

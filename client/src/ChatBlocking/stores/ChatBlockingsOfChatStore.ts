@@ -125,7 +125,7 @@ export class ChatBlockingsOfChatStore {
                     {
                         page,
                         sortBy,
-                        sortingDirection,
+                        direction: sortingDirection,
                         pageSize: PAGE_SIZE
                     }
                 )
@@ -137,7 +137,7 @@ export class ChatBlockingsOfChatStore {
                     {
                         page,
                         sortBy,
-                        sortingDirection,
+                        direction: sortingDirection,
                         pageSize: PAGE_SIZE
                     }
                 )

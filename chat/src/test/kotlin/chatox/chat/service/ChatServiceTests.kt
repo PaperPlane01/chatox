@@ -84,6 +84,9 @@ class ChatServiceTests {
     @Mock
     lateinit var timeService: TimeService
 
+    @Mock
+    lateinit var messageService: MessageService
+
     @BeforeEach
     fun setChatPermissions() {
         chatService.setChatPermissions(chatPermissions)
@@ -102,13 +105,7 @@ class ChatServiceTests {
                 numberOfParticipants = 1,
                 numberOfOnlineParticipants = 1,
                 type = ChatType.GROUP,
-                createdBy = User(
-                        id = "1",
-                        firstName = "test",
-                        anonymoys = false,
-                        accountId = "3",
-                        deleted = false
-                )
+                createdById = "1"
         )
         private val avatar = Upload(
                 id = "avatarId",
@@ -124,8 +121,8 @@ class ChatServiceTests {
                 mimeType = "image/jpg",
                 isThumbnail = false,
                 isPreview = false,
-                user = chat.createdBy,
-                preview = null
+                userId = "1",
+                imagePreview = null
         )
 
         @Test
@@ -321,13 +318,7 @@ class ChatServiceTests {
                     numberOfParticipants = 1,
                     numberOfOnlineParticipants = 1,
                     type = ChatType.GROUP,
-                    createdBy = User(
-                            id = userId,
-                            firstName = "test",
-                            anonymoys = false,
-                            accountId = "3",
-                            deleted = false
-                    )
+                    createdById = userId
             )
             Mockito.`when`(chatRepository.findById(chatId)).thenReturn(Mono.just(chat))
 
@@ -357,13 +348,7 @@ class ChatServiceTests {
                     numberOfParticipants = 1,
                     numberOfOnlineParticipants = 1,
                     type = ChatType.GROUP,
-                    createdBy = User(
-                            id = anotherUserId,
-                            firstName = "test",
-                            anonymoys = false,
-                            accountId = "3",
-                            deleted = false
-                    )
+                    createdById = anotherUserId
             )
             Mockito.`when`(chatRepository.findById(chatId)).thenReturn(Mono.just(chat))
 
@@ -451,13 +436,14 @@ class ChatServiceTests {
                 numberOfParticipants = 1,
                 numberOfOnlineParticipants = 1,
                 type = ChatType.GROUP,
-                createdBy = User(
-                        id = "1",
-                        firstName = "test",
-                        anonymoys = false,
-                        accountId = "3",
-                        deleted = false
-                )
+                createdById = "1"
+        )
+        private val user = User(
+                id = "1",
+                firstName = "test",
+                anonymoys = false,
+                accountId = "3",
+                deleted = false
         )
 
         @Test
@@ -502,8 +488,8 @@ class ChatServiceTests {
             val slug = "slug"
             val chatResponse = toChatResponse(chat)
             Mockito.`when`(chatRepository.findByIdEqualsOrSlugEquals(slug, slug)).thenReturn(Mono.just(chat))
-            Mockito.`when`(authenticationFacade.getCurrentUser()).thenReturn(Mono.just(chat.createdBy))
-            Mockito.`when`(chatMapper.toChatResponse(chat, chat.createdBy.id)).thenReturn(chatResponse)
+            Mockito.`when`(authenticationFacade.getCurrentUser()).thenReturn(Mono.just(user))
+            Mockito.`when`(chatMapper.toChatResponse(chat, user.id)).thenReturn(chatResponse)
 
             // Run test
             val result = chatService.findChatBySlugOrId(slug)

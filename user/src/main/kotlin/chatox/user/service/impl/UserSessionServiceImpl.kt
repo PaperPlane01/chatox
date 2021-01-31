@@ -55,7 +55,7 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                         accessToken = userConnected.accessToken,
                         createdAt = ZonedDateTime.now(),
                         disconnectedAt = null,
-                        user = user,
+                        userId = user.id,
                         socketIoId = userConnected.socketIoId
                 )
                 userSessionRepository.save(userSession).awaitFirst()
@@ -185,14 +185,14 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                     userSessionRepository.saveAll(nonActiveSessions).collectList().awaitFirst()
 
                     nonActiveSessions.forEach { session ->
-                        val user = userRepository.findAndDecreaseActiveSessionsCount(session.user.id).awaitFirst()
-                        userRepository.updateLastSeenDateIfNecessary(session.user.id, session.disconnectedAt!!).subscribe()
+                        val user = userRepository.findAndDecreaseActiveSessionsCount(session.userId).awaitFirst()
+                        userRepository.updateLastSeenDateIfNecessary(session.userId, session.disconnectedAt!!).subscribe()
                         val shouldPublishWentOffline = user.activeSessionsCount == 0
 
                         if (shouldPublishWentOffline) {
                             userEventsProducer.userWentOffline(
                                     UserOffline(
-                                            userId = session.user.id,
+                                            userId = session.userId,
                                             lastSeen = session.disconnectedAt!!
                                     )
                             )

@@ -1,6 +1,5 @@
 package chatox.user.domain
 
-import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
 
@@ -18,7 +17,6 @@ data class User(
         var dateOfBirth: ZonedDateTime?,
         var email: String?,
         var activeSessionsCount: Int = 0,
-        @DBRef(lazy = true)
         var avatar: Upload<ImageUploadMetadata>?,
         var anonymous: Boolean = false
 ) {

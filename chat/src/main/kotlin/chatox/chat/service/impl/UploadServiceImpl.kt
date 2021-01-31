@@ -31,10 +31,10 @@ class UploadServiceImpl(private val uploadRepository: UploadRepository,
             var preview: Upload<ImageUploadMetadata>? = null
             var user: User? = null
 
-            if (uploadCreated.preview != null) {
+            if (uploadCreated.previewImage != null) {
                 log.info("Saving preview of ${uploadCreated.name}")
                 preview = uploadMapper.fromUploadCreated(
-                        uploadCreated = uploadCreated.preview,
+                        uploadCreated = uploadCreated.previewImage,
                         preview = null,
                         user = null
                 )

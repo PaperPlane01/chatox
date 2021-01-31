@@ -7,6 +7,8 @@ import chatox.chat.messaging.rabbitmq.event.UserUpdated
 import chatox.chat.messaging.rabbitmq.event.UserWentOffline
 import chatox.chat.messaging.rabbitmq.event.UserWentOnline
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
+import chatox.chat.model.Chat
+import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
@@ -15,6 +17,7 @@ import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.UploadRepository
 import chatox.chat.repository.UserRepository
+import chatox.platform.cache.ReactiveCacheService
 import com.rabbitmq.client.Channel
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -32,7 +35,8 @@ class UserEventsListener(private val userRepository: UserRepository,
                          private val uploadRepository: UploadRepository,
                          private val chatRepository: ChatRepository,
                          private val chatParticipationMapper: ChatParticipationMapper,
-                         private val chatEventsPublisher: ChatEventsPublisher) {
+                         private val chatEventsPublisher: ChatEventsPublisher,
+                         private val chatCacheService: ReactiveCacheService<Chat, String>) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     @RabbitListener(queues = ["chat_service_user_created"])
@@ -71,7 +75,7 @@ class UserEventsListener(private val userRepository: UserRepository,
         mono {
             log.info("User with id ${userUpdated.id} has been updated")
             log.debug("Updated user is $userUpdated")
-            val user = userRepository.findById(userUpdated.id).awaitFirstOrNull()
+            var user = userRepository.findById(userUpdated.id).awaitFirstOrNull()
 
             if (user != null) {
                 var avatar: Upload<ImageUploadMetadata>? = null;
@@ -84,7 +88,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                             .awaitFirstOrNull()
                 }
 
-                userRepository.save(user.copy(
+                user = userRepository.save(user.copy(
                         avatarUri = userUpdated.avatarUri,
                         firstName = userUpdated.firstName,
                         lastName = userUpdated.lastName,
@@ -96,7 +100,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                 ))
                         .awaitFirst()
                 chatParticipationRepository
-                        .updateDisplayedNameOfChatParticipationsByUser(user)
+                        .updateChatParticipationsOfUser(user)
                         .awaitFirst()
             }
         }
@@ -136,7 +140,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                         lastSeen = userWentOnline.lastSeen
                 )
                 userRepository.save(user).awaitFirst()
-                val chatParticipations = chatParticipationRepository.findAllByUserAndDeletedFalse(user)
+                val chatParticipations = chatParticipationRepository.findAllByUserIdAndDeletedFalse(user.id)
                         .collectList()
                         .awaitFirst()
                 chatParticipations.forEach { chatParticipation ->
@@ -146,7 +150,9 @@ class UserEventsListener(private val userRepository: UserRepository,
                     )
                             .awaitFirst()
                     log.debug("Increasing number of online participants")
-                    chatRepository.increaseNumberOfOnlineParticipants(chatParticipation.chat.id).awaitFirst()
+                    chatRepository.increaseNumberOfOnlineParticipants(chatParticipation.chatId)
+                            .flatMap { chat -> chatCacheService.put(chat) }
+                            .subscribe()
                 }
 
                 chatEventsPublisher.chatParticipantsWentOnline(
@@ -178,7 +184,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                 )
                 userRepository.save(user).awaitFirst()
                 log.debug("User has been updated")
-                var chatParticipations = chatParticipationRepository.findAllByUserAndDeletedFalse(user)
+                var chatParticipations = chatParticipationRepository.findAllByUserIdAndDeletedFalse(user.id)
                         .collectList()
                         .awaitFirst()
                 chatParticipations = chatParticipations.map { chatParticipation ->
@@ -187,7 +193,9 @@ class UserEventsListener(private val userRepository: UserRepository,
                 chatParticipations = chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
 
                 for (chatParticipation in chatParticipations) {
-                    chatRepository.decreaseNumberOfOnlineParticipants(chatParticipation.chat.id).subscribe()
+                    chatRepository.decreaseNumberOfOnlineParticipants(chatParticipation.chatId)
+                            .flatMap { chat -> chatCacheService.put(chat) }
+                            .subscribe()
                 }
 
                 chatEventsPublisher.chatParticipantsWentOffline(

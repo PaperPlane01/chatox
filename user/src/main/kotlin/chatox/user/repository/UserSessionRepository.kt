@@ -1,6 +1,5 @@
 package chatox.user.repository
 
-import chatox.user.domain.User
 import chatox.user.domain.UserSession
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
@@ -13,7 +12,7 @@ interface UserSessionRepository : ReactiveMongoRepository<UserSession, String> {
     fun findBySocketIoId(socketIoId: String): Mono<UserSession>
     fun findByUserId(userId: String, pageable: Pageable): Flux<UserSession>
     fun findByUserIdAndDisconnectedAtNull(userId: String): Flux<UserSession>
-    fun countByUserAndDisconnectedAtNull(user: User): Mono<Long>
-    fun countByUserAndDisconnectedAtNullAndIdNotIn(user: User, ids: List<String>): Mono<Long>
+    fun countByUserIdAndDisconnectedAtNull(userId: String): Mono<Long>
+    fun countByUserIdAndDisconnectedAtNullAndIdNotIn(user: String, ids: List<String>): Mono<Long>
     fun findByDisconnectedAtNullAndCreatedAtBefore(createdAt: ZonedDateTime): Flux<UserSession>
 }

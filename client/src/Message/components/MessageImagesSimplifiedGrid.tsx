@@ -8,7 +8,7 @@ import {ImageUploadMetadata, Upload} from "../../api/types/response";
 import {useMessageGalleryWidthMultiplier} from "../hooks";
 
 interface MessageImagesSimplifiedGridProps {
-    chatUploadsIds: string[],
+    imagesIds: string[],
     messageId: string,
     parentWidth?: number
 }
@@ -34,14 +34,11 @@ interface ImagesLoadingStateMap {
 }
 
 export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplifiedGridProps> = observer(({
-    chatUploadsIds,
+    imagesIds,
     parentWidth
 }) => {
     const {
         entities: {
-            chatUploads: {
-                findById: findChatUpload
-            },
             uploads: {
                 findImage
             }
@@ -55,7 +52,7 @@ export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplif
     const [imagesLoadingState, setImagesLoadingState] = useState<ImagesLoadingStateMap>({});
 
     const calculateTargetOneColWidth = (): number => {
-        if (chatUploadsIds.length === 1) {
+        if (imagesIds.length === 1) {
             if (parentWidth) {
                 return galleryWidthMultiplier * parentWidth;
             } else {
@@ -93,16 +90,15 @@ export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplif
         setViewerIsOpen(false);
     };
 
-    const images = chatUploadsIds
-        .map(chatUploadId => findChatUpload(chatUploadId))
-        .map(chatUpload => findImage(chatUpload.uploadId))
+    const images = imagesIds
+        .map(id => findImage(id))
         .map(image => ({
             ...image,
             source: image.uri
         }));
 
     const maxCols =  4
-    const totalCols = chatUploadsIds.length < maxCols ? chatUploadsIds.length : maxCols;
+    const totalCols = imagesIds.length < maxCols ? imagesIds.length : maxCols;
 
     return (
         <GridList cellHeight={totalCols === 1 ? Math.ceil(images[0].meta!.height * (targetOneColWidth / images[0].meta!.width)) : 180}

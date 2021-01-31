@@ -13,7 +13,7 @@ import {upperCaseFirstLetter} from "../../utils/string-utils";
 import {MessageEntity} from "../../Message/types";
 import {Labels, TranslationFunction} from "../../localization";
 import {UserEntity} from "../../User/types";
-import {UploadType} from "../../api/types/response";
+import {Upload, UploadType} from "../../api/types/response";
 
 const {Link} = require("mobx-router");
 
@@ -81,7 +81,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 interface GetLastMessageTextParameters {
     message: MessageEntity,
     messageSender: UserEntity,
-    messageUploads: ChatUploadEntity[],
+    messageUploads: Upload<any>[],
     l: TranslationFunction,
     parseEmoji: ParseEmojiFunction
 }
@@ -217,8 +217,8 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
             users: {
                 findById: findUser
             },
-            chatUploads: {
-                findAllById: findChatUploads
+            uploads: {
+                findAllById: findUploads,
             }
         }
     } = useStore();
@@ -231,7 +231,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
     const lastMessageSender = lastMessage && findUser(lastMessage.sender);
     const selected = selectedChatId === chatId;
     const lastMessageUploads = lastMessage
-        ? findChatUploads(lastMessage.uploads)
+        ? findUploads(lastMessage.uploads)
         : []
 
     return (

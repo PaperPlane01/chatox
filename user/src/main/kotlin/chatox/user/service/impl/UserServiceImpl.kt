@@ -77,7 +77,7 @@ class UserServiceImpl(private val userRepository: UserRepository,
                     updateUserRequest = updateUserRequest
             )
             user = userRepository.save(user).awaitFirst()
-            val online = userSessionRepository.countByUserAndDisconnectedAtNull(user).awaitFirst() != 0L
+            val online = userSessionRepository.countByUserIdAndDisconnectedAtNull(user.id).awaitFirst() != 0L
 
             val userResponse = userMapper.toUserResponse(
                     user = user,
@@ -101,7 +101,7 @@ class UserServiceImpl(private val userRepository: UserRepository,
     override fun findUserByIdOrSlug(idOrSlug: String): Mono<UserResponse> {
         return mono {
             val user = findByIdOrSlug(idOrSlug).awaitFirst()
-            val online = userSessionRepository.countByUserAndDisconnectedAtNull(user).awaitFirst() != 0L
+            val online = userSessionRepository.countByUserIdAndDisconnectedAtNull(user.id).awaitFirst() != 0L
 
             userMapper.toUserResponse(
                     user = user,

@@ -6,6 +6,7 @@ import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
+import chatox.chat.model.Chat
 import chatox.platform.pagination.PaginationRequest
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -20,4 +21,5 @@ interface ChatService {
     fun isChatCreatedByUser(chatId: String, userId: String): Mono<Boolean>
     fun checkChatSlugAvailability(slug: String): Mono<AvailabilityResponse>
     fun getPopularChats(paginationRequest: PaginationRequest): Flux<ChatResponse>
+    fun findChatEntityById(id: String): Mono<Chat>
 }

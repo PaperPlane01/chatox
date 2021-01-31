@@ -1,17 +1,13 @@
 package chatox.chat.model
 
 import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.mapping.DBRef
+import org.springframework.data.mongodb.core.index.Indexed
 
 data class ChatMessagesCounter(
         @Id
         var id: String,
 
-        @DBRef(lazy = true)
-        var chat: Chat?,
+        @Indexed
+        var chatId: String,
         var messagesCount: Long
-) {
-    override fun toString(): String {
-        return "ChatMessagesCounter(id='$id', messagesCount=$messagesCount)"
-    }
-}
+)
