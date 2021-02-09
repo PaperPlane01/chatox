@@ -23,12 +23,20 @@ export class AuthorizationStore {
 
     @action
     setCurrentUser = (currentUser: CurrentUser): void => {
-        this.currentUser = currentUser;
-        this.entities.users.insert({
+        this.currentUser = {
+            ...currentUser,
+            avatarId: currentUser.avatar ? currentUser.avatar.id : undefined
+        };
+        this.entities.insertUser({
             ...currentUser,
             deleted: false,
             online: true
         });
+
+        if (currentUser.globalBan) {
+            this.entities.insertGlobalBan(currentUser.globalBan);
+            this.entities.insertUser(currentUser.globalBan.createdBy, true);
+        }
     };
 
     @action
@@ -42,17 +50,7 @@ export class AuthorizationStore {
         this.fetchingCurrentUser = true;
 
         return UserApi.getCurrentUser()
-            .then(({data}) => {
-                this.entities.insertUser({
-                    ...data,
-                    online: true,
-                    deleted: false
-                });
-                this.currentUser = {
-                    ...data,
-                    avatarId: data.avatar ? data.avatar.id : undefined
-                };
-            })
+            .then(({data}) => this.setCurrentUser(data))
             .finally(() => this.fetchingCurrentUser = false);
     };
 

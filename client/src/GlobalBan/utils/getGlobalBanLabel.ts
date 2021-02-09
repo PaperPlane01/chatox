@@ -8,7 +8,7 @@ type FindUserFunction = (id: string) => UserEntity
 
 interface PossibleBindings {
     createdByUsername: string,
-    expiresAt?: string,
+    expirationDate?: string,
     reason: string,
     comment?: string
 }
@@ -34,7 +34,7 @@ export const getGlobalBanLabel = (globalBan: GlobalBanEntity, l: TranslationFunc
             }
         }
     } else {
-        const expiresAt = format(
+        const expirationDate = format(
             globalBan.expiresAt!,
             "dd MMMM yyyy HH:mm:ss",
             {locale: dateFnsLocale}
@@ -43,7 +43,7 @@ export const getGlobalBanLabel = (globalBan: GlobalBanEntity, l: TranslationFunc
         if (globalBan.comment) {
             label = "global.ban.you-were-banned.with-reason-and-comment";
             bindings = {
-                expiresAt,
+                expirationDate,
                 reason: l(`global.ban.reason.${globalBan.reason}` as keyof Labels),
                 createdByUsername: getUserDisplayedName(createdBy),
                 comment: globalBan.comment
@@ -51,7 +51,7 @@ export const getGlobalBanLabel = (globalBan: GlobalBanEntity, l: TranslationFunc
         } else {
             label = "global.ban.you-were-banned.permanently.with-reason";
             bindings = {
-                expiresAt,
+                expirationDate,
                 createdByUsername: getUserDisplayedName(createdBy),
                 reason: l(`global.ban.reason.${globalBan.reason}` as keyof Labels),
                 comment: globalBan.comment
