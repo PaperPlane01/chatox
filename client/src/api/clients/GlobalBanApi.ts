@@ -23,6 +23,6 @@ export class GlobalBanApi {
             ...filters,
             ...paginationRequest
         });
-        return axiosInstance.get(`/${BANS}?${queryString}`);
+        return axiosInstance.get(`/${USERS}/${BANS}?${queryString}`);
     }
 }
