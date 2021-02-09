@@ -310,7 +310,7 @@ export const en: Labels = {
     "global.ban.filters.exclude-canceled": "Exclude canceled",
     "global.ban.banned-users": "Banned users",
     "global.ban.banned-user": "Banned user",
-    "global.ban.details": "User's {username} ban info",
+    "global.ban.details": "User {username} ban info",
     "global.ban.no-bans": "The are no global bans satisfying specified conditions",
     "global.bans": "Global bans"
 };
