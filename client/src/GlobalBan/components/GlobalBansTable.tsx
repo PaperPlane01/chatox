@@ -23,11 +23,7 @@ export const GlobalBansTable: FunctionComponent = observer(() => {
                     <TableCell>{l("global.ban.expires-at")}</TableCell>
                     <TableCell>{l("global.ban.permanent")}</TableCell>
                     <TableCell>{l("global.ban.reason")}</TableCell>
-                    <TableCell>{l("global.ban.comment")}</TableCell>
-                    <TableCell>{l("global.ban.canceled-at")}</TableCell>
-                    <TableCell>{l("global.ban.canceled-by")}</TableCell>
-                    <TableCell>{l("global.ban.updated-at")}</TableCell>
-                    <TableCell>{l("global.ban.updated-by")}</TableCell>
+                    <TableCell>{l("global.ban.created-by")}</TableCell>
                 </TableRow>
             </TableHead>
             <TableBody>

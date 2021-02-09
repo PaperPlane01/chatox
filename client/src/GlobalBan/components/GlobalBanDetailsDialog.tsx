@@ -65,17 +65,33 @@ export const GlobalBanDetailsDialog: FunctionComponent = observer(() => {
                 <Table>
                     <TableBody>
                         <TableRow>
-                            <TableCell>{l("global.ban.banned-user")}</TableCell>
+                            <TableCell>{
+                                l("global.ban.banned-user")}
+                            </TableCell>
                             <TableCell>
                                 <UserLink user={bannedUser} displayAvatar/>
                             </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>{l("global.ban.created-at")}</TableCell>
-                            <TableRow>{format(globalBan.createdAt, "dd MMMM yyyy HH:mm", {locale: dateFnsLocale})}</TableRow>
+                            <TableCell>
+                                {l("global.ban.created-by")}
+                            </TableCell>
+                            <TableCell>
+                                <UserLink user={bannedBy} displayAvatar/>
+                            </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>{l("global.ban.expires-at")}</TableCell>
+                            <TableCell>{
+                                l("global.ban.created-at")}
+                            </TableCell>
+                            <TableCell>
+                                {format(globalBan.createdAt, "dd MMMM yyyy HH:mm", {locale: dateFnsLocale})}
+                            </TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>{
+                                l("global.ban.expires-at")}
+                            </TableCell>
                             <TableCell>
                                 {globalBan.expiresAt
                                     ? format(globalBan.expiresAt, "dd MMMM yyyy HH:mm", {locale: dateFnsLocale})
@@ -84,21 +100,33 @@ export const GlobalBanDetailsDialog: FunctionComponent = observer(() => {
                             </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>{l("global.ban.permanent")}</TableCell>
+                            <TableCell>{
+                                l("global.ban.permanent")}
+                            </TableCell>
                             <TableCell>
                                 {globalBan.permanent ? <Check/> : <Remove/>}
                             </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>{l("global.ban.reason")}</TableCell>
-                            <TableCell>{l(`global.ban.reason.${globalBan.reason}` as keyof Labels)}</TableCell>
+                            <TableCell>{
+                                l("global.ban.reason")}
+                            </TableCell>
+                            <TableCell>{
+                                l(`global.ban.reason.${globalBan.reason}` as keyof Labels)}
+                            </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>{l("global.ban.comment")}</TableCell>
-                            <TableCell>{globalBan.comment}</TableCell>
+                            <TableCell>{
+                                l("global.ban.comment")}
+                            </TableCell>
+                            <TableCell>
+                                {globalBan.comment}
+                            </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>{l("global.ban.canceled-at")}</TableCell>
+                            <TableCell>{
+                                l("global.ban.canceled-at")}
+                            </TableCell>
                             <TableCell>
                                 {globalBan.canceledAt
                                     ? format(globalBan.canceledAt, "dd MMMM yyyy HH:mm", {locale: dateFnsLocale})
@@ -107,7 +135,9 @@ export const GlobalBanDetailsDialog: FunctionComponent = observer(() => {
                             </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>{l("global.ban.canceled-by")}</TableCell>
+                            <TableCell>{
+                                l("global.ban.canceled-by")}
+                            </TableCell>
                             <TableCell>
                                 {canceledBy
                                     ? <UserLink user={canceledBy} displayAvatar/>
@@ -116,7 +146,9 @@ export const GlobalBanDetailsDialog: FunctionComponent = observer(() => {
                             </TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>{l("global.ban.updated-by")}</TableCell>
+                            <TableCell>{
+                                l("global.ban.updated-by")}
+                            </TableCell>
                             <TableCell>
                                 {updatedBy
                                     ? <UserLink user={updatedBy} displayAvatar/>
