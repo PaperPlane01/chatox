@@ -107,23 +107,19 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
         }
 
         if (chatParticipation) {
-            if (currentUser.globalBan) {
-                const globalBan = findGlobalBan(currentUser.globalBan.id);
-
-                if (isGlobalBanActive(globalBan)) {
-                    messagesListBottomContent = (
-                        <Typography color="primary">
-                            {
-                                getGlobalBanLabel(
-                                    globalBan,
-                                    l,
-                                    dateFnsLocale,
-                                    findUser
-                                )
-                            }
-                        </Typography>
-                    )
-                }
+            if (currentUser.globalBan && isGlobalBanActive(findGlobalBan(currentUser.globalBan.id))) {
+                messagesListBottomContent = (
+                    <Typography color="primary">
+                        {
+                            getGlobalBanLabel(
+                                findGlobalBan(currentUser.globalBan.id),
+                                l,
+                                dateFnsLocale,
+                                findUser
+                            )
+                        }
+                    </Typography>
+                )
             } else {
                 if (chatParticipation.activeChatBlockingId) {
                     const chatBlocking = findChatBlocking(chatParticipation.activeChatBlockingId);
