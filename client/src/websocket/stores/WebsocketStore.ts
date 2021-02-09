@@ -137,6 +137,8 @@ export class WebsocketStore {
 
     @action.bound
     private processGlobalBan(globalBan: GlobalBan): void {
+        this.entities.insertGlobalBan(globalBan);
+
         if (this.authorization.currentUser && globalBan.bannedUser.id === this.authorization.currentUser.id) {
             this.authorization.setCurrentUser({
                 ...this.authorization.currentUser,

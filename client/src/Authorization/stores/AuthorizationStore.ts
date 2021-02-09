@@ -32,11 +32,6 @@ export class AuthorizationStore {
             deleted: false,
             online: true
         });
-
-        if (currentUser.globalBan) {
-            this.entities.insertGlobalBan(currentUser.globalBan);
-            this.entities.insertUser(currentUser.globalBan.createdBy, true);
-        }
     };
 
     @action
