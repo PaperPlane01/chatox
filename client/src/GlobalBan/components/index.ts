@@ -9,3 +9,4 @@ export * from "./GlobalBansList";
 export * from "./GlobalBansListItem";
 export * from "./GlobalBansTable";
 export * from "./GlobalBansTableRow";
+export * from "./CancelGlobalBanButton";

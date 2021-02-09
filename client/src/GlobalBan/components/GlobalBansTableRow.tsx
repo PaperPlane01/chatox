@@ -3,9 +3,11 @@ import {observer} from "mobx-react";
 import {createStyles, makeStyles, TableCell, TableRow} from "@material-ui/core";
 import {Check, Remove} from "@material-ui/icons";
 import {format} from "date-fns";
+import {CancelGlobalBanButton} from "./CancelGlobalBanButton";
 import {UserLink} from "../../UserLink";
 import {useLocalization, useStore} from "../../store";
 import {Labels} from "../../localization";
+import {isGlobalBanActive} from "../utils";
 
 interface GlobalBansTableRowProps {
     globalBanId: string
@@ -73,6 +75,9 @@ export const GlobalBansTableRow: FunctionComponent<GlobalBansTableRowProps> = ob
             </TableCell>
             <TableCell>
                 <UserLink user={bannedBy} displayAvatar/>
+            </TableCell>
+            <TableCell>
+                {isGlobalBanActive(globalBan) && <CancelGlobalBanButton globalBanId={globalBan.id}/>}
             </TableCell>
         </TableRow>
     );
