@@ -12,7 +12,7 @@ import {
     WebsocketEvent,
     WebsocketEventType
 } from "../../api/types/websocket";
-import {ChatBlocking, ChatParticipation, Message} from "../../api/types/response";
+import {ChatBlocking, ChatParticipation, GlobalBan, Message} from "../../api/types/response";
 
 export class WebsocketStore {
     socketIoClient?: SocketIOClient.Socket;
@@ -123,8 +123,27 @@ export class WebsocketStore {
                     event.payload.comment
                 )
             );
+            this.socketIoClient.on(
+                WebsocketEventType.GLOBAL_BAN_CREATED,
+                (event: WebsocketEvent<GlobalBan>) => this.processGlobalBan(event.payload)
+
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.GLOBAL_BAN_UPDATED,
+                (event: WebsocketEvent<GlobalBan>) => this.processGlobalBan(event.payload)
+            );
         }
     };
+
+    @action.bound
+    private processGlobalBan(globalBan: GlobalBan): void {
+        if (this.authorization.currentUser && globalBan.bannedUser.id === this.authorization.currentUser.id) {
+            this.authorization.setCurrentUser({
+                ...this.authorization.currentUser,
+                globalBan
+            });
+        }
+    }
 
     @action
     subscribeToChat = (chatId: string) => {
