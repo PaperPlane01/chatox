@@ -2,17 +2,20 @@ package chatox.user.mapper
 
 import chatox.user.api.response.GlobalBanResponse
 import chatox.user.domain.GlobalBan
+import chatox.user.domain.User
 import org.springframework.stereotype.Component
 
 @Component
 class GlobalBanMapper(private val userMapper: UserMapper) {
-    fun toGlobalBanResponse(globalBan: GlobalBan): GlobalBanResponse {
-        val canceledBy = if (globalBan.cancelledBy != null) {
-            userMapper.toUserResponse(globalBan.cancelledBy!!)
+    fun toGlobalBanResponse(globalBan: GlobalBan, createdBy: User, bannedUser: User, updatedBy: User?, canceledBy: User?): GlobalBanResponse {
+        val canceledByResponse = if (canceledBy != null) {
+            userMapper.toUserResponse(canceledBy)
         } else null
-        val updatedBy = if (globalBan.updatedBy != null) {
-            userMapper.toUserResponse(globalBan.updatedBy!!)
+        val updatedByResponse = if (updatedBy != null) {
+            userMapper.toUserResponse(updatedBy)
         } else null
+        val bannedUserResponse = userMapper.toUserResponse(bannedUser)
+        val createdByResponse = userMapper.toUserResponse(createdBy)
 
         return GlobalBanResponse(
                 id = globalBan.id,
@@ -21,13 +24,13 @@ class GlobalBanMapper(private val userMapper: UserMapper) {
                 comment = globalBan.comment,
                 canceled = globalBan.canceled,
                 canceledAt = globalBan.canceledAt,
-                bannedUser = userMapper.toUserResponse(globalBan.bannedUser),
-                createdBy = userMapper.toUserResponse(globalBan.createdBy),
-                canceledBy = canceledBy,
+                bannedUser = bannedUserResponse,
+                createdBy = createdByResponse,
+                canceledBy = canceledByResponse,
                 updatedAt = globalBan.updatedAt,
                 expiresAt = globalBan.expiresAt,
                 permanent = globalBan.permanent,
-                updatedBy = updatedBy
+                updatedBy = updatedByResponse
         )
     }
 }

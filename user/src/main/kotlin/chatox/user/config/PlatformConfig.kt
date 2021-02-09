@@ -1,6 +1,6 @@
 package chatox.user.config
 
-import chatox.platform.log.aspect.MethodExecutionLogger
+import chatox.platform.log.logger.MethodExecutionLogger
 import chatox.platform.pagination.process.PaginationParametersProcessor
 import chatox.platform.time.TimeService
 import org.springframework.context.annotation.Bean

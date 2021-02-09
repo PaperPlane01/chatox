@@ -1,6 +1,7 @@
 package chatox.user.domain
 
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
@@ -18,15 +19,15 @@ data class GlobalBan(
         var reason: GlobalBanReason,
         var updatedAt: ZonedDateTime?,
 
-        @DBRef
-        var bannedUser: User,
+        @Indexed
+        var bannedUserId: String,
 
-        @DBRef
-        var createdBy: User,
+        @Indexed
+        var createdById: String,
 
-        @DBRef
-        var cancelledBy: User?,
+        @Indexed
+        var cancelledById: String?,
 
-        @DBRef
-        var updatedBy: User?
+        @Indexed
+        var updatedById: String?
 )

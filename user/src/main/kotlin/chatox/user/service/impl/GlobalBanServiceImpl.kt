@@ -5,6 +5,7 @@ import chatox.user.api.request.BanUserRequest
 import chatox.user.api.request.GlobalBanFilters
 import chatox.user.api.request.UpdateBanRequest
 import chatox.user.api.response.GlobalBanResponse
+import chatox.user.cache.UserReactiveRepositoryCacheWrapper
 import chatox.user.domain.GlobalBan
 import chatox.user.domain.User
 import chatox.user.exception.GlobalBanIsNotActiveException
@@ -31,7 +32,8 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
                            private val userRepository: UserRepository,
                            private val globalBanMapper: GlobalBanMapper,
                            private val authenticationFacade: AuthenticationFacade,
-                           private val globalBanEventsProducer: GlobalBanEventsProducer) : GlobalBanService {
+                           private val globalBanEventsProducer: GlobalBanEventsProducer,
+                           private val userReactiveRepositoryCacheWrapper: UserReactiveRepositoryCacheWrapper) : GlobalBanService {
 
     override fun banUser(userId: String, banUserRequest: BanUserRequest): Mono<GlobalBanResponse> {
         return mono {
@@ -45,7 +47,7 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
             if (otherActiveBans.isNotEmpty()) {
                 otherActiveBans = otherActiveBans.map { ban -> ban.copy(
                         canceledAt = ZonedDateTime.now(),
-                        cancelledBy = currentUser,
+                        cancelledById = currentUser.id,
                         canceled = true
                 )}
                 globalBanRepository.saveAll(otherActiveBans).collectList().awaitFirst()
@@ -55,24 +57,36 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
                     id = UUID.randomUUID().toString(),
                     createdAt = ZonedDateTime.now(),
                     expiresAt = banUserRequest.expiresAt,
-                    bannedUser = user,
+                    bannedUserId = user.id,
                     canceled = false,
                     permanent = banUserRequest.permanent,
                     reason = banUserRequest.reason,
-                    createdBy = currentUser,
+                    createdById = currentUser.id,
                     comment = banUserRequest.comment,
                     canceledAt = null,
-                    updatedBy = null,
+                    updatedById = null,
                     updatedAt = null,
-                    cancelledBy = null
+                    cancelledById = null
             )
             globalBanRepository.save(globalBan).awaitFirst()
 
-            val globalBanResponse = globalBanMapper.toGlobalBanResponse(globalBan)
+            val globalBanResponse = globalBanMapper.toGlobalBanResponse(
+                    globalBan = globalBan,
+                    bannedUser = user,
+                    createdBy = currentUser,
+                    canceledBy = null,
+                    updatedBy = null
+            )
             globalBanEventsProducer.globalBanCreated(globalBanResponse)
 
             if (otherActiveBans.isNotEmpty()) {
-                otherActiveBans.forEach { ban -> globalBanEventsProducer.globalBanUpdated(globalBanMapper.toGlobalBanResponse(ban)) }
+                otherActiveBans.forEach { ban -> globalBanEventsProducer.globalBanUpdated(globalBanMapper.toGlobalBanResponse(
+                        globalBan = ban,
+                        updatedBy = currentUser,
+                        bannedUser = user,
+                        canceledBy = currentUser,
+                        createdBy = userReactiveRepositoryCacheWrapper.findById(ban.createdById).awaitFirst()
+                )) }
             }
 
             globalBanResponse
@@ -95,11 +109,17 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
                     reason = updateBanRequest.reason,
                     comment = updateBanRequest.comment,
                     updatedAt = ZonedDateTime.now(),
-                    updatedBy = currentUser
+                    updatedById = currentUser.id
             )
             globalBanRepository.save(ban)
 
-            val globalBanResponse = globalBanMapper.toGlobalBanResponse(ban)
+            val globalBanResponse = globalBanMapper.toGlobalBanResponse(
+                    globalBan = ban,
+                    createdBy = userReactiveRepositoryCacheWrapper.findById(ban.createdById).awaitFirst(),
+                    canceledBy = if (ban.cancelledById != null) userReactiveRepositoryCacheWrapper.findById(ban.cancelledById!!).awaitFirst() else null,
+                    bannedUser = userReactiveRepositoryCacheWrapper.findById(ban.bannedUserId).awaitFirst(),
+                    updatedBy = currentUser
+            )
             globalBanEventsProducer.globalBanUpdated(globalBanResponse)
             globalBanResponse
         }
@@ -118,19 +138,37 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
             ban = ban.copy(
                     canceled = true,
                     canceledAt = ZonedDateTime.now(),
-                    cancelledBy = currentUser
+                    cancelledById = currentUser.id
             )
             globalBanRepository.save(ban).awaitFirst()
 
-            val globalBanResponse = globalBanMapper.toGlobalBanResponse(ban)
+            val globalBanResponse = globalBanMapper.toGlobalBanResponse(
+                    globalBan = ban,
+                    bannedUser = userReactiveRepositoryCacheWrapper.findById(ban.bannedUserId).awaitFirst(),
+                    updatedBy = if (ban.updatedById != null) userReactiveRepositoryCacheWrapper.findById(ban.updatedById!!).awaitFirst() else null,
+                    canceledBy = currentUser,
+                    createdBy = userReactiveRepositoryCacheWrapper.findById(ban.createdById).awaitFirst()
+            )
             globalBanEventsProducer.globalBanUpdated(globalBanResponse)
             globalBanResponse
         }
     }
 
     override fun findBans(filters: GlobalBanFilters, paginationRequest: PaginationRequest): Flux<GlobalBanResponse> {
-       return globalBanRepository.searchGlobalBans(filters, paginationRequest.toPageRequest())
-               .map { ban -> globalBanMapper.toGlobalBanResponse(ban) }
+       return mono {
+           val globalBans = globalBanRepository.searchGlobalBans(filters, paginationRequest.toPageRequest())
+                   .collectList()
+                   .awaitFirst()
+
+           globalBans.map { globalBan -> globalBanMapper.toGlobalBanResponse(
+                   globalBan = globalBan,
+                   bannedUser = userReactiveRepositoryCacheWrapper.findById(globalBan.bannedUserId).awaitFirst(),
+                   createdBy = userReactiveRepositoryCacheWrapper.findById(globalBan.createdById).awaitFirst(),
+                   canceledBy = if (globalBan.cancelledById != null) userReactiveRepositoryCacheWrapper.findById(globalBan.cancelledById!!).awaitFirst() else null,
+                   updatedBy = if (globalBan.updatedById != null) userReactiveRepositoryCacheWrapper.findById(globalBan.updatedById!!).awaitFirst() else null
+           ) }
+       }
+               .flatMapIterable { it }
     }
 
     private fun findUserById(userId: String) = userRepository.findById(userId)
@@ -140,8 +178,8 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
         return !ban.canceled && (ban.permanent || (ban.expiresAt != null && ban.expiresAt!!.isAfter(ZonedDateTime.now())))
     }
 
-    private fun findBanByUserAndBanId(user: User, banId: String) = globalBanRepository.findByBannedUserAndId(
-            user = user,
+    private fun findBanByUserAndBanId(user: User, banId: String) = globalBanRepository.findByBannedUserIdAndId(
+            userId = user.id,
             id = banId
     )
             .switchIfEmpty(Mono.error(GlobalBanNotFoundException("Could not find global ban of user ${user.id} with id $banId")))

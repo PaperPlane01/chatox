@@ -1,5 +1,6 @@
 package chatox.user.security
 
+import chatox.user.cache.UserReactiveRepositoryCacheWrapper
 import chatox.user.domain.GlobalBan
 import chatox.user.domain.User
 import chatox.user.exception.UserNotFoundException
@@ -21,7 +22,8 @@ import reactor.util.function.Tuples
 class AuthenticationFacade(private val userRepository: UserRepository,
                            private val globalBanRepository: GlobalBanRepository,
                            private val uploadMapper: UploadMapper,
-                           private val globalBanMapper: GlobalBanMapper) {
+                           private val globalBanMapper: GlobalBanMapper,
+                           private val userReactiveRepositoryCacheWrapper: UserReactiveRepositoryCacheWrapper) {
 
     fun getCurrentUserEntity(): Mono<User> {
         return ReactiveSecurityContextHolder.getContext()
@@ -44,7 +46,6 @@ class AuthenticationFacade(private val userRepository: UserRepository,
             var lastActiveBan: GlobalBan? = null
 
             if (authentication.customUserDetails.jwtGlobalBanInfo != null) {
-                println(authentication.customUserDetails.jwtGlobalBanInfo!!.id)
                 lastActiveBan = globalBanRepository.findById(authentication.customUserDetails.jwtGlobalBanInfo!!.id)
                         .awaitFirstOrNull()
                 println(lastActiveBan)
@@ -62,7 +63,13 @@ class AuthenticationFacade(private val userRepository: UserRepository,
                     createdAt = user.createdAt,
                     dateOfBirth = user.dateOfBirth,
                     email = authentication.customUserDetails.email,
-                    globalBan = if (lastActiveBan != null) globalBanMapper.toGlobalBanResponse(lastActiveBan) else null
+                    globalBan = if (lastActiveBan != null) globalBanMapper.toGlobalBanResponse(
+                            globalBan = lastActiveBan,
+                            bannedUser = user,
+                            createdBy = userReactiveRepositoryCacheWrapper.findById(lastActiveBan.createdById).awaitFirst(),
+                            updatedBy = if (lastActiveBan.updatedById != null) userReactiveRepositoryCacheWrapper.findById(lastActiveBan.updatedById!!).awaitFirst() else null,
+                            canceledBy = if (lastActiveBan.cancelledById != null) userReactiveRepositoryCacheWrapper.findById(lastActiveBan.cancelledById!!).awaitFirst() else null
+                    ) else null
             )
         }
     }

@@ -11,7 +11,7 @@ import java.time.ZonedDateTime
 
 interface GlobalBanRepository : ReactiveMongoRepository<GlobalBan, String>, GlobalBanCustomRepository {
     override fun findById(id: String): Mono<GlobalBan>
-    fun findByBannedUserAndId(user: User, id: String): Mono<GlobalBan>
+    fun findByBannedUserIdAndId(userId: String, id: String): Mono<GlobalBan>
     fun findAllBy(pageable: Pageable): Flux<GlobalBan>
     fun findByCanceledFalseAndExpiresAtAfter(date: ZonedDateTime, pageable: Pageable): Flux<GlobalBan>
     fun findByExpiresAtAfter(date: ZonedDateTime, pageable: Pageable): Flux<GlobalBan>
