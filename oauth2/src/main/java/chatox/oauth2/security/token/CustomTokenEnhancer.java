@@ -36,11 +36,13 @@ public class CustomTokenEnhancer implements TokenEnhancer {
             var lastActiveBan = globalBanRepository.findLastActiveBanOfAccount(account);
 
             lastActiveBan.ifPresent(activeBan -> {
-                System.out.println(activeBan.getId());
                 additionalInformation.put("global_ban_id", activeBan.getId());
-                additionalInformation.put("global_ban_expiration_date", activeBan.getExpiresAt().toInstant().getEpochSecond());
+
+                if (activeBan.getExpiresAt() != null) {
+                    additionalInformation.put("global_ban_expiration_date", activeBan.getExpiresAt().toInstant().getEpochSecond());
+                }
+
                 additionalInformation.put("global_ban_permanent", activeBan.isPermanent());
-                System.out.println(additionalInformation);
             });
 
             ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInformation);
