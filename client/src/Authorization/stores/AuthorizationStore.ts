@@ -23,6 +23,10 @@ export class AuthorizationStore {
 
     @action
     setCurrentUser = (currentUser: CurrentUser): void => {
+        if (currentUser.globalBan) {
+            this.entities.insertGlobalBan(currentUser.globalBan);
+        }
+
         this.currentUser = {
             ...currentUser,
             avatarId: currentUser.avatar ? currentUser.avatar.id : undefined
