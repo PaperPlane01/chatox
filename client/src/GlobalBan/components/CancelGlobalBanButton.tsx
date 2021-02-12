@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import {IconButton, CircularProgress, Tooltip} from "@material-ui/core";
 import {Cancel} from "@material-ui/icons";
 import {useLocalization, useStore} from "../../store/hooks";
+import {ensureEventWontPropagate} from "../../utils/event-utils";
 
 interface CancelGlobalBanButtonProps {
     globalBanId: string
@@ -18,11 +19,7 @@ export const CancelGlobalBanButton: FunctionComponent<CancelGlobalBanButtonProps
     const {l} = useLocalization();
 
     const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-        event.stopPropagation();
-        event.nativeEvent.preventDefault();
-        event.nativeEvent.stopImmediatePropagation();
-        event.nativeEvent.stopPropagation();
+        ensureEventWontPropagate(event);
         cancelGlobalBan(globalBanId);
     };
 

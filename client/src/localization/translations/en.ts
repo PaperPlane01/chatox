@@ -312,5 +312,13 @@ export const en: Labels = {
     "global.ban.banned-user": "Banned user",
     "global.ban.details": "User {username} ban info",
     "global.ban.no-bans": "The are no global bans satisfying specified conditions",
-    "global.bans": "Global bans"
+    "global.bans": "Global bans",
+    "global.ban.update.with-user": "Update global ban on user {username}",
+    "global.ban.update": "Update global ban",
+    "global.ban.update.success": "Global ban has been updated",
+    "global.ban.update.error.no-permission": "You don't have permission to update this ban. This error may occur if ban has expired or canceled by someone else",
+    "global.ban.update.error.unknown": "Unknown error occurred when tried to update global ban. Server responded with {errorStatus} status",
+    "global.ban.update.error.server-unreachable": "Error occurred when tried to update global ban. Server is unreachable",
+    "save-changes": "Save changes",
+    "edit": "Edit"
 };

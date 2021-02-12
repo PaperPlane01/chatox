@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {Grid, Typography} from "@material-ui/core";
-import {GlobalBansContainer, GlobalBanDetailsDialog} from "../GlobalBan";
+import {GlobalBansContainer, GlobalBanDetailsDialog, UpdateGlobalBanDialog} from "../GlobalBan";
 import {AppBar} from "../AppBar";
 import {HasRole} from "../Authorization";
 import {Layout} from "../Layout";
@@ -24,6 +24,7 @@ export const GlobalBansPage: FunctionComponent = () => (
             </Layout>
         </Grid>
         <GlobalBanDetailsDialog/>
+        <UpdateGlobalBanDialog/>
     </Grid>
 );
 

@@ -75,7 +75,7 @@ import {
     GlobalBansStore,
     GlobalBansListStore,
     GlobalBanDetailsDialogStore,
-    CancelGlobalBanStore
+    CancelGlobalBanStore, UpdateGlobalBanStore
 } from "../GlobalBan/stores";
 
 const messages = new MessagesStore();
@@ -184,6 +184,7 @@ const userGlobalBan = new BanUserStore(entities);
 const globalBansList = new GlobalBansListStore(entities);
 const globalBanDetailsDialog = new GlobalBanDetailsDialogStore();
 const cancelGlobalBan = new CancelGlobalBanStore(entities);
+const updateGlobalBan = new UpdateGlobalBanStore(entities);
 
 export const store: IAppState = {
     authorization,
@@ -244,5 +245,6 @@ export const store: IAppState = {
     userGlobalBan,
     globalBansList,
     globalBanDetailsDialog,
-    cancelGlobalBan
+    cancelGlobalBan,
+    updateGlobalBan
 };

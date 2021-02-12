@@ -312,5 +312,13 @@ export const ru: Labels = {
     "global.ban.banned-user": "Заблокированный пользователь",
     "global.ban.details": "Информация о блокировке пользователя {username}",
     "global.ban.no-bans": "По данным условиям не было найдено ни одной глобальной блокировки",
-    "global.bans": "Баны"
+    "global.bans": "Баны",
+    "global.ban.update.with-user": "Обновить глобальную блокировку пользователя {username}",
+    "global.ban.update": "Обновить глобальную блокировку",
+    "global.ban.update.success": "Изменения сохранены",
+    "global.ban.update.error.no-permission": "У вас нет доступа к обновлению этой блокировки. Эта ошибка может возникнуть, если блокировка истекла или была отменена",
+    "global.ban.update.error.unknown": "Во время попытки обновить блокировку произошла ошибка. Сервер ответил со статусом {errorStatus}",
+    "global.ban.update.error.server-unreachable": "Во время попытки обновить блокировку произошла ошибка. Сервер недоступен",
+    "save-changes": "Сохранить изменения",
+    "edit": "Редактировать"
 };

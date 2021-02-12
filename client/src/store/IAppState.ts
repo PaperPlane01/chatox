@@ -65,7 +65,7 @@ import {
     BanUserStore,
     CancelGlobalBanStore,
     GlobalBanDetailsDialogStore,
-    GlobalBansListStore
+    GlobalBansListStore, UpdateGlobalBanStore
 } from "../GlobalBan/stores";
 
 export interface IAppState {
@@ -128,5 +128,6 @@ export interface IAppState {
     globalBansList: GlobalBansListStore,
     globalBanDetailsDialog: GlobalBanDetailsDialogStore,
     cancelGlobalBan: CancelGlobalBanStore,
+    updateGlobalBan: UpdateGlobalBanStore,
     store?: any
 }

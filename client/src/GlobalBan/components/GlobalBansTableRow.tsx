@@ -1,13 +1,14 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
 import {createStyles, makeStyles, TableCell, TableRow} from "@material-ui/core";
 import {Check, Remove} from "@material-ui/icons";
 import {format} from "date-fns";
 import {CancelGlobalBanButton} from "./CancelGlobalBanButton";
+import {UpdateGlobalBanButton} from "./UpdateGlobalBanButton";
+import {isGlobalBanActive} from "../utils";
 import {UserLink} from "../../UserLink";
 import {useLocalization, useStore} from "../../store";
 import {Labels} from "../../localization";
-import {isGlobalBanActive} from "../utils";
 
 interface GlobalBansTableRowProps {
     globalBanId: string
@@ -77,7 +78,12 @@ export const GlobalBansTableRow: FunctionComponent<GlobalBansTableRowProps> = ob
                 <UserLink user={bannedBy} displayAvatar/>
             </TableCell>
             <TableCell>
-                {isGlobalBanActive(globalBan) && <CancelGlobalBanButton globalBanId={globalBan.id}/>}
+                {isGlobalBanActive(globalBan) && (
+                    <Fragment>
+                        <CancelGlobalBanButton globalBanId={globalBan.id}/>
+                        <UpdateGlobalBanButton globalBanId={globalBan.id}/>
+                    </Fragment>
+                )}
             </TableCell>
         </TableRow>
     );
