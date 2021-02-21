@@ -253,6 +253,7 @@ export const ru: Labels = {
     "upload.file.too-large": "Выбранный файл слишком большой",
     "user.bio.too-long": "Слишком длинный текст",
     "user.edit-profile": "Редактировать профиль",
+    "user.edit-profile.cannot-edit-profile": "Вы не можете редактировать свой профиль",
     "user.edit-profile.authorization-required": "Для редактрования профиля необходимо войти в аккаунт",
     "user.edit-profile.save-changes": "Сохранить изменения",
     "user.edit-profile.success": "Профиль обновлён",

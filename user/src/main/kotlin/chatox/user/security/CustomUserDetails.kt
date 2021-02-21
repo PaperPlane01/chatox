@@ -72,6 +72,10 @@ class CustomUserDetails : UserDetails {
         return authorities
     }
 
+    fun getAuthoritiesAsStrings(): Collection<String> {
+        return authorities.map { grantedAuthority -> grantedAuthority.authority }
+    }
+
     override fun isEnabled(): Boolean {
         return true
     }

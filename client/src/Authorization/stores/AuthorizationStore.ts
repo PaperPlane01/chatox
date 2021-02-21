@@ -86,7 +86,7 @@ export class AuthorizationStore {
         return this.currentUser.roles.includes(UserRole.ROLE_ADMIN);
     }
 
-    isCurrentUserBannedGlobally(): boolean {
+    isCurrentUserBannedGlobally = (): boolean => {
         if (!this.currentUser) {
             return false;
         }

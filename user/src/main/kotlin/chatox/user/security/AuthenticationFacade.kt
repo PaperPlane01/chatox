@@ -3,7 +3,6 @@ package chatox.user.security
 import chatox.user.cache.UserReactiveRepositoryCacheWrapper
 import chatox.user.domain.GlobalBan
 import chatox.user.domain.User
-import chatox.user.exception.UserNotFoundException
 import chatox.user.mapper.GlobalBanMapper
 import chatox.user.mapper.UploadMapper
 import chatox.user.repository.GlobalBanRepository
@@ -15,7 +14,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
-import reactor.util.function.Tuples
+import java.time.ZonedDateTime
 
 @Component
 @Transactional
@@ -26,12 +25,28 @@ class AuthenticationFacade(private val userRepository: UserRepository,
                            private val userReactiveRepositoryCacheWrapper: UserReactiveRepositoryCacheWrapper) {
 
     fun getCurrentUserEntity(): Mono<User> {
-        return ReactiveSecurityContextHolder.getContext()
-                .map { context -> context.authentication }
-                .filter { authentication -> authentication is CustomAuthentication }
-                .cast(CustomAuthentication::class.java)
+        return getCurrentAuthentication()
                 .map { authentication -> userRepository.findById(authentication.customUserDetails.id) }
                 .flatMap { user -> user }
+    }
+
+    fun isCurrentUserBannedGlobally(): Mono<Boolean> {
+        return mono {
+            val authentication = getCurrentAuthentication().awaitFirst()
+
+            if (authentication.customUserDetails.jwtGlobalBanInfo == null) {
+                return@mono false
+            }
+
+            val lastActiveBan = globalBanRepository.findById(authentication.customUserDetails.jwtGlobalBanInfo!!.id).awaitFirstOrNull()
+                    ?: return@mono false
+
+            if (authentication.customUserDetails.getAuthoritiesAsStrings().contains("ROLE_ADMIN")) {
+                return@mono false;
+            }
+
+            return@mono !lastActiveBan.canceled && (lastActiveBan.permanent || lastActiveBan.expiresAt!!.isAfter(ZonedDateTime.now()))
+        }
     }
 
     fun getCurrentUser(): Mono<CurrentUser> {
@@ -41,14 +56,12 @@ class AuthenticationFacade(private val userRepository: UserRepository,
                     .filter { authentication -> authentication is CustomAuthentication }
                     .cast(CustomAuthentication::class.java)
                     .awaitFirst()
-            println(authentication.customUserDetails.id)
             val user = userRepository.findById(authentication.customUserDetails.id).awaitFirst()
             var lastActiveBan: GlobalBan? = null
 
             if (authentication.customUserDetails.jwtGlobalBanInfo != null) {
                 lastActiveBan = globalBanRepository.findById(authentication.customUserDetails.jwtGlobalBanInfo!!.id)
                         .awaitFirstOrNull()
-                println(lastActiveBan)
             }
 
             CurrentUser(
@@ -72,5 +85,12 @@ class AuthenticationFacade(private val userRepository: UserRepository,
                     ) else null
             )
         }
+    }
+
+    private fun getCurrentAuthentication(): Mono<CustomAuthentication> {
+        return ReactiveSecurityContextHolder.getContext()
+                .map { context -> context.authentication }
+                .filter { authentication -> authentication is CustomAuthentication }
+                .cast(CustomAuthentication::class.java)
     }
 }

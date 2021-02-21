@@ -253,6 +253,7 @@ export const en: Labels = {
     "upload.file.too-large": "Selected file is too large",
     "user.bio.too-long": "Bio is too long",
     "user.edit-profile": "Edit profile",
+    "user.edit-profile.cannot-edit-profile": "You cannot edit your profile",
     "user.edit-profile.authorization-required": "You have to be logged in to edit your profile",
     "user.edit-profile.save-changes": "Save changes",
     "user.edit-profile.success": "Profile has been updated",

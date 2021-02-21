@@ -251,6 +251,7 @@ export interface Labels {
     "upload.file.too-large": string,
     "user.bio.too-long": string,
     "user.edit-profile": string,
+    "user.edit-profile.cannot-edit-profile": string,
     "user.edit-profile.authorization-required": string,
     "user.edit-profile.save-changes": string,
     "user.edit-profile.success": string,
