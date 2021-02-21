@@ -21,7 +21,7 @@ import {
     SessionActivityStatusResponse,
     WebsocketEvent
 } from "./types";
-import {Chat, ChatBlocking, ChatMessage} from "../common/types";
+import {Chat, ChatBlocking, ChatMessage, GlobalBan} from "../common/types";
 import {ChatDeleted, UserKickedFromChat, UserLeftChat} from "../common/types/events";
 import {ChatParticipationService} from "../chat-participation";
 import {ChatParticipationDto} from "../chat-participation/types";
@@ -268,6 +268,22 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         };
         this.publishEventToChatParticipants(chatDeleted.id, chatDeletedEvent);
         this.publishEventToUsersSubscribedToChat(chatDeleted.id, chatDeletedEvent);
+    }
+
+    public async publishGlobalBanCreated(globalBan: GlobalBan) {
+        const globalBanCreatedEvent: WebsocketEvent<GlobalBan> = {
+            payload: globalBan,
+            type: EventType.GLOBAL_BAN_CREATED
+        };
+        this.publishEventToUser(globalBan.bannedUser.id, globalBanCreatedEvent);
+    }
+
+    public async publishGlobalBanUpdated(globalBan: GlobalBan) {
+        const globalBanUpdatedEvent: WebsocketEvent<GlobalBan> = {
+            payload: globalBan,
+            type: EventType.GLOBAL_BAN_UPDATED
+        };
+        this.publishEventToUser(globalBan.bannedUser.id, globalBanUpdatedEvent);
     }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {

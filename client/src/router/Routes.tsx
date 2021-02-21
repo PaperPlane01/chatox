@@ -22,6 +22,7 @@ const ChatsPage = lazy(() => import("../pages/ChatsPage"));
 const ChatPage = lazy(() => import("../pages/ChatPage"));
 const UserPage = lazy(() => import("../pages/UserPage"));
 const SettingsPage = lazy(() => import("../pages/SettingsPage"));
+const GlobalBansPage = lazy(() => import("../pages/GlobalBansPage"));
 
 const {Route} = require("mobx-router");
 
@@ -126,6 +127,22 @@ export const Routes = {
         },
         onExit: () => {
             store.settingsTabs.setActiveTab(undefined);
+        }
+    }),
+    globalBans: new Route({
+        path: "/bans",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <GlobalBansPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: () => {
+            store.globalBansList.fetchGlobalBans();
+        },
+        onExit: () => {
+            store.globalBansList.reset();
         }
     })
 };

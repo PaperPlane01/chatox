@@ -1,6 +1,7 @@
 package chatox.oauth2.security;
 
 import chatox.oauth2.domain.Account;
+import chatox.oauth2.domain.GlobalBan;
 import chatox.oauth2.domain.Role;
 import chatox.oauth2.domain.UserRole;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CustomUserDetails implements UserDetails {

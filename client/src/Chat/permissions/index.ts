@@ -1,5 +1,6 @@
 import {ChatOfCurrentUserEntity, ChatParticipationEntity} from "../types";
 import {ChatRole, CurrentUser, UserRole} from "../../api/types/response";
+import {AuthorizationStore} from "../../Authorization/stores";
 
 export const canUpdateChat = (chat: ChatOfCurrentUserEntity): boolean => {
     return chat.createdByCurrentUser;
@@ -34,3 +35,5 @@ export const canDeleteChat = (
 
     return chat.createdByCurrentUser || currentUser.roles.includes(UserRole.ROLE_ADMIN);
 };
+
+export const canCreateChat = (authorizationStore: AuthorizationStore): boolean => !authorizationStore.isCurrentUserBannedGlobally();

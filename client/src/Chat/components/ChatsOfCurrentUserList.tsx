@@ -4,6 +4,7 @@ import {CircularProgress, createStyles, Divider, Hidden, List, makeStyles, Theme
 import {ChatsOfCurrentUserListItem} from "./ChatsOfCurrentUserListItem";
 import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
 import {CreateChatDialog} from "./CreateChatDialog";
+import {canCreateChat} from "../permissions";
 import {useStore} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -40,7 +41,8 @@ export const ChatsOfCurrentUserList: FunctionComponent = observer(() => {
         chatsOfCurrentUser: {
             chatsOfCurrentUser: chatIds,
             pending
-        }
+        },
+        authorization
     } = useStore();
     const classes = useStyles();
 
@@ -69,7 +71,7 @@ export const ChatsOfCurrentUserList: FunctionComponent = observer(() => {
                ))}
            </List>
            <Hidden mdUp>
-               <CreateChatFloatingActionButton/>
+               {canCreateChat(authorization) && <CreateChatFloatingActionButton/>}
            </Hidden>
            <CreateChatDialog/>
        </div>

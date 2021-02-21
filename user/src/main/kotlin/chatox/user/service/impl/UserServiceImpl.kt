@@ -15,10 +15,12 @@ import chatox.user.messaging.rabbitmq.event.producer.UserEventsProducer
 import chatox.user.repository.UploadRepository
 import chatox.user.repository.UserRepository
 import chatox.user.repository.UserSessionRepository
+import chatox.user.security.AuthenticationFacade
 import chatox.user.service.UserService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
@@ -30,7 +32,8 @@ class UserServiceImpl(private val userRepository: UserRepository,
                       private val userSessionRepository: UserSessionRepository,
                       private val uploadRepository: UploadRepository,
                       private val userMapper: UserMapper,
-                      private val userEventsProducer: UserEventsProducer) : UserService {
+                      private val userEventsProducer: UserEventsProducer,
+                      private val authenticationFacade: AuthenticationFacade) : UserService {
 
     override fun deleteUsersByAccount(accountId: String): Flux<Void> {
         return userRepository.findByAccountId(accountId)
@@ -52,6 +55,10 @@ class UserServiceImpl(private val userRepository: UserRepository,
 
     override fun updateUser(id: String, updateUserRequest: UpdateUserRequest): Mono<UserResponse> {
         return mono {
+            if (authenticationFacade.isCurrentUserBannedGlobally().awaitFirst()) {
+                throw AccessDeniedException("Current user is banned globally")
+            }
+
             var user = findById(id).awaitFirst()
             var avatar: Upload<ImageUploadMetadata>? = null
 

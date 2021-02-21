@@ -80,6 +80,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
     override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatOfCurrentUserResponse> {
         return mono {
+            assertCanCreateChat().awaitFirst()
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
             val chat = chatMapper.fromCreateChatRequest(
                     createChatRequest = createChatRequest,
@@ -121,6 +122,17 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             )
                     .awaitFirst()
         }
+    }
+
+    private fun assertCanCreateChat(): Mono<Boolean> {
+        return chatPermissions.canCreateChat()
+                .flatMap { canCreateChat ->
+                    if (canCreateChat) {
+                        Mono.just(canCreateChat)
+                    } else {
+                        Mono.error(AccessDeniedException("Can't create chat"))
+                    }
+                 }
     }
 
     override fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse> {

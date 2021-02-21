@@ -1,8 +1,9 @@
-import {action, observable, computed} from "mobx";
+import {action, computed, observable} from "mobx";
 import {UserApi} from "../../api";
-import {CurrentUser} from "../../api/types/response";
+import {CurrentUser, UserRole} from "../../api/types/response";
 import {EntitiesStore} from "../../entities-store";
 import {tokenRefreshState} from "../../api/axios-instance";
+import {isGlobalBanActive} from "../../GlobalBan/utils";
 
 export class AuthorizationStore {
     @observable
@@ -23,8 +24,15 @@ export class AuthorizationStore {
 
     @action
     setCurrentUser = (currentUser: CurrentUser): void => {
-        this.currentUser = currentUser;
-        this.entities.users.insert({
+        if (currentUser.globalBan) {
+            this.entities.insertGlobalBan(currentUser.globalBan);
+        }
+
+        this.currentUser = {
+            ...currentUser,
+            avatarId: currentUser.avatar ? currentUser.avatar.id : undefined
+        };
+        this.entities.insertUser({
             ...currentUser,
             deleted: false,
             online: true
@@ -42,17 +50,7 @@ export class AuthorizationStore {
         this.fetchingCurrentUser = true;
 
         return UserApi.getCurrentUser()
-            .then(({data}) => {
-                this.entities.insertUser({
-                    ...data,
-                    online: true,
-                    deleted: false
-                });
-                this.currentUser = {
-                    ...data,
-                    avatarId: data.avatar ? data.avatar.id : undefined
-                };
-            })
+            .then(({data}) => this.setCurrentUser(data))
             .finally(() => this.fetchingCurrentUser = false);
     };
 
@@ -77,5 +75,28 @@ export class AuthorizationStore {
         } else {
             this.currentUser = undefined;
         }
+    }
+
+    @computed
+    get currentUserIsAdmin(): boolean {
+        if (!this.currentUser) {
+            return false;
+        }
+
+        return this.currentUser.roles.includes(UserRole.ROLE_ADMIN);
+    }
+
+    isCurrentUserBannedGlobally = (): boolean => {
+        if (!this.currentUser) {
+            return false;
+        }
+
+        if (!this.currentUser.globalBan) {
+            return false;
+        }
+
+        const globalBan = this.entities.globalBans.findById(this.currentUser.globalBan.id);
+
+        return isGlobalBanActive(globalBan, this.currentUser);
     }
 }

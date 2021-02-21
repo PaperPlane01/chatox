@@ -7,6 +7,7 @@ import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.service.MessageService
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -26,14 +27,19 @@ class MessagePermissions(private val chatParticipationService: ChatParticipation
     }
 
     fun canCreateMessage(chatId: String): Mono<Boolean> {
-        return authenticationFacade.getCurrentUser()
-                .flatMap { chatParticipationService.getMinifiedChatParticipation(chatId, it) }
-                .map {
-                    it.role == ChatRole.MODERATOR
-                            || it.role == ChatRole.ADMIN
-                            || it.activeChatBlocking == null
-                }
-                .switchIfEmpty(Mono.just(false))
+        return mono {
+            val currentUserDetails = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val chatParticipation = chatParticipationService.getMinifiedChatParticipation(chatId = chatId, user = currentUser)
+                    .awaitFirstOrNull()
+
+            if (chatParticipation == null) {
+                false
+            } else {
+                (chatParticipation.role == ChatRole.MODERATOR || chatParticipation.role == ChatRole.ADMIN || chatParticipation.activeChatBlocking == null)
+                        && !currentUserDetails.isBannedGlobally()
+            }
+        }
     }
 
     fun canUpdateMessage(messageId: String, chatId: String): Mono<Boolean> {
@@ -47,6 +53,7 @@ class MessagePermissions(private val chatParticipationService: ChatParticipation
                     .awaitFirst()
 
             message.chatId == chatId
+                    && !currentUser.isBannedGlobally()
                     && message.createdAt.plusDays(1L).isAfter(ZonedDateTime.now())
                     && message.sender.id == currentUser.id
                     && !userBlockedInChat
@@ -54,17 +61,12 @@ class MessagePermissions(private val chatParticipationService: ChatParticipation
     }
 
     fun canDeleteMessage(messageId: String, chatId: String): Mono<Boolean> {
-        var currentUser: User? = null
+        return mono {
+            val message = messageService.findMessageById(messageId).awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val userRoleInChat = chatParticipationService.getRoleOfUserInChat(message.chatId, currentUser).awaitFirst()
 
-        return messageService.findMessageById(messageId)
-                .zipWith(authenticationFacade.getCurrentUser().map {
-                    currentUser = it
-                    chatParticipationService.getRoleOfUserInChat(chatId, it)
-                })
-                .map { it.t2.zipWith(Mono.just(it.t1)) }
-                .flatMap { it }
-                .map { it.t2.chatId == chatId
-                        && (it.t2.sender.id == currentUser!!.id || (it.t1 == ChatRole.ADMIN || it.t1 == ChatRole.MODERATOR))
-                }
+            message.chatId == chatId && (message.sender.id == currentUser.id || (userRoleInChat == ChatRole.ADMIN || userRoleInChat == ChatRole.MODERATOR))
+        }
     }
 }

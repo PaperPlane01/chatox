@@ -25,3 +25,5 @@ export * from "./MessageEmoji";
 export * from "./ChatUploadAttachment";
 export * from "./UploadType";
 export * from "./ChatDeletionReason";
+export * from "./GlobalBanReason";
+export * from "./GlobalBan";

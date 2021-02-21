@@ -11,6 +11,7 @@ import {isChatBlockingActive} from "../../ChatBlocking/utils";
 import {isStringEmpty} from "../../utils/string-utils";
 import {UserEntity} from "../../User/types";
 import {Labels, TranslationFunction} from "../../localization";
+import {getGlobalBanLabel, isGlobalBanActive} from "../../GlobalBan/utils";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messagesListBottom: {
@@ -77,6 +78,9 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
             },
             chats: {
                 findById: findChat
+            },
+            globalBans: {
+                findById: findGlobalBan
             }
         },
         chat: {
@@ -103,29 +107,44 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
         }
 
         if (chatParticipation) {
-            if (chatParticipation.activeChatBlockingId) {
-                const chatBlocking = findChatBlocking(chatParticipation.activeChatBlockingId);
-                activeChatBlocking = isChatBlockingActive(chatBlocking) ? chatBlocking : undefined;
-            }
-
-            if (activeChatBlocking) {
-                const blockedBy = findUser(activeChatBlocking.blockedById);
+            if (currentUser.globalBan && isGlobalBanActive(findGlobalBan(currentUser.globalBan.id))) {
                 messagesListBottomContent = (
-                    <Typography>
-                        <Typography color="primary">
-                            {
-                                getBlockingLabel(
-                                    activeChatBlocking,
-                                    blockedBy,
-                                    l,
-                                    dateFnsLocale
-                                )
-                            }
-                        </Typography>
+                    <Typography color="primary">
+                        {
+                            getGlobalBanLabel(
+                                findGlobalBan(currentUser.globalBan.id),
+                                l,
+                                dateFnsLocale,
+                                findUser
+                            )
+                        }
                     </Typography>
-                );
+                )
             } else {
-                messagesListBottomContent = <CreateMessageForm/>
+                if (chatParticipation.activeChatBlockingId) {
+                    const chatBlocking = findChatBlocking(chatParticipation.activeChatBlockingId);
+                    activeChatBlocking = isChatBlockingActive(chatBlocking) ? chatBlocking : undefined;
+                }
+
+                if (activeChatBlocking) {
+                    const blockedBy = findUser(activeChatBlocking.blockedById);
+                    messagesListBottomContent = (
+                        <Typography>
+                            <Typography color="primary">
+                                {
+                                    getBlockingLabel(
+                                        activeChatBlocking,
+                                        blockedBy,
+                                        l,
+                                        dateFnsLocale
+                                    )
+                                }
+                            </Typography>
+                        </Typography>
+                    );
+                } else {
+                    messagesListBottomContent = <CreateMessageForm/>
+                }
             }
         } else {
             messagesListBottomContent = <JoinChatButton/>;

@@ -11,6 +11,7 @@ import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from ".
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {PasswordRecoveryDialog} from "../../PasswordRecovery";
 import {useStore} from "../../store";
+import {GlobalBansMenuItem} from "./GlobalBansMenuItem";
 
 export const NavigationalDrawer: FunctionComponent = observer(() => {
     const {appBar} = useStore();
@@ -48,6 +49,10 @@ export const NavigationalDrawer: FunctionComponent = observer(() => {
                         <MyChatsMenuItem onClick={closeDrawer}/>
                     </HasAnyRole>
                     <SettingsMenuItem onClick={closeDrawer}/>
+                    <HasRole role="ROLE_ADMIN">
+                        <Divider/>
+                        <GlobalBansMenuItem onClick={closeDrawer}/>
+                    </HasRole>
                     <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
                         <Divider/>
                         <LogOutMenuItem onClick={closeDrawer}/>

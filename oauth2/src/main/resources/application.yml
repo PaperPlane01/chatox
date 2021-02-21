@@ -13,6 +13,8 @@ spring:
       jdbc-url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/chatox-oauth2-service}
     username: ${POSTGRES_USER:admin}
     password: ${POSTGRES_PASSWORD:root}
+  main:
+    allow-bean-definition-overriding: true
   mail:
     host: ${OAUTH2_SERVICE_SPRING_MAIL_HOST}
     username: ${OAUTH2_SERVICE_SPRING_MAIL_USERNAME}
