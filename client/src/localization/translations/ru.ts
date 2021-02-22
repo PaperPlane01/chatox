@@ -321,5 +321,14 @@ export const ru: Labels = {
     "global.ban.update.error.unknown": "Во время попытки обновить блокировку произошла ошибка. Сервер ответил со статусом {errorStatus}",
     "global.ban.update.error.server-unreachable": "Во время попытки обновить блокировку произошла ошибка. Сервер недоступен",
     "save-changes": "Сохранить изменения",
-    "edit": "Редактировать"
+    "edit": "Редактировать",
+    "chat.participant.role": "Роль пользователя в чате",
+    "chat.participant.role.ADMIN": "Администратор",
+    "chat.participant.role.MODERATOR": "Модератор",
+    "chat.participant.role.USER": "Пользователь",
+    "chat.participant.update": "Обновить участника чата",
+    "chat.participant.update.with-username": "Обновить участнкиа чата {username}",
+    "chat.participant.update.success": "Участник чата был обновлён",
+    "chat.participant.update.error.unknown-error": "Error occurred when tried to update chat participant. Server responded with {errorStatus} status",
+    "chat.participant.update.error.server-unreachable": "Error occurred when tried to update chat participant. Server is unreachable"
 };

@@ -16,7 +16,6 @@ import chatox.chat.model.ChatRole
 import chatox.chat.model.User
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
-import chatox.chat.repository.UserRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.ChatParticipationPermissions
 import chatox.chat.service.ChatParticipationService
@@ -162,20 +161,27 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
             chatId: String,
             updateChatParticipationRequest: UpdateChatParticipationRequest
     ): Mono<ChatParticipationResponse> {
-        return assertCanUpdateChatParticipation(id, chatId)
-                .flatMap {
-                    chatParticipationRepository.findById(id)
-                            .switchIfEmpty(Mono.error(ChatParticipationNotFoundException("Could not find chat participation with id $id")))
-                            .map { chatParticipationMapper.mapChatParticipationUpdate(
-                                    updateChatParticipationRequest, it
-                            ) }
-                            .flatMap { chatParticipationRepository.save(it) }
-                            .map { chatParticipationMapper.toChatParticipationResponse(it) }
-                            .map {
-                                chatEventsPublisher.chatParticipationUpdated(it)
-                                it
-                            }
-                }
+        return mono {
+            assertCanUpdateChatParticipation(chatId = chatId, chatParticipationId = id).awaitFirst()
+
+            var chatParticipation = findChatParticipationByIdAndChatId(id, chatId).awaitFirst()
+            chatParticipation = chatParticipationMapper.mapChatParticipationUpdate(
+                    updateChatParticipationRequest = updateChatParticipationRequest,
+                    originalChatParticipation = chatParticipation
+            )
+            chatParticipationRepository.save(chatParticipation).awaitFirst()
+
+            val chatParticipationResponse = chatParticipationMapper.toChatParticipationResponse(chatParticipation)
+
+            chatEventsPublisher.chatParticipationUpdated(chatParticipationResponse)
+
+            return@mono chatParticipationResponse
+        }
+    }
+
+    private fun findChatParticipationByIdAndChatId(id: String, chatId: String): Mono<ChatParticipation> {
+        return chatParticipationRepository.findByIdAndChatId(id = id, chatId = chatId)
+                .switchIfEmpty(Mono.error(ChatParticipationNotFoundException("Could not find chat participation with id $id and chatId $chatId")))
     }
 
     private fun assertCanUpdateChatParticipation(chatId: String, chatParticipationId: String): Mono<Boolean> {

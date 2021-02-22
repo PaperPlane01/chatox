@@ -321,5 +321,14 @@ export const en: Labels = {
     "global.ban.update.error.unknown": "Unknown error occurred when tried to update global ban. Server responded with {errorStatus} status",
     "global.ban.update.error.server-unreachable": "Error occurred when tried to update global ban. Server is unreachable",
     "save-changes": "Save changes",
-    "edit": "Edit"
+    "edit": "Edit",
+    "chat.participant.role": "User role in chat",
+    "chat.participant.role.ADMIN": "Admin",
+    "chat.participant.role.MODERATOR": "Moderator",
+    "chat.participant.role.USER": "User",
+    "chat.participant.update": "Update chat participant",
+    "chat.participant.update.with-username": "Update chat participant {username}",
+    "chat.participant.update.success": "Chat participant has been updated",
+    "chat.participant.update.error.unknown-error": "Error occurred when tried to update chat participant. Server responded with {errorStatus} status",
+    "chat.participant.update.error.server-unreachable": "Error occurred when tried to update chat participant. Server is unreachable"
 };

@@ -7,3 +7,4 @@ export * from "./ChatUploadEntity";
 export * from "./ReverseScrollDirectionOption";
 export * from "./ChatDeletionStep";
 export * from "./DeleteChatFormData";
+export * from "./UpdateChatParticipantFormData";

@@ -20,7 +20,7 @@ import {
     KickChatParticipantStore,
     LeaveChatStore,
     OnlineChatParticipantsStore,
-    PopularChatsStore,
+    PopularChatsStore, UpdateChatParticipantStore,
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
@@ -129,5 +129,6 @@ export interface IAppState {
     globalBanDetailsDialog: GlobalBanDetailsDialogStore,
     cancelGlobalBan: CancelGlobalBanStore,
     updateGlobalBan: UpdateGlobalBanStore,
+    updateChatParticipant: UpdateChatParticipantStore,
     store?: any
 }

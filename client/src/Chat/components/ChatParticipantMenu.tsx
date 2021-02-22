@@ -5,10 +5,11 @@ import {MoreVert} from "@material-ui/icons";
 import {BlockChatParticipantMenuItem} from "./BlockChatParticipantMenuItem";
 import {KickChatParticipantMenuItem} from "./KickChatParticipantMenuItem";
 import {ChatParticipationEntity} from "../types";
-import {canKickChatParticipant} from "../permissions";
+import {canKickChatParticipant, canUpdateChatParticipant} from "../permissions";
 import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
 import {BanUserGloballyMenuItem, canBanUsersGlobally} from "../../GlobalBan";
 import {useAuthorization, useStore} from "../../store";
+import {UpdateChatParticipantMenuItem} from "./UpdateChatParticipantMenuItem";
 
 interface ChatParticipantMenuProps {
     chatParticipation: ChatParticipationEntity
@@ -20,7 +21,10 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
     const {
         entities: {
             chatParticipations: {
-                findByUserAndChat: findChatParticipation
+                findByUserAndChat: findChatParticipation,
+            },
+            chats: {
+                findById: findChat
             }
         }
     } = useStore();
@@ -55,6 +59,14 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
         menuItems.push(
             <BlockChatParticipantMenuItem userId={chatParticipation.userId}
                                           onClick={handleClose}
+            />
+        );
+    }
+
+    if (canUpdateChatParticipant(chatParticipation, findChat(chatParticipation.chatId))) {
+        menuItems.push(
+            <UpdateChatParticipantMenuItem chatParticipantId={chatParticipation.id}
+                                           onClick={handleClose}
             />
         );
     }
