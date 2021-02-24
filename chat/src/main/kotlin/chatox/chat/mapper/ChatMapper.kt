@@ -46,7 +46,7 @@ class ChatMapper(
             avatarUri = chat.avatarUri,
             participantsCount = chat.numberOfParticipants,
             onlineParticipantsCount = chat.numberOfOnlineParticipants,
-            createdByCurrentUser = currentUserId ?: currentUserId === chat.createdById,
+            createdByCurrentUser = currentUserId ?: currentUserId == chat.createdById,
             tags = chat.tags,
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null
     )

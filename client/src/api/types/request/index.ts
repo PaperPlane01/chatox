@@ -17,3 +17,4 @@ export * from "./UpdateChatRequest";
 export * from "./BanUserRequest";
 export * from "./UpdateBanRequest";
 export * from "./GlobalBanFilters";
+export * from "./UpdateChatParticipantRequest";

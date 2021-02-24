@@ -7,7 +7,8 @@ import {
     ChatsOfCurrentUserList,
     ConfirmChatDeletionDialog,
     SpecifyChatDeletionReasonDialog,
-    UpdateChatDialog
+    UpdateChatDialog,
+    UpdateChatParticipantDialog
 } from "../Chat";
 import {AttachedFilesDialog, MessageDialog, MessagesListWrapper, UpdateMessageDialog} from "../Message";
 import {
@@ -58,6 +59,7 @@ export const ChatPage: FunctionComponent = () => (
             <ConfirmChatDeletionDialog/>
             <SpecifyChatDeletionReasonDialog/>
             <BanUserGloballyDialog/>
+            <UpdateChatParticipantDialog/>
         </Grid>
     </Fragment>
 );

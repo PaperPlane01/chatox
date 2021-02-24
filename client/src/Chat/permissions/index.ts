@@ -25,6 +25,13 @@ export const canKickChatParticipant = (
     return currentUserChatParticipation.role === ChatRole.MODERATOR || currentUserChatParticipation.role === ChatRole.ADMIN;
 };
 
+export const canUpdateChatParticipant = (
+    participantToUpdate: ChatParticipationEntity,
+    chat: ChatOfCurrentUserEntity
+): boolean => {
+    return chat.createdByCurrentUser && chat.currentUserParticipationId !== participantToUpdate.id;
+}
+
 export const canDeleteChat = (
     chat: ChatOfCurrentUserEntity,
     currentUser?: CurrentUser

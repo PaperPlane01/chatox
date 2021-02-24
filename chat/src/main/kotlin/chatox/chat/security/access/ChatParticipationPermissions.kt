@@ -76,8 +76,13 @@ class ChatParticipationPermissions(private val chatService: ChatService,
     }
 
     fun canUpdateChatParticipant(chatId: String, chatParticipationId: String): Mono<Boolean> {
-        return chatService.findChatBySlugOrId(chatId)
-                .zipWith(chatParticipationService.findChatParticipationById(chatParticipationId))
-                .map { it.t1.createdByCurrentUser!! && it.t2.chatId == chatId }
+        return mono {
+            val chat = chatService.findChatBySlugOrId(chatId).awaitFirst()
+            val chatParticipation = chatParticipationService.findChatParticipationById(chatParticipationId).awaitFirst()
+
+            println(chat.createdByCurrentUser)
+
+            return@mono chat.createdByCurrentUser!! && chatParticipation.chatId == chat.id;
+        }
     }
 }

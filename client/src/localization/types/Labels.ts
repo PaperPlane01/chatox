@@ -319,5 +319,14 @@ export interface Labels {
     "global.ban.update.error.server-unreachable": string,
     "global.ban.update.error.unknown": string,
     "save-changes": string,
-    "edit": string
+    "edit": string,
+    "chat.participant.role": string,
+    "chat.participant.role.ADMIN": string,
+    "chat.participant.role.MODERATOR": string,
+    "chat.participant.role.USER": string,
+    "chat.participant.update": string,
+    "chat.participant.update.with-username": string,
+    "chat.participant.update.success": string,
+    "chat.participant.update.error.unknown-error": string,
+    "chat.participant.update.error.server-unreachable": string
 }

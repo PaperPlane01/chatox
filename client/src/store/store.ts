@@ -28,7 +28,7 @@ import {
     KickChatParticipantStore,
     LeaveChatStore,
     OnlineChatParticipantsStore,
-    PopularChatsStore,
+    PopularChatsStore, UpdateChatParticipantStore,
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
@@ -185,6 +185,7 @@ const globalBansList = new GlobalBansListStore(entities);
 const globalBanDetailsDialog = new GlobalBanDetailsDialogStore();
 const cancelGlobalBan = new CancelGlobalBanStore(entities);
 const updateGlobalBan = new UpdateGlobalBanStore(entities);
+const updateChatParticipant = new UpdateChatParticipantStore(entities);
 
 export const store: IAppState = {
     authorization,
@@ -246,5 +247,6 @@ export const store: IAppState = {
     globalBansList,
     globalBanDetailsDialog,
     cancelGlobalBan,
-    updateGlobalBan
+    updateGlobalBan,
+    updateChatParticipant
 };
