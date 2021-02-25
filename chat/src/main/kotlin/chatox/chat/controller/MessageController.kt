@@ -39,6 +39,9 @@ class MessageController(private val messageService: MessageService) {
                       @RequestBody @Valid updateMessageRequest: UpdateMessageRequest
     ) = messageService.updateMessage(messageId, chatId,updateMessageRequest)
 
+    @GetMapping("/{chatId}/messages/pinned")
+    fun findPinnedMessageByChat(@PathVariable chatId: String) = messageService.findPinnedMessageByChat(chatId)
+
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @DeleteMapping("/{chatId}/messages/{messageId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -83,4 +86,16 @@ class MessageController(private val messageService: MessageService) {
     fun markMessageRead(@PathVariable chatId: String,
                         @PathVariable messageId: String
     ) = messageService.markMessageRead(messageId)
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping("/{chatId}/messages/{messageId}/pin")
+    fun pinMessage(@PathVariable chatId: String,
+                   @PathVariable messageId: String
+    ) = messageService.pinMessage(messageId, chatId)
+
+    @PreAuthorize("hasRole('USER')")
+    @DeleteMapping("/{chatId}/messages/{messageId}/unpin")
+    fun unpinMessage(@PathVariable chatId: String,
+                     @PathVariable messageId: String
+    ) = messageService.unpinMessage(messageId, chatId)
 }

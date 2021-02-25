@@ -15,5 +15,8 @@ data class MessageResponse(
         val chatId: String,
         val emoji: EmojiInfo = EmojiInfo(),
         val attachments: List<UploadResponse<Any>> = listOf(),
-        val index: Long = 0L
+        val index: Long = 0L,
+        val pinned: Boolean,
+        val pinnedAt: ZonedDateTime?,
+        val pinnedBy: UserResponse?
 )

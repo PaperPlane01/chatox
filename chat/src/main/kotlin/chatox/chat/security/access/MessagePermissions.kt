@@ -69,4 +69,34 @@ class MessagePermissions(private val chatParticipationService: ChatParticipation
             message.chatId == chatId && (message.sender.id == currentUser.id || (userRoleInChat == ChatRole.ADMIN || userRoleInChat == ChatRole.MODERATOR))
         }
     }
+
+    fun canPinMessage(messageId: String, chatId: String): Mono<Boolean> {
+        return mono {
+            val message = messageService.findMessageById(messageId).awaitFirst()
+
+            if (message.pinned) {
+                return@mono false
+            }
+
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val userRoleInChat = chatParticipationService.getRoleOfUserInChat(message.chatId, currentUser).awaitFirst()
+
+            return@mono message.chatId == chatId && userRoleInChat == ChatRole.ADMIN
+        }
+    }
+
+    fun canUnpinMessage(messageId: String, chatId: String): Mono<Boolean> {
+        return mono {
+            val message = messageService.findMessageById(messageId).awaitFirst()
+
+            if (!message.pinned) {
+                return@mono false
+            }
+
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val userRoleInChat = chatParticipationService.getRoleOfUserInChat(message.chatId, currentUser).awaitFirst()
+
+            return@mono message.chatId == chatId && userRoleInChat == ChatRole.ADMIN
+        }
+    }
 }

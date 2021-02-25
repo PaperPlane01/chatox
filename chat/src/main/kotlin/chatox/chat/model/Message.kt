@@ -32,5 +32,10 @@ data class Message(
         var emoji: EmojiInfo = EmojiInfo(),
 
         @Indexed
+        var pinned: Boolean = false,
+        var pinnedById: String? = null,
+        var pinnedAt: ZonedDateTime? = null,
+
+        @Indexed
         var index: Long = 0L
 )
