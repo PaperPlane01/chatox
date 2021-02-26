@@ -1,8 +1,8 @@
 import {AxiosPromise} from "axios";
 import {axiosInstance} from "../axios-instance";
 import {Message} from "../types/response";
-import {CHATS, MESSAGES} from "../endpoints";
 import {CreateMessageRequest, UpdateMessageRequest} from "../types/request";
+import {CHATS, MESSAGES, PIN, PINNED, UNPIN} from "../endpoints";
 
 export class MessageApi {
     public static getMessagesByChat(chatId: string): AxiosPromise<Message[]> {
@@ -27,5 +27,17 @@ export class MessageApi {
 
     public static deleteMessage(chatId: string, messageId: string): AxiosPromise<void> {
         return axiosInstance.delete(`/${CHATS}/${chatId}/${MESSAGES}/${messageId}`);
+    }
+
+    public static getPinnedMessageByChat(chatId: string): AxiosPromise<Message> {
+        return axiosInstance.get(`/${CHATS}/${chatId}/${MESSAGES}/${PINNED}`);
+    }
+
+    public static pinMessage(chatId: string, messageId: string): AxiosPromise<Message> {
+        return axiosInstance.post(`/${CHATS}/${chatId}/${MESSAGES}/${messageId}/${PIN}`);
+    }
+
+    public static unpinMessage(chatId: string, messageId: string): AxiosPromise<Message> {
+        return axiosInstance.delete(`/${CHATS}/${chatId}/${MESSAGES}/${messageId}/${UNPIN}`);
     }
 }

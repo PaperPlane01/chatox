@@ -13,6 +13,7 @@ import {createStyles, makeStyles, Theme, useMediaQuery, useTheme} from "@materia
 import {Virtuoso, VirtuosoMethods} from "react-virtuoso";
 import {MessagesListItem} from "./MessagesListItem";
 import {MessagesListBottom} from "./MessagesListBottom";
+import {PinnedMessage} from "./PinnedMessage";
 import {ReversedScrollHandler, VirtuosoInitialTopMostItemHandler} from "../utils";
 import {useStore} from "../../store";
 import {ReverseScrollDirectionOption} from "../../Chat/types";
@@ -32,6 +33,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 interface MessagesListStyles {
     height: string | number,
     paddingBottom: number,
+    paddingTop: number,
     transform?: string
 }
 
@@ -58,6 +60,10 @@ export const MessagesList: FunctionComponent = observer(() => {
         },
         chat: {
             selectedChatId,
+        },
+        pinnedMessages: {
+            currentPinnedMessageId,
+            currentPinnedMessageIsClosed
         }
     } = useStore();
     const [reachedBottom, setReachedBottom] = useState(true);
@@ -68,10 +74,12 @@ export const MessagesList: FunctionComponent = observer(() => {
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
     const virtuosoRef = useRef<VirtuosoMethods>() as RefObject<VirtuosoMethods>
     const messagesDivRef = useRef<HTMLDivElement>(null);
+    const pinnedMessageRef = useRef<HTMLDivElement>(null);
 
     const calculateStyles = (): MessagesListStyles => {
         let height: string | number;
         let paddingBottom: number = 0;
+        let paddingTop: number = 0;
         let transform: string | undefined = undefined;
 
         if (enableVirtualScroll && reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
@@ -81,7 +89,12 @@ export const MessagesList: FunctionComponent = observer(() => {
         if (onSmallScreen) {
             if (enableVirtualScroll) {
                 if (messagesListBottomRef && messagesListBottomRef.current) {
-                    const heightToSubtract = theme.spacing(7) + messagesListBottomRef.current.getBoundingClientRect().height;
+                    let heightToSubtract = theme.spacing(7) + messagesListBottomRef.current.getBoundingClientRect().height;
+
+                    if (pinnedMessageRef && pinnedMessageRef.current) {
+                        heightToSubtract = pinnedMessageRef.current.getBoundingClientRect().height;
+                    }
+
                     height = window.innerHeight - heightToSubtract;
                 } else {
                     height = `calc(100vh - ${referredMessageId ? 238 : 154}px)`;
@@ -92,17 +105,26 @@ export const MessagesList: FunctionComponent = observer(() => {
                 if (messagesListBottomRef && messagesListBottomRef.current) {
                     paddingBottom = messagesListBottomRef.current.getBoundingClientRect().height;
                 }
+
+                if (pinnedMessageRef && pinnedMessageRef.current) {
+                    paddingTop = pinnedMessageRef.current.getBoundingClientRect().height;
+                }
             }
         } else {
             if (messagesListBottomRef && messagesListBottomRef.current) {
-                const heightToSubtract = theme.spacing(8) + messagesListBottomRef.current.getBoundingClientRect().height + theme.spacing(2);
+                let heightToSubtract = theme.spacing(8) + messagesListBottomRef.current.getBoundingClientRect().height + theme.spacing(2);
+
+                if (pinnedMessageRef && pinnedMessageRef.current) {
+                    heightToSubtract = heightToSubtract + pinnedMessageRef.current.getBoundingClientRect().height;
+                }
+
                 height = window.innerHeight - heightToSubtract;
             } else {
                 height = `calc(100vh - ${referredMessageId ? 238 : 154}px)`;
             }
         }
 
-        return {height, paddingBottom, transform};
+        return {height, paddingBottom, paddingTop, transform};
     }
 
     const [styles, setStyles] = useState(calculateStyles());
@@ -175,7 +197,9 @@ export const MessagesList: FunctionComponent = observer(() => {
             referredMessageId,
             text,
             onSmallScreen,
-            emojiPickerExpanded
+            emojiPickerExpanded,
+            currentPinnedMessageId,
+            currentPinnedMessageIsClosed
         ]
     );
     useLayoutEffect(
@@ -209,10 +233,14 @@ export const MessagesList: FunctionComponent = observer(() => {
     if (!enableVirtualScroll) {
         return (
             <Fragment>
+                <PinnedMessage ref={pinnedMessageRef}
+                               width={messagesDivRef && messagesDivRef.current ? messagesDivRef.current.getBoundingClientRect().width : undefined}
+                />
                 <div className={classes.messagesList}
                      onScroll={handleDivScroll}
                      id="messagesList"
                      style={styles}
+                     ref={messagesDivRef}
                 >
                     {messagesOfChat.map(messageId => (
                         <MessagesListItem messageId={messageId}
@@ -226,39 +254,44 @@ export const MessagesList: FunctionComponent = observer(() => {
         )
     } else {
         return (
-            <div id="messagesList"
-                 ref={messagesDivRef}
-            >
-                <Virtuoso totalCount={messagesOfChat.length}
-                          item={index => (
-                              <MessagesListItem messageId={messagesOfChat[index]}
-                                                onVisibilityChange={visible => {
-                                                    if (visible) {
-                                                        virtuosoTopMostItemHandler.setInitialTopMostItem(selectedChatId!, index);
-                                                    }
+           <Fragment>
+               <PinnedMessage ref={pinnedMessageRef}
+                              width={messagesDivRef && messagesDivRef.current ? messagesDivRef.current.getBoundingClientRect().width : undefined}
+               />
+               <div id="messagesList"
+                    ref={messagesDivRef}
+               >
+                   <Virtuoso totalCount={messagesOfChat.length}
+                             item={index => (
+                                 <MessagesListItem messageId={messagesOfChat[index]}
+                                                   onVisibilityChange={visible => {
+                                                       if (visible) {
+                                                           virtuosoTopMostItemHandler.setInitialTopMostItem(selectedChatId!, index);
+                                                       }
 
-                                                    if (reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
-                                                        if (index === 0) {
-                                                            setReachedBottom(visible);
-                                                        }
-                                                    } else {
-                                                        if (index === messagesOfChat.length - 1) {
-                                                            setReachedBottom(visible);
-                                                        }
-                                                    }
-                                                }}
-                                                inverted={reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE}
-                                                messagesListHeight={typeof styles.height === "number" ? styles.height : undefined}
-                              />
-                          )}
-                          style={styles}
-                          defaultItemHeight={120}
-                          overscan={virtualScrollOverscan}
-                          ref={virtuosoRef}
-                          computeItemKey={index => messagesOfChat[index]}
-                />
-                <MessagesListBottom ref={messagesListBottomRef}/>
-            </div>
+                                                       if (reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
+                                                           if (index === 0) {
+                                                               setReachedBottom(visible);
+                                                           }
+                                                       } else {
+                                                           if (index === messagesOfChat.length - 1) {
+                                                               setReachedBottom(visible);
+                                                           }
+                                                       }
+                                                   }}
+                                                   inverted={reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE}
+                                                   messagesListHeight={typeof styles.height === "number" ? styles.height : undefined}
+                                 />
+                             )}
+                             style={styles}
+                             defaultItemHeight={120}
+                             overscan={virtualScrollOverscan}
+                             ref={virtuosoRef}
+                             computeItemKey={index => messagesOfChat[index]}
+                   />
+                   <MessagesListBottom ref={messagesListBottomRef}/>
+               </div>
+           </Fragment>
         )
     }
 });

@@ -5,3 +5,7 @@ export * from "./MessageDialogStore";
 export * from "./UpdateMessageStore";
 export * from "./UploadMessageAttachmentsStore";
 export * from "./DownloadMessageFileStore";
+export * from "./PinnedMessagesStore";
+export * from "./PinMessageStore";
+export * from "./UnpinMessageStore";
+export * from "./ClosedPinnedMessagesStore";

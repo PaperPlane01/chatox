@@ -10,6 +10,7 @@ import {DeleteChatMenuItem} from "./DeleteChatMenuItem";
 import {canDeleteChat, canLeaveChat, canUpdateChat} from "../permissions";
 import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
 import {useAuthorization, useStore} from "../../store";
+import {ShowPinnedMessageMenuItem} from "./ShowPinnedMessageMenuItem";
 
 export const ChatMenu: FunctionComponent = observer(() => {
     const {
@@ -23,6 +24,10 @@ export const ChatMenu: FunctionComponent = observer(() => {
             chatParticipations: {
                 findByUserAndChat: findChatParticipation
             }
+        },
+        pinnedMessages: {
+            currentPinnedMessageId,
+            currentPinnedMessageIsClosed
         }
     } = useStore();
     const {currentUser} = useAuthorization();
@@ -57,6 +62,7 @@ export const ChatMenu: FunctionComponent = observer(() => {
     canBlockUsersInChat(chatParticipation) && menuItems.push(<BlockUserInChatByIdOrSlugMenuItem onClick={handleClose}/>);
     canLeaveChat(chat, chatParticipation) && menuItems.push(<LeaveChatMenuItem onClick={handleClose}/>);
     canDeleteChat(chat, currentUser) && menuItems.push(<DeleteChatMenuItem onClick={handleClose}/>)
+    currentPinnedMessageId && currentPinnedMessageIsClosed && menuItems.push(<ShowPinnedMessageMenuItem onClick={handleClose}/>)
 
     if (menuItems.length === 0) {
         return null;

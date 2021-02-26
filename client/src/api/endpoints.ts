@@ -33,3 +33,6 @@ export const RECOVERY = "recovery";
 export const POPULAR = "popular";
 export const ANONYMOUS = "anonymous";
 export const BANS = "bans";
+export const PIN = "pin";
+export const UNPIN = "unpin";
+export const PINNED = "pinned";

@@ -328,5 +328,11 @@ export interface Labels {
     "chat.participant.update.with-username": string,
     "chat.participant.update.success": string,
     "chat.participant.update.error.unknown-error": string,
-    "chat.participant.update.error.server-unreachable": string
+    "chat.participant.update.error.server-unreachable": string,
+    "message.pin": string,
+    "message.pin.success": string,
+    "message.unpin": string,
+    "message.unpin.success": string,
+    "message.pinned": string,
+    "message.pinned.show": string
 }

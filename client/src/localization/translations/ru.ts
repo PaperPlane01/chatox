@@ -330,5 +330,11 @@ export const ru: Labels = {
     "chat.participant.update.with-username": "Обновить участнкиа чата {username}",
     "chat.participant.update.success": "Участник чата был обновлён",
     "chat.participant.update.error.unknown-error": "Error occurred when tried to update chat participant. Server responded with {errorStatus} status",
-    "chat.participant.update.error.server-unreachable": "Error occurred when tried to update chat participant. Server is unreachable"
+    "chat.participant.update.error.server-unreachable": "Error occurred when tried to update chat participant. Server is unreachable",
+    "message.pin": "Закрепить сообщение",
+    "message.pin.success": "Сообщение закреплено",
+    "message.unpin": "Открепить сообщение",
+    "message.unpin.success": "Сообщение откреплено",
+    "message.pinned": "Закреплённое сообщение",
+    "message.pinned.show": "Показать закреплённое сообщение"
 };

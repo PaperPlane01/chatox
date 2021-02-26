@@ -6,16 +6,18 @@ import {BlockMessageAuthorInChatMenuItem} from "./BlockMessageAuthorInChatMenuIt
 import {ReplyToMessageMenuItem} from "./ReplyToMessageMenuItem";
 import {EditMessageMenuItem} from "./EditMessageMenuItem";
 import {DeleteMessageMenuItem} from "./DeleteMessageMenuItem";
-import {canCreateMessage, canDeleteMessage, canEditMessage} from "../permissions";
+import {canCreateMessage, canDeleteMessage, canEditMessage, canPinMessage} from "../permissions";
 import {useAuthorization, useStore} from "../../store";
 import {canBlockUsersInChat, ChatBlockingEntity} from "../../ChatBlocking";
 import {BanUserGloballyMenuItem, canBanUsersGlobally} from "../../GlobalBan";
+import {PinMessageMenuItem} from "./PinMessageMenuItem";
 
 export type MenuItemType = "blockMessageAuthorInChat"
     | "replyToMessage"
     | "editMessage"
     | "deleteMessage"
-    | "banUserGlobally";
+    | "banUserGlobally"
+    | "pinMessage"
 
 interface MessageMenuProps {
     messageId: string,
@@ -33,6 +35,9 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messa
             },
             chatBlockings: {
                 findById: findChatBlocking
+            },
+            chats: {
+                findById: findChat
             }
         },
         chat: {
@@ -47,6 +52,7 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messa
         ? findChatParticipation({userId: currentUser.id, chatId: selectedChatId})
         : undefined;
     const message = findMessage(messageId);
+    const chat = findChat(selectedChatId!);
     let activeChatBlocking: ChatBlockingEntity | undefined = undefined;
 
     if (chatParticipation && chatParticipation.activeChatBlockingId) {
@@ -83,6 +89,10 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messa
 
     if (canDeleteMessage(message, chatParticipation)) {
         menuItems.push(<DeleteMessageMenuItem messageId={messageId} onClick={handleClose("deleteMessage")}/>)
+    }
+
+    if (canPinMessage(chat, chatParticipation)) {
+        menuItems.push(<PinMessageMenuItem messageId={messageId} onClick={handleClose("pinMessage")}/>)
     }
 
     if (canBanUsersGlobally(currentUser)) {
