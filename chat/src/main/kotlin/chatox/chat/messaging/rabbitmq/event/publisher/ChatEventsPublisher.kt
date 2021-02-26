@@ -102,4 +102,16 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.deleted.#",
             chatDeleted
     )
+
+    fun messagePinned(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "message.pinned.#",
+            message
+    )
+
+    fun messageUnpinned(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "message.unpinned.#",
+            message
+    )
 }
