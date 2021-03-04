@@ -50,7 +50,7 @@ export class WebsocketStore {
         }
 
         this.subscribeToEvents();
-    };
+    }
 
     @action
     subscribeToEvents = () => {
@@ -132,8 +132,32 @@ export class WebsocketStore {
                 WebsocketEventType.GLOBAL_BAN_UPDATED,
                 (event: WebsocketEvent<GlobalBan>) => this.processGlobalBan(event.payload)
             );
+            this.socketIoClient.on(
+                WebsocketEventType.MESSAGE_PINNED,
+                (event: WebsocketEvent<Message>) => {
+                    const chat = this.entities.chats.findByIdOptional(event.payload.chatId);
+
+                    if (chat && event.payload.pinnedAt) {
+                        this.entities.insertMessage(event.payload);
+                        chat.pinnedMessageId = event.payload.id;
+                        this.entities.chats.insertEntity(chat);
+                    }
+                }
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.MESSAGE_UNPINNED,
+                (event: WebsocketEvent<Message>) => {
+                    const chat = this.entities.chats.findByIdOptional(event.payload.chatId);
+
+                    if (chat && !event.payload.pinnedAt) {
+                        this.entities.insertMessage(event.payload);
+                        chat.pinnedMessageId = undefined;
+                        this.entities.chats.insertEntity(chat);
+                    }
+                }
+            );
         }
-    };
+    }
 
     @action.bound
     private processGlobalBan(globalBan: GlobalBan): void {
