@@ -178,7 +178,13 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
                         </Fragment>
                     )
                     : (
-                        <IconButton onClick={() => chat.pinnedMessageId && closePinnedMessage(chat.pinnedMessageId)}
+                        <IconButton onClick={event => {
+                            ensureEventWontPropagate(event);
+
+                            if (chat.pinnedMessageId) {
+                                closePinnedMessage(chat.pinnedMessageId);
+                            }
+                        }}
                                     className={classes.unpinButton}
                                     disableRipple
                         >
