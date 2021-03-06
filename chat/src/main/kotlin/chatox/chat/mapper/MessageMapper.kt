@@ -62,6 +62,16 @@ class MessageMapper(private val userService: UserService,
                         .awaitFirst()
             }
 
+            var pinnedBy: UserResponse? = null
+
+            if (message.pinnedById != null) {
+                pinnedBy = if (localUsersCache != null && localUsersCache[message.pinnedById!!] != null) {
+                    localUsersCache[message.pinnedById!!]
+                } else{
+                    userService.findUserByIdAndPutInLocalCache(message.pinnedById!!, localUsersCache).awaitFirst()
+                }
+            }
+
             MessageResponse(
                     id = message.id,
                     deleted = message.deleted,
@@ -78,7 +88,10 @@ class MessageMapper(private val userService: UserService,
                                 attachment
                         )
                     },
-                    index = message.index
+                    index = message.index,
+                    pinned = message.pinned,
+                    pinnedAt = message.pinnedAt,
+                    pinnedBy = pinnedBy
             )
         }
     }

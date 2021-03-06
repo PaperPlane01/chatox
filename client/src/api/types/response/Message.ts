@@ -16,5 +16,6 @@ export interface Message {
     previousMessageId?: string,
     nextMessageId?: string,
     emoji: MessageEmoji,
-    attachments: Upload<any>[]
+    attachments: Upload<any>[],
+    pinnedAt: string
 }

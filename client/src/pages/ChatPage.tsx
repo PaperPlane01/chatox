@@ -10,7 +10,14 @@ import {
     UpdateChatDialog,
     UpdateChatParticipantDialog
 } from "../Chat";
-import {AttachedFilesDialog, MessageDialog, MessagesListWrapper, UpdateMessageDialog} from "../Message";
+import {
+    AttachedFilesDialog,
+    MessageDialog,
+    MessagesListWrapper,
+    PinMessageSnackbarManager,
+    UnpinMessageSnackbarManager,
+    UpdateMessageDialog
+} from "../Message";
 import {
     BlockUserInChatByIdOrSlugDialog,
     ChatBlockingInfoDialog,
@@ -60,6 +67,8 @@ export const ChatPage: FunctionComponent = () => (
             <SpecifyChatDeletionReasonDialog/>
             <BanUserGloballyDialog/>
             <UpdateChatParticipantDialog/>
+            <PinMessageSnackbarManager/>
+            <UnpinMessageSnackbarManager/>
         </Grid>
     </Fragment>
 );

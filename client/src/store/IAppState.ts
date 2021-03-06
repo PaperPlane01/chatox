@@ -20,15 +20,20 @@ import {
     KickChatParticipantStore,
     LeaveChatStore,
     OnlineChatParticipantsStore,
-    PopularChatsStore, UpdateChatParticipantStore,
+    PopularChatsStore,
+    UpdateChatParticipantStore,
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {
+    ClosedPinnedMessagesStore,
     CreateMessageStore,
     DownloadMessageFileStore,
     MessageDialogStore,
     MessagesOfChatStore,
+    PinMessageStore,
+    PinnedMessagesStore,
+    UnpinMessageStore,
     UpdateMessageStore,
     UploadMessageAttachmentsStore
 } from "../Message";
@@ -65,7 +70,8 @@ import {
     BanUserStore,
     CancelGlobalBanStore,
     GlobalBanDetailsDialogStore,
-    GlobalBansListStore, UpdateGlobalBanStore
+    GlobalBansListStore,
+    UpdateGlobalBanStore
 } from "../GlobalBan/stores";
 
 export interface IAppState {
@@ -130,5 +136,9 @@ export interface IAppState {
     cancelGlobalBan: CancelGlobalBanStore,
     updateGlobalBan: UpdateGlobalBanStore,
     updateChatParticipant: UpdateChatParticipantStore,
+    pinnedMessages: PinnedMessagesStore,
+    pinMessage: PinMessageStore,
+    unpinMessage: UnpinMessageStore,
+    closedPinnedMessages: ClosedPinnedMessagesStore,
     store?: any
 }

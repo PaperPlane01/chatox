@@ -257,8 +257,10 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: chat,
             type: EventType.CHAT_UPDATED
         };
-        this.publishEventToChatParticipants(chat.id, chatUpdated);
-        this.publishEventToUsersSubscribedToChat(chat.id, chatUpdated);
+        await Promise.all([
+            this.publishEventToChatParticipants(chat.id, chatUpdated),
+            this.publishEventToUsersSubscribedToChat(chat.id, chatUpdated)
+        ]);
     }
 
     public async publishChatDeleted(chatDeleted: ChatDeleted) {
@@ -266,8 +268,10 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: chatDeleted,
             type: EventType.CHAT_DELETED
         };
-        this.publishEventToChatParticipants(chatDeleted.id, chatDeletedEvent);
-        this.publishEventToUsersSubscribedToChat(chatDeleted.id, chatDeletedEvent);
+        await Promise.all([
+            this.publishEventToChatParticipants(chatDeleted.id, chatDeletedEvent),
+            this.publishEventToUsersSubscribedToChat(chatDeleted.id, chatDeletedEvent)
+        ]);
     }
 
     public async publishGlobalBanCreated(globalBan: GlobalBan) {
@@ -275,7 +279,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: globalBan,
             type: EventType.GLOBAL_BAN_CREATED
         };
-        this.publishEventToUser(globalBan.bannedUser.id, globalBanCreatedEvent);
+        await this.publishEventToUser(globalBan.bannedUser.id, globalBanCreatedEvent);
     }
 
     public async publishGlobalBanUpdated(globalBan: GlobalBan) {
@@ -283,7 +287,29 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: globalBan,
             type: EventType.GLOBAL_BAN_UPDATED
         };
-        this.publishEventToUser(globalBan.bannedUser.id, globalBanUpdatedEvent);
+        await this.publishEventToUser(globalBan.bannedUser.id, globalBanUpdatedEvent);
+    }
+
+    public async publishMessagePinned(message: ChatMessage) {
+        const messagePinnedEvent: WebsocketEvent<ChatMessage> = {
+            payload: message,
+            type: EventType.MESSAGE_PINNED
+        };
+        await Promise.all([
+            this.publishEventToChatParticipants(message.chatId, messagePinnedEvent),
+            this.publishEventToUsersSubscribedToChat(message.chatId, messagePinnedEvent)
+        ]);
+    }
+
+    public async publishMessageUnpinned(message: ChatMessage) {
+        const messageUnpinnedEvent: WebsocketEvent<ChatMessage> = {
+            payload: message,
+            type: EventType.MESSAGE_UNPINNED
+        };
+        await Promise.all([
+            this.publishEventToChatParticipants(message.chatId, messageUnpinnedEvent),
+            this.publishEventToUsersSubscribedToChat(message.chatId, messageUnpinnedEvent)
+        ]);
     }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {

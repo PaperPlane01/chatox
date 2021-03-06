@@ -1,6 +1,6 @@
 import {IAppState} from "./IAppState";
 import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore,} from "../Authorization/stores";
+import {AuthorizationStore, LoginStore} from "../Authorization/stores";
 import {
     createSetPasswordRecoveryStepCallback,
     PasswordRecoveryDialogStore,
@@ -23,12 +23,14 @@ import {
     ChatsStore,
     ChatStore,
     ChatUploadsStore,
-    CreateChatStore, DeleteChatStore,
+    CreateChatStore,
+    DeleteChatStore,
     JoinChatStore,
     KickChatParticipantStore,
     LeaveChatStore,
     OnlineChatParticipantsStore,
-    PopularChatsStore, UpdateChatParticipantStore,
+    PopularChatsStore,
+    UpdateChatParticipantStore,
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
@@ -45,11 +47,15 @@ import {
     UsersStore
 } from "../User";
 import {
+    ClosedPinnedMessagesStore,
     CreateMessageStore,
     DownloadMessageFileStore,
     MessageDialogStore,
     MessagesOfChatStore,
     MessagesStore,
+    PinMessageStore,
+    PinnedMessagesStore,
+    UnpinMessageStore,
     UpdateMessageStore,
     UploadMessageAttachmentsStore
 } from "../Message";
@@ -72,10 +78,11 @@ import {AudioPlayerStore} from "../AudioPlayer/stores";
 import {DeleteMessageStore} from "../Message/stores/DeleteMessageStore";
 import {
     BanUserStore,
-    GlobalBansStore,
-    GlobalBansListStore,
+    CancelGlobalBanStore,
     GlobalBanDetailsDialogStore,
-    CancelGlobalBanStore, UpdateGlobalBanStore
+    GlobalBansListStore,
+    GlobalBansStore,
+    UpdateGlobalBanStore
 } from "../GlobalBan/stores";
 
 const messages = new MessagesStore();
@@ -186,6 +193,10 @@ const globalBanDetailsDialog = new GlobalBanDetailsDialogStore();
 const cancelGlobalBan = new CancelGlobalBanStore(entities);
 const updateGlobalBan = new UpdateGlobalBanStore(entities);
 const updateChatParticipant = new UpdateChatParticipantStore(entities);
+const pinMessage = new PinMessageStore(entities, chat);
+const unpinMessage = new UnpinMessageStore(entities, chat);
+const closedPinnedMessages = new ClosedPinnedMessagesStore();
+const pinnedMessages = new PinnedMessagesStore(entities, chat, closedPinnedMessages);
 
 export const store: IAppState = {
     authorization,
@@ -248,5 +259,9 @@ export const store: IAppState = {
     globalBanDetailsDialog,
     cancelGlobalBan,
     updateGlobalBan,
-    updateChatParticipant
+    updateChatParticipant,
+    pinnedMessages,
+    pinMessage,
+    unpinMessage,
+    closedPinnedMessages
 };

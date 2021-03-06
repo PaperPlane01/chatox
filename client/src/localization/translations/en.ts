@@ -330,5 +330,11 @@ export const en: Labels = {
     "chat.participant.update.with-username": "Update chat participant {username}",
     "chat.participant.update.success": "Chat participant has been updated",
     "chat.participant.update.error.unknown-error": "Error occurred when tried to update chat participant. Server responded with {errorStatus} status",
-    "chat.participant.update.error.server-unreachable": "Error occurred when tried to update chat participant. Server is unreachable"
+    "chat.participant.update.error.server-unreachable": "Error occurred when tried to update chat participant. Server is unreachable",
+    "message.pin": "Pin message",
+    "message.pin.success": "Message has been pinned",
+    "message.unpin": "Unpin message",
+    "message.unpin.success": "Message has been unpinned",
+    "message.pinned": "Pinned message",
+    "message.pinned.show": "Show pinned message"
 };

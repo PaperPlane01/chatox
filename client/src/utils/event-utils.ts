@@ -1,6 +1,6 @@
-import {MouseEvent} from "react";
+import {MouseEvent, SyntheticEvent} from "react";
 
-export const ensureEventWontPropagate = (event: MouseEvent): void => {
+export const ensureEventWontPropagate = (event: MouseEvent | SyntheticEvent<any>): void => {
     event.preventDefault();
     event.stopPropagation();
     event.nativeEvent.preventDefault();

@@ -13,3 +13,7 @@ export * from "./AttachImageMenuItem";
 export * from "./CreateMessageFormMediaAttachment";
 export * from "./AttachedFilesDialog";
 export * from "./MessagesListWrapper";
+export * from "./PinMessageMenuItem";
+export * from "./PinMessageSnackbarManager";
+export * from "./PinnedMessage";
+export * from "./UnpinMessageSnackbarManager";

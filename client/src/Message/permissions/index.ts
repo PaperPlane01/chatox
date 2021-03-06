@@ -51,3 +51,19 @@ export const canDeleteMessage = (message: MessageEntity, chatParticipation?: Cha
     return chatParticipation.role === ChatRole.ADMIN || chatParticipation.role === ChatRole.MODERATOR
         || message.sender === chatParticipation.userId;
 }
+
+export const canPinMessage = (chat: ChatOfCurrentUserEntity, chatParticipation?: ChatParticipationEntity): boolean => {
+    if (!chatParticipation) {
+        return false;
+    }
+
+    if (chat.pinnedMessageId) {
+        return false;
+    }
+
+    return chatParticipation.role === ChatRole.ADMIN;
+}
+
+export const canUnpinMessage = (chatParticipation?: ChatParticipationEntity): boolean => {
+    return Boolean(chatParticipation && chatParticipation.role === ChatRole.ADMIN);
+}

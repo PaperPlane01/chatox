@@ -20,5 +20,6 @@ export interface ChatOfCurrentUserEntity {
     tags: string[],
     deleted: boolean,
     deletionReason?: ChatDeletionReason,
-    deletionComment?: string
+    deletionComment?: string,
+    pinnedMessageId?: string
 }
