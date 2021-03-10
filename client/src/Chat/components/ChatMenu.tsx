@@ -13,6 +13,7 @@ import {useAuthorization, useStore} from "../../store";
 import {ShowPinnedMessageMenuItem} from "./ShowPinnedMessageMenuItem";
 import {canScheduleMessage} from "../../Message/permissions";
 import {ScheduleMessageMenuItem} from "./ScheduleMessageMenuItem";
+import {ShowScheduledMessagesMenuItem} from "./ShowScheduledMessagesMenuItem";
 
 export const ChatMenu: FunctionComponent = observer(() => {
     const {
@@ -60,12 +61,13 @@ export const ChatMenu: FunctionComponent = observer(() => {
     const menuItems: ReactNode[] = [];
 
     canUpdateChat(chat) && menuItems.push(<EditChatMenuItem onClick={handleClose}/>);
-    canScheduleMessage(chatParticipation) && menuItems.push(<ScheduleMessageMenuItem onClick={handleClose}/>)
-    currentPinnedMessageId && currentPinnedMessageIsClosed && menuItems.push(<ShowPinnedMessageMenuItem onClick={handleClose}/>)
+    canScheduleMessage(chatParticipation) && menuItems.push(<ScheduleMessageMenuItem onClick={handleClose}/>);
+    canScheduleMessage(chatParticipation) && menuItems.push(<ShowScheduledMessagesMenuItem onClick={handleClose}/>);
+    currentPinnedMessageId && currentPinnedMessageIsClosed && menuItems.push(<ShowPinnedMessageMenuItem onClick={handleClose}/>);
     canBlockUsersInChat(chatParticipation) && menuItems.push(<ChatBlockingsMenuItem onClick={handleClose}/>);
     canBlockUsersInChat(chatParticipation) && menuItems.push(<BlockUserInChatByIdOrSlugMenuItem onClick={handleClose}/>);
     canLeaveChat(chat, chatParticipation) && menuItems.push(<LeaveChatMenuItem onClick={handleClose}/>);
-    canDeleteChat(chat, currentUser) && menuItems.push([<Divider/>, <DeleteChatMenuItem onClick={handleClose}/>])
+    canDeleteChat(chat, currentUser) && menuItems.push([<Divider/>, <DeleteChatMenuItem onClick={handleClose}/>]);
 
     if (menuItems.length === 0) {
         return null;

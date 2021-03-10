@@ -19,3 +19,5 @@ export * from "./PinnedMessage";
 export * from "./UnpinMessageSnackbarManager";
 export * from "./ScheduleMessageDialog";
 export * from "./OpenScheduleMessageDialogButton";
+export * from "./ScheduledMessagesAppBar";
+export * from "./ScheduledMessagesList";

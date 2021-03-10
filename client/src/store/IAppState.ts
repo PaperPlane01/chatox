@@ -142,5 +142,6 @@ export interface IAppState {
     unpinMessage: UnpinMessageStore,
     closedPinnedMessages: ClosedPinnedMessagesStore,
     scheduleMessage: ScheduleMessageStore,
+    scheduledMessagesOfChat: MessagesOfChatStore,
     store?: any
 }

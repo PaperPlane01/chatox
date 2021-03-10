@@ -11,7 +11,7 @@ import {
     Tooltip,
     Typography,
 } from "@material-ui/core";
-import {Edit} from "@material-ui/icons";
+import {Edit, Event} from "@material-ui/icons";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactVisibilitySensor from "react-visibility-sensor";
@@ -20,12 +20,14 @@ import {MenuItemType, MessageMenu} from "./MessageMenu";
 import {MessageImagesGrid} from "./MessageImagesGrid";
 import {MessageImagesSimplifiedGrid} from "./MessageImagesSimplifiedGrid";
 import {ReferredMessageContent} from "./ReferredMessageContent";
+import {MessageAudios} from "./MessageAudios";
+import {MessageFiles} from "./MessageFiles";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {MarkdownTextWithEmoji} from "../../Emoji/components";
-import {MessageAudios} from "./MessageAudios";
-import {MessageFiles} from "./MessageFiles";
+import {TranslationFunction} from "../../localization/types";
+
 
 const {Link} = require("mobx-router");
 
@@ -36,7 +38,8 @@ interface MessagesListItemProps {
     onVisibilityChange?: (visible: boolean) => void,
     hideAttachments?: boolean,
     inverted?: boolean,
-    messagesListHeight?: number
+    messagesListHeight?: number,
+    scheduledMessage?: boolean
 }
 
 const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
@@ -49,6 +52,12 @@ const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
     } else {
         return format(createdAt, "d MMM yyyy HH:mm", {locale});
     }
+};
+
+const getScheduledAtLabel = (scheduledAt: Date, locale: Locale, l: TranslationFunction): string => {
+    const dateLabel = getCreatedAtLabel(scheduledAt, locale);
+
+    return l("message.scheduled-at", {scheduleDate: dateLabel});
 };
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -154,7 +163,8 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     onVisibilityChange,
     hideAttachments = false,
     inverted = false,
-    messagesListHeight
+    messagesListHeight,
+    scheduledMessage = false
 }) => {
     const {
         entities: {
@@ -163,6 +173,9 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
             },
             messages: {
                 findById: findMessage
+            },
+            scheduledMessages: {
+                findById: findScheduledMessage
             }
         },
         chatsPreferences: {
@@ -214,9 +227,11 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         }
     }, [])
 
-    const message = findMessage(messageId);
+    const message = !scheduledMessage ? findMessage(messageId) : findScheduledMessage(messageId);
     const sender = findUser(message.sender);
-    const createAtLabel = getCreatedAtLabel(message.createdAt, dateFnsLocale);
+    const createAtLabel = !scheduledMessage
+        ? getCreatedAtLabel(message.createdAt, dateFnsLocale)
+        : getScheduledAtLabel(message.scheduledAt!, dateFnsLocale, l);
     const color = randomColor({seed: sender.id});
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
     const sentByCurrentUser = currentUser && currentUser.id === sender.id;
@@ -283,7 +298,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                     action: classes.cardHeaderAction,
                                     content: classes.cardHeaderContent
                                 }}
-                                action={<MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>}
+                                action={scheduledMessage ? null : <MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>}
                     />
                     <CardContent classes={{
                         root: classes.cardContentRoot
@@ -330,6 +345,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                         root: classes.cardActionsRoot
                     }}>
                         <Typography variant="caption" color="textSecondary">
+                            {scheduledMessage && <Event fontSize="inherit"/>}
                             {createAtLabel}
                             {message.updatedAt && (
                                 <Tooltip title={l("message.updated-at", {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)})}>
@@ -346,7 +362,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                 </Card>
             </div>
         </ReactVisibilitySensor>
-    )
+    );
 });
 
 export const MessagesListItem = memo(_MessagesListItem);

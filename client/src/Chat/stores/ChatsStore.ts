@@ -1,7 +1,7 @@
 import {action} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatOfCurrentUserEntity} from "../types";
-import {AbstractEntityStore, SoftDeletableEntityStore} from "../../entity-store";
+import {SoftDeletableEntityStore} from "../../entity-store";
 import {ChatDeletionReason, ChatOfCurrentUser} from "../../api/types/response";
 
 export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity, ChatOfCurrentUser> {
@@ -12,28 +12,28 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
     findBySlug = createTransformer((slug: string) => {
         const chats = this.ids.map(id => this.findById(id));
         return chats.find(chat => chat.slug === slug);
-    });
+    })
 
     @action
     setLastMessageOfChat = (chatId: string, messageId: string): void => {
         const chat = this.findById(chatId);
         chat.lastMessage = messageId;
         this.insertEntity(chat);
-    };
+    }
 
     @action
     setLastReadMessageOfChat = (chatId: string, messageId: string): void => {
         const chat = this.findById(chatId);
         chat.lastReadMessage = messageId;
         this.insertEntity(chat);
-    };
+    }
 
     @action
     setUnreadMessagesCountOfChat = (chatId: string, unreadMessagesCount: number): void => {
         const chat = this.findById(chatId);
         chat.unreadMessagesCount = unreadMessagesCount;
         this.insertEntity(chat);
-    };
+    }
 
     @action
     addMessageToChat = (chatId: string, messageId: string): void => {
@@ -41,7 +41,19 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
         chat.messages = Array.from(new Set([...chat.messages, messageId]));
         chat.lastMessage = messageId;
         this.insertEntity(chat);
-    };
+    }
+
+    @action
+    addScheduledMessageToChat = (chatId: string, messageId: string): void => {
+        const chat = this.findById(chatId);
+        chat.scheduledMessages = Array.from(new Set([...chat.scheduledMessages, messageId]));
+        this.insertEntity(chat);
+    }
+
+    @action
+    addScheduledMessagesToChat = (chatId: string, messageIds: string[]): void => {
+        messageIds.forEach(messageId => this.addScheduledMessageToChat(chatId, messageId));
+    }
 
     @action
     increaseChatParticipantsCount = (chatId: string): void => {
@@ -51,7 +63,7 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
             chat.participantsCount++;
             this.insertEntity(chat);
         }
-    };
+    }
 
     @action
     decreaseChatParticipantsCount = (chatId: string): void => {
@@ -61,7 +73,7 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
             chat.participantsCount--;
             this.insertEntity(chat);
         }
-    };
+    }
 
     @action
     setDeletionReasonAndComment = (chatId: string, deletionReason?: ChatDeletionReason, comment?: string): void => {
@@ -75,7 +87,7 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
         chat.deletionComment = comment;
 
         this.insertEntity(chat);
-    };
+    }
 
     protected convertToNormalizedForm(denormalizedEntity: ChatOfCurrentUser): ChatOfCurrentUserEntity {
         return {
@@ -99,7 +111,8 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
             onlineParticipantsCount: denormalizedEntity.onlineParticipantsCount,
             deleted: denormalizedEntity.deleted,
             deletionComment: denormalizedEntity.deletionComment,
-            deletionReason: denormalizedEntity.deletionReason
+            deletionReason: denormalizedEntity.deletionReason,
+            scheduledMessages: []
         }
     }
 }

@@ -36,3 +36,4 @@ export const BANS = "bans";
 export const PIN = "pin";
 export const UNPIN = "unpin";
 export const PINNED = "pinned";
+export const SCHEDULED = 'scheduled';

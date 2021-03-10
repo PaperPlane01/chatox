@@ -54,7 +54,7 @@ import {
     MessagesOfChatStore,
     MessagesStore,
     PinMessageStore,
-    PinnedMessagesStore, ScheduleMessageStore,
+    PinnedMessagesStore, ScheduledMessagesStore, ScheduleMessageStore,
     UnpinMessageStore,
     UpdateMessageStore,
     UploadMessageAttachmentsStore
@@ -93,6 +93,7 @@ const chatBlockings = new ChatBlockingsStore(usersStore);
 const uploads = new UploadsStore();
 const chatUploads = new ChatUploadsStore();
 const globalBans = new GlobalBansStore();
+const scheduledMessages = new ScheduledMessagesStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
@@ -101,7 +102,8 @@ const entities = new EntitiesStore(
     chatBlockings,
     uploads,
     chatUploads,
-    globalBans
+    globalBans,
+    scheduledMessages
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -198,6 +200,7 @@ const unpinMessage = new UnpinMessageStore(entities, chat);
 const closedPinnedMessages = new ClosedPinnedMessagesStore();
 const pinnedMessages = new PinnedMessagesStore(entities, chat, closedPinnedMessages);
 const scheduleMessage = new ScheduleMessageStore(messageCreation);
+const scheduledMessagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences, true);
 
 export const store: IAppState = {
     authorization,
@@ -265,5 +268,6 @@ export const store: IAppState = {
     pinMessage,
     unpinMessage,
     closedPinnedMessages,
-    scheduleMessage
+    scheduleMessage,
+    scheduledMessagesOfChat
 };

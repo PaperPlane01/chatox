@@ -343,5 +343,6 @@ export const en: Labels = {
     "message.delayed-message.is-too-close-to-other-delayed-message": "This scheduled message is too close to another scheduled message. Scheduled message must be at least 10 minutes from each other",
     "message.schedule-date.must-be-no-more-than-month-from-now": "Schedule date must be no more than 1 month from now",
     "message.delayed-message.limit-reached": "Limit of delayed messages for this chat has been reached",
-    "ok": "OK"
+    "ok": "OK",
+    "message.scheduled-at": "Scheduled at {scheduleDate}"
 };

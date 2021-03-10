@@ -341,5 +341,6 @@ export interface Labels {
     "message.delayed-message.is-too-close-to-other-delayed-message": string,
     "message.schedule-date.must-be-no-more-than-month-from-now": string,
     "message.delayed-message.limit-reached": string,
-    "ok": string
+    "ok": string,
+    "message.scheduled-at": string
 }

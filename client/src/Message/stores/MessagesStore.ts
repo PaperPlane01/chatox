@@ -74,6 +74,7 @@ export class MessagesStore extends SoftDeletableEntityStore<MessageEntity, Messa
             chatId: denormalizedEntity.chatId,
             emoji: denormalizedEntity.emoji,
             uploads: denormalizedEntity.attachments.map(attachment => attachment.id),
+            scheduledAt: denormalizedEntity.scheduledAt ? new Date(denormalizedEntity.scheduledAt) : undefined,
             ...uploadStats,
             ...uploadsByType
         };

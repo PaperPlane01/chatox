@@ -343,5 +343,6 @@ export const ru: Labels = {
     "message.delayed-message.is-too-close-to-other-delayed-message": "Дата отправки данного отложенного сообщения слишком близка к другому отложенному сообщению. Между отложенными сообщениями должно быть не менее 10 минут",
     "message.schedule-date.must-be-no-more-than-month-from-now": "Дата отправки отложенного сообщения должна быть не более месяца с настоящего времени",
     "message.delayed-message.limit-reached": "Limit of delayed messages for this chat has been reached",
-    "ok": "OK"
+    "ok": "OK",
+    "message.scheduled-at": "Запланировано на {scheduleDate}"
 };
