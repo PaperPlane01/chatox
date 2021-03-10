@@ -22,6 +22,7 @@ import {AttachFilesButton} from "./AttachFilesButton";
 import {ReferredMessageCard} from "./ReferredMessageCard";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
+import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     textField: {
@@ -155,6 +156,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                <InputAdornment position="end">
                                    <div style={{display: "flex"}}>
                                        <Fragment>
+                                           {formValues.scheduledAt && (<OpenScheduleMessageDialogButton className={classes.inputIconButton}/>)}
                                            <Hidden mdDown>
                                                <IconButton className={classes.inputIconButton}
                                                            {...bindToggle(emojiPickerPopupState)}

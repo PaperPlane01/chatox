@@ -10,12 +10,14 @@ import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
 export class CreateMessageStore {
     @observable
     createMessageForm: CreateMessageFormData = {
-        text: ""
+        text: "",
+        scheduledAt: undefined
     };
 
     @observable
     formErrors: FormErrors<CreateMessageFormData> = {
-        text: undefined
+        text: undefined,
+        scheduledAt: undefined
     };
 
     @observable
@@ -61,7 +63,7 @@ export class CreateMessageStore {
         reaction(
             () => this.createMessageForm.text,
             text => this.formErrors.text = validateMessageText(text, {acceptEmpty: this.attachmentsIds.length !== 0})
-        )
+        );
     };
 
     @action
@@ -86,10 +88,14 @@ export class CreateMessageStore {
                     MessageApi.createMessage(chatId, {
                         text: this.createMessageForm.text,
                         referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined,
-                        uploadAttachments: this.attachmentsIds
+                        uploadAttachments: this.attachmentsIds,
+                        scheduledAt: this.createMessageForm.scheduledAt ? this.createMessageForm.scheduledAt.toISOString() : undefined
                     })
                         .then(({data}) => {
-                            this.entitiesStore.insertMessage(data);
+                            if (!this.createMessageForm.scheduledAt) {
+                                this.entitiesStore.insertMessage(data);
+                            }
+
                             this.resetForm();
                         })
                         .catch(error => this.submissionError = getInitialApiErrorFromResponse(error))

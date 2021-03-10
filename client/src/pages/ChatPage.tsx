@@ -16,7 +16,8 @@ import {
     MessagesListWrapper,
     PinMessageSnackbarManager,
     UnpinMessageSnackbarManager,
-    UpdateMessageDialog
+    UpdateMessageDialog,
+    ScheduleMessageDialog
 } from "../Message";
 import {
     BlockUserInChatByIdOrSlugDialog,
@@ -69,6 +70,7 @@ export const ChatPage: FunctionComponent = () => (
             <UpdateChatParticipantDialog/>
             <PinMessageSnackbarManager/>
             <UnpinMessageSnackbarManager/>
+            <ScheduleMessageDialog/>
         </Grid>
     </Fragment>
 );

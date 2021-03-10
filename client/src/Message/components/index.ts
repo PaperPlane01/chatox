@@ -17,3 +17,5 @@ export * from "./PinMessageMenuItem";
 export * from "./PinMessageSnackbarManager";
 export * from "./PinnedMessage";
 export * from "./UnpinMessageSnackbarManager";
+export * from "./ScheduleMessageDialog";
+export * from "./OpenScheduleMessageDialogButton";

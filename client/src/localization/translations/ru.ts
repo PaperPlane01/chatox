@@ -336,5 +336,12 @@ export const ru: Labels = {
     "message.unpin": "Открепить сообщение",
     "message.unpin.success": "Сообщение откреплено",
     "message.pinned": "Закреплённое сообщение",
-    "message.pinned.show": "Показать закреплённое сообщение"
+    "message.pinned.show": "Показать закреплённое сообщение",
+    "message.schedule-date.must-be-five-minutes-from-now": "Дата отправки отложенного сообщения должна быть не менее 5 минут с настоящего времени",
+    "message.delayed-message.create": "Создать отложенное сообщение",
+    "message.delayed-message.list": "Отложенные сообщения",
+    "message.delayed-message.is-too-close-to-other-delayed-message": "Дата отправки данного отложенного сообщения слишком близка к другому отложенному сообщению. Между отложенными сообщениями должно быть не менее 10 минут",
+    "message.schedule-date.must-be-no-more-than-month-from-now": "Дата отправки отложенного сообщения должна быть не более месяца с настоящего времени",
+    "message.delayed-message.limit-reached": "Limit of delayed messages for this chat has been reached",
+    "ok": "OK"
 };

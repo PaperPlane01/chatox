@@ -9,3 +9,4 @@ export * from "./PinnedMessagesStore";
 export * from "./PinMessageStore";
 export * from "./UnpinMessageStore";
 export * from "./ClosedPinnedMessagesStore";
+export * from "./ScheduleMessageStore";
