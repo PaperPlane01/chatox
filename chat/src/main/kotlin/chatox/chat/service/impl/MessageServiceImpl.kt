@@ -159,7 +159,6 @@ class MessageServiceImpl(
                 assertCanCreateScheduledMessage(chatId).awaitFirst()
 
                 val numberOfScheduledMessagesInChat = scheduledMessageRepository.countByChatId(chat.id).awaitFirst()
-                println("Number of schedulet messages $numberOfScheduledMessagesInChat")
 
                 if (numberOfScheduledMessagesInChat >= ALLOWED_NUMBER_OF_SCHEDULED_MESSAGES) {
                     throw LimitOfScheduledMessagesReachedException("Limit of scheduled messages is reached", ALLOWED_NUMBER_OF_SCHEDULED_MESSAGES)
@@ -171,7 +170,6 @@ class MessageServiceImpl(
                         scheduledAtTo = createMessageRequest.scheduledAt.plusMinutes(10L)
                 )
                         .awaitFirst()
-                println("Number of close messages $numberOfMessagesScheduledCloseToThisMessage")
 
                 if (numberOfMessagesScheduledCloseToThisMessage != 0L) {
                     throw ScheduledMessageIsTooCloseToAnotherScheduledMessageException("This scheduled message is too close to another scheduled message. Scheduled messages must be at least 10 minutes from each other")
