@@ -42,6 +42,18 @@ class MessagePermissions(private val chatParticipationService: ChatParticipation
         }
     }
 
+    fun canScheduleMessage(chatId: String): Mono<Boolean> {
+        return mono {
+            val currentUserDetails = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val chatParticipation = chatParticipationService.getMinifiedChatParticipation(chatId = chatId, user = currentUser)
+                    .awaitFirstOrNull()
+                    ?: return@mono false
+
+            return@mono chatParticipation.role == ChatRole.ADMIN && !currentUserDetails.isBannedGlobally()
+        }
+    }
+
     fun canUpdateMessage(messageId: String, chatId: String): Mono<Boolean> {
         return mono {
             val message = messageService.findMessageById(messageId).awaitFirst()
@@ -97,6 +109,15 @@ class MessagePermissions(private val chatParticipationService: ChatParticipation
             val userRoleInChat = chatParticipationService.getRoleOfUserInChat(message.chatId, currentUser).awaitFirst()
 
             return@mono message.chatId == chatId && userRoleInChat == ChatRole.ADMIN
+        }
+    }
+
+    fun canSeeScheduledMessages(chatId: String): Mono<Boolean> {
+        return mono {
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val userRoleInChat = chatParticipationService.getRoleOfUserInChat(chatId, currentUser).awaitFirst()
+
+            return@mono userRoleInChat == ChatRole.ADMIN
         }
     }
 }

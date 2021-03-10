@@ -40,3 +40,12 @@ uploads:
   videos: ${API_HOST:http://localhost:8080}/api/v1/uploads/videos
   files: ${API_HOST:http://localhost:8080}/api/v1/uploads/files
   audios: ${API_HOST:http://localhost:8080}/api/v1/uploads/audios
+logging:
+  level:
+    chatox.chat:
+      support.validation.validator: DEBUG
+      scheduled: TRACE
+scheduled:
+  messages:
+    check:
+      enabled: true

@@ -82,6 +82,10 @@ class MessageController(private val messageService: MessageService) {
     ) = messageService.findMessagesSinceMessageByChat(chatId, afterId, paginationRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    @GetMapping("/{chatId}/messages/scheduled")
+    fun findScheduledMessagesBuChat(@PathVariable("chatId") chatId: String) = messageService.findScheduledMessagesByChat(chatId)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @PostMapping("/{chatId}/messages/{messageId}/read")
     fun markMessageRead(@PathVariable chatId: String,
                         @PathVariable messageId: String

@@ -2,11 +2,9 @@ package chatox.chat.model
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
-import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
 
-@Document(collection = "message")
-data class Message(
+data class ScheduledMessage(
         @Id
         var id: String,
         var text: String,
@@ -30,13 +28,6 @@ data class Message(
         var uploadAttachmentsIds: List<String> = listOf(),
         var attachments: List<Upload<Any>> = listOf(),
         var emoji: EmojiInfo = EmojiInfo(),
-
-        @Indexed
-        var pinned: Boolean = false,
-        var pinnedById: String? = null,
-        var pinnedAt: ZonedDateTime? = null,
-        var fromScheduled: Boolean = false,
-
-        @Indexed
-        var index: Long = 0L
+        var scheduledAt: ZonedDateTime,
+        var numberOfFailedAttemptsToPublish: Int = 0
 )

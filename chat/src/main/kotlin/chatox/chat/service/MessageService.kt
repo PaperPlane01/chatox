@@ -3,7 +3,6 @@ package chatox.chat.service
 import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
-import chatox.chat.model.Message
 import chatox.platform.pagination.PaginationRequest
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -20,4 +19,5 @@ interface MessageService {
     fun pinMessage(id: String, chatId: String): Mono<MessageResponse>
     fun unpinMessage(id: String, chatId: String): Mono<MessageResponse>
     fun findPinnedMessageByChat(chatId: String): Mono<MessageResponse>
+    fun findScheduledMessagesByChat(chatId: String): Flux<MessageResponse>
 }
