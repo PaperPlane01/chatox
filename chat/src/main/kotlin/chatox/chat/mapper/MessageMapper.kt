@@ -151,7 +151,8 @@ class MessageMapper(private val userService: UserService,
                     },
                     pinnedAt = null,
                     pinned = false,
-                    pinnedBy = null
+                    pinnedBy = null,
+                    scheduledAt = message.scheduledAt
             )
         }
     }
@@ -184,10 +185,11 @@ class MessageMapper(private val userService: UserService,
 
     fun fromScheduledMessage(
             scheduledMessage: ScheduledMessage,
-            messageIndex: Long
+            messageIndex: Long,
+            useCurrentDateInsteadOfScheduledDate: Boolean = false
     ) = Message(
             id = scheduledMessage.id,
-            createdAt = scheduledMessage.scheduledAt,
+            createdAt = if (useCurrentDateInsteadOfScheduledDate) ZonedDateTime.now() else scheduledMessage.scheduledAt,
             deleted = false,
             deletedById = null,
             deletedAt = null,
