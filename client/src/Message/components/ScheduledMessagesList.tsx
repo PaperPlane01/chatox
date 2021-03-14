@@ -11,7 +11,7 @@ interface ScheduledMessagesListStyles {
 export const ScheduledMessagesList: FunctionComponent = observer(() => {
     const {
         scheduledMessagesOfChat: {
-            messagesOfChat
+            scheduledMessagesOfChat
         }
     } = useStore();
     const [styles, setStyles] = useState<ScheduledMessagesListStyles>({height: "100%"});
@@ -39,7 +39,7 @@ export const ScheduledMessagesList: FunctionComponent = observer(() => {
 
     return (
         <div style={styles}>
-            {messagesOfChat.map(messageId => (
+            {scheduledMessagesOfChat.map(messageId => (
                 <MessagesListItem messageId={messageId}
                                   key={messageId}
                                   scheduledMessage

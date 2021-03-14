@@ -54,7 +54,7 @@ import {
     MessagesOfChatStore,
     MessagesStore,
     PinMessageStore,
-    PinnedMessagesStore, ScheduledMessagesStore, ScheduleMessageStore,
+    PinnedMessagesStore, ScheduledMessagesOfChatStore, ScheduledMessagesStore, ScheduleMessageStore,
     UnpinMessageStore,
     UpdateMessageStore,
     UploadMessageAttachmentsStore
@@ -200,7 +200,7 @@ const unpinMessage = new UnpinMessageStore(entities, chat);
 const closedPinnedMessages = new ClosedPinnedMessagesStore();
 const pinnedMessages = new PinnedMessagesStore(entities, chat, closedPinnedMessages);
 const scheduleMessage = new ScheduleMessageStore(messageCreation);
-const scheduledMessagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences, true);
+const scheduledMessagesOfChat = new ScheduledMessagesOfChatStore(entities, chat);
 
 export const store: IAppState = {
     authorization,

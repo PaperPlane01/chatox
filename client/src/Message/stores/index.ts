@@ -11,3 +11,4 @@ export * from "./UnpinMessageStore";
 export * from "./ClosedPinnedMessagesStore";
 export * from "./ScheduleMessageStore";
 export * from "./ScheduledMessagesStore";
+export * from "./ScheduledMessagesOfChatStore";

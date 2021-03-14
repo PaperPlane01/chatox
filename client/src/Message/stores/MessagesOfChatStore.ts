@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction, toJS} from "mobx";
+import {action, computed, observable, reaction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {AxiosPromise} from "axios";
 import {EntitiesStore} from "../../entities-store";
@@ -20,8 +20,7 @@ export class MessagesOfChatStore {
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
-                private readonly chatPreferencesStore: ChatsPreferencesStore,
-                private readonly workingWithScheduledMessages: boolean = false) {
+                private readonly chatPreferencesStore: ChatsPreferencesStore) {
         reaction(
             () => this.selectedChatId,
             () => this.fetchMessages({abortIfInitiallyFetched: true})
@@ -31,12 +30,9 @@ export class MessagesOfChatStore {
     @computed
     get messagesOfChat(): string[] {
         if (this.selectedChatId) {
-            const messages = this.workingWithScheduledMessages
-                ? this.entities.chats.findById(this.selectedChatId).scheduledMessages
-                : this.entities.chats.findById(this.selectedChatId).messages;
-            console.log(toJS(messages));
+            const messages = this.entities.chats.findById(this.selectedChatId).messages;
             return messages.slice().sort(createSortMessages(
-                this.workingWithScheduledMessages ? this.entities.scheduledMessages.findById : this.entities.messages.findById,
+                this.entities.messages.findById,
                 this.chatPreferencesStore.enableVirtualScroll
                 && this.chatPreferencesStore.reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE
             ));
@@ -74,9 +70,8 @@ export class MessagesOfChatStore {
             }
 
             this.chatMessagesFetchingStateMap[chatId].pending = true;
-            const fetchMessages = this.fetchMessagesFunction();
 
-            fetchMessages(chatId)
+            MessageApi.getMessagesByChat(chatId)
                 .then(({data}) => {
                     if (data.length !== 0) {
                         this.entities.insertMessages(data);
@@ -84,14 +79,6 @@ export class MessagesOfChatStore {
                     this.chatMessagesFetchingStateMap[chatId].initiallyFetched = true;
                 })
                 .finally(() => this.chatMessagesFetchingStateMap[chatId].pending = false)
-        }
-    }
-
-    private fetchMessagesFunction(): (chatId: string) => AxiosPromise<Message[]> {
-        if (this.workingWithScheduledMessages) {
-            return MessageApi.getScheduledMessagesByChat;
-        } else {
-            return MessageApi.getMessagesByChat;
         }
     }
 }

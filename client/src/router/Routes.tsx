@@ -156,13 +156,18 @@ export const Routes = {
             </ErrorBoundary>
         ),
         onEnter: (view: any, params: any) => {
+            store.scheduledMessagesOfChat.setReactToChatIdChange(true);
             store.chat.setSelectedChat(params.slug);
+            store.scheduledMessagesOfChat.fetchScheduledMessages();
         },
         onParamsChange: (view: any, params: any) => {
             store.chat.setSelectedChat(params.slug);
+            store.scheduledMessagesOfChat.setReactToChatIdChange(true);
+            store.scheduledMessagesOfChat.fetchScheduledMessages();
         },
         onExit: () => {
-            store.chat.setSelectedChat(undefined)
+            store.scheduledMessagesOfChat.setReactToChatIdChange(false);
+            store.chat.setSelectedChat(undefined);
         }
     })
 };
