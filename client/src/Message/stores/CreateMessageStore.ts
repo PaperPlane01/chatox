@@ -6,6 +6,7 @@ import {FormErrors} from "../../utils/types";
 import {MessageApi, ApiError, getInitialApiErrorFromResponse} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
+import {Routes} from "../../router";
 
 export class CreateMessageStore {
     @observable
@@ -55,6 +56,8 @@ export class CreateMessageStore {
         return false;
     };
 
+    private routerStore: any;
+
     constructor(
         private readonly chatStore: ChatStore,
         private readonly entitiesStore: EntitiesStore,
@@ -65,6 +68,10 @@ export class CreateMessageStore {
             text => this.formErrors.text = validateMessageText(text, {acceptEmpty: this.attachmentsIds.length !== 0})
         );
     };
+
+    setRouterStore = (routerStore: any): void => {
+        this.routerStore = routerStore;
+    }
 
     @action
     setReferredMessageId = (referredMessageId?: string): void => {
@@ -94,6 +101,13 @@ export class CreateMessageStore {
                         .then(({data}) => {
                             if (!this.createMessageForm.scheduledAt) {
                                 this.entitiesStore.insertMessage(data);
+                            } else {
+                                if (this.routerStore && this.routerStore.router && this.routerStore.router.goTo) {
+                                    const chat = this.entitiesStore.chats.findById(chatId);
+                                    this.routerStore.router.goTo(Routes.scheduledMessagesPage, {
+                                        slug: chat.slug ? chat.slug : chatId
+                                    });
+                                }
                             }
 
                             this.resetForm();
