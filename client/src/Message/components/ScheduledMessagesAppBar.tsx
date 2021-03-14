@@ -31,24 +31,25 @@ export const ScheduledMessagesAppBar: FunctionComponent = observer(() => {
         <Fragment>
             <AppBar position="fixed">
                 <Toolbar>
-                    <Link view={Routes.chatPage}
-                          params={{slug: chat.slug}}
-                          store={router}
-                          style={{
-                              textDecoration: "none",
-                              color: "inherit",
-                              display: "flex"
-                          }}
-                    >
-                        <IconButton color="inherit"
-                                    size="medium"
+                    <div style={{display: "flex", alignItems: "center"}}>
+                        <Link view={Routes.chatPage}
+                              params={{slug: chat.slug}}
+                              store={router}
+                              style={{
+                                  textDecoration: "none",
+                                  color: "inherit",
+                              }}
                         >
-                            <ArrowBack/>
-                        </IconButton>
-                        <Typography>
+                            <IconButton color="inherit"
+                                        size="medium"
+                            >
+                                <ArrowBack/>
+                            </IconButton>
+                        </Link>
+                        <Typography variant="h6">
                             {l("message.delayed-message.list")}
                         </Typography>
-                    </Link>
+                    </div>
                 </Toolbar>
             </AppBar>
             <Toolbar/>
