@@ -344,5 +344,6 @@ export const en: Labels = {
     "message.schedule-date.must-be-no-more-than-month-from-now": "Schedule date must be no more than 1 month from now",
     "message.delayed-message.limit-reached": "Limit of delayed messages for this chat has been reached",
     "ok": "OK",
-    "message.scheduled-at": "Scheduled at {scheduleDate}"
+    "message.scheduled-at": "Scheduled at {scheduleDate}",
+    "message.delayed-message.list.with-chat-specified": "Scheduled messages in \"{chatName}\" chat"
 };

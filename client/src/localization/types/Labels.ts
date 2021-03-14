@@ -338,6 +338,7 @@ export interface Labels {
     "message.schedule-date.must-be-five-minutes-from-now": string,
     "message.delayed-message.create": string,
     "message.delayed-message.list": string,
+    "message.delayed-message.list.with-chat-specified": string,
     "message.delayed-message.is-too-close-to-other-delayed-message": string,
     "message.schedule-date.must-be-no-more-than-month-from-now": string,
     "message.delayed-message.limit-reached": string,

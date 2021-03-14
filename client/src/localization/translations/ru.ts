@@ -344,5 +344,6 @@ export const ru: Labels = {
     "message.schedule-date.must-be-no-more-than-month-from-now": "Дата отправки отложенного сообщения должна быть не более месяца с настоящего времени",
     "message.delayed-message.limit-reached": "Limit of delayed messages for this chat has been reached",
     "ok": "OK",
-    "message.scheduled-at": "Запланировано на {scheduleDate}"
+    "message.scheduled-at": "Запланировано на {scheduleDate}",
+    "message.delayed-message.list.with-chat-specified": "Отложенные сообщения в чате \"{chatName}\""
 };

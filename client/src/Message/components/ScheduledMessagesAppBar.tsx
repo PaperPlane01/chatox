@@ -47,7 +47,7 @@ export const ScheduledMessagesAppBar: FunctionComponent = observer(() => {
                             </IconButton>
                         </Link>
                         <Typography variant="h6">
-                            {l("message.delayed-message.list")}
+                            {l("message.delayed-message.list.with-chat-specified", {chatName: chat.name})}
                         </Typography>
                     </div>
                 </Toolbar>
