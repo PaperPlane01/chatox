@@ -86,6 +86,12 @@ class MessageController(private val messageService: MessageService) {
     fun findScheduledMessagesBuChat(@PathVariable("chatId") chatId: String) = messageService.findScheduledMessagesByChat(chatId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    @PostMapping("/{chatId}/messages/scheduled/{messageId}/publish")
+    fun publishScheduledMessage(@PathVariable chatId: String,
+                                @PathVariable messageId: String
+    ) = messageService.publishScheduledMessage(chatId, messageId)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @PostMapping("/{chatId}/messages/{messageId}/read")
     fun markMessageRead(@PathVariable chatId: String,
                         @PathVariable messageId: String

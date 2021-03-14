@@ -7,6 +7,7 @@ import chatox.chat.api.response.UserResponse
 import chatox.chat.exception.ChatAlreadyHasPinnedMessageException
 import chatox.chat.exception.MessageNotFoundException
 import chatox.chat.exception.NoPinnedMessageException
+import chatox.chat.exception.ScheduledMessageNotFoundException
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.exception.metadata.LimitOfScheduledMessagesReachedException
@@ -17,6 +18,7 @@ import chatox.chat.model.Chat
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.Message
 import chatox.chat.model.MessageRead
+import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.chat.repository.ChatMessagesCounterRepository
@@ -573,6 +575,70 @@ class MessageServiceImpl(
             ) }
         }
                 .flatMapMany { it }
+    }
+
+    override fun publishScheduledMessage(chatId: String, messageId: String): Mono<MessageResponse> {
+        return mono {
+            assertCanCreateScheduledMessage(chatId).awaitFirst()
+
+            val scheduledMessage = scheduledMessageRepository.findById(messageId).awaitFirstOrNull()
+                    ?: throw ScheduledMessageNotFoundException("Could not find scheduled message with id $messageId")
+
+            return@mono publishScheduledMessageInternal(
+                    scheduledMessage = scheduledMessage,
+                    useCurrentDateInsteadOfScheduleDate = true
+            )
+                    .awaitFirst()
+        }
+    }
+
+    override fun publishScheduledMessage(scheduledMessage: ScheduledMessage,
+                                         localUsersCache: MutableMap<String, UserResponse>?,
+                                         localReferredMessagesCache: MutableMap<String, MessageResponse>?): Mono<MessageResponse> {
+        return publishScheduledMessageInternal(
+                scheduledMessage = scheduledMessage,
+                localReferredMessagesCache = localReferredMessagesCache,
+                localUsersCache = localUsersCache
+        )
+    }
+
+    private fun publishScheduledMessageInternal(scheduledMessage: ScheduledMessage,
+                                                localUsersCache: MutableMap<String, UserResponse>? = null,
+                                                localReferredMessagesCache: MutableMap<String, MessageResponse>? = null,
+                                                useCurrentDateInsteadOfScheduleDate: Boolean = false): Mono<MessageResponse> {
+        return mono {
+            val messageIndex = chatMessagesCounterRepository.getNextCounterValue(scheduledMessage.chatId).awaitFirst()
+
+            val message = messageMapper.fromScheduledMessage(
+                    scheduledMessage = scheduledMessage,
+                    messageIndex = messageIndex,
+                    useCurrentDateInsteadOfScheduledDate = useCurrentDateInsteadOfScheduleDate
+            )
+
+            if (message.uploadAttachmentsIds.isNotEmpty()) {
+                var chatUploadAttachments = chatUploadAttachmentRepository.findAllById(message.uploadAttachmentsIds)
+                        .collectList()
+                        .awaitFirst()
+                chatUploadAttachments = chatUploadAttachments.map { attachment -> attachment.copy(messageId = message.id) }
+                chatUploadAttachmentRepository.saveAll(chatUploadAttachments).collectList().awaitFirst()
+            }
+
+            messageRepository.save(message).awaitFirst()
+            scheduledMessageRepository.delete(scheduledMessage).awaitFirstOrNull()
+
+            val messageResponse = messageMapper.toMessageResponse(
+                    message = message,
+                    localUsersCache = localUsersCache,
+                    localReferredMessagesCache = localReferredMessagesCache,
+                    readByCurrentUser = true,
+                    mapReferredMessage = true
+            )
+                    .awaitFirst()
+
+            chatEventsPublisher.messageCreated(messageResponse)
+
+            return@mono messageResponse
+        }
     }
 
     private fun assertCanSeeScheduledMessages(chatId: String): Mono<Boolean> {
