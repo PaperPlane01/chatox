@@ -188,12 +188,15 @@ class MessageServiceImpl(
                 )
                 scheduledMessageRepository.save(scheduledMessage).awaitFirst()
 
-                return@mono messageMapper.toMessageResponse(
+                val messageResponse = messageMapper.toMessageResponse(
                         message = scheduledMessage,
                         mapReferredMessage = true,
                         readByCurrentUser = true
                 )
                         .awaitFirst()
+                chatEventsPublisher.scheduledMessageCreated(messageResponse)
+
+                return@mono messageResponse
             }
         }
     }
@@ -636,6 +639,7 @@ class MessageServiceImpl(
                     .awaitFirst()
 
             chatEventsPublisher.messageCreated(messageResponse)
+            chatEventsPublisher.scheduledMessagePublished(messageResponse)
 
             return@mono messageResponse
         }

@@ -114,4 +114,16 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.message.unpinned.#",
             message
     )
+
+    fun scheduledMessageCreated(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.scheduled.message.created.#",
+            message
+    )
+
+    fun scheduledMessagePublished(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.scheduled.message.published.#",
+            message
+    )
 }
