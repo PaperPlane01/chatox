@@ -312,6 +312,22 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         ]);
     }
 
+    public async publishScheduledMessageCreated(message: ChatMessage) {
+        const scheduledMessageCreatedEvent: WebsocketEvent<ChatMessage> = {
+            payload: message,
+            type: EventType.SCHEDULED_MESSAGE_CREATED
+        };
+        await this.publishEventToChatAdmins(message.chatId, scheduledMessageCreatedEvent);
+    }
+
+    public async publishScheduledMessagePublished(message: ChatMessage) {
+        const scheduledMessagePublishedEvent: WebsocketEvent<ChatMessage> = {
+            payload: message,
+            type: EventType.SCHEDULED_MESSAGE_PUBLISHED
+        };
+        await this.publishEventToChatAdmins(message.chatId, scheduledMessagePublishedEvent);
+     }
+
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {
         const chatParticipants = await this.chatParticipationService.findByChatId(chatId);
         this.log.debug("Publishing event to chat participants");
@@ -326,6 +342,17 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
                 })
             }
         });
+    }
+
+    private async publishEventToChatAdmins(chatId: string, event: WebsocketEvent<any>): Promise<void> {
+        const admins = await this.chatParticipationService.findAdminsByChatId(chatId);
+        this.log.debug(`Publishing event to admins of chat ${event}`);
+        this.log.verbose(`The following chat participants will receive an event: ${admins.map(admin => admin.id)}`);
+        this.log.consoleLog(event);
+
+        for (const admin of admins) {
+            await this.publishEventToUser(admin.userId, event);
+        }
     }
 
     private async publishEventToUser(userId: string, event: WebsocketEvent<any>): Promise<void> {
