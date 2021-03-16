@@ -32,7 +32,7 @@ import {
     MessageDialogStore,
     MessagesOfChatStore,
     PinMessageStore,
-    PinnedMessagesStore, ScheduledMessagesOfChatStore,
+    PinnedMessagesStore, PublishScheduledMessageStore, ScheduledMessagesOfChatStore,
     ScheduleMessageStore,
     UnpinMessageStore,
     UpdateMessageStore,
@@ -143,5 +143,6 @@ export interface IAppState {
     closedPinnedMessages: ClosedPinnedMessagesStore,
     scheduleMessage: ScheduleMessageStore,
     scheduledMessagesOfChat: ScheduledMessagesOfChatStore,
+    publishScheduledMessage: PublishScheduledMessageStore,
     store?: any
 }
