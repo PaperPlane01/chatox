@@ -1,19 +1,11 @@
-import {action} from "mobx";
-import {MessagesStore} from "./MessagesStore";
+import {AbstractEntityStore} from "../../entity-store";
+import {MessageEntity} from "../types";
+import {convertMessageToNormalizedForm} from "../utils";
+import {Message} from "../../api/types/response";
 
-export class ScheduledMessagesStore extends MessagesStore {
-    @action
-    deleteAllById = (ids: string[]) => {
-        this.ids = this.ids.filter(id => !ids.includes(id));
-    }
+export class ScheduledMessagesStore extends AbstractEntityStore<MessageEntity,  Message> {
 
-    @action
-    deleteById = (idToDelete: string) => {
-        const message = this.findByIdOptional(idToDelete);
-
-        if (message) {
-            this.ids = this.ids.filter(id => id !== idToDelete);
-            delete this.entities[idToDelete];
-        }
+    protected convertToNormalizedForm(denormalizedEntity: Message): MessageEntity {
+        return convertMessageToNormalizedForm(denormalizedEntity);
     }
 }
