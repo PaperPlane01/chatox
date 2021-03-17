@@ -343,5 +343,8 @@ export interface Labels {
     "message.schedule-date.must-be-no-more-than-month-from-now": string,
     "message.delayed-message.limit-reached": string,
     "ok": string,
-    "message.scheduled-at": string
+    "message.scheduled-at": string,
+    "message.delayed-message.publish": string,
+    "message.delayed-message.publish.success": string,
+    "message.delayed-message.publish.error": string
 }

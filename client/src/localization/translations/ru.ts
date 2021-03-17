@@ -345,5 +345,8 @@ export const ru: Labels = {
     "message.delayed-message.limit-reached": "Limit of delayed messages for this chat has been reached",
     "ok": "OK",
     "message.scheduled-at": "Запланировано на {scheduleDate}",
-    "message.delayed-message.list.with-chat-specified": "Отложенные сообщения в чате \"{chatName}\""
+    "message.delayed-message.list.with-chat-specified": "Отложенные сообщения в чате \"{chatName}\"",
+    "message.delayed-message.publish": "Опубликовать",
+    "message.delayed-message.publish.success": "Отложенное сообщение было опубликовано",
+    "message.delayed-message.publish.error": "Во время попытки опубликовать отложенное сообщения произошла ошибка"
 };

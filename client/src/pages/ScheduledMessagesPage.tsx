@@ -1,6 +1,6 @@
 import React, {FunctionComponent, Fragment} from "react";
 import {Grid} from "@material-ui/core";
-import {ScheduledMessagesAppBar, ScheduledMessagesList} from "../Message";
+import {ScheduledMessagesAppBar, ScheduledMessagesList, PublishScheduledMessageSnackbarManager} from "../Message";
 
 export const ScheduledMessagesPage: FunctionComponent = () => (
     <Fragment>
@@ -12,6 +12,7 @@ export const ScheduledMessagesPage: FunctionComponent = () => (
                 <ScheduledMessagesList/>
             </Grid>
         </Grid>
+        <PublishScheduledMessageSnackbarManager/>
     </Fragment>
 );
 

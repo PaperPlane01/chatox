@@ -5,7 +5,7 @@ import {ChatStore} from "../../Chat/stores";
 
 export class PublishScheduledMessageStore {
     @observable
-    pendingMessagesMap: {[messageId: string]: boolean};
+    pendingMessagesMap: {[messageId: string]: boolean} = {};
 
     @observable
     showSnackbar: boolean = false;
@@ -28,12 +28,13 @@ export class PublishScheduledMessageStore {
             return;
         }
 
+        const chatId = this.selectedChatId;
         this.pendingMessagesMap[messageId] = true;
         this.error = undefined;
 
-        MessageApi.publishScheduledMessage(this.selectedChatId, messageId)
+        MessageApi.publishScheduledMessage(chatId, messageId)
             .then(({data}) => {
-                this.entities.scheduledMessages.deleteById(data.id);
+                this.entities.deleteScheduledMessage(chatId, messageId);
                 this.entities.insertMessage(data);
             })
             .catch(error => this.error = getInitialApiErrorFromResponse(error))

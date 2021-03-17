@@ -345,5 +345,8 @@ export const en: Labels = {
     "message.delayed-message.limit-reached": "Limit of delayed messages for this chat has been reached",
     "ok": "OK",
     "message.scheduled-at": "Scheduled at {scheduleDate}",
-    "message.delayed-message.list.with-chat-specified": "Scheduled messages in \"{chatName}\" chat"
+    "message.delayed-message.list.with-chat-specified": "Scheduled messages in \"{chatName}\" chat",
+    "message.delayed-message.publish": "Publish now",
+    "message.delayed-message.publish.success": "Scheduled message has been published",
+    "message.delayed-message.publish.error": "Error occurred when tried to publish scheduled message"
 };

@@ -16,7 +16,8 @@ import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactVisibilitySensor from "react-visibility-sensor";
 import clsx from "clsx";
-import {MenuItemType, MessageMenu} from "./MessageMenu";
+import {MessageMenu, MessageMenuItemType} from "./MessageMenu";
+import {ScheduledMessageMenu, ScheduledMessageMenuItemType} from "./ScheduledMessageMenu";
 import {MessageImagesGrid} from "./MessageImagesGrid";
 import {MessageImagesSimplifiedGrid} from "./MessageImagesSimplifiedGrid";
 import {ReferredMessageContent} from "./ReferredMessageContent";
@@ -34,7 +35,7 @@ const {Link} = require("mobx-router");
 interface MessagesListItemProps {
     messageId: string,
     fullWidth?: boolean,
-    onMenuItemClick?: (menuItemType: MenuItemType) => void,
+    onMenuItemClick?: (menuItemType: MessageMenuItemType | ScheduledMessageMenuItemType) => void,
     onVisibilityChange?: (visible: boolean) => void,
     hideAttachments?: boolean,
     inverted?: boolean,
@@ -255,9 +256,9 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         [classes.undecoratedLink]: true,
         [classes.avatarOfCurrentUserContainer]: sentByCurrentUser,
         [classes.avatarContainer]: !sentByCurrentUser
-    })
+    });
 
-    const handleMenuItemClick = (menuItemType: MenuItemType): void => {
+    const handleMenuItemClick = (menuItemType: MessageMenuItemType | ScheduledMessageMenuItemType): void => {
         if (onMenuItemClick) {
             onMenuItemClick(menuItemType);
         }
@@ -298,7 +299,10 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                     action: classes.cardHeaderAction,
                                     content: classes.cardHeaderContent
                                 }}
-                                action={scheduledMessage ? null : <MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>}
+                                action={scheduledMessage
+                                    ? <ScheduledMessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>
+                                    : <MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>
+                                }
                     />
                     <CardContent classes={{
                         root: classes.cardContentRoot

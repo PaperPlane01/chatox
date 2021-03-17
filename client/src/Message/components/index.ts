@@ -21,3 +21,6 @@ export * from "./ScheduleMessageDialog";
 export * from "./OpenScheduleMessageDialogButton";
 export * from "./ScheduledMessagesAppBar";
 export * from "./ScheduledMessagesList";
+export * from "./ScheduledMessageMenu";
+export * from "./PublishScheduledMessageNowMenuItem";
+export * from "./PublishScheduledMessageSnackbarManager";

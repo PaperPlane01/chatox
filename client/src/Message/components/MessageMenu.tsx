@@ -12,7 +12,7 @@ import {canBlockUsersInChat, ChatBlockingEntity} from "../../ChatBlocking";
 import {BanUserGloballyMenuItem, canBanUsersGlobally} from "../../GlobalBan";
 import {PinMessageMenuItem} from "./PinMessageMenuItem";
 
-export type MenuItemType = "blockMessageAuthorInChat"
+export type MessageMenuItemType = "blockMessageAuthorInChat"
     | "replyToMessage"
     | "editMessage"
     | "deleteMessage"
@@ -21,7 +21,7 @@ export type MenuItemType = "blockMessageAuthorInChat"
 
 interface MessageMenuProps {
     messageId: string,
-    onMenuItemClick?: (menuItemType: MenuItemType) => void
+    onMenuItemClick?: (menuItemType: MessageMenuItemType) => void
 }
 
 export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messageId, onMenuItemClick}) => {
@@ -63,7 +63,7 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messa
         setAnchorElement(event.currentTarget);
     };
 
-    const handleClose = (menuItemType?: MenuItemType) => (): void => {
+    const handleClose = (menuItemType?: MessageMenuItemType) => (): void => {
         if (onMenuItemClick && menuItemType) {
             onMenuItemClick(menuItemType);
         }

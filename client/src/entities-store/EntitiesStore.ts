@@ -292,4 +292,10 @@ export class EntitiesStore {
         );
         this.globalBans.insert(globalBan);
     }
+
+    @action
+    deleteScheduledMessage = (chatId: string, messageId: string): void => {
+        this.chats.removeScheduledMessageFromChat(chatId, messageId);
+        this.scheduledMessages.deleteById(messageId);
+    }
 }

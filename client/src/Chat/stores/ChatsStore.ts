@@ -56,6 +56,13 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
     }
 
     @action
+    removeScheduledMessageFromChat = (chatId: string, messageIdToDelete: string): void => {
+        const chat = this.findById(chatId);
+        chat.scheduledMessages = chat.scheduledMessages.filter(messageId => messageId !== messageIdToDelete);
+        this.insertEntity(chat);
+    }
+
+    @action
     increaseChatParticipantsCount = (chatId: string): void => {
         const chat = this.findByIdOptional(chatId);
 
