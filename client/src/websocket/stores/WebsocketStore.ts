@@ -156,6 +156,18 @@ export class WebsocketStore {
                     }
                 }
             );
+            this.socketIoClient.on(
+                WebsocketEventType.SCHEDULED_MESSAGE_CREATED,
+                (event: WebsocketEvent<Message>) => this.entities.insertMessage(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.SCHEDULED_MESSAGE_PUBLISHED,
+                (event: WebsocketEvent<Message>) => this.entities.deleteScheduledMessage(event.payload.chatId, event.payload.id)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.SCHEDULED_MESSAGE_DELETED,
+                (event: WebsocketEvent<MessageDeleted>) => this.entities.deleteScheduledMessage(event.payload.chatId, event.payload.messageId)
+            );
         }
     }
 
@@ -176,12 +188,12 @@ export class WebsocketStore {
         if (this.socketIoClient) {
             this.socketIoClient.emit(WebsocketEventType.CHAT_SUBSCRIPTION, {chatId});
         }
-    };
+    }
 
     @action
     unsubscribeFromChat = (chatId: string) => {
         if (this.socketIoClient) {
             this.socketIoClient.emit(WebsocketEventType.CHAT_UNSUBSCRIPTION, {chatId});
         }
-    };
+    }
 }
