@@ -48,4 +48,8 @@ export class MessageApi {
     public static publishScheduledMessage(chatId: string, messageId: string): AxiosPromise<Message> {
         return axiosInstance.post(`/${CHATS}/${chatId}/${MESSAGES}/${SCHEDULED}/${messageId}/${PUBLISH}`);
     }
+
+    public static deleteScheduledMessage(chatId: string, messageId: string): AxiosPromise<void> {
+        return axiosInstance.delete(`/${CHATS}/${chatId}/${MESSAGES}/${SCHEDULED}/${messageId}`);
+    }
 }

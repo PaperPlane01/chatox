@@ -24,3 +24,4 @@ export * from "./ScheduledMessagesList";
 export * from "./ScheduledMessageMenu";
 export * from "./PublishScheduledMessageNowMenuItem";
 export * from "./PublishScheduledMessageSnackbarManager";
+export * from "./DeleteScheduledMessageMenuItem";

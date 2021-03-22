@@ -27,7 +27,7 @@ import {
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore,
+    CreateMessageStore, DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     MessageDialogStore,
     MessagesOfChatStore,
@@ -144,5 +144,6 @@ export interface IAppState {
     scheduleMessage: ScheduleMessageStore,
     scheduledMessagesOfChat: ScheduledMessagesOfChatStore,
     publishScheduledMessage: PublishScheduledMessageStore,
+    deleteScheduledMessage: DeleteScheduledMessageStore,
     store?: any
 }

@@ -71,3 +71,7 @@ export const canUnpinMessage = (chatParticipation?: ChatParticipationEntity): bo
 export const canScheduleMessage = (chatParticipation?: ChatParticipationEntity): boolean => {
     return Boolean(chatParticipation && chatParticipation.role === ChatRole.ADMIN);
 }
+
+export const canDeleteScheduledMessage = (message: MessageEntity, chatParticipation?: ChatParticipationEntity): boolean => {
+    return Boolean(chatParticipation && chatParticipation.role === ChatRole.ADMIN);
+}

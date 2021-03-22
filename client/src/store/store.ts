@@ -48,7 +48,7 @@ import {
 } from "../User";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore,
+    CreateMessageStore, DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     MessageDialogStore,
     MessagesOfChatStore,
@@ -206,6 +206,7 @@ const pinnedMessages = new PinnedMessagesStore(entities, chat, closedPinnedMessa
 const scheduleMessage = new ScheduleMessageStore(messageCreation);
 const scheduledMessagesOfChat = new ScheduledMessagesOfChatStore(entities, chat);
 const publishScheduledMessage = new PublishScheduledMessageStore(entities, chat);
+const deleteScheduledMessage = new DeleteScheduledMessageStore(entities, chat);
 
 export const store: IAppState = {
     authorization,
@@ -275,5 +276,6 @@ export const store: IAppState = {
     closedPinnedMessages,
     scheduleMessage,
     scheduledMessagesOfChat,
-    publishScheduledMessage
+    publishScheduledMessage,
+    deleteScheduledMessage
 };

@@ -4,10 +4,11 @@ import {Menu, IconButton} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {usePopupState, bindMenu, bindToggle} from "material-ui-popup-state/hooks";
 import {PublishScheduledMessageNowMenuItem} from "./PublishScheduledMessageNowMenuItem";
-import {canScheduleMessage} from "../permissions";
+import {DeleteScheduledMessageMenuItem} from "./DeleteScheduledMessageMenuItem";
+import {canDeleteScheduledMessage, canScheduleMessage} from "../permissions";
 import {useStore} from "../../store/hooks";
 
-export type ScheduledMessageMenuItemType = "publishScheduledMessage";
+export type ScheduledMessageMenuItemType = "publishScheduledMessage" | "deleteScheduledMessage";
 
 interface ScheduledMessageMenuProps {
     messageId: string,
@@ -25,6 +26,9 @@ export const ScheduledMessageMenu: FunctionComponent<ScheduledMessageMenuProps> 
             },
             chats: {
                 findById: findChat
+            },
+            scheduledMessages: {
+                findById: findScheduledMessage
             }
         },
         chat: {
@@ -41,6 +45,7 @@ export const ScheduledMessageMenu: FunctionComponent<ScheduledMessageMenuProps> 
     }
 
     const chat = findChat(selectedChatId);
+    const scheduledMessage = findScheduledMessage(messageId);
 
     if (!chat.currentUserParticipationId) {
         return null;
@@ -59,10 +64,19 @@ export const ScheduledMessageMenu: FunctionComponent<ScheduledMessageMenuProps> 
     const menuItems: ReactNode[] = [];
 
     if (canScheduleMessage(currentUserChatParticipation)) {
-        menuItems.push(<PublishScheduledMessageNowMenuItem messageId={messageId}
-                                                           onClick={handleMenuItemClick("publishScheduledMessage")}
+        menuItems.push(
+            <PublishScheduledMessageNowMenuItem messageId={messageId}
+                                                onClick={handleMenuItemClick("publishScheduledMessage")}
             />
-        )
+        );
+    }
+
+    if (canDeleteScheduledMessage(scheduledMessage, currentUserChatParticipation)) {
+        menuItems.push(
+            <DeleteScheduledMessageMenuItem messageId={messageId}
+                                            onClick={handleMenuItemClick("deleteScheduledMessage")}
+            />
+        );
     }
 
     if (menuItems.length === 0) {
