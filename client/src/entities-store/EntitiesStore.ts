@@ -74,7 +74,6 @@ export class EntitiesStore {
 
         if (message.scheduledAt) {
             this.scheduledMessages.insert(message);
-            console.log("Adding scheduled message to chat")
             this.chats.addScheduledMessageToChat(message.chatId, message.id);
         } else {
             this.messages.insert(message);
