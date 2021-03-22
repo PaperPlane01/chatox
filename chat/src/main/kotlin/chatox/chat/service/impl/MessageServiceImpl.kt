@@ -693,7 +693,10 @@ class MessageServiceImpl(
 
             val scheduledMessage = findScheduledMessageById(messageId).awaitFirst()
 
-            return@mono scheduledMessageRepository.delete(scheduledMessage)
+            scheduledMessageRepository.delete(scheduledMessage).awaitFirstOrNull()
+            chatEventsPublisher.scheduledMessageDeleted(messageId = scheduledMessage.id, chatId = scheduledMessage.chatId)
+
+            return@mono Mono.empty<Void>()
         }
                 .flatMap { it }
     }

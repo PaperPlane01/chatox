@@ -126,4 +126,13 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.scheduled.message.published.#",
             message
     )
+
+    fun scheduledMessageDeleted(messageId: String, chatId: String) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.scheduled.message.deleted.#",
+            hashMapOf(
+                    Pair("messageId", messageId),
+                    Pair("chatId", chatId)
+            )
+    )
 }

@@ -95,4 +95,15 @@ export class MessagesController {
         this.log.verbose(message);
         await this.websocketEventsPublisher.publishScheduledMessagePublished(message);
     }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: `events_service_scheduled_message_deleted-${config.EVENTS_SERVICE_PORT}`,
+        routingKey: "chat.scheduled.message.deleted.#"
+    })
+    public async onScheduledMessageDeleted(messageDeleted: MessageDeleted): Promise<void> {
+        this.log.debug("Scheduled message deleted event");
+        this.log.verbose(messageDeleted);
+        await this.websocketEventsPublisher.publishScheduledMessageDeleted(messageDeleted);
+    }
 }
