@@ -584,8 +584,7 @@ class MessageServiceImpl(
         return mono {
             assertCanCreateScheduledMessage(chatId).awaitFirst()
 
-            val scheduledMessage = scheduledMessageRepository.findById(messageId).awaitFirstOrNull()
-                    ?: throw ScheduledMessageNotFoundException("Could not find scheduled message with id $messageId")
+            val scheduledMessage = findScheduledMessageById(messageId).awaitFirst()
 
             return@mono publishScheduledMessageInternal(
                     scheduledMessage = scheduledMessage,
@@ -685,6 +684,24 @@ class MessageServiceImpl(
             }
 
             message
+        }
+    }
+
+    override fun deleteScheduledMessage(chatId: String, messageId: String): Mono<Void> {
+        return mono {
+            assertCanCreateScheduledMessage(chatId).awaitFirst()
+
+            val scheduledMessage = findScheduledMessageById(messageId).awaitFirst()
+
+            return@mono scheduledMessageRepository.delete(scheduledMessage)
+        }
+                .flatMap { it }
+    }
+
+    private fun findScheduledMessageById(messageId: String): Mono<ScheduledMessage> {
+        return mono {
+            return@mono scheduledMessageRepository.findById(messageId).awaitFirstOrNull()
+                    ?: throw ScheduledMessageNotFoundException("Could not find scheduled message with id $messageId")
         }
     }
 }
