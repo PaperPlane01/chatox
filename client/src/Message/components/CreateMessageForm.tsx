@@ -20,9 +20,9 @@ import {EmojiData, Picker} from "emoji-mart";
 import 'emoji-mart/css/emoji-mart.css';
 import {AttachFilesButton} from "./AttachFilesButton";
 import {ReferredMessageCard} from "./ReferredMessageCard";
+import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     textField: {
