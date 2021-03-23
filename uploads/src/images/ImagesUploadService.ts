@@ -16,7 +16,6 @@ import {config} from "../config";
 import {UploadMapper} from "../common/mappers";
 import {CurrentUserHolder} from "../context/CurrentUserHolder";
 import {mapAsync} from "../utils/map-async";
-import {FileInfoResult} from "prettier";
 
 const fileSystem = promises;
 
@@ -304,16 +303,32 @@ export class ImagesUploadService {
 
             if (fileInfo) {
                 response.setHeader("Content-Type", fileInfo.mimeType);
-                createReadStream(path.join(config.IMAGES_THUMBNAILS_DIRECTORY, fileInfo.name)).pipe(response);
-                return
+
+                try {
+                    createReadStream(path.join(config.IMAGES_THUMBNAILS_DIRECTORY, fileInfo.name)).pipe(response);
+                    return;
+                } catch (error) {
+                    throw new HttpException(
+                        `Could not find image with ${imageName} name`,
+                        HttpStatus.NOT_FOUND
+                    );
+                }
             }
         } else {
             const fileInfo: RedisFileInfo | undefined = await this.cacheManager.get(`fileInfo_${imageName}`);
 
             if (fileInfo) {
                 response.setHeader("Content-Type", fileInfo.mimeType);
-                createReadStream(path.join(config.IMAGES_DIRECTORY, fileInfo.name)).pipe(response);
-                return;
+
+                try {
+                    createReadStream(path.join(config.IMAGES_DIRECTORY, fileInfo.name)).pipe(response);
+                    return;
+                } catch (error) {
+                    throw new HttpException(
+                        `Could not find image with ${imageName} name`,
+                        HttpStatus.NOT_FOUND
+                    );
+                }
             }
         }
 
@@ -351,11 +366,19 @@ export class ImagesUploadService {
             }
         }
 
-        createReadStream(imagePath).pipe(response);
+        try {
+            createReadStream(imagePath).pipe(response);
+            return;
+        } catch (error) {
+            throw new HttpException(
+                `Could not find image with ${imageName} name`,
+                HttpStatus.NOT_FOUND
+            );
+        }
     }
 
     private async getThumbnailOrCreateNew(image: Upload<ImageUploadMetadata>, size: number): Promise<Upload<ImageUploadMetadata>> {
-        let thumbnail = image.thumbnails.find(thumbnail => thumbnail.meta.width === size);
+        const thumbnail = image.thumbnails.find(thumbnail => thumbnail.meta.width === size);
 
         if (thumbnail) {
             return thumbnail;
