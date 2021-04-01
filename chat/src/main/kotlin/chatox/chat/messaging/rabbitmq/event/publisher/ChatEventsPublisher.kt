@@ -135,4 +135,10 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
                     Pair("chatId", chatId)
             )
     )
+
+    fun scheduledMessageUpdated(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.scheduled.message.updated.#",
+            message
+    )
 }

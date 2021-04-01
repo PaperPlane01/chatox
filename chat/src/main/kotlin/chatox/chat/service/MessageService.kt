@@ -21,8 +21,10 @@ interface MessageService {
     fun pinMessage(id: String, chatId: String): Mono<MessageResponse>
     fun unpinMessage(id: String, chatId: String): Mono<MessageResponse>
     fun findPinnedMessageByChat(chatId: String): Mono<MessageResponse>
+    fun findScheduledMessageById(messageId: String): Mono<MessageResponse>
     fun findScheduledMessagesByChat(chatId: String): Flux<MessageResponse>
     fun publishScheduledMessage(chatId: String, messageId: String): Mono<MessageResponse>
     fun publishScheduledMessage(scheduledMessage: ScheduledMessage, localUsersCache: MutableMap<String, UserResponse>? = null, localReferredMessagesCache: MutableMap<String, MessageResponse>? = null): Mono<MessageResponse>
     fun deleteScheduledMessage(chatId: String, messageId: String): Mono<Void>
+    fun updateScheduledMessage(chatId: String, messageId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse>
 }

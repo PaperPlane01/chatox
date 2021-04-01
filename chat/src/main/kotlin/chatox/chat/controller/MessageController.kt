@@ -92,6 +92,13 @@ class MessageController(private val messageService: MessageService) {
     ) = messageService.deleteScheduledMessage(chatId, messageId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    @PutMapping("/{chatId}/messages/scheduled/{messageId}")
+    fun updateScheduledMessage(@PathVariable chatId: String,
+                               @PathVariable messageId: String,
+                               @RequestBody updateMessageRequest: UpdateMessageRequest
+    ) = messageService.updateScheduledMessage(chatId, messageId, updateMessageRequest)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @PostMapping("/{chatId}/messages/scheduled/{messageId}/publish")
     fun publishScheduledMessage(@PathVariable chatId: String,
                                 @PathVariable messageId: String

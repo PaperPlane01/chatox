@@ -59,13 +59,13 @@ class MessageServiceImpl(
         private val uploadRepository: UploadRepository,
         private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
         private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
+        private val scheduledMessageRepository: ScheduledMessageRepository,
         private val authenticationFacade: AuthenticationFacade,
         private val emojiParserService: EmojiParserService,
         private val messageCacheService: ReactiveCacheService<Message, String>,
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val messageMapper: MessageMapper,
-        private val chatEventsPublisher: ChatEventsPublisher,
-        private val scheduledMessageRepository: ScheduledMessageRepository) : MessageService {
+        private val chatEventsPublisher: ChatEventsPublisher) : MessageService {
 
     private companion object {
         const val ALLOWED_NUMBER_OF_SCHEDULED_MESSAGES = 50
@@ -560,6 +560,19 @@ class MessageServiceImpl(
         }
     }
 
+    override fun findScheduledMessageById(messageId: String): Mono<MessageResponse> {
+        return mono {
+            val scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
+
+            return@mono messageMapper.toMessageResponse(
+                    message = scheduledMessage,
+                    mapReferredMessage = true,
+                    readByCurrentUser = false
+            )
+                    .awaitFirst()
+        }
+    }
+
     override fun findScheduledMessagesByChat(chatId: String): Flux<MessageResponse> {
         return mono {
             assertCanSeeScheduledMessages(chatId).awaitFirst()
@@ -584,7 +597,7 @@ class MessageServiceImpl(
         return mono {
             assertCanCreateScheduledMessage(chatId).awaitFirst()
 
-            val scheduledMessage = findScheduledMessageById(messageId).awaitFirst()
+            val scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
 
             return@mono publishScheduledMessageInternal(
                     scheduledMessage = scheduledMessage,
@@ -683,7 +696,7 @@ class MessageServiceImpl(
                 throw MessageNotFoundException("Could not find message with id $messageId")
             }
 
-            message
+            return@mono message
         }
     }
 
@@ -691,7 +704,7 @@ class MessageServiceImpl(
         return mono {
             assertCanCreateScheduledMessage(chatId).awaitFirst()
 
-            val scheduledMessage = findScheduledMessageById(messageId).awaitFirst()
+            val scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
 
             scheduledMessageRepository.delete(scheduledMessage).awaitFirstOrNull()
             chatEventsPublisher.scheduledMessageDeleted(messageId = scheduledMessage.id, chatId = scheduledMessage.chatId)
@@ -701,7 +714,54 @@ class MessageServiceImpl(
                 .flatMap { it }
     }
 
-    private fun findScheduledMessageById(messageId: String): Mono<ScheduledMessage> {
+    override fun updateScheduledMessage(chatId: String, messageId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
+        return mono {
+            assertCanUpdateScheduledMessage(messageId = messageId, chatId = chatId).awaitFirst()
+
+            val chat = findChatById(chatId).awaitFirst()
+
+            if (chat.deleted) {
+                throw ChatDeletedException(chat.chatDeletion)
+            }
+
+            var scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
+            var emoji = scheduledMessage.emoji
+
+            if (scheduledMessage.text != updateMessageRequest.text) {
+                emoji = emojiParserService.parseEmoji(updateMessageRequest.text).awaitFirst()
+            }
+
+            scheduledMessage = messageMapper.mapScheduledMessageUpdate(
+                    updateMessageRequest = updateMessageRequest,
+                    originalMessage = scheduledMessage,
+                    emoji = emoji
+            )
+
+            scheduledMessageRepository.save(scheduledMessage).awaitFirst()
+
+            val messageResponse = messageMapper.toMessageResponse(
+                    message = scheduledMessage,
+                    mapReferredMessage = true,
+                    readByCurrentUser = true
+            )
+                    .awaitFirst()
+            chatEventsPublisher.scheduledMessageUpdated(messageResponse)
+
+            return@mono messageResponse
+        }
+    }
+
+    private fun assertCanUpdateScheduledMessage(messageId: String, chatId: String): Mono<Boolean> {
+        return mono {
+            if (messagePermissions.canUpdateScheduledMessage(messageId = messageId, chatId = chatId).awaitFirst()) {
+                return@mono true
+            }
+
+            throw AccessDeniedException("Cannot update scheduled message")
+        }
+    }
+
+    private fun findScheduledMessageEntityById(messageId: String): Mono<ScheduledMessage> {
         return mono {
             return@mono scheduledMessageRepository.findById(messageId).awaitFirstOrNull()
                     ?: throw ScheduledMessageNotFoundException("Could not find scheduled message with id $messageId")

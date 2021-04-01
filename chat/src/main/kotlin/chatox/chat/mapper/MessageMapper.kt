@@ -238,4 +238,13 @@ class MessageMapper(private val userService: UserService,
             updatedAt = ZonedDateTime.now(),
             emoji = emojis
     )
+
+    fun mapScheduledMessageUpdate(updateMessageRequest: UpdateMessageRequest,
+                                  originalMessage: ScheduledMessage,
+                                  emoji: EmojiInfo = originalMessage.emoji
+    ) = originalMessage.copy(
+            text = updateMessageRequest.text,
+            emoji = emoji,
+            updatedAt = ZonedDateTime.now()
+    )
 }
