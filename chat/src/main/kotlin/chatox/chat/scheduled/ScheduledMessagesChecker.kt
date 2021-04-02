@@ -16,7 +16,7 @@ import java.time.temporal.ChronoUnit
 
 @Component
 @Transactional
-class ScheduledMessagesPublisher(
+class ScheduledMessagesChecker(
         private val scheduledMessageRepository: ScheduledMessageRepository,
         private val messageService: MessageService
 ) {
