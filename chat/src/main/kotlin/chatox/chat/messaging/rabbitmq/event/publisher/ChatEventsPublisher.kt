@@ -114,4 +114,31 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.message.unpinned.#",
             message
     )
+
+    fun scheduledMessageCreated(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.scheduled.message.created.#",
+            message
+    )
+
+    fun scheduledMessagePublished(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.scheduled.message.published.#",
+            message
+    )
+
+    fun scheduledMessageDeleted(messageId: String, chatId: String) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.scheduled.message.deleted.#",
+            hashMapOf(
+                    Pair("messageId", messageId),
+                    Pair("chatId", chatId)
+            )
+    )
+
+    fun scheduledMessageUpdated(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.scheduled.message.updated.#",
+            message
+    )
 }

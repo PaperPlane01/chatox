@@ -336,5 +336,22 @@ export const en: Labels = {
     "message.unpin": "Unpin message",
     "message.unpin.success": "Message has been unpinned",
     "message.pinned": "Pinned message",
-    "message.pinned.show": "Show pinned message"
+    "message.pinned.show": "Show pinned message",
+    "message.schedule-date.must-be-five-minutes-from-now": "Schedule date must be at least 5 minutes from now",
+    "message.delayed-message.create": "Schedule a message",
+    "message.delayed-message.list": "Scheduled messages",
+    "message.delayed-message.is-too-close-to-other-delayed-message": "This scheduled message is too close to another scheduled message. Scheduled message must be at least 10 minutes from each other",
+    "message.schedule-date.must-be-no-more-than-month-from-now": "Schedule date must be no more than 1 month from now",
+    "message.delayed-message.limit-reached": "Limit of delayed messages for this chat has been reached",
+    "ok": "OK",
+    "message.scheduled-at": "Scheduled at {scheduleDate}",
+    "message.delayed-message.list.with-chat-specified": "Scheduled messages in \"{chatName}\" chat",
+    "message.delayed-message.publish": "Publish now",
+    "message.delayed-message.publish.success": "Scheduled message has been published",
+    "message.delayed-message.publish.error": "Error occurred when tried to publish scheduled message",
+    "message.delayed-message.update.success": "Scheduled message has been updated",
+    "message.delayed-message.update.error.unknown": "Unknown error occurred when tried to update scheduled message. Server responded with {errorStatus} status",
+    "message.delayed-message.update.error.deleted-or-published": "Scheduled message has been either deleted or published",
+    "message.delayed-message.update.server-unreachable": "Error occurred when tried to update scheduled message: server is unreachable",
+    "message.delayed-message.update": "Edit scheduled message"
 };

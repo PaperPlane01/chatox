@@ -12,7 +12,7 @@ import {
     Message,
     User
 } from "../api/types/response";
-import {MessagesStore} from "../Message";
+import {MessagesStore, ScheduledMessagesStore} from "../Message";
 import {AuthorizationStore} from "../Authorization";
 import {ChatBlockingsStore} from "../ChatBlocking/stores";
 import {UploadsStore} from "../Upload/stores";
@@ -42,18 +42,19 @@ export class EntitiesStore {
         public chatBlockings: ChatBlockingsStore,
         public uploads: UploadsStore,
         public chatUploads: ChatUploadsStore,
-        public globalBans: GlobalBansStore
+        public globalBans: GlobalBansStore,
+        public scheduledMessages: ScheduledMessagesStore
     ) {
     }
 
     @action
     insertMessages = (messages: Message[]): void => {
         messages.reverse().forEach((message, index, messagesArray) => {
-            if (index !== 0) {
+            if (index !== 0 && !message.scheduledAt) {
                 message.previousMessageId = messagesArray[index - 1].id;
             }
 
-            if (index !== messages.length - 1) {
+            if (index !== messages.length - 1 && !message.scheduledAt) {
                 message.nextMessageId = messagesArray[index + 1].id;
             }
 
@@ -70,8 +71,14 @@ export class EntitiesStore {
         }
 
         this.uploads.insertAll(message.attachments);
-        this.messages.insert(message);
-        this.chats.addMessageToChat(message.chatId, message.id);
+
+        if (message.scheduledAt) {
+            this.scheduledMessages.insert(message);
+            this.chats.addScheduledMessageToChat(message.chatId, message.id);
+        } else {
+            this.messages.insert(message);
+            this.chats.addMessageToChat(message.chatId, message.id);
+        }
     }
 
     @action
@@ -283,5 +290,11 @@ export class EntitiesStore {
             true
         );
         this.globalBans.insert(globalBan);
+    }
+
+    @action
+    deleteScheduledMessage = (chatId: string, messageId: string): void => {
+        this.chats.removeScheduledMessageFromChat(chatId, messageId);
+        this.scheduledMessages.deleteById(messageId);
     }
 }

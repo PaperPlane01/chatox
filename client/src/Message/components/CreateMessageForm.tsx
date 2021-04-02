@@ -20,6 +20,7 @@ import {EmojiData, Picker} from "emoji-mart";
 import 'emoji-mart/css/emoji-mart.css';
 import {AttachFilesButton} from "./AttachFilesButton";
 import {ReferredMessageCard} from "./ReferredMessageCard";
+import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 
@@ -155,6 +156,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                <InputAdornment position="end">
                                    <div style={{display: "flex"}}>
                                        <Fragment>
+                                           {formValues.scheduledAt && (<OpenScheduleMessageDialogButton className={classes.inputIconButton}/>)}
                                            <Hidden mdDown>
                                                <IconButton className={classes.inputIconButton}
                                                            {...bindToggle(emojiPickerPopupState)}

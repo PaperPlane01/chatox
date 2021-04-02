@@ -1,13 +1,13 @@
 import {action, computed, observable, reaction} from "mobx";
 import {createTransformer} from "mobx-utils";
+import {AxiosPromise} from "axios";
 import {EntitiesStore} from "../../entities-store";
 import {ChatsPreferencesStore, ChatStore, ReverseScrollDirectionOption} from "../../Chat";
-import {FetchingState, FetchOptions} from "../../utils/types";
+import {createSortMessages} from "../utils";
+import {ChatMessagesFetchingStateMap} from "../types";
+import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api/clients";
-
-interface ChatMessagesFetchingStateMap {
-    [chatId: string]: FetchingState
-}
+import {Message} from "../../api/types/response";
 
 export class MessagesOfChatStore {
     @observable
@@ -31,17 +31,11 @@ export class MessagesOfChatStore {
     get messagesOfChat(): string[] {
         if (this.selectedChatId) {
             const messages = this.entities.chats.findById(this.selectedChatId).messages;
-            return messages.slice().sort((left, right) => {
-                const leftMessage = this.entities.messages.findById(left);
-                const rightMessage = this.entities.messages.findById(right);
-
-                if (this.chatPreferencesStore.enableVirtualScroll
-                    && this.chatPreferencesStore.reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
-                    return rightMessage.createdAt.getTime() - leftMessage.createdAt.getTime();
-                } else {
-                    return leftMessage.createdAt.getTime() - rightMessage.createdAt.getTime();
-                }
-            })
+            return messages.slice().sort(createSortMessages(
+                this.entities.messages.findById,
+                this.chatPreferencesStore.enableVirtualScroll
+                && this.chatPreferencesStore.reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE
+            ));
         } else {
             return [];
         }

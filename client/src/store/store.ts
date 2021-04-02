@@ -48,15 +48,19 @@ import {
 } from "../User";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore,
+    CreateMessageStore, DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     MessageDialogStore,
     MessagesOfChatStore,
     MessagesStore,
     PinMessageStore,
     PinnedMessagesStore,
+    PublishScheduledMessageStore,
+    ScheduledMessagesOfChatStore,
+    ScheduledMessagesStore,
+    ScheduleMessageStore,
     UnpinMessageStore,
-    UpdateMessageStore,
+    UpdateMessageStore, UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
@@ -93,6 +97,7 @@ const chatBlockings = new ChatBlockingsStore(usersStore);
 const uploads = new UploadsStore();
 const chatUploads = new ChatUploadsStore();
 const globalBans = new GlobalBansStore();
+const scheduledMessages = new ScheduledMessagesStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
@@ -101,7 +106,8 @@ const entities = new EntitiesStore(
     chatBlockings,
     uploads,
     chatUploads,
-    globalBans
+    globalBans,
+    scheduledMessages
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -197,6 +203,11 @@ const pinMessage = new PinMessageStore(entities, chat);
 const unpinMessage = new UnpinMessageStore(entities, chat);
 const closedPinnedMessages = new ClosedPinnedMessagesStore();
 const pinnedMessages = new PinnedMessagesStore(entities, chat, closedPinnedMessages);
+const scheduleMessage = new ScheduleMessageStore(messageCreation);
+const scheduledMessagesOfChat = new ScheduledMessagesOfChatStore(entities, chat);
+const publishScheduledMessage = new PublishScheduledMessageStore(entities, chat);
+const deleteScheduledMessage = new DeleteScheduledMessageStore(entities, chat);
+const updateScheduledMessage = new UpdateScheduledMessageStore(entities);
 
 export const store: IAppState = {
     authorization,
@@ -263,5 +274,10 @@ export const store: IAppState = {
     pinnedMessages,
     pinMessage,
     unpinMessage,
-    closedPinnedMessages
+    closedPinnedMessages,
+    scheduleMessage,
+    scheduledMessagesOfChat,
+    publishScheduledMessage,
+    deleteScheduledMessage,
+    updateScheduledMessage
 };

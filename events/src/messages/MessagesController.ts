@@ -73,4 +73,48 @@ export class MessagesController {
         this.log.debug(message);
         await this.websocketEventsPublisher.publishMessageUnpinned(message);
     }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: `events_service_scheduled_message_created-${config.EVENTS_SERVICE_PORT}`,
+        routingKey: "chat.scheduled.message.created.#"
+    })
+    public async onScheduledMessageCreated(message: ChatMessage): Promise<void> {
+        this.log.debug("Scheduled message created event");
+        this.log.debug(message);
+        await this.websocketEventsPublisher.publishScheduledMessageCreated(message);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: `events_service_scheduled_message_published-${config.EVENTS_SERVICE_PORT}`,
+        routingKey: "chat.scheduled.message.published.#"
+    })
+    public async onScheduledMessagePublished(message: ChatMessage): Promise<void> {
+        this.log.debug("Scheduled message published event");
+        this.log.verbose(message);
+        await this.websocketEventsPublisher.publishScheduledMessagePublished(message);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: `events_service_scheduled_message_deleted-${config.EVENTS_SERVICE_PORT}`,
+        routingKey: "chat.scheduled.message.deleted.#"
+    })
+    public async onScheduledMessageDeleted(messageDeleted: MessageDeleted): Promise<void> {
+        this.log.debug("Scheduled message deleted event");
+        this.log.verbose(messageDeleted);
+        await this.websocketEventsPublisher.publishScheduledMessageDeleted(messageDeleted);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: `events_service_scheduled_message_updated-${config.EVENTS_SERVICE_PORT}`,
+        routingKey: "chat.scheduled.message.updated.#"
+    })
+    public async onScheduledMessageUpdated(message: ChatMessage): Promise<void> {
+        this.log.debug("Scheduled message updated event");
+        this.log.verbose(message);
+        await this.websocketEventsPublisher.publishScheduledMessageUpdated(message);
+    }
 }

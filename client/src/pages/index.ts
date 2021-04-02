@@ -5,3 +5,4 @@ export * from "./ChatsPage";
 export * from "./UserPage";
 export * from "./SettingsPage";
 export * from "./GlobalBansPage";
+export * from "./ScheduledMessagesPage";

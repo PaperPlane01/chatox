@@ -18,8 +18,12 @@ class ChatMessagesCounterCustomRepositoryImpl(
         private val reactiveMongoTemplate: ReactiveMongoTemplate) : ChatMessagesCounterCustomRepository {
 
     override fun getNextCounterValue(chat: Chat): Mono<Long> {
+        return getNextCounterValue(chat.id)
+    }
+
+    override fun getNextCounterValue(chatId: String): Mono<Long> {
         val query = Query()
-        query.addCriteria(Criteria.where("chatId").`is`(chat.id))
+        query.addCriteria(Criteria.where("chatId").`is`(chatId))
 
         val update = Update()
         update.inc("messagesCount", 1)

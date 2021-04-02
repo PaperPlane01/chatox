@@ -21,5 +21,6 @@ export interface MessageEntity {
     imagesCount: number,
     audiosCount: number,
     videosCount: number,
-    filesCount: number
+    filesCount: number,
+    scheduledAt?: Date
 }

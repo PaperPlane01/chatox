@@ -27,14 +27,15 @@ import {
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore,
+    CreateMessageStore, DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     MessageDialogStore,
     MessagesOfChatStore,
     PinMessageStore,
-    PinnedMessagesStore,
+    PinnedMessagesStore, PublishScheduledMessageStore, ScheduledMessagesOfChatStore,
+    ScheduleMessageStore,
     UnpinMessageStore,
-    UpdateMessageStore,
+    UpdateMessageStore, UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
@@ -140,5 +141,10 @@ export interface IAppState {
     pinMessage: PinMessageStore,
     unpinMessage: UnpinMessageStore,
     closedPinnedMessages: ClosedPinnedMessagesStore,
+    scheduleMessage: ScheduleMessageStore,
+    scheduledMessagesOfChat: ScheduledMessagesOfChatStore,
+    publishScheduledMessage: PublishScheduledMessageStore,
+    deleteScheduledMessage: DeleteScheduledMessageStore,
+    updateScheduledMessage: UpdateScheduledMessageStore
     store?: any
 }

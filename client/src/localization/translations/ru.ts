@@ -336,5 +336,22 @@ export const ru: Labels = {
     "message.unpin": "Открепить сообщение",
     "message.unpin.success": "Сообщение откреплено",
     "message.pinned": "Закреплённое сообщение",
-    "message.pinned.show": "Показать закреплённое сообщение"
+    "message.pinned.show": "Показать закреплённое сообщение",
+    "message.schedule-date.must-be-five-minutes-from-now": "Дата отправки отложенного сообщения должна быть не менее 5 минут с настоящего времени",
+    "message.delayed-message.create": "Создать отложенное сообщение",
+    "message.delayed-message.list": "Отложенные сообщения",
+    "message.delayed-message.is-too-close-to-other-delayed-message": "Дата отправки данного отложенного сообщения слишком близка к другому отложенному сообщению. Между отложенными сообщениями должно быть не менее 10 минут",
+    "message.schedule-date.must-be-no-more-than-month-from-now": "Дата отправки отложенного сообщения должна быть не более месяца с настоящего времени",
+    "message.delayed-message.limit-reached": "Limit of delayed messages for this chat has been reached",
+    "ok": "OK",
+    "message.scheduled-at": "Запланировано на {scheduleDate}",
+    "message.delayed-message.list.with-chat-specified": "Отложенные сообщения в чате \"{chatName}\"",
+    "message.delayed-message.publish": "Опубликовать",
+    "message.delayed-message.publish.success": "Отложенное сообщение было опубликовано",
+    "message.delayed-message.publish.error": "Во время попытки опубликовать отложенное сообщения произошла ошибка",
+    "message.delayed-message.update.success": "Отложенное сообщение было обновлено",
+    "message.delayed-message.update.error.unknown": "Во время попытки обновить отложенное сообщение произошла ошибка. Сервер ответил со статусом {errorStatus}",
+    "message.delayed-message.update.error.deleted-or-published": "Отложенное сообщение было либо удалено, либо опубликовано",
+    "message.delayed-message.update.server-unreachable": "Во время попытки обновить отложенное сообщение произошла ошибка: сервер недоступен",
+    "message.delayed-message.update": "Редактировать отложенное сообщение"
 };

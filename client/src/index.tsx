@@ -8,6 +8,12 @@ import * as serviceWorker from "./serviceWorker";
 
 const {startRouter} = require("mobx-router");
 
+const injectRouterStore = (): void => {
+    store.messageCreation.setRouterStore(routerStore);
+};
+
+injectRouterStore();
+
 startRouter(Routes, routerStore, {
     notfound: () => {
         routerStore.router.goTo(Routes.notFound);

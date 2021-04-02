@@ -334,5 +334,22 @@ export interface Labels {
     "message.unpin": string,
     "message.unpin.success": string,
     "message.pinned": string,
-    "message.pinned.show": string
+    "message.pinned.show": string,
+    "message.schedule-date.must-be-five-minutes-from-now": string,
+    "message.delayed-message.create": string,
+    "message.delayed-message.list": string,
+    "message.delayed-message.list.with-chat-specified": string,
+    "message.delayed-message.is-too-close-to-other-delayed-message": string,
+    "message.schedule-date.must-be-no-more-than-month-from-now": string,
+    "message.delayed-message.limit-reached": string,
+    "ok": string,
+    "message.scheduled-at": string,
+    "message.delayed-message.publish": string,
+    "message.delayed-message.publish.success": string,
+    "message.delayed-message.publish.error": string,
+    "message.delayed-message.update.success": string,
+    "message.delayed-message.update.error.unknown": string,
+    "message.delayed-message.update.error.deleted-or-published": string,
+    "message.delayed-message.update.server-unreachable": string,
+    "message.delayed-message.update": string
 }

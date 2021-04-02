@@ -23,6 +23,7 @@ const ChatPage = lazy(() => import("../pages/ChatPage"));
 const UserPage = lazy(() => import("../pages/UserPage"));
 const SettingsPage = lazy(() => import("../pages/SettingsPage"));
 const GlobalBansPage = lazy(() => import("../pages/GlobalBansPage"));
+const ScheduledMessagesPage = lazy(() => import("../pages/ScheduledMessagesPage"));
 
 const {Route} = require("mobx-router");
 
@@ -143,6 +144,30 @@ export const Routes = {
         },
         onExit: () => {
             store.globalBansList.reset();
+        }
+    }),
+    scheduledMessagesPage: new Route({
+        path: "/chat/:slug/scheduled-messages",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <ScheduledMessagesPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: (view: any, params: any) => {
+            store.scheduledMessagesOfChat.setReactToChatIdChange(true);
+            store.chat.setSelectedChat(params.slug);
+            store.scheduledMessagesOfChat.fetchScheduledMessages();
+        },
+        onParamsChange: (view: any, params: any) => {
+            store.chat.setSelectedChat(params.slug);
+            store.scheduledMessagesOfChat.setReactToChatIdChange(true);
+            store.scheduledMessagesOfChat.fetchScheduledMessages();
+        },
+        onExit: () => {
+            store.scheduledMessagesOfChat.setReactToChatIdChange(false);
+            store.chat.setSelectedChat(undefined);
         }
     })
 };

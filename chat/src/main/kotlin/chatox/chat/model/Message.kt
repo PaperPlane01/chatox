@@ -35,6 +35,7 @@ data class Message(
         var pinned: Boolean = false,
         var pinnedById: String? = null,
         var pinnedAt: ZonedDateTime? = null,
+        var fromScheduled: Boolean = false,
 
         @Indexed
         var index: Long = 0L

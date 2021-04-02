@@ -1,8 +1,8 @@
 import {AxiosPromise} from "axios";
 import {axiosInstance} from "../axios-instance";
 import {Message} from "../types/response";
-import {CreateMessageRequest, UpdateMessageRequest} from "../types/request";
-import {CHATS, MESSAGES, PIN, PINNED, UNPIN} from "../endpoints";
+import {CreateMessageRequest, UpdateMessageRequest, UpdateScheduledMessageRequest} from "../types/request";
+import {CHATS, MESSAGES, PIN, PINNED, PUBLISH, SCHEDULED, UNPIN} from "../endpoints";
 
 export class MessageApi {
     public static getMessagesByChat(chatId: string): AxiosPromise<Message[]> {
@@ -39,5 +39,21 @@ export class MessageApi {
 
     public static unpinMessage(chatId: string, messageId: string): AxiosPromise<Message> {
         return axiosInstance.delete(`/${CHATS}/${chatId}/${MESSAGES}/${messageId}/${UNPIN}`);
+    }
+
+    public static getScheduledMessagesByChat(chatId: string): AxiosPromise<Message[]> {
+        return axiosInstance.get(`/${CHATS}/${chatId}/${MESSAGES}/${SCHEDULED}`);
+    }
+
+    public static publishScheduledMessage(chatId: string, messageId: string): AxiosPromise<Message> {
+        return axiosInstance.post(`/${CHATS}/${chatId}/${MESSAGES}/${SCHEDULED}/${messageId}/${PUBLISH}`);
+    }
+
+    public static deleteScheduledMessage(chatId: string, messageId: string): AxiosPromise<void> {
+        return axiosInstance.delete(`/${CHATS}/${chatId}/${MESSAGES}/${SCHEDULED}/${messageId}`);
+    }
+
+    public static updateScheduledMessage(chatId: string, messageId: string, updateScheduledMessageRequest: UpdateScheduledMessageRequest): AxiosPromise<Message> {
+        return axiosInstance.put(`/${CHATS}/${chatId}/${MESSAGES}/${SCHEDULED}/${messageId}`, updateScheduledMessageRequest);
     }
 }

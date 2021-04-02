@@ -82,6 +82,29 @@ class MessageController(private val messageService: MessageService) {
     ) = messageService.findMessagesSinceMessageByChat(chatId, afterId, paginationRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    @GetMapping("/{chatId}/messages/scheduled")
+    fun findScheduledMessagesBuChat(@PathVariable("chatId") chatId: String) = messageService.findScheduledMessagesByChat(chatId)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    @DeleteMapping("/{chatId}/messages/scheduled/{messageId}")
+    fun deleteScheduledMessage(@PathVariable chatId: String,
+                               @PathVariable messageId: String
+    ) = messageService.deleteScheduledMessage(chatId, messageId)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    @PutMapping("/{chatId}/messages/scheduled/{messageId}")
+    fun updateScheduledMessage(@PathVariable chatId: String,
+                               @PathVariable messageId: String,
+                               @RequestBody updateMessageRequest: UpdateMessageRequest
+    ) = messageService.updateScheduledMessage(chatId, messageId, updateMessageRequest)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    @PostMapping("/{chatId}/messages/scheduled/{messageId}/publish")
+    fun publishScheduledMessage(@PathVariable chatId: String,
+                                @PathVariable messageId: String
+    ) = messageService.publishScheduledMessage(chatId, messageId)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @PostMapping("/{chatId}/messages/{messageId}/read")
     fun markMessageRead(@PathVariable chatId: String,
                         @PathVariable messageId: String
