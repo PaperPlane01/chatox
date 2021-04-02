@@ -3,12 +3,13 @@ import {observer} from "mobx-react";
 import {Menu, IconButton} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {usePopupState, bindMenu, bindToggle} from "material-ui-popup-state/hooks";
+import {EditScheduledMessageMenuItem} from "./EditScheduledMessageMenuItem";
 import {PublishScheduledMessageNowMenuItem} from "./PublishScheduledMessageNowMenuItem";
 import {DeleteScheduledMessageMenuItem} from "./DeleteScheduledMessageMenuItem";
-import {canDeleteScheduledMessage, canScheduleMessage} from "../permissions";
+import {canDeleteScheduledMessage, canScheduleMessage, canUpdateScheduledMessage} from "../permissions";
 import {useStore} from "../../store/hooks";
 
-export type ScheduledMessageMenuItemType = "publishScheduledMessage" | "deleteScheduledMessage";
+export type ScheduledMessageMenuItemType = "publishScheduledMessage" | "deleteScheduledMessage" | "editScheduledMessage";
 
 interface ScheduledMessageMenuProps {
     messageId: string,
@@ -62,6 +63,14 @@ export const ScheduledMessageMenu: FunctionComponent<ScheduledMessageMenuProps> 
     }
 
     const menuItems: ReactNode[] = [];
+
+    if (canUpdateScheduledMessage(scheduledMessage, currentUserChatParticipation)) {
+        menuItems.push(
+            <EditScheduledMessageMenuItem messageId={messageId}
+                                          onClick={handleMenuItemClick("editScheduledMessage")}
+            />
+        )
+    }
 
     if (canScheduleMessage(currentUserChatParticipation)) {
         menuItems.push(

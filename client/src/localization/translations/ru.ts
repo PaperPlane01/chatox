@@ -348,5 +348,10 @@ export const ru: Labels = {
     "message.delayed-message.list.with-chat-specified": "Отложенные сообщения в чате \"{chatName}\"",
     "message.delayed-message.publish": "Опубликовать",
     "message.delayed-message.publish.success": "Отложенное сообщение было опубликовано",
-    "message.delayed-message.publish.error": "Во время попытки опубликовать отложенное сообщения произошла ошибка"
+    "message.delayed-message.publish.error": "Во время попытки опубликовать отложенное сообщения произошла ошибка",
+    "message.delayed-message.update.success": "Отложенное сообщение было обновлено",
+    "message.delayed-message.update.error.unknown": "Во время попытки обновить отложенное сообщение произошла ошибка. Сервер ответил со статусом {errorStatus}",
+    "message.delayed-message.update.error.deleted-or-published": "Отложенное сообщение было либо удалено, либо опубликовано",
+    "message.delayed-message.update.server-unreachable": "Во время попытки обновить отложенное сообщение произошла ошибка: сервер недоступен",
+    "message.delayed-message.update": "Редактировать отложенное сообщение"
 };

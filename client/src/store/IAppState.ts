@@ -35,7 +35,7 @@ import {
     PinnedMessagesStore, PublishScheduledMessageStore, ScheduledMessagesOfChatStore,
     ScheduleMessageStore,
     UnpinMessageStore,
-    UpdateMessageStore,
+    UpdateMessageStore, UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
@@ -145,5 +145,6 @@ export interface IAppState {
     scheduledMessagesOfChat: ScheduledMessagesOfChatStore,
     publishScheduledMessage: PublishScheduledMessageStore,
     deleteScheduledMessage: DeleteScheduledMessageStore,
+    updateScheduledMessage: UpdateScheduledMessageStore
     store?: any
 }

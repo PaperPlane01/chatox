@@ -14,3 +14,4 @@ export * from "./ScheduledMessagesStore";
 export * from "./ScheduledMessagesOfChatStore";
 export * from "./PublishScheduledMessageStore";
 export * from "./DeleteScheduledMessageStore";
+export * from "./UpdateScheduledMessageStore";

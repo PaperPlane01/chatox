@@ -30,11 +30,11 @@ export const validateMessageScheduledDate = (scheduledAt?: Date): keyof Labels |
 
     const now = new Date();
 
-    if (differenceInMinutes(now, scheduledAt) < 5) {
+    if (differenceInMinutes(scheduledAt, now) < 5) {
         return "message.schedule-date.must-be-five-minutes-from-now";
     }
 
-    if (differenceInMonths(now, scheduledAt) > 1) {
+    if (differenceInMonths(scheduledAt, now) > 1) {
         return "message.schedule-date.must-be-no-more-than-month-from-now";
     }
 

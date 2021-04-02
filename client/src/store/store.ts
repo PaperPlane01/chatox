@@ -60,7 +60,7 @@ import {
     ScheduledMessagesStore,
     ScheduleMessageStore,
     UnpinMessageStore,
-    UpdateMessageStore,
+    UpdateMessageStore, UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
@@ -207,6 +207,7 @@ const scheduleMessage = new ScheduleMessageStore(messageCreation);
 const scheduledMessagesOfChat = new ScheduledMessagesOfChatStore(entities, chat);
 const publishScheduledMessage = new PublishScheduledMessageStore(entities, chat);
 const deleteScheduledMessage = new DeleteScheduledMessageStore(entities, chat);
+const updateScheduledMessage = new UpdateScheduledMessageStore(entities);
 
 export const store: IAppState = {
     authorization,
@@ -277,5 +278,6 @@ export const store: IAppState = {
     scheduleMessage,
     scheduledMessagesOfChat,
     publishScheduledMessage,
-    deleteScheduledMessage
+    deleteScheduledMessage,
+    updateScheduledMessage
 };

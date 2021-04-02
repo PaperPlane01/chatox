@@ -346,5 +346,10 @@ export interface Labels {
     "message.scheduled-at": string,
     "message.delayed-message.publish": string,
     "message.delayed-message.publish.success": string,
-    "message.delayed-message.publish.error": string
+    "message.delayed-message.publish.error": string,
+    "message.delayed-message.update.success": string,
+    "message.delayed-message.update.error.unknown": string,
+    "message.delayed-message.update.error.deleted-or-published": string,
+    "message.delayed-message.update.server-unreachable": string,
+    "message.delayed-message.update": string
 }
