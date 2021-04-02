@@ -336,6 +336,14 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         await this.publishEventToChatAdmins(messageDeleted.chatId, scheduledMessageDeletedEvent);
      }
 
+     public async publishScheduledMessageUpdated(message: ChatMessage) {
+        const scheduledMessageUpdatedEvent: WebsocketEvent<ChatMessage> = {
+            payload: message,
+            type: EventType.SCHEDULED_MESSAGE_UPDATED
+        };
+        await this.publishEventToChatAdmins(message.chatId, scheduledMessageUpdatedEvent);
+    }
+
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {
         const chatParticipants = await this.chatParticipationService.findByChatId(chatId);
         this.log.debug("Publishing event to chat participants");
