@@ -19,7 +19,7 @@ class CustomUserDetails : UserDetails {
     private var username: String
 
     constructor(jwtAuthenticationToken: JwtAuthenticationToken) {
-        val isClient = jwtAuthenticationToken.token.getClaimAsString("client_id") != null
+        val isClient = jwtAuthenticationToken.token.getClaimAsString("user_id") == null
 
         id = if (isClient) {
             jwtAuthenticationToken.token.getClaimAsString("client_id")
