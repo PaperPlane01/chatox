@@ -60,6 +60,7 @@ export const CreateReportDialog: FunctionComponent<CreateReportDialogProps> = ob
                                        error={Boolean(formErrors.description)}
                                        helperText={formErrors.description && l(formErrors.description)}
                                        fullWidth
+                                       multiline
                                        rows={4}
                                        rowsMax={4}
                                        margin="dense"
