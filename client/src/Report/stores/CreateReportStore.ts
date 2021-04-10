@@ -23,6 +23,11 @@ export class CreateReportStore extends AbstractFormStore<CreateReportFormData>{
             () => this.formValues.description,
             description => this.formErrors.description = validateReportDescription(description)
         );
+
+        reaction(
+            () => this.reportedObjectId,
+            () => this.resetForm()
+        );
     }
 
     @action
