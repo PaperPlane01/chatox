@@ -1,4 +1,5 @@
 import React, {Fragment, FunctionComponent} from "react";
+import {observer} from "mobx-react";
 import {Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress, TextField, Typography} from "@material-ui/core";
 import {ReportReasonSelect} from "./ReportReasonSelect";
 import {CreateReportFormData} from "../types";
@@ -6,7 +7,6 @@ import {FormErrors} from "../../utils/types";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {useLocalization} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
-import {observer} from "mobx-react";
 
 interface CreateReportDialogProps {
     formValues: CreateReportFormData,
@@ -102,5 +102,4 @@ export const CreateReportDialog: FunctionComponent<CreateReportDialogProps> = ob
             </DialogActions>
         </Dialog>
     );
-
 });
