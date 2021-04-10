@@ -353,5 +353,22 @@ export const ru: Labels = {
     "message.delayed-message.update.error.unknown": "Во время попытки обновить отложенное сообщение произошла ошибка. Сервер ответил со статусом {errorStatus}",
     "message.delayed-message.update.error.deleted-or-published": "Отложенное сообщение было либо удалено, либо опубликовано",
     "message.delayed-message.update.server-unreachable": "Во время попытки обновить отложенное сообщение произошла ошибка: сервер недоступен",
-    "message.delayed-message.update": "Редактировать отложенное сообщение"
+    "message.delayed-message.update": "Редактировать отложенное сообщение",
+    "report.description": "Описание",
+    "report.description.is-too-long": "Описание слишком длинное",
+    "report": "Пожаловаться",
+    "reports": "Жалобы",
+    "report.reason": "Причина жалобы",
+    "report.reason.SPAM": "Спам",
+    "report.reason.ADULT_CONTENT": "Контент для взрослых",
+    "report.reason.CHILD_ABUSE": "Насилие над детьми",
+    "report.reason.FRAUD": "Мошенничество",
+    "report.reason.MISLEADING_INFORMATION": "Информация, вводящая в заблуждение",
+    "report.reason.VIOLENCE": "Насилие",
+    "report.reason.HATE_SPEECH": "Разжигание ненависти",
+    "report.reason.OTHER": "Другое",
+    "report.message": "Пожаловаться на сообщение",
+    "report.submit": "Отправить жалобу",
+    "report.submit.success": "Спасибо за отправку жалобы. Она будет просмотрена модераторами.",
+    "report.submit.error": "Во время попытки отправить жалобу произошла ошибка. Сервер ответил со статусом {errorStatus}."
 };

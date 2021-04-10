@@ -27,6 +27,7 @@ import {
     UpdateChatBlockingDialog
 } from "../ChatBlocking";
 import {BanUserGloballyDialog} from "../GlobalBan";
+import {ReportMessageDialog} from "../Report";
 
 export const ChatPage: FunctionComponent = () => (
     <Fragment>
@@ -71,6 +72,7 @@ export const ChatPage: FunctionComponent = () => (
             <PinMessageSnackbarManager/>
             <UnpinMessageSnackbarManager/>
             <ScheduleMessageDialog/>
+            <ReportMessageDialog/>
         </Grid>
     </Fragment>
 );

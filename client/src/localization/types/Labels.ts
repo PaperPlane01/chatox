@@ -351,5 +351,22 @@ export interface Labels {
     "message.delayed-message.update.error.unknown": string,
     "message.delayed-message.update.error.deleted-or-published": string,
     "message.delayed-message.update.server-unreachable": string,
-    "message.delayed-message.update": string
+    "message.delayed-message.update": string,
+    "report.description": string,
+    "report.description.is-too-long": string,
+    "report": string,
+    "reports": string,
+    "report.reason": string,
+    "report.reason.SPAM": string,
+    "report.reason.ADULT_CONTENT": string,
+    "report.reason.CHILD_ABUSE": string,
+    "report.reason.FRAUD": string,
+    "report.reason.MISLEADING_INFORMATION": string,
+    "report.reason.VIOLENCE": string,
+    "report.reason.HATE_SPEECH": string,
+    "report.reason.OTHER": string,
+    "report.message": string,
+    "report.submit": string,
+    "report.submit.success": string,
+    "report.submit.error": string
 }

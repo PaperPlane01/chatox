@@ -353,5 +353,22 @@ export const en: Labels = {
     "message.delayed-message.update.error.unknown": "Unknown error occurred when tried to update scheduled message. Server responded with {errorStatus} status",
     "message.delayed-message.update.error.deleted-or-published": "Scheduled message has been either deleted or published",
     "message.delayed-message.update.server-unreachable": "Error occurred when tried to update scheduled message: server is unreachable",
-    "message.delayed-message.update": "Edit scheduled message"
+    "message.delayed-message.update": "Edit scheduled message",
+    "report.description": "Description",
+    "report.description.is-too-long": "Description is too long",
+    "report": "Report",
+    "reports": "Reports",
+    "report.reason": "Report reason",
+    "report.reason.SPAM": "Spam",
+    "report.reason.ADULT_CONTENT": "Adult content",
+    "report.reason.CHILD_ABUSE": "Child abuse",
+    "report.reason.FRAUD": "Fraud",
+    "report.reason.MISLEADING_INFORMATION": "Misleading information",
+    "report.reason.VIOLENCE": "Violence",
+    "report.reason.HATE_SPEECH": "Hate speech",
+    "report.reason.OTHER": "Other",
+    "report.message": "Report message",
+    "report.submit": "Submit report",
+    "report.submit.success": "Thank you for submitting your report. It will be reviewed by our moderators.",
+    "report.submit.error": "Error occurred when tries to submit a report. Server responded with {errorStatus} status."
 };

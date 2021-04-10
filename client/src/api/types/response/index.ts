@@ -27,3 +27,5 @@ export * from "./UploadType";
 export * from "./ChatDeletionReason";
 export * from "./GlobalBanReason";
 export * from "./GlobalBan";
+export * from "./ReportType";
+export * from "./ReportReason";

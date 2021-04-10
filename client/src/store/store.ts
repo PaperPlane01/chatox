@@ -48,7 +48,8 @@ import {
 } from "../User";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore, DeleteScheduledMessageStore,
+    CreateMessageStore,
+    DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     MessageDialogStore,
     MessagesOfChatStore,
@@ -60,7 +61,8 @@ import {
     ScheduledMessagesStore,
     ScheduleMessageStore,
     UnpinMessageStore,
-    UpdateMessageStore, UpdateScheduledMessageStore,
+    UpdateMessageStore,
+    UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
@@ -88,6 +90,8 @@ import {
     GlobalBansStore,
     UpdateGlobalBanStore
 } from "../GlobalBan/stores";
+import {CreateReportStore} from "../Report/stores";
+import {ReportType} from "../api/types/response";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -208,6 +212,7 @@ const scheduledMessagesOfChat = new ScheduledMessagesOfChatStore(entities, chat)
 const publishScheduledMessage = new PublishScheduledMessageStore(entities, chat);
 const deleteScheduledMessage = new DeleteScheduledMessageStore(entities, chat);
 const updateScheduledMessage = new UpdateScheduledMessageStore(entities);
+const reportMessage = new CreateReportStore(ReportType.MESSAGE);
 
 export const store: IAppState = {
     authorization,
@@ -279,5 +284,6 @@ export const store: IAppState = {
     scheduledMessagesOfChat,
     publishScheduledMessage,
     deleteScheduledMessage,
-    updateScheduledMessage
+    updateScheduledMessage,
+    reportMessage
 };
