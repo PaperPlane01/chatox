@@ -1,3 +1,5 @@
+import {BadRequestException} from "@nestjs/common";
+
 export enum ReportReason {
     SPAM = "SPAM",
     ADULT_CONTENT = "PORNOGRAPHY",
@@ -7,4 +9,16 @@ export enum ReportReason {
     VIOLENCE = "VIOLENCE",
     HATE_SPEECH = "HATE_SPEECH",
     OTHER = "OTHER"
+}
+
+export const parseReportReason = (reportReason?: string): ReportReason | undefined => {
+    if (reportReason) {
+        if (ReportReason[reportReason]) {
+            return ReportReason[reportReason];
+        } else {
+            throw new BadRequestException(`Invalid report reason ${reportReason}`);
+        }
+    }
+
+    return undefined;
 }

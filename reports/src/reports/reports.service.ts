@@ -1,7 +1,7 @@
 import {HttpException, HttpStatus, Injectable, Logger} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Report, ReportDocument} from "./entities/report.entity";
-import {Model} from "mongoose";
+import {Model, FilterQuery} from "mongoose";
 import {MessagesService} from "../messages/messages.service";
 import {CreateReportRequest} from "./types/requests/create-report.request";
 import {ReportResponse} from "./types/responses/report.response";
@@ -12,6 +12,7 @@ import {MessageResponse} from "../messages/types/responses/message.response";
 import {User} from "../auth/types/user";
 import {PaginationRequest} from "../utils/pagination/types/requests";
 import {calculateOffset} from "../utils/pagination";
+import {FilterReportsRequest} from "./types/requests/filter-reports.request";
 
 @Injectable()
 export class ReportsService {
@@ -49,6 +50,36 @@ export class ReportsService {
             
             throw error;
         }
+    }
+
+    public async findReports(filters: FilterReportsRequest): Promise<Array<ReportResponse<any>>> {
+        const filterQuery: FilterQuery<Report<any>> = {};
+
+        if (filters.type.length !== 0) {
+            filterQuery.type = {
+                $in: filters.type
+            };
+        }
+
+        if (filters.status.length !== 0) {
+            filterQuery.status = {
+                $in: filters.status
+            };
+        }
+
+        if (filters.reason.length !== 0) {
+            filterQuery.reason = {
+                $in: filters.reason
+            };
+        }
+
+        const reports = await this.reportsModel
+            .find(filterQuery)
+            .skip(calculateOffset(filters.page, filters.pageSize))
+            .limit(filters.pageSize)
+            .exec();
+
+        return reports.map(report => this.mapToReportResponse(report));
     }
 
     public async findMessagesReports(paginationRequest: PaginationRequest, notViewedOnly: boolean): Promise<Array<ReportResponse<MessageResponse>>> {
