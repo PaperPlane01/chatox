@@ -1,6 +1,7 @@
 package chatox.chat.service.impl
 
 import chatox.chat.api.request.CreateMessageRequest
+import chatox.chat.api.request.DeleteMultipleMessagesRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.UserResponse
@@ -749,6 +750,30 @@ class MessageServiceImpl(
 
             return@mono messageResponse
         }
+    }
+
+    override fun deleteMultipleMessages(deleteMultipleMessagesRequest: DeleteMultipleMessagesRequest): Mono<Void> {
+        return mono {
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            var messages = messageRepository.findAllById(deleteMultipleMessagesRequest.messagesIds)
+                    .collectList()
+                    .awaitFirst()
+
+            messages = messages.map { message -> message.copy(
+                    deleted = true,
+                    deletedAt = ZonedDateTime.now(),
+                    deletedById = currentUser.id
+            ) }
+
+            messageRepository.saveAll(messages).collectList().awaitFirst();
+
+            messages.forEach { message ->
+                Mono.fromRunnable<Void> { chatEventsPublisher.messageDeleted(chatId = message.chatId, messageId = message.id) }.subscribe()
+            }
+
+            return@mono Mono.empty<Void>()
+        }
+                .flatMap { it }
     }
 
     private fun assertCanUpdateScheduledMessage(messageId: String, chatId: String): Mono<Boolean> {

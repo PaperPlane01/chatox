@@ -1,6 +1,7 @@
 package chatox.chat.service
 
 import chatox.chat.api.request.CreateMessageRequest
+import chatox.chat.api.request.DeleteMultipleMessagesRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.UserResponse
@@ -27,4 +28,5 @@ interface MessageService {
     fun publishScheduledMessage(scheduledMessage: ScheduledMessage, localUsersCache: MutableMap<String, UserResponse>? = null, localReferredMessagesCache: MutableMap<String, MessageResponse>? = null): Mono<MessageResponse>
     fun deleteScheduledMessage(chatId: String, messageId: String): Mono<Void>
     fun updateScheduledMessage(chatId: String, messageId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse>
+    fun deleteMultipleMessages(deleteMultipleMessagesRequest: DeleteMultipleMessagesRequest): Mono<Void>
 }
