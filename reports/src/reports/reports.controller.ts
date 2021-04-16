@@ -3,6 +3,7 @@ import {ReportsService} from "./reports.service";
 import {CreateReportRequest} from "./types/requests/create-report.request";
 import {FilterReportsRequest} from "./types/requests/filter-reports.request";
 import {UpdateReportRequest} from "./types/requests/update-report.request";
+import {UpdateMultipleReportsRequest} from "./types/requests/update-multiple-reports.request";
 import {OptionalAuthorization} from "../auth/decorators/optional-authorization.decorator";
 import {RequestIp} from "../auth/decorators/request-ip.decorator";
 import {CurrentUser} from "../auth/decorators/current-user.decorator";
@@ -26,6 +27,12 @@ export class ReportsController {
     @HasRole("ROLE_ADMIN")
     public findReports(@Query(new ValidationPipe({transform: true})) reportFilters: FilterReportsRequest) {
         return this.reportsService.findReports(reportFilters);
+    }
+
+    @Put()
+    @HasRole("ROLE_ADMIN")
+    public updateMultipleReports(@Body() updateMultipleReportsRequest: UpdateMultipleReportsRequest) {
+        return this.reportsService.updateMultipleReports(updateMultipleReportsRequest);
     }
 
     @Put("{id}")

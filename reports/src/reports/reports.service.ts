@@ -15,6 +15,7 @@ import {calculateOffset} from "../utils/pagination";
 import {FilterReportsRequest} from "./types/requests/filter-reports.request";
 import {UpdateReportRequest} from "./types/requests/update-report.request";
 import {ReportNotFoundException} from "../exceptions/report-not-found.exception";
+import {UpdateMultipleReportsRequest} from "./types/requests/update-multiple-reports.request";
 
 @Injectable()
 export class ReportsService {
@@ -97,6 +98,29 @@ export class ReportsService {
         await report.save();
 
         return this.mapToReportResponse(report);
+    }
+
+    public async updateMultipleReports(updateMultipleReportsRequest: UpdateMultipleReportsRequest): Promise<Array<ReportResponse<any>>> {
+        const ids = updateMultipleReportsRequest.updates.map(update => update.id);
+        const reports = await this.reportsModel.find({
+            _id: {
+                $in: ids
+            }
+        })
+            .exec();
+
+        for (let report of reports) {
+            const updates = updateMultipleReportsRequest.updates.find(update => update.id === report._id.toHexString());
+
+            if (updates) {
+                report.takenActions = updates.takenActions;
+                report.status = updates.status;
+
+                await report.save();
+            }
+        }
+
+        return reports.map(report => this.mapToReportResponse(report));
     }
     
     private mapToReportResponse<ReportedObject>(report: Report<ReportedObject>): ReportResponse<ReportedObject> {
