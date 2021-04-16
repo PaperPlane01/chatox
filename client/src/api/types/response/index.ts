@@ -31,3 +31,4 @@ export * from "./ReportType";
 export * from "./ReportReason";
 export * from "./ReportStatus";
 export * from "./Report";
+export * from "./ReportTakenAction";

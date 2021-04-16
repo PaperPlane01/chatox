@@ -1,6 +1,11 @@
 import {AxiosPromise} from "axios";
 import {stringify} from "query-string";
-import {CreateReportRequest, FilterReportsRequest} from "../types/request";
+import {
+    CreateReportRequest,
+    FilterReportsRequest,
+    UpdateMultipleReportsRequest,
+    UpdateReportRequest
+} from "../types/request";
 import {Report} from "../types/response";
 import {axiosInstance} from "../axios-instance";
 import {REPORTS} from "../endpoints";
@@ -18,5 +23,13 @@ export class ReportsApi {
             status: JSON.stringify(filterReportsRequest.status)
         };
         return axiosInstance.get(`/${REPORTS}?${stringify(transformedRequest)}`);
+    }
+
+    public static updateReport(id: string, updateReportRequest: UpdateReportRequest): AxiosPromise<Report<any>> {
+        return  axiosInstance.put(`/${REPORTS}/${id}`, updateReportRequest);
+    }
+
+    public static updateMultipleReports(updateMultipleReportsRequest: UpdateMultipleReportsRequest): AxiosPromise<Array<Report<any>>> {
+        return axiosInstance.put(`/${REPORTS}`, updateMultipleReportsRequest);
     }
 }

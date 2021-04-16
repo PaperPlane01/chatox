@@ -21,3 +21,6 @@ export * from "./UpdateChatParticipantRequest";
 export * from "./UpdateScheduledMessageRequest";
 export * from "./CreateReportRequest";
 export * from "./FilterReportsRequest";
+export * from "./DeleteMultipleMessagesRequest";
+export * from "./UpdateReportRequest";
+export * from "./UpdateMultipleReportsRequest";
