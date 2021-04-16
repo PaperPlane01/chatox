@@ -13,6 +13,8 @@ import {User} from "../auth/types/user";
 import {PaginationRequest} from "../utils/pagination/types/requests";
 import {calculateOffset} from "../utils/pagination";
 import {FilterReportsRequest} from "./types/requests/filter-reports.request";
+import {UpdateReportRequest} from "./types/requests/update-report.request";
+import {ReportNotFoundException} from "../exceptions/report-not-found.exception";
 
 @Injectable()
 export class ReportsService {
@@ -82,27 +84,19 @@ export class ReportsService {
         return reports.map(report => this.mapToReportResponse(report));
     }
 
-    public async findMessagesReports(paginationRequest: PaginationRequest, notViewedOnly: boolean): Promise<Array<ReportResponse<MessageResponse>>> {
-        let reports: Array<ReportDocument<any>>;
+    public async updateReport(id: string, updateReportRequest: UpdateReportRequest): Promise<ReportResponse<any>> {
+        const report = await this.reportsModel.findOne({id});
 
-        if (notViewedOnly) {
-            reports = await this.reportsModel.find({
-                status: ReportStatus.NOT_VIEWED,
-                type: ReportType.MESSAGE
-            })
-                .skip(calculateOffset(paginationRequest.page, paginationRequest.pageSize))
-                .limit(paginationRequest.pageSize)
-                .exec();
-        } else {
-            reports = await this.reportsModel.find({
-                type: ReportType.MESSAGE
-            })
-                .skip(calculateOffset(paginationRequest.page, paginationRequest.pageSize))
-                .limit(paginationRequest.pageSize)
-                .exec();
+        if (!report) {
+            throw new ReportNotFoundException(id);
         }
 
-        return reports.map(report => this.mapToReportResponse(report as ReportDocument<MessageResponse>));
+        report.status = updateReportRequest.status;
+        report.takenActions = updateReportRequest.takenActions;
+
+        await report.save();
+
+        return this.mapToReportResponse(report);
     }
     
     private mapToReportResponse<ReportedObject>(report: Report<ReportedObject>): ReportResponse<ReportedObject> {
