@@ -23,10 +23,13 @@ export type MessageMenuItemType = "blockMessageAuthorInChat"
 
 interface MessageMenuProps {
     messageId: string,
-    onMenuItemClick?: (menuItemType: MessageMenuItemType) => void
+    onMenuItemClick?: (menuItemType: MessageMenuItemType) => void,
 }
 
-export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messageId, onMenuItemClick}) => {
+export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
+    messageId,
+    onMenuItemClick,
+}) => {
     const {
         entities: {
             chatParticipations: {

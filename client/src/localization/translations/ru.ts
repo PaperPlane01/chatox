@@ -370,5 +370,22 @@ export const ru: Labels = {
     "report.message": "Пожаловаться на сообщение",
     "report.submit": "Отправить жалобу",
     "report.submit.success": "Спасибо за отправку жалобы. Она будет просмотрена модераторами.",
-    "report.submit.error": "Во время попытки отправить жалобу произошла ошибка. Сервер ответил со статусом {errorStatus}."
+    "report.submit.error": "Во время попытки отправить жалобу произошла ошибка. Сервер ответил со статусом {errorStatus}.",
+    "report.list.messages": "Жалобы на сообщения",
+    "report.created-at": "Создана",
+    "report.status.NOT_VIEWED": "Не просмотрена",
+    "report.status.ACCEPTED": "Удовлетворена",
+    "report.status.DECLINED": "Отклонена",
+    "report.taken-action.CHAT_DELETED": "Чат был удалён",
+    "report.taken-action.USER_BANNED": "Пользователь был заблокирован",
+    "report.taken-action.MESSAGE_DELETED": "Сообщение было удалено",
+    "report.submitted-by": "Кем отправлена",
+    "report.submitted-by-ip-address": "С какого IP-адреса отправлена",
+    "report.list.messages.show-message": "Показать сообщение",
+    "report.status": "Статус",
+    "report.taken-actions": "Действия",
+    "report.drawer.messages": "На сообщения",
+    "report.drawer.chats": "На чаты",
+    "report.drawer.users": "На пользователей",
+    "common.load-more": "Загрузить ещё"
 };

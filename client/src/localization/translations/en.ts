@@ -370,5 +370,22 @@ export const en: Labels = {
     "report.message": "Report message",
     "report.submit": "Submit report",
     "report.submit.success": "Thank you for submitting your report. It will be reviewed by our moderators.",
-    "report.submit.error": "Error occurred when tries to submit a report. Server responded with {errorStatus} status."
+    "report.submit.error": "Error occurred when tries to submit a report. Server responded with {errorStatus} status.",
+    "report.list.messages": "Messages reports",
+    "report.created-at": "Created at",
+    "report.status.NOT_VIEWED": "Not viewed",
+    "report.status.ACCEPTED": "Accepted",
+    "report.status.DECLINED": "Declined",
+    "report.taken-action.CHAT_DELETED": "Chat deleted",
+    "report.taken-action.USER_BANNED": "User banned",
+    "report.taken-action.MESSAGE_DELETED": "Message deleted",
+    "report.submitted-by": "Submitted by",
+    "report.submitted-by-ip-address": "Submitted from IP address",
+    "report.list.messages.show-message": "Show message",
+    "report.status": "Status",
+    "report.taken-actions": "Taken actions",
+    "report.drawer.messages": "Messages",
+    "report.drawer.chats": "Chats",
+    "report.drawer.users": "Users",
+    "common.load-more": "Load more"
 };

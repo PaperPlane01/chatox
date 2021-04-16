@@ -29,3 +29,5 @@ export * from "./GlobalBanReason";
 export * from "./GlobalBan";
 export * from "./ReportType";
 export * from "./ReportReason";
+export * from "./ReportStatus";
+export * from "./Report";

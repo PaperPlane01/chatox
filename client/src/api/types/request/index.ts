@@ -20,3 +20,4 @@ export * from "./GlobalBanFilters";
 export * from "./UpdateChatParticipantRequest";
 export * from "./UpdateScheduledMessageRequest";
 export * from "./CreateReportRequest";
+export * from "./FilterReportsRequest";

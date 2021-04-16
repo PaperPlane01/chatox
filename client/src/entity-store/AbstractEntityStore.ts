@@ -34,6 +34,12 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
     }
 
     @action
+    public deleteAll(): void {
+        this.ids = [];
+        this.entities = {};
+    }
+
+    @action
     public deleteById(idToDelete: string): void {
         if (this.entities[idToDelete]) {
             this.ids = this.ids.filter(id => id !== idToDelete);

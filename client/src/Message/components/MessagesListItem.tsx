@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent, memo, useEffect, useLayoutEffect, useRef, useState} from "react";
+import React, {Fragment, FunctionComponent, memo, ReactNode, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {
     Card,
@@ -28,7 +28,8 @@ import {useAuthorization, useLocalization, useRouter, useStore} from "../../stor
 import {Routes} from "../../router";
 import {MarkdownTextWithEmoji} from "../../Emoji/components";
 import {TranslationFunction} from "../../localization/types";
-
+import {MessageEntity} from "../types";
+import {UserEntity} from "../../User/types";
 
 const {Link} = require("mobx-router");
 
@@ -40,7 +41,10 @@ interface MessagesListItemProps {
     hideAttachments?: boolean,
     inverted?: boolean,
     messagesListHeight?: number,
-    scheduledMessage?: boolean
+    scheduledMessage?: boolean,
+    findMessageFunction?: (id: string) => MessageEntity,
+    findMessageSenderFunction?: (id: string) => UserEntity,
+    menu?: ReactNode
 }
 
 const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
@@ -165,7 +169,10 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     hideAttachments = false,
     inverted = false,
     messagesListHeight,
-    scheduledMessage = false
+    scheduledMessage = false,
+    findMessageFunction,
+    findMessageSenderFunction,
+    menu
 }) => {
     const {
         entities: {
@@ -218,7 +225,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
 
             return () => window.removeEventListener("resize", updateWidth);
         }
-    )
+    );
 
     useEffect(() => {
         return () => {
@@ -226,10 +233,14 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                 onVisibilityChange(false);
             }
         }
-    }, [])
+    });
 
-    const message = !scheduledMessage ? findMessage(messageId) : findScheduledMessage(messageId);
-    const sender = findUser(message.sender);
+    const message = findMessageFunction
+        ? findMessageFunction(messageId)
+        : !scheduledMessage ? findMessage(messageId) : findScheduledMessage(messageId);
+    const sender = findMessageSenderFunction
+        ? findMessageSenderFunction(message.sender)
+        : findUser(message.sender);
     const createAtLabel = !scheduledMessage
         ? getCreatedAtLabel(message.createdAt, dateFnsLocale)
         : getScheduledAtLabel(message.scheduledAt!, dateFnsLocale, l);
@@ -299,9 +310,11 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                     action: classes.cardHeaderAction,
                                     content: classes.cardHeaderContent
                                 }}
-                                action={scheduledMessage
-                                    ? <ScheduledMessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>
-                                    : <MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>
+                                action={menu
+                                    ? menu
+                                    : scheduledMessage
+                                        ? <ScheduledMessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>
+                                        : <MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>
                                 }
                     />
                     <CardContent classes={{

@@ -90,7 +90,7 @@ import {
     GlobalBansStore,
     UpdateGlobalBanStore
 } from "../GlobalBan/stores";
-import {CreateReportStore} from "../Report/stores";
+import {CreateReportStore, ReportedMessageDialogStore, ReportsListStore, ReportsStore} from "../Report/stores";
 import {ReportType} from "../api/types/response";
 
 const messages = new MessagesStore();
@@ -102,6 +102,9 @@ const uploads = new UploadsStore();
 const chatUploads = new ChatUploadsStore();
 const globalBans = new GlobalBansStore();
 const scheduledMessages = new ScheduledMessagesStore();
+const reports = new ReportsStore();
+const reportedMessages = new MessagesStore();
+const reportedMessagesSenders = new UsersStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
@@ -111,7 +114,10 @@ const entities = new EntitiesStore(
     uploads,
     chatUploads,
     globalBans,
-    scheduledMessages
+    scheduledMessages,
+    reports,
+    reportedMessages,
+    reportedMessagesSenders
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -213,6 +219,8 @@ const publishScheduledMessage = new PublishScheduledMessageStore(entities, chat)
 const deleteScheduledMessage = new DeleteScheduledMessageStore(entities, chat);
 const updateScheduledMessage = new UpdateScheduledMessageStore(entities);
 const reportMessage = new CreateReportStore(ReportType.MESSAGE);
+const messageReports = new ReportsListStore(entities, authorization, ReportType.MESSAGE);
+const reportedMessageDialog = new ReportedMessageDialogStore();
 
 export const store: IAppState = {
     authorization,
@@ -285,5 +293,7 @@ export const store: IAppState = {
     publishScheduledMessage,
     deleteScheduledMessage,
     updateScheduledMessage,
-    reportMessage
+    reportMessage,
+    messageReports,
+    reportedMessageDialog
 };

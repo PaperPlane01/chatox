@@ -368,5 +368,22 @@ export interface Labels {
     "report.message": string,
     "report.submit": string,
     "report.submit.success": string,
-    "report.submit.error": string
+    "report.submit.error": string,
+    "report.list.messages": string,
+    "report.created-at": string,
+    "report.status.NOT_VIEWED": string,
+    "report.status.ACCEPTED": string,
+    "report.status.DECLINED": string,
+    "report.taken-action.CHAT_DELETED": string,
+    "report.taken-action.USER_BANNED": string,
+    "report.taken-action.MESSAGE_DELETED": string,
+    "report.taken-actions": string,
+    "report.submitted-by": string,
+    "report.submitted-by-ip-address": string,
+    "report.list.messages.show-message": string,
+    "report.status": string,
+    "report.drawer.messages": string,
+    "report.drawer.chats": string,
+    "report.drawer.users": string,
+    "common.load-more": string
 }
