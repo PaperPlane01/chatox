@@ -11,3 +11,4 @@ export * from "./DeleteMessagesButton";
 export * from "./MessageReportsActions";
 export * from "./RejectReportsButton";
 export * from "./RejectReportsSnackbarManager";
+export * from "./DeleteMessagesSnackbarManager";

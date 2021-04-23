@@ -394,5 +394,7 @@ export const ru: Labels = {
     "report.list.selected-reports.count": "Выбрано жалоб: {selectedReportsCount}",
     "report.list.clear-selection": "Очистить",
     "report.reject.success": "Жалобы были отклонены",
-    "report.list.show-not-viewed-only": "Показать только не просмотренные"
+    "report.list.show-not-viewed-only": "Показать только не просмотренные",
+    "report.messages.delete-messages.success": "Сообщения были удалены",
+    "report.messages.delete-messages.error": "Во время попытки удалить сообщения произошла ошибка"
 };

@@ -394,5 +394,7 @@ export const en: Labels = {
     "report.list.selected-reports.count": "Reports selected: {selectedReportsCount}",
     "report.list.clear-selection": "Clear selection",
     "report.reject.success": "Reports have been rejected",
-    "report.list.show-not-viewed-only": "Show not viewed only"
+    "report.list.show-not-viewed-only": "Show not viewed only",
+    "report.messages.delete-messages.success": "Messages have been deleted",
+    "report.messages.delete-messages.error": "Error occurred when tried to delete messages"
 };

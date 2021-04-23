@@ -1,4 +1,4 @@
-import {action, computed, observable} from "mobx";
+import {action, computed, observable, runInAction} from "mobx";
 import {ReportsListStore} from "./ReportsListStore";
 import {UpdateSelectedReportsStore} from "./UpdateSelectedReportsStore";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
@@ -11,6 +11,9 @@ export class DeleteSelectedReportedMessagesStore {
     @observable
     error?: ApiError = undefined;
 
+    @observable
+    showSnackbar: boolean = false;
+
     @computed
     get selectedMessagesIds(): string[] {
         return this.reportsListStore.selectedReportedObjectsIds;
@@ -18,6 +21,11 @@ export class DeleteSelectedReportedMessagesStore {
 
     constructor(private readonly reportsListStore: ReportsListStore,
                 private readonly updateSelectedReportsStore: UpdateSelectedReportsStore) {
+    }
+
+    @action
+    setShowSnackbar = (showSnackbar: boolean): void => {
+        this.showSnackbar = showSnackbar;
     }
 
     @action
@@ -30,7 +38,10 @@ export class DeleteSelectedReportedMessagesStore {
                 [ReportTakenAction.MESSAGE_DELETED],
                 ReportStatus.ACCEPTED
             ))
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false);
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => {
+                this.pending = false;
+                this.showSnackbar = true;
+            }));
     }
 }

@@ -392,5 +392,7 @@ export interface Labels {
     "report.list.selected-reports.count": string
     "report.list.clear-selection": string,
     "report.reject.success": string,
-    "report.list.show-not-viewed-only": string
+    "report.list.show-not-viewed-only": string,
+    "report.messages.delete-messages.success": string,
+    "report.messages.delete-messages.error": string
 }

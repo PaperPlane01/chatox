@@ -4,13 +4,14 @@ import {Grid, Typography} from "@material-ui/core";
 import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
 import {HasRole} from "../Authorization";
-import {useLocalization} from "../store/hooks";
 import {
     MessageReportsActions,
     RejectReportsSnackbarManager,
     ReportedMessageDialog,
-    ReportedMessagesTable
-} from "../Report/components";
+    ReportedMessagesTable,
+    DeleteMessagesSnackbarManager
+} from "../Report";
+import {useLocalization} from "../store/hooks";
 
 const StickyFooter = require("react-sticky-footer").default;
 
@@ -42,6 +43,7 @@ export const MessageReportsPage: FunctionComponent = observer(() => {
                 </StickyFooter>
             </div>
             <RejectReportsSnackbarManager/>
+            <DeleteMessagesSnackbarManager/>
         </Grid>
     );
 });
