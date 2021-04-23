@@ -387,5 +387,11 @@ export const en: Labels = {
     "report.drawer.messages": "Messages",
     "report.drawer.chats": "Chats",
     "report.drawer.users": "Users",
-    "common.load-more": "Load more"
+    "common.load-more": "Load more",
+    "report.messages.block-users": "Block senders",
+    "report.messages.delete-messages": "Delete messages",
+    "report.reject": "Reject",
+    "report.list.selected-reports.count": "Reports selected: {selectedReportsCount}",
+    "report.list.clear-selection": "Clear selection",
+    "report.reject.success": "Reports have been rejected"
 };

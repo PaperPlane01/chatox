@@ -74,7 +74,14 @@ import {
     GlobalBansListStore,
     UpdateGlobalBanStore
 } from "../GlobalBan/stores";
-import {CreateReportStore, ReportedMessageDialogStore, ReportsListStore} from "../Report/stores";
+import {
+    BanSendersOfSelectedMessagesStore,
+    CreateReportStore, CurrentReportsListStore, DeclineSelectedReportsStore,
+    ReportedMessageDialogStore,
+    ReportsListStore,
+    UpdateSelectedReportsStore
+} from "../Report/stores";
+import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
 
 export interface IAppState {
     language: LocaleStore,
@@ -150,5 +157,10 @@ export interface IAppState {
     reportMessage: CreateReportStore,
     messageReports: ReportsListStore,
     reportedMessageDialog: ReportedMessageDialogStore,
+    selectedReportsUpdate: UpdateSelectedReportsStore,
+    selectedReportedMessagesDeletion: DeleteSelectedReportedMessagesStore,
+    selectedReportedMessagesSendersBan: BanSendersOfSelectedMessagesStore,
+    declineReports: DeclineSelectedReportsStore,
+    currentReportsList: CurrentReportsListStore,
     store?: any
 }

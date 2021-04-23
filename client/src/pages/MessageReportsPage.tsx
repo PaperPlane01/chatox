@@ -5,7 +5,14 @@ import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
 import {HasRole} from "../Authorization";
 import {useLocalization} from "../store/hooks";
-import {ReportedMessageDialog, ReportedMessagesTable} from "../Report/components";
+import {
+    MessageReportsActions,
+    RejectReportsSnackbarManager,
+    ReportedMessageDialog,
+    ReportedMessagesTable
+} from "../Report/components";
+
+const StickyFooter = require("react-sticky-footer").default;
 
 export const MessageReportsPage: FunctionComponent = observer(() => {
     const {l} = useLocalization();
@@ -29,6 +36,10 @@ export const MessageReportsPage: FunctionComponent = observer(() => {
                 </Layout>
             </Grid>
             <ReportedMessageDialog/>
+            <StickyFooter stickyStyles={{width: "100%"}}>
+                <MessageReportsActions/>
+            </StickyFooter>
+            <RejectReportsSnackbarManager/>
         </Grid>
     );
 });

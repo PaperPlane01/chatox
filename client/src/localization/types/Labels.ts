@@ -385,5 +385,11 @@ export interface Labels {
     "report.drawer.messages": string,
     "report.drawer.chats": string,
     "report.drawer.users": string,
-    "common.load-more": string
+    "report.messages.block-users": string,
+    "report.messages.delete-messages": string,
+    "report.reject": string,
+    "common.load-more": string,
+    "report.list.selected-reports.count": string
+    "report.list.clear-selection": string,
+    "report.reject.success": string
 }

@@ -387,5 +387,11 @@ export const ru: Labels = {
     "report.drawer.messages": "На сообщения",
     "report.drawer.chats": "На чаты",
     "report.drawer.users": "На пользователей",
-    "common.load-more": "Загрузить ещё"
+    "common.load-more": "Загрузить ещё",
+    "report.messages.block-users": "Заблокировать пользователей",
+    "report.messages.delete-messages": "Удалить сообщения",
+    "report.reject": "Отклонить",
+    "report.list.selected-reports.count": "Выбрано жалоб: {selectedReportsCount}",
+    "report.list.clear-selection": "Очистить",
+    "report.reject.success": "Жалобы были отклонены"
 };

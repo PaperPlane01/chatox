@@ -1,6 +1,12 @@
 import {AxiosPromise} from "axios";
 import {stringify} from "query-string";
-import {BanUserRequest, GlobalBanFilters, PaginationRequest, UpdateBanRequest} from "../types/request";
+import {
+    BanMultipleUsersRequest,
+    BanUserRequest,
+    GlobalBanFilters,
+    PaginationRequest,
+    UpdateBanRequest
+} from "../types/request";
 import {GlobalBan} from "../types/response";
 import {axiosInstance} from "../axios-instance";
 import {BANS, USERS} from "../endpoints";
@@ -8,6 +14,10 @@ import {BANS, USERS} from "../endpoints";
 export class GlobalBanApi {
     public static banUser(userId: string, banUserRequest: BanUserRequest): AxiosPromise<GlobalBan> {
         return axiosInstance.post(`/${USERS}/${userId}/${BANS}`, banUserRequest);
+    }
+
+    public static banMultipleUsers(banMultipleUsersRequest: BanMultipleUsersRequest): AxiosPromise<GlobalBan[]> {
+        return axiosInstance.post(`/${USERS}/${BANS}`, banMultipleUsersRequest);
     }
 
     public static updateBan(userId: string, banId: string, updateBanRequest: UpdateBanRequest): AxiosPromise<GlobalBan> {

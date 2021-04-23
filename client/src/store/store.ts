@@ -90,8 +90,16 @@ import {
     GlobalBansStore,
     UpdateGlobalBanStore
 } from "../GlobalBan/stores";
-import {CreateReportStore, ReportedMessageDialogStore, ReportsListStore, ReportsStore} from "../Report/stores";
+import {
+    BanSendersOfSelectedMessagesStore,
+    CreateReportStore, CurrentReportsListStore, DeclineSelectedReportsStore,
+    ReportedMessageDialogStore,
+    ReportsListStore,
+    ReportsStore,
+    UpdateSelectedReportsStore
+} from "../Report/stores";
 import {ReportType} from "../api/types/response";
+import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -221,6 +229,11 @@ const updateScheduledMessage = new UpdateScheduledMessageStore(entities);
 const reportMessage = new CreateReportStore(ReportType.MESSAGE);
 const messageReports = new ReportsListStore(entities, authorization, ReportType.MESSAGE);
 const reportedMessageDialog = new ReportedMessageDialogStore();
+const currentReportsList = new CurrentReportsListStore();
+const selectedReportsUpdate = new UpdateSelectedReportsStore(entities, currentReportsList)
+const selectedReportedMessagesDeletion = new DeleteSelectedReportedMessagesStore(messageReports, selectedReportsUpdate);
+const selectedReportedMessagesSendersBan = new BanSendersOfSelectedMessagesStore(entities, messageReports, selectedReportsUpdate);
+const declineReports = new DeclineSelectedReportsStore(selectedReportsUpdate);
 
 export const store: IAppState = {
     authorization,
@@ -295,5 +308,10 @@ export const store: IAppState = {
     updateScheduledMessage,
     reportMessage,
     messageReports,
-    reportedMessageDialog
+    reportedMessageDialog,
+    selectedReportsUpdate,
+    selectedReportedMessagesDeletion,
+    selectedReportedMessagesSendersBan,
+    declineReports,
+    currentReportsList
 };

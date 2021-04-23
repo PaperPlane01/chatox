@@ -9,6 +9,7 @@ export const ReportedMessagesTableHead: FunctionComponent = observer(() => {
     return (
         <TableHead>
             <TableRow>
+                <TableCell/>
                 <TableCell>{l("report.reason")}</TableCell>
                 <TableCell>{l("report.status")}</TableCell>
                 <TableCell>{l("report.created-at")}</TableCell>

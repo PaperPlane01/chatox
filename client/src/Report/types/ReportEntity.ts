@@ -1,4 +1,4 @@
-import {ReportReason, ReportStatus, ReportType} from "../../api/types/response";
+import {ReportReason, ReportStatus, ReportTakenAction, ReportType} from "../../api/types/response";
 
 export interface ReportEntity {
     id: string,
@@ -9,6 +9,6 @@ export interface ReportEntity {
     createdAt: Date,
     submittedById?: string,
     submittedByIdAddress: string,
-    takenActions: string[],
+    takenActions: ReportTakenAction[],
     description?: string
 }

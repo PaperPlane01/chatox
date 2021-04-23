@@ -171,22 +171,21 @@ export const Routes = {
             store.chat.setSelectedChat(undefined);
         }
     }),
-    reportedMessages: new Route(
-        {
-            path: "/reports/messages",
-            component: (
-                <ErrorBoundary>
-                    <Suspense fallback={fallback}>
-                        <MessageReportsPage/>
-                    </Suspense>
-                </ErrorBoundary>
-            ),
-            onEnter: () => {
-                store.messageReports.fetchReports();
-            },
-            onExit: () => {
-                store.messageReports.reset();
-            }
+    reportedMessages: new Route({
+        path: "/reports/messages",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <MessageReportsPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: () => {
+            store.currentReportsList.setCurrentReportsList(store.messageReports);
+            store.messageReports.fetchReports();
+        },
+        onExit: () => {
+            store.messageReports.reset();
         }
-    )
+    })
 };

@@ -1,5 +1,5 @@
 import {createTransformer} from "mobx-utils";
-import {Chat, Message, Report, ReportType, User} from "../../api/types/response";
+import {Report, ReportType} from "../../api/types/response";
 import {AbstractEntityStore} from "../../entity-store";
 import {ReportEntity} from "../types";
 

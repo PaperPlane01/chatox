@@ -1,4 +1,5 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
+import {createTransformer} from "mobx-utils";
 import {EntitiesStore} from "../../entities-store";
 import {CurrentUser, ReportType} from "../../api/types/response";
 import {ApiError, getInitialApiErrorFromResponse, ReportsApi} from "../../api";
@@ -17,6 +18,9 @@ export class ReportsListStore {
     @observable
     awaitingForUser: boolean = false;
 
+    @observable
+    selectedReportsMap = observable.map<string, boolean>({})
+
     @computed
     get currentUser(): CurrentUser | undefined {
         return this.authorizationStore.currentUser;
@@ -25,6 +29,29 @@ export class ReportsListStore {
     @computed
     get ids(): string[] {
         return this.entities.reports.findIdsByType(this.type);
+    }
+
+    @computed
+    get selectedReportsIds(): string[] {
+        const ids = [];
+
+        for (let key of this.selectedReportsMap.keys()) {
+            if (this.selectedReportsMap.get(key)) {
+                ids.push(key);
+            }
+        }
+
+        return ids;
+    }
+
+    @computed
+    get selectedReportedObjectsIds(): string[] {
+        return this.entities.reports.findAllById(this.selectedReportsIds).map(report => report.reportedObjectId);
+    }
+
+    @computed
+    get numberOfSelectedReports(): number {
+        return this.selectedReportsIds.length;
     }
 
     constructor(private readonly entities: EntitiesStore,
@@ -38,6 +65,20 @@ export class ReportsListStore {
                 }
             }
         )
+    }
+
+    isReportSelected = createTransformer((reportId: string) => {
+        return Boolean(this.selectedReportsMap.get(reportId));
+    });
+
+    @action
+    setReportSelected = (reportId: string, selected: boolean): void => {
+        this.selectedReportsMap.set(reportId, selected)
+    }
+
+    @action
+    clearSelection = (): void => {
+        this.selectedReportsMap.clear();
     }
 
     @action
