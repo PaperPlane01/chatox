@@ -1,7 +1,9 @@
 package chatox.user.service.impl
 
 import chatox.platform.pagination.PaginationRequest
+import chatox.user.api.request.BanMultipleUsersRequest
 import chatox.user.api.request.BanUserRequest
+import chatox.user.api.request.BanUserRequestWithUserId
 import chatox.user.api.request.GlobalBanFilters
 import chatox.user.api.request.UpdateBanRequest
 import chatox.user.api.response.GlobalBanResponse
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
+import java.util.HashSet
 import java.util.UUID
 
 @Service
@@ -169,6 +172,101 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
            ) }
        }
                .flatMapIterable { it }
+    }
+
+    override fun banMultipleUsers(banMultipleUsersRequest: BanMultipleUsersRequest): Flux<GlobalBanResponse> {
+        return mono {
+            val currentUser = authenticationFacade.getCurrentUserEntity().awaitFirst()
+            val banRequests = filterBanUserRequestsByDistinctUserId(banMultipleUsersRequest.bans)
+            val usersIdsToBan = banRequests.map { banRequest -> banRequest.userId }
+            val usersToBan = userRepository.findAllById(usersIdsToBan).collectList().awaitFirst()
+            val usersMap = convertUsersListToMap(usersToBan)
+            val requestsMap = convertBanUserRequestsListToMap(banRequests)
+
+            val createdGlobalBans = usersToBan.map { user ->
+                val banUserRequest = requestsMap[user.id]!!
+
+                return@map GlobalBan(
+                        id = UUID.randomUUID().toString(),
+                        createdAt = ZonedDateTime.now(),
+                        expiresAt = banUserRequest.expiresAt,
+                        bannedUserId = user.id,
+                        canceled = false,
+                        permanent = banUserRequest.permanent,
+                        reason = banUserRequest.reason,
+                        createdById = currentUser.id,
+                        comment = banUserRequest.comment,
+                        canceledAt = null,
+                        updatedById = null,
+                        updatedAt = null,
+                        cancelledById = null
+                )
+            }
+
+            val otherActiveBans = globalBanRepository.findActiveByBannedUsers(usersToBan)
+                    .collectList()
+                    .awaitFirst()
+                    .map { activeBan -> activeBan.copy(
+                            canceled = true,
+                            cancelledById = currentUser.id,
+                            canceledAt = ZonedDateTime.now()
+                    ) }
+
+            globalBanRepository.saveAll(createdGlobalBans).collectList().awaitFirst()
+            globalBanRepository.saveAll(otherActiveBans).collectList().awaitFirst()
+
+            val globalBansResponses = createdGlobalBans.map { globalBan -> globalBanMapper.toGlobalBanResponse(
+                    globalBan = globalBan,
+                    bannedUser = usersMap[globalBan.bannedUserId]!!,
+                    createdBy = currentUser,
+                    canceledBy = null,
+                    updatedBy = null
+            ) }
+
+            val updatedGlobalBansResponses = otherActiveBans.map { globalBan -> globalBanMapper.toGlobalBanResponse(
+                    globalBan = globalBan,
+                    bannedUser = usersMap[globalBan.bannedUserId]!!,
+                    createdBy = currentUser,
+                    canceledBy = currentUser,
+                    updatedBy = currentUser
+            ) }
+
+            globalBansResponses.forEach { globalBan -> globalBanEventsProducer.globalBanCreated(globalBan) }
+            updatedGlobalBansResponses.forEach { globalBan -> globalBanEventsProducer.globalBanUpdated(globalBan) }
+
+            return@mono globalBansResponses
+        }
+                .flatMapIterable { it }
+    }
+
+    private fun filterBanUserRequestsByDistinctUserId(requests: List<BanUserRequestWithUserId>): List<BanUserRequestWithUserId> {
+        val seenMap = HashMap<String, Boolean>()
+        val result = ArrayList<BanUserRequestWithUserId>()
+
+        requests.forEach { request ->
+            if (seenMap[request.userId] == null) {
+                seenMap[request.userId] = true
+                result.add(request)
+            }
+        }
+
+        return result
+    }
+
+    private fun convertBanUserRequestsListToMap(requests: List<BanUserRequestWithUserId>): Map<String, BanUserRequestWithUserId> {
+        val map = HashMap<String, BanUserRequestWithUserId>()
+
+        requests.forEach { request -> map[request.userId] = request }
+
+        return map
+    }
+
+    private fun convertUsersListToMap(users: List<User>): Map<String, User> {
+        val map = HashMap<String, User>()
+
+        users.forEach { user -> map[user.id] = user }
+
+        return map
     }
 
     private fun findUserById(userId: String) = userRepository.findById(userId)
