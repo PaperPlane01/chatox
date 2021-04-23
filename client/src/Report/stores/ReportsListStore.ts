@@ -1,7 +1,7 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {EntitiesStore} from "../../entities-store";
-import {CurrentUser, ReportType} from "../../api/types/response";
+import {CurrentUser, ReportStatus, ReportType} from "../../api/types/response";
 import {ApiError, getInitialApiErrorFromResponse, ReportsApi} from "../../api";
 import {AuthorizationStore} from "../../Authorization/stores";
 
@@ -19,7 +19,12 @@ export class ReportsListStore {
     awaitingForUser: boolean = false;
 
     @observable
-    selectedReportsMap = observable.map<string, boolean>({})
+    selectedReportsMap = observable.map<string, boolean>({});
+
+    @observable
+    showNotViewedOnly: boolean = window && window.localStorage
+        ? window.localStorage.getItem("showNotViewedReportsOnly") === "true"
+        : false;
 
     @computed
     get currentUser(): CurrentUser | undefined {
@@ -64,7 +69,15 @@ export class ReportsListStore {
                     this.fetchReports();
                 }
             }
-        )
+        );
+
+        reaction(
+            () => this.showNotViewedOnly,
+            () => {
+                this.reset();
+                this.fetchReports();
+            }
+        );
     }
 
     isReportSelected = createTransformer((reportId: string) => {
@@ -82,6 +95,12 @@ export class ReportsListStore {
     }
 
     @action
+    setShowNotViewedOnly = (showNotViewedOnly: boolean): void => {
+        localStorage.setItem("showNotViewedReportsOnly", `${showNotViewedOnly}`);
+        this.showNotViewedOnly = showNotViewedOnly;
+    }
+
+    @action
     fetchReports = (): void => {
         if (!this.currentUser) {
             this.awaitingForUser = true;
@@ -95,7 +114,7 @@ export class ReportsListStore {
 
         ReportsApi.findReports({
             type: [this.type],
-            status: [],
+            status: this.showNotViewedOnly ? [ReportStatus.NOT_VIEWED] : [],
             reason: [],
             page: this.currentPage
         })

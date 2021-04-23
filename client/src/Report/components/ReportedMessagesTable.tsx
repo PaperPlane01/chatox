@@ -13,6 +13,7 @@ import {
 import {ReportedMessagesTableHead} from "./ReportedMessagesTableHeader";
 import {ReportedMessagesTableRow} from "./ReportedMessagesTableRow";
 import {useLocalization, useStore} from "../../store/hooks";
+import {ShowNotViewedOnlySwitch} from "./ShowNotViewedOnlySwitch";
 
 export const ReportedMessagesTable: FunctionComponent = observer(() => {
     const {
@@ -28,6 +29,7 @@ export const ReportedMessagesTable: FunctionComponent = observer(() => {
         <Card>
             <CardHeader title={l("report.list.messages")}/>
             <CardContent>
+                <ShowNotViewedOnlySwitch/>
                 <Table>
                     <ReportedMessagesTableHead/>
                     <TableBody>

@@ -393,5 +393,6 @@ export const ru: Labels = {
     "report.reject": "Отклонить",
     "report.list.selected-reports.count": "Выбрано жалоб: {selectedReportsCount}",
     "report.list.clear-selection": "Очистить",
-    "report.reject.success": "Жалобы были отклонены"
+    "report.reject.success": "Жалобы были отклонены",
+    "report.list.show-not-viewed-only": "Показать только не просмотренные"
 };

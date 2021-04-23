@@ -36,9 +36,11 @@ export const MessageReportsPage: FunctionComponent = observer(() => {
                 </Layout>
             </Grid>
             <ReportedMessageDialog/>
-            <StickyFooter stickyStyles={{width: "100%"}}>
-                <MessageReportsActions/>
-            </StickyFooter>
+            <div style={{width: "100%"}}>
+                <StickyFooter stickyStyles={{width: "100%"}} fixedStyles={{width: "100%"}}>
+                    <MessageReportsActions/>
+                </StickyFooter>
+            </div>
             <RejectReportsSnackbarManager/>
         </Grid>
     );

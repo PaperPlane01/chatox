@@ -391,5 +391,6 @@ export interface Labels {
     "common.load-more": string,
     "report.list.selected-reports.count": string
     "report.list.clear-selection": string,
-    "report.reject.success": string
+    "report.reject.success": string,
+    "report.list.show-not-viewed-only": string
 }
