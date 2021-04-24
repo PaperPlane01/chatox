@@ -186,8 +186,11 @@ export class ReportsService {
     }
 
     private fixUploadUri(upload: UploadResponse): UploadResponse {
+        const https = config.API_HOST.startsWith("https");
         const uri = new URL(upload.uri);
-        uri.host = config.API_HOST;
+        uri.host = https
+            ? config.API_HOST.replace("https://", "")
+            : config.API_HOST.replace("http://", "");
 
         return {...upload, uri: uri.href};
     }
