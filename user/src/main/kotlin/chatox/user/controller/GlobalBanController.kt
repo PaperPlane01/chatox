@@ -5,6 +5,7 @@ import chatox.platform.pagination.annotation.PageSize
 import chatox.platform.pagination.annotation.PaginationConfig
 import chatox.platform.pagination.annotation.SortBy
 import chatox.platform.pagination.annotation.SortDirection
+import chatox.user.api.request.BanMultipleUsersRequest
 import chatox.user.api.request.BanUserRequest
 import chatox.user.api.request.GlobalBanFilters
 import chatox.user.api.request.UpdateBanRequest
@@ -30,6 +31,11 @@ class GlobalBanController(private val globalBanService: GlobalBanService) {
     fun banUser(@PathVariable userId: String,
                 @RequestBody @Valid banUserRequest: BanUserRequest
     ) = globalBanService.banUser(userId, banUserRequest)
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/bans")
+    fun banMultipleUsers(@RequestBody @Valid banMultipleUsersRequest: BanMultipleUsersRequest)
+            = globalBanService.banMultipleUsers(banMultipleUsersRequest)
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{userId}/bans/{banId}")
