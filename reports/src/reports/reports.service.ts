@@ -78,6 +78,7 @@ export class ReportsService {
 
         const reports = await this.reportsModel
             .find(filterQuery)
+            .sort({createdAt: "desc"})
             .skip(calculateOffset(filters.page, filters.pageSize))
             .limit(filters.pageSize)
             .exec();
