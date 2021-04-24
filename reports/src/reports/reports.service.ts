@@ -1,21 +1,22 @@
 import {HttpException, HttpStatus, Injectable, Logger} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Report, ReportDocument} from "./entities/report.entity";
-import {Model, FilterQuery} from "mongoose";
+import {FilterQuery, Model} from "mongoose";
 import {MessagesService} from "../messages/messages.service";
 import {CreateReportRequest} from "./types/requests/create-report.request";
 import {ReportResponse} from "./types/responses/report.response";
 import {ReportType} from "./enums/report-type.enum";
-import {ReportStatus} from "./enums/report-status.enum";
 import {MessageNotFoundException} from "../messages/exceptions/message-not-found.exception";
 import {MessageResponse} from "../messages/types/responses/message.response";
 import {User} from "../auth/types/user";
-import {PaginationRequest} from "../utils/pagination/types/requests";
 import {calculateOffset} from "../utils/pagination";
 import {FilterReportsRequest} from "./types/requests/filter-reports.request";
 import {UpdateReportRequest} from "./types/requests/update-report.request";
 import {ReportNotFoundException} from "../exceptions/report-not-found.exception";
 import {UpdateMultipleReportsRequest} from "./types/requests/update-multiple-reports.request";
+import {UserResponse} from "../users/types/responses/user.response";
+import {config} from "../config/env.config";
+import {UploadResponse} from "../common/types";
 
 @Injectable()
 export class ReportsService {
@@ -130,12 +131,64 @@ export class ReportsService {
             createdAt: report.createdAt.toISOString(),
             description: report.description,
             reason: report.reason,
-            reportedObject: report.reportedObject,
+            reportedObject: this.fixReportedObjectUrls(report.type, report.reportedObject),
             status: report.status,
             submittedById: report.submittedById,
             submittedByIpAddress: report.submittedByIpAddress,
             takenActions: report.takenActions,
             type: report.type
         });
+    }
+
+    private fixReportedObjectUrls<ReportedObject>(reportType: ReportType, reportedObject: ReportedObject): ReportedObject {
+        switch (reportType) {
+            case ReportType.MESSAGE:
+                return this.fixMessageUploadsUris(reportedObject as unknown as MessageResponse) as unknown as ReportedObject;
+            case ReportType.USER:
+                return this.fixUserAvatarUri(reportedObject as unknown as UserResponse) as unknown as ReportedObject;
+            default:
+                return reportedObject;
+        }
+    }
+
+    private fixUserAvatarUri(user: UserResponse): UserResponse {
+        if (!user.avatar) {
+            return user;
+        }
+
+        return {
+            ...user,
+            avatar: this.fixUploadUri(user.avatar)
+        };
+    }
+
+    private fixMessageUploadsUris(message: MessageResponse): MessageResponse {
+        if (!message.sender.avatar && message.attachments.length === 0) {
+            return message;
+        }
+
+        let attachments = message.attachments;
+        let sender = message.sender;
+
+        if (attachments.length !== 0) {
+            attachments = attachments.map(attachment => this.fixUploadUri(attachment));
+        }
+
+        if (message.sender.avatar) {
+            sender = this.fixUserAvatarUri(message.sender);
+        }
+
+        return {
+            ...message,
+            attachments,
+            sender
+        };
+    }
+
+    private fixUploadUri(upload: UploadResponse): UploadResponse {
+        const uri = new URL(upload.uri);
+        uri.host = config.API_HOST;
+
+        return {...upload, uri: uri.href};
     }
 }

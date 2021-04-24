@@ -29,6 +29,9 @@ class EnvConfig {
     REPORTS_SERVICE_CLIENT_SECRET: string;
 
     @Env({required: false, type: "string"})
+    API_HOST: string = "http://localhost:8080";
+
+    @Env({required: false, type: "string"})
     JWT_PUBLIC_KEY: string = `-----BEGIN CERTIFICATE-----
 MIIDdTCCAl2gAwIBAgIEaWzSsDANBgkqhkiG9w0BAQsFADBrMRAwDgYDVQQGEwdV
 bmtub3duMRAwDgYDVQQIEwdVbmtub3duMRAwDgYDVQQHEwdVbmtub3duMQ8wDQYD
