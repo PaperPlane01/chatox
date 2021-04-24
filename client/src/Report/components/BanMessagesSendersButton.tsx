@@ -4,7 +4,7 @@ import {BottomNavigationAction} from "@material-ui/core";
 import {Block} from "@material-ui/icons";
 import {useLocalization, useStore} from "../../store/hooks";
 
-export const BlockMessagesSendersButton: FunctionComponent = observer(() => {
+export const BanMessagesSendersButton: FunctionComponent = observer(() => {
     const {l} = useLocalization();
     const {
         selectedReportedMessagesSendersBan: {
@@ -17,7 +17,7 @@ export const BlockMessagesSendersButton: FunctionComponent = observer(() => {
     };
 
     return <BottomNavigationAction icon={<Block/>}
-                                   label={l("report.messages.block-users")}
+                                   label={l("report.messages.ban-users")}
                                    showLabel
                                    onClick={handleClick}
     />;

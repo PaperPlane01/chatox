@@ -45,7 +45,13 @@ export const ReportedMessagesTableRow: FunctionComponent<ReportedMessagesTablePr
             <TableCell>
                 {
                     report.takenActions.length !== 0
-                        ? report.takenActions.map(takenAction => l(`report.taken-action.${takenAction}` as keyof Labels) + ";")
+                        ? report.takenActions.map(takenAction =>  (
+                            <span>
+                                {l(`report.taken-action.${takenAction}` as keyof Labels)}
+                                ;
+                                <br/>
+                            </span>
+                        ))
                         : <Remove/>
                 }
             </TableCell>

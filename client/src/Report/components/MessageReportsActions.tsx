@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, createStyles, Grid, makeStyles, Typography} from "@material-ui/core";
-import {BlockMessagesSendersButton} from "./BlockMessagesSendersButton";
+import {BanMessagesSendersButton} from "./BanMessagesSendersButton";
 import {DeleteMessagesButton} from "./DeleteMessagesButton";
 import {RejectReportsButton} from "./RejectReportsButton";
 import {useLocalization, useStore} from "../../store/hooks";
@@ -48,7 +48,7 @@ export const MessageReportsActions: FunctionComponent = observer(() => {
                       alignItems="center"
                 >
                     <Grid item xs={4} className={classes.centerAligned}>
-                        <BlockMessagesSendersButton/>
+                        <BanMessagesSendersButton/>
                     </Grid>
                     <Grid item xs={4} className={classes.centerAligned}>
                         <DeleteMessagesButton/>

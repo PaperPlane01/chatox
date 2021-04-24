@@ -11,3 +11,4 @@ export * from "./GlobalBansTable";
 export * from "./GlobalBansTableRow";
 export * from "./CancelGlobalBanButton";
 export * from "./UpdateGlobalBanDialog";
+export * from "./BanUserGloballyDialogBase";

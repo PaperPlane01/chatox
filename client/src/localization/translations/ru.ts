@@ -388,7 +388,7 @@ export const ru: Labels = {
     "report.drawer.chats": "На чаты",
     "report.drawer.users": "На пользователей",
     "common.load-more": "Загрузить ещё",
-    "report.messages.block-users": "Заблокировать пользователей",
+    "report.messages.ban-users": "Заблокировать пользователей",
     "report.messages.delete-messages": "Удалить сообщения",
     "report.reject": "Отклонить",
     "report.list.selected-reports.count": "Выбрано жалоб: {selectedReportsCount}",
@@ -396,5 +396,8 @@ export const ru: Labels = {
     "report.reject.success": "Жалобы были отклонены",
     "report.list.show-not-viewed-only": "Показать только не просмотренные",
     "report.messages.delete-messages.success": "Сообщения были удалены",
-    "report.messages.delete-messages.error": "Во время попытки удалить сообщения произошла ошибка"
+    "report.messages.delete-messages.error": "Во время попытки удалить сообщения произошла ошибка",
+    "report.messages.ban-users.success": "Авторы сообщений были заблокированы",
+    "report.messages.ban-users.error.server-unreachable": "Во время попытки заблокировать авторов сообщений произошла ошибка: сервер недоступен",
+    "report.messages.ban-users.error.unknown": "Во время попытки заблокировать авторов сообщений произошла ошибка: сервер ответил со статусом {errorStatus}"
 };

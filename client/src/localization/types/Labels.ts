@@ -385,7 +385,7 @@ export interface Labels {
     "report.drawer.messages": string,
     "report.drawer.chats": string,
     "report.drawer.users": string,
-    "report.messages.block-users": string,
+    "report.messages.ban-users": string,
     "report.messages.delete-messages": string,
     "report.reject": string,
     "common.load-more": string,
@@ -394,5 +394,8 @@ export interface Labels {
     "report.reject.success": string,
     "report.list.show-not-viewed-only": string,
     "report.messages.delete-messages.success": string,
-    "report.messages.delete-messages.error": string
+    "report.messages.delete-messages.error": string,
+    "report.messages.ban-users.success": string,
+    "report.messages.ban-users.error.server-unreachable": string,
+    "report.messages.ban-users.error.unknown": string
 }

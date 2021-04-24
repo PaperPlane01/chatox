@@ -36,10 +36,7 @@ export class UpdateSelectedReportsStore {
         const updates: Array<UpdateReportRequest & {id: string}> = selectedReports.map(report => ({
             id: report.id,
             status,
-            takenActions: [
-                ...report.takenActions,
-                ...takenActions
-            ]
+            takenActions: Array.from(new Set([...takenActions, ...report.takenActions]))
         }));
 
         ReportsApi.updateMultipleReports({updates})

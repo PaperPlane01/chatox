@@ -29,9 +29,12 @@ export class BanSendersOfSelectedMessagesStore extends AbstractFormStore<BanUser
     @observable
     banSendersOfSelectedMessagesDialogOpen: boolean = false;
 
+    @observable
+    showSnackbar: boolean = false;
+
     @computed
     get usersIdsToBan(): string[] {
-        const messages = this.entities.messages.findAllById(this.reportsListStore.selectedReportedObjectsIds);
+        const messages = this.entities.reportedMessages.findAllById(this.reportsListStore.selectedReportedObjectsIds);
         const users = messages.map(message => this.entities.reportedMessagesSenders.findById(message.sender));
 
         return users.map(user => user.id);
@@ -58,6 +61,11 @@ export class BanSendersOfSelectedMessagesStore extends AbstractFormStore<BanUser
         this.banSendersOfSelectedMessagesDialogOpen = banSendersOfSelectedMessagesDialogOpen;
     }
 
+    @action
+    setShowSnackbar = (showSnackbar: boolean): void => {
+        this.showSnackbar = showSnackbar;
+    }
+
     @action.bound
     public submitForm(): void {
         if (!this.validateForm()) {
@@ -76,10 +84,14 @@ export class BanSendersOfSelectedMessagesStore extends AbstractFormStore<BanUser
         }));
 
         GlobalBanApi.banMultipleUsers({bans})
-            .then(() => this.updateSelectedReportsStore.updateSelectedReports(
-                [ReportTakenAction.USER_BANNED],
-                ReportStatus.ACCEPTED
-            ))
+            .then(() => {
+                this.updateSelectedReportsStore.updateSelectedReports(
+                    [ReportTakenAction.USER_BANNED],
+                    ReportStatus.ACCEPTED
+                );
+                this.setBanSendersOfSelectedMessagesDialogOpen(false);
+                this.setShowSnackbar(true);
+            })
             .catch(error => this.error = getInitialApiErrorFromResponse(error))
             .finally(() => this.pending = false);
     }

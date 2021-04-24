@@ -388,7 +388,7 @@ export const en: Labels = {
     "report.drawer.chats": "Chats",
     "report.drawer.users": "Users",
     "common.load-more": "Load more",
-    "report.messages.block-users": "Block senders",
+    "report.messages.ban-users": "Ban senders",
     "report.messages.delete-messages": "Delete messages",
     "report.reject": "Reject",
     "report.list.selected-reports.count": "Reports selected: {selectedReportsCount}",
@@ -396,5 +396,8 @@ export const en: Labels = {
     "report.reject.success": "Reports have been rejected",
     "report.list.show-not-viewed-only": "Show not viewed only",
     "report.messages.delete-messages.success": "Messages have been deleted",
-    "report.messages.delete-messages.error": "Error occurred when tried to delete messages"
+    "report.messages.delete-messages.error": "Error occurred when tried to delete messages",
+    "report.messages.ban-users.success": "Message senders have been banned",
+    "report.messages.ban-users.error.server-unreachable": "Error occurred when tried to ban message senders: server is unreachable",
+    "report.messages.ban-users.error.unknown": "Unknown error occurred when tried to ban message senders, server responded with {errorStatus} status"
 };

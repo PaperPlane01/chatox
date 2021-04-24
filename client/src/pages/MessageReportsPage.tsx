@@ -9,7 +9,8 @@ import {
     RejectReportsSnackbarManager,
     ReportedMessageDialog,
     ReportedMessagesTable,
-    DeleteMessagesSnackbarManager
+    DeleteMessagesSnackbarManager,
+    BanMessageSendersDialog
 } from "../Report";
 import {useLocalization} from "../store/hooks";
 
@@ -44,6 +45,7 @@ export const MessageReportsPage: FunctionComponent = observer(() => {
             </div>
             <RejectReportsSnackbarManager/>
             <DeleteMessagesSnackbarManager/>
+            <BanMessageSendersDialog/>
         </Grid>
     );
 });
