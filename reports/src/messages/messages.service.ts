@@ -22,14 +22,11 @@ export class MessagesService {
             return response.data;
         } catch (error) {
             if (error.response && error.response.status === 404) {
-                console.log(error.response);
                 throw new MessageNotFoundException(id);
             }
 
             this.log.error("Error occurred when tried to fetch message by id");
             this.log.error(error.trace ? error.trace : error);
-
-            console.log(error);
 
             throw error;
         }

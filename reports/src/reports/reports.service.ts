@@ -1,4 +1,4 @@
-import {HttpException, HttpStatus, Injectable, Logger} from "@nestjs/common";
+import {HttpException, Injectable, Logger} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Report, ReportDocument} from "./entities/report.entity";
 import {FilterQuery, Model} from "mongoose";
@@ -6,54 +6,80 @@ import {MessagesService} from "../messages/messages.service";
 import {CreateReportRequest} from "./types/requests/create-report.request";
 import {ReportResponse} from "./types/responses/report.response";
 import {ReportType} from "./enums/report-type.enum";
-import {MessageNotFoundException} from "../messages/exceptions/message-not-found.exception";
 import {MessageResponse} from "../messages/types/responses/message.response";
 import {User} from "../auth/types/user";
 import {calculateOffset} from "../utils/pagination";
 import {FilterReportsRequest} from "./types/requests/filter-reports.request";
 import {UpdateReportRequest} from "./types/requests/update-report.request";
-import {ReportNotFoundException} from "../exceptions/report-not-found.exception";
+import {ReportNotFoundException} from "./exceptions/report-not-found.exception";
 import {UpdateMultipleReportsRequest} from "./types/requests/update-multiple-reports.request";
 import {UserResponse} from "../users/types/responses/user.response";
 import {config} from "../config/env.config";
 import {UploadResponse} from "../common/types";
+import {UsersService} from "../users/users.service";
+import {UnsupportedReportTypeException} from "./exceptions/unsupported-report-type.exception";
 
 @Injectable()
 export class ReportsService {
     private readonly log = new Logger(ReportsService.name);
     
     constructor(@InjectModel(Report.name) private readonly reportsModel: Model<ReportDocument<any>>,
-                private readonly messagesService: MessagesService) {
+                private readonly messagesService: MessagesService,
+                private readonly usersService: UsersService) {
     }
 
     public async createReport(createReportRequest: CreateReportRequest, ipAddress: string, user?: User): Promise<void> {
-        if (createReportRequest.type !== ReportType.MESSAGE) {
-            throw new HttpException(`Report type ${createReportRequest.type} is not yet supported`, HttpStatus.NOT_IMPLEMENTED);
-        }
-        
         try {
-            const message = await this.messagesService.findMessageById(createReportRequest.reportedObjectId);
-            
-            const report = new Report<MessageResponse>({
-                description: createReportRequest.description,
-                reason: createReportRequest.reason,
-                reportedObject: message,
-                submittedByIpAddress: ipAddress,
-                type: createReportRequest.type,
-                submittedById: user ? user.id : undefined
-            });
-            
-            await new this.reportsModel(report).save();
+            switch (createReportRequest.type) {
+                case ReportType.MESSAGE:
+                    await this.createMessageReport(createReportRequest, ipAddress, user);
+                    break;
+                case ReportType.USER:
+                    await this.createUserReport(createReportRequest, ipAddress, user);
+                    break;
+                default:
+                    throw new UnsupportedReportTypeException(createReportRequest.type);
+            }
         } catch (error) {
-            if (error instanceof MessageNotFoundException) {
+            if (error instanceof HttpException) {
                 throw error;
             }
-            
+
             this.log.error("Error occurred when tried to save report");
             this.log.error(error.trace ? error.trace : error);
-            
+
             throw error;
         }
+    }
+
+    private async createMessageReport(createReportRequest: CreateReportRequest, ipAddress: string, currentUser?: User): Promise<void> {
+        const message = await this.messagesService.findMessageById(createReportRequest.reportedObjectId);
+
+        const report = new Report<MessageResponse>({
+            description: createReportRequest.description,
+            reason: createReportRequest.reason,
+            reportedObject: message,
+            submittedByIpAddress: ipAddress,
+            type: ReportType.MESSAGE,
+            submittedById: currentUser ? currentUser.id : undefined
+        });
+
+        await new this.reportsModel(report).save();
+    }
+
+    private async createUserReport(createReportRequest: CreateReportRequest, ipAddress: string, currentUser?: User): Promise<void> {
+        const user = await this.usersService.findUserById(createReportRequest.reportedObjectId);
+
+        const report = new Report<UserResponse>({
+            description: createReportRequest.description,
+            reason: createReportRequest.reason,
+            reportedObject: user,
+            submittedByIpAddress: ipAddress,
+            type: ReportType.USER,
+            submittedById: currentUser ? currentUser.id : undefined
+        });
+
+        await new this.reportsModel(report).save();
     }
 
     public async findReports(filters: FilterReportsRequest): Promise<Array<ReportResponse<any>>> {

@@ -7,6 +7,7 @@ import {OauthModule} from "./oauth/oauth.module";
 import {AxiosModule} from "./axios/axios.module";
 import {AuthModule} from "./auth/auth.module";
 import {config} from "./config/env.config";
+import {UsersModule} from "./users/users.module";
 
 @Module({
     imports: [
@@ -16,7 +17,8 @@ import {config} from "./config/env.config";
         OauthModule,
         AxiosModule,
         AuthModule,
-        MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.REPORTS_SERVICE_DATABASE_NAME}`)
+        MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.REPORTS_SERVICE_DATABASE_NAME}`),
+        UsersModule
     ]
 })
 export class AppModule {}
