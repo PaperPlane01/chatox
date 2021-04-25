@@ -3,6 +3,7 @@ import {Grid, createStyles, makeStyles} from "@material-ui/core";
 import {AppBar} from "../AppBar";
 import {Layout} from "../Layout";
 import {UserProfileInfo} from "../User";
+import {ReportUserDialog} from "../Report";
 
 const useStyles = makeStyles(() => createStyles({
     centered: {
@@ -29,6 +30,7 @@ export const UserPage: FunctionComponent = () => {
                     </div>
                 </Layout>
             </Grid>
+            <ReportUserDialog/>
         </Grid>
     )
 };

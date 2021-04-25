@@ -399,5 +399,6 @@ export const ru: Labels = {
     "report.messages.delete-messages.error": "Во время попытки удалить сообщения произошла ошибка",
     "report.messages.ban-users.success": "Авторы сообщений были заблокированы",
     "report.messages.ban-users.error.server-unreachable": "Во время попытки заблокировать авторов сообщений произошла ошибка: сервер недоступен",
-    "report.messages.ban-users.error.unknown": "Во время попытки заблокировать авторов сообщений произошла ошибка: сервер ответил со статусом {errorStatus}"
+    "report.messages.ban-users.error.unknown": "Во время попытки заблокировать авторов сообщений произошла ошибка: сервер ответил со статусом {errorStatus}",
+    "report.user": "Пожаловаться на пользователя"
 };

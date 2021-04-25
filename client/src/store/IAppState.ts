@@ -162,5 +162,6 @@ export interface IAppState {
     selectedReportedMessagesSendersBan: BanSendersOfSelectedMessagesStore,
     declineReports: DeclineSelectedReportsStore,
     currentReportsList: CurrentReportsListStore,
+    reportUser: CreateReportStore,
     store?: any
 }

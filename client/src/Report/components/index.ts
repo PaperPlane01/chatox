@@ -13,3 +13,5 @@ export * from "./RejectReportsButton";
 export * from "./RejectReportsSnackbarManager";
 export * from "./DeleteMessagesSnackbarManager";
 export * from "./BanMessageSendersDialog";
+export * from "./ReportUserDialog";
+export * from "./ReportUserMenuItem";

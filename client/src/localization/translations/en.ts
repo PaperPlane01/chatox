@@ -399,5 +399,6 @@ export const en: Labels = {
     "report.messages.delete-messages.error": "Error occurred when tried to delete messages",
     "report.messages.ban-users.success": "Message senders have been banned",
     "report.messages.ban-users.error.server-unreachable": "Error occurred when tried to ban message senders: server is unreachable",
-    "report.messages.ban-users.error.unknown": "Unknown error occurred when tried to ban message senders, server responded with {errorStatus} status"
+    "report.messages.ban-users.error.unknown": "Unknown error occurred when tried to ban message senders, server responded with {errorStatus} status",
+    "report.user": "Report user"
 };

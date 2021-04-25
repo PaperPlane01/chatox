@@ -92,7 +92,9 @@ import {
 } from "../GlobalBan/stores";
 import {
     BanSendersOfSelectedMessagesStore,
-    CreateReportStore, CurrentReportsListStore, DeclineSelectedReportsStore,
+    CreateReportStore,
+    CurrentReportsListStore,
+    DeclineSelectedReportsStore,
     ReportedMessageDialogStore,
     ReportsListStore,
     ReportsStore,
@@ -234,6 +236,7 @@ const selectedReportsUpdate = new UpdateSelectedReportsStore(entities, currentRe
 const selectedReportedMessagesDeletion = new DeleteSelectedReportedMessagesStore(messageReports, selectedReportsUpdate);
 const selectedReportedMessagesSendersBan = new BanSendersOfSelectedMessagesStore(entities, messageReports, selectedReportsUpdate);
 const declineReports = new DeclineSelectedReportsStore(selectedReportsUpdate);
+const reportUser = new CreateReportStore(ReportType.USER);
 
 export const store: IAppState = {
     authorization,
@@ -313,5 +316,6 @@ export const store: IAppState = {
     selectedReportedMessagesDeletion,
     selectedReportedMessagesSendersBan,
     declineReports,
-    currentReportsList
+    currentReportsList,
+    reportUser
 };
