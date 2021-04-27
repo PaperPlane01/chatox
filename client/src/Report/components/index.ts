@@ -15,3 +15,6 @@ export * from "./DeleteMessagesSnackbarManager";
 export * from "./BanMessageSendersDialog";
 export * from "./ReportUserDialog";
 export * from "./ReportUserMenuItem";
+export * from "./ReportedUsersTable";
+export * from "./ReportedUsersTableRow";
+export * from "./ReportedUsersTableHeader";

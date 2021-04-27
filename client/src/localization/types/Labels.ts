@@ -398,5 +398,8 @@ export interface Labels {
     "report.messages.ban-users.success": string,
     "report.messages.ban-users.error.server-unreachable": string,
     "report.messages.ban-users.error.unknown": string,
-    "report.user": string
+    "report.user": string,
+    "report.user.action.ban-user": string,
+    "report.user.reported-user": string,
+    "report.user.list": string
 }

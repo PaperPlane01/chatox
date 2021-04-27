@@ -48,7 +48,8 @@ export class EntitiesStore {
         public scheduledMessages: ScheduledMessagesStore,
         public reports: ReportsStore,
         public reportedMessages: MessagesStore,
-        public reportedMessagesSenders: UsersStore
+        public reportedMessagesSenders: UsersStore,
+        public reportedUsers: UsersStore
     ) {
     }
 
@@ -314,8 +315,10 @@ export class EntitiesStore {
             case ReportType.MESSAGE:
                 this.insertMessageReport(report);
                 return;
-            case ReportType.CHAT:
             case ReportType.USER:
+                this.insertUserReport(report);
+                return;
+            case ReportType.CHAT:
             default:
                 return;
         }
@@ -344,6 +347,22 @@ export class EntitiesStore {
     }
 
     @action
+    insertUserReports = (reports: Array<Report<User>>): void => {
+        reports.forEach(report => this.insertUserReport(report));
+    }
+
+    @action
+    insertUserReport = (report: Report<User>): void => {
+        this.insertReportedUser(report.reportedObject);
+        this.reports.insert(report);
+    }
+
+    @action
+    insertReportedUser = (user: User): void => {
+        this.reportedUsers.insert(user);
+    }
+
+    @action
     deleteAllReports = (reportType: ReportType): void => {
         this.reports.deleteAll();
 
@@ -353,6 +372,8 @@ export class EntitiesStore {
                 this.reportedMessagesSenders.deleteAll();
                 return;
             case ReportType.USER:
+                this.reportedUsers.deleteAll();
+                return;
             case ReportType.CHAT:
             default:
                 return;

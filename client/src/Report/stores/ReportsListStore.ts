@@ -134,5 +134,6 @@ export class ReportsListStore {
         this.error = undefined;
 
         this.entities.deleteAllReports(this.type);
+        this.clearSelection();
     }
 }

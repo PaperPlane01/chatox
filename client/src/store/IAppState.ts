@@ -163,5 +163,6 @@ export interface IAppState {
     declineReports: DeclineSelectedReportsStore,
     currentReportsList: CurrentReportsListStore,
     reportUser: CreateReportStore,
+    userReports: ReportsListStore,
     store?: any
 }

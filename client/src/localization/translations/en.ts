@@ -400,5 +400,8 @@ export const en: Labels = {
     "report.messages.ban-users.success": "Message senders have been banned",
     "report.messages.ban-users.error.server-unreachable": "Error occurred when tried to ban message senders: server is unreachable",
     "report.messages.ban-users.error.unknown": "Unknown error occurred when tried to ban message senders, server responded with {errorStatus} status",
-    "report.user": "Report user"
+    "report.user": "Report user",
+    "report.user.action.ban-user": "Ban user",
+    "report.user.reported-user": "Reported user",
+    "report.user.list": "Users reports"
 };

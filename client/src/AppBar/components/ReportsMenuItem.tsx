@@ -57,6 +57,19 @@ export const ReportsMenuItem: FunctionComponent<ReportsMenuItemProps> = observer
                             </ListItemText>
                         </MenuItem>
                     </Link>
+                    <Link store={routerStore}
+                          className={classes.undecoratedLink}
+                          view={Routes.reportedUsers}
+                    >
+                        <MenuItem onClick={handleClick}>
+                            <ListItemIcon>
+                                <Person/>
+                            </ListItemIcon>
+                            <ListItemText>
+                                {l("report.drawer.users")}
+                            </ListItemText>
+                        </MenuItem>
+                    </Link>
                     <Tooltip title={l("feature.not-available")}>
                         <div>
                             <MenuItem disabled>
@@ -65,18 +78,6 @@ export const ReportsMenuItem: FunctionComponent<ReportsMenuItemProps> = observer
                                 </ListItemIcon>
                                 <ListItemText>
                                     {l("report.drawer.chats")}
-                                </ListItemText>
-                            </MenuItem>
-                        </div>
-                    </Tooltip>
-                    <Tooltip title={l("feature.not-available")}>
-                        <div>
-                            <MenuItem disabled>
-                                <ListItemIcon>
-                                    <Person/>
-                                </ListItemIcon>
-                                <ListItemText>
-                                    {l("report.drawer.users")}
                                 </ListItemText>
                             </MenuItem>
                         </div>

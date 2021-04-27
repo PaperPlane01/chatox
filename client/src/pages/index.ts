@@ -7,3 +7,4 @@ export * from "./SettingsPage";
 export * from "./GlobalBansPage";
 export * from "./ScheduledMessagesPage";
 export * from "./MessageReportsPage";
+export * from "./UserReportsPage";

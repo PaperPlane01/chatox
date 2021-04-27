@@ -115,6 +115,7 @@ const scheduledMessages = new ScheduledMessagesStore();
 const reports = new ReportsStore();
 const reportedMessages = new MessagesStore();
 const reportedMessagesSenders = new UsersStore();
+const reportedUsers = new UsersStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
@@ -127,7 +128,8 @@ const entities = new EntitiesStore(
     scheduledMessages,
     reports,
     reportedMessages,
-    reportedMessagesSenders
+    reportedMessagesSenders,
+    reportedUsers
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -237,6 +239,7 @@ const selectedReportedMessagesDeletion = new DeleteSelectedReportedMessagesStore
 const selectedReportedMessagesSendersBan = new BanSendersOfSelectedMessagesStore(entities, messageReports, selectedReportsUpdate);
 const declineReports = new DeclineSelectedReportsStore(selectedReportsUpdate);
 const reportUser = new CreateReportStore(ReportType.USER);
+const userReports = new ReportsListStore(entities, authorization, ReportType.USER);
 
 export const store: IAppState = {
     authorization,
@@ -317,5 +320,6 @@ export const store: IAppState = {
     selectedReportedMessagesSendersBan,
     declineReports,
     currentReportsList,
-    reportUser
+    reportUser,
+    userReports
 };
