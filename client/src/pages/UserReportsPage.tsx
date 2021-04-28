@@ -5,7 +5,8 @@ import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
 import {HasRole} from "../Authorization";
 import {
-    ReportedUsersTable
+    BanReportedUsersDialog,
+    ReportedUsersTable, UserReportsActions
 } from "../Report";
 import {useLocalization} from "../store/hooks";
 
@@ -32,6 +33,12 @@ export const UserReportsPage: FunctionComponent = observer(() => {
                     </HasRole>
                 </Layout>
             </Grid>
+            <BanReportedUsersDialog/>
+            <div style={{width: "100%"}}>
+                <StickyFooter stickyStyles={{width: "100%"}} fixedStyles={{width: "100%"}}>
+                    <UserReportsActions/>
+                </StickyFooter>
+            </div>
         </Grid>
     );
 });

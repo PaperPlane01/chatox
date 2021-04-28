@@ -401,7 +401,10 @@ export const ru: Labels = {
     "report.messages.ban-users.error.server-unreachable": "Во время попытки заблокировать авторов сообщений произошла ошибка: сервер недоступен",
     "report.messages.ban-users.error.unknown": "Во время попытки заблокировать авторов сообщений произошла ошибка: сервер ответил со статусом {errorStatus}",
     "report.user": "Пожаловаться на пользователя",
-    "report.user.action.ban-user": "Заблокировать пользователя",
+    "report.user.action.ban-users": "Заблокировать пользователей",
     "report.user.reported-user": "Пользователь",
-    "report.user.list": "Жалобы на пользователей"
+    "report.user.list": "Жалобы на пользователей",
+    "report.user.action.ban-users.success": "Пользователи были заблокированы",
+    "report.user.action.ban-users.error.unknown": "При попытке заблокировать пользователей произошла ошибка. Сервер ответил со статусом {errorStatus}",
+    "report.user.action.ban-users.error.server-unreachable": "При попытке заблокировать пользователей произошла ошибка: сервер недоступен"
 };

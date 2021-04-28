@@ -6,3 +6,4 @@ export * from "./UpdateSelectedReportsStore";
 export * from "./BanSendersOfSelectedMessagesStore";
 export * from "./DeclineSelectedReportsStore";
 export * from "./CurrentReportsListStore";
+export * from "./BanSelectedReportedUsersStore";

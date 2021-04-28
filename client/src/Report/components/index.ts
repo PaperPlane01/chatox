@@ -18,3 +18,6 @@ export * from "./ReportUserMenuItem";
 export * from "./ReportedUsersTable";
 export * from "./ReportedUsersTableRow";
 export * from "./ReportedUsersTableHeader";
+export * from "./BanMessagesSendersButton";
+export * from "./BanReportedUsersDialog";
+export * from "./UserReportsActions";
