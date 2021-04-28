@@ -31,7 +31,7 @@ interface BanUserGloballyDialogBaseProps {
     error?: ApiError,
     onClose: () => void,
     onSubmit: () => void,
-    setFormValue: <Key extends keyof BanUserFormData>(key: Key, value: BanUserFormData[Key]) => void,
+    onFormValueChange: <Key extends keyof BanUserFormData>(key: Key, value: BanUserFormData[Key]) => void,
     getErrorLabel: (error: ApiError, l: TranslationFunction) => string
 }
 
@@ -45,7 +45,7 @@ export const BanUserGloballyDialogBase: FunctionComponent<BanUserGloballyDialogB
     onClose,
     onSubmit,
     getErrorLabel,
-    setFormValue,
+    onFormValueChange,
     submitButtonLabel
 }) => {
    const {l} = useLocalization();
@@ -64,7 +64,7 @@ export const BanUserGloballyDialogBase: FunctionComponent<BanUserGloballyDialogB
            <DialogContent>
                <DateTimePicker value={formValues.expiresAt || null}
                                label={l("global.ban.expires-at")}
-                               onChange={date => setFormValue("expiresAt", date || undefined)}
+                               onChange={date => onFormValueChange("expiresAt", date || undefined)}
                                error={Boolean(formErrors.expiresAt)}
                                helperText={formErrors.expiresAt && l(formErrors.expiresAt)}
                                disabled={formValues.permanent}
@@ -76,12 +76,12 @@ export const BanUserGloballyDialogBase: FunctionComponent<BanUserGloballyDialogB
                                disablePast
                                ampm={false}
                />
-               <GlobalBanReasonSelect onSelect={reason => setFormValue("reason", reason)}
+               <GlobalBanReasonSelect onSelect={reason => onFormValueChange("reason", reason)}
                                       value={formValues.reason}
                />
                <TextField label={l("global.ban.comment")}
                           value={formValues.comment}
-                          onChange={event => setFormValue("comment", event.target.value)}
+                          onChange={event => onFormValueChange("comment", event.target.value)}
                           error={Boolean(formErrors.comment)}
                           helperText={formErrors.comment && l(formErrors.comment)}
                           multiline
@@ -92,7 +92,7 @@ export const BanUserGloballyDialogBase: FunctionComponent<BanUserGloballyDialogB
                />
                <FormControlLabel control={
                    <Checkbox checked={formValues.permanent}
-                             onChange={event => setFormValue("permanent", event.target.checked)}
+                             onChange={event => onFormValueChange("permanent", event.target.checked)}
                    />
                }
                                  label={l("global.ban.permanent")}

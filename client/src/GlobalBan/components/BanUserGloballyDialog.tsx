@@ -65,7 +65,7 @@ export const BanUserGloballyDialog: FunctionComponent = observer(() => {
                                    title={l("global.ban.create.with-user", {username: getUserDisplayedName(user)})}
                                    onClose={() => setBanUserDialogOpen(false)}
                                    onSubmit={banUser}
-                                   setFormValue={setFormValue}
+                                   onFormValueChange={setFormValue}
                                    getErrorLabel={getErrorLabel}
         />
     );

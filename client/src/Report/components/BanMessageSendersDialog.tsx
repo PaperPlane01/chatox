@@ -47,7 +47,7 @@ export const BanMessageSendersDialog: FunctionComponent = observer(() => {
                                    title={l("report.messages.ban-users")}
                                    onClose={() => setBanSendersOfSelectedMessagesDialogOpen(false)}
                                    onSubmit={submitForm}
-                                   setFormValue={setFormValue}
+                                   onFormValueChange={setFormValue}
                                    getErrorLabel={getErrorLabel}
                                    error={error}
                                    submitButtonLabel={l("report.messages.ban-users")}
