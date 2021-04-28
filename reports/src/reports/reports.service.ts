@@ -18,6 +18,8 @@ import {config} from "../config/env.config";
 import {UploadResponse} from "../common/types";
 import {UsersService} from "../users/users.service";
 import {UnsupportedReportTypeException} from "./exceptions/unsupported-report-type.exception";
+import {ChatsService} from "../chats/chats.service";
+import {ChatResponse} from "../chats/types/responses/chat.response";
 
 @Injectable()
 export class ReportsService {
@@ -25,7 +27,8 @@ export class ReportsService {
     
     constructor(@InjectModel(Report.name) private readonly reportsModel: Model<ReportDocument<any>>,
                 private readonly messagesService: MessagesService,
-                private readonly usersService: UsersService) {
+                private readonly usersService: UsersService,
+                private readonly chatsService: ChatsService) {
     }
 
     public async createReport(createReportRequest: CreateReportRequest, ipAddress: string, user?: User): Promise<void> {
@@ -36,6 +39,9 @@ export class ReportsService {
                     break;
                 case ReportType.USER:
                     await this.createUserReport(createReportRequest, ipAddress, user);
+                    break;
+                case ReportType.CHAT:
+                    await this.createChatReport(createReportRequest, ipAddress, user);
                     break;
                 default:
                     throw new UnsupportedReportTypeException(createReportRequest.type);
@@ -76,6 +82,21 @@ export class ReportsService {
             reportedObject: user,
             submittedByIpAddress: ipAddress,
             type: ReportType.USER,
+            submittedById: currentUser ? currentUser.id : undefined
+        });
+
+        await new this.reportsModel(report).save();
+    }
+
+    private async createChatReport(createReportRequest: CreateReportRequest, ipAddress: string, currentUser?: User): Promise<void> {
+        const chat = await this.chatsService.findChatById(createReportRequest.reportedObjectId);
+
+        const report = new Report<ChatResponse>({
+            description: createReportRequest.description,
+            reason: createReportRequest.reason,
+            reportedObject: chat,
+            submittedByIpAddress: ipAddress,
+            type: ReportType.CHAT,
             submittedById: currentUser ? currentUser.id : undefined
         });
 
@@ -172,6 +193,8 @@ export class ReportsService {
                 return this.fixMessageUploadsUris(reportedObject as unknown as MessageResponse) as unknown as ReportedObject;
             case ReportType.USER:
                 return this.fixUserAvatarUri(reportedObject as unknown as UserResponse) as unknown as ReportedObject;
+            case ReportType.CHAT:
+                return this.fixChatAvatarUri(reportedObject as undefined as ChatResponse) as unknown as ReportedObject;
             default:
                 return reportedObject;
         }
@@ -208,6 +231,17 @@ export class ReportsService {
             ...message,
             attachments,
             sender
+        };
+    }
+
+    private fixChatAvatarUri(chat: ChatResponse): ChatResponse {
+        if (!chat.avatar) {
+            return chat;
+        }
+
+        return {
+            ...chat,
+            avatar: this.fixUploadUri(chat.avatar)
         };
     }
 

@@ -8,6 +8,8 @@ import {AxiosModule} from "./axios/axios.module";
 import {AuthModule} from "./auth/auth.module";
 import {config} from "./config/env.config";
 import {UsersModule} from "./users/users.module";
+import {ChatsService} from './chats/chats.service';
+import {ChatsModule} from './chats/chats.module';
 
 @Module({
     imports: [
@@ -18,7 +20,9 @@ import {UsersModule} from "./users/users.module";
         AxiosModule,
         AuthModule,
         MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.REPORTS_SERVICE_DATABASE_NAME}`),
-        UsersModule
-    ]
+        UsersModule,
+        ChatsModule
+    ],
+    providers: [ChatsService]
 })
 export class AppModule {}
