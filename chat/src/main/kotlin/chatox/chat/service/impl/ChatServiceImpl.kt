@@ -6,6 +6,7 @@ import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
+import chatox.chat.api.response.ChatResponseWithCreatorId
 import chatox.chat.exception.InvalidChatDeletionCommentException
 import chatox.chat.exception.InvalidChatDeletionReasonException
 import chatox.chat.exception.SlugIsAlreadyInUseException
@@ -138,7 +139,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     override fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse> {
         return mono {
             assertCanUpdateChat(id).awaitFirst()
-            var chat = findChatById(id).awaitFirst()
+            var chat = findChatByIdInternal(id).awaitFirst()
 
             if (chat.deleted) {
                 throw ChatDeletedException(chat.chatDeletion)
@@ -299,7 +300,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             }
 
             chatParticipations.map { chatParticipation ->
-                val chat = findChatById(chatParticipation.chatId, true).awaitFirst()
+                val chat = findChatByIdInternal(chatParticipation.chatId, true).awaitFirst()
                 val lastReadMessage = if (chatParticipation.lastReadMessageId != null) {
                     messageCacheWrapper.findById(chatParticipation.lastReadMessageId!!).awaitFirst()
                 } else null
@@ -372,9 +373,14 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     }
 
     override fun findChatEntityById(id: String): Mono<Chat> {
-        return findChatById(id, true)
+        return findChatByIdInternal(id, true)
     }
 
-    private fun findChatById(id: String, retrieveFromCache: Boolean = false) = chatRepository.findById(id)
+    override fun findChatById(id: String): Mono<ChatResponseWithCreatorId> {
+        return findChatByIdInternal(id)
+                .map { chat -> chatMapper.toChatResponseWithCreatorId(chat) }
+    }
+
+    private fun findChatByIdInternal(id: String, retrieveFromCache: Boolean = false) = chatRepository.findById(id)
             .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
 }
