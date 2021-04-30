@@ -9,5 +9,6 @@ export interface ChatResponse {
     slug?: string,
     tags: string[],
     createdAt: string,
-    avatar: UploadResponse
+    avatar: UploadResponse,
+    createdById: string
 }

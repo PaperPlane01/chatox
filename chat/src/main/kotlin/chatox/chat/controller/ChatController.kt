@@ -45,6 +45,10 @@ class ChatController(private val chatService: ChatService) {
     @GetMapping("/{idOrSlug}")
     fun findChatByIdOrSlug(@PathVariable idOrSlug: String) = chatService.findChatBySlugOrId(idOrSlug)
 
+    @PreAuthorize("hasAuthority('SCOPE_internal_reports_service')")
+    @GetMapping("/{id}/with-creator-id")
+    fun findChatByIdAndIncludeCreatorId(@PathVariable id: String) = chatService.findChatById(id);
+
     @PaginationConfig(
             sortBy = SortBy(allowed = ["createdAt", "name"], defaultValue = "createdAt")
     )

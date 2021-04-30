@@ -17,7 +17,7 @@ export class ChatsService {
         const baseUrl = this.eurekaService.getUrlForService("chat-service");
 
         try {
-            const response = await this.axios.get<ChatResponse>(`${baseUrl}/api/v1/chats/${chatId}`);
+            const response = await this.axios.get<ChatResponse>(`${baseUrl}/api/v1/chats/${chatId}/with-creator-id`);
 
             return response.data;
         } catch (error) {
