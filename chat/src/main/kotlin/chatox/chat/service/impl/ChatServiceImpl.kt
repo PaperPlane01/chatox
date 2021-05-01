@@ -33,9 +33,7 @@ import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.MessageRepository
 import chatox.chat.repository.UploadRepository
 import chatox.chat.security.AuthenticationFacade
-import chatox.chat.security.access.ChatPermissions
 import chatox.chat.service.ChatService
-import chatox.chat.service.MessageService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
@@ -44,10 +42,8 @@ import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.ObjectUtils
@@ -68,20 +64,11 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationMapper: ChatParticipationMapper,
                       private val authenticationFacade: AuthenticationFacade,
                       private val chatEventsPublisher: ChatEventsPublisher,
-                      private val messageService: MessageService,
                       private val timeService: TimeService) : ChatService {
-
-    private lateinit var chatPermissions: ChatPermissions
     private val log = LoggerFactory.getLogger(this.javaClass)
-
-    @Autowired
-    fun setChatPermissions(chatPermissions: ChatPermissions) {
-        this.chatPermissions = chatPermissions;
-    }
 
     override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatOfCurrentUserResponse> {
         return mono {
-            assertCanCreateChat().awaitFirst()
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
             val chat = chatMapper.fromCreateChatRequest(
                     createChatRequest = createChatRequest,
@@ -125,20 +112,8 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         }
     }
 
-    private fun assertCanCreateChat(): Mono<Boolean> {
-        return chatPermissions.canCreateChat()
-                .flatMap { canCreateChat ->
-                    if (canCreateChat) {
-                        Mono.just(canCreateChat)
-                    } else {
-                        Mono.error(AccessDeniedException("Can't create chat"))
-                    }
-                 }
-    }
-
     override fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse> {
         return mono {
-            assertCanUpdateChat(id).awaitFirst()
             var chat = findChatByIdInternal(id).awaitFirst()
 
             if (chat.deleted) {
@@ -187,21 +162,8 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         }
     }
 
-    private fun assertCanUpdateChat(chatId: String): Mono<Boolean> {
-        return chatPermissions.canUpdateChat(chatId)
-                .flatMap {
-                    if (it) {
-                        Mono.just(it)
-                    } else {
-                        Mono.error<Boolean>(AccessDeniedException("Can't update chat"))
-                    }
-                }
-    }
-
     override fun deleteChat(id: String, deleteChatRequest: DeleteChatRequest?): Mono<Void> {
         return mono {
-            assertCanDeleteChat(id).awaitFirst()
-
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
             var chat = chatRepository.findById(id).awaitFirst()
 
@@ -249,17 +211,6 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             Mono.empty<Void>()
         }
                 .flatMap { it }
-    }
-
-    private fun assertCanDeleteChat(chatId: String): Mono<Boolean> {
-        return chatPermissions.canDeleteChat(chatId)
-                .flatMap {
-                    if (it) {
-                        Mono.just(it)
-                    } else {
-                        Mono.error<Boolean>(AccessDeniedException("Can't delete chat"))
-                    }
-                }
     }
 
     override fun findChatBySlugOrId(slugOrId: String): Mono<ChatResponse> {

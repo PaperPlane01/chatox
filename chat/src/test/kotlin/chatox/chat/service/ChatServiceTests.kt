@@ -25,10 +25,8 @@ import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.MessageRepository
 import chatox.chat.repository.UploadRepository
 import chatox.chat.security.AuthenticationFacade
-import chatox.chat.security.access.ChatPermissions
 import chatox.chat.service.impl.ChatServiceImpl
 import chatox.platform.time.TimeService
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -37,7 +35,6 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
-import org.springframework.security.access.AccessDeniedException
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import java.time.ZonedDateTime
@@ -79,18 +76,10 @@ class ChatServiceTests {
     lateinit var chatEventsPublisher: ChatEventsPublisher
 
     @Mock
-    lateinit var chatPermissions: ChatPermissions
-
-    @Mock
     lateinit var timeService: TimeService
 
     @Mock
     lateinit var messageService: MessageService
-
-    @BeforeEach
-    fun setChatPermissions() {
-        chatService.setChatPermissions(chatPermissions)
-    }
 
     @Nested
     @DisplayName("updateChat() tests")
@@ -126,32 +115,9 @@ class ChatServiceTests {
         )
 
         @Test
-        @DisplayName("It throws AccessDeniedException if user has no authority to update this chat")
-        fun `It throws AccessDeniedException if user has no authority to update this chat`() {
-            // Setup test
-            Mockito.`when`(chatPermissions.canUpdateChat(chatId)).thenReturn(Mono.just(false))
-
-            // Run test
-            val updateChatRequest = UpdateChatRequest(
-                    _name = "test"
-            )
-            val result = chatService.updateChat(
-                    id = chatId,
-                    updateChatRequest = updateChatRequest
-            )
-
-            // Verify result
-            StepVerifier
-                    .create(result)
-                    .expectError(AccessDeniedException::class.java)
-                    .verify()
-        }
-
-        @Test
         @DisplayName("It throws ChatNotFoundException if chat is not found")
         fun `It throws ChatNotFoundException if chat is not found`() {
             // Setup test
-            Mockito.`when`(chatPermissions.canUpdateChat(chatId)).thenReturn(Mono.just(true))
             Mockito.`when`(chatRepository.findById(chatId)).thenReturn(Mono.empty())
 
             // Run test
@@ -174,7 +140,6 @@ class ChatServiceTests {
         @DisplayName("It throws ChatDeletedException if chat is deleted")
         fun `It throws ChatDeletedException if chat is deleted`() {
             // Setup test
-            Mockito.`when`(chatPermissions.canUpdateChat(chatId)).thenReturn(Mono.just(true))
             Mockito.`when`(chatRepository.findById(chatId)).thenReturn(
                     Mono.just(chat.copy(deleted = true))
             )
@@ -200,7 +165,6 @@ class ChatServiceTests {
         fun `It throws SlugIsAlreadyInUseException if provided slug has already been taken`() {
             // Setup test
             val slug = "new_slug"
-            Mockito.`when`(chatPermissions.canUpdateChat(chatId)).thenReturn(Mono.just(true))
             Mockito.`when`(chatRepository.findById(chatId)).thenReturn(Mono.just(chat))
             Mockito.`when`(chatRepository.existsBySlugOrId(slug, slug)).thenReturn(Mono.just(true))
 
@@ -225,7 +189,6 @@ class ChatServiceTests {
         fun `It throws UploadNotFoundException if image with provided avatarId was not found`() {
             // Setup test
             val avatarId = "avatarId"
-            Mockito.`when`(chatPermissions.canUpdateChat(chatId)).thenReturn(Mono.just(true))
             Mockito.`when`(chatRepository.findById(chatId)).thenReturn(Mono.just(chat))
             Mockito.`when`(uploadRepository.findByIdAndType<ImageUploadMetadata>(
                     id = avatarId,
@@ -269,7 +232,6 @@ class ChatServiceTests {
             )
             val chatUpdatedEvent = toChatUpdated(chat)
             val chatResponse = toChatResponse(chat)
-            Mockito.`when`(chatPermissions.canUpdateChat(chatId)).thenReturn(Mono.just(true))
             Mockito.`when`(chatRepository.findById(chatId)).thenReturn(Mono.just(chat))
             Mockito.`when`(chatRepository.existsBySlugOrId(updateChatRequest.slug!!, updateChatRequest.slug!!)).thenReturn(Mono.just(false))
             Mockito.`when`(uploadRepository.findByIdAndType<ImageUploadMetadata>(

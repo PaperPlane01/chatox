@@ -6,6 +6,7 @@ import chatox.platform.pagination.PaginationRequest
 import chatox.platform.pagination.annotation.PaginationConfig
 import chatox.platform.pagination.annotation.SortBy
 import chatox.platform.pagination.annotation.SortDirection
+import chatox.platform.security.reactive.annotation.ReactivePermissionCheck
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -25,10 +26,14 @@ import javax.validation.Valid
 class ChatParticipationController(private val chatParticipationService: ChatParticipationService) {
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@chatParticipationPermissions.canJoinChat(#chatId)")
     @PostMapping("/{chatId}/join")
     fun joinChat(@PathVariable chatId: String) = chatParticipationService.joinChat(chatId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@chatParticipationPermissions.canLeaveChat(#chatId)")
     @DeleteMapping("/{chatId}/leave")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun leaveChat(@PathVariable chatId: String) = chatParticipationService.leaveChat(chatId)
@@ -36,14 +41,18 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     @GetMapping("/{chatId}/participants/online")
     fun getOnlineChatParticipants(@PathVariable chatId: String) = chatParticipationService.findOnlineParticipants(chatId)
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@chatParticipationPermissions.canKickChatParticipant(#chatId, #participationId)")
     @DeleteMapping("/{chatId}/participants/{participationId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun kickParticipant(@PathVariable chatId: String,
                         @PathVariable participationId: String
     ) = chatParticipationService.deleteChatParticipation(participationId, chatId)
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@chatParticipationPermissions.canUpdateChatParticipant(#chatId, #participationId)")
     @PutMapping("/{chatId}/participants/{participationId}")
     fun updateChatParticipant(@PathVariable chatId: String,
                               @PathVariable participationId: String,

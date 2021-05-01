@@ -8,6 +8,7 @@ import chatox.platform.pagination.annotation.PageSize
 import chatox.platform.pagination.annotation.PaginationConfig
 import chatox.platform.pagination.annotation.SortBy
 import chatox.platform.pagination.annotation.SortDirection
+import chatox.platform.security.reactive.annotation.ReactivePermissionCheck
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -27,12 +28,16 @@ import javax.validation.Valid
 class ChatMessageController(private val messageService: MessageService) {
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canCreateMessage(#chatId)")
     @PostMapping("/{chatId}/messages")
     fun createMessage(@PathVariable chatId: String,
                       @RequestBody @Valid createMessageRequest: CreateMessageRequest
     ) = messageService.createMessage(chatId, createMessageRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canUpdateMessage(#messageId, #chatId)")
     @PutMapping("/{chatId}/messages/{messageId}")
     fun updateMessage(@PathVariable chatId: String,
                       @PathVariable messageId: String,
@@ -43,6 +48,8 @@ class ChatMessageController(private val messageService: MessageService) {
     fun findPinnedMessageByChat(@PathVariable chatId: String) = messageService.findPinnedMessageByChat(chatId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canDeleteMessage(#messageId, #chatId)")
     @DeleteMapping("/{chatId}/messages/{messageId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteMessage(@PathVariable chatId: String,
@@ -86,12 +93,16 @@ class ChatMessageController(private val messageService: MessageService) {
     fun findScheduledMessagesBuChat(@PathVariable("chatId") chatId: String) = messageService.findScheduledMessagesByChat(chatId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canUpdateScheduledMessage(#messageId, #chatId)")
     @DeleteMapping("/{chatId}/messages/scheduled/{messageId}")
     fun deleteScheduledMessage(@PathVariable chatId: String,
                                @PathVariable messageId: String
     ) = messageService.deleteScheduledMessage(chatId, messageId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canUpdateScheduledMessage(#messageId, #chatId)")
     @PutMapping("/{chatId}/messages/scheduled/{messageId}")
     fun updateScheduledMessage(@PathVariable chatId: String,
                                @PathVariable messageId: String,
@@ -111,12 +122,16 @@ class ChatMessageController(private val messageService: MessageService) {
     ) = messageService.markMessageRead(messageId)
 
     @PreAuthorize("hasRole('USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canPinMessage(#messageId, #chatId)")
     @PostMapping("/{chatId}/messages/{messageId}/pin")
     fun pinMessage(@PathVariable chatId: String,
                    @PathVariable messageId: String
     ) = messageService.pinMessage(messageId, chatId)
 
     @PreAuthorize("hasRole('USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canUnpinMessage(#messageId, #chatId)")
     @DeleteMapping("/{chatId}/messages/{messageId}/unpin")
     fun unpinMessage(@PathVariable chatId: String,
                      @PathVariable messageId: String

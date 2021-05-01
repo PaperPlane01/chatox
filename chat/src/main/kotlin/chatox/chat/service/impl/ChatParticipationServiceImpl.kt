@@ -17,7 +17,6 @@ import chatox.chat.model.User
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
 import chatox.chat.security.AuthenticationFacade
-import chatox.chat.security.access.ChatParticipationPermissions
 import chatox.chat.service.ChatParticipationService
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
@@ -25,8 +24,6 @@ import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
@@ -42,18 +39,10 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                                    private val chatParticipationMapper: ChatParticipationMapper,
                                    private val chatEventsPublisher: ChatEventsPublisher,
                                    private val authenticationFacade: AuthenticationFacade): ChatParticipationService {
-    private lateinit var chatParticipationPermissions: ChatParticipationPermissions
     private val log = LoggerFactory.getLogger(this::class.java)
-
-    @Autowired
-    fun setChatParticipationPermissions(chatParticipationPermissions: ChatParticipationPermissions) {
-        this.chatParticipationPermissions = chatParticipationPermissions
-    }
 
     override fun joinChat(chatId: String): Mono<ChatParticipationMinifiedResponse> {
         return mono {
-            assertCanJoinChat(chatId).awaitFirst()
-
             val chat = chatRepository.findById(chatId).awaitFirst()
 
             if (chat.deleted) {
@@ -101,21 +90,8 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
         }
     }
 
-    private fun assertCanJoinChat(chatId: String): Mono<Boolean> {
-        return chatParticipationPermissions.canJoinChat(chatId)
-                .map {
-                    if (it) {
-                        Mono.just(it)
-                    } else {
-                        Mono.error<Boolean>(AccessDeniedException("Can't join chat"))
-                    }
-                }
-                .flatMap { it }
-    }
-
     override fun leaveChat(chatId: String): Mono<Void> {
         return mono {
-            assertCanLeaveChat(chatId).awaitFirst()
             val chat = chatRepository.findById(chatId).awaitFirst()
             val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
 
@@ -145,25 +121,12 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 .flatMap { it }
     }
 
-    private fun assertCanLeaveChat(chatId: String): Mono<Boolean> {
-        return chatParticipationPermissions.canLeaveChat(chatId)
-                .flatMap {
-                    if (it) {
-                        Mono.just(it)
-                    } else {
-                        Mono.error<Boolean>(AccessDeniedException("Can't leave chat"))
-                    }
-                }
-    }
-
     override fun updateChatParticipation(
             id: String,
             chatId: String,
             updateChatParticipationRequest: UpdateChatParticipationRequest
     ): Mono<ChatParticipationResponse> {
         return mono {
-            assertCanUpdateChatParticipation(chatId = chatId, chatParticipationId = id).awaitFirst()
-
             var chatParticipation = findChatParticipationByIdAndChatId(id, chatId).awaitFirst()
             chatParticipation = chatParticipationMapper.mapChatParticipationUpdate(
                     updateChatParticipationRequest = updateChatParticipationRequest,
@@ -184,22 +147,8 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 .switchIfEmpty(Mono.error(ChatParticipationNotFoundException("Could not find chat participation with id $id and chatId $chatId")))
     }
 
-    private fun assertCanUpdateChatParticipation(chatId: String, chatParticipationId: String): Mono<Boolean> {
-        return chatParticipationPermissions.canUpdateChatParticipant(chatId, chatParticipationId)
-                .flatMap {
-                    if (it) {
-                        Mono.just(it)
-                    } else {
-                        Mono.error<Boolean>(AccessDeniedException("Can't update chat participation"))
-                    }
-                }
-    }
-
     override fun deleteChatParticipation(id: String, chatId: String): Mono<Void> {
         return mono {
-            log.info("Asserting can delete chat participation")
-            assertCanDeleteChatParticipation(id, chatId).awaitFirst()
-
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
 
             var chatParticipation = chatParticipationRepository.findByIdAndDeletedFalse(id).awaitFirst()
@@ -232,17 +181,6 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
             Mono.empty<Void>()
         }
                 .flatMap { it }
-    }
-
-    private fun assertCanDeleteChatParticipation(id: String, chatId: String): Mono<Boolean> {
-        return chatParticipationPermissions.canKickChatParticipant(chatId, id)
-                .flatMap {
-                    if (it) {
-                        Mono.just(it)
-                    } else {
-                        Mono.error<Boolean>(AccessDeniedException("Can't delete chat participation"))
-                    }
-                }
     }
 
     override fun findParticipantsOfChat(chatId: String, paginationRequest: PaginationRequest): Flux<ChatParticipationResponse> {
