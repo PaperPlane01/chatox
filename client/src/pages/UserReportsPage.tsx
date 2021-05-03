@@ -5,7 +5,7 @@ import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
 import {HasRole} from "../Authorization";
 import {
-    BanReportedUsersDialog,
+    BanReportedUsersDialog, RejectReportsSnackbarManager,
     ReportedUsersTable, UserReportsActions
 } from "../Report";
 import {useLocalization} from "../store/hooks";
@@ -39,6 +39,7 @@ export const UserReportsPage: FunctionComponent = observer(() => {
                     <UserReportsActions/>
                 </StickyFooter>
             </div>
+            <RejectReportsSnackbarManager/>
         </Grid>
     );
 });

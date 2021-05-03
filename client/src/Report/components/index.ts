@@ -26,3 +26,7 @@ export * from "./ReportChatDialog";
 export * from "./ReportedChatsTable";
 export * from "./ReportedUsersTableHeader";
 export * from "./ReportedChatsTableRow";
+export * from "./BanChatsCreatorsButton"
+export * from "./DeleteChatsButton";
+export * from "./ChatReportsActions";
+export * from "./BanChatsCreatorsDialog";

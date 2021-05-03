@@ -4,7 +4,7 @@ import {Grid, Typography} from "@material-ui/core";
 import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
 import {HasRole} from "../Authorization";
-import {ReportedChatsTable} from "../Report";
+import {BanChatsCreatorsDialog, ChatReportsActions, RejectReportsSnackbarManager, ReportedChatsTable} from "../Report";
 import {useLocalization} from "../store/hooks";
 
 const StickyFooter = require("react-sticky-footer").default;
@@ -30,6 +30,13 @@ export const ChatReportsPage: FunctionComponent = observer(() => {
                     </HasRole>
                 </Layout>
             </Grid>
+            <div style={{width: "100%"}}>
+                <StickyFooter stickyStyles={{width: "100%"}} fixedStyles={{width: "100%"}}>
+                    <ChatReportsActions/>
+                </StickyFooter>
+            </div>
+            <RejectReportsSnackbarManager/>
+            <BanChatsCreatorsDialog/>
         </Grid>
     );
 });
