@@ -2,6 +2,8 @@ package chatox.chat.service.impl
 
 import chatox.chat.api.request.CreateChatRequest
 import chatox.chat.api.request.DeleteChatRequest
+import chatox.chat.api.request.DeleteChatRequestWithChatId
+import chatox.chat.api.request.DeleteMultipleChatsRequest
 import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
@@ -379,6 +381,47 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     override fun findChatById(id: String): Mono<ChatResponseWithCreatorId> {
         return findChatByIdInternal(id)
                 .map { chat -> chatMapper.toChatResponseWithCreatorId(chat) }
+    }
+
+    override fun deleteMultipleChats(deleteMultipleChatsRequest: DeleteMultipleChatsRequest): Mono<Void> {
+        return mono {
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val chatIds = deleteMultipleChatsRequest.chatDeletions.map { chatDeletion -> chatDeletion.chatId }
+            var chats = chatRepository.findAllById(chatIds).collectList().awaitFirst()
+            val chatDeletionsMap = transformChatDeletionsToMap(deleteMultipleChatsRequest.chatDeletions)
+
+            chats = chats.map { chat -> chat.copy(
+                    deletedById = currentUser.id,
+                    deletedAt = timeService.now(),
+                    chatDeletion = ChatDeletion(
+                            id = UUID.randomUUID().toString(),
+                            comment = chatDeletionsMap[chat.id]!!.comment,
+                            deletionReason = chatDeletionsMap[chat.id]!!.reason
+                    )
+            ) }
+
+            chatRepository.saveAll(chats).collectList().awaitFirst()
+            chats.forEach { chat -> Mono.fromRunnable<Void> {
+                chatEventsPublisher.chatDeleted(
+                        ChatDeleted(
+                                id = chat.id,
+                                comment = chat.chatDeletion?.comment,
+                                reason = chat.chatDeletion?.deletionReason
+                        )
+                )
+            }
+                    .subscribe()
+            }
+        }
+                .flatMap { Mono.empty<Void>() }
+    }
+
+    private fun transformChatDeletionsToMap(chatDeletions: List<DeleteChatRequestWithChatId>): Map<String, DeleteChatRequestWithChatId> {
+        val map = HashMap<String, DeleteChatRequestWithChatId>()
+
+        chatDeletions.forEach { chatDeletion -> map[chatDeletion.chatId] = chatDeletion }
+
+        return map
     }
 
     private fun findChatByIdInternal(id: String, retrieveFromCache: Boolean = false) = chatRepository.findById(id)

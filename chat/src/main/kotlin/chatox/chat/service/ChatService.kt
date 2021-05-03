@@ -2,6 +2,7 @@ package chatox.chat.service
 
 import chatox.chat.api.request.CreateChatRequest
 import chatox.chat.api.request.DeleteChatRequest
+import chatox.chat.api.request.DeleteMultipleChatsRequest
 import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
@@ -24,4 +25,5 @@ interface ChatService {
     fun getPopularChats(paginationRequest: PaginationRequest): Flux<ChatResponse>
     fun findChatEntityById(id: String): Mono<Chat>
     fun findChatById(id: String): Mono<ChatResponseWithCreatorId>
+    fun deleteMultipleChats(deleteMultipleChatsRequest: DeleteMultipleChatsRequest): Mono<Void>
 }

@@ -2,6 +2,7 @@ package chatox.chat.controller
 
 import chatox.chat.api.request.CreateChatRequest
 import chatox.chat.api.request.DeleteChatRequest
+import chatox.chat.api.request.DeleteMultipleChatsRequest
 import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.service.ChatService
 import chatox.platform.pagination.PaginationRequest
@@ -32,6 +33,10 @@ class ChatController(private val chatService: ChatService) {
     @PutMapping("/{id}")
     fun updateChat(@PathVariable id: String,
                    @RequestBody @Valid updateChatRequest: UpdateChatRequest) = chatService.updateChat(id, updateChatRequest)
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping
+    fun deleteMultipleChats(@RequestBody @Valid deleteMultipleChatsRequest: DeleteMultipleChatsRequest) = chatService.deleteMultipleChats(deleteMultipleChatsRequest)
 
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}")
