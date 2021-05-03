@@ -416,5 +416,6 @@ export const ru: Labels = {
     "report.chat.action.delete-chats": "Удалить чаты",
     "report.chat.action.delete-chats.success": "Чаты были удалены",
     "report.chat.action.delete-chats.error.unknown": "Во время попытки удалить чаты произошла ошибка. Сервер ответил со статусом {errorStatus}",
-    "report.chat.action.delete-chats.error.server-unreachable": "Во время попытки удалить чаты произошла ошибка: сервер недоступен"
+    "report.chat.action.delete-chats.error.server-unreachable": "Во время попытки удалить чаты произошла ошибка: сервер недоступен",
+    "report.chat.reported-chat": "Чат"
 };

@@ -1,7 +1,7 @@
-import React, {FunctionComponent, useState, Fragment} from "react";
+import React, {Fragment, FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText, createStyles, makeStyles, Theme, Tooltip} from "@material-ui/core";
-import {Report, Message, ChatBubble, Person, ArrowUpward, ArrowDownward} from "@material-ui/icons";
+import {createStyles, ListItemIcon, ListItemText, makeStyles, MenuItem, Theme} from "@material-ui/core";
+import {ArrowDownward, ArrowUpward, ChatBubble, Message, Person, Report} from "@material-ui/icons";
 import {useLocalization, useRouter} from "../../store/hooks";
 import {Routes} from "../../router";
 
@@ -70,18 +70,19 @@ export const ReportsMenuItem: FunctionComponent<ReportsMenuItemProps> = observer
                             </ListItemText>
                         </MenuItem>
                     </Link>
-                    <Tooltip title={l("feature.not-available")}>
-                        <div>
-                            <MenuItem disabled>
-                                <ListItemIcon>
-                                    <ChatBubble/>
-                                </ListItemIcon>
-                                <ListItemText>
-                                    {l("report.drawer.chats")}
-                                </ListItemText>
-                            </MenuItem>
-                        </div>
-                    </Tooltip>
+                    <Link store={routerStore}
+                          className={classes.undecoratedLink}
+                          view={Routes.reportedChats}
+                    >
+                        <MenuItem onClick={handleClick}>
+                            <ListItemIcon>
+                                <ChatBubble/>
+                            </ListItemIcon>
+                            <ListItemText>
+                                {l("report.drawer.chats")}
+                            </ListItemText>
+                        </MenuItem>
+                    </Link>
                 </div>
             )}
         </Fragment>

@@ -414,5 +414,6 @@ export interface Labels {
     "report.chat.action.delete-chats": string,
     "report.chat.action.delete-chats.success": string,
     "report.chat.action.delete-chats.error.unknown": string,
-    "report.chat.action.delete-chats.error.server-unreachable": string
+    "report.chat.action.delete-chats.error.server-unreachable": string,
+    "report.chat.reported-chat": string
 }

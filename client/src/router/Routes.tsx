@@ -26,6 +26,7 @@ const GlobalBansPage = lazy(() => import("../pages/GlobalBansPage"));
 const ScheduledMessagesPage = lazy(() => import("../pages/ScheduledMessagesPage"));
 const MessageReportsPage = lazy(() => import("../pages/MessageReportsPage"));
 const UserReportsPage = lazy(() => import("../pages/UserReportsPage"));
+const ChatReportsPage = lazy(() => import("../pages/ChatReportsPage"));
 
 const {Route} = require("mobx-router");
 
@@ -204,6 +205,23 @@ export const Routes = {
         },
         onExit: () => {
             store.userReports.reset();
+        }
+    }),
+    reportedChats: new Route({
+        path: "/reports/chats",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <ChatReportsPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: () => {
+            store.currentReportsList.setCurrentReportsList(store.chatReports);
+            store.chatReports.fetchReports();
+        },
+        onExit: () => {
+            store.chatReports.reset();
         }
     })
 };

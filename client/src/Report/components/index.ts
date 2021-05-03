@@ -23,3 +23,6 @@ export * from "./BanReportedUsersDialog";
 export * from "./UserReportsActions";
 export * from "./ReportChatMenuItem";
 export * from "./ReportChatDialog";
+export * from "./ReportedChatsTable";
+export * from "./ReportedUsersTableHeader";
+export * from "./ReportedChatsTableRow";

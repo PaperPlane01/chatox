@@ -416,5 +416,6 @@ export const en: Labels = {
     "report.chat.action.delete-chats": "Delete chats",
     "report.chat.action.delete-chats.success": "Chats have been deleted",
     "report.chat.action.delete-chats.error.unknown": "Error occurred when tried to delete chats. Server responded with {errorStatus} status",
-    "report.chat.action.delete-chats.error.server-unreachable": "Error occurred when tried to delete chats: server is unreachable"
+    "report.chat.action.delete-chats.error.server-unreachable": "Error occurred when tried to delete chats: server is unreachable",
+    "report.chat.reported-chat": "Reported chat"
 };
