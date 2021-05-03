@@ -27,7 +27,7 @@ export const ReportedChatsTable: FunctionComponent = observer(() => {
 
     return (
         <Card>
-            <CardHeader title={l("report.list.messages")}/>
+            <CardHeader title={l("report.chat.list")}/>
             <CardContent>
                 <ShowNotViewedOnlySwitch/>
                 <Table>
