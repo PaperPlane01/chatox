@@ -4,6 +4,7 @@ import {axiosInstance} from "../axios-instance";
 import {
     CreateChatRequest,
     DeleteChatRequest,
+    DeleteMultipleMessagesRequest,
     PaginationRequest,
     UpdateChatParticipantRequest,
     UpdateChatRequest
@@ -85,5 +86,9 @@ export class ChatApi {
 
     public static updateChatParticipant(chatId: string, chatParticipantId: string, updateChatParticipantRequest: UpdateChatParticipantRequest): AxiosPromise<ChatParticipation> {
         return axiosInstance.put(`/${CHATS}/${chatId}/${PARTICIPANTS}/${chatParticipantId}`, updateChatParticipantRequest);
+    }
+
+    public static deleteMultipleChats(deleteMultipleChatsRequest: DeleteMultipleMessagesRequest): AxiosPromise<void> {
+        return axiosInstance.delete(`/${CHATS}`, {data: deleteMultipleChatsRequest});
     }
 }
