@@ -6,7 +6,7 @@ import {
     ChatDeletionReason,
     ChatOfCurrentUser,
     ChatParticipation,
-    ChatRole,
+    ChatRole, ChatWithCreatorId,
     CurrentUser,
     GlobalBan,
     Message,
@@ -20,7 +20,7 @@ import {UploadsStore} from "../Upload/stores";
 import {ChatUpdated} from "../api/types/websocket";
 import {PartialBy} from "../utils/types";
 import {GlobalBansStore} from "../GlobalBan/stores";
-import {ReportsStore} from "../Report/stores";
+import {ReportedChatsStore, ReportsStore} from "../Report/stores";
 
 type DecreaseChatParticipantsCountCallback = (chatParticipation?: ChatParticipationEntity, currentUser?: CurrentUser) => boolean;
 
@@ -49,7 +49,8 @@ export class EntitiesStore {
         public reports: ReportsStore,
         public reportedMessages: MessagesStore,
         public reportedMessagesSenders: UsersStore,
-        public reportedUsers: UsersStore
+        public reportedUsers: UsersStore,
+        public reportedChats: ReportedChatsStore
     ) {
     }
 
@@ -319,6 +320,8 @@ export class EntitiesStore {
                 this.insertUserReport(report);
                 return;
             case ReportType.CHAT:
+                this.insertChatReport(report);
+                return;
             default:
                 return;
         }
@@ -363,6 +366,26 @@ export class EntitiesStore {
     }
 
     @action
+    insertChatReports = (reports: Array<Report<ChatWithCreatorId>>): void => {
+        reports.forEach(report => this.insertChatReport(report));
+    }
+
+    @action
+    insertChatReport = (report: Report<ChatWithCreatorId>): void => {
+        this.insertReportedChat(report.reportedObject);
+        this.reports.insert(report);
+    }
+
+    @action
+    insertReportedChat = (reportedChat: ChatWithCreatorId): void => {
+        if (reportedChat.avatar) {
+            this.uploads.insert(reportedChat.avatar);
+        }
+
+        this.reportedChats.insert(reportedChat);
+    }
+
+    @action
     deleteAllReports = (reportType: ReportType): void => {
         this.reports.deleteAll();
 
@@ -375,6 +398,8 @@ export class EntitiesStore {
                 this.reportedUsers.deleteAll();
                 return;
             case ReportType.CHAT:
+                this.reportedChats.deleteAll();
+                return;
             default:
                 return;
         }

@@ -95,7 +95,7 @@ import {
     BanSendersOfSelectedMessagesStore,
     CreateReportStore,
     CurrentReportsListStore,
-    DeclineSelectedReportsStore,
+    DeclineSelectedReportsStore, ReportedChatsStore,
     ReportedMessageDialogStore,
     ReportsListStore,
     ReportsStore,
@@ -117,6 +117,7 @@ const reports = new ReportsStore();
 const reportedMessages = new MessagesStore();
 const reportedMessagesSenders = new UsersStore();
 const reportedUsers = new UsersStore();
+const reportedChats = new ReportedChatsStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
@@ -130,7 +131,8 @@ const entities = new EntitiesStore(
     reports,
     reportedMessages,
     reportedMessagesSenders,
-    reportedUsers
+    reportedUsers,
+    reportedChats
 );
 const authorization = new AuthorizationStore(entities);
 
