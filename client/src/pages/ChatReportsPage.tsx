@@ -15,7 +15,7 @@ export const ChatReportsPage: FunctionComponent = observer(() => {
     return (
         <Grid container>
             <Grid item xs={12}>
-                <AppBar title="report.user.list"/>
+                <AppBar title="report.chat.list"/>
             </Grid>
             <Grid item xs={12}>
                 <Layout>
