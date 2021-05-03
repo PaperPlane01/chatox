@@ -20,8 +20,8 @@ export const BanMessageSendersDialog: FunctionComponent = observer(() => {
             formValues,
             formErrors,
             submitForm,
-            banSendersOfSelectedMessagesDialogOpen,
-            setBanSendersOfSelectedMessagesDialogOpen,
+            banUsersDialogOpen,
+            setBanUsersDialogOpen,
             setFormValue,
             pending,
             error,
@@ -42,10 +42,10 @@ export const BanMessageSendersDialog: FunctionComponent = observer(() => {
     return (
         <BanUserGloballyDialogBase formValues={formValues}
                                    formErrors={formErrors}
-                                   open={banSendersOfSelectedMessagesDialogOpen}
+                                   open={banUsersDialogOpen}
                                    pending={pending}
                                    title={l("report.messages.ban-users")}
-                                   onClose={() => setBanSendersOfSelectedMessagesDialogOpen(false)}
+                                   onClose={() => setBanUsersDialogOpen(false)}
                                    onSubmit={submitForm}
                                    onFormValueChange={setFormValue}
                                    getErrorLabel={getErrorLabel}

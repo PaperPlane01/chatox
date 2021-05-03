@@ -79,8 +79,6 @@ import {
     UpdateGlobalBanStore
 } from "../GlobalBan/stores";
 import {
-    BanSelectedReportedUsersStore,
-    BanSendersOfSelectedMessagesStore,
     BanUsersRelatedToSelectedReportsStore,
     CreateReportStore,
     CurrentReportsListStore,
@@ -167,12 +165,12 @@ export interface IAppState {
     reportedMessageDialog: ReportedMessageDialogStore,
     selectedReportsUpdate: UpdateSelectedReportsStore,
     selectedReportedMessagesDeletion: DeleteSelectedReportedMessagesStore,
-    selectedReportedMessagesSendersBan: BanSendersOfSelectedMessagesStore,
+    selectedReportedMessagesSendersBan: BanUsersRelatedToSelectedReportsStore,
     declineReports: DeclineSelectedReportsStore,
     currentReportsList: CurrentReportsListStore,
     reportUser: CreateReportStore,
     userReports: ReportsListStore,
-    selectedReportedUsersBan: BanSelectedReportedUsersStore,
+    selectedReportedUsersBan: BanUsersRelatedToSelectedReportsStore,
     reportChat: CreateReportStore,
     chatReports: ReportsListStore,
     selectedReportedChatsCreatorsBan: BanUsersRelatedToSelectedReportsStore,

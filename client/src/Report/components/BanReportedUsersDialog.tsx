@@ -20,8 +20,8 @@ export const BanReportedUsersDialog: FunctionComponent = observer(() => {
             formValues,
             formErrors,
             submitForm,
-            banSelectedReportedUsersDialogOpen,
-            setBanSelectedReportedUsersDialogOpen,
+            banUsersDialogOpen,
+            setBanUsersDialogOpen,
             setFormValue,
             pending,
             error,
@@ -44,11 +44,11 @@ export const BanReportedUsersDialog: FunctionComponent = observer(() => {
     return (
         <BanUserGloballyDialogBase formValues={formValues}
                                    formErrors={formErrors}
-                                   open={banSelectedReportedUsersDialogOpen}
+                                   open={banUsersDialogOpen}
                                    pending={pending}
                                    title={l("report.user.action.ban-users")}
                                    submitButtonLabel={l("report.user.action.ban-users")}
-                                   onClose={() => setBanSelectedReportedUsersDialogOpen(false)}
+                                   onClose={() => setBanUsersDialogOpen(false)}
                                    onSubmit={submitForm}
                                    onFormValueChange={setFormValue}
                                    getErrorLabel={getErrorLabel}

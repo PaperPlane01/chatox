@@ -8,12 +8,12 @@ export const BanMessagesSendersButton: FunctionComponent = observer(() => {
     const {l} = useLocalization();
     const {
         selectedReportedMessagesSendersBan: {
-            setBanSendersOfSelectedMessagesDialogOpen
+            setBanUsersDialogOpen
         }
     } = useStore();
 
     const handleClick = (): void => {
-        setBanSendersOfSelectedMessagesDialogOpen(true);
+        setBanUsersDialogOpen(true);
     };
 
     return <BottomNavigationAction icon={<Block/>}

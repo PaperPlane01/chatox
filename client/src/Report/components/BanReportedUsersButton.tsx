@@ -8,12 +8,12 @@ export const BanReportedUsersButton: FunctionComponent = observer(() => {
     const {l} = useLocalization();
     const {
         selectedReportedUsersBan: {
-            setBanSelectedReportedUsersDialogOpen
+            setBanUsersDialogOpen
         }
     } = useStore();
 
     const handleClick = (): void => {
-        setBanSelectedReportedUsersDialogOpen(true);
+        setBanUsersDialogOpen(true);
     };
 
     return <BottomNavigationAction icon={<Block/>}

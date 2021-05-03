@@ -91,8 +91,6 @@ import {
     UpdateGlobalBanStore
 } from "../GlobalBan/stores";
 import {
-    BanSelectedReportedUsersStore,
-    BanSendersOfSelectedMessagesStore,
     BanUsersRelatedToSelectedReportsStore,
     CreateReportStore,
     CurrentReportsListStore,
@@ -105,7 +103,11 @@ import {
 } from "../Report/stores";
 import {ReportType} from "../api/types/response";
 import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
-import {reportedChatsCreatorsSelector} from "../Report/selectors";
+import {
+    reportedChatsCreatorsSelector,
+    reportedMessagesSendersSelector,
+    reportedUsersSelector
+} from "../Report/selectors";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -242,11 +244,11 @@ const reportedMessageDialog = new ReportedMessageDialogStore();
 const currentReportsList = new CurrentReportsListStore();
 const selectedReportsUpdate = new UpdateSelectedReportsStore(entities, currentReportsList)
 const selectedReportedMessagesDeletion = new DeleteSelectedReportedMessagesStore(messageReports, selectedReportsUpdate);
-const selectedReportedMessagesSendersBan = new BanSendersOfSelectedMessagesStore(entities, messageReports, selectedReportsUpdate);
+const selectedReportedMessagesSendersBan = new BanUsersRelatedToSelectedReportsStore(entities, messageReports, selectedReportsUpdate, reportedMessagesSendersSelector);
 const declineReports = new DeclineSelectedReportsStore(selectedReportsUpdate);
 const reportUser = new CreateReportStore(ReportType.USER);
 const userReports = new ReportsListStore(entities, authorization, ReportType.USER);
-const selectedReportedUsersBan = new BanSelectedReportedUsersStore(entities, userReports, selectedReportsUpdate);
+const selectedReportedUsersBan = new BanUsersRelatedToSelectedReportsStore(entities, userReports, selectedReportsUpdate, reportedUsersSelector);
 const reportChat = new CreateReportStore(ReportType.CHAT);
 const chatReports = new ReportsListStore(entities, authorization, ReportType.CHAT);
 const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsStore(entities, chatReports, selectedReportsUpdate, reportedChatsCreatorsSelector);
