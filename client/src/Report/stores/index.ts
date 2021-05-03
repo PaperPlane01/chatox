@@ -7,3 +7,5 @@ export * from "./BanSendersOfSelectedMessagesStore";
 export * from "./DeclineSelectedReportsStore";
 export * from "./CurrentReportsListStore";
 export * from "./BanSelectedReportedUsersStore";
+export * from "./ReportedChatsStore";
+export * from "./BanUsersRelatedToSelectedReportsStore";
