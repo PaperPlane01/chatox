@@ -21,3 +21,5 @@ export * from "./ReportedUsersTableHeader";
 export * from "./BanMessagesSendersButton";
 export * from "./BanReportedUsersDialog";
 export * from "./UserReportsActions";
+export * from "./ReportChatMenuItem";
+export * from "./ReportChatDialog";
