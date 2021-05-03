@@ -404,5 +404,15 @@ export interface Labels {
     "report.user.list": string,
     "report.user.action.ban-users.success": string,
     "report.user.action.ban-users.error.unknown": string,
-    "report.user.action.ban-users.error.server-unreachable": string
+    "report.user.action.ban-users.error.server-unreachable": string,
+    "report.chat": string,
+    "report.chat.list": string,
+    "report.chat.action.ban-chats-creators": string,
+    "report.chat.action.ban-chats-creators.success": string,
+    "report.chat.action.ban-chats.creators.error.unknown": string,
+    "report.chat.action.ban-chats-creators.server-unreachable": string,
+    "report.chat.action.delete-chats": string,
+    "report.chat.action.delete-chats.success": string,
+    "report.chat.action.delete-chats.error.unknown": string,
+    "report.chat.action.delete-chats.error.server-unreachable": string
 }

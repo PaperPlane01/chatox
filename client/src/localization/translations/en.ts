@@ -406,5 +406,15 @@ export const en: Labels = {
     "report.user.list": "Users reports",
     "report.user.action.ban-users.success": "Users have been banned",
     "report.user.action.ban-users.error.unknown": "Unknown error occurred when tried to ban users. Server responded with {errorStatus} status",
-    "report.user.action.ban-users.error.server-unreachable": "Error occurred when tried to ban users: server is unreachable"
+    "report.user.action.ban-users.error.server-unreachable": "Error occurred when tried to ban users: server is unreachable",
+    "report.chat": "Report chat",
+    "report.chat.list": "Chats reports",
+    "report.chat.action.ban-chats-creators": "Ban chats creators",
+    "report.chat.action.ban-chats-creators.success": "Chats creators have been banned",
+    "report.chat.action.ban-chats.creators.error.unknown": "Error occurred when tried to ban chats creators. Server responded with {errorStatus} status",
+    "report.chat.action.ban-chats-creators.server-unreachable": "Error occurred when tried to ban chats creators: server is unreachable",
+    "report.chat.action.delete-chats": "Delete chats",
+    "report.chat.action.delete-chats.success": "Chats have been deleted",
+    "report.chat.action.delete-chats.error.unknown": "Error occurred when tried to delete chats. Server responded with {errorStatus} status",
+    "report.chat.action.delete-chats.error.server-unreachable": "Error occurred when tried to delete chats: server is unreachable"
 };

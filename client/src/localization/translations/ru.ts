@@ -406,5 +406,15 @@ export const ru: Labels = {
     "report.user.list": "Жалобы на пользователей",
     "report.user.action.ban-users.success": "Пользователи были заблокированы",
     "report.user.action.ban-users.error.unknown": "При попытке заблокировать пользователей произошла ошибка. Сервер ответил со статусом {errorStatus}",
-    "report.user.action.ban-users.error.server-unreachable": "При попытке заблокировать пользователей произошла ошибка: сервер недоступен"
+    "report.user.action.ban-users.error.server-unreachable": "При попытке заблокировать пользователей произошла ошибка: сервер недоступен",
+    "report.chat": "Пожаловаться на чат",
+    "report.chat.list": "Жалобы на чаты",
+    "report.chat.action.ban-chats-creators": "Заблокировать создателей чатов",
+    "report.chat.action.ban-chats-creators.success": "Создатели чатов были заблокированы",
+    "report.chat.action.ban-chats.creators.error.unknown": "Во время попытки заблокирвоать создателей чатов произошла ошибка. Сервер ответил со статусом {errorStatus}",
+    "report.chat.action.ban-chats-creators.server-unreachable": "Во время попытки заблокирвоать создателей чатов произошла ошибка: сервер недоступен",
+    "report.chat.action.delete-chats": "Удалить чаты",
+    "report.chat.action.delete-chats.success": "Чаты были удалены",
+    "report.chat.action.delete-chats.error.unknown": "Во время попытки удалить чаты произошла ошибка. Сервер ответил со статусом {errorStatus}",
+    "report.chat.action.delete-chats.error.server-unreachable": "Во время попытки удалить чаты произошла ошибка: сервер недоступен"
 };
