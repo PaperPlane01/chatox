@@ -38,3 +38,4 @@ export const UNPIN = "unpin";
 export const PINNED = "pinned";
 export const SCHEDULED = "scheduled";
 export const PUBLISH = "publish";
+export const REPORTS = "reports";

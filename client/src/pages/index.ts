@@ -6,3 +6,6 @@ export * from "./UserPage";
 export * from "./SettingsPage";
 export * from "./GlobalBansPage";
 export * from "./ScheduledMessagesPage";
+export * from "./MessageReportsPage";
+export * from "./UserReportsPage";
+export * from "./ChatReportsPage";

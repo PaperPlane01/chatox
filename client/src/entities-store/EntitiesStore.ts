@@ -6,10 +6,11 @@ import {
     ChatDeletionReason,
     ChatOfCurrentUser,
     ChatParticipation,
-    ChatRole,
+    ChatRole, ChatWithCreatorId,
     CurrentUser,
     GlobalBan,
     Message,
+    Report, ReportType,
     User
 } from "../api/types/response";
 import {MessagesStore, ScheduledMessagesStore} from "../Message";
@@ -19,6 +20,7 @@ import {UploadsStore} from "../Upload/stores";
 import {ChatUpdated} from "../api/types/websocket";
 import {PartialBy} from "../utils/types";
 import {GlobalBansStore} from "../GlobalBan/stores";
+import {ReportedChatsStore, ReportsStore} from "../Report/stores";
 
 type DecreaseChatParticipantsCountCallback = (chatParticipation?: ChatParticipationEntity, currentUser?: CurrentUser) => boolean;
 
@@ -43,7 +45,12 @@ export class EntitiesStore {
         public uploads: UploadsStore,
         public chatUploads: ChatUploadsStore,
         public globalBans: GlobalBansStore,
-        public scheduledMessages: ScheduledMessagesStore
+        public scheduledMessages: ScheduledMessagesStore,
+        public reports: ReportsStore,
+        public reportedMessages: MessagesStore,
+        public reportedMessagesSenders: UsersStore,
+        public reportedUsers: UsersStore,
+        public reportedChats: ReportedChatsStore
     ) {
     }
 
@@ -296,5 +303,105 @@ export class EntitiesStore {
     deleteScheduledMessage = (chatId: string, messageId: string): void => {
         this.chats.removeScheduledMessageFromChat(chatId, messageId);
         this.scheduledMessages.deleteById(messageId);
+    }
+
+    @action
+    insertReports = (reports: Array<Report<any>>): void => {
+        reports.forEach(report => this.insertReport(report));
+    }
+
+    @action
+    insertReport = (report: Report<any>): void => {
+        switch (report.type) {
+            case ReportType.MESSAGE:
+                this.insertMessageReport(report);
+                return;
+            case ReportType.USER:
+                this.insertUserReport(report);
+                return;
+            case ReportType.CHAT:
+                this.insertChatReport(report);
+                return;
+            default:
+                return;
+        }
+    }
+
+    @action
+    insertMessageReports = (reports: Array<Report<Message>>): void => {
+        reports.forEach(report => this.insertMessageReport(report));
+    }
+
+    @action
+    insertMessageReport = (report: Report<Message>): void => {
+        this.insertReportedMessage(report.reportedObject);
+        this.reports.insert(report);
+    }
+
+    @action
+    insertReportedMessage = (message: Message): void => {
+        if (message.referredMessage) {
+            this.insertReportedMessage(message.referredMessage);
+        }
+
+        this.reportedMessagesSenders.insert(message.sender);
+        this.uploads.insertAll(message.attachments);
+        this.reportedMessages.insert(message);
+    }
+
+    @action
+    insertUserReports = (reports: Array<Report<User>>): void => {
+        reports.forEach(report => this.insertUserReport(report));
+    }
+
+    @action
+    insertUserReport = (report: Report<User>): void => {
+        this.insertReportedUser(report.reportedObject);
+        this.reports.insert(report);
+    }
+
+    @action
+    insertReportedUser = (user: User): void => {
+        this.reportedUsers.insert(user);
+    }
+
+    @action
+    insertChatReports = (reports: Array<Report<ChatWithCreatorId>>): void => {
+        reports.forEach(report => this.insertChatReport(report));
+    }
+
+    @action
+    insertChatReport = (report: Report<ChatWithCreatorId>): void => {
+        this.insertReportedChat(report.reportedObject);
+        this.reports.insert(report);
+    }
+
+    @action
+    insertReportedChat = (reportedChat: ChatWithCreatorId): void => {
+        if (reportedChat.avatar) {
+            this.uploads.insert(reportedChat.avatar);
+        }
+
+        this.reportedChats.insert(reportedChat);
+    }
+
+    @action
+    deleteAllReports = (reportType: ReportType): void => {
+        this.reports.deleteAll();
+
+        switch (reportType) {
+            case ReportType.MESSAGE:
+                this.reportedMessages.deleteAll();
+                this.reportedMessagesSenders.deleteAll();
+                return;
+            case ReportType.USER:
+                this.reportedUsers.deleteAll();
+                return;
+            case ReportType.CHAT:
+                this.reportedChats.deleteAll();
+                return;
+            default:
+                return;
+        }
     }
 }

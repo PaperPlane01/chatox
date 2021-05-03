@@ -4,6 +4,7 @@ import chatox.chat.api.request.CreateChatRequest
 import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
+import chatox.chat.api.response.ChatResponseWithCreatorId
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.UserResponse
 import chatox.chat.messaging.rabbitmq.event.ChatUpdated
@@ -116,6 +117,20 @@ class ChatMapper(
             )
         }
     }
+
+    fun toChatResponseWithCreatorId(chat: Chat) = ChatResponseWithCreatorId(
+            id = chat.id,
+            description = chat.description,
+            name = chat.name,
+            slug = chat.slug,
+            avatarUri = chat.avatarUri,
+            participantsCount = chat.numberOfParticipants,
+            onlineParticipantsCount = chat.numberOfOnlineParticipants,
+            createdByCurrentUser = false,
+            tags = chat.tags,
+            avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
+            createdById = chat.createdById
+    )
 
     fun fromCreateChatRequest(
             createChatRequest: CreateChatRequest,

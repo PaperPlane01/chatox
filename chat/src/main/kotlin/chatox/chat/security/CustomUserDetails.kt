@@ -19,16 +19,39 @@ class CustomUserDetails : UserDetails {
     private var username: String
 
     constructor(jwtAuthenticationToken: JwtAuthenticationToken) {
-        id = jwtAuthenticationToken.token.getClaimAsString("user_id")
-        accountId = jwtAuthenticationToken.token.getClaimAsString("account_id")
-        val _authorities = jwtAuthenticationToken.token.getClaimAsStringList("authorities")
-                .map { authority -> SimpleGrantedAuthority(authority) }
+        val isClient = jwtAuthenticationToken.token.getClaimAsString("user_id") == null
+
+        id = if (isClient) {
+            jwtAuthenticationToken.token.getClaimAsString("client_id")
+        } else {
+            jwtAuthenticationToken.token.getClaimAsString("user_id")
+        }
+
+        accountId = if (isClient) {
+            jwtAuthenticationToken.token.getClaimAsString("client_id")
+        } else {
+            jwtAuthenticationToken.token.getClaimAsString("account_id")
+        }
+
+        val _authorities = if (isClient) {
+            arrayListOf()
+        } else {
+            jwtAuthenticationToken.token.getClaimAsStringList("authorities")
+                    .map { authority -> SimpleGrantedAuthority(authority) }
+        }
+
         authorities.addAll(jwtAuthenticationToken.token.getClaimAsStringList("scope")
                 .map { "SCOPE_$it" }
                 .map { SimpleGrantedAuthority(it) }
         )
         authorities.addAll(_authorities)
-        username = jwtAuthenticationToken.token.getClaimAsString("user_name")
+
+        username = if (isClient) {
+            jwtAuthenticationToken.token.getClaimAsString("client_id")
+        } else {
+            jwtAuthenticationToken.token.getClaimAsString("user_name")
+        }
+
         globalBanId = jwtAuthenticationToken.token.getClaimAsString("global_ban_id")
 
         if (globalBanId != null) {

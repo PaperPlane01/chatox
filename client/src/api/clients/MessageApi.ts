@@ -1,7 +1,12 @@
 import {AxiosPromise} from "axios";
 import {axiosInstance} from "../axios-instance";
 import {Message} from "../types/response";
-import {CreateMessageRequest, UpdateMessageRequest, UpdateScheduledMessageRequest} from "../types/request";
+import {
+    CreateMessageRequest,
+    DeleteMultipleMessagesRequest,
+    UpdateMessageRequest,
+    UpdateScheduledMessageRequest
+} from "../types/request";
 import {CHATS, MESSAGES, PIN, PINNED, PUBLISH, SCHEDULED, UNPIN} from "../endpoints";
 
 export class MessageApi {
@@ -55,5 +60,9 @@ export class MessageApi {
 
     public static updateScheduledMessage(chatId: string, messageId: string, updateScheduledMessageRequest: UpdateScheduledMessageRequest): AxiosPromise<Message> {
         return axiosInstance.put(`/${CHATS}/${chatId}/${MESSAGES}/${SCHEDULED}/${messageId}`, updateScheduledMessageRequest);
+    }
+
+    public static deleteMultipleMessages(deleteMultipleMessagesRequest: DeleteMultipleMessagesRequest): AxiosPromise<void> {
+        return axiosInstance.delete(`/${MESSAGES}`, {data: deleteMultipleMessagesRequest});
     }
 }

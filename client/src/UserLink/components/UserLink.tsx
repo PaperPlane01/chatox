@@ -15,7 +15,8 @@ interface UserLinkProps {
     displayAvatar: boolean,
     boldText?: boolean,
     avatarWidth?: number,
-    avatarHeight?: number
+    avatarHeight?: number,
+    identifierType?: "slug" | "id"
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -34,7 +35,8 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
     displayAvatar = false,
     boldText = false,
     avatarWidth = 30,
-    avatarHeight = 30
+    avatarHeight = 30,
+    identifierType = "slug"
 }) => {
     const routerStore = useRouter();
     const classes = useStyles();
@@ -45,7 +47,7 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
     if (displayAvatar) {
         return (
             <Link view={Routes.userPage}
-                  params={{slug: user.slug}}
+                  params={{slug: identifierType === "slug" ? user.slug : user.id}}
                   className={classes.userLink}
                   store={routerStore}
             >

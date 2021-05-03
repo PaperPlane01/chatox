@@ -9,4 +9,5 @@ import reactor.core.publisher.Flux
 interface GlobalBanCustomRepository {
     fun searchGlobalBans(globalBanFilters: GlobalBanFilters, pageable: Pageable): Flux<GlobalBan>
     fun findActiveByBannedUser(user: User): Flux<GlobalBan>
+    fun findActiveByBannedUsers(users: List<User>): Flux<GlobalBan>
 }

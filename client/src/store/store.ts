@@ -48,7 +48,8 @@ import {
 } from "../User";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore, DeleteScheduledMessageStore,
+    CreateMessageStore,
+    DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     MessageDialogStore,
     MessagesOfChatStore,
@@ -60,7 +61,8 @@ import {
     ScheduledMessagesStore,
     ScheduleMessageStore,
     UnpinMessageStore,
-    UpdateMessageStore, UpdateScheduledMessageStore,
+    UpdateMessageStore,
+    UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
@@ -88,6 +90,24 @@ import {
     GlobalBansStore,
     UpdateGlobalBanStore
 } from "../GlobalBan/stores";
+import {
+    BanUsersRelatedToSelectedReportsStore,
+    CreateReportStore,
+    CurrentReportsListStore,
+    DeclineSelectedReportsStore,
+    ReportedChatsStore,
+    ReportedMessageDialogStore,
+    ReportsListStore,
+    ReportsStore,
+    UpdateSelectedReportsStore
+} from "../Report/stores";
+import {ReportType} from "../api/types/response";
+import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
+import {
+    reportedChatsCreatorsSelector,
+    reportedMessagesSendersSelector,
+    reportedUsersSelector
+} from "../Report/selectors";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -98,6 +118,11 @@ const uploads = new UploadsStore();
 const chatUploads = new ChatUploadsStore();
 const globalBans = new GlobalBansStore();
 const scheduledMessages = new ScheduledMessagesStore();
+const reports = new ReportsStore();
+const reportedMessages = new MessagesStore();
+const reportedMessagesSenders = new UsersStore();
+const reportedUsers = new UsersStore();
+const reportedChats = new ReportedChatsStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
@@ -107,7 +132,12 @@ const entities = new EntitiesStore(
     uploads,
     chatUploads,
     globalBans,
-    scheduledMessages
+    scheduledMessages,
+    reports,
+    reportedMessages,
+    reportedMessagesSenders,
+    reportedUsers,
+    reportedChats
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -208,6 +238,20 @@ const scheduledMessagesOfChat = new ScheduledMessagesOfChatStore(entities, chat)
 const publishScheduledMessage = new PublishScheduledMessageStore(entities, chat);
 const deleteScheduledMessage = new DeleteScheduledMessageStore(entities, chat);
 const updateScheduledMessage = new UpdateScheduledMessageStore(entities);
+const reportMessage = new CreateReportStore(ReportType.MESSAGE);
+const messageReports = new ReportsListStore(entities, authorization, ReportType.MESSAGE);
+const reportedMessageDialog = new ReportedMessageDialogStore();
+const currentReportsList = new CurrentReportsListStore();
+const selectedReportsUpdate = new UpdateSelectedReportsStore(entities, currentReportsList)
+const selectedReportedMessagesDeletion = new DeleteSelectedReportedMessagesStore(messageReports, selectedReportsUpdate);
+const selectedReportedMessagesSendersBan = new BanUsersRelatedToSelectedReportsStore(entities, messageReports, selectedReportsUpdate, reportedMessagesSendersSelector);
+const declineReports = new DeclineSelectedReportsStore(selectedReportsUpdate);
+const reportUser = new CreateReportStore(ReportType.USER);
+const userReports = new ReportsListStore(entities, authorization, ReportType.USER);
+const selectedReportedUsersBan = new BanUsersRelatedToSelectedReportsStore(entities, userReports, selectedReportsUpdate, reportedUsersSelector);
+const reportChat = new CreateReportStore(ReportType.CHAT);
+const chatReports = new ReportsListStore(entities, authorization, ReportType.CHAT);
+const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsStore(entities, chatReports, selectedReportsUpdate, reportedChatsCreatorsSelector);
 
 export const store: IAppState = {
     authorization,
@@ -279,5 +323,19 @@ export const store: IAppState = {
     scheduledMessagesOfChat,
     publishScheduledMessage,
     deleteScheduledMessage,
-    updateScheduledMessage
+    updateScheduledMessage,
+    reportMessage,
+    messageReports,
+    reportedMessageDialog,
+    selectedReportsUpdate,
+    selectedReportedMessagesDeletion,
+    selectedReportedMessagesSendersBan,
+    declineReports,
+    currentReportsList,
+    reportUser,
+    userReports,
+    selectedReportedUsersBan,
+    reportChat,
+    chatReports,
+    selectedReportedChatsCreatorsBan
 };

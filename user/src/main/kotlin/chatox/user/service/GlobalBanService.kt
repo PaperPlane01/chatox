@@ -1,6 +1,7 @@
 package chatox.user.service
 
 import chatox.platform.pagination.PaginationRequest
+import chatox.user.api.request.BanMultipleUsersRequest
 import chatox.user.api.request.BanUserRequest
 import chatox.user.api.request.GlobalBanFilters
 import chatox.user.api.request.UpdateBanRequest
@@ -13,4 +14,5 @@ interface GlobalBanService {
     fun updateBan(userId: String, banId: String, updateBanRequest: UpdateBanRequest): Mono<GlobalBanResponse>
     fun cancelBan(userId: String, banId: String): Mono<GlobalBanResponse>
     fun findBans(filters: GlobalBanFilters, paginationRequest: PaginationRequest): Flux<GlobalBanResponse>
+    fun banMultipleUsers(banMultipleUsersRequest: BanMultipleUsersRequest): Flux<GlobalBanResponse>
 }

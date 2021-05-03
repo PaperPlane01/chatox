@@ -27,15 +27,19 @@ import {
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore, DeleteScheduledMessageStore,
+    CreateMessageStore,
+    DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     MessageDialogStore,
     MessagesOfChatStore,
     PinMessageStore,
-    PinnedMessagesStore, PublishScheduledMessageStore, ScheduledMessagesOfChatStore,
+    PinnedMessagesStore,
+    PublishScheduledMessageStore,
+    ScheduledMessagesOfChatStore,
     ScheduleMessageStore,
     UnpinMessageStore,
-    UpdateMessageStore, UpdateScheduledMessageStore,
+    UpdateMessageStore,
+    UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
@@ -74,6 +78,16 @@ import {
     GlobalBansListStore,
     UpdateGlobalBanStore
 } from "../GlobalBan/stores";
+import {
+    BanUsersRelatedToSelectedReportsStore,
+    CreateReportStore,
+    CurrentReportsListStore,
+    DeclineSelectedReportsStore,
+    ReportedMessageDialogStore,
+    ReportsListStore,
+    UpdateSelectedReportsStore
+} from "../Report/stores";
+import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
 
 export interface IAppState {
     language: LocaleStore,
@@ -145,6 +159,20 @@ export interface IAppState {
     scheduledMessagesOfChat: ScheduledMessagesOfChatStore,
     publishScheduledMessage: PublishScheduledMessageStore,
     deleteScheduledMessage: DeleteScheduledMessageStore,
-    updateScheduledMessage: UpdateScheduledMessageStore
+    updateScheduledMessage: UpdateScheduledMessageStore,
+    reportMessage: CreateReportStore,
+    messageReports: ReportsListStore,
+    reportedMessageDialog: ReportedMessageDialogStore,
+    selectedReportsUpdate: UpdateSelectedReportsStore,
+    selectedReportedMessagesDeletion: DeleteSelectedReportedMessagesStore,
+    selectedReportedMessagesSendersBan: BanUsersRelatedToSelectedReportsStore,
+    declineReports: DeclineSelectedReportsStore,
+    currentReportsList: CurrentReportsListStore,
+    reportUser: CreateReportStore,
+    userReports: ReportsListStore,
+    selectedReportedUsersBan: BanUsersRelatedToSelectedReportsStore,
+    reportChat: CreateReportStore,
+    chatReports: ReportsListStore,
+    selectedReportedChatsCreatorsBan: BanUsersRelatedToSelectedReportsStore,
     store?: any
 }

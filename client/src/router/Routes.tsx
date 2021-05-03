@@ -24,6 +24,9 @@ const UserPage = lazy(() => import("../pages/UserPage"));
 const SettingsPage = lazy(() => import("../pages/SettingsPage"));
 const GlobalBansPage = lazy(() => import("../pages/GlobalBansPage"));
 const ScheduledMessagesPage = lazy(() => import("../pages/ScheduledMessagesPage"));
+const MessageReportsPage = lazy(() => import("../pages/MessageReportsPage"));
+const UserReportsPage = lazy(() => import("../pages/UserReportsPage"));
+const ChatReportsPage = lazy(() => import("../pages/ChatReportsPage"));
 
 const {Route} = require("mobx-router");
 
@@ -168,6 +171,57 @@ export const Routes = {
         onExit: () => {
             store.scheduledMessagesOfChat.setReactToChatIdChange(false);
             store.chat.setSelectedChat(undefined);
+        }
+    }),
+    reportedMessages: new Route({
+        path: "/reports/messages",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <MessageReportsPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: () => {
+            store.currentReportsList.setCurrentReportsList(store.messageReports);
+            store.messageReports.fetchReports();
+        },
+        onExit: () => {
+            store.messageReports.reset();
+        }
+    }),
+    reportedUsers: new Route({
+        path: "/reports/users",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <UserReportsPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: () => {
+            store.currentReportsList.setCurrentReportsList(store.userReports);
+            store.userReports.fetchReports();
+        },
+        onExit: () => {
+            store.userReports.reset();
+        }
+    }),
+    reportedChats: new Route({
+        path: "/reports/chats",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <ChatReportsPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: () => {
+            store.currentReportsList.setCurrentReportsList(store.chatReports);
+            store.chatReports.fetchReports();
+        },
+        onExit: () => {
+            store.chatReports.reset();
         }
     })
 };

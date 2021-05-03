@@ -7,13 +7,14 @@ import {BlockUserInChatByIdOrSlugMenuItem} from "./BlockUserInChatByIdOrSlugMenu
 import {EditChatMenuItem} from "./EditChatMenuItem";
 import {LeaveChatMenuItem} from "./LeaveChatMenuItem";
 import {DeleteChatMenuItem} from "./DeleteChatMenuItem";
+import {ScheduleMessageMenuItem} from "./ScheduleMessageMenuItem";
+import {ShowScheduledMessagesMenuItem} from "./ShowScheduledMessagesMenuItem";
+import {ShowPinnedMessageMenuItem} from "./ShowPinnedMessageMenuItem";
 import {canDeleteChat, canLeaveChat, canUpdateChat} from "../permissions";
 import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
 import {useAuthorization, useStore} from "../../store";
-import {ShowPinnedMessageMenuItem} from "./ShowPinnedMessageMenuItem";
 import {canScheduleMessage} from "../../Message/permissions";
-import {ScheduleMessageMenuItem} from "./ScheduleMessageMenuItem";
-import {ShowScheduledMessagesMenuItem} from "./ShowScheduledMessagesMenuItem";
+import {ReportChatMenuItem} from "../../Report";
 
 export const ChatMenu: FunctionComponent = observer(() => {
     const {
@@ -67,6 +68,7 @@ export const ChatMenu: FunctionComponent = observer(() => {
     canBlockUsersInChat(chatParticipation) && menuItems.push(<ChatBlockingsMenuItem onClick={handleClose}/>);
     canBlockUsersInChat(chatParticipation) && menuItems.push(<BlockUserInChatByIdOrSlugMenuItem onClick={handleClose}/>);
     canLeaveChat(chat, chatParticipation) && menuItems.push(<LeaveChatMenuItem onClick={handleClose}/>);
+    menuItems.push(<ReportChatMenuItem chatId={chat.id} onClick={handleClose}/>);
     canDeleteChat(chat, currentUser) && menuItems.push([<Divider/>, <DeleteChatMenuItem onClick={handleClose}/>]);
 
     if (menuItems.length === 0) {

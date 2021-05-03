@@ -2,6 +2,7 @@ package chatox.chat.controller
 
 import chatox.chat.api.request.CreateChatRequest
 import chatox.chat.api.request.DeleteChatRequest
+import chatox.chat.api.request.DeleteMultipleChatsRequest
 import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.service.ChatService
 import chatox.platform.pagination.PaginationRequest
@@ -33,6 +34,10 @@ class ChatController(private val chatService: ChatService) {
     fun updateChat(@PathVariable id: String,
                    @RequestBody @Valid updateChatRequest: UpdateChatRequest) = chatService.updateChat(id, updateChatRequest)
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping
+    fun deleteMultipleChats(@RequestBody @Valid deleteMultipleChatsRequest: DeleteMultipleChatsRequest) = chatService.deleteMultipleChats(deleteMultipleChatsRequest)
+
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/{id}")
     fun deleteChat(@PathVariable id: String,
@@ -44,6 +49,10 @@ class ChatController(private val chatService: ChatService) {
 
     @GetMapping("/{idOrSlug}")
     fun findChatByIdOrSlug(@PathVariable idOrSlug: String) = chatService.findChatBySlugOrId(idOrSlug)
+
+    @PreAuthorize("hasAuthority('SCOPE_internal_reports_service')")
+    @GetMapping("/{id}/with-creator-id")
+    fun findChatByIdAndIncludeCreatorId(@PathVariable id: String) = chatService.findChatById(id);
 
     @PaginationConfig(
             sortBy = SortBy(allowed = ["createdAt", "name"], defaultValue = "createdAt")
