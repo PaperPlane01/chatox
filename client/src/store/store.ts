@@ -93,9 +93,11 @@ import {
 import {
     BanSelectedReportedUsersStore,
     BanSendersOfSelectedMessagesStore,
+    BanUsersRelatedToSelectedReportsStore,
     CreateReportStore,
     CurrentReportsListStore,
-    DeclineSelectedReportsStore, ReportedChatsStore,
+    DeclineSelectedReportsStore,
+    ReportedChatsStore,
     ReportedMessageDialogStore,
     ReportsListStore,
     ReportsStore,
@@ -103,6 +105,7 @@ import {
 } from "../Report/stores";
 import {ReportType} from "../api/types/response";
 import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
+import {reportedChatsCreatorsSelector} from "../Report/selectors";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -244,6 +247,9 @@ const declineReports = new DeclineSelectedReportsStore(selectedReportsUpdate);
 const reportUser = new CreateReportStore(ReportType.USER);
 const userReports = new ReportsListStore(entities, authorization, ReportType.USER);
 const selectedReportedUsersBan = new BanSelectedReportedUsersStore(entities, userReports, selectedReportsUpdate);
+const reportChat = new CreateReportStore(ReportType.CHAT);
+const chatReports = new ReportsListStore(entities, authorization, ReportType.CHAT);
+const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsStore(entities, chatReports, selectedReportsUpdate, reportedChatsCreatorsSelector);
 
 export const store: IAppState = {
     authorization,
@@ -326,5 +332,8 @@ export const store: IAppState = {
     currentReportsList,
     reportUser,
     userReports,
-    selectedReportedUsersBan
+    selectedReportedUsersBan,
+    reportChat,
+    chatReports,
+    selectedReportedChatsCreatorsBan
 };

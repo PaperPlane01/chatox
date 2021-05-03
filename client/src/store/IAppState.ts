@@ -27,15 +27,19 @@ import {
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore, DeleteScheduledMessageStore,
+    CreateMessageStore,
+    DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     MessageDialogStore,
     MessagesOfChatStore,
     PinMessageStore,
-    PinnedMessagesStore, PublishScheduledMessageStore, ScheduledMessagesOfChatStore,
+    PinnedMessagesStore,
+    PublishScheduledMessageStore,
+    ScheduledMessagesOfChatStore,
     ScheduleMessageStore,
     UnpinMessageStore,
-    UpdateMessageStore, UpdateScheduledMessageStore,
+    UpdateMessageStore,
+    UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
@@ -77,7 +81,10 @@ import {
 import {
     BanSelectedReportedUsersStore,
     BanSendersOfSelectedMessagesStore,
-    CreateReportStore, CurrentReportsListStore, DeclineSelectedReportsStore,
+    BanUsersRelatedToSelectedReportsStore,
+    CreateReportStore,
+    CurrentReportsListStore,
+    DeclineSelectedReportsStore,
     ReportedMessageDialogStore,
     ReportsListStore,
     UpdateSelectedReportsStore
@@ -166,5 +173,8 @@ export interface IAppState {
     reportUser: CreateReportStore,
     userReports: ReportsListStore,
     selectedReportedUsersBan: BanSelectedReportedUsersStore,
+    reportChat: CreateReportStore,
+    chatReports: ReportsListStore,
+    selectedReportedChatsCreatorsBan: BanUsersRelatedToSelectedReportsStore,
     store?: any
 }
