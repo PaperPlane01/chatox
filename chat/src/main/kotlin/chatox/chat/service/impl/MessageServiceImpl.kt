@@ -81,8 +81,6 @@ class MessageServiceImpl(
 
     override fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse> {
         return mono {
-            assertCanCreateMessage(chatId).awaitFirst()
-
             val chat = findChatById(chatId).awaitFirst()
 
             if (chat.deleted) {
@@ -202,18 +200,6 @@ class MessageServiceImpl(
         }
     }
 
-    private fun assertCanCreateMessage(chatId: String): Mono<Boolean> {
-        return messagePermissions.canCreateMessage(chatId)
-                .map {
-                    if (!it) {
-                        Mono.error<Boolean>(AccessDeniedException("Can't create message"))
-                    } else {
-                        Mono.just(it)
-                    }
-                }
-                .flatMap { it }
-    }
-
     private fun assertCanCreateScheduledMessage(chatId: String): Mono<Boolean> {
         return mono {
             if (!messagePermissions.canScheduleMessage(chatId).awaitFirst()) {
@@ -226,7 +212,6 @@ class MessageServiceImpl(
 
     override fun updateMessage(id: String, chatId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
         return mono {
-            assertCanUpdateMessage(id, chatId).awaitFirst()
             var message = findMessageEntityById(id).awaitFirst()
             val chat = findChatById(chatId).awaitFirst()
 
@@ -277,7 +262,6 @@ class MessageServiceImpl(
 
     override fun deleteMessage(id: String, chatId: String): Mono<Void> {
         return mono {
-            assertCanDeleteMessage(id, chatId).awaitFirst()
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
             val message = findMessageEntityById(id).awaitFirst()
 
@@ -294,17 +278,6 @@ class MessageServiceImpl(
         }
                 .flatMap { it }
 
-    }
-
-    private fun assertCanDeleteMessage(id: String, chatId: String): Mono<Boolean> {
-        return messagePermissions.canDeleteMessage(id, chatId)
-                .flatMap {
-                    if (it) {
-                        Mono.just(it)
-                    } else {
-                        Mono.error<Boolean>(AccessDeniedException("Can't delete message"))
-                    }
-                }
     }
 
     override fun findMessageById(id: String): Mono<MessageResponse> {
@@ -480,8 +453,6 @@ class MessageServiceImpl(
 
     override fun pinMessage(id: String, chatId: String): Mono<MessageResponse> {
         return mono {
-            assertCanPinMessage(id, chatId).awaitFirst()
-
             if (messageRepository.findByPinnedTrueAndChatId(chatId).awaitFirstOrNull() != null) {
                 throw ChatAlreadyHasPinnedMessageException("Chat $chatId already has pinned message")
             }

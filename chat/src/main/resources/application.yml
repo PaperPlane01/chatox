@@ -44,3 +44,6 @@ scheduled:
   messages:
     check:
       enabled: true
+logging:
+  level:
+    chatox.platform.security.reactive: DEBUG

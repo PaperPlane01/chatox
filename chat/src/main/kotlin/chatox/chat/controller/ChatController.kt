@@ -9,6 +9,7 @@ import chatox.platform.pagination.PaginationRequest
 import chatox.platform.pagination.annotation.PageSize
 import chatox.platform.pagination.annotation.PaginationConfig
 import chatox.platform.pagination.annotation.SortBy
+import chatox.platform.security.reactive.annotation.ReactivePermissionCheck
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -26,10 +27,14 @@ import javax.validation.Valid
 class ChatController(private val chatService: ChatService) {
 
     @PreAuthorize("hasRole('USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@chatPermissions.canCreateChat()")
     @PostMapping
     fun createChat(@RequestBody @Valid createChatRequest: CreateChatRequest) = chatService.createChat(createChatRequest)
 
     @PreAuthorize("hasRole('USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@chatPermissions.canUpdateChat(#id)")
     @PutMapping("/{id}")
     fun updateChat(@PathVariable id: String,
                    @RequestBody @Valid updateChatRequest: UpdateChatRequest) = chatService.updateChat(id, updateChatRequest)
@@ -39,6 +44,8 @@ class ChatController(private val chatService: ChatService) {
     fun deleteMultipleChats(@RequestBody @Valid deleteMultipleChatsRequest: DeleteMultipleChatsRequest) = chatService.deleteMultipleChats(deleteMultipleChatsRequest)
 
     @PreAuthorize("hasRole('USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@chatPermissions.canDeleteChat(#id)")
     @DeleteMapping("/{id}")
     fun deleteChat(@PathVariable id: String,
                    @RequestBody(required = false) deleteChatRequest: DeleteChatRequest?) = chatService.deleteChat(id, deleteChatRequest)
