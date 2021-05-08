@@ -415,5 +415,8 @@ export interface Labels {
     "report.chat.action.delete-chats.success": string,
     "report.chat.action.delete-chats.error.unknown": string,
     "report.chat.action.delete-chats.error.server-unreachable": string,
-    "report.chat.reported-chat": string
+    "report.chat.reported-chat": string,
+    "login.google": string,
+    "login.google.pending": string,
+    "login.google.error": string
 }

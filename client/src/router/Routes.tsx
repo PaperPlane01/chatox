@@ -27,6 +27,7 @@ const ScheduledMessagesPage = lazy(() => import("../pages/ScheduledMessagesPage"
 const MessageReportsPage = lazy(() => import("../pages/MessageReportsPage"));
 const UserReportsPage = lazy(() => import("../pages/UserReportsPage"));
 const ChatReportsPage = lazy(() => import("../pages/ChatReportsPage"));
+const GoogleAuthentication = lazy(() => import("../pages/GoogleAuthenticationPage"));
 
 const {Route} = require("mobx-router");
 
@@ -223,5 +224,31 @@ export const Routes = {
         onExit: () => {
             store.chatReports.reset();
         }
+    }),
+    googleAuthentication: new Route({
+        path: "/oauth/google",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <GoogleAuthentication/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: (route: any, params: any, queryParams: any) => {
+            store.googleLogin.setGoogleAccessToken(queryParams.access_token);
+            store.googleLogin.loginWithGoogle();
+        }
     })
+};
+
+export const getRouteByPath = (path: string) => {
+    let resultRoute = undefined;
+
+    Object.keys(Routes).forEach(route => {
+        if (Routes[route as keyof typeof Routes].path === path) {
+            resultRoute = Routes[route as keyof typeof Routes];
+        }
+    });
+
+    return resultRoute;
 };

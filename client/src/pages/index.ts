@@ -9,3 +9,4 @@ export * from "./ScheduledMessagesPage";
 export * from "./MessageReportsPage";
 export * from "./UserReportsPage";
 export * from "./ChatReportsPage";
+export * from "./GoogleAuthenticationPage";

@@ -113,6 +113,7 @@ export const UserProfileInfo: FunctionComponent = observer(() => {
                                                 avatarId={user.avatarId}
                                                 width={64}
                                                 height={64}
+                                                avatarUri={user.externalAvatarUri}
                     />}
                                 title={`${user.firstName} ${user.lastName ? user.lastName : ""}`}
                                 subheader={onlineOrLastSeenLabel}

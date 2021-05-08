@@ -26,3 +26,4 @@ export * from "./UpdateReportRequest";
 export * from "./UpdateMultipleReportsRequest";
 export * from "./BanMultipleUsersRequest";
 export * from "./DeleteMultipleChatsRequest";
+export * from "./GoogleRegistrationRequest";

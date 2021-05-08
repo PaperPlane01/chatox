@@ -18,6 +18,7 @@ import {Visibility, VisibilityOff} from "@material-ui/icons";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {PasswordRecoveryStep} from "../../PasswordRecovery/types";
+import {LoginWithGoogleButton} from "./LoginWithGoogleButton";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     dialogActionButton: {
@@ -142,6 +143,7 @@ export const LoginDialog: FunctionComponent = observer(() => {
                 >
                     {l("login.as-anonymous")}
                 </Button>
+                <LoginWithGoogleButton/>
                 <Button variant="outlined"
                         color="secondary"
                         className={classes.dialogActionButton}

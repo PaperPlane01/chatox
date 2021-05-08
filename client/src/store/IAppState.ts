@@ -1,7 +1,7 @@
 import {EntitiesStore} from "../entities-store";
 import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore} from "../Authorization";
+import {AuthorizationStore, LoginStore, LoginWithGoogleStore} from "../Authorization";
 import {
     AnonymousRegistrationDialogStore,
     RegistrationDialogStore,
@@ -174,5 +174,6 @@ export interface IAppState {
     reportChat: CreateReportStore,
     chatReports: ReportsListStore,
     selectedReportedChatsCreatorsBan: BanUsersRelatedToSelectedReportsStore,
+    googleLogin: LoginWithGoogleStore,
     store?: any
 }
