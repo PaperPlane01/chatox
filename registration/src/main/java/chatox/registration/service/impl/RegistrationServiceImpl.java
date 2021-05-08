@@ -150,6 +150,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                             .roles(loginWithGoogleResponse.getAccount().getRoles())
                             .username(loginWithGoogleResponse.getAccount().getUsername())
                             .slug(userResponse.getSlug())
+                            .createdAt(userResponse.getCreatedAt())
                             .build();
                 });
     }
