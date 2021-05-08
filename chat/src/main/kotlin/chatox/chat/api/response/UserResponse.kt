@@ -16,5 +16,6 @@ data class UserResponse(
         val createdAt: ZonedDateTime?,
         val online: Boolean?,
         val avatar: UploadResponse<ImageUploadMetadata>?,
-        val anonymous: Boolean
+        val anonymous: Boolean,
+        val externalAvatarUri: String? = null
 )

@@ -21,5 +21,7 @@ data class User(
         var online: Boolean? = null,
         var email: String? = null,
         var avatar: Upload<ImageUploadMetadata>? = null,
-        var anonymoys: Boolean = false
+        var anonymoys: Boolean = false,
+        var accountRegistrationType: UserAccountRegistrationType = UserAccountRegistrationType.USERNAME_AND_PASSWORD,
+        var externalAvatarUri: String? = null
 )
