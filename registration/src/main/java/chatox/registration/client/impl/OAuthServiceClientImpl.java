@@ -14,6 +14,7 @@ import chatox.registration.exception.EmailVerificationExpiredException;
 import chatox.registration.exception.EmailVerificationNotFoundException;
 import chatox.registration.exception.InvalidEmailVerificationCodeException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -22,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OAuthServiceClientImpl implements OAuthServiceClient {
     private final WebClient webClient;
 
@@ -65,11 +67,13 @@ public class OAuthServiceClientImpl implements OAuthServiceClient {
                 case GONE:
                     throw new EmailVerificationExpiredException("This email verification code expired");
                 default:
+                    log.error("Unexpected error occurred upon account registration, oauth2 service responded with {} status", clientResponse.statusCode().value());
                     throw new AccountRegistrationException("Unexpected error occurred upon account registration");
             }
         }
 
         if (clientResponse.statusCode().is5xxServerError()) {
+            log.error("Unexpected error occurred upon account registration, oauth2 service responded with {} status", clientResponse.statusCode().value());
             throw new AccountRegistrationException("Unexpected error occurred upon account registration");
         }
     }
@@ -90,6 +94,14 @@ public class OAuthServiceClientImpl implements OAuthServiceClient {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(loginWithGoogleRequest), EnhancedLoginWithGoogleRequest.class)
                 .exchange()
+                .doOnNext(this::handleGoogleRegistrationErrorIfPresent)
                 .flatMap(clientResponse -> clientResponse.bodyToMono(LoginWithGoogleResponse.class));
+    }
+
+    private void handleGoogleRegistrationErrorIfPresent(ClientResponse clientResponse) {
+        if (clientResponse.statusCode().isError()) {
+            log.error("Unexpected error occurred upon registration with google account, oauth2 service responded with {} status", clientResponse.statusCode().value());
+            throw new AccountRegistrationException("Unexpected error occurred upon registration with google account");
+        }
     }
 }
