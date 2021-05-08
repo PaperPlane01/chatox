@@ -2,7 +2,10 @@ package chatox.registration.client.impl;
 
 import chatox.registration.api.request.CreateAccountRequest;
 import chatox.registration.api.request.CreateAnonymousAccountRequest;
+import chatox.registration.api.request.EnhancedLoginWithGoogleRequest;
+import chatox.registration.api.request.LoginWithGoogleRequest;
 import chatox.registration.api.response.CreateAccountResponse;
+import chatox.registration.api.response.LoginWithGoogleResponse;
 import chatox.registration.client.OAuthServiceClient;
 import chatox.registration.exception.AccountRegistrationException;
 import chatox.registration.exception.EmailAlreadyTakenException;
@@ -77,5 +80,16 @@ public class OAuthServiceClientImpl implements OAuthServiceClient {
                 .uri("/oauth/accounts/" + accountId + "/users/" + userId)
                 .retrieve()
                 .bodyToMono(Void.class);
+    }
+
+    @Override
+    public Mono<LoginWithGoogleResponse> loginWithGoogle(EnhancedLoginWithGoogleRequest loginWithGoogleRequest) {
+        return webClient.post()
+                .uri("/oauth/accounts/google")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Mono.just(loginWithGoogleRequest), EnhancedLoginWithGoogleRequest.class)
+                .exchange()
+                .flatMap(clientResponse -> clientResponse.bodyToMono(LoginWithGoogleResponse.class));
     }
 }

@@ -21,7 +21,7 @@ public class RegistrationResponse {
     private String firstName;
     private String lastName;
     private String slug;
-    private String avatarUri;
+    private String externalAvatarUri;
     private String accountId;
     private ZonedDateTime createdAt;
     private boolean anonymous;
