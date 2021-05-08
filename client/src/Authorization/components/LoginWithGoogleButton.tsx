@@ -1,15 +1,18 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, createStyles, makeStyles} from "@material-ui/core";
+import {Button, createStyles, makeStyles, Theme} from "@material-ui/core";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {stringify} from "query-string";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles((theme: Theme) => createStyles({
     loginWithGoogleButton: {
         color: "white",
         backgroundColor: "#cb3837",
-        textTransform: "none",
-        width: "100%"
+        width: "100%",
+        "&:hover": {
+            backgroundColor: "#9c2828"
+        },
+        marginTop: theme.spacing(2)
     }
 }));
 
