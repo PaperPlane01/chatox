@@ -24,7 +24,7 @@ export class UsersStore extends AbstractEntityStore<UserEntity, User> {
             bio: denormalizedEntity.bio,
             createdAt: new Date(denormalizedEntity.createdAt),
             dateOfBirth: denormalizedEntity.dateOfBirth ? new Date(denormalizedEntity.dateOfBirth) : undefined,
-            avatarUri: denormalizedEntity.avatarUri,
+            externalAvatarUri: denormalizedEntity.externalAvatarUri,
             firstName: denormalizedEntity.firstName,
             lastName: denormalizedEntity.lastName,
             deleted: denormalizedEntity.deleted,

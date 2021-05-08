@@ -417,5 +417,8 @@ export const en: Labels = {
     "report.chat.action.delete-chats.success": "Chats have been deleted",
     "report.chat.action.delete-chats.error.unknown": "Error occurred when tried to delete chats. Server responded with {errorStatus} status",
     "report.chat.action.delete-chats.error.server-unreachable": "Error occurred when tried to delete chats: server is unreachable",
-    "report.chat.reported-chat": "Reported chat"
+    "report.chat.reported-chat": "Reported chat",
+    "login.google": "Log in with Google",
+    "login.google.pending": "Trying to log in with google. This make take a while",
+    "login.google.error": "Error occurred when tried to log in with Google. Server responded with {errorStatus} status"
 };

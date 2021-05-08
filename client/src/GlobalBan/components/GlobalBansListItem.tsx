@@ -42,7 +42,7 @@ export const GlobalBansListItem: FunctionComponent<GlobalBansListItemProps> = ob
     return (
         <MenuItem onClick={handleClick}>
             <ListItemAvatar>
-                <Avatar avatarLetter={avatarLabel} avatarColor={avatarColor} avatarId={bannedUser.avatarId}/>
+                <Avatar avatarLetter={avatarLabel} avatarColor={avatarColor} avatarId={bannedUser.avatarId} avatarUri={bannedUser.externalAvatarUri}/>
             </ListItemAvatar>
             <ListItemText>
                 {getUserDisplayedName(bannedUser)}

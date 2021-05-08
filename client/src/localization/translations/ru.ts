@@ -417,5 +417,8 @@ export const ru: Labels = {
     "report.chat.action.delete-chats.success": "Чаты были удалены",
     "report.chat.action.delete-chats.error.unknown": "Во время попытки удалить чаты произошла ошибка. Сервер ответил со статусом {errorStatus}",
     "report.chat.action.delete-chats.error.server-unreachable": "Во время попытки удалить чаты произошла ошибка: сервер недоступен",
-    "report.chat.reported-chat": "Чат"
+    "report.chat.reported-chat": "Чат",
+    "login.google": "Войти с помощью Google",
+    "login.google.pending": "Осуществляется вход с помощью Google, это может занять какое-то время",
+    "login.google.error": "Во время попытки войти через Google произошла ошибка. Сервер ответил со статусом {errorStatus}"
 };

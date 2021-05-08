@@ -1,6 +1,7 @@
 package chatox.oauth2.respository;
 
 import chatox.oauth2.domain.Account;
+import chatox.oauth2.domain.AccountRegistrationType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +20,6 @@ public interface AccountRepository extends JpaRepository<Account, String> {
             nativeQuery = true
     )
     Account findByUserIdsContains(@Param("userId") String userId);
+
+    Optional<Account> findByExternalAccountIdAndType(String externalAccountId, AccountRegistrationType accountType);
 }

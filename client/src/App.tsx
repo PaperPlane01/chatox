@@ -8,10 +8,10 @@ import rgbToHex from "rgb-hex";
 import {SnackbarProvider} from "notistack";
 import {cyan} from "./themes";
 import {LoadingCurrentUserProgressIndicator} from "./Authorization";
-import {useLocalization} from "./store/hooks";
-import {AudioPlayerContainer} from "./AudioPlayer/components";
-import {ErrorBoundary} from "./ErrorBoundary/components";
-import {AnonymousRegistrationDialog} from "./Registration/components";
+import {useLocalization} from "./store";
+import {AudioPlayerContainer} from "./AudioPlayer";
+import {ErrorBoundary} from "./ErrorBoundary";
+import {AnonymousRegistrationDialog} from "./Registration";
 
 const {MobxRouter} = require("mobx-router");
 

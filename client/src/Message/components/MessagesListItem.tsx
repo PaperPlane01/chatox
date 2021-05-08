@@ -291,6 +291,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                     <Avatar avatarLetter={avatarLetter}
                             avatarColor={color}
                             avatarId={sender.avatarId}
+                            avatarUri={sender.externalAvatarUri}
                     />
                 </Link>
                 <Card className={cardClasses}>

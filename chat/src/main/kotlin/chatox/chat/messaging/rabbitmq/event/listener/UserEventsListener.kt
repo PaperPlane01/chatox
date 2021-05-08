@@ -60,7 +60,9 @@ class UserEventsListener(private val userRepository: UserRepository,
                     createdAt = userCreated.createdAt,
                     online = false,
                     email = userCreated.email,
-                    anonymoys = userCreated.anonymous
+                    anonymoys = userCreated.anonymous,
+                    accountRegistrationType = userCreated.accountRegistrationType,
+                    externalAvatarUri = userCreated.externalAvatarUri
             )).awaitFirst()
         }
                 .doOnSuccess { channel.basicAck(tag, false) }

@@ -14,10 +14,11 @@ import {
     TOKEN,
     USERS,
     USERNAME,
-    ANONYMOUS
+    ANONYMOUS,
+    GOOGLE
 } from "../endpoints";
 import {
-    AnonymousUserRegistrationRequest,
+    AnonymousUserRegistrationRequest, GoogleRegistrationRequest,
     RecoverPasswordRequest,
     RegistrationRequest,
     RevokeTokenRequest,
@@ -124,5 +125,9 @@ export class UserApi {
                 ...recoverPasswordRequest
             }
         });
+    }
+
+    public static registerWithGoogle(googleRegistrationRequest: GoogleRegistrationRequest): AxiosPromise<RegistrationResponse> {
+        return axiosInstance.post(`/${REGISTRATION}/${GOOGLE}`, googleRegistrationRequest);
     }
 }

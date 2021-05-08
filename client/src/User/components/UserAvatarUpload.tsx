@@ -42,6 +42,7 @@ export const UserAvatarUpload: FunctionComponent = observer(() => {
                           validationError={validationError}
                           submissionError={submissionError}
                           defaultAvatarId={currentUser.avatarId}
+                          externalAvatarUri={currentUser.externalAvatarUri}
             />
         </div>
     )

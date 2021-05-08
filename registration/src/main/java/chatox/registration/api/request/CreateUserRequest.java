@@ -17,4 +17,6 @@ public class CreateUserRequest {
     private String slug;
     private String email;
     private boolean anonymous;
+    private String externalAvatarUri;
+    private UserAccountRegistrationType accountRegistrationType;
 }

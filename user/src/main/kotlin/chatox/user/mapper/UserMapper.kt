@@ -16,7 +16,8 @@ class UserMapper(private val uploadMapper: UploadMapper) {
             user: User,
             online: Boolean = false,
             mapAccountId: Boolean = false,
-            mapEmail: Boolean = false
+            mapEmail: Boolean = false,
+            mapAccountRegistrationType: Boolean = false
     ) = UserResponse(
             id = user.id,
             slug = user.slug,
@@ -30,7 +31,9 @@ class UserMapper(private val uploadMapper: UploadMapper) {
             online = online,
             email = if (mapEmail) user.email else null,
             avatar = if (user.avatar != null) uploadMapper.toUploadResponse(user.avatar!!) else null,
-            anonymous = user.anonymous
+            anonymous = user.anonymous,
+            accountRegistrationType = if (mapAccountRegistrationType) user.accountRegistrationType else null,
+            externalAvatarUri = user.externalAvatarUri
     )
 
     fun fromCreateUserRequest(createUserRequest: CreateUserRequest) = User(
@@ -46,7 +49,9 @@ class UserMapper(private val uploadMapper: UploadMapper) {
             dateOfBirth = null,
             email = createUserRequest.email,
             avatar = null,
-            anonymous = createUserRequest.anonymous
+            anonymous = createUserRequest.anonymous,
+            externalAvatarUri = createUserRequest.externalAvatarUri,
+            accountRegistrationType = createUserRequest.accountRegistrationType
     )
 
     fun mapUserUpdate(

@@ -1,6 +1,6 @@
 import {IAppState} from "./IAppState";
 import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore} from "../Authorization/stores";
+import {AuthorizationStore, LoginStore, LoginWithGoogleStore} from "../Authorization/stores";
 import {
     createSetPasswordRecoveryStepCallback,
     PasswordRecoveryDialogStore,
@@ -252,6 +252,7 @@ const selectedReportedUsersBan = new BanUsersRelatedToSelectedReportsStore(entit
 const reportChat = new CreateReportStore(ReportType.CHAT);
 const chatReports = new ReportsListStore(entities, authorization, ReportType.CHAT);
 const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsStore(entities, chatReports, selectedReportsUpdate, reportedChatsCreatorsSelector);
+const googleLogin = new LoginWithGoogleStore(authorization);
 
 export const store: IAppState = {
     authorization,
@@ -337,5 +338,6 @@ export const store: IAppState = {
     selectedReportedUsersBan,
     reportChat,
     chatReports,
-    selectedReportedChatsCreatorsBan
+    selectedReportedChatsCreatorsBan,
+    googleLogin
 };

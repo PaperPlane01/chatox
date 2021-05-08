@@ -16,5 +16,6 @@ export interface CurrentUser {
     createdAt: string,
     dateOfBirth?: string,
     email?: string,
-    globalBan?: GlobalBan
+    globalBan?: GlobalBan,
+    externalAvatarUri?: string
 }

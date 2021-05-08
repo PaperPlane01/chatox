@@ -5,7 +5,7 @@ export interface UserEntity {
     bio?: string,
     dateOfBirth?: Date,
     slug?: string,
-    avatarUri?: string,
+    externalAvatarUri?: string,
     deleted: boolean,
     createdAt: Date,
     online: boolean,

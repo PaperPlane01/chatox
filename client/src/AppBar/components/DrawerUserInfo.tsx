@@ -31,6 +31,7 @@ export const DrawerUserInfo: FunctionComponent = observer(() => {
                         width={60}
                         height={60}
                         avatarId={currentUser.avatarId}
+                        avatarUri={currentUser.externalAvatarUri}
                 />
                 <Typography className={classes.username}>
                     {currentUser.firstName} {currentUser.lastName ? currentUser.lastName : ""}

@@ -14,5 +14,6 @@ export interface User {
     online: boolean,
     lastSeen?: string,
     avatar?: Upload<ImageUploadMetadata>,
-    onlineStatusMightBeInaccurate?: boolean
+    onlineStatusMightBeInaccurate?: boolean,
+    externalAvatarUri?: string
 }

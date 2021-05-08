@@ -56,6 +56,7 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
                         width={avatarWidth}
                         height={avatarHeight}
                         avatarId={user.avatarId}
+                        avatarUri={user.externalAvatarUri}
                 />
                 <Typography className={classes.userNicknameTypography}
                             style={{color}}

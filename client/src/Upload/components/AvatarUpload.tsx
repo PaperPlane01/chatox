@@ -16,7 +16,8 @@ interface AvatarUploadProps {
     imageContainer?: UploadedFileContainer<ImageUploadMetadata>,
     defaultAvatarId?: string,
     defaultAvatarLabel: string,
-    avatarColor: string
+    avatarColor: string,
+    externalAvatarUri?: string
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -33,11 +34,16 @@ export const AvatarUpload: FunctionComponent<AvatarUploadProps> = ({
     imageContainer,
     defaultAvatarLabel,
     defaultAvatarId,
-    avatarColor
+    avatarColor,
+    externalAvatarUri
 }) => {
     const {l} = useLocalization();
     const [value, setValue] = useState("");
     const classes = useStyles();
+
+    const avatarUri = imageContainer
+        ? imageContainer.url
+        : externalAvatarUri ? externalAvatarUri : undefined;
 
     const handleFileAttachment = (event: ChangeEvent<HTMLInputElement>): void => {
         if (event.target.files && event.target.files.length !== 0) {
@@ -50,7 +56,7 @@ export const AvatarUpload: FunctionComponent<AvatarUploadProps> = ({
             <Avatar avatarLetter={defaultAvatarLabel}
                     avatarColor={avatarColor}
                     avatarId={defaultAvatarId}
-                    avatarUri={imageContainer && imageContainer.url}
+                    avatarUri={avatarUri}
                     width={80}
                     height={80}
             />

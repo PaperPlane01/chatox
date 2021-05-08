@@ -59,6 +59,7 @@ export const ChatParticipantsListItem: FunctionComponent<ChatParticipantsListIte
                 <Avatar avatarLetter={avatarLetters}
                         avatarColor={randomColor({seed: user.id})}
                         avatarId={user.avatarId}
+                        avatarUri={user.externalAvatarUri}
                 />
             </div>
             <ListItemText primaryTypographyProps={{

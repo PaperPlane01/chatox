@@ -10,5 +10,6 @@ export interface RegistrationResponse {
     slug?: string,
     avatarUri?: string,
     accountId: string,
-    createdAt: string
+    createdAt: string,
+    externalAvatarUri?: string
 }
