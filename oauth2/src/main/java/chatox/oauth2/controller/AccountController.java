@@ -2,14 +2,17 @@ package chatox.oauth2.controller;
 
 import chatox.oauth2.api.request.CreateAccountRequest;
 import chatox.oauth2.api.request.CreateAnonymousAccountRequest;
+import chatox.oauth2.api.request.LoginWithGoogleRequest;
 import chatox.oauth2.api.request.RecoverPasswordRequest;
 import chatox.oauth2.api.request.UpdatePasswordRequest;
 import chatox.oauth2.api.response.AccountResponse;
 import chatox.oauth2.api.response.CreateAccountResponse;
 import chatox.oauth2.api.response.EmailAvailabilityResponse;
+import chatox.oauth2.api.response.LoginWithGoogleResponse;
 import chatox.oauth2.api.response.UsernameAvailabilityResponse;
 import chatox.oauth2.service.AccountService;
 import chatox.oauth2.service.EmailConfirmationCodeService;
+import chatox.oauth2.service.GoogleRegistrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +34,7 @@ import java.util.Map;
 public class AccountController {
     private final AccountService accountService;
     private final EmailConfirmationCodeService emailVerificationService;
+    private final GoogleRegistrationService googleRegistrationService;
 
     @PreAuthorize("#oauth2.hasScope('internal_create_account')")
     @PostMapping
@@ -42,6 +46,12 @@ public class AccountController {
     @PostMapping("/anonymous")
     public CreateAccountResponse createAnonymousAccount(@RequestBody @Valid CreateAnonymousAccountRequest createAnonymousAccountRequest) {
         return accountService.createAnonymousAccount(createAnonymousAccountRequest);
+    }
+
+    @PreAuthorize("#oauth2.hasScope('internal_create_account')")
+    @PostMapping("/google")
+    public LoginWithGoogleResponse loginWithGoogle(@RequestBody @Valid LoginWithGoogleRequest loginWithGoogleRequest) {
+        return googleRegistrationService.loginWithGoogle(loginWithGoogleRequest);
     }
 
     @PreAuthorize("hasRole('USER')")

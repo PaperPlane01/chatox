@@ -9,6 +9,8 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -50,4 +52,8 @@ public class Account {
     private List<String> userIds;
 
     private String email;
+
+    @Enumerated(EnumType.STRING)
+    private AccountRegistrationType type;
+    private String externalAccountId;
 }
