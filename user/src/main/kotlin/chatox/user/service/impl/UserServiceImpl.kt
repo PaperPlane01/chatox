@@ -43,14 +43,24 @@ class UserServiceImpl(private val userRepository: UserRepository,
     }
 
     override fun createUser(createUserRequest: CreateUserRequest): Mono<UserResponse> {
-        val user = userMapper.fromCreateUserRequest(createUserRequest)
+        return mono {
+            var user = userRepository.findById(createUserRequest.id).awaitFirstOrNull()
 
-        return userRepository.save(user)
-                .map { userMapper.toUserResponse(it, mapAccountId = true) }
-                .map {
-                    userEventsProducer.userCreated(it)
-                    it.copy(accountId = null)
-                }
+            if (user == null) {
+                user = userMapper.fromCreateUserRequest(createUserRequest)
+                userRepository.save(user).awaitFirst()
+            }
+
+            val userResponse = userMapper.toUserResponse(
+                    user = user,
+                    mapAccountId = true,
+                    mapAccountRegistrationType = true,
+                    mapEmail = true
+            )
+            userEventsProducer.userCreated(userResponse)
+
+            return@mono userResponse
+        }
     }
 
     override fun updateUser(id: String, updateUserRequest: UpdateUserRequest): Mono<UserResponse> {
@@ -88,7 +98,10 @@ class UserServiceImpl(private val userRepository: UserRepository,
 
             val userResponse = userMapper.toUserResponse(
                     user = user,
-                    online = online
+                    online = online,
+                    mapEmail = true,
+                    mapAccountRegistrationType = true,
+                    mapAccountId = true
             )
             userEventsProducer.userUpdated(userResponse)
             userResponse

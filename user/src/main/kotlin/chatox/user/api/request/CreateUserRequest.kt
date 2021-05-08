@@ -1,5 +1,6 @@
 package chatox.user.api.request
 
+import chatox.user.domain.UserAccountRegistrationType
 import com.fasterxml.jackson.annotation.JsonProperty
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
@@ -33,7 +34,13 @@ data class CreateUserRequest(
 
         @field:NotNull
         @field:JsonProperty("anonymous")
-        private val _anonymous: Boolean?
+        private val _anonymous: Boolean?,
+
+        @field:NotNull
+        @field:JsonProperty("accountRegistrationType")
+        private val _accountRegistrationType: UserAccountRegistrationType?,
+
+        val externalAvatarUri: String?
 ) {
         val id: String
                 get() = _id!!
@@ -43,4 +50,6 @@ data class CreateUserRequest(
                 get() = _firstName!!
         val anonymous: Boolean
                 get() = _anonymous!!
+        val accountRegistrationType: UserAccountRegistrationType
+                get() = _accountRegistrationType!!
 }

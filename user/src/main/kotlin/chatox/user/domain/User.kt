@@ -18,7 +18,9 @@ data class User(
         var email: String?,
         var activeSessionsCount: Int = 0,
         var avatar: Upload<ImageUploadMetadata>?,
-        var anonymous: Boolean = false
+        var anonymous: Boolean = false,
+        var externalAvatarUri: String? = null,
+        var accountRegistrationType: UserAccountRegistrationType = UserAccountRegistrationType.USERNAME_AND_PASSWORD
 ) {
         override fun toString(): String {
                 return "User(id='$id', slug=$slug, firstName='$firstName', lastName=$lastName, bio=$bio, createdAt=$createdAt, lastSeen=$lastSeen, accountId='$accountId', deleted=$deleted, dateOfBirth=$dateOfBirth, email=$email)"

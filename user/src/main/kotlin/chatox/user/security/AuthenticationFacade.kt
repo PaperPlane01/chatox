@@ -64,7 +64,7 @@ class AuthenticationFacade(private val userRepository: UserRepository,
                         .awaitFirstOrNull()
             }
 
-            CurrentUser(
+            return@mono CurrentUser(
                     id = user.id,
                     slug = user.slug,
                     firstName = user.firstName,
@@ -82,7 +82,8 @@ class AuthenticationFacade(private val userRepository: UserRepository,
                             createdBy = userReactiveRepositoryCacheWrapper.findById(lastActiveBan.createdById).awaitFirst(),
                             updatedBy = if (lastActiveBan.updatedById != null) userReactiveRepositoryCacheWrapper.findById(lastActiveBan.updatedById!!).awaitFirst() else null,
                             canceledBy = if (lastActiveBan.cancelledById != null) userReactiveRepositoryCacheWrapper.findById(lastActiveBan.cancelledById!!).awaitFirst() else null
-                    ) else null
+                    ) else null,
+                    externalAvatarUri = user.externalAvatarUri
             )
         }
     }
