@@ -133,6 +133,7 @@ export const LoginDialog: FunctionComponent = observer(() => {
                     />}
                     {l("login")}
                 </Button>
+                <LoginWithGoogleButton/>
                 <Button variant="text"
                         color="default"
                         className={classes.loginAsAnonymousButton}
@@ -143,7 +144,6 @@ export const LoginDialog: FunctionComponent = observer(() => {
                 >
                     {l("login.as-anonymous")}
                 </Button>
-                <LoginWithGoogleButton/>
                 <Button variant="outlined"
                         color="secondary"
                         className={classes.dialogActionButton}
