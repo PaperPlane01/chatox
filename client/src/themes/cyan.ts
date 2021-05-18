@@ -52,5 +52,10 @@ export const cyan = createMuiTheme({
                 }
             }
         }
+    },
+    props: {
+        MuiUseMediaQuery: {
+            noSsr: true
+        }
     }
 });

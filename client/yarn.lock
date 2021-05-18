@@ -1498,6 +1498,27 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
+"@react-hook/latest@^1.0.2":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@react-hook/latest/-/latest-1.0.3.tgz#c2d1d0b0af8b69ec6e2b3a2412ba0768ac82db80"
+  integrity sha512-dy6duzl+JnAZcDbNTfmaP3xHiKtbXYOaz3G51MGVljh548Y8MWzTr+PHLOfvpypEVW9zwvl+VyKjbWKEVbV1Rg==
+
+"@react-hook/passive-layout-effect@^1.2.0":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@react-hook/passive-layout-effect/-/passive-layout-effect-1.2.1.tgz#c06dac2d011f36d61259aa1c6df4f0d5e28bc55e"
+  integrity sha512-IwEphTD75liO8g+6taS+4oqz+nnroocNfWVHWz7j+N+ZO2vYrc6PV1q7GQhuahL0IOR7JccFTsFKQ/mb6iZWAg==
+
+"@react-hook/resize-observer@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@react-hook/resize-observer/-/resize-observer-1.2.0.tgz#a44b385d998f4ab33aa9481a43c4ac33af21f7d7"
+  integrity sha512-7Cpy0aaZ3xXlSabQ43aZcfgzwYSidrshEKGDqpfvdx7pHnGDGskr8m1Ajb6yamJUSdTRgqCemYQcwouCqMmZoQ==
+  dependencies:
+    "@react-hook/latest" "^1.0.2"
+    "@react-hook/passive-layout-effect" "^1.2.0"
+    "@types/raf-schd" "^4.0.0"
+    raf-schd "^4.0.2"
+    resize-observer-polyfill "^1.5.1"
+
 "@sheerun/mutationobserver-shim@^0.3.2":
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/@sheerun/mutationobserver-shim/-/mutationobserver-shim-0.3.3.tgz#5405ee8e444ed212db44e79351f0c70a582aae25"
@@ -1852,6 +1873,11 @@
   resolved "https://registry.yarnpkg.com/@types/qs/-/qs-6.9.5.tgz#434711bdd49eb5ee69d90c1d67c354a9a8ecb18b"
   integrity sha512-/JHkVHtx/REVG0VVToGRGH2+23hsYLHdyG+GrvoUGlGAd0ErauXDyvHtRI/7H7mzLm+tBCKA7pfcpkQ1lf58iQ==
 
+"@types/raf-schd@^4.0.0":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@types/raf-schd/-/raf-schd-4.0.1.tgz#1f9e03736f277fe9c7b82102bf18570a6ee19f82"
+  integrity sha512-Ha+EnKHFIh9EKW0/XZJPUd3EGDFisEvauaBd4VVCRPKeOqUxNEc9TodiY2Zhk33XCgzJucoFEcaoNcBAPHTQ2A==
+
 "@types/randomcolor@^0.5.3":
   version "0.5.5"
   resolved "https://registry.yarnpkg.com/@types/randomcolor/-/randomcolor-0.5.5.tgz#6d8af5f87c6bec1e338ae2d0739056cc2e5720fd"
@@ -2012,6 +2038,18 @@
     lodash "^4.17.15"
     semver "^7.3.2"
     tsutils "^3.17.1"
+
+"@virtuoso.dev/react-urx@^0.2.5":
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/@virtuoso.dev/react-urx/-/react-urx-0.2.5.tgz#41f1a8c7657a339276ecf1ff718b556010c80932"
+  integrity sha512-4C0HoPaZEqAKg3pzs3mS16kesCRvEU+TYVDxFsW+vGFi1nyPovhiQ7YVTOPBE55rjVv/rkNqL1eWqjwJM/SohA==
+  dependencies:
+    "@virtuoso.dev/urx" "^0.2.5"
+
+"@virtuoso.dev/urx@^0.2.5":
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/@virtuoso.dev/urx/-/urx-0.2.5.tgz#8c88e9634df06e9f6b98bcd80490652347108c86"
+  integrity sha512-Vf3g+iAl5h8UuduSRTB1XK4G08xeV80tMP46P3xn5jIk1xV5IsdTInl58VU2thnCxRG9yJawR/QJwTFfMgkUww==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
@@ -9549,6 +9587,11 @@ raf-schd@^2.1.2:
   resolved "https://registry.yarnpkg.com/raf-schd/-/raf-schd-2.1.2.tgz#ec622b5167f2912089f054dc03ebd5bcf33c8f62"
   integrity sha512-Orl0IEvMtUCgPddgSxtxreK77UiQz4nPYJy9RggVzu4mKsZkQWiAaG1y9HlYWdvm9xtN348xRaT37qkvL/+A+g==
 
+raf-schd@^4.0.2:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/raf-schd/-/raf-schd-4.0.3.tgz#5d6c34ef46f8b2a0e880a8fcdb743efc5bfdbc1a"
+  integrity sha512-tQkJl2GRWh83ui2DiPTJz9wEiMN20syf+5oKfB03yYP7ioZcJwsIK8FjrtLwH1m7C7e+Tt2yYBlrOpdT+dyeIQ==
+
 raf@^3.1.0, raf@^3.4.1:
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/raf/-/raf-3.4.1.tgz#0742e99a4a6552f445d73e3ee0328af0ff1ede39"
@@ -9915,13 +9958,15 @@ react-view-pager@^0.6.0:
     resize-observer-polyfill "1.5.0"
     tabbable "1.1.2"
 
-react-virtuoso@^0.20.0:
-  version "0.20.0"
-  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-0.20.0.tgz#df1d6e33e358f817dbf954bd556333fcdcc91eb1"
-  integrity sha512-h+U6t/+m91AzfUe6bBfaacdLLJl1y8v7CfcXwPgQ/Dic+vNlgQmi6cIKTq18zuF+kI8Q7QN0ojIeqPHWbU8TZA==
+react-virtuoso@^1.8.6:
+  version "1.8.6"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-1.8.6.tgz#dc7d79ee9e309c13700296ff65b04f6ebecdcbaa"
+  integrity sha512-WFSI4YzdyAFrr3CuZnQ8cmubGMJjgmgyuhx/OpWLls1uK9O43s+6DMr9oBXHAgvCDjS3Nd3vkIJAhsJBJzS1nQ==
   dependencies:
+    "@virtuoso.dev/react-urx" "^0.2.5"
+    "@virtuoso.dev/urx" "^0.2.5"
+    react-app-polyfill "^1.0.6"
     resize-observer-polyfill "^1.5.1"
-    tslib "^1.11.1"
 
 react-visibility-sensor@^5.1.1:
   version "5.1.1"
@@ -11446,7 +11491,7 @@ ts-pnp@^1.1.6:
   resolved "https://registry.yarnpkg.com/ts-pnp/-/ts-pnp-1.2.0.tgz#a500ad084b0798f1c3071af391e65912c86bca92"
   integrity sha512-csd+vJOb/gkzvcCHgTGSChYpy5f1/XKNsmvBGO4JXS+z1v2HobugDz4s1IeFXM3wZB44uczs+eazB5Q/ccdhQw==
 
-tslib@^1.0.0, tslib@^1.10.0, tslib@^1.11.1, tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.3:
+tslib@^1.0.0, tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.3:
   version "1.13.0"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.13.0.tgz#c881e13cc7015894ed914862d276436fa9a47043"
   integrity sha512-i/6DQjL8Xf3be4K/E6Wgpekn5Qasl1usyw++dAA35Ue5orEn65VIxOA+YvNNl9HV3qv70T7CNwjODHZrLwvd1Q==

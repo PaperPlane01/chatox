@@ -31,6 +31,7 @@ import {
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     MessageDialogStore,
+    MessagesListScrollPositionsStore,
     MessagesOfChatStore,
     PinMessageStore,
     PinnedMessagesStore,
@@ -175,5 +176,6 @@ export interface IAppState {
     chatReports: ReportsListStore,
     selectedReportedChatsCreatorsBan: BanUsersRelatedToSelectedReportsStore,
     googleLogin: LoginWithGoogleStore,
+    messagesListScrollPositions: MessagesListScrollPositionsStore,
     store?: any
 }

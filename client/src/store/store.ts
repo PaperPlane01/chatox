@@ -52,6 +52,7 @@ import {
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     MessageDialogStore,
+    MessagesListScrollPositionsStore,
     MessagesOfChatStore,
     MessagesStore,
     PinMessageStore,
@@ -253,6 +254,7 @@ const reportChat = new CreateReportStore(ReportType.CHAT);
 const chatReports = new ReportsListStore(entities, authorization, ReportType.CHAT);
 const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsStore(entities, chatReports, selectedReportsUpdate, reportedChatsCreatorsSelector);
 const googleLogin = new LoginWithGoogleStore(authorization);
+const messagesListScrollPositions = new MessagesListScrollPositionsStore();
 
 export const store: IAppState = {
     authorization,
@@ -339,5 +341,6 @@ export const store: IAppState = {
     reportChat,
     chatReports,
     selectedReportedChatsCreatorsBan,
-    googleLogin
+    googleLogin,
+    messagesListScrollPositions
 };
