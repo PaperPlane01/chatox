@@ -10,7 +10,7 @@ import React, {
 } from "react";
 import {observer} from "mobx-react";
 import {createStyles, makeStyles, Theme, useMediaQuery, useTheme} from "@material-ui/core";
-import {Virtuoso, VirtuosoMethods} from "react-virtuoso";
+import {Virtuoso, VirtuosoHandle} from "react-virtuoso";
 import {MessagesListItem} from "./MessagesListItem";
 import {MessagesListBottom} from "./MessagesListBottom";
 import {PinnedMessage} from "./PinnedMessage";
@@ -72,7 +72,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     const messagesListBottomRef = useRef<HTMLDivElement>(null);
     const classes = useStyles();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-    const virtuosoRef = useRef<VirtuosoMethods>() as RefObject<VirtuosoMethods>
+    const virtuosoRef = useRef<VirtuosoHandle>() as RefObject<VirtuosoHandle>
     const messagesDivRef = useRef<HTMLDivElement>(null);
     const pinnedMessageRef = useRef<HTMLDivElement>(null);
 
@@ -125,7 +125,7 @@ export const MessagesList: FunctionComponent = observer(() => {
         }
 
         return {height, paddingBottom, paddingTop, transform};
-    }
+    };
 
     const [styles, setStyles] = useState(calculateStyles());
 
@@ -165,7 +165,7 @@ export const MessagesList: FunctionComponent = observer(() => {
 
             setReachedBottom( documentHeight - windowBottom <= 1);
         }
-    }
+    };
 
     useEffect(scrollToBottom, [messagesOfChat, emojiPickerExpanded]);
     useEffect(() => {
@@ -174,7 +174,7 @@ export const MessagesList: FunctionComponent = observer(() => {
             if (reachedBottom) {
                 scrollToBottom();
             }
-        }
+        };
 
         document.addEventListener("scroll", handleWindowScroll)
         window.addEventListener("resize", handleResize);
@@ -182,14 +182,14 @@ export const MessagesList: FunctionComponent = observer(() => {
         return () => {
             document.removeEventListener("scroll", handleWindowScroll);
             window.removeEventListener("resize", handleResize);
-        }
+        };
     });
     useEffect(() => {
         if (virtuosoRef && virtuosoRef.current && selectedChatId && virtuosoTopMostItemHandler.getInitialTopMostItem(selectedChatId)) {
             // Scroll to the top item to restore scroll position
-            virtuosoRef.current.scrollToIndex(virtuosoTopMostItemHandler.getInitialTopMostItem(selectedChatId)!);
+            setTimeout(() => virtuosoRef!.current!.scrollToIndex(virtuosoTopMostItemHandler.getInitialTopMostItem(selectedChatId)!))
         }
-    }, [selectedChatId, onSmallScreen])
+    }, [selectedChatId, onSmallScreen]);
     useLayoutEffect(
         () => setStyles(calculateStyles()),
         [
@@ -228,7 +228,7 @@ export const MessagesList: FunctionComponent = observer(() => {
             }
         },
         [messagesDivRef]
-    )
+    );
 
     if (!enableVirtualScroll) {
         return (
@@ -262,10 +262,11 @@ export const MessagesList: FunctionComponent = observer(() => {
                     ref={messagesDivRef}
                >
                    <Virtuoso totalCount={messagesOfChat.length}
-                             item={index => (
+                             itemContent={index => (
                                  <MessagesListItem messageId={messagesOfChat[index]}
                                                    onVisibilityChange={visible => {
                                                        if (visible) {
+                                                           console.log("Setting initial top most item")
                                                            virtuosoTopMostItemHandler.setInitialTopMostItem(selectedChatId!, index);
                                                        }
 
@@ -293,5 +294,5 @@ export const MessagesList: FunctionComponent = observer(() => {
                </div>
            </Fragment>
         )
-    }
+    };
 });

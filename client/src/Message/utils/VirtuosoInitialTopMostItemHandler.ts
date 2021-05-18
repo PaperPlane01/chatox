@@ -1,3 +1,5 @@
+import {throttle} from "lodash";
+
 export interface VirtuosoInitialTopMostItemIndexMapEntry {
     index: number,
     previous: number[]
@@ -9,6 +11,10 @@ export interface VirtuosoInitialTopMostIndexMap {
 
 export class VirtuosoInitialTopMostItemHandler {
     private initialTopMostIndexMap: VirtuosoInitialTopMostIndexMap = {};
+
+    constructor() {
+        this.setInitialTopMostItem = throttle(this.setInitialTopMostItem, 1000);
+    }
 
     public setInitialTopMostItem(chatId: string, index: number): void {
         if (!this.initialTopMostIndexMap[chatId]) {
@@ -26,7 +32,7 @@ export class VirtuosoInitialTopMostItemHandler {
             if ((previous - index) === 1) {
                 // Negate this effect
                 index = previous;
-            } else if ((previous - index) > 20) {
+            } else if ((previous - index) > 10) {
                 // Looks like some kind of race condition happens when switching between chats.
                 // For some reason position of current chat is set to previous chat on first render.
                 // We detect too large difference between current position and previous position of chat to avoid
