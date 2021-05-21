@@ -245,7 +245,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     .findAllByUserIdAndDeletedFalse(currentUser.id)
                     .collectList()
                     .awaitFirst()
-            val unreadMessagesMap: MutableMap<String, Int> = HashMap()
+            val unreadMessagesMap: MutableMap<String, Long> = HashMap()
 
             chatParticipations.forEach { chatParticipation ->
                 unreadMessagesMap[chatParticipation.chatId] = countUnreadMessages(chatParticipation)
@@ -274,14 +274,12 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 .flatMapMany { Flux.fromIterable(it) }
     }
 
-    private fun countUnreadMessages(chatParticipation: ChatParticipation): Mono<Int> {
+    private fun countUnreadMessages(chatParticipation: ChatParticipation): Mono<Long> {
         return mono {
-            if (chatParticipation.lastReadMessageId != null) {
-                val message = messageCacheWrapper.findById(chatParticipation.lastReadMessageId!!).awaitFirst()
-
+            if (chatParticipation.lastReadMessageCreatedAt != null) {
                 messageRepository.countByChatIdAndCreatedAtAfter(
                         chatId = chatParticipation.chatId,
-                        date = message.createdAt
+                        date = chatParticipation.lastReadMessageCreatedAt!!
                 )
                         .awaitFirst()
             } else {

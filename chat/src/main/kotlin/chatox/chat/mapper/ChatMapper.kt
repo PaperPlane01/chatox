@@ -57,7 +57,7 @@ class ChatMapper(
             chatParticipation: ChatParticipation,
             lastMessage: Message?,
             lastReadMessage: Message?,
-            unreadMessagesCount: Int,
+            unreadMessagesCount: Long,
             onlineParticipantsCount: Int,
             localUsersCache: MutableMap<String, UserResponse>? = null
     ): Mono<ChatOfCurrentUserResponse> {

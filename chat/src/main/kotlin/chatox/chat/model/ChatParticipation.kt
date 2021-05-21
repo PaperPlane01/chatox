@@ -23,9 +23,12 @@ data class ChatParticipation(
         var lastReadMessageAt: ZonedDateTime? = null,
 
         @Indexed
-        var lastMessageReadId: String? = null,
-        var createdAt: ZonedDateTime,
-        var lastModifiedAt: ZonedDateTime? = null,
+        var lastReadMessageCreatedAt: ZonedDateTime? = null,
+
+        @Indexed
+        val lastMessageReadId: String? = null,
+        val createdAt: ZonedDateTime,
+        val lastModifiedAt: ZonedDateTime? = null,
 
         @Indexed
         var lastActiveChatBlockingId: String? = null,

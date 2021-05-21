@@ -414,38 +414,34 @@ class MessageServiceImpl(
         return mono {
             val message = findMessageEntityById(messageId = messageId, retrieveFromCache = true)
                     .awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
-
-            val messageRead = messageReadRepository.save(MessageRead(
-                    id = UUID.randomUUID().toString(),
-                    date = ZonedDateTime.now(),
-                    messageId = message.id,
-                    userId = currentUser.id,
-                    chatId = message.chatId
-            ))
-                    .awaitFirst()
-
-            val chatParticipation = chatParticipationRepository.findByChatIdAndUser(
+            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val chatParticipation = chatParticipationRepository.findByChatIdAndUserId(
                     chatId = message.chatId,
-                    user = currentUser
+                    userId = currentUser.id
             )
                     .awaitFirst()
+            val now = ZonedDateTime.now()
 
-            if (chatParticipation.lastReadMessageId != null) {
-                val lastReadMessage = findMessageEntityById(
-                        messageId = chatParticipation.lastReadMessageId!!,
-                        retrieveFromCache = true
-                )
+            if (chatParticipation.lastReadMessageCreatedAt == null
+                    || isDateBeforeOrEquals(chatParticipation.lastReadMessageCreatedAt!!, message.createdAt)) {
+                val messageRead = messageReadRepository.save(MessageRead(
+                        id = UUID.randomUUID().toString(),
+                        userId = currentUser.id,
+                        chatId = message.chatId,
+                        date = now,
+                        messageId = message.id
+                ))
                         .awaitFirst()
 
-                if (isDateBeforeOrEquals(lastReadMessage.createdAt, message.createdAt)) {
-                    chatParticipationRepository.save(chatParticipation.copy(
-                            lastMessageReadId = messageRead.id,
-                            lastReadMessageId = messageId,
-                            lastReadMessageAt = messageRead.date
-                    ))
-                            .awaitFirst()
-                }
+                return@mono chatParticipationRepository.save(chatParticipation.copy(
+                        lastReadMessageAt = now,
+                        lastReadMessageId = message.id,
+                        lastMessageReadId = messageRead.id,
+                        lastReadMessageCreatedAt = message.createdAt
+                ))
+                        .awaitFirst()
+            } else {
+                return@mono chatParticipation
             }
         }
                 .flatMap { Mono.empty<Void>() }
