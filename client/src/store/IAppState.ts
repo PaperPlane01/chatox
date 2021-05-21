@@ -29,7 +29,7 @@ import {
     ClosedPinnedMessagesStore,
     CreateMessageStore,
     DeleteScheduledMessageStore,
-    DownloadMessageFileStore,
+    DownloadMessageFileStore, MarkMessageReadStore,
     MessageDialogStore,
     MessagesListScrollPositionsStore,
     MessagesOfChatStore,
@@ -177,5 +177,6 @@ export interface IAppState {
     selectedReportedChatsCreatorsBan: BanUsersRelatedToSelectedReportsStore,
     googleLogin: LoginWithGoogleStore,
     messagesListScrollPositions: MessagesListScrollPositionsStore,
+    markMessageRead: MarkMessageReadStore,
     store?: any
 }

@@ -1,6 +1,6 @@
 import {action, computed, reaction} from "mobx";
 import SocketIo from "socket.io-client";
-import {AuthorizationStore} from "../../Authorization/stores";
+import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
 import {
     ChatDeleted,
@@ -13,6 +13,8 @@ import {
     WebsocketEventType
 } from "../../api/types/websocket";
 import {ChatBlocking, ChatParticipation, GlobalBan, Message} from "../../api/types/response";
+import {ChatStore} from "../../Chat";
+import {MarkMessageReadStore, MessagesListScrollPositionsStore} from "../../Message";
 
 export class WebsocketStore {
     socketIoClient?: SocketIOClient.Socket;
@@ -23,12 +25,14 @@ export class WebsocketStore {
     }
 
     constructor(private readonly authorization: AuthorizationStore,
-                private readonly entities: EntitiesStore) {
-
+                private readonly entities: EntitiesStore,
+                private readonly chatStore: ChatStore,
+                private readonly scrollPositionStore: MessagesListScrollPositionsStore,
+                private readonly markMessageReadStore: MarkMessageReadStore) {
         reaction(
             () => authorization.currentUser,
             () => this.startListening()
-        )
+        );
     }
 
     @action
@@ -60,7 +64,24 @@ export class WebsocketStore {
                 (event: WebsocketEvent<Message>) => {
                     const message = event.payload;
                     message.previousMessageId = this.entities.chats.findById(message.chatId).lastMessage;
-                    this.entities.insertMessage(message);
+                    this.entities.insertMessage({
+                        ...message,
+                        readByCurrentUser: false
+                    });
+
+                    if (this.authorization.currentUser) {
+                        if (this.authorization.currentUser.id !== message.sender.id) {
+                            if (this.chatStore.selectedChatId === message.chatId) {
+                                if (this.scrollPositionStore.getReachedBottom(message.chatId)) {
+                                    this.markMessageReadStore.markMessageRead(message.id);
+                                } else {
+                                    this.entities.chats.increaseUnreadMessagesCountOfChat(message.chatId);
+                                }
+                            } else {
+                                this.entities.chats.increaseUnreadMessagesCountOfChat(message.chatId);
+                            }
+                        }
+                    }
                 }
             );
             this.socketIoClient.on(

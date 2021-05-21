@@ -50,7 +50,7 @@ import {
     ClosedPinnedMessagesStore,
     CreateMessageStore,
     DeleteScheduledMessageStore,
-    DownloadMessageFileStore,
+    DownloadMessageFileStore, MarkMessageReadStore,
     MessageDialogStore,
     MessagesListScrollPositionsStore,
     MessagesOfChatStore,
@@ -168,7 +168,6 @@ const messageCreation = new CreateMessageStore(chat, entities, messageUploads);
 const chatsPreferences = new ChatsPreferencesStore();
 const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences);
 const joinChat = new JoinChatStore(entities, authorization);
-const websocket = new WebsocketStore(authorization, entities);
 const userProfile = new UserProfileStore(entities);
 const createChatBlocking = new CreateChatBlockingStore(chat, entities);
 const chatBlockingsOfChat = new ChatBlockingsOfChatStore(entities, chat);
@@ -255,6 +254,8 @@ const chatReports = new ReportsListStore(entities, authorization, ReportType.CHA
 const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsStore(entities, chatReports, selectedReportsUpdate, reportedChatsCreatorsSelector);
 const googleLogin = new LoginWithGoogleStore(authorization);
 const messagesListScrollPositions = new MessagesListScrollPositionsStore();
+const markMessageRead = new MarkMessageReadStore(entities, chat);
+const websocket = new WebsocketStore(authorization, entities, chat, messagesListScrollPositions, markMessageRead);
 
 export const store: IAppState = {
     authorization,
@@ -342,5 +343,6 @@ export const store: IAppState = {
     chatReports,
     selectedReportedChatsCreatorsBan,
     googleLogin,
-    messagesListScrollPositions
+    messagesListScrollPositions,
+    markMessageRead
 };
