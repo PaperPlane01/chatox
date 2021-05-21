@@ -254,7 +254,7 @@ const chatReports = new ReportsListStore(entities, authorization, ReportType.CHA
 const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsStore(entities, chatReports, selectedReportsUpdate, reportedChatsCreatorsSelector);
 const googleLogin = new LoginWithGoogleStore(authorization);
 const messagesListScrollPositions = new MessagesListScrollPositionsStore();
-const markMessageRead = new MarkMessageReadStore(entities, chat);
+const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
 const websocket = new WebsocketStore(authorization, entities, chat, messagesListScrollPositions, markMessageRead);
 
 export const store: IAppState = {

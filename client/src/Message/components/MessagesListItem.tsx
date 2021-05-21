@@ -191,7 +191,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
             useSimplifiedGalleryForVirtualScroll
         },
         markMessageRead: {
-            markMessageRead
+            addMessageToQueue
         }
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
@@ -280,7 +280,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
 
     const handleVisibilityChange = (visible: boolean): void => {
         if (visible && !message.readByCurrentUser) {
-            markMessageRead(message.id);
+            addMessageToQueue(message.id);
         }
 
         if (onVisibilityChange) {
