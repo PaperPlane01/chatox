@@ -1,9 +1,9 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
+import {MessagesListScrollPositionsStore} from "./MessagesListScrollPositionsStore";
 import {EntitiesStore} from "../../entities-store";
 import {MessageApi} from "../../api";
 import {ChatStore} from "../../Chat";
-import {MessagesListScrollPositionsStore} from "./MessagesListScrollPositionsStore";
 
 export class MarkMessageReadStore {
     @observable
