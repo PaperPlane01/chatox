@@ -12,7 +12,7 @@ interface MessageRepository : ReactiveMongoRepository<Message, String> {
     override fun findById(id: String): Mono<Message>
     fun findByChatId(chatId: String, pageable: Pageable): Flux<Message>
     fun countByChatId(chatId: String): Mono<Int>
-    fun countByChatIdAndCreatedAtAfter(chatId: String, date: ZonedDateTime): Mono<Long>
+    fun countByChatIdAndCreatedAtAfterAndSenderIdNot(chatId: String, date: ZonedDateTime, senderId: String): Mono<Long>
     fun findByChatIdAndCreatedAtGreaterThanEqual(chatId: String, date: ZonedDateTime, pageable: Pageable): Flux<Message>
     fun findByChatIdAndCreatedAtLessThanEqual(chatId: String, date: ZonedDateTime, pageable: Pageable): Flux<Message>
     fun findBySenderIdAndCreatedAtAfter(senderId: String, date: ZonedDateTime): Flux<Message>

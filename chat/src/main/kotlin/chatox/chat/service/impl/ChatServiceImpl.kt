@@ -277,9 +277,10 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     private fun countUnreadMessages(chatParticipation: ChatParticipation): Mono<Long> {
         return mono {
             if (chatParticipation.lastReadMessageCreatedAt != null) {
-                messageRepository.countByChatIdAndCreatedAtAfter(
+                messageRepository.countByChatIdAndCreatedAtAfterAndSenderIdNot(
                         chatId = chatParticipation.chatId,
-                        date = chatParticipation.lastReadMessageCreatedAt!!
+                        date = chatParticipation.lastReadMessageCreatedAt!!,
+                        senderId = chatParticipation.user.id
                 )
                         .awaitFirst()
             } else {
