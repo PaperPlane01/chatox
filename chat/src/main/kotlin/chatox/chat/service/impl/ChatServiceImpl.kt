@@ -279,7 +279,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             if (chatParticipation.lastReadMessageCreatedAt != null) {
                 messageRepository.countByChatIdAndCreatedAtAfterAndSenderIdNot(
                         chatId = chatParticipation.chatId,
-                        date = chatParticipation.lastReadMessageCreatedAt!!,
+                        date = chatParticipation.lastReadMessageAt!!,
                         senderId = chatParticipation.user.id
                 )
                         .awaitFirst()
