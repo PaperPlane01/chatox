@@ -9,7 +9,7 @@ import React, {
     useState
 } from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles, Theme, useMediaQuery, useTheme} from "@material-ui/core";
+import {CircularProgress, createStyles, makeStyles, Theme, useMediaQuery, useTheme} from "@material-ui/core";
 import {Virtuoso, VirtuosoHandle} from "react-virtuoso";
 import useResizeObserver from "@react-hook/resize-observer";
 import {MessagesListItem} from "./MessagesListItem";
@@ -18,6 +18,7 @@ import {PinnedMessage} from "./PinnedMessage";
 import {ReversedScrollHandler} from "../utils";
 import {useStore} from "../../store";
 import {ReverseScrollDirectionOption} from "../../Chat/types";
+import {toJS} from "mobx";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messagesList: {
@@ -43,7 +44,11 @@ const virtuosoScrollHandler = new ReversedScrollHandler();
 export const MessagesList: FunctionComponent = observer(() => {
     const {
         messagesOfChat: {
-            messagesOfChat
+            messagesOfChat,
+            firstMessage,
+            lastMessage,
+            messagesListReverted,
+            fetchMessages
         },
         messageCreation: {
             referredMessageId,
@@ -57,6 +62,7 @@ export const MessagesList: FunctionComponent = observer(() => {
         },
         chat: {
             selectedChatId,
+            selectedChat
         },
         pinnedMessages: {
             currentPinnedMessageId,
@@ -263,6 +269,10 @@ export const MessagesList: FunctionComponent = observer(() => {
         [messagesDivRef]
     );
 
+    if (!selectedChat) {
+        return null;
+    }
+
     if (!enableVirtualScroll) {
         return (
             <Fragment>
@@ -286,6 +296,10 @@ export const MessagesList: FunctionComponent = observer(() => {
             </Fragment>
         )
     } else {
+        if (!lastMessage) {
+            return null;
+        }
+
         return (
            <Fragment>
                <PinnedMessage ref={pinnedMessageRef}
@@ -294,19 +308,34 @@ export const MessagesList: FunctionComponent = observer(() => {
                <div id="messagesList"
                     ref={messagesDivRef}
                >
-                   <Virtuoso totalCount={messagesOfChat.length}
-                             itemContent={index => (
-                                 <MessagesListItem messageId={messagesOfChat[index]}
-                                                   inverted={reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE}
-                                                   messagesListHeight={typeof styles.height === "number" ? styles.height : undefined}
-                                 />
-                             )}
+                   <Virtuoso totalCount={lastMessage && lastMessage.index}
+                             data={messagesOfChat}
+                             itemContent={index => {
+                                 let correctedIndex = messagesListReverted
+                                     ? lastMessage!.index - index
+                                     : index;
+
+                                 console.log(correctedIndex);
+
+                                 if (index > lastMessage!.index || !selectedChat.indexToMessageMap[correctedIndex]) {
+                                     console.log(`Corrected index is ${correctedIndex}, returning nothing`)
+                                     return <div style={{height: 1}}/>
+                                 }
+
+                                 return (
+                                     <MessagesListItem messageId={selectedChat.indexToMessageMap[correctedIndex]}
+                                                       inverted={reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE}
+                                                       messagesListHeight={typeof styles.height === "number" ? styles.height : undefined}
+                                     />
+                                 )
+                             }}
                              style={styles}
-                             defaultItemHeight={120}
-                             overscan={virtualScrollOverscan}
                              ref={virtuosoRef}
                              computeItemKey={index => messagesOfChat[index]}
                              onScroll={(event: any) => handleDivScroll(event)}
+                             firstItemIndex={firstMessage && firstMessage.index}
+                             startReached={() => !messagesListReverted && fetchMessages()}
+                             endReached={() => messagesListReverted && fetchMessages()}
                    />
                    <MessagesListBottom ref={messagesListBottomRef}/>
                </div>

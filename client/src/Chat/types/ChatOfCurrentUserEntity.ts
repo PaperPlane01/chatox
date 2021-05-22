@@ -9,6 +9,7 @@ export interface ChatOfCurrentUserEntity {
     lastReadMessage?: string,
     createdAt: Date,
     messages: string[],
+    indexToMessageMap: {[index: number]: string}
     scheduledMessages: string[],
     unreadMessagesCount: number,
     participantsCount: number,

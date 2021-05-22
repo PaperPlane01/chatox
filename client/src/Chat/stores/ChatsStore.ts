@@ -58,10 +58,15 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
     }
 
     @action
-    addMessageToChat = (chatId: string, messageId: string): void => {
+    addMessageToChat = (chatId: string, messageId: string, messageIndex: number, skipSettingLastMessage: boolean = false): void => {
         const chat = this.findById(chatId);
+        chat.indexToMessageMap[messageIndex] = messageId;
         chat.messages = Array.from(new Set([...chat.messages, messageId]));
-        chat.lastMessage = messageId;
+
+        if (!skipSettingLastMessage) {
+            chat.lastMessage = messageId;
+        }
+
         this.insertEntity(chat);
     }
 
@@ -119,6 +124,12 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
     }
 
     protected convertToNormalizedForm(denormalizedEntity: ChatOfCurrentUser): ChatOfCurrentUserEntity {
+        const indexToMessageMap: {[index: number]: string} = {};
+
+        if (denormalizedEntity.lastMessage) {
+            indexToMessageMap[denormalizedEntity.lastMessage.index] = denormalizedEntity.lastMessage.id;
+        }
+
         return {
             id: denormalizedEntity.id,
             avatarUri: denormalizedEntity.avatarUri,
@@ -128,6 +139,7 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
             slug: denormalizedEntity.slug,
             createdAt: new Date(denormalizedEntity.createdAt),
             messages: denormalizedEntity.lastMessage ? [denormalizedEntity.lastMessage.id] : [],
+            indexToMessageMap,
             unreadMessagesCount: denormalizedEntity.unreadMessagesCount,
             participantsCount: denormalizedEntity.participantsCount,
             participants: [],

@@ -1,7 +1,8 @@
-import {action, observable} from "mobx";
+import {action, computed, observable} from "mobx";
 import {ChatApi} from "../../api/clients";
 import {EntitiesStore} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse} from "../../api";
+import {ChatOfCurrentUserEntity} from "../types";
 
 interface ChatErrorsMap {
     [slug: string]: ApiError
@@ -24,6 +25,15 @@ export class ChatStore {
     previousChatId?: string = undefined;
 
     constructor(private readonly entities: EntitiesStore) {}
+
+    @computed
+    get selectedChat(): ChatOfCurrentUserEntity | undefined {
+        if (this.selectedChatId) {
+            return this.entities.chats.findById(this.selectedChatId);
+        }
+
+        return undefined;
+    }
 
     @action
     setSelectedChat = (slug?: string): void => {

@@ -73,6 +73,7 @@ export const convertMessageToNormalizedForm = (message: Message): MessageEntity 
         uploads: message.attachments.map(attachment => attachment.id),
         scheduledAt: message.scheduledAt ? new Date(message.scheduledAt) : undefined,
         ...uploadStats,
-        ...uploadsByType
+        ...uploadsByType,
+        index: message.index
     };
 }
