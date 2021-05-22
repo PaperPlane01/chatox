@@ -315,10 +315,7 @@ export const MessagesList: FunctionComponent = observer(() => {
                                      ? lastMessage!.index - index
                                      : index;
 
-                                 console.log(correctedIndex);
-
                                  if (index > lastMessage!.index || !selectedChat.indexToMessageMap[correctedIndex]) {
-                                     console.log(`Corrected index is ${correctedIndex}, returning nothing`)
                                      return <div style={{height: 1}}/>
                                  }
 
