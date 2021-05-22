@@ -6,3 +6,4 @@ export * from "./ChatUnsubscription";
 export * from "./MessageDeleted";
 export * from "./MessagesDeleted";
 export * from "./SessionActivityStatusResponse";
+export * from "./MessageRead";

@@ -17,6 +17,7 @@ import {
     EventType,
     JwtPayload,
     MessageDeleted,
+    MessageRead,
     MessagesDeleted,
     SessionActivityStatusResponse,
     WebsocketEvent
@@ -342,6 +343,14 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.SCHEDULED_MESSAGE_UPDATED
         };
         await this.publishEventToChatAdmins(message.chatId, scheduledMessageUpdatedEvent);
+    }
+
+    public async publishMessageRead(messageRead: MessageRead) {
+        const messageReadEvent: WebsocketEvent<MessageRead> = {
+            payload: messageRead,
+            type: EventType.MESSAGE_READ
+        };
+        await this.publishEventToUser(messageRead.userId, messageReadEvent);
     }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {

@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {RabbitSubscribe} from "@nestjs-plus/rabbitmq";
 import {WebsocketEventsPublisher} from "../websocket";
 import {ChatMessage} from "../common/types";
-import {MessageDeleted, MessagesDeleted} from "../websocket/types";
+import {MessageDeleted, MessageRead, MessagesDeleted} from "../websocket/types";
 import {config} from "../env-config";
 import {LoggerFactory} from "../logging";
 
@@ -116,5 +116,16 @@ export class MessagesController {
         this.log.debug("Scheduled message updated event");
         this.log.verbose(message);
         await this.websocketEventsPublisher.publishScheduledMessageUpdated(message);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: `events_service_message_read-${config.EVENTS_SERVICE_PORT}`,
+        routingKey: "chat.message.read.#"
+    })
+    public async onMessageRead(messageRead: MessageRead): Promise<void> {
+        this.log.debug("Message read event");
+        this.log.verbose(messageRead);
+        await this.websocketEventsPublisher.publishMessageRead(messageRead);
     }
 }

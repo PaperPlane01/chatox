@@ -3,16 +3,15 @@ import {observer} from "mobx-react";
 import {Badge, CardHeader, createStyles, Divider, ListItem, makeStyles, Theme, Typography} from "@material-ui/core";
 import {Audiotrack, FileCopy, Image, VideoLibrary} from "@material-ui/icons";
 import randomColor from "randomcolor";
-import {ChatUploadEntity} from "../types";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {useEmojiParser, ParseEmojiFunction} from "../../Emoji";
+import {ParseEmojiFunction, useEmojiParser} from "../../Emoji";
 import {upperCaseFirstLetter} from "../../utils/string-utils";
 import {MessageEntity} from "../../Message/types";
 import {Labels, TranslationFunction} from "../../localization";
-import {UserEntity} from "../../User/types";
+import {UserEntity} from "../../User";
 import {Upload, UploadType} from "../../api/types/response";
 
 const {Link} = require("mobx-router");
@@ -59,18 +58,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         overflow: "hidden"
     },
     unreadMessagesBadgeRoot: {
-        [theme.breakpoints.down("md")]: {
-            width: "100%"
-        },
-        maxWidth: "100%"
+        width: "100%"
     },
     unreadMessagesBadgeTopRightRectangle: {
-        [theme.breakpoints.down("md")]: {
-            top: "50%"
-        },
-        [theme.breakpoints.up("lg")]: {
-            "top": "100%"
-        }
+        top: "60%"
     },
     undecoratedLink: {
         textDecoration: "none",

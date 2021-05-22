@@ -189,6 +189,9 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         chatsPreferences: {
             enableVirtualScroll,
             useSimplifiedGalleryForVirtualScroll
+        },
+        markMessageRead: {
+            addMessageToQueue
         }
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
@@ -275,8 +278,18 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         }
     };
 
+    const handleVisibilityChange = (visible: boolean): void => {
+        if (visible && !message.readByCurrentUser) {
+            addMessageToQueue(message.id);
+        }
+
+        if (onVisibilityChange) {
+            onVisibilityChange(visible);
+        }
+    }
+
     return (
-        <ReactVisibilitySensor onChange={onVisibilityChange}
+        <ReactVisibilitySensor onChange={handleVisibilityChange}
                                partialVisibility={Boolean(messagesListHeight && height && height > messagesListHeight)}
         >
             <div className={wrapperClasses}

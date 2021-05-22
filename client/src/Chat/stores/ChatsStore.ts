@@ -5,10 +5,6 @@ import {SoftDeletableEntityStore} from "../../entity-store";
 import {ChatDeletionReason, ChatOfCurrentUser} from "../../api/types/response";
 
 export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity, ChatOfCurrentUser> {
-    constructor() {
-        super();
-    }
-
     findBySlug = createTransformer((slug: string) => {
         const chats = this.ids.map(id => this.findById(id));
         return chats.find(chat => chat.slug === slug);
@@ -26,6 +22,32 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
         const chat = this.findById(chatId);
         chat.lastReadMessage = messageId;
         this.insertEntity(chat);
+    }
+
+    @action
+    increaseUnreadMessagesCountOfChat = (chatId: string): void => {
+        const chat = this.findByIdOptional(chatId);
+
+        if (!chat) {
+            return;
+        }
+
+        chat.unreadMessagesCount = chat.unreadMessagesCount + 1;
+        this.insertEntity(chat);
+    }
+
+    @action
+    decreaseUnreadMessagesCountOfChat = (chatId: string): void => {
+        const chat = this.findByIdOptional(chatId);
+
+        if (!chat) {
+            return;
+        }
+
+        if (chat.unreadMessagesCount !== 0) {
+            chat.unreadMessagesCount = chat.unreadMessagesCount - 1;
+            this.insertEntity(chat);
+        }
     }
 
     @action
