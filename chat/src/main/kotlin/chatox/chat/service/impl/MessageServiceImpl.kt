@@ -14,6 +14,7 @@ import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.exception.metadata.LimitOfScheduledMessagesReachedException
 import chatox.chat.exception.metadata.ScheduledMessageIsTooCloseToAnotherScheduledMessageException
 import chatox.chat.mapper.MessageMapper
+import chatox.chat.messaging.rabbitmq.event.MessageReadEvent
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatUploadAttachment
@@ -432,6 +433,15 @@ class MessageServiceImpl(
                         messageId = message.id
                 ))
                         .awaitFirst()
+
+                Mono.fromRunnable<Void>{ chatEventsPublisher.messageRead(MessageReadEvent(
+                        messageId = message.id,
+                        chatId = message.chatId,
+                        userId = currentUser.id,
+                        messageCreatedAt = message.createdAt,
+                        messageReadAt = now
+                )) }
+                        .subscribe()
 
                 return@mono chatParticipationRepository.save(chatParticipation.copy(
                         lastReadMessageAt = now,

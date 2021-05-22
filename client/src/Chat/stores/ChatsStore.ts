@@ -26,14 +26,23 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
 
     @action
     increaseUnreadMessagesCountOfChat = (chatId: string): void => {
-        const chat = this.findById(chatId);
+        const chat = this.findByIdOptional(chatId);
+
+        if (!chat) {
+            return;
+        }
+
         chat.unreadMessagesCount = chat.unreadMessagesCount + 1;
         this.insertEntity(chat);
     }
 
     @action
     decreaseUnreadMessagesCountOfChat = (chatId: string): void => {
-        const chat = this.findById(chatId);
+        const chat = this.findByIdOptional(chatId);
+
+        if (!chat) {
+            return;
+        }
 
         if (chat.unreadMessagesCount !== 0) {
             chat.unreadMessagesCount = chat.unreadMessagesCount - 1;

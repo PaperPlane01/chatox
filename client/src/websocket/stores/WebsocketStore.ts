@@ -5,7 +5,7 @@ import {EntitiesStore} from "../../entities-store";
 import {
     ChatDeleted,
     ChatUpdated,
-    MessageDeleted,
+    MessageDeleted, MessageRead,
     MessagesDeleted,
     UserKickedFromChat,
     UserLeftChat,
@@ -189,6 +189,10 @@ export class WebsocketStore {
                 WebsocketEventType.SCHEDULED_MESSAGE_DELETED,
                 (event: WebsocketEvent<MessageDeleted>) => this.entities.deleteScheduledMessage(event.payload.chatId, event.payload.messageId)
             );
+            this.socketIoClient.on(
+                WebsocketEventType.MESSAGE_READ,
+                (event: WebsocketEvent<MessageRead>) => this.entities.chats.decreaseUnreadMessagesCountOfChat(event.payload.chatId)
+            )
         }
     }
 
