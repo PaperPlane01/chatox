@@ -171,12 +171,12 @@ export const MessagesList: FunctionComponent = observer(() => {
         if (!enableVirtualScroll) {
             if (event.currentTarget.scrollTop === 0) {
                 const scrollableDiv = event.currentTarget;
-                const height = scrollableDiv.scrollHeight;
+                const previousHeight = scrollableDiv.scrollHeight;
 
                 fetchMessages().then(() => {
                     if (messagesDivRef && messagesDivRef.current) {
                         const currentHeight = messagesDivRef.current.scrollHeight;
-                        messagesDivRef.current.scrollTo({top: currentHeight - height});
+                        messagesDivRef.current.scrollTo({top: currentHeight - previousHeight});
                     }
                 })
             }
@@ -193,6 +193,15 @@ export const MessagesList: FunctionComponent = observer(() => {
 
             setReachedBottom(selectedChatId!, documentHeight - windowBottom <= 1);
             setScrollPosition(selectedChatId!, window.scrollY);
+
+            if (window.scrollY === 0) {
+                const previousHeight = window.document.documentElement.scrollHeight;
+
+                fetchMessages().then(() => {
+                    const currentHeight = window.document.documentElement.scrollHeight;
+                    window.document.documentElement.scrollTo({top: currentHeight - previousHeight})
+                })
+            }
         }
     };
 
