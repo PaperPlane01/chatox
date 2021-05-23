@@ -9,7 +9,7 @@ import React, {
     useState
 } from "react";
 import {observer} from "mobx-react";
-import {CircularProgress, createStyles, makeStyles, Theme, useMediaQuery, useTheme} from "@material-ui/core";
+import {createStyles, makeStyles, Theme, useMediaQuery, useTheme} from "@material-ui/core";
 import {Virtuoso, VirtuosoHandle} from "react-virtuoso";
 import useResizeObserver from "@react-hook/resize-observer";
 import {MessagesListItem} from "./MessagesListItem";
@@ -18,7 +18,6 @@ import {PinnedMessage} from "./PinnedMessage";
 import {ReversedScrollHandler} from "../utils";
 import {useStore} from "../../store";
 import {ReverseScrollDirectionOption} from "../../Chat/types";
-import {toJS} from "mobx";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messagesList: {
@@ -328,7 +327,7 @@ export const MessagesList: FunctionComponent = observer(() => {
                              data={messagesOfChat}
                              itemContent={index => {
                                  let correctedIndex = messagesListReverted
-                                     ? lastMessage!.index - index
+                                     ? lastMessage!.index - index + 1
                                      : index;
 
                                  if (index > lastMessage!.index || !selectedChat.indexToMessageMap[correctedIndex]) {
