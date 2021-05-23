@@ -1,12 +1,12 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
+import {AxiosPromise} from "axios";
 import {createSortMessages} from "../utils";
 import {ChatMessagesFetchingStateMap, MessageEntity} from "../types";
 import {EntitiesStore} from "../../entities-store";
 import {ChatsPreferencesStore, ChatStore, ReverseScrollDirectionOption} from "../../Chat";
 import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api";
-import {AxiosPromise} from "axios";
 import {Message} from "../../api/types/response";
 
 export class MessagesOfChatStore {
@@ -91,7 +91,7 @@ export class MessagesOfChatStore {
     });
 
     @action
-    fetchMessages = (options: FetchOptions = {abortIfInitiallyFetched: false}): void => {
+    fetchMessages = async (options: FetchOptions = {abortIfInitiallyFetched: false}): Promise<void> => {
         if (!this.selectedChatId) {
             return;
         }
@@ -125,7 +125,7 @@ export class MessagesOfChatStore {
 
         this.chatMessagesFetchingStateMap[chatId].pending = true;
 
-        fetchMessageFunction(chatId, beforeMessage)
+        return fetchMessageFunction(chatId, beforeMessage)
             .then(({data}) => {
                 runInAction(() => {
                     if (data.length !== 0) {

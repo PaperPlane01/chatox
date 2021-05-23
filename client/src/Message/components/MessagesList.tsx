@@ -167,6 +167,20 @@ export const MessagesList: FunctionComponent = observer(() => {
         } else {
             setReachedBottom(selectedChatId!, coveredDistance - event.currentTarget.clientHeight <= 1);
         }
+
+        if (!enableVirtualScroll) {
+            if (event.currentTarget.scrollTop === 0) {
+                const scrollableDiv = event.currentTarget;
+                const height = scrollableDiv.scrollHeight;
+
+                fetchMessages().then(() => {
+                    if (messagesDivRef && messagesDivRef.current) {
+                        const currentHeight = messagesDivRef.current.scrollHeight;
+                        messagesDivRef.current.scrollTo({top: currentHeight - height});
+                    }
+                })
+            }
+        }
     };
 
     const handleWindowScroll = (): void => {
