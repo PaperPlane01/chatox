@@ -6,6 +6,7 @@ import chatox.chat.api.response.MessageResponse
 import chatox.chat.messaging.rabbitmq.event.ChatDeleted
 import chatox.chat.messaging.rabbitmq.event.ChatParticipationDeleted
 import chatox.chat.messaging.rabbitmq.event.ChatUpdated
+import chatox.chat.messaging.rabbitmq.event.MessageReadEvent
 import chatox.chat.messaging.rabbitmq.event.UserLeftChat
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
@@ -101,5 +102,50 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.events",
             "chat.deleted.#",
             chatDeleted
+    )
+
+    fun messagePinned(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.message.pinned.#",
+            message
+    )
+
+    fun messageUnpinned(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.message.unpinned.#",
+            message
+    )
+
+    fun scheduledMessageCreated(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.scheduled.message.created.#",
+            message
+    )
+
+    fun scheduledMessagePublished(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.scheduled.message.published.#",
+            message
+    )
+
+    fun scheduledMessageDeleted(messageId: String, chatId: String) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.scheduled.message.deleted.#",
+            hashMapOf(
+                    Pair("messageId", messageId),
+                    Pair("chatId", chatId)
+            )
+    )
+
+    fun scheduledMessageUpdated(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.scheduled.message.updated.#",
+            message
+    )
+
+    fun messageRead(messageReadEvent: MessageReadEvent) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.message.read.#",
+            messageReadEvent
     )
 }

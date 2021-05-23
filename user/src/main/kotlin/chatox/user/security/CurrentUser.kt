@@ -1,5 +1,6 @@
 package chatox.user.security
 
+import chatox.user.api.response.GlobalBanResponse
 import chatox.user.api.response.UploadResponse
 import chatox.user.domain.ImageUploadMetadata
 import java.time.ZonedDateTime
@@ -15,5 +16,7 @@ data class CurrentUser(
         val bio: String?,
         val createdAt: ZonedDateTime,
         val dateOfBirth: ZonedDateTime?,
-        val email: String?
+        val email: String?,
+        val globalBan: GlobalBanResponse?,
+        val externalAvatarUri: String?
 )

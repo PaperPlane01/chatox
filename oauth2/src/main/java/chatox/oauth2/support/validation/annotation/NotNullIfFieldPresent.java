@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 public @interface NotNullIfFieldPresent {
     String message() default "Field must not be null";
     String field();
-    String[] validatedFields();
+    String[] checkedFields();
     boolean acceptEmpty() default true;
 
     Class<?>[] groups() default {};

@@ -1,6 +1,8 @@
 spring:
   application:
     name: chat-service
+  main:
+    allow-bean-definition-overriding: true
   data:
     mongodb:
       repositories:
@@ -38,3 +40,10 @@ uploads:
   videos: ${API_HOST:http://localhost:8080}/api/v1/uploads/videos
   files: ${API_HOST:http://localhost:8080}/api/v1/uploads/files
   audios: ${API_HOST:http://localhost:8080}/api/v1/uploads/audios
+scheduled:
+  messages:
+    check:
+      enabled: true
+logging:
+  level:
+    chatox.platform.security.reactive: DEBUG

@@ -4,12 +4,15 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 class CustomUserDetails : UserDetails {
     var id: String
     var accountId: String
     var authorities: MutableList<GrantedAuthority> = mutableListOf()
     var email: String? = null
+    var jwtGlobalBanInfo: JwtGlobalBanInfo? = null
     private var username: String
 
     constructor(jwtAuthenticationToken: JwtAuthenticationToken) {
@@ -42,10 +45,35 @@ class CustomUserDetails : UserDetails {
             jwtAuthenticationToken.token.getClaimAsString("client_id")
         }
         email = jwtAuthenticationToken.token.getClaimAsString("email")
+
+        if (jwtAuthenticationToken.token.getClaimAsString("global_ban_id") != null) {
+            val globalBanId = jwtAuthenticationToken.token.getClaimAsString("global_ban_id")
+            var globalBanExpirationDate: ZonedDateTime? = null
+
+            if (jwtAuthenticationToken.token.getClaimAsString("global_ban_expiration_date") != null) {
+                println(jwtAuthenticationToken.token.getClaimAsStringList("global_ban_expiration_date"))
+                globalBanExpirationDate = ZonedDateTime.ofInstant(
+                        jwtAuthenticationToken.token.getClaimAsInstant("global_ban_expiration_date"),
+                        ZoneId.of("UTC")
+                )
+            }
+
+            val globalBanPermanent = jwtAuthenticationToken.token.getClaimAsBoolean("global_ban_permanent")
+
+            jwtGlobalBanInfo = JwtGlobalBanInfo(
+                    id = globalBanId,
+                    expiresAt = globalBanExpirationDate,
+                    permanent = globalBanPermanent
+            )
+        }
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         return authorities
+    }
+
+    fun getAuthoritiesAsStrings(): Collection<String> {
+        return authorities.map { grantedAuthority -> grantedAuthority.authority }
     }
 
     override fun isEnabled(): Boolean {

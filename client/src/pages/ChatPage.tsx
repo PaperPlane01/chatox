@@ -7,9 +7,18 @@ import {
     ChatsOfCurrentUserList,
     ConfirmChatDeletionDialog,
     SpecifyChatDeletionReasonDialog,
-    UpdateChatDialog
+    UpdateChatDialog,
+    UpdateChatParticipantDialog
 } from "../Chat";
-import {AttachedFilesDialog, MessageDialog, MessagesListWrapper, UpdateMessageDialog} from "../Message";
+import {
+    AttachedFilesDialog,
+    MessageDialog,
+    MessagesListWrapper,
+    PinMessageSnackbarManager,
+    UnpinMessageSnackbarManager,
+    UpdateMessageDialog,
+    ScheduleMessageDialog
+} from "../Message";
 import {
     BlockUserInChatByIdOrSlugDialog,
     ChatBlockingInfoDialog,
@@ -17,6 +26,8 @@ import {
     CreateChatBlockingDialog,
     UpdateChatBlockingDialog
 } from "../ChatBlocking";
+import {BanUserGloballyDialog} from "../GlobalBan";
+import {ReportMessageDialog, ReportChatDialog} from "../Report";
 
 export const ChatPage: FunctionComponent = () => (
     <Fragment>
@@ -56,6 +67,13 @@ export const ChatPage: FunctionComponent = () => (
             <AttachedFilesDialog/>
             <ConfirmChatDeletionDialog/>
             <SpecifyChatDeletionReasonDialog/>
+            <BanUserGloballyDialog/>
+            <UpdateChatParticipantDialog/>
+            <PinMessageSnackbarManager/>
+            <UnpinMessageSnackbarManager/>
+            <ScheduleMessageDialog/>
+            <ReportMessageDialog/>
+            <ReportChatDialog/>
         </Grid>
     </Fragment>
 );

@@ -1,5 +1,6 @@
 package chatox.chat.messaging.rabbitmq.event
 
+import chatox.chat.model.UserAccountRegistrationType
 import java.time.ZonedDateTime
 
 data class UserCreated(
@@ -13,5 +14,7 @@ data class UserCreated(
         val lastSeen: ZonedDateTime = ZonedDateTime.now(),
         val avatarUri: String? = null,
         val email: String? = null,
-        val anonymous: Boolean
+        val anonymous: Boolean,
+        val accountRegistrationType: UserAccountRegistrationType,
+        val externalAvatarUri: String? = null
 )

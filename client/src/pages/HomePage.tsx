@@ -4,6 +4,7 @@ import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
 import {HasRole} from "../Authorization";
 import {CreateChatDialog, CreateChatFloatingActionButton, PopularChatsList} from "../Chat";
+import {canCreateChat} from "../Chat/permissions";
 
 export const HomePage: FunctionComponent = () => (
     <Grid container>
@@ -30,7 +31,9 @@ export const HomePage: FunctionComponent = () => (
                     </Grid>
                 </Grid>
             </Layout>
-            <HasRole role="ROLE_USER">
+            <HasRole role="ROLE_USER"
+                     additionalCondition={authorizationStore => canCreateChat(authorizationStore)}
+            >
                 <CreateChatDialog/>
                 <CreateChatFloatingActionButton/>
             </HasRole>

@@ -1,10 +1,14 @@
 package chatox.chat.security.access
 
+import chatox.chat.exception.metadata.ChatDeletedException
+import chatox.chat.exception.metadata.ChatNotFoundException
+import chatox.chat.model.Chat
 import chatox.chat.model.ChatRole
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.service.ChatService
+import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrDefault
 import kotlinx.coroutines.reactor.mono
@@ -15,6 +19,7 @@ import reactor.core.publisher.Mono
 @Component
 class ChatParticipationPermissions(private val chatService: ChatService,
                                    private val chatBlockingService: ChatBlockingService,
+                                   private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
                                    private val authenticationFacade: AuthenticationFacade) {
     private lateinit var chatParticipationService: ChatParticipationService
 
@@ -25,14 +30,21 @@ class ChatParticipationPermissions(private val chatService: ChatService,
 
     fun canJoinChat(chatId: String): Mono<Boolean> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val chat = chatCacheWrapper.findById(chatId) { ChatNotFoundException("Could not find chat with id $chatId")}
+                    .awaitFirst()
+
+            if (chat.deleted) {
+                throw ChatDeletedException(chat.chatDeletion)
+            }
+
+            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
             val chatRole = chatParticipationService.getRoleOfUserInChat(
-                    chatId = chatId,
-                    user = currentUser
+                    chatId = chat.id,
+                    userId = currentUser.id
             )
                     .awaitFirstOrDefault(ChatRole.NOT_PARTICIPANT)
             val userBlockedInChat = chatBlockingService
-                    .isUserBlockedInChat(chatId = chatId, user = currentUser)
+                    .isUserBlockedInChat(chatId = chatId, userId = currentUser.id)
                     .awaitFirst()
 
             chatRole == ChatRole.NOT_PARTICIPANT && !userBlockedInChat
@@ -40,11 +52,15 @@ class ChatParticipationPermissions(private val chatService: ChatService,
     }
 
     fun canLeaveChat(chatId: String): Mono<Boolean> {
-        return authenticationFacade.getCurrentUser()
-                .map { chatParticipationService.getRoleOfUserInChat(chatId, it) }
-                .flatMap { it }
-                .switchIfEmpty(Mono.just(ChatRole.NOT_PARTICIPANT))
-                .map { it != ChatRole.NOT_PARTICIPANT }
+        return mono {
+            val chat = chatCacheWrapper.findById(chatId) { ChatNotFoundException("Could not find chat with id $chatId") }
+                    .awaitFirst()
+            val currentUserId = authenticationFacade.getCurrentUserDetails().awaitFirst().id
+            val currentUserRole = chatParticipationService.getRoleOfUserInChat(chat.id, currentUserId)
+                    .awaitFirstOrDefault(ChatRole.NOT_PARTICIPANT)
+
+            currentUserRole != ChatRole.NOT_PARTICIPANT
+        }
     }
 
     fun canKickChatParticipant(chatId: String, chatParticipationId: String): Mono<Boolean> {
@@ -60,8 +76,13 @@ class ChatParticipationPermissions(private val chatService: ChatService,
     }
 
     fun canUpdateChatParticipant(chatId: String, chatParticipationId: String): Mono<Boolean> {
-        return chatService.findChatBySlugOrId(chatId)
-                .zipWith(chatParticipationService.findChatParticipationById(chatParticipationId))
-                .map { it.t1.createdByCurrentUser!! && it.t2.chatId == chatId }
+        return mono {
+            val chat = chatService.findChatBySlugOrId(chatId).awaitFirst()
+            val chatParticipation = chatParticipationService.findChatParticipationById(chatParticipationId).awaitFirst()
+
+            println(chat.createdByCurrentUser)
+
+            return@mono chat.createdByCurrentUser!! && chatParticipation.chatId == chat.id;
+        }
     }
 }

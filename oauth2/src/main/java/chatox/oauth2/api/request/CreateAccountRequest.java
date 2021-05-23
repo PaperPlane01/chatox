@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
 @Builder
 @NotNullIfFieldPresent(
         field = "email",
-        validatedFields = {
+        checkedFields = {
                 "emailConfirmationCodeId",
                 "emailConfirmationCode"
         },

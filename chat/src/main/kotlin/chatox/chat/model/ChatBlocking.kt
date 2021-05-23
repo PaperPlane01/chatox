@@ -1,7 +1,7 @@
 package chatox.chat.model
 
 import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.mapping.DBRef
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
 
@@ -9,18 +9,24 @@ import java.time.ZonedDateTime
 data class ChatBlocking(
         @Id
         val id: String,
-        @DBRef
-        val chat: Chat,
-        @DBRef
-        val blockedUser: User,
-        @DBRef
-        val blockedBy: User,
+        @Indexed
+        val chatId: String,
+
+        @Indexed
+        val blockedUserId: String,
+
+        @Indexed
+        val blockedById: String,
         val blockedUntil: ZonedDateTime,
         val description: String?,
         val createdAt: ZonedDateTime,
         val canceled: Boolean,
         val canceledAt: ZonedDateTime?,
-        val canceledBy: User?,
+
+        @Indexed
+        val canceledById: String? = null,
         val lastModifiedAt: ZonedDateTime?,
-        val lastModifiedBy: User?
+
+        @Indexed
+        val lastModifiedById: String? = null
 )

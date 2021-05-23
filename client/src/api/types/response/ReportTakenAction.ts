@@ -1,0 +1,5 @@
+export enum ReportTakenAction {
+    MESSAGE_DELETED = "MESSAGE_DELETED",
+    USER_BANNED = "USER_BANNED",
+    CHAT_DELETED = "CHAT_DELETED"
+}

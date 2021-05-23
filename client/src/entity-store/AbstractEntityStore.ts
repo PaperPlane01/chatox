@@ -26,37 +26,49 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
     @action
     public deleteAllById(ids: string[]): void {
         this.ids = this.ids.filter(id => !ids.includes(id));
-        ids.forEach(id => delete this.entities[id]);
-    };
+        ids.forEach(id => {
+            if (this.entities[id]) {
+                delete this.entities[id];
+            }
+        });
+    }
+
+    @action
+    public deleteAll(): void {
+        this.ids = [];
+        this.entities = {};
+    }
 
     @action
     public deleteById(idToDelete: string): void {
-        this.ids = this.ids.filter(id => idToDelete !== id);
-        delete this.entities[idToDelete];
-    };
+        if (this.entities[idToDelete]) {
+            this.ids = this.ids.filter(id => id !== idToDelete);
+            delete this.entities[idToDelete];
+        }
+    }
 
     public findById = createTransformer((id: string) => this.entities[id]);
 
     public findByIdOptional(id: string): Entity | undefined {
         return this.entities[id];
-    };
+    }
 
     @action
     public insert(denormalizedEntity: DenormalizedEntity): Entity {
         let entity = this.convertToNormalizedForm(denormalizedEntity);
         entity = this.insertEntity(entity);
         return entity;
-    };
+    }
 
     @action
     public insertAll(entities: DenormalizedEntity[]): void {
         entities.forEach(entity => this.insert(entity));
-    };
+    }
 
     @action
     public insertAllEntities(entities: Entity[]): void {
         entities.forEach(entity => this.insertEntity(entity))
-    };
+    }
 
     @action
     public insertEntity(entity: Entity): Entity {
@@ -67,7 +79,7 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
             this.ids = Array.from(new Set([...this.ids, entity.id]));
         }
         return entity;
-    };
+    }
 
     public findAllById = createTransformer((ids: string[]) => {
         return ids.map(id => this.findById(id));
@@ -75,7 +87,7 @@ export abstract class AbstractEntityStore<Entity extends {id: string}, Denormali
 
     public findAll() {
         return this.findAllById(this.ids);
-    };
+    }
 
     protected abstract convertToNormalizedForm(denormalizedEntity: DenormalizedEntity): Entity;
 }

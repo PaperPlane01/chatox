@@ -8,7 +8,7 @@ export interface UploadInfoResponse<MetadataType> {
     meta?: MetadataType,
     size: number,
     originalName: string,
-    preview?: UploadInfoResponse<ImageUploadMetadata>,
+    previewImage?: UploadInfoResponse<ImageUploadMetadata>,
     thumbnails: UploadInfoResponse<ImageUploadMetadata>[],
     name: string,
     isThumbnail: boolean,

@@ -10,10 +10,12 @@ import React, {
 } from "react";
 import {observer} from "mobx-react";
 import {createStyles, makeStyles, Theme, useMediaQuery, useTheme} from "@material-ui/core";
-import {Virtuoso, VirtuosoMethods} from "react-virtuoso";
+import {Virtuoso, VirtuosoHandle} from "react-virtuoso";
+import useResizeObserver from "@react-hook/resize-observer";
 import {MessagesListItem} from "./MessagesListItem";
 import {MessagesListBottom} from "./MessagesListBottom";
-import {ReversedScrollHandler, VirtuosoInitialTopMostItemHandler} from "../utils";
+import {PinnedMessage} from "./PinnedMessage";
+import {ReversedScrollHandler} from "../utils";
 import {useStore} from "../../store";
 import {ReverseScrollDirectionOption} from "../../Chat/types";
 
@@ -32,22 +34,23 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 interface MessagesListStyles {
     height: string | number,
     paddingBottom: number,
+    paddingTop: number,
     transform?: string
 }
 
-const virtuosoTopMostItemHandler = new VirtuosoInitialTopMostItemHandler();
 const virtuosoScrollHandler = new ReversedScrollHandler();
 
 export const MessagesList: FunctionComponent = observer(() => {
     const {
         messagesOfChat: {
-            messagesOfChat
+            messagesOfChat,
+            firstMessage,
+            lastMessage,
+            messagesListReverted,
+            fetchMessages
         },
         messageCreation: {
             referredMessageId,
-            createMessageForm: {
-                text
-            },
             emojiPickerExpanded
         },
         chatsPreferences: {
@@ -58,20 +61,32 @@ export const MessagesList: FunctionComponent = observer(() => {
         },
         chat: {
             selectedChatId,
+            selectedChat
+        },
+        pinnedMessages: {
+            currentPinnedMessageId,
+            currentPinnedMessageIsClosed
+        },
+        messagesListScrollPositions: {
+            getScrollPosition,
+            setScrollPosition,
+            getReachedBottom,
+            setReachedBottom
         }
     } = useStore();
-    const [reachedBottom, setReachedBottom] = useState(true);
     const theme = useTheme();
     const phantomBottomRef = useRef<HTMLDivElement>(null);
     const messagesListBottomRef = useRef<HTMLDivElement>(null);
     const classes = useStyles();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-    const virtuosoRef = useRef<VirtuosoMethods>() as RefObject<VirtuosoMethods>
+    const virtuosoRef = useRef<VirtuosoHandle>() as RefObject<VirtuosoHandle>
     const messagesDivRef = useRef<HTMLDivElement>(null);
+    const pinnedMessageRef = useRef<HTMLDivElement>(null);
 
     const calculateStyles = (): MessagesListStyles => {
         let height: string | number;
         let paddingBottom: number = 0;
+        let paddingTop: number = 0;
         let transform: string | undefined = undefined;
 
         if (enableVirtualScroll && reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
@@ -81,7 +96,12 @@ export const MessagesList: FunctionComponent = observer(() => {
         if (onSmallScreen) {
             if (enableVirtualScroll) {
                 if (messagesListBottomRef && messagesListBottomRef.current) {
-                    const heightToSubtract = theme.spacing(7) + messagesListBottomRef.current.getBoundingClientRect().height;
+                    let heightToSubtract = theme.spacing(7) + messagesListBottomRef.current.getBoundingClientRect().height;
+
+                    if (pinnedMessageRef && pinnedMessageRef.current) {
+                        heightToSubtract = pinnedMessageRef.current.getBoundingClientRect().height;
+                    }
+
                     height = window.innerHeight - heightToSubtract;
                 } else {
                     height = `calc(100vh - ${referredMessageId ? 238 : 154}px)`;
@@ -92,45 +112,75 @@ export const MessagesList: FunctionComponent = observer(() => {
                 if (messagesListBottomRef && messagesListBottomRef.current) {
                     paddingBottom = messagesListBottomRef.current.getBoundingClientRect().height;
                 }
+
+                if (pinnedMessageRef && pinnedMessageRef.current) {
+                    paddingTop = pinnedMessageRef.current.getBoundingClientRect().height;
+                }
             }
         } else {
             if (messagesListBottomRef && messagesListBottomRef.current) {
-                const heightToSubtract = theme.spacing(8) + messagesListBottomRef.current.getBoundingClientRect().height + theme.spacing(2);
+                let heightToSubtract = theme.spacing(8) + messagesListBottomRef.current.getBoundingClientRect().height + theme.spacing(2);
+
+                if (pinnedMessageRef && pinnedMessageRef.current) {
+                    heightToSubtract = heightToSubtract + pinnedMessageRef.current.getBoundingClientRect().height;
+                }
+
                 height = window.innerHeight - heightToSubtract;
             } else {
                 height = `calc(100vh - ${referredMessageId ? 238 : 154}px)`;
             }
         }
 
-        return {height, paddingBottom, transform};
-    }
+        return {height, paddingBottom, paddingTop, transform};
+    };
 
     const [styles, setStyles] = useState(calculateStyles());
 
     const scrollToBottom = (): void => {
-        if (reachedBottom) {
-            setTimeout(
-                () => {
-                    if (enableVirtualScroll && virtuosoRef && virtuosoRef.current) {
-                        if (reverseScrollingDirectionOption === ReverseScrollDirectionOption.DO_NOT_REVERSE) {
-                            virtuosoRef.current.scrollToIndex(messagesOfChat.length - 1)
-                        } else {
-                            virtuosoRef.current.scrollToIndex(0);
-                        }
+        setTimeout(
+            () => {
+                if (enableVirtualScroll && virtuosoRef && virtuosoRef.current) {
+                    // OK so cascading setTimeout here feels incredibly broken,
+                    // but without it it just stays in place and doesn't follow
+                    // new messages. IDK why the hell this is happening,
+                    // and this is the only work around that I've found
+                    if (reverseScrollingDirectionOption === ReverseScrollDirectionOption.DO_NOT_REVERSE) {
+                        setTimeout(() => virtuosoRef!.current!.scrollToIndex(messagesOfChat.length - 1));
                     } else {
-                        if (phantomBottomRef && phantomBottomRef.current) {
-                            phantomBottomRef.current.scrollIntoView();
-                        }
+                        setTimeout(() => virtuosoRef!.current!.scrollToIndex(0));
+                    }
+                } else {
+                    if (phantomBottomRef && phantomBottomRef.current) {
+                        phantomBottomRef.current.scrollIntoView();
                     }
                 }
-            )
-        }
+            }
+        )
     };
 
     const handleDivScroll = (event: UIEvent<HTMLElement>): void => {
         const coveredDistance = event.currentTarget.scrollHeight - event.currentTarget.scrollTop;
-        const reachedBottom = coveredDistance - event.currentTarget.clientHeight <= 1;
-        setReachedBottom(reachedBottom);
+        setScrollPosition(selectedChatId!, event.currentTarget.scrollTop);
+
+        if (messagesListReverted) {
+            setReachedBottom(selectedChatId!, event.currentTarget.scrollTop === 0);
+        } else {
+            setReachedBottom(selectedChatId!, coveredDistance - event.currentTarget.clientHeight <= 1);
+        }
+
+        if (!enableVirtualScroll) {
+            if (event.currentTarget.scrollTop === 0) {
+                const scrollableDiv = event.currentTarget;
+                const previousHeight = scrollableDiv.scrollHeight;
+
+                fetchMessages().then(() => {
+                    if (messagesDivRef && messagesDivRef.current) {
+                        const currentHeight = messagesDivRef.current.scrollHeight;
+                        messagesDivRef.current.scrollTo({top: currentHeight - previousHeight});
+                    }
+                })
+            }
+        }
     };
 
     const handleWindowScroll = (): void => {
@@ -141,18 +191,35 @@ export const MessagesList: FunctionComponent = observer(() => {
             const documentHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
             const windowBottom = windowHeight + window.pageYOffset;
 
-            setReachedBottom( documentHeight - windowBottom <= 1);
-        }
-    }
+            setReachedBottom(selectedChatId!, documentHeight - windowBottom <= 1);
+            setScrollPosition(selectedChatId!, window.scrollY);
 
-    useEffect(scrollToBottom, [messagesOfChat, emojiPickerExpanded]);
+            if (window.scrollY === 0) {
+                const previousHeight = window.document.documentElement.scrollHeight;
+
+                fetchMessages().then(() => {
+                    const currentHeight = window.document.documentElement.scrollHeight;
+                    window.document.documentElement.scrollTo({top: currentHeight - previousHeight})
+                })
+            }
+        }
+    };
+
+    useEffect(
+        () => {
+            if (getReachedBottom(selectedChatId!)) {
+                scrollToBottom();
+            }
+    },
+        [messagesOfChat, emojiPickerExpanded]
+    );
     useEffect(() => {
         const handleResize = () => {
             setStyles(calculateStyles());
-            if (reachedBottom) {
+            if (getReachedBottom(selectedChatId!)) {
                 scrollToBottom();
             }
-        }
+        };
 
         document.addEventListener("scroll", handleWindowScroll)
         window.addEventListener("resize", handleResize);
@@ -160,23 +227,52 @@ export const MessagesList: FunctionComponent = observer(() => {
         return () => {
             document.removeEventListener("scroll", handleWindowScroll);
             window.removeEventListener("resize", handleResize);
-        }
+        };
     });
-    useEffect(() => {
-        if (virtuosoRef && virtuosoRef.current && selectedChatId && virtuosoTopMostItemHandler.getInitialTopMostItem(selectedChatId)) {
-            // Scroll to the top item to restore scroll position
-            virtuosoRef.current.scrollToIndex(virtuosoTopMostItemHandler.getInitialTopMostItem(selectedChatId)!);
-        }
-    }, [selectedChatId, onSmallScreen])
     useLayoutEffect(
         () => setStyles(calculateStyles()),
         [
             messagesOfChat,
             referredMessageId,
-            text,
             onSmallScreen,
-            emojiPickerExpanded
+            emojiPickerExpanded,
+            currentPinnedMessageId,
+            currentPinnedMessageIsClosed
         ]
+    );
+    useResizeObserver(messagesListBottomRef, () => setStyles(calculateStyles()));
+    useEffect(() => {
+        if (!selectedChatId) {
+            return;
+        }
+
+        const scrollPosition = getScrollPosition(selectedChatId);
+
+        if (scrollPosition !== undefined) {
+            if (virtuosoRef && virtuosoRef.current) {
+                // We have to use setTimeout here because without it it just sticks at top
+                // It still sticks at top for a brief moment but then correctly scrolls to required position
+                setTimeout(() => virtuosoRef!.current!.scrollTo({top: scrollPosition}))
+            } else if (onSmallScreen) {
+                window.scrollTo({top: scrollPosition});
+            } else if (messagesDivRef && messagesDivRef.current) {
+                messagesDivRef.current.scrollTo({top: scrollPosition});
+            }
+        } else {
+            scrollToBottom();
+        }
+    }, [selectedChatId])
+    useEffect(
+        () => {
+            if (!selectedChatId) {
+               return;
+            }
+
+            if (getReachedBottom(selectedChatId)) {
+                scrollToBottom();
+            }
+        },
+        [messagesOfChat]
     );
     useLayoutEffect(
         () => {
@@ -198,21 +294,29 @@ export const MessagesList: FunctionComponent = observer(() => {
                             }
                         }, {
                             passive: false
-                        })
+                        });
                     }
                 }
             }
         },
         [messagesDivRef]
-    )
+    );
+
+    if (!selectedChat) {
+        return null;
+    }
 
     if (!enableVirtualScroll) {
         return (
             <Fragment>
+                <PinnedMessage ref={pinnedMessageRef}
+                               width={messagesDivRef && messagesDivRef.current ? messagesDivRef.current.getBoundingClientRect().width : undefined}
+                />
                 <div className={classes.messagesList}
                      onScroll={handleDivScroll}
                      id="messagesList"
                      style={styles}
+                     ref={messagesDivRef}
                 >
                     {messagesOfChat.map(messageId => (
                         <MessagesListItem messageId={messageId}
@@ -225,40 +329,48 @@ export const MessagesList: FunctionComponent = observer(() => {
             </Fragment>
         )
     } else {
-        return (
-            <div id="messagesList"
-                 ref={messagesDivRef}
-            >
-                <Virtuoso totalCount={messagesOfChat.length}
-                          item={index => (
-                              <MessagesListItem messageId={messagesOfChat[index]}
-                                                onVisibilityChange={visible => {
-                                                    if (visible) {
-                                                        virtuosoTopMostItemHandler.setInitialTopMostItem(selectedChatId!, index);
-                                                    }
+        if (!lastMessage) {
+            return null;
+        }
 
-                                                    if (reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE) {
-                                                        if (index === 0) {
-                                                            setReachedBottom(visible);
-                                                        }
-                                                    } else {
-                                                        if (index === messagesOfChat.length - 1) {
-                                                            setReachedBottom(visible);
-                                                        }
-                                                    }
-                                                }}
-                                                inverted={reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE}
-                                                messagesListHeight={typeof styles.height === "number" ? styles.height : undefined}
-                              />
-                          )}
-                          style={styles}
-                          defaultItemHeight={120}
-                          overscan={virtualScrollOverscan}
-                          ref={virtuosoRef}
-                          computeItemKey={index => messagesOfChat[index]}
-                />
-                <MessagesListBottom ref={messagesListBottomRef}/>
-            </div>
+        return (
+           <Fragment>
+               <PinnedMessage ref={pinnedMessageRef}
+                              width={messagesDivRef && messagesDivRef.current ? messagesDivRef.current.getBoundingClientRect().width : undefined}
+               />
+               <div id="messagesList"
+                    ref={messagesDivRef}
+               >
+                   <Virtuoso totalCount={lastMessage && lastMessage.index}
+                             data={messagesOfChat}
+                             itemContent={index => {
+                                 let correctedIndex = messagesListReverted
+                                     ? lastMessage!.index - index + 1
+                                     : index;
+
+                                 if (index > lastMessage!.index || !selectedChat.indexToMessageMap[correctedIndex]) {
+                                     return <div style={{height: 1}}/>
+                                 }
+
+                                 return (
+                                     <MessagesListItem messageId={selectedChat.indexToMessageMap[correctedIndex]}
+                                                       inverted={reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE}
+                                                       messagesListHeight={typeof styles.height === "number" ? styles.height : undefined}
+                                     />
+                                 )
+                             }}
+                             overscan={virtualScrollOverscan}
+                             style={styles}
+                             ref={virtuosoRef}
+                             computeItemKey={index => messagesOfChat[index]}
+                             onScroll={(event: any) => handleDivScroll(event)}
+                             firstItemIndex={firstMessage && firstMessage.index}
+                             startReached={() => !messagesListReverted && fetchMessages()}
+                             endReached={() => messagesListReverted && fetchMessages()}
+                   />
+                   <MessagesListBottom ref={messagesListBottomRef}/>
+               </div>
+           </Fragment>
         )
     }
 });

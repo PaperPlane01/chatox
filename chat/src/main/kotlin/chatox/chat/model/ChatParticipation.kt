@@ -1,7 +1,7 @@
 package chatox.chat.model
 
 import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.mapping.DBRef
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
 
@@ -10,26 +10,34 @@ data class ChatParticipation(
         @Id
         var id: String? = null,
 
-        @DBRef
-        var chat: Chat,
+        @Indexed
+        var chatId: String,
 
-        @DBRef
         var user: User,
+
         var role: ChatRole,
 
-        @DBRef(lazy = true)
-        var lastMessageRead: MessageRead?,
-        var createdAt: ZonedDateTime,
-        var lastModifiedAt: ZonedDateTime? = null,
+        @Indexed
+        var lastReadMessageId: String? = null,
 
-        @DBRef
-        var lastChatBlocking: ChatBlocking? = null,
+        var lastReadMessageAt: ZonedDateTime? = null,
+
+        @Indexed
+        var lastReadMessageCreatedAt: ZonedDateTime? = null,
+
+        @Indexed
+        val lastMessageReadId: String? = null,
+        val createdAt: ZonedDateTime,
+        val lastModifiedAt: ZonedDateTime? = null,
+
+        @Indexed
+        var lastActiveChatBlockingId: String? = null,
         var userOnline: Boolean = false,
         var deleted: Boolean = false,
         var deletedAt: ZonedDateTime? = null,
 
-        @DBRef
-        var deletedBy: User? = null,
+        @Indexed
+        var deletedById: String? = null,
         var userDisplayedName: String?,
         var chatDeleted: Boolean = false
 )

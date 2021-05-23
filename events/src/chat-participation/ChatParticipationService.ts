@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
-import {ChatParticipation, ChatParticipationDto} from "./types";
+import {ChatParticipation, ChatParticipationDto, ChatRole} from "./types";
 
 @Injectable()
 export class ChatParticipationService {
@@ -35,6 +35,15 @@ export class ChatParticipationService {
         return this.chatParticipationModel.find({
             chatId,
             deleted: false
+        })
+            .exec();
+    }
+
+    public async findAdminsByChatId(chatId: string): Promise<ChatParticipation[]> {
+        return this.chatParticipationModel.find({
+            chatId,
+            deleted: false,
+            role: ChatRole.ADMIN
         })
             .exec();
     }

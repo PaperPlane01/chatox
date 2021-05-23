@@ -82,6 +82,15 @@ class RabbitMQConfig {
     fun chatEvents() = TopicExchange("chat.events")
 
     @Bean
+    fun messageCreatedQueue() = Queue("chat_service_message_created")
+
+    @Bean
+    fun messageCreatedBinding(): Binding = BindingBuilder
+            .bind(messageCreatedQueue())
+            .to(chatEvents())
+            .with("chat.message.created.#")
+
+    @Bean
     fun uploadEvents() = TopicExchange("upload.events")
 
     @Bean

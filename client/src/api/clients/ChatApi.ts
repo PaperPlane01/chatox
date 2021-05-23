@@ -1,7 +1,14 @@
 import {AxiosPromise} from "axios";
 import {stringify} from "query-string";
 import {axiosInstance} from "../axios-instance";
-import {CreateChatRequest, DeleteChatRequest, PaginationRequest, UpdateChatRequest} from "../types/request";
+import {
+    CreateChatRequest,
+    DeleteChatRequest,
+    DeleteMultipleMessagesRequest,
+    PaginationRequest,
+    UpdateChatParticipantRequest,
+    UpdateChatRequest
+} from "../types/request";
 import {
     AvailabilityResponse,
     Chat,
@@ -75,5 +82,13 @@ export class ChatApi {
                 "Content-Type": "application/json"
             }
         });
+    }
+
+    public static updateChatParticipant(chatId: string, chatParticipantId: string, updateChatParticipantRequest: UpdateChatParticipantRequest): AxiosPromise<ChatParticipation> {
+        return axiosInstance.put(`/${CHATS}/${chatId}/${PARTICIPANTS}/${chatParticipantId}`, updateChatParticipantRequest);
+    }
+
+    public static deleteMultipleChats(deleteMultipleChatsRequest: DeleteMultipleMessagesRequest): AxiosPromise<void> {
+        return axiosInstance.delete(`/${CHATS}`, {data: deleteMultipleChatsRequest});
     }
 }

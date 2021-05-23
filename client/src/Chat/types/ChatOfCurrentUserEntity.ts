@@ -9,6 +9,8 @@ export interface ChatOfCurrentUserEntity {
     lastReadMessage?: string,
     createdAt: Date,
     messages: string[],
+    indexToMessageMap: {[index: number]: string}
+    scheduledMessages: string[],
     unreadMessagesCount: number,
     participantsCount: number,
     onlineParticipantsCount: number,
@@ -20,5 +22,6 @@ export interface ChatOfCurrentUserEntity {
     tags: string[],
     deleted: boolean,
     deletionReason?: ChatDeletionReason,
-    deletionComment?: string
+    deletionComment?: string,
+    pinnedMessageId?: string
 }

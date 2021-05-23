@@ -54,6 +54,7 @@ export const UserAppBarMenu: FunctionComponent = observer(() => {
                         <Avatar avatarLetter={avatarLetter}
                                 avatarColor={randomColor({seed: currentUser.id})}
                                 avatarId={currentUser.avatarId}
+                                avatarUri={currentUser.externalAvatarUri}
                         />
                     </div>
                     <Hidden smDown>

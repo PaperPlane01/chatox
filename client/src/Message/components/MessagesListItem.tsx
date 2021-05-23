@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent, memo, useEffect, useLayoutEffect, useRef, useState} from "react";
+import React, {Fragment, FunctionComponent, memo, ReactNode, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {
     Card,
@@ -11,32 +11,40 @@ import {
     Tooltip,
     Typography,
 } from "@material-ui/core";
-import {Edit} from "@material-ui/icons";
+import {Edit, Event} from "@material-ui/icons";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactVisibilitySensor from "react-visibility-sensor";
 import clsx from "clsx";
-import {MenuItemType, MessageMenu} from "./MessageMenu";
+import {MessageMenu, MessageMenuItemType} from "./MessageMenu";
+import {ScheduledMessageMenu, ScheduledMessageMenuItemType} from "./ScheduledMessageMenu";
 import {MessageImagesGrid} from "./MessageImagesGrid";
 import {MessageImagesSimplifiedGrid} from "./MessageImagesSimplifiedGrid";
 import {ReferredMessageContent} from "./ReferredMessageContent";
+import {MessageAudios} from "./MessageAudios";
+import {MessageFiles} from "./MessageFiles";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {MarkdownTextWithEmoji} from "../../Emoji/components";
-import {MessageAudios} from "./MessageAudios";
-import {MessageFiles} from "./MessageFiles";
+import {TranslationFunction} from "../../localization/types";
+import {MessageEntity} from "../types";
+import {UserEntity} from "../../User/types";
 
 const {Link} = require("mobx-router");
 
 interface MessagesListItemProps {
     messageId: string,
     fullWidth?: boolean,
-    onMenuItemClick?: (menuItemType: MenuItemType) => void,
+    onMenuItemClick?: (menuItemType: MessageMenuItemType | ScheduledMessageMenuItemType) => void,
     onVisibilityChange?: (visible: boolean) => void,
     hideAttachments?: boolean,
     inverted?: boolean,
-    messagesListHeight?: number
+    messagesListHeight?: number,
+    scheduledMessage?: boolean,
+    findMessageFunction?: (id: string) => MessageEntity,
+    findMessageSenderFunction?: (id: string) => UserEntity,
+    menu?: ReactNode
 }
 
 const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
@@ -49,6 +57,12 @@ const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
     } else {
         return format(createdAt, "d MMM yyyy HH:mm", {locale});
     }
+};
+
+const getScheduledAtLabel = (scheduledAt: Date, locale: Locale, l: TranslationFunction): string => {
+    const dateLabel = getCreatedAtLabel(scheduledAt, locale);
+
+    return l("message.scheduled-at", {scheduleDate: dateLabel});
 };
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -154,7 +168,11 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     onVisibilityChange,
     hideAttachments = false,
     inverted = false,
-    messagesListHeight
+    messagesListHeight,
+    scheduledMessage = false,
+    findMessageFunction,
+    findMessageSenderFunction,
+    menu
 }) => {
     const {
         entities: {
@@ -163,11 +181,17 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
             },
             messages: {
                 findById: findMessage
+            },
+            scheduledMessages: {
+                findById: findScheduledMessage
             }
         },
         chatsPreferences: {
             enableVirtualScroll,
             useSimplifiedGalleryForVirtualScroll
+        },
+        markMessageRead: {
+            addMessageToQueue
         }
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
@@ -204,7 +228,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
 
             return () => window.removeEventListener("resize", updateWidth);
         }
-    )
+    );
 
     useEffect(() => {
         return () => {
@@ -212,11 +236,17 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                 onVisibilityChange(false);
             }
         }
-    }, [])
+    });
 
-    const message = findMessage(messageId);
-    const sender = findUser(message.sender);
-    const createAtLabel = getCreatedAtLabel(message.createdAt, dateFnsLocale);
+    const message = findMessageFunction
+        ? findMessageFunction(messageId)
+        : !scheduledMessage ? findMessage(messageId) : findScheduledMessage(messageId);
+    const sender = findMessageSenderFunction
+        ? findMessageSenderFunction(message.sender)
+        : findUser(message.sender);
+    const createAtLabel = !scheduledMessage
+        ? getCreatedAtLabel(message.createdAt, dateFnsLocale)
+        : getScheduledAtLabel(message.scheduledAt!, dateFnsLocale, l);
     const color = randomColor({seed: sender.id});
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
     const sentByCurrentUser = currentUser && currentUser.id === sender.id;
@@ -240,16 +270,26 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         [classes.undecoratedLink]: true,
         [classes.avatarOfCurrentUserContainer]: sentByCurrentUser,
         [classes.avatarContainer]: !sentByCurrentUser
-    })
+    });
 
-    const handleMenuItemClick = (menuItemType: MenuItemType): void => {
+    const handleMenuItemClick = (menuItemType: MessageMenuItemType | ScheduledMessageMenuItemType): void => {
         if (onMenuItemClick) {
             onMenuItemClick(menuItemType);
         }
     };
 
+    const handleVisibilityChange = (visible: boolean): void => {
+        if (visible && !message.readByCurrentUser) {
+            addMessageToQueue(message.id);
+        }
+
+        if (onVisibilityChange) {
+            onVisibilityChange(visible);
+        }
+    }
+
     return (
-        <ReactVisibilitySensor onChange={onVisibilityChange}
+        <ReactVisibilitySensor onChange={handleVisibilityChange}
                                partialVisibility={Boolean(messagesListHeight && height && height > messagesListHeight)}
         >
             <div className={wrapperClasses}
@@ -264,6 +304,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                     <Avatar avatarLetter={avatarLetter}
                             avatarColor={color}
                             avatarId={sender.avatarId}
+                            avatarUri={sender.externalAvatarUri}
                     />
                 </Link>
                 <Card className={cardClasses}>
@@ -283,7 +324,12 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                     action: classes.cardHeaderAction,
                                     content: classes.cardHeaderContent
                                 }}
-                                action={<MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>}
+                                action={menu
+                                    ? menu
+                                    : scheduledMessage
+                                        ? <ScheduledMessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>
+                                        : <MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>
+                                }
                     />
                     <CardContent classes={{
                         root: classes.cardContentRoot
@@ -303,7 +349,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                         />
                                     </div>
                                     {!hideAttachments && message.images.length === 1 && (
-                                        <MessageImagesSimplifiedGrid chatUploadsIds={message.images}
+                                        <MessageImagesSimplifiedGrid imagesIds={message.images}
                                                                      messageId={message.id}
                                                                      parentWidth={width}
                                         />
@@ -311,8 +357,8 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                     {!hideAttachments && message.images.length !== 0 && message.images.length !== 1 && (
                                         <div className={classes.cardContentWithPadding}>
                                             {enableVirtualScroll && useSimplifiedGalleryForVirtualScroll
-                                                ? <MessageImagesSimplifiedGrid chatUploadsIds={message.images} messageId={messageId}/>
-                                                : <MessageImagesGrid chatUploadsIds={message.images} parentWidth={width}/>
+                                                ? <MessageImagesSimplifiedGrid imagesIds={message.images} messageId={messageId}/>
+                                                : <MessageImagesGrid imagesIds={message.images} parentWidth={width}/>
                                             }
                                         </div>
                                     )}
@@ -330,6 +376,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                         root: classes.cardActionsRoot
                     }}>
                         <Typography variant="caption" color="textSecondary">
+                            {scheduledMessage && <Event fontSize="inherit"/>}
                             {createAtLabel}
                             {message.updatedAt && (
                                 <Tooltip title={l("message.updated-at", {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)})}>
@@ -346,7 +393,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                 </Card>
             </div>
         </ReactVisibilitySensor>
-    )
+    );
 });
 
 export const MessagesListItem = memo(_MessagesListItem);

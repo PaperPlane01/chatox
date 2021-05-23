@@ -24,7 +24,7 @@ const UploadSchema = new Schema({
     },
     isThumbnail: Boolean,
     isPreview: Boolean,
-    preview: this,
+    previewImage: this,
     thumbnails: [this],
     originalId: String
 });

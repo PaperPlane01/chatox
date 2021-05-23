@@ -16,6 +16,6 @@ public class CreateUserResponse {
     private String firstName;
     private String lastName;
     private String slug;
-    private String avatarUri;
+    private String externalAvatarUri;
     private ZonedDateTime createdAt;
 }

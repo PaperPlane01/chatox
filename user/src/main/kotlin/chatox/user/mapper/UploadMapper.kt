@@ -20,7 +20,6 @@ class UploadMapper {
             extension = upload.extenstion,
             mimeType = upload.mimeType,
             meta = upload.meta,
-            preview = if (upload.preview != null) toUploadResponse(upload.preview!!) else null,
             uri = "${imagesBaseUrl}/${upload.name}",
             originalName = upload.originalName
     )
@@ -30,7 +29,7 @@ class UploadMapper {
                                         user: User?
     ): Upload<MetadataType> = Upload(
             id = uploadCreated.id,
-            preview = preview,
+            previewId = preview?.id,
             meta = uploadCreated.meta,
             extenstion = uploadCreated.extension,
             name = uploadCreated.name,
@@ -39,7 +38,7 @@ class UploadMapper {
             mimeType = uploadCreated.mimeType,
             size = uploadCreated.size,
             type = uploadCreated.type,
-            user = user,
+            userId = user?.id,
             originalName = uploadCreated.originalName
     )
 }

@@ -16,7 +16,7 @@ public class NotNullIfFieldPresentValidator implements ConstraintValidator<NotNu
     @Override
     public void initialize(NotNullIfFieldPresent constraintAnnotation) {
         this.otherField = constraintAnnotation.field();
-        this.validatedFields = constraintAnnotation.validatedFields();
+        this.validatedFields = constraintAnnotation.checkedFields();
         this.acceptEmpty = constraintAnnotation.acceptEmpty();
     }
 

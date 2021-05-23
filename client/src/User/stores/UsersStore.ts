@@ -24,14 +24,15 @@ export class UsersStore extends AbstractEntityStore<UserEntity, User> {
             bio: denormalizedEntity.bio,
             createdAt: new Date(denormalizedEntity.createdAt),
             dateOfBirth: denormalizedEntity.dateOfBirth ? new Date(denormalizedEntity.dateOfBirth) : undefined,
-            avatarUri: denormalizedEntity.avatarUri,
+            externalAvatarUri: denormalizedEntity.externalAvatarUri,
             firstName: denormalizedEntity.firstName,
             lastName: denormalizedEntity.lastName,
             deleted: denormalizedEntity.deleted,
             slug: denormalizedEntity.slug,
             online: denormalizedEntity.online,
             lastSeen: denormalizedEntity.lastSeen ? new Date(denormalizedEntity.lastSeen) : undefined,
-            avatarId: denormalizedEntity.avatar ? denormalizedEntity.avatar.id : undefined
+            avatarId: denormalizedEntity.avatar ? denormalizedEntity.avatar.id : undefined,
+            onlineStatusMightBeInaccurate: denormalizedEntity.onlineStatusMightBeInaccurate
         };
     }
 }

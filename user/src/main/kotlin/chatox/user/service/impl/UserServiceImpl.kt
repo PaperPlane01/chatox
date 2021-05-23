@@ -15,10 +15,12 @@ import chatox.user.messaging.rabbitmq.event.producer.UserEventsProducer
 import chatox.user.repository.UploadRepository
 import chatox.user.repository.UserRepository
 import chatox.user.repository.UserSessionRepository
+import chatox.user.security.AuthenticationFacade
 import chatox.user.service.UserService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
@@ -30,7 +32,8 @@ class UserServiceImpl(private val userRepository: UserRepository,
                       private val userSessionRepository: UserSessionRepository,
                       private val uploadRepository: UploadRepository,
                       private val userMapper: UserMapper,
-                      private val userEventsProducer: UserEventsProducer) : UserService {
+                      private val userEventsProducer: UserEventsProducer,
+                      private val authenticationFacade: AuthenticationFacade) : UserService {
 
     override fun deleteUsersByAccount(accountId: String): Flux<Void> {
         return userRepository.findByAccountId(accountId)
@@ -40,18 +43,32 @@ class UserServiceImpl(private val userRepository: UserRepository,
     }
 
     override fun createUser(createUserRequest: CreateUserRequest): Mono<UserResponse> {
-        val user = userMapper.fromCreateUserRequest(createUserRequest)
+        return mono {
+            var user = userRepository.findById(createUserRequest.id).awaitFirstOrNull()
 
-        return userRepository.save(user)
-                .map { userMapper.toUserResponse(it, mapAccountId = true) }
-                .map {
-                    userEventsProducer.userCreated(it)
-                    it.copy(accountId = null)
-                }
+            if (user == null) {
+                user = userMapper.fromCreateUserRequest(createUserRequest)
+                userRepository.save(user).awaitFirst()
+            }
+
+            val userResponse = userMapper.toUserResponse(
+                    user = user,
+                    mapAccountId = true,
+                    mapAccountRegistrationType = true,
+                    mapEmail = true
+            )
+            userEventsProducer.userCreated(userResponse)
+
+            return@mono userResponse
+        }
     }
 
     override fun updateUser(id: String, updateUserRequest: UpdateUserRequest): Mono<UserResponse> {
         return mono {
+            if (authenticationFacade.isCurrentUserBannedGlobally().awaitFirst()) {
+                throw AccessDeniedException("Current user is banned globally")
+            }
+
             var user = findById(id).awaitFirst()
             var avatar: Upload<ImageUploadMetadata>? = null
 
@@ -77,11 +94,14 @@ class UserServiceImpl(private val userRepository: UserRepository,
                     updateUserRequest = updateUserRequest
             )
             user = userRepository.save(user).awaitFirst()
-            val online = userSessionRepository.countByUserAndDisconnectedAtNull(user).awaitFirst() != 0L
+            val online = userSessionRepository.countByUserIdAndDisconnectedAtNull(user.id).awaitFirst() != 0L
 
             val userResponse = userMapper.toUserResponse(
                     user = user,
-                    online = online
+                    online = online,
+                    mapEmail = true,
+                    mapAccountRegistrationType = true,
+                    mapAccountId = true
             )
             userEventsProducer.userUpdated(userResponse)
             userResponse
@@ -101,7 +121,7 @@ class UserServiceImpl(private val userRepository: UserRepository,
     override fun findUserByIdOrSlug(idOrSlug: String): Mono<UserResponse> {
         return mono {
             val user = findByIdOrSlug(idOrSlug).awaitFirst()
-            val online = userSessionRepository.countByUserAndDisconnectedAtNull(user).awaitFirst() != 0L
+            val online = userSessionRepository.countByUserIdAndDisconnectedAtNull(user.id).awaitFirst() != 0L
 
             userMapper.toUserResponse(
                     user = user,

@@ -18,7 +18,7 @@ class ChatPermissions(private val authenticationFacade: AuthenticationFacade) {
     }
 
     fun canUpdateChat(chatId: String): Mono<Boolean> {
-        return authenticationFacade.getCurrentUser()
+        return authenticationFacade.getCurrentUserDetails()
                 .map { chatService.isChatCreatedByUser(chatId, userId = it.id) }
                 .flatMap { it }
     }
@@ -34,5 +34,10 @@ class ChatPermissions(private val authenticationFacade: AuthenticationFacade) {
 
             chatCreatedByCurrentUser || currentUser.isAdmin()
         }
+    }
+
+    fun canCreateChat(): Mono<Boolean> {
+        return authenticationFacade.getCurrentUserDetails()
+                .map { user -> !user.isBannedGlobally() }
     }
 }

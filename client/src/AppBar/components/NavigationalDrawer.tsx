@@ -7,10 +7,12 @@ import {HomeMenuItem} from "./HomeMenuItem";
 import {MyChatsMenuItem} from "./MyChatsMenuItem";
 import {SettingsMenuItem} from "./SettingsMenuItem";
 import {DrawerAudioControls} from "./DrawerAudioControls";
+import {GlobalBansMenuItem} from "./GlobalBansMenuItem";
 import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {PasswordRecoveryDialog} from "../../PasswordRecovery";
 import {useStore} from "../../store";
+import {ReportsMenuItem} from "./ReportsMenuItem";
 
 export const NavigationalDrawer: FunctionComponent = observer(() => {
     const {appBar} = useStore();
@@ -48,6 +50,11 @@ export const NavigationalDrawer: FunctionComponent = observer(() => {
                         <MyChatsMenuItem onClick={closeDrawer}/>
                     </HasAnyRole>
                     <SettingsMenuItem onClick={closeDrawer}/>
+                    <HasRole role="ROLE_ADMIN">
+                        <Divider/>
+                        <GlobalBansMenuItem onClick={closeDrawer}/>
+                        <ReportsMenuItem onClick={closeDrawer}/>
+                    </HasRole>
                     <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
                         <Divider/>
                         <LogOutMenuItem onClick={closeDrawer}/>

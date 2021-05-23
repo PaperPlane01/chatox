@@ -1,23 +1,35 @@
 import React, {FunctionComponent, MouseEvent, ReactNode, useState} from "react";
 import {observer} from "mobx-react";
-import {IconButton, Menu} from "@material-ui/core";
+import {IconButton, Menu, Divider} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {BlockMessageAuthorInChatMenuItem} from "./BlockMessageAuthorInChatMenuItem";
 import {ReplyToMessageMenuItem} from "./ReplyToMessageMenuItem";
 import {EditMessageMenuItem} from "./EditMessageMenuItem";
 import {DeleteMessageMenuItem} from "./DeleteMessageMenuItem";
-import {canCreateMessage, canDeleteMessage, canEditMessage} from "../permissions";
+import {canCreateMessage, canDeleteMessage, canEditMessage, canPinMessage} from "../permissions";
 import {useAuthorization, useStore} from "../../store";
 import {canBlockUsersInChat, ChatBlockingEntity} from "../../ChatBlocking";
+import {BanUserGloballyMenuItem, canBanUsersGlobally} from "../../GlobalBan";
+import {PinMessageMenuItem} from "./PinMessageMenuItem";
+import {ReportMessageMenuItem} from "../../Report/components";
 
-export type MenuItemType = "blockMessageAuthorInChat" | "replyToMessage" | "editMessage" | "deleteMessage";
+export type MessageMenuItemType = "blockMessageAuthorInChat"
+    | "replyToMessage"
+    | "editMessage"
+    | "deleteMessage"
+    | "banUserGlobally"
+    | "pinMessage"
+    | "reportMessage"
 
 interface MessageMenuProps {
     messageId: string,
-    onMenuItemClick?: (menuItemType: MenuItemType) => void
+    onMenuItemClick?: (menuItemType: MessageMenuItemType) => void,
 }
 
-export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messageId, onMenuItemClick}) => {
+export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
+    messageId,
+    onMenuItemClick,
+}) => {
     const {
         entities: {
             chatParticipations: {
@@ -28,6 +40,9 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messa
             },
             chatBlockings: {
                 findById: findChatBlocking
+            },
+            chats: {
+                findById: findChat
             }
         },
         chat: {
@@ -42,6 +57,7 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messa
         ? findChatParticipation({userId: currentUser.id, chatId: selectedChatId})
         : undefined;
     const message = findMessage(messageId);
+    const chat = findChat(selectedChatId!);
     let activeChatBlocking: ChatBlockingEntity | undefined = undefined;
 
     if (chatParticipation && chatParticipation.activeChatBlockingId) {
@@ -52,7 +68,7 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messa
         setAnchorElement(event.currentTarget);
     };
 
-    const handleClose = (menuItemType?: MenuItemType) => (): void => {
+    const handleClose = (menuItemType?: MessageMenuItemType) => (): void => {
         if (onMenuItemClick && menuItemType) {
             onMenuItemClick(menuItemType);
         }
@@ -80,9 +96,17 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({messa
         menuItems.push(<DeleteMessageMenuItem messageId={messageId} onClick={handleClose("deleteMessage")}/>)
     }
 
-    if (menuItems.length === 0) {
-        return null;
+    if (canPinMessage(chat, chatParticipation)) {
+        menuItems.push(<PinMessageMenuItem messageId={messageId} onClick={handleClose("pinMessage")}/>)
     }
+
+    if (canBanUsersGlobally(currentUser)) {
+        menuItems.push(<Divider/>);
+        menuItems.push(<BanUserGloballyMenuItem userId={message.sender} onClick={handleClose("banUserGlobally")}/>);
+    }
+
+    menuItems.push(<Divider/>);
+    menuItems.push(<ReportMessageMenuItem messageId={messageId} onClick={handleClose("reportMessage")}/>);
 
     return (
         <div>

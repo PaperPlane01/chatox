@@ -43,7 +43,7 @@ spring:
         - id: chat-service
           uri: lb://chat-service
           predicates:
-            - Path=/api/v1/chats/**
+            - Path=/api/v1/chats/**, /api/v1/messages/**
         - id: user-service
           uri: lb://user-service
           predicates:
@@ -56,6 +56,10 @@ spring:
           uri: lb://uploads-service
           predicates:
             - Path=/api/v1/uploads/**
+        - id: reports-service
+          uri: lb://reports-service
+          predicates:
+            - Path=/api/v1/reports/**
         - id: events-service
           uri: lb://events-service
           predicates:

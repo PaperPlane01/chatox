@@ -10,7 +10,7 @@
     </parent>
     <groupId>chatox</groupId>
     <artifactId>eureka</artifactId>
-    <version>0.4</version>
+    <version>0.5</version>
     <name>eureka</name>
     <description>Chatox Eureka registration service</description>
 

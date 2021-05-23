@@ -1,15 +1,20 @@
 import React, {FunctionComponent, MouseEvent, ReactNode, useState} from "react";
 import {observer} from "mobx-react";
-import {IconButton, Menu} from "@material-ui/core";
+import {Divider, IconButton, Menu} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
 import {ChatBlockingsMenuItem} from "./ChatBlockingsMenuItem";
 import {BlockUserInChatByIdOrSlugMenuItem} from "./BlockUserInChatByIdOrSlugMenuItem";
 import {EditChatMenuItem} from "./EditChatMenuItem";
 import {LeaveChatMenuItem} from "./LeaveChatMenuItem";
 import {DeleteChatMenuItem} from "./DeleteChatMenuItem";
+import {ScheduleMessageMenuItem} from "./ScheduleMessageMenuItem";
+import {ShowScheduledMessagesMenuItem} from "./ShowScheduledMessagesMenuItem";
+import {ShowPinnedMessageMenuItem} from "./ShowPinnedMessageMenuItem";
 import {canDeleteChat, canLeaveChat, canUpdateChat} from "../permissions";
 import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
 import {useAuthorization, useStore} from "../../store";
+import {canScheduleMessage} from "../../Message/permissions";
+import {ReportChatMenuItem} from "../../Report";
 
 export const ChatMenu: FunctionComponent = observer(() => {
     const {
@@ -23,6 +28,10 @@ export const ChatMenu: FunctionComponent = observer(() => {
             chatParticipations: {
                 findByUserAndChat: findChatParticipation
             }
+        },
+        pinnedMessages: {
+            currentPinnedMessageId,
+            currentPinnedMessageIsClosed
         }
     } = useStore();
     const {currentUser} = useAuthorization();
@@ -53,10 +62,14 @@ export const ChatMenu: FunctionComponent = observer(() => {
     const menuItems: ReactNode[] = [];
 
     canUpdateChat(chat) && menuItems.push(<EditChatMenuItem onClick={handleClose}/>);
+    canScheduleMessage(chatParticipation) && menuItems.push(<ScheduleMessageMenuItem onClick={handleClose}/>);
+    canScheduleMessage(chatParticipation) && menuItems.push(<ShowScheduledMessagesMenuItem onClick={handleClose}/>);
+    currentPinnedMessageId && currentPinnedMessageIsClosed && menuItems.push(<ShowPinnedMessageMenuItem onClick={handleClose}/>);
     canBlockUsersInChat(chatParticipation) && menuItems.push(<ChatBlockingsMenuItem onClick={handleClose}/>);
     canBlockUsersInChat(chatParticipation) && menuItems.push(<BlockUserInChatByIdOrSlugMenuItem onClick={handleClose}/>);
     canLeaveChat(chat, chatParticipation) && menuItems.push(<LeaveChatMenuItem onClick={handleClose}/>);
-    canDeleteChat(chat, currentUser) && menuItems.push(<DeleteChatMenuItem onClick={handleClose}/>)
+    menuItems.push(<ReportChatMenuItem chatId={chat.id} onClick={handleClose}/>);
+    canDeleteChat(chat, currentUser) && menuItems.push([<Divider/>, <DeleteChatMenuItem onClick={handleClose}/>]);
 
     if (menuItems.length === 0) {
         return null;

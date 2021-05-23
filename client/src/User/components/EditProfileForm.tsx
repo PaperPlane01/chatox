@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useEffect} from "react";
+import React, {FunctionComponent, useEffect, Fragment} from "react";
 import {observer} from "mobx-react";
 import {
     Button,
@@ -8,13 +8,14 @@ import {
     CardHeader,
     CircularProgress,
     InputAdornment,
-    TextField
+    TextField, Typography
 } from "@material-ui/core";
 import {DatePicker} from "@material-ui/pickers";
 import {useSnackbar} from "notistack";
 import {UserAvatarUpload} from "./UserAvatarUpload";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {useLocalization, useStore} from "../../store";
+import {getGlobalBanLabel} from "../../GlobalBan/utils";
 
 interface EditProfileFormProps {
     hideHeader?: boolean
@@ -35,9 +36,21 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
             setFormValue,
             setShowSnackbar,
             updateProfile
+        },
+        entities: {
+            globalBans: {
+                findById: findGlobalBan
+            },
+            users: {
+                findById: findUser
+            }
+        },
+        authorization: {
+            currentUser,
+            isCurrentUserBannedGlobally
         }
     } = useStore();
-    const {l} = useLocalization();
+    const {l, dateFnsLocale} = useLocalization();
     const {enqueueSnackbar} = useSnackbar();
 
     useEffect(() => {
@@ -46,6 +59,32 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
             setShowSnackbar(false);
         }
     }, [showSnackbar]);
+
+    if (!currentUser) {
+        return null;
+    }
+
+    if (isCurrentUserBannedGlobally()) {
+        return (
+            <Fragment>
+                <Typography>
+                    {l("user.edit-profile.cannot-edit-profile")}
+                </Typography>
+                <br/>
+                <Typography>
+                    {
+
+                        getGlobalBanLabel(
+                            findGlobalBan(currentUser.globalBan!.id),
+                            l,
+                            dateFnsLocale,
+                            findUser
+                        )
+                    }
+                </Typography>
+            </Fragment>
+        )
+    }
 
     return (
         <Card>

@@ -3,6 +3,7 @@ package chatox.chat.service.impl
 import chatox.chat.api.request.CreateChatBlockingRequest
 import chatox.chat.api.request.UpdateChatBlockingRequest
 import chatox.chat.api.response.ChatBlockingResponse
+import chatox.chat.api.response.UserResponse
 import chatox.chat.exception.ChatBlockingNotFoundException
 import chatox.chat.exception.UserNotFoundException
 import chatox.chat.exception.metadata.ChatNotFoundException
@@ -17,14 +18,14 @@ import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.MessageRepository
 import chatox.chat.repository.UserRepository
 import chatox.chat.security.AuthenticationFacade
-import chatox.chat.security.access.ChatBlockingPermissions
 import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatParticipationService
-import chatox.chat.support.pagination.PaginationRequest
+import chatox.platform.cache.ReactiveCacheService
+import chatox.platform.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
@@ -39,14 +40,10 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
                               private val messageRepository: MessageRepository,
                               private val authenticationFacade: AuthenticationFacade,
                               private val chatBlockingMapper: ChatBlockingMapper,
-                              private val chatEventsPublisher: ChatEventsPublisher) : ChatBlockingService {
-    private lateinit var chatBlockingPermissions: ChatBlockingPermissions
+                              private val chatEventsPublisher: ChatEventsPublisher,
+                              private val chatBlockingCacheService: ReactiveCacheService<ChatBlocking, String>
+) : ChatBlockingService {
     private lateinit var chatParticipationService: ChatParticipationService
-
-    @Autowired
-    fun setChatBlockingPermissions(chatBlockingPermissions: ChatBlockingPermissions) {
-        this.chatBlockingPermissions = chatBlockingPermissions
-    }
 
     @Autowired
     fun setChatParticipationService(chatParticipationService: ChatParticipationService) {
@@ -55,7 +52,6 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
 
     override fun blockUser(chatId: String, createChatBlockingRequest: CreateChatBlockingRequest): Mono<ChatBlockingResponse> {
         return mono {
-            assertCanBlockUser(chatId).awaitFirst()
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
             val chat = findChatById(chatId).awaitFirst()
             val blockedUser = findUserById(createChatBlockingRequest.userId).awaitFirst()
@@ -69,13 +65,13 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
 
             chatBlocking = chatBlockingRepository.save(chatBlocking).awaitFirst()
 
-            if (createChatBlockingRequest.deleteRecentMessages != null && createChatBlockingRequest.deleteRecentMessages) {
+            if (createChatBlockingRequest.deleteRecentMessages) {
                 val roleOfUserInChat = chatParticipationService.getRoleOfUserInChat(chat, blockedUser).awaitFirst()
 
                 if (roleOfUserInChat != ChatRole.MODERATOR && roleOfUserInChat != ChatRole.ADMIN) {
                     val deleteMessagesSince = createChatBlockingRequest.deleteMessagesSince ?: ZonedDateTime.now().minusMinutes(5L)
-                    var deletedMessages = messageRepository.findBySenderAndCreatedAtAfter(
-                            user = blockedUser,
+                    var deletedMessages = messageRepository.findBySenderIdAndCreatedAtAfter(
+                            senderId = blockedUser.id,
                             date = deleteMessagesSince
                     )
                             .collectList()
@@ -83,7 +79,7 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
                     deletedMessages = deletedMessages.map { it.copy(
                             deleted = true,
                             deletedAt = ZonedDateTime.now(),
-                            deletedBy = currentUser
+                            deletedById = currentUser.id
                     ) }
                     deletedMessages = messageRepository.saveAll(deletedMessages).collectList().awaitFirst()
                     chatEventsPublisher.messagesDeleted(
@@ -93,26 +89,14 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
                 }
             }
 
-            val chatBlockingResponse = chatBlockingMapper.toChatBlockingResponse(chatBlocking)
+            val chatBlockingResponse = chatBlockingMapper.toChatBlockingResponse(chatBlocking).awaitFirst()
             chatEventsPublisher.chatBlockingCreated(chatBlockingResponse)
             chatBlockingResponse
         }
     }
 
-    private fun assertCanBlockUser(chatId: String): Mono<Boolean> {
-        return chatBlockingPermissions.canBlockUser(chatId)
-                .flatMap {
-                    if (!it) {
-                        Mono.error<Boolean>(AccessDeniedException("Can't block user in chat"))
-                    } else {
-                        Mono.just(it)
-                    }
-                }
-    }
-
     override fun unblockUser(chatId: String, blockingId: String): Mono<ChatBlockingResponse> {
         return mono {
-            assertCanUnblockUser(chatId).awaitFirst()
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
             var chatBlocking = findBlockingById(blockingId).awaitFirst()
 
@@ -120,29 +104,17 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
             chatBlocking = chatBlocking.copy(
                     canceled = true,
                     canceledAt = cancelDate,
-                    canceledBy = currentUser,
+                    canceledById = currentUser.id,
                     lastModifiedAt = cancelDate,
-                    lastModifiedBy = currentUser
+                    lastModifiedById = currentUser.id
             )
 
             chatBlocking = chatBlockingRepository.save(chatBlocking).awaitFirst()
 
-            val chatBlockingResponse = chatBlockingMapper.toChatBlockingResponse(chatBlocking)
+            val chatBlockingResponse = chatBlockingMapper.toChatBlockingResponse(chatBlocking).awaitFirst()
             chatEventsPublisher.chatBlockingUpdated(chatBlockingResponse)
             chatBlockingResponse
         }
-    }
-
-    private fun assertCanUnblockUser(chatId: String): Mono<Boolean> {
-        return chatBlockingPermissions.canUnblockUser(chatId)
-                .flatMap {
-                    if (!it) {
-                        Mono.error<Boolean>(AccessDeniedException("Can't unblock user"))
-                    } else {
-                        Mono.just(it)
-                    }
-                }
-
     }
 
     override fun updateBlocking(
@@ -151,7 +123,6 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
             updateBlockingRequest: UpdateChatBlockingRequest
     ): Mono<ChatBlockingResponse> {
         return mono {
-            assertCanUpdateBlocking(chatId).awaitFirst()
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
 
             var chatBlocking = findBlockingById(blockingId).awaitFirst()
@@ -162,83 +133,80 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
             )
             chatBlocking = chatBlockingRepository.save(chatBlocking).awaitFirst()
 
-            val chatBlockingResponse = chatBlockingMapper.toChatBlockingResponse(chatBlocking)
+            val chatBlockingResponse = chatBlockingMapper.toChatBlockingResponse(chatBlocking).awaitFirst()
             chatEventsPublisher.chatBlockingUpdated(chatBlockingResponse)
             chatBlockingResponse
         }
     }
 
-    private fun assertCanUpdateBlocking(chatId: String): Mono<Boolean> {
-        return chatBlockingPermissions.canUpdateBlocking(chatId)
-                .flatMap {
-                    if (!it) {
-                        Mono.error<Boolean>(AccessDeniedException("Can't update chat blocking"))
-                    } else {
-                        Mono.just(it)
-                    }
-                }
-    }
-
     override fun getBlockingById(chatId: String, blockingId: String): Mono<ChatBlockingResponse> {
-        return assertCanSeeBlockings(chatId)
-                .flatMap { findBlockingById(blockingId) }
-                .map { chatBlockingMapper.toChatBlockingResponse(it) }
+        return findBlockingById(blockingId, true)
+                .flatMap { chatBlockingMapper.toChatBlockingResponse(it) }
     }
 
     override fun getActiveBlockingsByChat(chatId: String, paginationRequest: PaginationRequest): Flux<ChatBlockingResponse> {
-        return assertCanSeeBlockings(chatId)
-                .flatMap { findChatById(chatId) }
-                .flatMapMany { chatBlockingRepository.findByChatAndBlockedUntilAfterAndCanceled(
-                        chat = it,
+        val localUserCache = HashMap<String, UserResponse>()
+
+        return findChatById(chatId)
+                .flatMapMany { chat -> chatBlockingRepository.findByChatIdAndBlockedUntilAfterAndCanceled(
+                        chatId = chat.id,
                         canceled = false,
                         date = ZonedDateTime.now(),
                         pageable = paginationRequest.toPageRequest()
                 ) }
-                .map { chatBlockingMapper.toChatBlockingResponse(it) }
+                .flatMap { chatBlocking -> chatBlockingMapper.toChatBlockingResponse(chatBlocking, localUserCache) }
 
     }
 
     override fun getNonActiveBlockingsByChat(chatId: String, paginationRequest: PaginationRequest): Flux<ChatBlockingResponse> {
-        return assertCanSeeBlockings(chatId)
-                .flatMap { findChatById(chatId) }
-                .flatMapMany { chatBlockingRepository.findByChatAndBlockedUntilBeforeOrCanceled(
-                        chat = it,
+        val localUserCache = HashMap<String, UserResponse>()
+
+        return findChatById(chatId)
+                .flatMapMany { chat -> chatBlockingRepository.findByChatIdAndBlockedUntilBeforeOrCanceled(
+                        chatId = chat.id,
                         canceled = true,
                         date = ZonedDateTime.now(),
                         pageable = paginationRequest.toPageRequest()
                 ) }
-                .map { chatBlockingMapper.toChatBlockingResponse(it) }
+                .flatMap { chatBlocking -> chatBlockingMapper.toChatBlockingResponse(chatBlocking, localUserCache) }
     }
 
     override fun getAllBlockingsByChat(chatId: String, paginationRequest: PaginationRequest): Flux<ChatBlockingResponse> {
-        return assertCanSeeBlockings(chatId)
-                .flatMap { findChatById(chatId) }
-                .flatMapMany { chatBlockingRepository.findByChat(it, paginationRequest.toPageRequest()) }
-                .map { chatBlockingMapper.toChatBlockingResponse(it) }
+        val localUserCache = HashMap<String, UserResponse>()
+
+        return findChatById(chatId)
+                .flatMapMany { chat -> chatBlockingRepository.findByChatId(chat.id, paginationRequest.toPageRequest()) }
+                .flatMap { chatBlocking -> chatBlockingMapper.toChatBlockingResponse(chatBlocking, localUserCache) }
     }
 
     override fun isUserBlockedInChat(chatId: String, user: User): Mono<Boolean> {
-        return findChatById(chatId)
-                .map { chatBlockingRepository.findByChatAndBlockedUserAndBlockedUntilAfterAndCanceled(
-                        chat = it,
-                        blockedUser = user,
+        return  chatBlockingRepository.findByChatIdAndBlockedUserIdAndBlockedUntilAfterAndCanceled(
+                        chatId = chatId,
+                        blockedUserId = user.id,
                         canceled = false,
                         date = ZonedDateTime.now()
-                )}
-                .flatMapMany { it }
+                )
                 .collectList()
                 .map { it.isNotEmpty() }
     }
 
-    private fun assertCanSeeBlockings(chatId: String): Mono<Boolean> {
-        return chatBlockingPermissions.canSeeChatBlockings(chatId)
-                .flatMap {
-                    if (!it) {
-                        Mono.error<Boolean>(AccessDeniedException("Can't watch blockings in this chat"))
-                    } else {
-                        Mono.just(it)
-                    }
-                }
+    override fun isUserBlockedInChat(chatId: String, userId: String): Mono<Boolean> {
+        return chatBlockingRepository.findByChatIdAndBlockedUserIdAndBlockedUntilAfterAndCanceled(
+                chatId = chatId,
+                blockedUserId = userId,
+                canceled = false,
+                date = ZonedDateTime.now()
+        )
+                .collectList()
+                .map { it.isNotEmpty() }
+    }
+
+    override fun findChatBlockingById(id: String): Mono<ChatBlockingResponse> {
+        return mono {
+            val chatBlocking = findBlockingById(id).awaitFirst()
+
+            chatBlockingMapper.toChatBlockingResponse(chatBlocking).awaitFirst()
+        }
     }
 
     private fun findChatById(chatId: String): Mono<Chat> {
@@ -251,8 +219,26 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
                 .switchIfEmpty(Mono.error(UserNotFoundException("Could not find user with id $userId")))
     }
 
-    private fun findBlockingById(blockingId: String): Mono<ChatBlocking> {
-        return chatBlockingRepository.findById(blockingId)
-                .switchIfEmpty(Mono.error(ChatBlockingNotFoundException("Could not find chat blocking with id $blockingId")))
+    private fun findBlockingById(blockingId: String, retrieveFromCache: Boolean = false): Mono<ChatBlocking> {
+        return mono {
+            var chatBlocking: ChatBlocking? = null
+
+            if (retrieveFromCache) {
+                chatBlocking = chatBlockingCacheService.find(blockingId).awaitFirstOrNull()
+            }
+
+            if (chatBlocking == null) {
+                chatBlocking = chatBlockingRepository.findById(blockingId).awaitFirstOrNull()
+                if (chatBlocking != null) {
+                    chatBlockingCacheService.put(chatBlocking).subscribe()
+                }
+            }
+
+            if (chatBlocking == null) {
+                throw ChatBlockingNotFoundException("Could not find chat blocking with id $blockingId")
+            }
+
+            chatBlocking
+        }
     }
 }

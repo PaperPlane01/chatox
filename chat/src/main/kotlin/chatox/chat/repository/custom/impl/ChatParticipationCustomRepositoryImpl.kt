@@ -15,9 +15,9 @@ import reactor.core.publisher.Mono
 class ChatParticipationCustomRepositoryImpl(
         private val reactiveMongoTemplate: ReactiveMongoTemplate) : ChatParticipationCustomRepository {
 
-    override fun updateDisplayedNameOfChatParticipationsByUser(user: User): Mono<UpdateResult> {
+    override fun updateChatParticipationsOfUser(user: User): Mono<UpdateResult> {
         val query = Query()
-        query.addCriteria(Criteria.where("user.\$id").`is`(user.id))
+        query.addCriteria(Criteria.where("user._id").`is`(user.id))
 
         var displayedName = user.firstName
 
@@ -27,6 +27,7 @@ class ChatParticipationCustomRepositoryImpl(
 
         val update = Update()
         update.set("userDisplayedName", displayedName)
+        update.set("user", user)
 
         return reactiveMongoTemplate
                 .updateMulti(query, update, ChatParticipation::class.java)
@@ -34,7 +35,7 @@ class ChatParticipationCustomRepositoryImpl(
 
     override fun updateChatDeleted(chatId: String, chatDeleted: Boolean): Mono<UpdateResult> {
         val query = Query()
-        query.addCriteria(Criteria.where("chat.\$id").`is`(chatId))
+        query.addCriteria(Criteria.where("chatId").`is`(chatId))
 
         val update = Update()
         update.set("chatDeleted", chatDeleted)

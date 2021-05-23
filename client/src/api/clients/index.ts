@@ -4,3 +4,5 @@ export * from "./MessageApi";
 export * from "./ChatBlockingApi";
 export * from "./UploadApi";
 export * from "./EmailConfirmationCodeApi";
+export * from "./GlobalBanApi";
+export * from "./ReportsApi";

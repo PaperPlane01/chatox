@@ -5,12 +5,25 @@ import {App} from "./App";
 import {store, routerStore} from "./store";
 import {Routes} from "./router";
 import * as serviceWorker from "./serviceWorker";
+import {parse} from "query-string";
 
 const {startRouter} = require("mobx-router");
 
+const injectRouterStore = (): void => {
+    store.messageCreation.setRouterStore(routerStore);
+};
+
+injectRouterStore();
+
 startRouter(Routes, routerStore, {
     notfound: () => {
-        routerStore.router.goTo(Routes.notFound);
+        if (window.location.href.includes(`${process.env.REACT_APP_PUBLIC_URL}/oauth/google/`)) {
+            const queryStringParameters = parse(window.location.href.substring(`${process.env.REACT_APP_PUBLIC_URL}/oauth/google/`.length));
+            console.log(queryStringParameters);
+            routerStore.router.goTo(Routes.googleAuthentication, {}, {access_token: queryStringParameters.access_token});
+        } else {
+            routerStore.router.goTo(Routes.notFound);
+        }
     }
 });
 

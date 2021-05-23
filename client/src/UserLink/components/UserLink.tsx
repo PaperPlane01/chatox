@@ -13,7 +13,10 @@ const {Link} = require("mobx-router");
 interface UserLinkProps {
     user: UserEntity,
     displayAvatar: boolean,
-    boldText?: boolean
+    boldText?: boolean,
+    avatarWidth?: number,
+    avatarHeight?: number,
+    identifierType?: "slug" | "id"
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -31,6 +34,9 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
     user,
     displayAvatar = false,
     boldText = false,
+    avatarWidth = 30,
+    avatarHeight = 30,
+    identifierType = "slug"
 }) => {
     const routerStore = useRouter();
     const classes = useStyles();
@@ -41,15 +47,16 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
     if (displayAvatar) {
         return (
             <Link view={Routes.userPage}
-                  params={{slug: user.slug}}
+                  params={{slug: identifierType === "slug" ? user.slug : user.id}}
                   className={classes.userLink}
                   store={routerStore}
             >
                 <Avatar avatarLetter={avatarLabel}
                         avatarColor={color}
-                        width={25}
-                        height={25}
+                        width={avatarWidth}
+                        height={avatarHeight}
                         avatarId={user.avatarId}
+                        avatarUri={user.externalAvatarUri}
                 />
                 <Typography className={classes.userNicknameTypography}
                             style={{color}}

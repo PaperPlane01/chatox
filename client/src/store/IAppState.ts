@@ -1,7 +1,7 @@
 import {EntitiesStore} from "../entities-store";
 import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore} from "../Authorization";
+import {AuthorizationStore, LoginStore, LoginWithGoogleStore} from "../Authorization";
 import {
     AnonymousRegistrationDialogStore,
     RegistrationDialogStore,
@@ -21,15 +21,26 @@ import {
     LeaveChatStore,
     OnlineChatParticipantsStore,
     PopularChatsStore,
+    UpdateChatParticipantStore,
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {
+    ClosedPinnedMessagesStore,
     CreateMessageStore,
-    DownloadMessageFileStore,
+    DeleteScheduledMessageStore,
+    DownloadMessageFileStore, MarkMessageReadStore,
     MessageDialogStore,
+    MessagesListScrollPositionsStore,
     MessagesOfChatStore,
+    PinMessageStore,
+    PinnedMessagesStore,
+    PublishScheduledMessageStore,
+    ScheduledMessagesOfChatStore,
+    ScheduleMessageStore,
+    UnpinMessageStore,
     UpdateMessageStore,
+    UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
@@ -61,6 +72,23 @@ import {
     SendPasswordRecoveryEmailConfirmationCodeStore
 } from "../PasswordRecovery";
 import {DeleteMessageStore} from "../Message/stores/DeleteMessageStore";
+import {
+    BanUserStore,
+    CancelGlobalBanStore,
+    GlobalBanDetailsDialogStore,
+    GlobalBansListStore,
+    UpdateGlobalBanStore
+} from "../GlobalBan/stores";
+import {
+    BanUsersRelatedToSelectedReportsStore,
+    CreateReportStore,
+    CurrentReportsListStore,
+    DeclineSelectedReportsStore,
+    ReportedMessageDialogStore,
+    ReportsListStore,
+    UpdateSelectedReportsStore
+} from "../Report/stores";
+import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
 
 export interface IAppState {
     language: LocaleStore,
@@ -118,5 +146,37 @@ export interface IAppState {
     anonymousRegistration: AnonymousRegistrationDialogStore,
     kickFromChat: KickChatParticipantStore,
     chatDeletion: DeleteChatStore,
+    userGlobalBan: BanUserStore,
+    globalBansList: GlobalBansListStore,
+    globalBanDetailsDialog: GlobalBanDetailsDialogStore,
+    cancelGlobalBan: CancelGlobalBanStore,
+    updateGlobalBan: UpdateGlobalBanStore,
+    updateChatParticipant: UpdateChatParticipantStore,
+    pinnedMessages: PinnedMessagesStore,
+    pinMessage: PinMessageStore,
+    unpinMessage: UnpinMessageStore,
+    closedPinnedMessages: ClosedPinnedMessagesStore,
+    scheduleMessage: ScheduleMessageStore,
+    scheduledMessagesOfChat: ScheduledMessagesOfChatStore,
+    publishScheduledMessage: PublishScheduledMessageStore,
+    deleteScheduledMessage: DeleteScheduledMessageStore,
+    updateScheduledMessage: UpdateScheduledMessageStore,
+    reportMessage: CreateReportStore,
+    messageReports: ReportsListStore,
+    reportedMessageDialog: ReportedMessageDialogStore,
+    selectedReportsUpdate: UpdateSelectedReportsStore,
+    selectedReportedMessagesDeletion: DeleteSelectedReportedMessagesStore,
+    selectedReportedMessagesSendersBan: BanUsersRelatedToSelectedReportsStore,
+    declineReports: DeclineSelectedReportsStore,
+    currentReportsList: CurrentReportsListStore,
+    reportUser: CreateReportStore,
+    userReports: ReportsListStore,
+    selectedReportedUsersBan: BanUsersRelatedToSelectedReportsStore,
+    reportChat: CreateReportStore,
+    chatReports: ReportsListStore,
+    selectedReportedChatsCreatorsBan: BanUsersRelatedToSelectedReportsStore,
+    googleLogin: LoginWithGoogleStore,
+    messagesListScrollPositions: MessagesListScrollPositionsStore,
+    markMessageRead: MarkMessageReadStore,
     store?: any
 }

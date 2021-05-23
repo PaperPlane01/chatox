@@ -4,6 +4,7 @@ import {Card, CardHeader, CircularProgress, createStyles, makeStyles, Theme, Typ
 import {format, formatDistanceStrict, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
+import {UserMenu} from "./UserMenu";
 import {Avatar} from "../../Avatar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
@@ -112,10 +113,11 @@ export const UserProfileInfo: FunctionComponent = observer(() => {
                                                 avatarId={user.avatarId}
                                                 width={64}
                                                 height={64}
+                                                avatarUri={user.externalAvatarUri}
                     />}
                                 title={`${user.firstName} ${user.lastName ? user.lastName : ""}`}
                                 subheader={onlineOrLastSeenLabel}
-
+                                action={<UserMenu userId={user.id}/>}
                     />
                 </Card>
                 <Card className={classes.userInfoCard}>

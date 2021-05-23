@@ -1,6 +1,6 @@
 import {IAppState} from "./IAppState";
 import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore,} from "../Authorization/stores";
+import {AuthorizationStore, LoginStore, LoginWithGoogleStore} from "../Authorization/stores";
 import {
     createSetPasswordRecoveryStepCallback,
     PasswordRecoveryDialogStore,
@@ -23,12 +23,14 @@ import {
     ChatsStore,
     ChatStore,
     ChatUploadsStore,
-    CreateChatStore, DeleteChatStore,
+    CreateChatStore,
+    DeleteChatStore,
     JoinChatStore,
     KickChatParticipantStore,
     LeaveChatStore,
     OnlineChatParticipantsStore,
     PopularChatsStore,
+    UpdateChatParticipantStore,
     UpdateChatStore
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
@@ -45,12 +47,23 @@ import {
     UsersStore
 } from "../User";
 import {
+    ClosedPinnedMessagesStore,
     CreateMessageStore,
-    DownloadMessageFileStore,
+    DeleteScheduledMessageStore,
+    DownloadMessageFileStore, MarkMessageReadStore,
     MessageDialogStore,
+    MessagesListScrollPositionsStore,
     MessagesOfChatStore,
     MessagesStore,
+    PinMessageStore,
+    PinnedMessagesStore,
+    PublishScheduledMessageStore,
+    ScheduledMessagesOfChatStore,
+    ScheduledMessagesStore,
+    ScheduleMessageStore,
+    UnpinMessageStore,
     UpdateMessageStore,
+    UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
@@ -70,6 +83,32 @@ import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation/stores";
 import {EmojiSettingsStore} from "../Emoji/stores";
 import {AudioPlayerStore} from "../AudioPlayer/stores";
 import {DeleteMessageStore} from "../Message/stores/DeleteMessageStore";
+import {
+    BanUserStore,
+    CancelGlobalBanStore,
+    GlobalBanDetailsDialogStore,
+    GlobalBansListStore,
+    GlobalBansStore,
+    UpdateGlobalBanStore
+} from "../GlobalBan/stores";
+import {
+    BanUsersRelatedToSelectedReportsStore,
+    CreateReportStore,
+    CurrentReportsListStore,
+    DeclineSelectedReportsStore,
+    ReportedChatsStore,
+    ReportedMessageDialogStore,
+    ReportsListStore,
+    ReportsStore,
+    UpdateSelectedReportsStore
+} from "../Report/stores";
+import {ReportType} from "../api/types/response";
+import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
+import {
+    reportedChatsCreatorsSelector,
+    reportedMessagesSendersSelector,
+    reportedUsersSelector
+} from "../Report/selectors";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -78,6 +117,13 @@ const chatParticipations = new ChatParticipationsStore();
 const chatBlockings = new ChatBlockingsStore(usersStore);
 const uploads = new UploadsStore();
 const chatUploads = new ChatUploadsStore();
+const globalBans = new GlobalBansStore();
+const scheduledMessages = new ScheduledMessagesStore();
+const reports = new ReportsStore();
+const reportedMessages = new MessagesStore();
+const reportedMessagesSenders = new UsersStore();
+const reportedUsers = new UsersStore();
+const reportedChats = new ReportedChatsStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
@@ -85,7 +131,14 @@ const entities = new EntitiesStore(
     chatParticipations,
     chatBlockings,
     uploads,
-    chatUploads
+    chatUploads,
+    globalBans,
+    scheduledMessages,
+    reports,
+    reportedMessages,
+    reportedMessagesSenders,
+    reportedUsers,
+    reportedChats
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -115,7 +168,6 @@ const messageCreation = new CreateMessageStore(chat, entities, messageUploads);
 const chatsPreferences = new ChatsPreferencesStore();
 const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences);
 const joinChat = new JoinChatStore(entities, authorization);
-const websocket = new WebsocketStore(authorization, entities);
 const userProfile = new UserProfileStore(entities);
 const createChatBlocking = new CreateChatBlockingStore(chat, entities);
 const chatBlockingsOfChat = new ChatBlockingsOfChatStore(entities, chat);
@@ -171,6 +223,39 @@ const messageDeletion = new DeleteMessageStore(entities, chat);
 const anonymousRegistration = new AnonymousRegistrationDialogStore(authorization);
 const kickFromChat = new KickChatParticipantStore(entities, chat);
 const chatDeletion = new DeleteChatStore(entities, chat);
+const userGlobalBan = new BanUserStore(entities);
+const globalBansList = new GlobalBansListStore(entities);
+const globalBanDetailsDialog = new GlobalBanDetailsDialogStore();
+const cancelGlobalBan = new CancelGlobalBanStore(entities);
+const updateGlobalBan = new UpdateGlobalBanStore(entities);
+const updateChatParticipant = new UpdateChatParticipantStore(entities);
+const pinMessage = new PinMessageStore(entities, chat);
+const unpinMessage = new UnpinMessageStore(entities, chat);
+const closedPinnedMessages = new ClosedPinnedMessagesStore();
+const pinnedMessages = new PinnedMessagesStore(entities, chat, closedPinnedMessages);
+const scheduleMessage = new ScheduleMessageStore(messageCreation);
+const scheduledMessagesOfChat = new ScheduledMessagesOfChatStore(entities, chat);
+const publishScheduledMessage = new PublishScheduledMessageStore(entities, chat);
+const deleteScheduledMessage = new DeleteScheduledMessageStore(entities, chat);
+const updateScheduledMessage = new UpdateScheduledMessageStore(entities);
+const reportMessage = new CreateReportStore(ReportType.MESSAGE);
+const messageReports = new ReportsListStore(entities, authorization, ReportType.MESSAGE);
+const reportedMessageDialog = new ReportedMessageDialogStore();
+const currentReportsList = new CurrentReportsListStore();
+const selectedReportsUpdate = new UpdateSelectedReportsStore(entities, currentReportsList)
+const selectedReportedMessagesDeletion = new DeleteSelectedReportedMessagesStore(messageReports, selectedReportsUpdate);
+const selectedReportedMessagesSendersBan = new BanUsersRelatedToSelectedReportsStore(entities, messageReports, selectedReportsUpdate, reportedMessagesSendersSelector);
+const declineReports = new DeclineSelectedReportsStore(selectedReportsUpdate);
+const reportUser = new CreateReportStore(ReportType.USER);
+const userReports = new ReportsListStore(entities, authorization, ReportType.USER);
+const selectedReportedUsersBan = new BanUsersRelatedToSelectedReportsStore(entities, userReports, selectedReportsUpdate, reportedUsersSelector);
+const reportChat = new CreateReportStore(ReportType.CHAT);
+const chatReports = new ReportsListStore(entities, authorization, ReportType.CHAT);
+const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsStore(entities, chatReports, selectedReportsUpdate, reportedChatsCreatorsSelector);
+const googleLogin = new LoginWithGoogleStore(authorization);
+const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
+const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
+const websocket = new WebsocketStore(authorization, entities, chat, messagesListScrollPositions, markMessageRead);
 
 export const store: IAppState = {
     authorization,
@@ -227,5 +312,37 @@ export const store: IAppState = {
     messageDeletion,
     anonymousRegistration,
     kickFromChat,
-    chatDeletion
+    chatDeletion,
+    userGlobalBan,
+    globalBansList,
+    globalBanDetailsDialog,
+    cancelGlobalBan,
+    updateGlobalBan,
+    updateChatParticipant,
+    pinnedMessages,
+    pinMessage,
+    unpinMessage,
+    closedPinnedMessages,
+    scheduleMessage,
+    scheduledMessagesOfChat,
+    publishScheduledMessage,
+    deleteScheduledMessage,
+    updateScheduledMessage,
+    reportMessage,
+    messageReports,
+    reportedMessageDialog,
+    selectedReportsUpdate,
+    selectedReportedMessagesDeletion,
+    selectedReportedMessagesSendersBan,
+    declineReports,
+    currentReportsList,
+    reportUser,
+    userReports,
+    selectedReportedUsersBan,
+    reportChat,
+    chatReports,
+    selectedReportedChatsCreatorsBan,
+    googleLogin,
+    messagesListScrollPositions,
+    markMessageRead
 };

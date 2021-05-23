@@ -17,11 +17,12 @@ import {
     EventType,
     JwtPayload,
     MessageDeleted,
+    MessageRead,
     MessagesDeleted,
     SessionActivityStatusResponse,
     WebsocketEvent
 } from "./types";
-import {Chat, ChatBlocking, ChatMessage} from "../common/types";
+import {Chat, ChatBlocking, ChatMessage, GlobalBan} from "../common/types";
 import {ChatDeleted, UserKickedFromChat, UserLeftChat} from "../common/types/events";
 import {ChatParticipationService} from "../chat-participation";
 import {ChatParticipationDto} from "../chat-participation/types";
@@ -257,8 +258,10 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: chat,
             type: EventType.CHAT_UPDATED
         };
-        this.publishEventToChatParticipants(chat.id, chatUpdated);
-        this.publishEventToUsersSubscribedToChat(chat.id, chatUpdated);
+        await Promise.all([
+            this.publishEventToChatParticipants(chat.id, chatUpdated),
+            this.publishEventToUsersSubscribedToChat(chat.id, chatUpdated)
+        ]);
     }
 
     public async publishChatDeleted(chatDeleted: ChatDeleted) {
@@ -266,8 +269,88 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: chatDeleted,
             type: EventType.CHAT_DELETED
         };
-        this.publishEventToChatParticipants(chatDeleted.id, chatDeletedEvent);
-        this.publishEventToUsersSubscribedToChat(chatDeleted.id, chatDeletedEvent);
+        await Promise.all([
+            this.publishEventToChatParticipants(chatDeleted.id, chatDeletedEvent),
+            this.publishEventToUsersSubscribedToChat(chatDeleted.id, chatDeletedEvent)
+        ]);
+    }
+
+    public async publishGlobalBanCreated(globalBan: GlobalBan) {
+        const globalBanCreatedEvent: WebsocketEvent<GlobalBan> = {
+            payload: globalBan,
+            type: EventType.GLOBAL_BAN_CREATED
+        };
+        await this.publishEventToUser(globalBan.bannedUser.id, globalBanCreatedEvent);
+    }
+
+    public async publishGlobalBanUpdated(globalBan: GlobalBan) {
+        const globalBanUpdatedEvent: WebsocketEvent<GlobalBan> = {
+            payload: globalBan,
+            type: EventType.GLOBAL_BAN_UPDATED
+        };
+        await this.publishEventToUser(globalBan.bannedUser.id, globalBanUpdatedEvent);
+    }
+
+    public async publishMessagePinned(message: ChatMessage) {
+        const messagePinnedEvent: WebsocketEvent<ChatMessage> = {
+            payload: message,
+            type: EventType.MESSAGE_PINNED
+        };
+        await Promise.all([
+            this.publishEventToChatParticipants(message.chatId, messagePinnedEvent),
+            this.publishEventToUsersSubscribedToChat(message.chatId, messagePinnedEvent)
+        ]);
+    }
+
+    public async publishMessageUnpinned(message: ChatMessage) {
+        const messageUnpinnedEvent: WebsocketEvent<ChatMessage> = {
+            payload: message,
+            type: EventType.MESSAGE_UNPINNED
+        };
+        await Promise.all([
+            this.publishEventToChatParticipants(message.chatId, messageUnpinnedEvent),
+            this.publishEventToUsersSubscribedToChat(message.chatId, messageUnpinnedEvent)
+        ]);
+    }
+
+    public async publishScheduledMessageCreated(message: ChatMessage) {
+        const scheduledMessageCreatedEvent: WebsocketEvent<ChatMessage> = {
+            payload: message,
+            type: EventType.SCHEDULED_MESSAGE_CREATED
+        };
+        await this.publishEventToChatAdmins(message.chatId, scheduledMessageCreatedEvent);
+    }
+
+    public async publishScheduledMessagePublished(message: ChatMessage) {
+        const scheduledMessagePublishedEvent: WebsocketEvent<ChatMessage> = {
+            payload: message,
+            type: EventType.SCHEDULED_MESSAGE_PUBLISHED
+        };
+        await this.publishEventToChatAdmins(message.chatId, scheduledMessagePublishedEvent);
+     }
+
+     public async publishScheduledMessageDeleted(messageDeleted: MessageDeleted) {
+        const scheduledMessageDeletedEvent: WebsocketEvent<MessageDeleted> = {
+            payload: messageDeleted,
+            type: EventType.SCHEDULED_MESSAGE_DELETED
+        };
+        await this.publishEventToChatAdmins(messageDeleted.chatId, scheduledMessageDeletedEvent);
+     }
+
+     public async publishScheduledMessageUpdated(message: ChatMessage) {
+        const scheduledMessageUpdatedEvent: WebsocketEvent<ChatMessage> = {
+            payload: message,
+            type: EventType.SCHEDULED_MESSAGE_UPDATED
+        };
+        await this.publishEventToChatAdmins(message.chatId, scheduledMessageUpdatedEvent);
+    }
+
+    public async publishMessageRead(messageRead: MessageRead) {
+        const messageReadEvent: WebsocketEvent<MessageRead> = {
+            payload: messageRead,
+            type: EventType.MESSAGE_READ
+        };
+        await this.publishEventToUser(messageRead.userId, messageReadEvent);
     }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {
@@ -284,6 +367,17 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
                 })
             }
         });
+    }
+
+    private async publishEventToChatAdmins(chatId: string, event: WebsocketEvent<any>): Promise<void> {
+        const admins = await this.chatParticipationService.findAdminsByChatId(chatId);
+        this.log.debug(`Publishing event to admins of chat ${event}`);
+        this.log.verbose(`The following chat participants will receive an event: ${admins.map(admin => admin.id)}`);
+        this.log.consoleLog(event);
+
+        for (const admin of admins) {
+            await this.publishEventToUser(admin.userId, event);
+        }
     }
 
     private async publishEventToUser(userId: string, event: WebsocketEvent<any>): Promise<void> {

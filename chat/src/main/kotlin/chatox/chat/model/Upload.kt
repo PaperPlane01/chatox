@@ -1,7 +1,8 @@
 package chatox.chat.model
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.mapping.DBRef
+import org.springframework.data.mongodb.core.index.Indexed
 
 data class Upload<MetadataType>(
         @Id
@@ -13,14 +14,12 @@ data class Upload<MetadataType>(
         var extension: String?,
         var mimeType: String,
         var size: Int,
-        var isPreview: Boolean,
+        @JsonProperty("isPreview")
+        var isPreview: Boolean = false,
         var isThumbnail: Boolean,
-        @DBRef(lazy = true)
-        var preview: Upload<ImageUploadMetadata>?,
-        @DBRef(lazy = true)
-        var user: User?
-) {
-        override fun toString(): String {
-                return "Upload(id='$id', name='$name', originalName='$originalName', type=$type, meta=$meta, extension=$extension, mimeType='$mimeType', size=$size, isPreview=$isPreview, isThumbnail=$isThumbnail, preview=$preview)"
-        }
-}
+        @JsonProperty("imagePreview")
+        var imagePreview: Upload<ImageUploadMetadata>?,
+
+        @Indexed
+        var userId: String? = null
+)

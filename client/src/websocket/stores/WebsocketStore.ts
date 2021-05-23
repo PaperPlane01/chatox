@@ -1,18 +1,20 @@
 import {action, computed, reaction} from "mobx";
 import SocketIo from "socket.io-client";
-import {AuthorizationStore} from "../../Authorization/stores";
+import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
 import {
     ChatDeleted,
     ChatUpdated,
-    MessageDeleted,
+    MessageDeleted, MessageRead,
     MessagesDeleted,
     UserKickedFromChat,
     UserLeftChat,
     WebsocketEvent,
     WebsocketEventType
 } from "../../api/types/websocket";
-import {ChatBlocking, ChatParticipation, Message} from "../../api/types/response";
+import {ChatBlocking, ChatParticipation, GlobalBan, Message} from "../../api/types/response";
+import {ChatStore} from "../../Chat";
+import {MarkMessageReadStore, MessagesListScrollPositionsStore} from "../../Message";
 
 export class WebsocketStore {
     socketIoClient?: SocketIOClient.Socket;
@@ -23,12 +25,14 @@ export class WebsocketStore {
     }
 
     constructor(private readonly authorization: AuthorizationStore,
-                private readonly entities: EntitiesStore) {
-
+                private readonly entities: EntitiesStore,
+                private readonly chatStore: ChatStore,
+                private readonly scrollPositionStore: MessagesListScrollPositionsStore,
+                private readonly markMessageReadStore: MarkMessageReadStore) {
         reaction(
             () => authorization.currentUser,
             () => this.startListening()
-        )
+        );
     }
 
     @action
@@ -50,7 +54,7 @@ export class WebsocketStore {
         }
 
         this.subscribeToEvents();
-    };
+    }
 
     @action
     subscribeToEvents = () => {
@@ -60,7 +64,24 @@ export class WebsocketStore {
                 (event: WebsocketEvent<Message>) => {
                     const message = event.payload;
                     message.previousMessageId = this.entities.chats.findById(message.chatId).lastMessage;
-                    this.entities.insertMessage(message);
+                    this.entities.insertMessage({
+                        ...message,
+                        readByCurrentUser: false
+                    });
+
+                    if (this.authorization.currentUser) {
+                        if (this.authorization.currentUser.id !== message.sender.id) {
+                            if (this.chatStore.selectedChatId === message.chatId) {
+                                if (this.scrollPositionStore.getReachedBottom(message.chatId)) {
+                                    this.markMessageReadStore.markMessageRead(message.id);
+                                } else {
+                                    this.entities.chats.increaseUnreadMessagesCountOfChat(message.chatId);
+                                }
+                            } else {
+                                this.entities.chats.increaseUnreadMessagesCountOfChat(message.chatId);
+                            }
+                        }
+                    }
                 }
             );
             this.socketIoClient.on(
@@ -123,20 +144,81 @@ export class WebsocketStore {
                     event.payload.comment
                 )
             );
+            this.socketIoClient.on(
+                WebsocketEventType.GLOBAL_BAN_CREATED,
+                (event: WebsocketEvent<GlobalBan>) => this.processGlobalBan(event.payload)
+
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.GLOBAL_BAN_UPDATED,
+                (event: WebsocketEvent<GlobalBan>) => this.processGlobalBan(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.MESSAGE_PINNED,
+                (event: WebsocketEvent<Message>) => {
+                    const chat = this.entities.chats.findByIdOptional(event.payload.chatId);
+
+                    if (chat && event.payload.pinnedAt) {
+                        this.entities.insertMessage(event.payload);
+                        chat.pinnedMessageId = event.payload.id;
+                        this.entities.chats.insertEntity(chat);
+                    }
+                }
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.MESSAGE_UNPINNED,
+                (event: WebsocketEvent<Message>) => {
+                    const chat = this.entities.chats.findByIdOptional(event.payload.chatId);
+
+                    if (chat && !event.payload.pinnedAt) {
+                        this.entities.insertMessage(event.payload);
+                        chat.pinnedMessageId = undefined;
+                        this.entities.chats.insertEntity(chat);
+                    }
+                }
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.SCHEDULED_MESSAGE_CREATED,
+                (event: WebsocketEvent<Message>) => this.entities.insertMessage(event.payload)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.SCHEDULED_MESSAGE_PUBLISHED,
+                (event: WebsocketEvent<Message>) => this.entities.deleteScheduledMessage(event.payload.chatId, event.payload.id)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.SCHEDULED_MESSAGE_DELETED,
+                (event: WebsocketEvent<MessageDeleted>) => this.entities.deleteScheduledMessage(event.payload.chatId, event.payload.messageId)
+            );
+            this.socketIoClient.on(
+                WebsocketEventType.MESSAGE_READ,
+                (event: WebsocketEvent<MessageRead>) => this.entities.chats.decreaseUnreadMessagesCountOfChat(event.payload.chatId)
+            )
         }
-    };
+    }
+
+    @action.bound
+    private processGlobalBan(globalBan: GlobalBan): void {
+        this.entities.insertGlobalBan(globalBan);
+
+        if (this.authorization.currentUser && globalBan.bannedUser.id === this.authorization.currentUser.id) {
+            this.authorization.setCurrentUser({
+                ...this.authorization.currentUser,
+                globalBan
+            });
+        }
+    }
 
     @action
     subscribeToChat = (chatId: string) => {
         if (this.socketIoClient) {
             this.socketIoClient.emit(WebsocketEventType.CHAT_SUBSCRIPTION, {chatId});
         }
-    };
+    }
 
     @action
     unsubscribeFromChat = (chatId: string) => {
         if (this.socketIoClient) {
             this.socketIoClient.emit(WebsocketEventType.CHAT_UNSUBSCRIPTION, {chatId});
         }
-    };
+    }
 }

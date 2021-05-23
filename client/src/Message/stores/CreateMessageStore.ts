@@ -6,16 +6,19 @@ import {FormErrors} from "../../utils/types";
 import {MessageApi, ApiError, getInitialApiErrorFromResponse} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
+import {Routes} from "../../router";
 
 export class CreateMessageStore {
     @observable
     createMessageForm: CreateMessageFormData = {
-        text: ""
+        text: "",
+        scheduledAt: undefined
     };
 
     @observable
     formErrors: FormErrors<CreateMessageFormData> = {
-        text: undefined
+        text: undefined,
+        scheduledAt: undefined
     };
 
     @observable
@@ -53,6 +56,8 @@ export class CreateMessageStore {
         return false;
     };
 
+    private routerStore: any;
+
     constructor(
         private readonly chatStore: ChatStore,
         private readonly entitiesStore: EntitiesStore,
@@ -61,8 +66,12 @@ export class CreateMessageStore {
         reaction(
             () => this.createMessageForm.text,
             text => this.formErrors.text = validateMessageText(text, {acceptEmpty: this.attachmentsIds.length !== 0})
-        )
+        );
     };
+
+    setRouterStore = (routerStore: any): void => {
+        this.routerStore = routerStore;
+    }
 
     @action
     setReferredMessageId = (referredMessageId?: string): void => {
@@ -86,10 +95,21 @@ export class CreateMessageStore {
                     MessageApi.createMessage(chatId, {
                         text: this.createMessageForm.text,
                         referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined,
-                        uploadAttachments: this.attachmentsIds
+                        uploadAttachments: this.attachmentsIds,
+                        scheduledAt: this.createMessageForm.scheduledAt ? this.createMessageForm.scheduledAt.toISOString() : undefined
                     })
                         .then(({data}) => {
-                            this.entitiesStore.insertMessage(data);
+                            if (!this.createMessageForm.scheduledAt) {
+                                this.entitiesStore.insertMessage(data);
+                            } else {
+                                if (this.routerStore && this.routerStore.router && this.routerStore.router.goTo) {
+                                    const chat = this.entitiesStore.chats.findById(chatId);
+                                    this.routerStore.router.goTo(Routes.scheduledMessagesPage, {
+                                        slug: chat.slug ? chat.slug : chatId
+                                    });
+                                }
+                            }
+
                             this.resetForm();
                         })
                         .catch(error => this.submissionError = getInitialApiErrorFromResponse(error))
