@@ -138,6 +138,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     const [styles, setStyles] = useState(calculateStyles());
 
     const scrollToBottom = (): void => {
+        console.log("Scrolling to bottom")
         setTimeout(
             () => {
                 if (enableVirtualScroll && virtuosoRef && virtuosoRef.current) {
@@ -162,7 +163,12 @@ export const MessagesList: FunctionComponent = observer(() => {
     const handleDivScroll = (event: UIEvent<HTMLElement>): void => {
         const coveredDistance = event.currentTarget.scrollHeight - event.currentTarget.scrollTop;
         setScrollPosition(selectedChatId!, event.currentTarget.scrollTop);
-        setReachedBottom(selectedChatId!, coveredDistance - event.currentTarget.clientHeight <= 1);
+
+        if (messagesListReverted) {
+            setReachedBottom(selectedChatId!, event.currentTarget.scrollTop === 0);
+        } else {
+            setReachedBottom(selectedChatId!, coveredDistance - event.currentTarget.clientHeight <= 1);
+        }
     };
 
     const handleWindowScroll = (): void => {
@@ -218,28 +224,39 @@ export const MessagesList: FunctionComponent = observer(() => {
         ]
     );
     useResizeObserver(messagesListBottomRef, () => setStyles(calculateStyles()));
+    useEffect(() => {
+        if (!selectedChatId) {
+            return;
+        }
+
+        const scrollPosition = getScrollPosition(selectedChatId);
+
+        if (scrollPosition !== undefined) {
+            if (virtuosoRef && virtuosoRef.current) {
+                // We have to use setTimeout here because without it it just sticks at top
+                // It still sticks at top for a brief moment but then correctly scrolls to required position
+                setTimeout(() => virtuosoRef!.current!.scrollTo({top: scrollPosition}))
+            } else if (onSmallScreen) {
+                window.scrollTo({top: scrollPosition});
+            } else if (messagesDivRef && messagesDivRef.current) {
+                messagesDivRef.current.scrollTo({top: scrollPosition});
+            }
+        } else {
+            scrollToBottom();
+        }
+    }, [selectedChatId])
     useEffect(
         () => {
-            if (selectedChatId) {
-                const scrollPosition = getScrollPosition(selectedChatId);
+            if (!selectedChatId) {
+               return;
+            }
 
-                if (scrollPosition !== undefined) {
-                    if (virtuosoRef && virtuosoRef.current) {
-                        // We have to use setTimeout here because without it it just sticks at top
-                        // It still sticks at top for a brief moment but then correctly scrolls to required position
-                        setTimeout(() => virtuosoRef!.current!.scrollTo({top: scrollPosition}))
-                    } else if (onSmallScreen) {
-                        console.log("Scrolling to window")
-                        window.scrollTo({top: scrollPosition});
-                    } else if (messagesDivRef && messagesDivRef.current) {
-                        messagesDivRef.current.scrollTo({top: scrollPosition});
-                    }
-                } else {
-                    scrollToBottom();
-                }
+            if (getReachedBottom(selectedChatId)) {
+                console.log(`Reached bottom, scrolling to bottom`)
+                scrollToBottom();
             }
         },
-        [selectedChatId, messagesOfChat]
+        [messagesOfChat]
     );
     useLayoutEffect(
         () => {
@@ -326,6 +343,7 @@ export const MessagesList: FunctionComponent = observer(() => {
                                      />
                                  )
                              }}
+                             overscan={virtualScrollOverscan}
                              style={styles}
                              ref={virtuosoRef}
                              computeItemKey={index => messagesOfChat[index]}
