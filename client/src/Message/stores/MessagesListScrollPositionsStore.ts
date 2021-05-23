@@ -1,5 +1,6 @@
-import {observable, action} from "mobx";
+import {observable, action, reaction} from "mobx";
 import {createTransformer} from "mobx-utils";
+import {ChatStore} from "../../Chat";
 
 export class MessagesListScrollPositionsStore {
     @observable
@@ -7,6 +8,22 @@ export class MessagesListScrollPositionsStore {
 
     @observable
     reachedBottomMap: {[chatId: string]: boolean} = {};
+
+    constructor(private readonly chatStore: ChatStore) {
+        reaction(
+            () => this.chatStore.selectedChatId,
+            selectedChatId => {
+                if (selectedChatId) {
+                    if (this.getReachedBottom(selectedChatId) === undefined) {
+                        this.setReachedBottom(selectedChatId, true);
+                    } else {
+                        this.setReachedBottom(selectedChatId, false);
+                    }
+                }
+            }
+        )
+    }
+
 
     @action
     setScrollPosition = (chatId: string, scrollPosition: number): void => {

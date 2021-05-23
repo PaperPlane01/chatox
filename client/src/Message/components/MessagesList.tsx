@@ -206,10 +206,6 @@ export const MessagesList: FunctionComponent = observer(() => {
     };
 
     useEffect(
-        () => setReachedBottom(selectedChatId!, false),
-        [selectedChatId]
-    );
-    useEffect(
         () => {
             if (getReachedBottom(selectedChatId!)) {
                 scrollToBottom();
@@ -273,7 +269,6 @@ export const MessagesList: FunctionComponent = observer(() => {
             }
 
             if (getReachedBottom(selectedChatId)) {
-                console.log(`Reached bottom, scrolling to bottom`)
                 scrollToBottom();
             }
         },
