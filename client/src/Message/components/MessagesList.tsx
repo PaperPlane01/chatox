@@ -138,7 +138,6 @@ export const MessagesList: FunctionComponent = observer(() => {
     const [styles, setStyles] = useState(calculateStyles());
 
     const scrollToBottom = (): void => {
-        console.log("Scrolling to bottom")
         setTimeout(
             () => {
                 if (enableVirtualScroll && virtuosoRef && virtuosoRef.current) {
