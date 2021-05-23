@@ -17,5 +17,6 @@ export interface Message {
     emoji: MessageEmoji,
     attachments: Upload<any>[],
     pinnedAt: string,
-    scheduledAt?: string
+    scheduledAt?: string,
+    index: number
 }

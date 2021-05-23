@@ -1,4 +1,4 @@
-import {action, computed} from "mobx";
+import {action, computed, toJS} from "mobx";
 import {ChatParticipationEntity, ChatParticipationsStore, ChatsStore, ChatUploadsStore} from "../Chat";
 import {UsersStore} from "../User";
 import {
@@ -55,7 +55,7 @@ export class EntitiesStore {
     }
 
     @action
-    insertMessages = (messages: Message[]): void => {
+    insertMessages = (messages: Message[], skipSettingLastMessage: boolean = false): void => {
         messages.reverse().forEach((message, index, messagesArray) => {
             if (index !== 0 && !message.scheduledAt) {
                 message.previousMessageId = messagesArray[index - 1].id;
@@ -65,16 +65,16 @@ export class EntitiesStore {
                 message.nextMessageId = messagesArray[index + 1].id;
             }
 
-            this.insertMessage(message);
+            this.insertMessage(message, skipSettingLastMessage);
         });
     }
 
     @action
-    insertMessage = (message: Message): void => {
+    insertMessage = (message: Message, skipSettingLastMessage: boolean = false): void => {
         this.insertUser(message.sender);
 
         if (message.referredMessage) {
-            this.insertMessage(message.referredMessage);
+            this.insertMessage(message.referredMessage, skipSettingLastMessage);
         }
 
         this.uploads.insertAll(message.attachments);
@@ -84,7 +84,7 @@ export class EntitiesStore {
             this.chats.addScheduledMessageToChat(message.chatId, message.id);
         } else {
             this.messages.insert(message);
-            this.chats.addMessageToChat(message.chatId, message.id);
+            this.chats.addMessageToChat(message.chatId, message.id, message.index, skipSettingLastMessage);
         }
     }
 
