@@ -5,7 +5,7 @@ import {Skeleton} from "@material-ui/lab";
 import {isStringEmpty} from "../../utils/string-utils";
 import {useStore} from "../../store";
 
-interface AvatarProps {
+export interface AvatarProps {
     avatarUri?: string,
     avatarId?: string
     avatarLetter: string,
@@ -13,7 +13,8 @@ interface AvatarProps {
     width?: number,
     height?: number,
     pending?: boolean,
-    className?: string
+    className?: string,
+    shape?: "circle" | "rounded" | "square"
 }
 
 export const Avatar: FunctionComponent<AvatarProps> = observer(({
@@ -24,7 +25,8 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
     width = 40,
     height = 40,
     pending,
-    className
+    className,
+    shape = "circle"
 }) => {
     const {
         entities: {
@@ -36,7 +38,7 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
 
     if (pending) {
         return (
-            <Skeleton variant="circle"
+            <Skeleton variant={shape === "circle" || shape === "rounded" ? "circle" : "rect"}
                       width={width}
                       height={height}
             />
@@ -64,6 +66,7 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
                                height: imageProps.height
                            }}
                            className={className}
+                           variant={shape}
                 >
                     {avatarLetter}
                 </MuiAvatar>
@@ -76,6 +79,7 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
                                height: imageProps.height
                            }}
                            className={className}
+                           variant={shape}
                 />
             )
         }

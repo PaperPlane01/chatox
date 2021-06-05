@@ -41,3 +41,5 @@ export const PUBLISH = "publish";
 export const REPORTS = "reports";
 export const GOOGLE = "google";
 export const READ = "read";
+export const STICKER_PACKS = "stickers-packs";
+export const INSTALLED = "installed";

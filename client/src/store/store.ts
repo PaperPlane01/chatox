@@ -109,6 +109,7 @@ import {
     reportedMessagesSendersSelector,
     reportedUsersSelector
 } from "../Report/selectors";
+import {CreateStickerPackStore, StickerEmojiPickerDialogStore, StickerPacksStore, StickersStore} from "../Sticker";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -124,6 +125,8 @@ const reportedMessages = new MessagesStore();
 const reportedMessagesSenders = new UsersStore();
 const reportedUsers = new UsersStore();
 const reportedChats = new ReportedChatsStore();
+const stickers = new StickersStore();
+const stickerPacks = new StickerPacksStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
@@ -138,7 +141,9 @@ const entities = new EntitiesStore(
     reportedMessages,
     reportedMessagesSenders,
     reportedUsers,
-    reportedChats
+    reportedChats,
+    stickers,
+    stickerPacks
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -256,6 +261,8 @@ const googleLogin = new LoginWithGoogleStore(authorization);
 const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
 const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
 const websocket = new WebsocketStore(authorization, entities, chat, messagesListScrollPositions, markMessageRead);
+const stickerPackCreation = new CreateStickerPackStore(entities);
+const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
 
 export const store: IAppState = {
     authorization,
@@ -344,5 +351,7 @@ export const store: IAppState = {
     selectedReportedChatsCreatorsBan,
     googleLogin,
     messagesListScrollPositions,
-    markMessageRead
+    markMessageRead,
+    stickerPackCreation,
+    stickerEmojiPickerDialog
 };

@@ -6,3 +6,4 @@ export * from "./UploadApi";
 export * from "./EmailConfirmationCodeApi";
 export * from "./GlobalBanApi";
 export * from "./ReportsApi";
+export * from "./StickerApi";

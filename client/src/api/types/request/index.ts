@@ -27,3 +27,5 @@ export * from "./UpdateMultipleReportsRequest";
 export * from "./BanMultipleUsersRequest";
 export * from "./DeleteMultipleChatsRequest";
 export * from "./GoogleRegistrationRequest";
+export * from "./CreateStickerPackRequest";
+export * from "./CreateStickerRequest";

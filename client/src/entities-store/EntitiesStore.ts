@@ -10,7 +10,7 @@ import {
     CurrentUser,
     GlobalBan,
     Message,
-    Report, ReportType,
+    Report, ReportType, Sticker, StickerPack,
     User
 } from "../api/types/response";
 import {MessagesStore, ScheduledMessagesStore} from "../Message";
@@ -21,6 +21,7 @@ import {ChatUpdated} from "../api/types/websocket";
 import {PartialBy} from "../utils/types";
 import {GlobalBansStore} from "../GlobalBan/stores";
 import {ReportedChatsStore, ReportsStore} from "../Report/stores";
+import {StickerPacksStore, StickersStore} from "../Sticker";
 
 type DecreaseChatParticipantsCountCallback = (chatParticipation?: ChatParticipationEntity, currentUser?: CurrentUser) => boolean;
 
@@ -50,7 +51,9 @@ export class EntitiesStore {
         public reportedMessages: MessagesStore,
         public reportedMessagesSenders: UsersStore,
         public reportedUsers: UsersStore,
-        public reportedChats: ReportedChatsStore
+        public reportedChats: ReportedChatsStore,
+        public stickers: StickersStore,
+        public stickerPacks: StickerPacksStore
     ) {
     }
 
@@ -403,5 +406,22 @@ export class EntitiesStore {
             default:
                 return;
         }
+    }
+
+    @action
+    insertStickerPack = (stickerPack: StickerPack): void => {
+        this.insertStickers(stickerPack.stickers);
+        this.stickerPacks.insert(stickerPack);
+    }
+
+    @action
+    insertStickers = (stickers: Sticker[]): void => {
+        stickers.forEach(sticker => this.insertSticker(sticker));
+    }
+
+    @action
+    insertSticker = (sticker: Sticker): void => {
+        this.uploads.insert(sticker.image);
+        this.stickers.insert(sticker);
     }
 }

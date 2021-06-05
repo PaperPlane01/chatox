@@ -89,6 +89,7 @@ import {
     UpdateSelectedReportsStore
 } from "../Report/stores";
 import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
+import {CreateStickerPackStore, StickerEmojiPickerDialogStore} from "../Sticker";
 
 export interface IAppState {
     language: LocaleStore,
@@ -178,5 +179,7 @@ export interface IAppState {
     googleLogin: LoginWithGoogleStore,
     messagesListScrollPositions: MessagesListScrollPositionsStore,
     markMessageRead: MarkMessageReadStore,
+    stickerPackCreation: CreateStickerPackStore,
+    stickerEmojiPickerDialog: StickerEmojiPickerDialogStore,
     store?: any
 }

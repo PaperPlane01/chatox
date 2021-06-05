@@ -1,7 +1,6 @@
 import {v4 as uuid} from "uuid";
-import {Upload} from "../api/types/response";
+import {Upload, UploadType} from "../api/types/response";
 import {ApiError} from "../api";
-import {UploadType} from "../api/types/response/UploadType";
 
 export class UploadedFileContainer<UploadedFileMetadataType = any> {
     public url: string;

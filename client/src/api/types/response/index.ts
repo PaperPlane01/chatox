@@ -33,3 +33,5 @@ export * from "./ReportStatus";
 export * from "./Report";
 export * from "./ReportTakenAction";
 export * from "./ChatWithCreatorId";
+export * from "./Sticker";
+export * from "./StickerPack";

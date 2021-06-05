@@ -1,13 +1,11 @@
 import {action, observable} from "mobx";
-import {UploadApi} from "../../api/clients";
 import {UploadedFileContainer} from "../../utils/file-utils";
-import {ImageUploadMetadata} from "../../api/types/response";
+import {ApiError, getInitialApiErrorFromResponse, UploadApi} from "../../api";
+import {ImageUploadMetadata, UploadType} from "../../api/types/response";
 import {EntitiesStore} from "../../entities-store";
-import {Labels} from "../../localization/types";
-import {ApiError, getInitialApiErrorFromResponse} from "../../api";
-import {UploadType} from "../../api/types/response/UploadType";
+import {Labels} from "../../localization";
 
-const IMAGE_MAX_SIZE = 10485760;
+const IMAGE_MAX_SIZE = Number(process.env.REACT_APP_IMAGE_MAX_SIZE);
 
 export class UploadImageStore {
     @observable
