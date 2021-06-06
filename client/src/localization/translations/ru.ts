@@ -450,5 +450,8 @@ export const ru: Labels = {
     "common.search": "Поиск",
     "sticker.pack.with-name": "Набор стикеров {name}",
     "sticker.pack.install.success": "Набор стикеров установлен",
-    "sticker.pack.uninstall.success": "Набор стикеров удалён"
+    "sticker.pack.uninstall.success": "Набор стикеров удалён",
+    "sticker.pack.list.installed": "Установленные наборы стикеров",
+    "sticker.pack.explore-more": "Найти ещё",
+    "common.authorization-required": "Вы должны войти в аккаунт, чтобы увидеть эту страницу"
 };

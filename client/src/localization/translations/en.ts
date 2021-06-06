@@ -450,5 +450,8 @@ export const en: Labels = {
     "common.search": "Search",
     "sticker.pack.with-name": "Sticker pack {name}",
     "sticker.pack.install.success": "Sticker pack has been installed",
-    "sticker.pack.uninstall.success": "Sticker pack has been uninstalled"
+    "sticker.pack.uninstall.success": "Sticker pack has been uninstalled",
+    "sticker.pack.list.installed": "Installed sticker packs",
+    "sticker.pack.explore-more": "Explore more",
+    "common.authorization-required": "You have to be logged in to see this page"
 };

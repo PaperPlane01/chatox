@@ -448,5 +448,8 @@ export interface Labels {
     "common.search": string,
     "sticker.pack.with-name": string,
     "sticker.pack.install.success": string,
-    "sticker.pack.uninstall.success": string
+    "sticker.pack.uninstall.success": string,
+    "sticker.pack.list.installed": string,
+    "sticker.pack.explore-more": string,
+    "common.authorization-required": string
 }

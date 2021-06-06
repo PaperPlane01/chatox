@@ -11,15 +11,16 @@ import {
     Typography
 } from "@material-ui/core";
 import {TabContext, TabList, TabPanel} from "@material-ui/lab";
-import {Language, Palette, Person, Security, ChatBubble} from "@material-ui/icons";
+import {Language, Palette, Person, Security, ChatBubble, Image} from "@material-ui/icons";
 import {SettingsTab} from "../types";
-import {HasRole} from "../../Authorization";
+import {HasAnyRole, HasRole} from "../../Authorization";
 import {EditProfileForm, ChangePasswordContainer} from "../../User";
 import {EmojiSetPicker} from "../../Emoji";
 import {ChatsPreferencesCard} from "../../Chat";
 import {LanguagePicker} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
+import {InstalledStickerPacksList} from "../../Sticker";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     undecoratedLink: {
@@ -126,6 +127,18 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                              </MenuItem>
                          }
                     />
+                    <Tab value={SettingsTab.STICKERS}
+                         label={
+                             <MenuItem>
+                                 <ListItemIcon>
+                                     <Image/>
+                                 </ListItemIcon>
+                                 <ListItemText>
+                                     {l("sticker.pack.list")}
+                                 </ListItemText>
+                             </MenuItem>
+                         }
+                    />
                 </TabList>
                 <TabPanel value={SettingsTab.PROFILE}
                           className={classes.fullWidth}
@@ -167,6 +180,19 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                           className={classes.fullWidth}
                 >
                     <ChatsPreferencesCard/>
+                </TabPanel>
+                <TabPanel value={SettingsTab.STICKERS}
+                          className={classes.fullWidth}
+                >
+                    <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}
+                                alternative={
+                                    <Typography>
+                                        {l("common.authorization-required")}
+                                    </Typography>
+                                }
+                    >
+                        <InstalledStickerPacksList/>
+                    </HasAnyRole>
                 </TabPanel>
             </TabContext>
         </div>
