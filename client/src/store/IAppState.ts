@@ -89,7 +89,12 @@ import {
     UpdateSelectedReportsStore
 } from "../Report/stores";
 import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
-import {CreateStickerPackStore, StickerEmojiPickerDialogStore} from "../Sticker";
+import {
+    CreateStickerPackStore,
+    InstalledStickerPacksStore,
+    InstallStickerPackStore, SearchStickerPacksStore,
+    StickerEmojiPickerDialogStore, StickerPackDialogStore, UninstallStickerPackStore
+} from "../Sticker";
 
 export interface IAppState {
     language: LocaleStore,
@@ -181,5 +186,10 @@ export interface IAppState {
     markMessageRead: MarkMessageReadStore,
     stickerPackCreation: CreateStickerPackStore,
     stickerEmojiPickerDialog: StickerEmojiPickerDialogStore,
+    installedStickerPacks: InstalledStickerPacksStore,
+    stickerPackInstallation: InstallStickerPackStore,
+    stickerPackUninstallation: UninstallStickerPackStore,
+    stickerPacksSearch: SearchStickerPacksStore,
+    stickerPackDialog: StickerPackDialogStore,
     store?: any
 }

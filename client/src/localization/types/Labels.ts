@@ -443,5 +443,8 @@ export interface Labels {
     "sticker.add": string,
     "sticker.pack.create.success": string,
     "sticker.pack.create.error.server-unreachable": string,
-    "sticker.pack.create.error.unknown": string
+    "sticker.pack.create.error.unknown": string,
+    "sticker.pack.list": string,
+    "common.search": string,
+    "sticker.pack.with-name": string
 }

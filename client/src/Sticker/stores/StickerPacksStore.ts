@@ -9,7 +9,8 @@ export class StickerPacksStore extends AbstractEntityStore<StickerPackEntity, St
             author: denormalizedEntity.author,
             description: denormalizedEntity.description,
             name: denormalizedEntity.name,
-            stickersIds: denormalizedEntity.stickers.map(sticker => sticker.id)
+            stickersIds: denormalizedEntity.stickers.map(sticker => sticker.id),
+            previewId: denormalizedEntity.preview.id
         }
     }
 }

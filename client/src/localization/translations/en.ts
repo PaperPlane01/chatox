@@ -445,5 +445,8 @@ export const en: Labels = {
     "sticker.add": "Add sticker",
     "sticker.pack.create.success": "Sticker pack has been created",
     "sticker.pack.create.error.server-unreachable": "Error occurred when tried to create sticker pack, server is unreachable",
-    "sticker.pack.create.error.unknown": "Error occurred when tried to create sticker pack, server responded with {errorStatus} status"
+    "sticker.pack.create.error.unknown": "Error occurred when tried to create sticker pack, server responded with {errorStatus} status",
+    "sticker.pack.list": "Sticker packs",
+    "common.search": "Search",
+    "sticker.pack.with-name": "Sticker pack {name}",
 };

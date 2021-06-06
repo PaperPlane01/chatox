@@ -109,7 +109,13 @@ import {
     reportedMessagesSendersSelector,
     reportedUsersSelector
 } from "../Report/selectors";
-import {CreateStickerPackStore, StickerEmojiPickerDialogStore, StickerPacksStore, StickersStore} from "../Sticker";
+import {
+    CreateStickerPackStore,
+    InstalledStickerPacksStore, InstallStickerPackStore, SearchStickerPacksStore,
+    StickerEmojiPickerDialogStore, StickerPackDialogStore,
+    StickerPacksStore,
+    StickersStore, UninstallStickerPackStore
+} from "../Sticker";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -263,6 +269,11 @@ const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScr
 const websocket = new WebsocketStore(authorization, entities, chat, messagesListScrollPositions, markMessageRead);
 const stickerPackCreation = new CreateStickerPackStore(entities);
 const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
+const installedStickerPacks = new InstalledStickerPacksStore(authorization, entities);
+const stickerPackInstallation = new InstallStickerPackStore(installedStickerPacks);
+const stickerPackUninstallation = new UninstallStickerPackStore(installedStickerPacks);
+const stickerPacksSearch = new SearchStickerPacksStore(entities);
+const stickerPackDialog = new StickerPackDialogStore();
 
 export const store: IAppState = {
     authorization,
@@ -353,5 +364,10 @@ export const store: IAppState = {
     messagesListScrollPositions,
     markMessageRead,
     stickerPackCreation,
-    stickerEmojiPickerDialog
+    stickerEmojiPickerDialog,
+    installedStickerPacks,
+    stickerPackInstallation,
+    stickerPackUninstallation,
+    stickerPacksSearch,
+    stickerPackDialog
 };

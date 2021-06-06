@@ -3,3 +3,8 @@ export * from "./StickerPacksStore";
 export * from "./StickersStore";
 export * from "./StickerEmojiPickerDialogStore";
 export * from "./StickerContainer";
+export * from "./InstalledStickerPacksStore";
+export * from "./UninstallStickerPackStore";
+export * from "./InstallStickerPackStore";
+export * from "./SearchStickerPacksStore";
+export * from "./StickerPackDialogStore";

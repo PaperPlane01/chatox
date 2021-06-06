@@ -3,5 +3,6 @@ export interface StickerPackEntity {
     author?: string,
     description: string,
     name: string,
-    stickersIds: string[]
+    stickersIds: string[],
+    previewId: string
 }

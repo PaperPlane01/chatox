@@ -445,5 +445,8 @@ export const ru: Labels = {
     "sticker.add": "Добавить стикер",
     "sticker.pack.create.success": "Набор стикеров был создан",
     "sticker.pack.create.error.server-unreachable": "Во время попытки создать набор ситкеров произошла ошибка, сервер недоступен",
-    "sticker.pack.create.error.unknown": "Во время попытки создать набор стикеров произошла ошибка, сервер ответил со статусом {errorStatus}"
+    "sticker.pack.create.error.unknown": "Во время попытки создать набор стикеров произошла ошибка, сервер ответил со статусом {errorStatus}",
+    "sticker.pack.list": "Стикеры",
+    "common.search": "Поиск",
+    "sticker.pack.with-name": "Набор стикеров {name}",
 };

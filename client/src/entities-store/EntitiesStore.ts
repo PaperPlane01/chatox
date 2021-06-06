@@ -409,6 +409,11 @@ export class EntitiesStore {
     }
 
     @action
+    insertStickerPacks = (stickerPacks: StickerPack[]): void => {
+        stickerPacks.forEach(stickerPack => this.insertStickerPack(stickerPack));
+    }
+
+    @action
     insertStickerPack = (stickerPack: StickerPack): void => {
         this.insertStickers(stickerPack.stickers);
         this.stickerPacks.insert(stickerPack);
