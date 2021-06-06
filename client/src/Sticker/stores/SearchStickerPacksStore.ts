@@ -69,6 +69,7 @@ export class SearchStickerPacksStore {
 
     @action
     reset = (): void => {
+        this.currentPage = 0;
         this.reactToNameChange = false;
         this.name = "";
         this.searchResults = [];
