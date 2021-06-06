@@ -167,7 +167,7 @@ class StickerPackServiceImpl(
 
     override fun searchStickerPacks(name: String, paginationRequest: PaginationRequest): Flux<StickerPackResponse<Any>> {
         return mono {
-            val stickerPacks = stickerPackRepository.findByNameLike(name, paginationRequest.toPageRequest()).collectList().awaitFirst()
+            val stickerPacks = stickerPackRepository.findByNameLikeIgnoreCase(name, paginationRequest.toPageRequest()).collectList().awaitFirst()
 
             return@mono mapStickerPacks(stickerPacks)
         }
