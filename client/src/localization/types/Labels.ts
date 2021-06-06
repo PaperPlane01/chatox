@@ -446,5 +446,7 @@ export interface Labels {
     "sticker.pack.create.error.unknown": string,
     "sticker.pack.list": string,
     "common.search": string,
-    "sticker.pack.with-name": string
+    "sticker.pack.with-name": string,
+    "sticker.pack.install.success": string,
+    "sticker.pack.uninstall.success": string
 }

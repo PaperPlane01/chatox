@@ -2,7 +2,12 @@ import React, {FunctionComponent} from "react";
 import {Grid} from "@material-ui/core";
 import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
-import {StickerPacksSearchResults, StickerPackDialog} from "../Sticker";
+import {
+    StickerPacksSearchResults,
+    StickerPackDialog,
+    StickerPackUninstallationSnackbarManager,
+    StickerPackInstallationSnackbarManager
+} from "../Sticker";
 
 export const StickerPacksPage: FunctionComponent = () => (
     <Grid container>
@@ -15,6 +20,8 @@ export const StickerPacksPage: FunctionComponent = () => (
             </Layout>
         </Grid>
         <StickerPackDialog/>
+        <StickerPackUninstallationSnackbarManager/>
+        <StickerPackInstallationSnackbarManager/>
     </Grid>
 );
 

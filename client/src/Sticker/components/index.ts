@@ -9,3 +9,5 @@ export * from "./StickerPacksListItem";
 export * from "./StickerPacksSearchResults";
 export * from "./StickersGridList";
 export * from "./StickerPackDialog";
+export * from "./StickerPackInstallationSnackbarManager";
+export * from "./StickerPackUninstallationSnackbarManager";

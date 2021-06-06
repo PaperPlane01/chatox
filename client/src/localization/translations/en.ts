@@ -449,4 +449,6 @@ export const en: Labels = {
     "sticker.pack.list": "Sticker packs",
     "common.search": "Search",
     "sticker.pack.with-name": "Sticker pack {name}",
+    "sticker.pack.install.success": "Sticker pack has been installed",
+    "sticker.pack.uninstall.success": "Sticker pack has been uninstalled"
 };

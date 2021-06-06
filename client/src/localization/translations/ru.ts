@@ -449,4 +449,6 @@ export const ru: Labels = {
     "sticker.pack.list": "Стикеры",
     "common.search": "Поиск",
     "sticker.pack.with-name": "Набор стикеров {name}",
+    "sticker.pack.install.success": "Набор стикеров установлен",
+    "sticker.pack.uninstall.success": "Набор стикеров удалён"
 };

@@ -6,6 +6,9 @@ export class InstallStickerPackStore {
     @observable
     pendingInstallationsMap: {[stickerPackId: string]: boolean} = {};
 
+    @observable
+    showSnackbar = false;
+
     constructor(private readonly installedStickerPacksStore: InstalledStickerPacksStore) {
     }
 
@@ -14,7 +17,15 @@ export class InstallStickerPackStore {
         this.pendingInstallationsMap[stickerPackId] = true;
 
         StickerApi.installStickerPack(stickerPackId)
-            .then(() => this.installedStickerPacksStore.addInstalledStickerPack(stickerPackId))
+            .then(() => {
+                this.installedStickerPacksStore.addInstalledStickerPack(stickerPackId);
+                this.setShowSnackbar(true);
+            })
             .finally(() => runInAction(() => this.pendingInstallationsMap[stickerPackId] = false));
+    }
+
+    @action
+    setShowSnackbar = (showSnackbar: boolean): void => {
+        this.showSnackbar = showSnackbar;
     }
 }
