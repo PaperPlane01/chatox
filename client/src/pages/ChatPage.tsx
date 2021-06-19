@@ -28,6 +28,7 @@ import {
 } from "../ChatBlocking";
 import {BanUserGloballyDialog} from "../GlobalBan";
 import {ReportMessageDialog, ReportChatDialog} from "../Report";
+import {StickerPackDialog} from "../Sticker";
 
 export const ChatPage: FunctionComponent = () => (
     <Fragment>
@@ -74,6 +75,7 @@ export const ChatPage: FunctionComponent = () => (
             <ScheduleMessageDialog/>
             <ReportMessageDialog/>
             <ReportChatDialog/>
+            <StickerPackDialog/>
         </Grid>
     </Fragment>
 );

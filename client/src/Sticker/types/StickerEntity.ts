@@ -4,5 +4,6 @@ export interface StickerEntity {
     id: string,
     emojis: EmojiData[],
     keywords: string[],
-    imageId: string
+    imageId: string,
+    stickerPackId: string
 }

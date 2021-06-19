@@ -30,6 +30,7 @@ import {MarkdownTextWithEmoji} from "../../Emoji/components";
 import {TranslationFunction} from "../../localization/types";
 import {MessageEntity} from "../types";
 import {UserEntity} from "../../User/types";
+import {MessageSticker} from "./MessageSticker";
 
 const {Link} = require("mobx-router");
 
@@ -348,6 +349,9 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                                                emojiData={message.emoji}
                                         />
                                     </div>
+                                    {message.stickerId && (
+                                        <MessageSticker stickerId={message.stickerId} messageId={message.id}/>
+                                    )}
                                     {!hideAttachments && message.images.length === 1 && (
                                         <MessageImagesSimplifiedGrid imagesIds={message.images}
                                                                      messageId={message.id}

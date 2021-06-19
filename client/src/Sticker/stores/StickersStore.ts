@@ -8,7 +8,8 @@ export class StickersStore extends AbstractEntityStore<StickerEntity, Sticker> {
             id: denormalizedEntity.id,
             emojis: denormalizedEntity.emojis,
             imageId: denormalizedEntity.image.id,
-            keywords: denormalizedEntity.keywords
+            keywords: denormalizedEntity.keywords,
+            stickerPackId: denormalizedEntity.stickerPackId
         }
     }
 }
