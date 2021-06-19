@@ -38,5 +38,7 @@ data class Message(
         var fromScheduled: Boolean = false,
 
         @Indexed
-        var index: Long = 0L
+        var index: Long = 0L,
+
+        var sticker: Sticker<Any>? = null
 )

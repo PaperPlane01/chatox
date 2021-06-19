@@ -1,33 +1,33 @@
 package chatox.chat.support.validation.validator
 
-import chatox.chat.support.validation.annotation.AllowFieldToBeBlankIfOneOfTheFieldsIsNotEmpty
+import chatox.chat.support.validation.annotation.AllowFieldToBeBlankIfOneOfFieldsIsNotEmpty
 import org.springframework.beans.PropertyAccessorFactory
 import org.springframework.util.ObjectUtils
 import javax.validation.ConstraintValidator
 import javax.validation.ConstraintValidatorContext
 
-class AllowFieldToBeBlankOfOtherFieldIsNotEmptyValidator
-    : ConstraintValidator<AllowFieldToBeBlankIfOneOfTheFieldsIsNotEmpty, Any> {
+class AllowFieldToBeBlankIfOneOfFieldsIsNotEmptyValidator
+    : ConstraintValidator<AllowFieldToBeBlankIfOneOfFieldsIsNotEmpty, Any> {
     private lateinit var checkedField: String
-    private lateinit var otherField: String
+    private lateinit var otherFields: List<String>
 
-    override fun initialize(constraintAnnotation: AllowFieldToBeBlankIfOneOfTheFieldsIsNotEmpty?) {
+    override fun initialize(constraintAnnotation: AllowFieldToBeBlankIfOneOfFieldsIsNotEmpty?) {
         checkedField = constraintAnnotation!!.checkedField
-        otherField = constraintAnnotation.otherField
+        otherFields = listOf(*constraintAnnotation.otherFields)
     }
 
     override fun isValid(objectToValidate: Any?, context: ConstraintValidatorContext?): Boolean {
         val beanWrapper = PropertyAccessorFactory.forDirectFieldAccess(objectToValidate!!)
         val checkedFieldValue = beanWrapper.getPropertyValue(checkedField)
-        val otherPropertyValue = beanWrapper.getPropertyValue(otherField)
 
-        println("Checked field is $checkedField")
-        println("Other field is $otherField")
+        return otherFields.stream().anyMatch { otherField ->
+            val otherPropertyValue = beanWrapper.getPropertyValue(otherField)
 
-        return if (!ObjectUtils.isEmpty(otherPropertyValue)) {
-            true
-        } else {
-            !ObjectUtils.isEmpty(checkedFieldValue)
+            if (!ObjectUtils.isEmpty(otherPropertyValue)) {
+                return@anyMatch true
+            } else {
+                return@anyMatch !ObjectUtils.isEmpty(checkedFieldValue)
+            }
         }
     }
 }

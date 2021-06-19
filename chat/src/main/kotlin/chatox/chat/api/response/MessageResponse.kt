@@ -19,5 +19,6 @@ data class MessageResponse(
         val pinned: Boolean,
         val pinnedAt: ZonedDateTime?,
         val pinnedBy: UserResponse?,
-        val scheduledAt: ZonedDateTime? = null
+        val scheduledAt: ZonedDateTime? = null,
+        val sticker: StickerResponse<Any>? = null
 )
