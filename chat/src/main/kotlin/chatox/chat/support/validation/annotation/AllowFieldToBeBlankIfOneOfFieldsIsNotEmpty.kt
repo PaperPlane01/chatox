@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
 @Target(allowedTargets = [AnnotationTarget.CLASS])
 @Retention(value = AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [AllowFieldToBeBlankOfOtherFieldIsNotEmptyValidator::class])
-annotation class AllowFieldToBeBlankIfOtherFieldIsNotEmpty(
+annotation class AllowFieldToBeBlankIfOneOfTheFieldsIsNotEmpty(
         val checkedField: String,
         val otherField: String,
         val message: String = "",
@@ -17,6 +17,6 @@ annotation class AllowFieldToBeBlankIfOtherFieldIsNotEmpty(
         val payload: Array<KClass<out Payload>> = []
 ) {
     annotation class List(
-            val value: Array<AllowFieldToBeBlankIfOtherFieldIsNotEmpty>
+            val value: Array<AllowFieldToBeBlankIfOneOfTheFieldsIsNotEmpty>
     )
 }

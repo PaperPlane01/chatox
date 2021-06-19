@@ -18,6 +18,8 @@ class CustomUserDetails : UserDetails {
     private var bannedPermanently: Boolean = false
     private var username: String
 
+
+
     constructor(jwtAuthenticationToken: JwtAuthenticationToken) {
         val isClient = jwtAuthenticationToken.token.getClaimAsString("user_id") == null
 
@@ -63,6 +65,16 @@ class CustomUserDetails : UserDetails {
                 globalBanExpirationDate = ZonedDateTime.ofInstant(globalBanInstant, ZoneId.of("UTC"))
             }
         }
+    }
+
+    constructor(id: String, accountId: String, authorities: MutableList<GrantedAuthority>, globalBanId: String?, globalBanExpirationDate: ZonedDateTime?, bannedPermanently: Boolean, username: String) {
+        this.id = id
+        this.accountId = accountId
+        this.authorities = authorities
+        this.globalBanId = globalBanId
+        this.globalBanExpirationDate = globalBanExpirationDate
+        this.bannedPermanently = bannedPermanently
+        this.username = username
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
