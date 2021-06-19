@@ -29,7 +29,9 @@ import {
     ClosedPinnedMessagesStore,
     CreateMessageStore,
     DeleteScheduledMessageStore,
-    DownloadMessageFileStore, MarkMessageReadStore,
+    DownloadMessageFileStore,
+    EmojiPickerTabsStore,
+    MarkMessageReadStore,
     MessageDialogStore,
     MessagesListScrollPositionsStore,
     MessagesOfChatStore,
@@ -92,8 +94,12 @@ import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelect
 import {
     CreateStickerPackStore,
     InstalledStickerPacksStore,
-    InstallStickerPackStore, SearchStickerPacksStore,
-    StickerEmojiPickerDialogStore, StickerPackDialogStore, UninstallStickerPackStore
+    InstallStickerPackStore,
+    SearchStickerPacksStore,
+    StickerEmojiPickerDialogStore,
+    StickerPackDialogStore,
+    StickerPickerStore,
+    UninstallStickerPackStore
 } from "../Sticker";
 
 export interface IAppState {
@@ -191,5 +197,7 @@ export interface IAppState {
     stickerPackUninstallation: UninstallStickerPackStore,
     stickerPacksSearch: SearchStickerPacksStore,
     stickerPackDialog: StickerPackDialogStore,
+    stickerPicker: StickerPickerStore,
+    emojiPickerTabs: EmojiPickerTabsStore,
     store?: any
 }

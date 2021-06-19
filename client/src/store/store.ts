@@ -50,7 +50,7 @@ import {
     ClosedPinnedMessagesStore,
     CreateMessageStore,
     DeleteScheduledMessageStore,
-    DownloadMessageFileStore, MarkMessageReadStore,
+    DownloadMessageFileStore, EmojiPickerTabsStore, MarkMessageReadStore,
     MessageDialogStore,
     MessagesListScrollPositionsStore,
     MessagesOfChatStore,
@@ -113,7 +113,7 @@ import {
     CreateStickerPackStore,
     InstalledStickerPacksStore, InstallStickerPackStore, SearchStickerPacksStore,
     StickerEmojiPickerDialogStore, StickerPackDialogStore,
-    StickerPacksStore,
+    StickerPacksStore, StickerPickerStore,
     StickersStore, UninstallStickerPackStore
 } from "../Sticker";
 
@@ -274,6 +274,8 @@ const stickerPackInstallation = new InstallStickerPackStore(installedStickerPack
 const stickerPackUninstallation = new UninstallStickerPackStore(installedStickerPacks);
 const stickerPacksSearch = new SearchStickerPacksStore(entities);
 const stickerPackDialog = new StickerPackDialogStore();
+const stickerPicker = new StickerPickerStore(installedStickerPacks, authorization);
+const emojiPickerTabs = new EmojiPickerTabsStore();
 
 export const store: IAppState = {
     authorization,
@@ -369,5 +371,7 @@ export const store: IAppState = {
     stickerPackInstallation,
     stickerPackUninstallation,
     stickerPacksSearch,
-    stickerPackDialog
+    stickerPackDialog,
+    stickerPicker,
+    emojiPickerTabs
 };

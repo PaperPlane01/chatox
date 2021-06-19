@@ -20,5 +20,5 @@ export const StickerPackInstallationSnackbarManager: FunctionComponent = observe
         }
     });
 
-    return <Fragment/>
-})
+    return <Fragment/>;
+});

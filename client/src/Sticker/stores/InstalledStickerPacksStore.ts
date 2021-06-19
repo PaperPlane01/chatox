@@ -1,8 +1,8 @@
 import {observable, action, runInAction, reaction} from "mobx";
+import {createTransformer} from "mobx-utils";
 import {ApiError, getInitialApiErrorFromResponse, StickerApi} from "../../api";
 import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
-import {createTransformer} from "mobx-utils";
 
 export class InstalledStickerPacksStore {
     @observable

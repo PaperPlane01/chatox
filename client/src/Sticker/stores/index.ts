@@ -8,3 +8,4 @@ export * from "./UninstallStickerPackStore";
 export * from "./InstallStickerPackStore";
 export * from "./SearchStickerPacksStore";
 export * from "./StickerPackDialogStore";
+export * from "./StickerPickerStore";

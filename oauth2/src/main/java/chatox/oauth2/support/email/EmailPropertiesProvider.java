@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class EmailPropertiesProvider {
+public class  EmailPropertiesProvider {
     private Map<EmailConfirmationCodeType, EmailProperties> propertiesMap;
 
     public ZonedDateTime getExpirationDate(EmailConfirmationCodeType emailConfirmationCodeType) {

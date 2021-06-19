@@ -76,6 +76,10 @@ export class EntitiesStore {
     insertMessage = (message: Message, skipSettingLastMessage: boolean = false): void => {
         this.insertUser(message.sender);
 
+        if (message.sticker) {
+            this.insertSticker(message.sticker);
+        }
+
         if (message.referredMessage) {
             this.insertMessage(message.referredMessage, skipSettingLastMessage);
         }
@@ -343,6 +347,10 @@ export class EntitiesStore {
 
     @action
     insertReportedMessage = (message: Message): void => {
+        if (message.sticker) {
+            this.insertSticker(message.sticker);
+        }
+
         if (message.referredMessage) {
             this.insertReportedMessage(message.referredMessage);
         }

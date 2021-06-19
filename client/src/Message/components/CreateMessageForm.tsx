@@ -16,11 +16,12 @@ import {
 } from "@material-ui/core";
 import {InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
-import {EmojiData, Picker} from "emoji-mart";
+import {EmojiData} from "emoji-mart";
 import 'emoji-mart/css/emoji-mart.css';
 import {AttachFilesButton} from "./AttachFilesButton";
 import {ReferredMessageCard} from "./ReferredMessageCard";
 import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
+import {EmojiAndStickerPicker} from "./EmojiAndStickerPicker";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 
@@ -49,6 +50,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             attachmentsIds,
             setFormValue,
             createMessage,
+            setEmojiPickerExpanded
         },
         entities: {
             chats: {
@@ -59,7 +61,6 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             selectedChatId
         },
         emoji: {
-            selectedEmojiSet,
             useEmojiCodes
         }
     } = useStore();
@@ -115,7 +116,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
 
     const updateText = (): void => {
         setFormValue("text", inputRef!.current!.value);
-    }
+    };
 
     const handleEmojiSelect = (emoji: EmojiData): void => {
         if (inputRef && inputRef.current) {
@@ -164,11 +165,9 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                                    <InsertEmoticon/>
                                                </IconButton>
                                                <Menu {...bindMenu(emojiPickerPopupState)}>
-                                                   <Picker set={selectedEmojiSet === "native" ? undefined : selectedEmojiSet}
-                                                           onSelect={handleEmojiSelect}
-                                                           autoFocus={false}
-                                                           native={selectedEmojiSet === "native"}
-                                                   />
+                                                  <EmojiAndStickerPicker onEmojiPicked={handleEmojiSelect}
+                                                                         onStickerPicked={emojiPickerPopupState.close}
+                                                  />
                                                </Menu>
                                            </Hidden>
                                            <Hidden lgUp>
@@ -218,19 +217,11 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             />
             <Hidden lgUp>
                 {emojiPickerExpanded && (
-                    <Picker set={selectedEmojiSet === "native" ? undefined : selectedEmojiSet}
-                            onSelect={handleEmojiSelect}
-                            autoFocus={false}
-                            showPreview={false}
-                            showSkinTones={false}
-                            native={selectedEmojiSet === "native"}
-                            style={{
-                                width: "100%",
-                                backgroundColor: theme.palette.background.default
-                            }}
+                    <EmojiAndStickerPicker onEmojiPicked={handleEmojiSelect}
+                                           onStickerPicked={() => setEmojiPickerExpanded(false)}
                     />
                 )}
             </Hidden>
         </div>
-    )
+    );
 });

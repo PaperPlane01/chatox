@@ -451,5 +451,7 @@ export interface Labels {
     "sticker.pack.uninstall.success": string,
     "sticker.pack.list.installed": string,
     "sticker.pack.explore-more": string,
-    "common.authorization-required": string
+    "common.authorization-required": string,
+    "emoji.picker.tab.emoji": string,
+    "emoji.picker.tab.stickers": string
 }

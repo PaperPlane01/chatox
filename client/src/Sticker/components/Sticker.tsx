@@ -45,7 +45,7 @@ export const Sticker: FunctionComponent<StickerProps> = observer(({
 
     const handleClick = (): void => {
         if (onClick) {
-            handleClick();
+            onClick();
         }
     };
 
@@ -58,4 +58,4 @@ export const Sticker: FunctionComponent<StickerProps> = observer(({
             />
         </div>
     );
-})
+});

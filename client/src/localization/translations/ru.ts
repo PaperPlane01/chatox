@@ -453,5 +453,7 @@ export const ru: Labels = {
     "sticker.pack.uninstall.success": "Набор стикеров удалён",
     "sticker.pack.list.installed": "Установленные наборы стикеров",
     "sticker.pack.explore-more": "Найти ещё",
-    "common.authorization-required": "Вы должны войти в аккаунт, чтобы увидеть эту страницу"
+    "common.authorization-required": "Вы должны войти в аккаунт, чтобы увидеть эту страницу",
+    "emoji.picker.tab.emoji": "Эмоджи",
+    "emoji.picker.tab.stickers": "Стикеры"
 };

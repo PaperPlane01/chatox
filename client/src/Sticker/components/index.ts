@@ -12,3 +12,4 @@ export * from "./StickerPackDialog";
 export * from "./StickerPackInstallationSnackbarManager";
 export * from "./StickerPackUninstallationSnackbarManager";
 export * from "./InstalledStickerPacksList";
+export * from "./StickerPicker";

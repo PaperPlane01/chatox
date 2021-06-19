@@ -453,5 +453,7 @@ export const en: Labels = {
     "sticker.pack.uninstall.success": "Sticker pack has been uninstalled",
     "sticker.pack.list.installed": "Installed sticker packs",
     "sticker.pack.explore-more": "Explore more",
-    "common.authorization-required": "You have to be logged in to see this page"
+    "common.authorization-required": "You have to be logged in to see this page",
+    "emoji.picker.tab.emoji": "Emoji",
+    "emoji.picker.tab.stickers": "Stickers"
 };
