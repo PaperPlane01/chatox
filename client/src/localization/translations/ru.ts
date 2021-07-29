@@ -455,5 +455,6 @@ export const ru: Labels = {
     "sticker.pack.explore-more": "Найти ещё",
     "common.authorization-required": "Вы должны войти в аккаунт, чтобы увидеть эту страницу",
     "emoji.picker.tab.emoji": "Эмоджи",
-    "emoji.picker.tab.stickers": "Стикеры"
+    "emoji.picker.tab.stickers": "Стикеры",
+    "sticker": "Стикер"
 };

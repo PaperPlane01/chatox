@@ -455,5 +455,6 @@ export const en: Labels = {
     "sticker.pack.explore-more": "Explore more",
     "common.authorization-required": "You have to be logged in to see this page",
     "emoji.picker.tab.emoji": "Emoji",
-    "emoji.picker.tab.stickers": "Stickers"
+    "emoji.picker.tab.stickers": "Stickers",
+    "sticker": "Sticker"
 };

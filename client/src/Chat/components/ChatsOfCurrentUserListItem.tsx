@@ -13,6 +13,7 @@ import {MessageEntity} from "../../Message/types";
 import {Labels, TranslationFunction} from "../../localization";
 import {UserEntity} from "../../User";
 import {Upload, UploadType} from "../../api/types/response";
+import {StickerEntity} from "../../Sticker";
 
 const {Link} = require("mobx-router");
 
@@ -73,6 +74,7 @@ interface GetLastMessageTextParameters {
     message: MessageEntity,
     messageSender: UserEntity,
     messageUploads: Upload<any>[],
+    messageSticker?: StickerEntity,
     l: TranslationFunction,
     parseEmoji: ParseEmojiFunction
 }
@@ -91,6 +93,7 @@ const getLastMessageText: GetLastMessageTextFunction = ({
     message,
     messageSender,
     messageUploads,
+    messageSticker,
     parseEmoji,
     l
 }): ReactNode => {
@@ -99,6 +102,17 @@ const getLastMessageText: GetLastMessageTextFunction = ({
     }
 
     const messageSenderName = messageSender.firstName;
+
+    if (messageSticker) {
+        return (
+            <Fragment>
+                {messageSenderName}
+                {": "}
+                {messageSticker.emojis.length !== 0 && parseEmoji((messageSticker.emojis[0] as any).native)}
+                {` [${l("sticker")}]`}
+            </Fragment>
+        )
+    }
 
     if (message.text && message.text.length !== 0) {
         return (
@@ -210,6 +224,9 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
             },
             uploads: {
                 findAllById: findUploads,
+            },
+            stickers: {
+                findById: findSticker
             }
         }
     } = useStore();
@@ -221,6 +238,9 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
     const lastMessage = chat.lastMessage && findMessage(chat.lastMessage);
     const lastMessageSender = lastMessage && findUser(lastMessage.sender);
     const selected = selectedChatId === chatId;
+    const lastMessageSticker = lastMessage && lastMessage.stickerId
+        ? findSticker(lastMessage.stickerId)
+        : undefined;
     const lastMessageUploads = lastMessage
         ? findUploads(lastMessage.uploads)
         : []
@@ -262,6 +282,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                                                     message: lastMessage,
                                                     messageUploads: lastMessageUploads,
                                                     messageSender: lastMessageSender,
+                                                    messageSticker: lastMessageSticker,
                                                     parseEmoji,
                                                     l
                                                 })}

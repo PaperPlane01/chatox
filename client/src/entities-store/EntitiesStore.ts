@@ -1,4 +1,4 @@
-import {action, computed, toJS} from "mobx";
+import {action, computed} from "mobx";
 import {ChatParticipationEntity, ChatParticipationsStore, ChatsStore, ChatUploadsStore} from "../Chat";
 import {UsersStore} from "../User";
 import {
@@ -6,11 +6,15 @@ import {
     ChatDeletionReason,
     ChatOfCurrentUser,
     ChatParticipation,
-    ChatRole, ChatWithCreatorId,
+    ChatRole,
+    ChatWithCreatorId,
     CurrentUser,
     GlobalBan,
     Message,
-    Report, ReportType, Sticker, StickerPack,
+    Report,
+    ReportType,
+    Sticker,
+    StickerPack,
     User
 } from "../api/types/response";
 import {MessagesStore, ScheduledMessagesStore} from "../Message";
@@ -59,7 +63,7 @@ export class EntitiesStore {
 
     @action
     insertMessages = (messages: Message[], skipSettingLastMessage: boolean = false): void => {
-        messages.reverse().forEach((message, index, messagesArray) => {
+        messages.forEach((message, index, messagesArray) => {
             if (index !== 0 && !message.scheduledAt) {
                 message.previousMessageId = messagesArray[index - 1].id;
             }
@@ -144,7 +148,7 @@ export class EntitiesStore {
         }
 
         if (chat.lastReadMessage) {
-            this.insertMessage(chat.lastReadMessage);
+            this.insertMessage(chat.lastReadMessage, true);
         }
 
         if (chat.avatar) {
