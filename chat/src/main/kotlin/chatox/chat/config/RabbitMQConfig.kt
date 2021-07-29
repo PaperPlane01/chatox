@@ -137,4 +137,16 @@ class RabbitMQConfig {
             .bind(fileCreated())
             .to(uploadEvents())
             .with("upload.file.created.#")
+
+    @Bean
+    fun stickerEvents() = TopicExchange("sticker.events")
+
+    @Bean
+    fun stickerPackCreated() = Queue("chat_service_sticker_pack_created")
+
+    @Bean
+    fun stickerPackCreatedBinding(): Binding = BindingBuilder
+            .bind(stickerPackCreated())
+            .to(stickerEvents())
+            .with("sticker.pack.created.#")
 }

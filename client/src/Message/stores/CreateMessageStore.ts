@@ -1,11 +1,11 @@
-import {action, reaction, observable, computed} from "mobx";
+import {action, computed, observable, reaction, runInAction} from "mobx";
+import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
 import {CreateMessageFormData} from "../types";
 import {validateMessageText} from "../validation";
 import {ChatStore} from "../../Chat";
 import {FormErrors} from "../../utils/types";
-import {MessageApi, ApiError, getInitialApiErrorFromResponse} from "../../api";
+import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
-import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
 import {Routes} from "../../router";
 
 export class CreateMessageStore {
@@ -76,12 +76,32 @@ export class CreateMessageStore {
     @action
     setReferredMessageId = (referredMessageId?: string): void => {
         this.referredMessageId = referredMessageId;
-    };
+    }
 
     @action
     setFormValue = <Key extends keyof CreateMessageFormData>(key: Key, value: CreateMessageFormData[Key]): void => {
         this.createMessageForm[key] = value;
-    };
+    }
+
+    @action
+    sendSticker = (stickerId: string): void => {
+        if (!this.selectedChatId || this.pending) {
+            return;
+        }
+
+        this.pending = true;
+        this.submissionError = undefined;
+
+        MessageApi.createMessage(this.selectedChatId, {
+            text: "",
+            referredMessageId: this.referredMessageId,
+            uploadAttachments: [],
+            stickerId
+        })
+            .then(({data}) => this.entitiesStore.insertMessage(data))
+            .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.pending = false));
+    }
 
     @action
     createMessage = (): void => {
@@ -117,7 +137,7 @@ export class CreateMessageStore {
                 }
             })
         }
-    };
+    }
 
     @action
     validateForm = (): Promise<boolean> => {
@@ -125,7 +145,7 @@ export class CreateMessageStore {
             this.formErrors.text = validateMessageText(this.createMessageForm.text, {acceptEmpty: this.attachmentsIds.length !== 0});
             resolve(!Boolean(this.formErrors.text));
         });
-    };
+    }
 
     @action
     resetForm = (): void => {
@@ -144,5 +164,5 @@ export class CreateMessageStore {
     @action
     setEmojiPickerExpanded = (emojiPickerExpanded: boolean): void => {
         this.emojiPickerExpanded = emojiPickerExpanded;
-    };
+    }
 }

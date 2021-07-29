@@ -1,4 +1,4 @@
-import {action, computed, toJS} from "mobx";
+import {action, computed} from "mobx";
 import {ChatParticipationEntity, ChatParticipationsStore, ChatsStore, ChatUploadsStore} from "../Chat";
 import {UsersStore} from "../User";
 import {
@@ -6,11 +6,15 @@ import {
     ChatDeletionReason,
     ChatOfCurrentUser,
     ChatParticipation,
-    ChatRole, ChatWithCreatorId,
+    ChatRole,
+    ChatWithCreatorId,
     CurrentUser,
     GlobalBan,
     Message,
-    Report, ReportType,
+    Report,
+    ReportType,
+    Sticker,
+    StickerPack,
     User
 } from "../api/types/response";
 import {MessagesStore, ScheduledMessagesStore} from "../Message";
@@ -21,6 +25,7 @@ import {ChatUpdated} from "../api/types/websocket";
 import {PartialBy} from "../utils/types";
 import {GlobalBansStore} from "../GlobalBan/stores";
 import {ReportedChatsStore, ReportsStore} from "../Report/stores";
+import {StickerPacksStore, StickersStore} from "../Sticker";
 
 type DecreaseChatParticipantsCountCallback = (chatParticipation?: ChatParticipationEntity, currentUser?: CurrentUser) => boolean;
 
@@ -50,13 +55,15 @@ export class EntitiesStore {
         public reportedMessages: MessagesStore,
         public reportedMessagesSenders: UsersStore,
         public reportedUsers: UsersStore,
-        public reportedChats: ReportedChatsStore
+        public reportedChats: ReportedChatsStore,
+        public stickers: StickersStore,
+        public stickerPacks: StickerPacksStore
     ) {
     }
 
     @action
     insertMessages = (messages: Message[], skipSettingLastMessage: boolean = false): void => {
-        messages.reverse().forEach((message, index, messagesArray) => {
+        messages.forEach((message, index, messagesArray) => {
             if (index !== 0 && !message.scheduledAt) {
                 message.previousMessageId = messagesArray[index - 1].id;
             }
@@ -72,6 +79,10 @@ export class EntitiesStore {
     @action
     insertMessage = (message: Message, skipSettingLastMessage: boolean = false): void => {
         this.insertUser(message.sender);
+
+        if (message.sticker) {
+            this.insertSticker(message.sticker);
+        }
 
         if (message.referredMessage) {
             this.insertMessage(message.referredMessage, skipSettingLastMessage);
@@ -137,7 +148,7 @@ export class EntitiesStore {
         }
 
         if (chat.lastReadMessage) {
-            this.insertMessage(chat.lastReadMessage);
+            this.insertMessage(chat.lastReadMessage, true);
         }
 
         if (chat.avatar) {
@@ -340,6 +351,10 @@ export class EntitiesStore {
 
     @action
     insertReportedMessage = (message: Message): void => {
+        if (message.sticker) {
+            this.insertSticker(message.sticker);
+        }
+
         if (message.referredMessage) {
             this.insertReportedMessage(message.referredMessage);
         }
@@ -403,5 +418,27 @@ export class EntitiesStore {
             default:
                 return;
         }
+    }
+
+    @action
+    insertStickerPacks = (stickerPacks: StickerPack[]): void => {
+        stickerPacks.forEach(stickerPack => this.insertStickerPack(stickerPack));
+    }
+
+    @action
+    insertStickerPack = (stickerPack: StickerPack): void => {
+        this.insertStickers(stickerPack.stickers);
+        this.stickerPacks.insert(stickerPack);
+    }
+
+    @action
+    insertStickers = (stickers: Sticker[]): void => {
+        stickers.forEach(sticker => this.insertSticker(sticker));
+    }
+
+    @action
+    insertSticker = (sticker: Sticker): void => {
+        this.uploads.insert(sticker.image);
+        this.stickers.insert(sticker);
     }
 }

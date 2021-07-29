@@ -129,7 +129,7 @@ export class MessagesOfChatStore {
             .then(({data}) => {
                 runInAction(() => {
                     if (data.length !== 0) {
-                        this.entities.insertMessages(data, Boolean(beforeMessage));
+                        this.entities.insertMessages(data, true);
 
                         if (beforeMessage) {
                             this.initialMessagesMap[chatId] = this.initialMessagesMap[chatId]

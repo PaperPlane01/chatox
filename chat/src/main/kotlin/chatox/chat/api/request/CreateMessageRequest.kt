@@ -1,6 +1,6 @@
 package chatox.chat.api.request
 
-import chatox.chat.support.validation.annotation.AllowFieldToBeBlankIfOtherFieldIsNotEmpty
+import chatox.chat.support.validation.annotation.AllowFieldToBeBlankIfOneOfFieldsIsNotEmpty
 import chatox.chat.support.validation.annotation.MaxIntervalFromNow
 import chatox.chat.support.validation.annotation.MinIntervalFromNow
 import chatox.chat.support.validation.annotation.StringIn
@@ -10,9 +10,9 @@ import java.time.temporal.ChronoUnit
 import javax.validation.constraints.Future
 import javax.validation.constraints.Size
 
-@AllowFieldToBeBlankIfOtherFieldIsNotEmpty(
+@AllowFieldToBeBlankIfOneOfFieldsIsNotEmpty(
         checkedField = "_text",
-        otherField = "uploadAttachments"
+        otherFields = ["uploadAttachments", "stickerId"]
 )
 data class CreateMessageRequest(
         @field:Size(max = 2000)
@@ -37,7 +37,9 @@ data class CreateMessageRequest(
                 chronoUnit = ChronoUnit.MONTHS,
                 message = "Scheduled message date must be no more than 30 days from now"
         )
-        val scheduledAt: ZonedDateTime?
+        val scheduledAt: ZonedDateTime?,
+
+        val stickerId: String? = null
 ) {
         val text: String
                 get() = _text!!

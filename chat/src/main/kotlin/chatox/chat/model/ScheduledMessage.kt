@@ -29,5 +29,6 @@ data class ScheduledMessage(
         var attachments: List<Upload<Any>> = listOf(),
         var emoji: EmojiInfo = EmojiInfo(),
         var scheduledAt: ZonedDateTime,
-        var numberOfFailedAttemptsToPublish: Int = 0
+        var numberOfFailedAttemptsToPublish: Int = 0,
+        var sticker: Sticker<Any>? = null
 )

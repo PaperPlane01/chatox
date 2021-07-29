@@ -29,7 +29,9 @@ import {
     ClosedPinnedMessagesStore,
     CreateMessageStore,
     DeleteScheduledMessageStore,
-    DownloadMessageFileStore, MarkMessageReadStore,
+    DownloadMessageFileStore,
+    EmojiPickerTabsStore,
+    MarkMessageReadStore,
     MessageDialogStore,
     MessagesListScrollPositionsStore,
     MessagesOfChatStore,
@@ -89,6 +91,16 @@ import {
     UpdateSelectedReportsStore
 } from "../Report/stores";
 import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
+import {
+    CreateStickerPackStore,
+    InstalledStickerPacksStore,
+    InstallStickerPackStore,
+    SearchStickerPacksStore,
+    StickerEmojiPickerDialogStore,
+    StickerPackDialogStore,
+    StickerPickerStore,
+    UninstallStickerPackStore
+} from "../Sticker";
 
 export interface IAppState {
     language: LocaleStore,
@@ -178,5 +190,14 @@ export interface IAppState {
     googleLogin: LoginWithGoogleStore,
     messagesListScrollPositions: MessagesListScrollPositionsStore,
     markMessageRead: MarkMessageReadStore,
+    stickerPackCreation: CreateStickerPackStore,
+    stickerEmojiPickerDialog: StickerEmojiPickerDialogStore,
+    installedStickerPacks: InstalledStickerPacksStore,
+    stickerPackInstallation: InstallStickerPackStore,
+    stickerPackUninstallation: UninstallStickerPackStore,
+    stickerPacksSearch: SearchStickerPacksStore,
+    stickerPackDialog: StickerPackDialogStore,
+    stickerPicker: StickerPickerStore,
+    emojiPickerTabs: EmojiPickerTabsStore,
     store?: any
 }

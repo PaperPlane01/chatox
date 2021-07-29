@@ -50,7 +50,7 @@ import {
     ClosedPinnedMessagesStore,
     CreateMessageStore,
     DeleteScheduledMessageStore,
-    DownloadMessageFileStore, MarkMessageReadStore,
+    DownloadMessageFileStore, EmojiPickerTabsStore, MarkMessageReadStore,
     MessageDialogStore,
     MessagesListScrollPositionsStore,
     MessagesOfChatStore,
@@ -109,6 +109,13 @@ import {
     reportedMessagesSendersSelector,
     reportedUsersSelector
 } from "../Report/selectors";
+import {
+    CreateStickerPackStore,
+    InstalledStickerPacksStore, InstallStickerPackStore, SearchStickerPacksStore,
+    StickerEmojiPickerDialogStore, StickerPackDialogStore,
+    StickerPacksStore, StickerPickerStore,
+    StickersStore, UninstallStickerPackStore
+} from "../Sticker";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -124,6 +131,8 @@ const reportedMessages = new MessagesStore();
 const reportedMessagesSenders = new UsersStore();
 const reportedUsers = new UsersStore();
 const reportedChats = new ReportedChatsStore();
+const stickers = new StickersStore();
+const stickerPacks = new StickerPacksStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
@@ -138,7 +147,9 @@ const entities = new EntitiesStore(
     reportedMessages,
     reportedMessagesSenders,
     reportedUsers,
-    reportedChats
+    reportedChats,
+    stickers,
+    stickerPacks
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -256,6 +267,15 @@ const googleLogin = new LoginWithGoogleStore(authorization);
 const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
 const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
 const websocket = new WebsocketStore(authorization, entities, chat, messagesListScrollPositions, markMessageRead);
+const stickerPackCreation = new CreateStickerPackStore(entities);
+const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
+const installedStickerPacks = new InstalledStickerPacksStore(authorization, entities);
+const stickerPackInstallation = new InstallStickerPackStore(installedStickerPacks);
+const stickerPackUninstallation = new UninstallStickerPackStore(installedStickerPacks);
+const stickerPacksSearch = new SearchStickerPacksStore(entities);
+const stickerPackDialog = new StickerPackDialogStore();
+const stickerPicker = new StickerPickerStore(installedStickerPacks, authorization);
+const emojiPickerTabs = new EmojiPickerTabsStore();
 
 export const store: IAppState = {
     authorization,
@@ -344,5 +364,14 @@ export const store: IAppState = {
     selectedReportedChatsCreatorsBan,
     googleLogin,
     messagesListScrollPositions,
-    markMessageRead
+    markMessageRead,
+    stickerPackCreation,
+    stickerEmojiPickerDialog,
+    installedStickerPacks,
+    stickerPackInstallation,
+    stickerPackUninstallation,
+    stickerPacksSearch,
+    stickerPackDialog,
+    stickerPicker,
+    emojiPickerTabs
 };

@@ -72,8 +72,9 @@ export const convertMessageToNormalizedForm = (message: Message): MessageEntity 
         emoji: message.emoji,
         uploads: message.attachments.map(attachment => attachment.id),
         scheduledAt: message.scheduledAt ? new Date(message.scheduledAt) : undefined,
+        index: message.index,
+        stickerId: message.sticker ? message.sticker.id : undefined,
         ...uploadStats,
         ...uploadsByType,
-        index: message.index
     };
 }

@@ -28,6 +28,8 @@ const MessageReportsPage = lazy(() => import("../pages/MessageReportsPage"));
 const UserReportsPage = lazy(() => import("../pages/UserReportsPage"));
 const ChatReportsPage = lazy(() => import("../pages/ChatReportsPage"));
 const GoogleAuthentication = lazy(() => import("../pages/GoogleAuthenticationPage"));
+const CreateStickerPackPage = lazy(() => import("../pages/CreateStickerPackPage"));
+const StickerPacksPage = lazy(() => import("../pages/StickerPacksPage"));
 
 const {Route} = require("mobx-router");
 
@@ -237,6 +239,34 @@ export const Routes = {
         onEnter: (route: any, params: any, queryParams: any) => {
             store.googleLogin.setGoogleAccessToken(queryParams.access_token);
             store.googleLogin.loginWithGoogle();
+        }
+    }),
+    createStickerPack: new Route({
+        path: "/create-sticker-pack",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <CreateStickerPackPage/>
+                </Suspense>
+            </ErrorBoundary>
+        )
+    }),
+    stickerPacks: new Route({
+        path: "/sticker-packs",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <StickerPacksPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: () => {
+            store.stickerPacksSearch.setReactToNameChange(true);
+            store.stickerPacksSearch.searchStickerPacks();
+        },
+        onExit: () => {
+            store.stickerPacksSearch.setReactToNameChange(false);
+            store.stickerPacksSearch.reset();
         }
     })
 };

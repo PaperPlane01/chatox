@@ -7,20 +7,24 @@ import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.UserResponse
 import chatox.chat.exception.ChatAlreadyHasPinnedMessageException
 import chatox.chat.exception.MessageNotFoundException
+import chatox.chat.exception.MessageValidationException
 import chatox.chat.exception.NoPinnedMessageException
 import chatox.chat.exception.ScheduledMessageNotFoundException
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.exception.metadata.LimitOfScheduledMessagesReachedException
 import chatox.chat.exception.metadata.ScheduledMessageIsTooCloseToAnotherScheduledMessageException
+import chatox.chat.exception.metadata.StickerNotFoundException
 import chatox.chat.mapper.MessageMapper
 import chatox.chat.messaging.rabbitmq.event.MessageReadEvent
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatUploadAttachment
+import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.MessageRead
 import chatox.chat.model.ScheduledMessage
+import chatox.chat.model.Sticker
 import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.chat.repository.ChatMessagesCounterRepository
@@ -29,6 +33,7 @@ import chatox.chat.repository.ChatUploadAttachmentRepository
 import chatox.chat.repository.MessageReadRepository
 import chatox.chat.repository.MessageRepository
 import chatox.chat.repository.ScheduledMessageRepository
+import chatox.chat.repository.StickerRepository
 import chatox.chat.repository.UploadRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.security.access.MessagePermissions
@@ -62,6 +67,7 @@ class MessageServiceImpl(
         private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
         private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
         private val scheduledMessageRepository: ScheduledMessageRepository,
+        private val stickerRepository: StickerRepository,
         private val authenticationFacade: AuthenticationFacade,
         private val emojiParserService: EmojiParserService,
         private val messageCacheService: ReactiveCacheService<Message, String>,
@@ -88,6 +94,16 @@ class MessageServiceImpl(
                 throw ChatDeletedException(chat.chatDeletion)
             }
 
+            var sticker: Sticker<Any>? = null
+
+            if (createMessageRequest.stickerId != null) {
+                if (createMessageRequest.text.isNotBlank() || createMessageRequest.uploadAttachments.isNotEmpty()) {
+                    throw MessageValidationException("Message cannot contain text or attachments if it has sticker")
+                }
+
+                sticker = findStickerById(createMessageRequest.stickerId).awaitFirst()
+            }
+
             var referredMessage: Message? = null
 
             if (createMessageRequest.referredMessageId != null) {
@@ -96,11 +112,15 @@ class MessageServiceImpl(
             }
 
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
-            val emoji = emojiParserService.parseEmoji(
-                    text = createMessageRequest.text,
-                    emojiSet = createMessageRequest.emojisSet
-            )
-                    .awaitFirst()
+            val emoji = if (createMessageRequest.text.isNotBlank()) {
+                emojiParserService.parseEmoji(
+                        text = createMessageRequest.text,
+                        emojiSet = createMessageRequest.emojisSet
+                )
+                        .awaitFirst()
+            } else {
+                EmojiInfo()
+            }
             var uploadAttachments: List<ChatUploadAttachment<Any>> = listOf()
             var uploads: List<Upload<Any>> = listOf()
 
@@ -134,7 +154,8 @@ class MessageServiceImpl(
                         emoji = emoji,
                         attachments = uploads,
                         chatAttachmentsIds = uploadAttachments.map { attachment -> attachment.id },
-                        index = messageIndex
+                        index = messageIndex,
+                        sticker = sticker
                 )
                 message = messageRepository.save(message).awaitFirst()
 
@@ -184,7 +205,8 @@ class MessageServiceImpl(
                         chat = chat,
                         emoji = emoji,
                         attachments = uploads,
-                        chatAttachmentsIds = uploadAttachments.map { attachment -> attachment.id }
+                        chatAttachmentsIds = uploadAttachments.map { attachment -> attachment.id },
+                        sticker = sticker
                 )
                 scheduledMessageRepository.save(scheduledMessage).awaitFirst()
 
@@ -657,6 +679,9 @@ class MessageServiceImpl(
             chat
         }
     }
+
+    private fun findStickerById(stickerId: String) = stickerRepository.findById(stickerId)
+            .switchIfEmpty(Mono.error(StickerNotFoundException("Could not find sticker with id $stickerId")))
 
     private fun findMessageEntityById(messageId: String, retrieveFromCache: Boolean = false): Mono<Message> {
         return mono {

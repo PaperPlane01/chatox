@@ -8,6 +8,7 @@ import chatox.chat.model.Chat
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.ScheduledMessage
+import chatox.chat.model.Sticker
 import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.chat.service.UserService
@@ -23,6 +24,7 @@ import java.util.UUID
 @Component
 class MessageMapper(private val userService: UserService,
                     private val uploadMapper: UploadMapper,
+                    private val stickerMapper: StickerMapper,
                     private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>) {
 
     fun toMessageResponse(
@@ -91,7 +93,12 @@ class MessageMapper(private val userService: UserService,
                     index = message.index,
                     pinned = message.pinned,
                     pinnedAt = message.pinnedAt,
-                    pinnedBy = pinnedBy
+                    pinnedBy = pinnedBy,
+                    sticker = if (message.sticker != null) {
+                        stickerMapper.toStickerResponse(message.sticker!!)
+                    } else {
+                        null
+                    }
             )
         }
     }
@@ -152,7 +159,12 @@ class MessageMapper(private val userService: UserService,
                     pinnedAt = null,
                     pinned = false,
                     pinnedBy = null,
-                    scheduledAt = message.scheduledAt
+                    scheduledAt = message.scheduledAt,
+                    sticker = if (message.sticker != null) {
+                        stickerMapper.toStickerResponse(message.sticker!!)
+                    } else {
+                        null
+                    }
             )
         }
     }
@@ -165,7 +177,8 @@ class MessageMapper(private val userService: UserService,
             emoji: EmojiInfo = EmojiInfo(),
             attachments: List<Upload<Any>>,
             chatAttachmentsIds: List<String>,
-            index: Long
+            index: Long,
+            sticker: Sticker<Any>? = null
     ) = Message(
             id = UUID.randomUUID().toString(),
             createdAt = ZonedDateTime.now(),
@@ -180,7 +193,8 @@ class MessageMapper(private val userService: UserService,
             emoji = emoji,
             attachments = attachments,
             uploadAttachmentsIds = chatAttachmentsIds,
-            index = index
+            index = index,
+            sticker = sticker
     )
 
     fun fromScheduledMessage(
@@ -202,7 +216,8 @@ class MessageMapper(private val userService: UserService,
             attachments = scheduledMessage.attachments,
             uploadAttachmentsIds = scheduledMessage.uploadAttachmentsIds,
             index = messageIndex,
-            fromScheduled = true
+            fromScheduled = true,
+            sticker = scheduledMessage.sticker
     )
 
     fun scheduledMessageFromCreateMessageRequest(
@@ -212,7 +227,8 @@ class MessageMapper(private val userService: UserService,
             referredMessage: Message?,
             emoji: EmojiInfo = EmojiInfo(),
             attachments: List<Upload<Any>>,
-            chatAttachmentsIds: List<String>
+            chatAttachmentsIds: List<String>,
+            sticker: Sticker<Any>? = null
     ) = ScheduledMessage(
             id = UUID.randomUUID().toString(),
             createdAt = ZonedDateTime.now(),
@@ -227,7 +243,8 @@ class MessageMapper(private val userService: UserService,
             emoji = emoji,
             attachments = attachments,
             uploadAttachmentsIds = chatAttachmentsIds,
-            scheduledAt = createMessageRequest.scheduledAt!!.truncatedTo(ChronoUnit.MINUTES)
+            scheduledAt = createMessageRequest.scheduledAt!!.truncatedTo(ChronoUnit.MINUTES),
+            sticker = sticker
     )
 
     fun mapMessageUpdate(updateMessageRequest: UpdateMessageRequest,

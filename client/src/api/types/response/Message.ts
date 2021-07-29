@@ -1,6 +1,7 @@
 import {User} from "./User";
 import {MessageEmoji} from "./MessageEmoji";
 import {Upload} from "./Upload";
+import {Sticker} from "./Sticker";
 
 export interface Message {
     id: string,
@@ -18,5 +19,6 @@ export interface Message {
     attachments: Upload<any>[],
     pinnedAt: string,
     scheduledAt?: string,
-    index: number
+    index: number,
+    sticker?: Sticker
 }

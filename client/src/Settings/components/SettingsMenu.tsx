@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, List, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
-import {ChatBubble, Language, Palette, Person, Security} from "@material-ui/icons";
+import {createStyles, List, ListItemIcon, ListItemText, makeStyles, MenuItem, Typography} from "@material-ui/core";
+import {ChatBubble, Image, Language, Palette, Person, Security} from "@material-ui/icons";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
 import {ChangePasswordContainer, EditProfileForm} from "../../User";
 import {EmojiSetPicker} from "../../Emoji";
@@ -9,7 +9,9 @@ import {LanguagePicker} from "../../localization";
 import {SettingsTab} from "../types";
 import {Routes} from "../../router";
 import {useLocalization, useRouter, useStore} from "../../store";
-import {ChatsPreferencesCard} from "../../Chat/components";
+import {ChatsPreferencesCard} from "../../Chat";
+import {HasAnyRole} from "../../Authorization";
+import {InstalledStickerPacksList} from "../../Sticker";
 
 const {Link} = require("mobx-router");
 
@@ -103,6 +105,20 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                         </ListItemText>
                     </MenuItem>
                 </Link>
+                <Link className={classes.undecoratedLink}
+                      view={Routes.settingsTabPage}
+                      params={{tab: SettingsTab.STICKERS}}
+                      store={routerStore}
+                >
+                    <MenuItem>
+                        <ListItemIcon>
+                            <Image/>
+                        </ListItemIcon>
+                        <ListItemText>
+                            {l("sticker.pack.list")}
+                        </ListItemText>
+                    </MenuItem>
+                </Link>
             </List>
             <SettingsFullScreenDialog title={l("user.edit-profile")}
                                       open={activeTab === SettingsTab.PROFILE}
@@ -128,6 +144,18 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                                       open={activeTab === SettingsTab.CHATS}
             >
                 <ChatsPreferencesCard/>
+            </SettingsFullScreenDialog>
+            <SettingsFullScreenDialog title={l("sticker.pack.list")}
+                                      open={activeTab === SettingsTab.STICKERS}>
+                <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}
+                            alternative={
+                                <Typography>
+                                    {l("common.authorization-required")}
+                                </Typography>
+                            }
+                >
+                    <InstalledStickerPacksList/>
+                </HasAnyRole>
             </SettingsFullScreenDialog>
         </Fragment>
     )
