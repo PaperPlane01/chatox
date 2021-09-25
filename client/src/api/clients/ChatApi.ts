@@ -6,6 +6,7 @@ import {
     DeleteChatRequest,
     DeleteMultipleMessagesRequest,
     PaginationRequest,
+    StartPrivateChatRequest,
     UpdateChatParticipantRequest,
     UpdateChatRequest
 } from "../types/request";
@@ -17,7 +18,7 @@ import {
     ChatParticipation,
     ChatParticipationWithoutUser
 } from "../types/response";
-import {CHATS, IS_AVAILABLE, JOIN, LEAVE, MY, ONLINE, PARTICIPANTS, POPULAR, SLUG} from "../endpoints";
+import {CHATS, IS_AVAILABLE, JOIN, LEAVE, MY, ONLINE, PARTICIPANTS, POPULAR, PRIVATE, SLUG} from "../endpoints";
 
 export class ChatApi {
 
@@ -90,5 +91,9 @@ export class ChatApi {
 
     public static deleteMultipleChats(deleteMultipleChatsRequest: DeleteMultipleMessagesRequest): AxiosPromise<void> {
         return axiosInstance.delete(`/${CHATS}`, {data: deleteMultipleChatsRequest});
+    }
+
+    public static startPrivateChat(startPrivateChatRequest: StartPrivateChatRequest): AxiosPromise<ChatOfCurrentUser> {
+        return axiosInstance.post(`/${CHATS}/${PRIVATE}`, startPrivateChatRequest);
     }
 }

@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {ListItemAvatar, ListItemText, MenuItem} from "@material-ui/core";
 import randomColor from "randomcolor";
 import {Avatar} from "../../Avatar";
-import {getUserAvatarLabel} from "../../User/utils/get-user-avatar-label";
+import {getUserAvatarLabel} from "../../User/utils/labels";
 import {useStore} from "../../store";
 
 interface ChatBlockingsListItemProps {

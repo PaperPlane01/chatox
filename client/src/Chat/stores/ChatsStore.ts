@@ -1,10 +1,13 @@
-import {action} from "mobx";
+import {action, observable} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatOfCurrentUserEntity} from "../types";
 import {SoftDeletableEntityStore} from "../../entity-store";
-import {ChatDeletionReason, ChatOfCurrentUser} from "../../api/types/response";
+import {ChatDeletionReason, ChatOfCurrentUser, ChatType} from "../../api/types/response";
 
 export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity, ChatOfCurrentUser> {
+    @observable
+    privateChats: {[userId: string]: string} = {};
+
     findBySlug = createTransformer((slug: string) => {
         const chats = this.ids.map(id => this.findById(id));
         return chats.find(chat => chat.slug === slug);
@@ -123,6 +126,18 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
         this.insertEntity(chat);
     }
 
+    @action.bound
+    public insert(denormalizedEntity: ChatOfCurrentUser): ChatOfCurrentUserEntity {
+        if (denormalizedEntity.type === ChatType.DIALOG && denormalizedEntity.user) {
+            this.privateChats = {
+                ...this.privateChats,
+                [denormalizedEntity.user.id]: denormalizedEntity.id
+            };
+        }
+
+        return super.insert(denormalizedEntity);
+    }
+
     protected convertToNormalizedForm(denormalizedEntity: ChatOfCurrentUser): ChatOfCurrentUserEntity {
         const indexToMessageMap: {[index: number]: string} = {};
 
@@ -153,7 +168,9 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
             deleted: denormalizedEntity.deleted,
             deletionComment: denormalizedEntity.deletionComment,
             deletionReason: denormalizedEntity.deletionReason,
-            scheduledMessages: []
+            scheduledMessages: [],
+            userId: denormalizedEntity.user ? denormalizedEntity.user.id : undefined,
+            type: denormalizedEntity.type
         }
     }
 }

@@ -14,7 +14,7 @@ const fallback = (
     }}>
         <CircularProgress size={50} color="primary"/>
     </div>
-)
+);
 
 const HomePage = lazy(() => import("../pages/HomePage"));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
@@ -30,6 +30,7 @@ const ChatReportsPage = lazy(() => import("../pages/ChatReportsPage"));
 const GoogleAuthentication = lazy(() => import("../pages/GoogleAuthenticationPage"));
 const CreateStickerPackPage = lazy(() => import("../pages/CreateStickerPackPage"));
 const StickerPacksPage = lazy(() => import("../pages/StickerPacksPage"));
+const NewPrivateChatPage = lazy(() => import("../pages/NewPrivateChatPage"));
 
 const {Route} = require("mobx-router");
 
@@ -69,6 +70,26 @@ export const Routes = {
                 </Suspense>
             </ErrorBoundary>
         )
+    }),
+    newPrivateChat: new Route({
+        path: "/chat/private",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <NewPrivateChatPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: (view: any, params: any, _: any, queryParams: any) => {
+            if (queryParams) {
+                store.messageCreation.setEmojiPickerExpanded(`${queryParams.emojiPickerExpanded}` === "true");
+            }
+        },
+        onParamsChange: (view: any, params: any, _: any, queryParams: any) => {
+            if (queryParams) {
+                store.messageCreation.setEmojiPickerExpanded(`${queryParams.emojiPickerExpanded}` === "true");
+            }
+        }
     }),
     chatPage: new Route({
         path: "/chat/:slug",

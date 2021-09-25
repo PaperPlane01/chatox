@@ -17,7 +17,7 @@ import {MessagesListBottom} from "./MessagesListBottom";
 import {PinnedMessage} from "./PinnedMessage";
 import {ReversedScrollHandler} from "../utils";
 import {useStore} from "../../store";
-import {ReverseScrollDirectionOption} from "../../Chat/types";
+import {ReverseScrollDirectionOption} from "../../Chat";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messagesList: {
@@ -51,7 +51,8 @@ export const MessagesList: FunctionComponent = observer(() => {
         },
         messageCreation: {
             referredMessageId,
-            emojiPickerExpanded
+            emojiPickerExpanded,
+            userId
         },
         chatsPreferences: {
             enableVirtualScroll,
@@ -207,7 +208,7 @@ export const MessagesList: FunctionComponent = observer(() => {
 
     useEffect(
         () => {
-            if (getReachedBottom(selectedChatId!)) {
+            if (selectedChatId && getReachedBottom(selectedChatId)) {
                 scrollToBottom();
             }
     },
@@ -216,7 +217,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     useEffect(() => {
         const handleResize = () => {
             setStyles(calculateStyles());
-            if (getReachedBottom(selectedChatId!)) {
+            if (selectedChatId && getReachedBottom(selectedChatId)) {
                 scrollToBottom();
             }
         };
@@ -303,7 +304,20 @@ export const MessagesList: FunctionComponent = observer(() => {
     );
 
     if (!selectedChat) {
-        return null;
+        if (userId) {
+            return (
+                <Fragment>
+                    <div className={classes.messagesList}
+                         id="messagesList"
+                         style={styles}
+                         ref={messagesDivRef}
+                    />
+                    <MessagesListBottom ref={messagesListBottomRef}/>
+                </Fragment>
+            );
+        } else {
+            return null;
+        }
     }
 
     if (!enableVirtualScroll) {

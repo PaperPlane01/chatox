@@ -12,3 +12,4 @@ export * from "./ChatReportsPage";
 export * from "./GoogleAuthenticationPage";
 export * from "./CreateStickerPackPage";
 export * from "./StickerPacksPage";
+export * from "./NewPrivateChatPage";

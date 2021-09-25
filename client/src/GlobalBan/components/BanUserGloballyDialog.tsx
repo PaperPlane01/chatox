@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {useSnackbar} from "notistack";
 import {BanUserGloballyDialogBase} from "./BanUserGloballyDialogBase";
 import {useLocalization, useStore} from "../../store/hooks";
-import {getUserDisplayedName} from "../../User/utils/get-user-displayed-name";
+import {getUserDisplayedName} from "../../User/utils/labels";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization/types";
 

@@ -129,6 +129,10 @@ export class EntitiesStore {
     insertChat = (chat: PartialBy<ChatOfCurrentUser, "unreadMessagesCount">): void => {
         let unreadMessagesCount: number;
 
+        if (chat.user) {
+            this.insertUser(chat.user)
+        }
+
         if (chat.unreadMessagesCount === undefined || chat.unreadMessagesCount === null) {
             const existingChat = this.chats.findByIdOptional(chat.id);
 

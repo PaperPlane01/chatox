@@ -85,6 +85,9 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
         },
         chat: {
             selectedChatId
+        },
+        messageCreation: {
+            userId
         }
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
@@ -149,6 +152,8 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
         } else {
             messagesListBottomContent = <JoinChatButton/>;
         }
+    } else if (userId && currentUser) {
+        messagesListBottomContent = <CreateMessageForm/>;
     } else {
         messagesListBottomContent = <div/>;
     }

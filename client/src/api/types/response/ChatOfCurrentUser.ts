@@ -3,6 +3,8 @@ import {ChatParticipationWithoutUser} from "./ChatParticipationWithoutUser";
 import {Upload} from "./Upload";
 import {ImageUploadMetadata} from "./ImageUploadMetadata";
 import {ChatDeletionReason} from "./ChatDeletionReason";
+import {ChatType} from "./ChatType";
+import {User} from "./User";
 
 export interface ChatOfCurrentUser {
     id: string,
@@ -22,5 +24,7 @@ export interface ChatOfCurrentUser {
     tags: string[],
     deleted: boolean,
     deletionReason?: ChatDeletionReason,
-    deletionComment?: string
+    deletionComment?: string,
+    type: ChatType,
+    user?: User
 }

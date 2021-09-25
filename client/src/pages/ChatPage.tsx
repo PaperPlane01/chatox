@@ -1,7 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {Grid, Hidden} from "@material-ui/core";
 import {
-    ChatAppBar,
     ChatInfoContainer,
     ChatInfoDialog,
     ChatsOfCurrentUserList,
@@ -10,6 +9,7 @@ import {
     UpdateChatDialog,
     UpdateChatParticipantDialog
 } from "../Chat";
+import {ChatAppBar} from "../ChatAppBar";
 import {
     AttachedFilesDialog,
     MessageDialog,

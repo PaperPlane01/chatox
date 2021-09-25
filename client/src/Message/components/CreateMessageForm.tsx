@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent, useEffect, useLayoutEffect, useRef} from "react";
+import React, {Fragment, FunctionComponent, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import {
     createStyles,
@@ -7,23 +7,19 @@ import {
     IconButton,
     InputAdornment,
     makeStyles,
-    Menu,
     TextField,
     Theme,
-    Tooltip,
-    useMediaQuery,
-    useTheme
+    Tooltip
 } from "@material-ui/core";
-import {InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
-import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
+import {KeyboardVoice, Send} from "@material-ui/icons";
 import {EmojiData} from "emoji-mart";
 import 'emoji-mart/css/emoji-mart.css';
 import {AttachFilesButton} from "./AttachFilesButton";
 import {ReferredMessageCard} from "./ReferredMessageCard";
 import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
 import {EmojiAndStickerPicker} from "./EmojiAndStickerPicker";
-import {useLocalization, useRouter, useStore} from "../../store";
-import {Routes} from "../../router";
+import {useLocalization, useStore} from "../../store";
+import {EmojiPickerContainer} from "./EmojiPickerContainer";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     textField: {
@@ -65,14 +61,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
         }
     } = useStore();
     const {l} = useLocalization();
-    const routerStore = useRouter();
     const classes = useStyles();
-    const emojiPickerPopupState = usePopupState({
-        variant: "popover",
-        popupId: "emojiPicker"
-    });
-    const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -88,31 +77,6 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             inputRef.current.focus();
         }
     }, [referredMessageId]);
-
-    useLayoutEffect(() => {
-        if (!onSmallScreen) {
-            setTimeout(() => {
-                // For some reason search text field in emoji-mart picker is being focused right after render
-                // despite passing autoFocus={false} property, so I have to do this ugly work-around
-                const emojiMartTextFieldWrappers = document.getElementsByClassName("emoji-mart-search");
-
-                if (emojiMartTextFieldWrappers && emojiMartTextFieldWrappers.length !== 0) {
-                    const emojiMartTextFieldWrapper = emojiMartTextFieldWrappers.item(0);
-
-                    if (emojiMartTextFieldWrapper && emojiMartTextFieldWrapper.children && emojiMartTextFieldWrapper.children.length !== 0) {
-                        const emojiMartSearchTextField = emojiMartTextFieldWrapper.children.item(0) as HTMLInputElement;
-
-                        if (emojiMartSearchTextField) {
-                            emojiMartSearchTextField.blur();
-                        }
-                    }
-                }
-            });
-        }},
-        [emojiPickerPopupState.isOpen]
-    );
-
-    const chat = findChat(selectedChatId!);
 
     const updateText = (): void => {
         setFormValue("text", inputRef!.current!.value);
@@ -158,34 +122,9 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                    <div style={{display: "flex"}}>
                                        <Fragment>
                                            {formValues.scheduledAt && (<OpenScheduleMessageDialogButton className={classes.inputIconButton}/>)}
-                                           <Hidden mdDown>
-                                               <IconButton className={classes.inputIconButton}
-                                                           {...bindToggle(emojiPickerPopupState)}
-                                               >
-                                                   <InsertEmoticon/>
-                                               </IconButton>
-                                               <Menu {...bindMenu(emojiPickerPopupState)}>
-                                                  <EmojiAndStickerPicker onEmojiPicked={handleEmojiSelect}
-                                                                         onStickerPicked={emojiPickerPopupState.close}
-                                                  />
-                                               </Menu>
-                                           </Hidden>
-                                           <Hidden lgUp>
-                                               <IconButton className={classes.inputIconButton}
-                                                           onClick={() => {
-                                                               routerStore.router.goTo(
-                                                                   Routes.chatPage,
-                                                                   {slug: chat!.slug || chat!.id},
-                                                                   {},
-                                                                   emojiPickerExpanded
-                                                                       ? {}
-                                                                       : {emojiPickerExpanded: true}
-                                                               )
-                                                           }}
-                                               >
-                                                   <InsertEmoticon/>
-                                               </IconButton>
-                                           </Hidden>
+                                           <EmojiPickerContainer onEmojiSelected={handleEmojiSelect}
+                                                                 iconButtonClassName={classes.inputIconButton}
+                                           />
                                        </Fragment>
                                        {formValues.text.length !== 0 || attachmentsIds.length !== 0
                                            ? (

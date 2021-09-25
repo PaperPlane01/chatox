@@ -29,3 +29,4 @@ export * from "./DeleteMultipleChatsRequest";
 export * from "./GoogleRegistrationRequest";
 export * from "./CreateStickerPackRequest";
 export * from "./CreateStickerRequest";
+export * from "./StartPrivateChatRequest";

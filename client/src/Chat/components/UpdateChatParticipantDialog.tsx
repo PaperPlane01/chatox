@@ -5,7 +5,7 @@ import {ChatRoleSelect} from "./ChatRoleSelect";
 import {useLocalization, useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 import {useSnackbar} from "notistack";
-import {getUserDisplayedName} from "../../User/utils/get-user-displayed-name";
+import {getUserDisplayedName} from "../../User/utils/labels";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization/types";
 

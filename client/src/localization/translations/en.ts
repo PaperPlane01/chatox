@@ -456,5 +456,6 @@ export const en: Labels = {
     "username.empty": "Username can't be empty",
     "username.has-already-been-taken": "This username is already taken",
     "username.too-long": "Username is too long",
-    "username.too-short": "Username is too short"
+    "username.too-short": "Username is too short",
+    "message.list": "Messages"
 };
