@@ -1,6 +1,7 @@
 package chatox.chat.controller
 
 import chatox.chat.api.request.CreateChatRequest
+import chatox.chat.api.request.CreatePrivateChatRequest
 import chatox.chat.api.request.DeleteChatRequest
 import chatox.chat.api.request.DeleteMultipleChatsRequest
 import chatox.chat.api.request.UpdateChatRequest
@@ -31,6 +32,10 @@ class ChatController(private val chatService: ChatService) {
     @ReactivePermissionCheck("@chatPermissions.canCreateChat()")
     @PostMapping
     fun createChat(@RequestBody @Valid createChatRequest: CreateChatRequest) = chatService.createChat(createChatRequest)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    @PostMapping("/private")
+    fun startPrivateChat(@RequestBody @Valid createPrivateChatRequest: CreatePrivateChatRequest) = chatService.createPrivateChat(createPrivateChatRequest)
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL

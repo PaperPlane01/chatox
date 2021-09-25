@@ -1,6 +1,7 @@
 package chatox.chat.service.impl
 
 import chatox.chat.api.request.CreateChatRequest
+import chatox.chat.api.request.CreatePrivateChatRequest
 import chatox.chat.api.request.DeleteChatRequest
 import chatox.chat.api.request.DeleteChatRequestWithChatId
 import chatox.chat.api.request.DeleteMultipleChatsRequest
@@ -13,6 +14,7 @@ import chatox.chat.exception.InvalidChatDeletionCommentException
 import chatox.chat.exception.InvalidChatDeletionReasonException
 import chatox.chat.exception.SlugIsAlreadyInUseException
 import chatox.chat.exception.UploadNotFoundException
+import chatox.chat.exception.UserNotFoundException
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.ChatMapper
@@ -25,10 +27,12 @@ import chatox.chat.model.ChatDeletionReason
 import chatox.chat.model.ChatMessagesCounter
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
+import chatox.chat.model.ChatType
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Message
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
+import chatox.chat.model.User
 import chatox.chat.repository.ChatMessagesCounterRepository
 import chatox.chat.repository.ChatParticipationRepository
 import chatox.chat.repository.ChatRepository
@@ -36,6 +40,8 @@ import chatox.chat.repository.MessageRepository
 import chatox.chat.repository.UploadRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatService
+import chatox.chat.service.MessageService
+import chatox.chat.support.UserDisplayedNameHelper
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
@@ -51,6 +57,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.ObjectUtils
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Service
@@ -62,11 +69,14 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val uploadRepository: UploadRepository,
                       private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
                       private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
+                      private val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String>,
                       private val chatMapper: ChatMapper,
                       private val chatParticipationMapper: ChatParticipationMapper,
                       private val authenticationFacade: AuthenticationFacade,
                       private val chatEventsPublisher: ChatEventsPublisher,
-                      private val timeService: TimeService) : ChatService {
+                      private val timeService: TimeService,
+                      private val messageService: MessageService,
+                      private val userDisplayedNameHelper: UserDisplayedNameHelper) : ChatService {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatOfCurrentUserResponse> {
@@ -106,9 +116,77 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     chat = chat,
                     chatParticipation = creatorChatParticipation,
                     unreadMessagesCount = 0,
-                    lastMessage = null,
-                    lastReadMessage = null,
+                    lastMessage = null as Message?,
+                    lastReadMessage = null as Message?,
                     onlineParticipantsCount = 1
+            )
+                    .awaitFirst()
+        }
+    }
+
+    override fun createPrivateChat(createPrivateChatRequest: CreatePrivateChatRequest): Mono<ChatOfCurrentUserResponse> {
+        return mono {
+            val user = userCacheWrapper.findById(createPrivateChatRequest.userId).awaitFirstOrNull()
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+
+            if (user == null) {
+                throw UserNotFoundException("Could not find user with id ${createPrivateChatRequest.userId}")
+            }
+
+            val id = UUID.randomUUID().toString()
+            val chat = Chat(
+                    id = id,
+                    createdById = currentUser.id,
+                    createdAt = ZonedDateTime.now(),
+                    type = ChatType.DIALOG,
+                    name = "dialog-${currentUser.id}-${user.id}",
+                    deleted = false,
+                    numberOfParticipants = 2,
+                    numberOfOnlineParticipants = 0,
+                    slug = id
+            )
+
+            chatRepository.save(chat).awaitFirst()
+
+            val chatMessagesCounter = ChatMessagesCounter(
+                    id = UUID.randomUUID().toString(),
+                    chatId = chat.id,
+                    messagesCount = 1L
+            )
+            chatMessagesCounterRepository.save(chatMessagesCounter).awaitFirst()
+
+            val currentUserChatParticipation = ChatParticipation(
+                    chatId = id,
+                    deleted = false,
+                    createdAt = ZonedDateTime.now(),
+                    user = currentUser,
+                    role = ChatRole.USER,
+                    chatDeleted = false,
+                    userOnline = currentUser.online ?: false,
+                    userDisplayedName = userDisplayedNameHelper.getDisplayedName(currentUser)
+            )
+            val otherUserChatParticipation = ChatParticipation(
+                    chatId = id,
+                    deleted = false,
+                    createdAt = ZonedDateTime.now(),
+                    user = user,
+                    role = ChatRole.USER,
+                    chatDeleted = false,
+                    userOnline = user.online ?: false,
+                    userDisplayedName = userDisplayedNameHelper.getDisplayedName(user)
+            )
+            chatParticipationRepository.saveAll(mutableListOf(currentUserChatParticipation, otherUserChatParticipation)).awaitFirst()
+
+            val message = messageService.createFirstMessageForPrivateChat(id, createPrivateChatRequest.message).awaitFirst()
+
+            return@mono chatMapper.toChatOfCurrentUserResponse(
+                    chat = chat,
+                    chatParticipation = currentUserChatParticipation,
+                    lastMessage = message,
+                    lastReadMessage = message,
+                    unreadMessagesCount =  0L,
+                    onlineParticipantsCount = 0,
+                    user = user
             )
                     .awaitFirst()
         }

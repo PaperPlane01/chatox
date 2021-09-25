@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono
 
 interface MessageService {
     fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse>
+    fun createFirstMessageForPrivateChat(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse>
     fun updateMessage(id: String, chatId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse>
     fun deleteMessage(id: String, chatId: String): Mono<Void>
     fun findMessageById(id: String): Mono<MessageResponse>

@@ -10,7 +10,7 @@ enum class ChatType {
     companion object {
         @JsonCreator
         fun fromJsonValue(value: String): ChatType {
-            for (chatType: ChatType in ChatType.values()) {
+            for (chatType: ChatType in values()) {
                 if (chatType.name.contentEquals(value)) {
                     return chatType
                 }

@@ -1,5 +1,6 @@
 package chatox.chat.security.access
 
+import chatox.chat.model.ChatType
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatService
 import kotlinx.coroutines.reactive.awaitFirst
@@ -18,9 +19,12 @@ class ChatPermissions(private val authenticationFacade: AuthenticationFacade) {
     }
 
     fun canUpdateChat(chatId: String): Mono<Boolean> {
-        return authenticationFacade.getCurrentUserDetails()
-                .map { chatService.isChatCreatedByUser(chatId, userId = it.id) }
-                .flatMap { it }
+        return mono {
+            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val chat = chatService.findChatById(chatId).awaitFirst()
+
+            return@mono chat.type != ChatType.DIALOG && chat.createdById.equals(currentUser.id)
+        }
     }
 
     fun canDeleteChat(chatId: String): Mono<Boolean> {
