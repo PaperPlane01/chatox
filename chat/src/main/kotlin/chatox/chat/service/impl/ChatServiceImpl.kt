@@ -335,16 +335,26 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 val lastReadMessage = if (chatParticipation.lastReadMessageId != null) {
                     messageCacheWrapper.findById(chatParticipation.lastReadMessageId!!).awaitFirst()
                 } else null
+
                 val lastMessage = if (chat.lastMessageId != null) {
                     messageCacheWrapper.findById(chat.lastMessageId!!).awaitFirst()
                 } else null
+
+                val user = if (chat.type == ChatType.DIALOG) {
+                    val chatParticipants = chatParticipationRepository.findByChatIdAndDeletedFalse(chat.id).collectList().awaitFirst()
+                    val otherUserId = chatParticipants.filter { chatParticipant -> chatParticipant.user.id != currentUser.id }[0].user.id
+
+                    userCacheWrapper.findById(otherUserId).awaitFirst()
+                } else null
+
                 chatMapper.toChatOfCurrentUserResponse(
                         chat = chat,
                         chatParticipation = chatParticipation,
                         lastReadMessage = lastReadMessage,
                         lastMessage = lastMessage,
                         onlineParticipantsCount = chat.numberOfOnlineParticipants,
-                        unreadMessagesCount = unreadMessagesMap[chatParticipation.chatId]!!
+                        unreadMessagesCount = unreadMessagesMap[chatParticipation.chatId]!!,
+                        user = user
                 )
                         .awaitFirst()
             }
