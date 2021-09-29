@@ -40,7 +40,7 @@ class ChatMapper(
             type = chat.type
     )
 
-    fun toChatResponse(chat: Chat, currentUserId: String?) = ChatResponse(
+    fun toChatResponse(chat: Chat, currentUserId: String?, user: User? = null) = ChatResponse(
             id = chat.id,
             description = chat.description,
             name = chat.name,
@@ -51,7 +51,8 @@ class ChatMapper(
             createdByCurrentUser = currentUserId ?: currentUserId == chat.createdById,
             tags = chat.tags,
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
-            type = chat.type
+            type = chat.type,
+            user = if (user != null) userMapper.toUserResponse(user) else null
     )
 
     fun toChatOfCurrentUserResponse(

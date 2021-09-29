@@ -52,6 +52,7 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.ObjectUtils
@@ -303,9 +304,25 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             }
 
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            var otherUser: User? = null
+
+            if (chat.type == ChatType.DIALOG) {
+                val chatParticipants = chatParticipationRepository.findByChatId(chat.id).collectList().awaitFirst()
+                chatParticipants.firstOrNull { chatParticipation -> chatParticipation.user.id == currentUser.id }
+                        ?: throw AccessDeniedException("Current user cannot access this chat")
+                val otherUserChatParticipation = chatParticipants.firstOrNull { chatParticipation -> chatParticipation.user.id != currentUser.id }
+
+                otherUser = if (otherUserChatParticipation != null) {
+                    userCacheWrapper.findById(otherUserChatParticipation.user.id).awaitFirst()
+                } else {
+                    currentUser
+                }
+            }
+
             chatMapper.toChatResponse(
                     chat = chat,
-                    currentUserId = currentUser.id
+                    currentUserId = currentUser.id,
+                    user = otherUser
             )
         }
     }
