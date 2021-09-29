@@ -312,7 +312,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
     override fun searchChats(query: String, paginationRequest: PaginationRequest): Flux<ChatResponse> {
         return chatRepository
-                .searchChats(query, paginationRequest.toPageRequest())
+                .searchChats(query, listOf(ChatType.GROUP), paginationRequest.toPageRequest())
                 .map { chat -> chatMapper.toChatResponse(chat) }
     }
 
@@ -406,7 +406,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             }
 
             chatRepository
-                    .findAllByDeletedFalse(pageRequest)
+                    .findAllByDeletedFalseAndTypeIn(listOf(ChatType.GROUP), pageRequest)
                     .map { chat -> chatMapper.toChatResponse(chat = chat, currentUserId = currentUserId) }
         }
                 .flatMapMany { chat -> chat }
