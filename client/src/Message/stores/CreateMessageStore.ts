@@ -164,10 +164,10 @@ export class CreateMessageStore {
                 .then(({data}) => {
                     this.entitiesStore.insertChat(data);
 
-                    if (this.routerStore && this.routerStore.goTo) {
-                        this.routerStore.goTo(Routes.chatPage, {
+                    if (this.routerStore && this.routerStore.router.goTo) {
+                        this.routerStore.router.goTo(Routes.chatPage, {
                             slug: data.id
-                        });
+                        }, {}, {});
                     }
                 })
                 .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))

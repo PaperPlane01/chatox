@@ -213,7 +213,6 @@ class MessageServiceImpl(
     override fun createFirstMessageForPrivateChat(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse> {
         return mono {
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
-
             val (
                     chat,
                     sticker,
@@ -222,7 +221,6 @@ class MessageServiceImpl(
                     uploadAttachments,
                     uploads
             ) = prepareDataForSavingMessage(chatId, createMessageRequest, currentUser).awaitFirst()
-
             val messageIndex = chatMessagesCounterRepository.getNextCounterValue(chat).awaitFirst()
             var message = messageMapper.fromCreateMessageRequest(
                     createMessageRequest = createMessageRequest,

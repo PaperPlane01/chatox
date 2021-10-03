@@ -20,6 +20,7 @@ import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.ChatMapper
 import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.messaging.rabbitmq.event.ChatDeleted
+import chatox.chat.messaging.rabbitmq.event.PrivateChatCreated
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatDeletion
@@ -49,6 +50,7 @@ import chatox.platform.time.TimeService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
+import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -134,9 +136,9 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 throw UserNotFoundException("Could not find user with id ${createPrivateChatRequest.userId}")
             }
 
-            val id = UUID.randomUUID().toString()
+            val chatId = UUID.randomUUID().toString()
             val chat = Chat(
-                    id = id,
+                    id = chatId,
                     createdById = currentUser.id,
                     createdAt = ZonedDateTime.now(),
                     type = ChatType.DIALOG,
@@ -144,30 +146,35 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     deleted = false,
                     numberOfParticipants = 2,
                     numberOfOnlineParticipants = 0,
-                    slug = id
+                    slug = chatId
             )
 
             chatRepository.save(chat).awaitFirst()
 
             val chatMessagesCounter = ChatMessagesCounter(
                     id = UUID.randomUUID().toString(),
-                    chatId = chat.id,
+                    chatId = chatId,
                     messagesCount = 1L
             )
             chatMessagesCounterRepository.save(chatMessagesCounter).awaitFirst()
 
+            val message = messageService.createFirstMessageForPrivateChat(chatId, createPrivateChatRequest.message).awaitFirst()
+
             val currentUserChatParticipation = ChatParticipation(
-                    chatId = id,
+                    id = ObjectId().toHexString(),
+                    chatId = chatId,
                     deleted = false,
                     createdAt = ZonedDateTime.now(),
                     user = currentUser,
                     role = ChatRole.USER,
                     chatDeleted = false,
                     userOnline = currentUser.online ?: false,
-                    userDisplayedName = userDisplayedNameHelper.getDisplayedName(currentUser)
+                    userDisplayedName = userDisplayedNameHelper.getDisplayedName(currentUser),
+                    lastReadMessageId = message.id
             )
             val otherUserChatParticipation = ChatParticipation(
-                    chatId = id,
+                    id = ObjectId().toHexString(),
+                    chatId = chatId,
                     deleted = false,
                     createdAt = ZonedDateTime.now(),
                     user = user,
@@ -176,9 +183,21 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     userOnline = user.online ?: false,
                     userDisplayedName = userDisplayedNameHelper.getDisplayedName(user)
             )
-            chatParticipationRepository.saveAll(mutableListOf(currentUserChatParticipation, otherUserChatParticipation)).awaitFirst()
 
-            val message = messageService.createFirstMessageForPrivateChat(id, createPrivateChatRequest.message).awaitFirst()
+            val chatParticipations = mutableListOf(currentUserChatParticipation, otherUserChatParticipation)
+            chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
+
+            chatRepository.save(chat.copy(
+                    lastMessageId = message.id,
+                    lastMessageDate = message.createdAt
+            ))
+
+            val privateChatCreated = PrivateChatCreated(
+                    id = chat.id,
+                    chatParticipations = chatParticipations.map { chatParticipation -> chatParticipationMapper.toChatParticipationResponse(chatParticipation) },
+                    message = message
+            )
+            chatEventsPublisher.privateChatCreated(privateChatCreated)
 
             return@mono chatMapper.toChatOfCurrentUserResponse(
                     chat = chat,
