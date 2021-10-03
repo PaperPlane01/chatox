@@ -62,7 +62,12 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
 
     @action
     addMessageToChat = (chatId: string, messageId: string, messageIndex: number, skipSettingLastMessage: boolean = false): void => {
-        const chat = this.findById(chatId);
+        const chat = this.findByIdOptional(chatId);
+
+        if (!chat) {
+            return;
+        }
+
         chat.indexToMessageMap[messageIndex] = messageId;
         chat.messages = Array.from(new Set([...chat.messages, messageId]));
 
@@ -75,7 +80,12 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
 
     @action
     addScheduledMessageToChat = (chatId: string, messageId: string): void => {
-        const chat = this.findById(chatId);
+        const chat = this.findByIdOptional(chatId);
+
+        if (!chat) {
+            return;
+        }
+
         chat.scheduledMessages = Array.from(new Set([...chat.scheduledMessages, messageId]));
         this.insertEntity(chat);
     }
@@ -136,6 +146,18 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
         }
 
         return super.insert(denormalizedEntity);
+    }
+
+    @action.bound
+    public insertEntity(entity: ChatOfCurrentUserEntity): ChatOfCurrentUserEntity {
+        if (entity.type === ChatType.DIALOG && entity.userId) {
+            this.privateChats = {
+                ...this.privateChats,
+                [entity.userId]: entity.id
+            };
+        }
+
+        return super.insertEntity(entity);
     }
 
     protected convertToNormalizedForm(denormalizedEntity: ChatOfCurrentUser): ChatOfCurrentUserEntity {

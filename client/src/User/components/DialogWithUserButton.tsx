@@ -28,7 +28,7 @@ export const DialogWithUserButton: FunctionComponent = observer(() => {
 
     const handleClick = (): void => {
         if (privateChats[selectedUserId]) {
-            routerStore.router.goTo(Routes.chatPage, {slug: privateChats[selectedUserId]});
+            routerStore.router.goTo(Routes.chatPage, {slug: privateChats[selectedUserId]}, {}, {});
         } else {
             setUserId(selectedUserId);
             routerStore.router.goTo(Routes.newPrivateChat);
