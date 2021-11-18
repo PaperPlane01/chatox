@@ -11,5 +11,4 @@ public interface AuthorizedGrantTypeRepository extends JpaRepository<AuthorizedG
     Optional<AuthorizedGrantType> findById(String id);
     Optional<AuthorizedGrantType> findByName(String name);
     List<AuthorizedGrantType> findAll();
-    List<AuthorizedGrantType> findAllByName(List<String> names);
 }

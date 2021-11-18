@@ -5,7 +5,7 @@ spring:
     mongodb:
       repositories:
         type: reactive
-      database: chatox_user_service
+      database: ${MONGODB_USER_SERVICE:user-service}
       host: ${MONGODB_HOST:localhost}
       port: ${MONGODB_PORT:27017}
   rabbitmq:

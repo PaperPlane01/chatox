@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
 
-@Document(collection = "chatUploadAttachment")
+@Document
 data class ChatUploadAttachment<UploadMetadataType>(
         @Id
         var id: String,

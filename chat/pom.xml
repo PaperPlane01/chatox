@@ -15,8 +15,8 @@
 	<description>Chatox chat service</description>
 
 	<properties>
-		<java.version>11</java.version>
-		<kotlin.version>1.3.70</kotlin.version>
+		<java.version>17</java.version>
+		<kotlin.version>1.6.0</kotlin.version>
 		<spring-cloud.version>2020.0.0-M6</spring-cloud.version>
 	</properties>
 
@@ -76,7 +76,7 @@
 		<dependency>
 			<groupId>chatox</groupId>
 			<artifactId>spring-utils</artifactId>
-			<version>0.0.6</version>
+			<version>0.0.7</version>
 		</dependency>
 
 		<dependency>
@@ -116,6 +116,11 @@
 			<artifactId>kotlin-maven-allopen</artifactId>
 			<version>${kotlin.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-stdlib-jdk8</artifactId>
+			<version>${kotlin.version}</version>
+		</dependency>
 	</dependencies>
 
 	<dependencyManagement>
@@ -131,8 +136,8 @@
 	</dependencyManagement>
 
 	<build>
-		<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-		<testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+		<sourceDirectory>src/main/kotlin</sourceDirectory>
+		<testSourceDirectory>src/test/kotlin</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -141,6 +146,23 @@
 			<plugin>
 				<groupId>org.jetbrains.kotlin</groupId>
 				<artifactId>kotlin-maven-plugin</artifactId>
+				<version>${kotlin.version}</version>
+				<executions>
+					<execution>
+						<id>compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>test-compile</id>
+						<phase>test-compile</phase>
+						<goals>
+							<goal>test-compile</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<args>
 						<arg>-Xjsr305=strict</arg>
@@ -152,6 +174,7 @@
 					<pluginOptions>
 						<option>all-open:annotation=org.springframework.data.mongodb.core.mapping.Document</option>
 					</pluginOptions>
+					<jvmTarget>1.8</jvmTarget>
 				</configuration>
 				<dependencies>
 					<dependency>
