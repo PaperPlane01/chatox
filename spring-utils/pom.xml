@@ -5,17 +5,17 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.4.0</version>
+        <version>2.5.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>chatox</groupId>
     <artifactId>spring-utils</artifactId>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
     <name>spring-utils</name>
     <description>Chatox Spring utilities</description>
 
     <properties>
-        <java.version>12</java.version>
+        <java.version>17</java.version>
     </properties>
 
     <dependencies>

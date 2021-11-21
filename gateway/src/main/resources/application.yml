@@ -31,7 +31,6 @@ spring:
             allowedOrigins: '*'
             allowedMethods: '*'
             allowedHeaders: '*'
-            allowCredentials: true
           '[/api/v1/events/**]':
             allowedMethods: '*'
             allowedHeaders: '*'

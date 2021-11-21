@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -19,20 +18,17 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Slf4j
 public class TokenExchanger {
-    private final LoadBalancerClient loadBalancerClient;
+    private final WebClient.Builder loadBalancedWebClientBuilder;
 
     private static final String OAUTH2_SERVICE_ID = "oauth2-service";
     private static final String EXCHANGE_TOKEN = "oauth/exchangeToken";
 
     public Mono<String> exchangeAccessTokenToJwtToken(String accessToken) {
-        var oauth2ServiceInstance = loadBalancerClient.choose(OAUTH2_SERVICE_ID);
-        var url = oauth2ServiceInstance.getUri().toString();
         var exchangeTokenRequest = new ExchangeTokenRequest(accessToken);
 
-        var webClient = WebClient.create(url + "/" + EXCHANGE_TOKEN);
-
-        return webClient
+        return loadBalancedWebClientBuilder.build()
                 .post()
+                .uri(String.format("http://%s/%s", OAUTH2_SERVICE_ID, EXCHANGE_TOKEN))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(exchangeTokenRequest), ExchangeTokenRequest.class)
