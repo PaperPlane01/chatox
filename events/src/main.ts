@@ -8,6 +8,7 @@ import {getEnabledLogLevels} from "./logging/utils";
 import {config as envConfig} from "./env-config";
 
 async function bootstrap() {
+  console.log(`Mongo host is ${envConfig.MONGODB_HOST}`)
   const app = await NestFactory.create(AppModule, {
     logger: getEnabledLogLevels(envConfig)
   });

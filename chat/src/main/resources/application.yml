@@ -7,9 +7,10 @@ spring:
     mongodb:
       repositories:
         type: reactive
-      database: chatox_chat_service
+      database: ${MONGODB_CHAT_SERVICE:chat-service}
       host: ${MONGODB_HOST:localhost}
       port: ${MONGODB_PORT:27017}
+      auto-index-creation: true
   rabbitmq:
     listener:
       direct:

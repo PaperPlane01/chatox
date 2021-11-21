@@ -2,8 +2,10 @@ package chatox.chat.model
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
+import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
 
+@Document
 data class ScheduledMessage(
         @Id
         var id: String,

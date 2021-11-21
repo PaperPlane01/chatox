@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -20,7 +21,7 @@ public class FixMissingCorsHeadersFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         var responseHeaders = exchange.getResponse().getHeaders();
-        if (StringUtils.isEmpty(responseHeaders.getAccessControlAllowOrigin())) {
+        if (!StringUtils.hasText(responseHeaders.getAccessControlAllowOrigin())) {
             if (!exchange.getRequest().getPath().toString().startsWith("/api/v1/events")) {
                 exchange.getResponse().getHeaders().setAccessControlAllowOrigin("*");
             }
@@ -34,8 +35,7 @@ public class FixMissingCorsHeadersFilter implements WebFilter {
                     HttpMethod.TRACE,
                     HttpMethod.PATCH
             ));
-            exchange.getResponse().getHeaders().setAccessControlAllowHeaders(Collections.singletonList("*"));
-            exchange.getResponse().getHeaders().setAccessControlAllowCredentials(true);
+            exchange.getResponse().getHeaders().setAccessControlAllowHeaders(List.of("*"));
         }
 
         return chain.filter(exchange);

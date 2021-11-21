@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
 
-@Document(collection = "message_read")
+@Document
 data class MessageRead(
         @Id
         val id: String,
