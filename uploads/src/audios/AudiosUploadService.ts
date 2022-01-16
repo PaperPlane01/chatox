@@ -5,7 +5,6 @@ import {Model, Types} from "mongoose";
 import {createReadStream, promises as fileSystem} from "fs";
 import path from "path";
 import {fromFile} from "file-type";
-import ffmpeg from "fluent-ffmpeg";
 import contentDisposition from "content-disposition";
 import {AudioUploadMetadata, Upload, UploadType} from "../mongoose/entities";
 import {UploadMapper} from "../common/mappers";
@@ -13,6 +12,7 @@ import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
 import {config} from "../config";
 import {CurrentUserHolder} from "../context/CurrentUserHolder";
+import {FfmpegWrapper} from "../ffmpeg";
 
 const SUPPORTED_AUDIO_FORMATS = [
     "mp3",
@@ -26,7 +26,8 @@ const isAudioFormatSupported = (format: string): boolean => SUPPORTED_AUDIO_FORM
 export class AudiosUploadService {
     constructor(@InjectModel("upload") private readonly uploadModel: Model<Upload<AudioUploadMetadata>>,
                 private readonly uploadMapper: UploadMapper,
-                private readonly currentUserHolder: CurrentUserHolder) {
+                private readonly currentUserHolder: CurrentUserHolder,
+                private readonly ffmpegFactory: FfmpegWrapper) {
 
     }
 
@@ -73,7 +74,8 @@ export class AudiosUploadService {
 
     private getAudioMetadata(audioPath: string): Promise<AudioUploadMetadata> {
         return new Promise<AudioUploadMetadata>((resolve, reject) => {
-            ffmpeg(audioPath)
+            this.ffmpegFactory
+                .ffmpeg(audioPath)
                 .ffprobe((error, data) => {
                     if (error) {
                         reject(error);

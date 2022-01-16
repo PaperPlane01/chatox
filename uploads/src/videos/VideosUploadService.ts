@@ -13,6 +13,7 @@ import {MultipartFile} from "../common/types/request";
 import {UploadInfoResponse} from "../common/types/response";
 import {config} from "../config";
 import {CurrentUserHolder} from "../context/CurrentUserHolder";
+import {FfmpegWrapper} from "../ffmpeg";
 
 const gm = graphicsMagic.subClass({imageMagick: true});
 
@@ -35,7 +36,8 @@ const isVideoFormatSupported = (format: string): boolean => SUPPORTED_VIDEO_FORM
 export class VideosUploadService {
     constructor(@InjectModel("upload") private readonly uploadModel: Model<Upload<VideoUploadMetadata | ImageUploadMetadata>>,
                 private readonly uploadMapper: UploadMapper,
-                private readonly currentUserHolder: CurrentUserHolder) {
+                private readonly currentUserHolder: CurrentUserHolder,
+                private readonly ffmpegWrapper: FfmpegWrapper) {
 
     }
 
@@ -85,7 +87,8 @@ export class VideosUploadService {
 
     private getVideoMetadata(videoPath: string): Promise<VideoUploadMetadata> {
         return new Promise<VideoUploadMetadata>((resolve, reject) => {
-            ffmpeg(videoPath)
+            this.ffmpegWrapper
+                .ffmpeg(videoPath)
                 .ffprobe((error, data) => {
                     if (error) {
                         reject(error);
@@ -122,7 +125,8 @@ export class VideosUploadService {
             const imageName = `${imageId}.jpg`;
             const imagePath = path.join(config.IMAGES_DIRECTORY, imageName);
 
-            ffmpeg(videoPath)
+            this.ffmpegWrapper
+                .ffmpeg(videoPath)
                 .takeScreenshots({
                     folder: config.IMAGES_DIRECTORY,
                     filename: imageName,
@@ -164,7 +168,8 @@ export class VideosUploadService {
             const imageName = `${imageId}.jpg`;
             const imagePath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, imageName);
 
-            ffmpeg(videoPath)
+            this.ffmpegWrapper
+                .ffmpeg(videoPath)
                 .takeScreenshots({
                     folder: config.IMAGES_THUMBNAILS_DIRECTORY,
                     filename: imageName,
