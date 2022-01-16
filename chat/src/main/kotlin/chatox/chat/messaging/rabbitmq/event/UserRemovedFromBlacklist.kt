@@ -1,3 +1,6 @@
 package chatox.chat.messaging.rabbitmq.event
 
-data class UserRemovedFromBlacklist()
+data class UserRemovedFromBlacklist(
+        val userId: String,
+        val removedById: String
+)
