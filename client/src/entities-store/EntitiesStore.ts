@@ -198,9 +198,12 @@ export class EntitiesStore {
         }
 
         if (this.currentUser && this.currentUser.id === chatParticipation.user.id) {
-            const chat = this.chats.findById(chatParticipation.chatId);
-            chat.currentUserParticipationId = chatParticipation.chatId;
-            this.chats.insertEntity(chat);
+            const chat = this.chats.findByIdOptional(chatParticipation.chatId);
+
+            if (chat) {
+                chat.currentUserParticipationId = chatParticipation.chatId;
+                this.chats.insertEntity(chat);
+            }
         }
     }
 
