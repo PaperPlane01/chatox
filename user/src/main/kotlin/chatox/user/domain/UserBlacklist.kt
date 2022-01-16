@@ -3,7 +3,7 @@ package chatox.user.domain
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 
-@Document(collation = "userBlacklist")
+@Document
 data class UserBlacklist(
         @Id
         val id: String,
