@@ -190,7 +190,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             chatRepository.save(chat.copy(
                     lastMessageId = message.id,
                     lastMessageDate = message.createdAt
-            ))
+            )).awaitFirst()
 
             val privateChatCreated = PrivateChatCreated(
                     id = chat.id,
