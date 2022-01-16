@@ -25,8 +25,8 @@ public abstract class GlobalBanMapper {
 
     @AfterMapping
     protected void afterMapping(GlobalBanCreatedOrUpdated globalBanCreatedOrUpdated,
-                                @MappingTarget GlobalBan globalBan) {
+                                @MappingTarget GlobalBan.GlobalBanBuilder globalBan) {
         var banedAccount = accountRepository.findByUserIdsContains(globalBanCreatedOrUpdated.getBannedUser().getId());
-        globalBan.setBannedAccount(banedAccount);
+        globalBan.bannedAccount(banedAccount);
     }
 }
