@@ -101,6 +101,7 @@ import {
     StickerPickerStore,
     UninstallStickerPackStore
 } from "../Sticker";
+import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
 
 export interface IAppState {
     language: LocaleStore,
@@ -199,5 +200,8 @@ export interface IAppState {
     stickerPackDialog: StickerPackDialogStore,
     stickerPicker: StickerPickerStore,
     emojiPickerTabs: EmojiPickerTabsStore,
+    blacklistedUsers: BlacklistedUsersStore,
+    addUserToBlacklist: AddUserToBlacklistStore,
+    removeUserFromBlacklist: RemoveUserFromBlacklistStore,
     store?: any
 }

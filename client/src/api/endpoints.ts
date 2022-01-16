@@ -43,4 +43,6 @@ export const GOOGLE = "google";
 export const READ = "read";
 export const STICKER_PACKS = "stickers-packs";
 export const INSTALLED = "installed";
-export const PRIVATE = "private"
+export const PRIVATE = "private";
+export const BLACKLIST = "blacklist";
+export const STATUS = "status";

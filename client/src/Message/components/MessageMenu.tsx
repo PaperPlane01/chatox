@@ -11,7 +11,8 @@ import {useAuthorization, useStore} from "../../store";
 import {canBlockUsersInChat, ChatBlockingEntity} from "../../ChatBlocking";
 import {BanUserGloballyMenuItem, canBanUsersGlobally} from "../../GlobalBan";
 import {PinMessageMenuItem} from "./PinMessageMenuItem";
-import {ReportMessageMenuItem} from "../../Report/components";
+import {ReportMessageMenuItem} from "../../Report";
+import {BlacklistUserActionMenuItemWrapper} from "../../Blacklist";
 
 export type MessageMenuItemType = "blockMessageAuthorInChat"
     | "replyToMessage"
@@ -20,6 +21,7 @@ export type MessageMenuItemType = "blockMessageAuthorInChat"
     | "banUserGlobally"
     | "pinMessage"
     | "reportMessage"
+    | "blacklistOrRemoveFromBlacklist"
 
 interface MessageMenuProps {
     messageId: string,
@@ -107,6 +109,7 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
 
     menuItems.push(<Divider/>);
     menuItems.push(<ReportMessageMenuItem messageId={messageId} onClick={handleClose("reportMessage")}/>);
+    menuItems.push(<BlacklistUserActionMenuItemWrapper userId={message.sender} onClick={handleClose("blacklistOrRemoveFromBlacklist")}/>);
 
     return (
         <div>

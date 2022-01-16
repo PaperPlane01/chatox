@@ -457,5 +457,15 @@ export const en: Labels = {
     "username.has-already-been-taken": "This username is already taken",
     "username.too-long": "Username is too long",
     "username.too-short": "Username is too short",
-    "message.list": "Messages"
+    "message.list": "Messages",
+    "blacklist.users": "Blocked users",
+    "blacklist.users.add": "Block user",
+    "blacklist.users.add.success": "User {username} was blocked",
+    "blacklist.users.add.error": "Error occurred when tried to block user. Server responded with {errorStatus} status",
+    "blacklist.users.remove": "Unblock user",
+    "blacklist.users.remove.success": "User {username} was unblocked",
+    "blacklist.users.remove.error": "Error occurred when tried to unblock user. Server responded with {errorStatus} status",
+    "common.error.server-unreachable": "Server is unreachable",
+    "common.retry": "Retry",
+    "blacklist.users.error": "Error occurred when tried to fetch blacklisted users. Server responded with {errorStatus} status"
 };

@@ -36,7 +36,10 @@ ReactDOM.render(
 
 if (localStorage.getItem("accessToken")) {
     store.authorization.fetchCurrentUser()
-        .then(() => store.chatsOfCurrentUser.fetchChatsOfCurrentUser());
+        .then(() => {
+            store.chatsOfCurrentUser.fetchChatsOfCurrentUser();
+            store.blacklistedUsers.fetchBlacklistedUsers();
+        });
 } else {
     store.websocket.startListening();
 }

@@ -1,15 +1,15 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText} from "@material-ui/core";
+import {CircularProgress, ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
 import {Block} from "@material-ui/icons";
-import {useStore, useLocalization} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-interface BlockUserMenuItemProps {
+interface AddUserToBlacklistMenuItem {
     userId: string,
     onClick?: () => void
 }
 
-export const BlockUserMenuItem: FunctionComponent<BlockUserMenuItemProps> = observer(({
+export const AddUserToBlacklistMenuItem: FunctionComponent<AddUserToBlacklistMenuItem> = observer(({
     userId,
     onClick
 }) => {
@@ -33,6 +33,7 @@ export const BlockUserMenuItem: FunctionComponent<BlockUserMenuItemProps> = obse
         <MenuItem onClick={handleClick}
                   disabled={pendingUsersMap[userId] && pendingUsersMap[userId].pending}
         >
+            {pendingUsersMap[userId] && pendingUsersMap[userId].pending && <CircularProgress size={15} color="primary"/>}
             <ListItemIcon>
                 <Block/>
             </ListItemIcon>
