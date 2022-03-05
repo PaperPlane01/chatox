@@ -34,6 +34,8 @@ class ChatController(private val chatService: ChatService) {
     fun createChat(@RequestBody @Valid createChatRequest: CreateChatRequest) = chatService.createChat(createChatRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@chatPermissions.canStartPrivateChat(#createPrivateChatRequest.userId)")
     @PostMapping("/private")
     fun startPrivateChat(@RequestBody @Valid createPrivateChatRequest: CreatePrivateChatRequest) = chatService.createPrivateChat(createPrivateChatRequest)
 

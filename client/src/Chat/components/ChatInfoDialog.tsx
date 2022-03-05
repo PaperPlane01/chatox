@@ -20,6 +20,7 @@ import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
+import {ChatType} from "../../api/types/response";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatInfoContainer: {
@@ -62,6 +63,11 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
     }
 
     const chat = findChat(selectedChatId);
+
+    if (chat.type === ChatType.DIALOG) {
+        return null;
+    }
+
     const avatarLetter = getAvatarLabel(chat.name);
     const color = randomColor({seed: chat.id});
 

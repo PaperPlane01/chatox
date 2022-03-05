@@ -5,7 +5,6 @@ import {Skeleton} from "@material-ui/lab";
 import Carousel, {ModalGateway, Modal} from "react-images";
 import {useStore} from "../../store/hooks";
 import {ImageUploadMetadata, Upload} from "../../api/types/response";
-import {useMessageGalleryWidthMultiplier} from "../hooks";
 
 interface MessageImagesSimplifiedGridProps {
     imagesIds: string[],
@@ -46,28 +45,15 @@ export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplif
     } = useStore();
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("xs"));
-    const galleryWidthMultiplier = useMessageGalleryWidthMultiplier();
     const [currentImage, setCurrentImage] = useState(0);
     const [viewerIsOpen, setViewerIsOpen] = useState(false);
     const [imagesLoadingState, setImagesLoadingState] = useState<ImagesLoadingStateMap>({});
 
     const calculateTargetOneColWidth = (): number => {
-        if (imagesIds.length === 1) {
-            if (parentWidth) {
-                return galleryWidthMultiplier * parentWidth;
-            } else {
-                if (onSmallScreen) {
-                    return 256;
-                } else {
-                    return 512;
-                }
-            }
+        if (onSmallScreen) {
+            return 256;
         } else {
-            if (onSmallScreen) {
-                return 256;
-            } else {
-                return 512
-            }
+            return 512;
         }
     };
 
@@ -99,6 +85,8 @@ export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplif
 
     const maxCols =  4
     const totalCols = imagesIds.length < maxCols ? imagesIds.length : maxCols;
+
+    console.log(targetOneColWidth);
 
     return (
         <GridList cellHeight={totalCols === 1 ? Math.ceil(images[0].meta!.height * (targetOneColWidth / images[0].meta!.width)) : 180}
