@@ -7,6 +7,7 @@ import {
     ChatOfCurrentUser,
     ChatParticipation,
     ChatRole,
+    ChatType,
     ChatWithCreatorId,
     CurrentUser,
     GlobalBan,
@@ -21,7 +22,7 @@ import {MessagesStore, ScheduledMessagesStore} from "../Message";
 import {AuthorizationStore} from "../Authorization";
 import {ChatBlockingsStore} from "../ChatBlocking/stores";
 import {UploadsStore} from "../Upload/stores";
-import {ChatUpdated} from "../api/types/websocket";
+import {ChatUpdated, PrivateChatCreated} from "../api/types/websocket";
 import {PartialBy} from "../utils/types";
 import {GlobalBansStore} from "../GlobalBan/stores";
 import {ReportedChatsStore, ReportsStore} from "../Report/stores";
@@ -129,6 +130,10 @@ export class EntitiesStore {
     insertChat = (chat: PartialBy<ChatOfCurrentUser, "unreadMessagesCount">): void => {
         let unreadMessagesCount: number;
 
+        if (chat.user) {
+            this.insertUser(chat.user)
+        }
+
         if (chat.unreadMessagesCount === undefined || chat.unreadMessagesCount === null) {
             const existingChat = this.chats.findByIdOptional(chat.id);
 
@@ -184,13 +189,21 @@ export class EntitiesStore {
     }
 
     @action
-    insertChatParticipation = (chatParticipation: ChatParticipation, currentUser: boolean = false): void => {
+    insertChatParticipation = (chatParticipation: ChatParticipation, increaseChatParticipantsCount: boolean = false): void => {
         this.insertUser(chatParticipation.user);
         this.chatParticipations.insert(chatParticipation);
-        const chat = this.chats.findByIdOptional(chatParticipation.chatId);
-        if (chat && currentUser) {
-            chat.currentUserParticipationId = chatParticipation.id;
-            this.chats.increaseChatParticipantsCount(chat.id);
+
+        if (increaseChatParticipantsCount) {
+            this.chats.increaseChatParticipantsCount(chatParticipation.chatId);
+        }
+
+        if (this.currentUser && this.currentUser.id === chatParticipation.user.id) {
+            const chat = this.chats.findByIdOptional(chatParticipation.chatId);
+
+            if (chat) {
+                chat.currentUserParticipationId = chatParticipation.chatId;
+                this.chats.insertEntity(chat);
+            }
         }
     }
 
@@ -440,5 +453,51 @@ export class EntitiesStore {
     insertSticker = (sticker: Sticker): void => {
         this.uploads.insert(sticker.image);
         this.stickers.insert(sticker);
+    }
+
+    @action
+    insertNewPrivateChat = (privateChatCreated: PrivateChatCreated): void => {
+        const currentUser = this.authorizationStore.currentUser;
+
+        if (!currentUser) {
+            return;
+        }
+
+        let currentUserChatParticipation: ChatParticipation | undefined;
+        let otherUserChatParticipation: ChatParticipation | undefined;
+
+        for (const chatParticipation of privateChatCreated.chatParticipations) {
+            if (chatParticipation.user.id === currentUser.id) {
+                currentUserChatParticipation = chatParticipation;
+            } else {
+                otherUserChatParticipation = chatParticipation;
+            }
+        }
+
+        if (!otherUserChatParticipation || !currentUserChatParticipation) {
+            return;
+        }
+
+        this.chats.insertEntity({
+            id: privateChatCreated.id,
+            name: "",
+            lastMessage: privateChatCreated.message.id,
+            type: ChatType.DIALOG,
+            userId: otherUserChatParticipation.user.id,
+            deleted: false,
+            messages: [],
+            unreadMessagesCount: privateChatCreated.message.sender.id === currentUser.id ? 0 : 1,
+            participantsCount: 0,
+            participants: [],
+            indexToMessageMap: {},
+            createdAt: new Date(),
+            createdByCurrentUser: privateChatCreated.message.sender.id === currentUser.id,
+            onlineParticipantsCount: 0,
+            scheduledMessages: [],
+            tags: []
+        });
+
+        this.insertChatParticipations(privateChatCreated.chatParticipations);
+        this.insertMessage(privateChatCreated.message);
     }
 }

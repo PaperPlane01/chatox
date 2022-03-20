@@ -1,4 +1,4 @@
-import {forwardRef, Inject} from "@nestjs/common";
+import {ForbiddenException, forwardRef, Inject} from "@nestjs/common";
 import {
     ConnectedSocket,
     MessageBody,
@@ -23,10 +23,11 @@ import {
     WebsocketEvent
 } from "./types";
 import {Chat, ChatBlocking, ChatMessage, GlobalBan} from "../common/types";
-import {ChatDeleted, UserKickedFromChat, UserLeftChat} from "../common/types/events";
+import {ChatDeleted, PrivateChatCreated, UserKickedFromChat, UserLeftChat} from "../common/types/events";
 import {ChatParticipationService} from "../chat-participation";
 import {ChatParticipationDto} from "../chat-participation/types";
 import {LoggerFactory} from "../logging";
+import {ChatsService} from "../chats/ChatsService";
 
 @WebSocketGateway({
     path: "/api/v1/events/",
@@ -43,7 +44,8 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
 
     constructor(private readonly jwtService: JwtService,
                 private readonly amqpConnection: AmqpConnection,
-                @Inject(forwardRef(() => ChatParticipationService)) private readonly chatParticipationService: ChatParticipationService) {}
+                @Inject(forwardRef(() => ChatParticipationService)) private readonly chatParticipationService: ChatParticipationService,
+                @Inject(forwardRef(() => ChatsService)) private readonly chatsService: ChatsService) {}
 
     public handleConnection(client: Socket, ...args: any[]): void {
         const queryParameters = client.handshake.query
@@ -121,9 +123,14 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
     }
 
     @SubscribeMessage(EventType.CHAT_SUBSCRIPTION)
-    public handleChatSubscription(@MessageBody() message: WebsocketEvent<ChatSubscription>,
-                                  @ConnectedSocket() client: Socket): void {
+    public async handleChatSubscription(@MessageBody() message: WebsocketEvent<ChatSubscription>,
+                                  @ConnectedSocket() client: Socket): Promise<void> {
         const chatId = message.payload.chatId;
+        const chat = await this.chatsService.findPrivateChatById(chatId);
+
+        if (chat) {
+            throw new ForbiddenException("Subscriptions to private chats is prohibited");
+        }
 
         if (this.chatSubscriptionsMap[chatId] !== undefined) {
             this.chatSubscriptionsMap[chatId].push(client);
@@ -352,6 +359,18 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         };
         await this.publishEventToUser(messageRead.userId, messageReadEvent);
     }
+
+    public async publishPrivateChatCreated(privateChatCreated: PrivateChatCreated) {
+        const privateChatCreatedEvent: WebsocketEvent<PrivateChatCreated> = {
+            payload: privateChatCreated,
+            type: EventType.PRIVATE_CHAT_CREATED
+        };
+        const usersIds = privateChatCreated.chatParticipations.map(chatParticipant => chatParticipant.user.id);
+
+        for (const userId of usersIds) {
+            await this.publishEventToUser(userId, privateChatCreatedEvent);
+        }
+     }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {
         const chatParticipants = await this.chatParticipationService.findByChatId(chatId);

@@ -50,7 +50,9 @@ import {
     ClosedPinnedMessagesStore,
     CreateMessageStore,
     DeleteScheduledMessageStore,
-    DownloadMessageFileStore, EmojiPickerTabsStore, MarkMessageReadStore,
+    DownloadMessageFileStore,
+    EmojiPickerTabsStore,
+    MarkMessageReadStore,
     MessageDialogStore,
     MessagesListScrollPositionsStore,
     MessagesOfChatStore,
@@ -79,9 +81,9 @@ import {
 } from "../ChatBlocking";
 import {UploadImageStore, UploadsStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings";
-import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation/stores";
-import {EmojiSettingsStore} from "../Emoji/stores";
-import {AudioPlayerStore} from "../AudioPlayer/stores";
+import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
+import {EmojiSettingsStore} from "../Emoji";
+import {AudioPlayerStore} from "../AudioPlayer";
 import {DeleteMessageStore} from "../Message/stores/DeleteMessageStore";
 import {
     BanUserStore,
@@ -90,32 +92,36 @@ import {
     GlobalBansListStore,
     GlobalBansStore,
     UpdateGlobalBanStore
-} from "../GlobalBan/stores";
+} from "../GlobalBan";
 import {
     BanUsersRelatedToSelectedReportsStore,
     CreateReportStore,
     CurrentReportsListStore,
     DeclineSelectedReportsStore,
+    reportedChatsCreatorsSelector,
     ReportedChatsStore,
     ReportedMessageDialogStore,
+    reportedMessagesSendersSelector,
+    reportedUsersSelector,
     ReportsListStore,
     ReportsStore,
     UpdateSelectedReportsStore
-} from "../Report/stores";
+} from "../Report";
 import {ReportType} from "../api/types/response";
 import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
 import {
-    reportedChatsCreatorsSelector,
-    reportedMessagesSendersSelector,
-    reportedUsersSelector
-} from "../Report/selectors";
-import {
     CreateStickerPackStore,
-    InstalledStickerPacksStore, InstallStickerPackStore, SearchStickerPacksStore,
-    StickerEmojiPickerDialogStore, StickerPackDialogStore,
-    StickerPacksStore, StickerPickerStore,
-    StickersStore, UninstallStickerPackStore
+    InstalledStickerPacksStore,
+    InstallStickerPackStore,
+    SearchStickerPacksStore,
+    StickerEmojiPickerDialogStore,
+    StickerPackDialogStore,
+    StickerPacksStore,
+    StickerPickerStore,
+    StickersStore,
+    UninstallStickerPackStore
 } from "../Sticker";
+import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -276,6 +282,9 @@ const stickerPacksSearch = new SearchStickerPacksStore(entities);
 const stickerPackDialog = new StickerPackDialogStore();
 const stickerPicker = new StickerPickerStore(installedStickerPacks, authorization);
 const emojiPickerTabs = new EmojiPickerTabsStore();
+const blacklistedUsers = new BlacklistedUsersStore(entities);
+const addUserToBlacklist = new AddUserToBlacklistStore(blacklistedUsers);
+const removeUserFromBlacklist = new RemoveUserFromBlacklistStore(blacklistedUsers);
 
 export const store: IAppState = {
     authorization,
@@ -373,5 +382,8 @@ export const store: IAppState = {
     stickerPacksSearch,
     stickerPackDialog,
     stickerPicker,
-    emojiPickerTabs
+    emojiPickerTabs,
+    blacklistedUsers,
+    addUserToBlacklist,
+    removeUserFromBlacklist
 };

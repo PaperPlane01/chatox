@@ -4,7 +4,7 @@ import {CreateMessageFormData} from "../types";
 import {validateMessageText} from "../validation";
 import {ChatStore} from "../../Chat";
 import {FormErrors} from "../../utils/types";
-import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
+import {ApiError, ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {Routes} from "../../router";
 
@@ -32,6 +32,9 @@ export class CreateMessageStore {
 
     @observable
     emojiPickerExpanded: boolean = false;
+
+    @observable
+    userId?: string = undefined;
 
     @computed
     get selectedChatId(): string | undefined {
@@ -74,6 +77,11 @@ export class CreateMessageStore {
     }
 
     @action
+    setUserId = (userId?: string): void => {
+        this.userId = userId;
+    }
+
+    @action
     setReferredMessageId = (referredMessageId?: string): void => {
         this.referredMessageId = referredMessageId;
     }
@@ -105,46 +113,78 @@ export class CreateMessageStore {
 
     @action
     createMessage = (): void => {
+        if (!this.selectedChatId ) {
+            if (!this.userId) {
+                return;
+            }
+        }
+
+        if (!this.validateForm()) {
+            return;
+        }
+
+        this.pending = true;
+        this.submissionError = undefined;
+
         if (this.selectedChatId) {
             const chatId = this.selectedChatId;
-            this.validateForm().then(formValid => {
-                if (formValid) {
-                    this.pending = true;
-                    this.submissionError = undefined;
+            MessageApi.createMessage(chatId, {
+                text: this.createMessageForm.text,
+                referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined,
+                uploadAttachments: this.attachmentsIds,
+                scheduledAt: this.createMessageForm.scheduledAt ? this.createMessageForm.scheduledAt.toISOString() : undefined
+            })
+                .then(({data}) => {
+                    if (!this.createMessageForm.scheduledAt) {
+                        this.entitiesStore.insertMessage(data);
+                    } else {
+                        if (this.routerStore && this.routerStore.router && this.routerStore.router.goTo) {
+                            const chat = this.entitiesStore.chats.findById(chatId);
+                            this.routerStore.router.goTo(Routes.scheduledMessagesPage, {
+                                slug: chat.slug ? chat.slug : chatId
+                            });
+                        }
+                    }
 
-                    MessageApi.createMessage(chatId, {
-                        text: this.createMessageForm.text,
-                        referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined,
-                        uploadAttachments: this.attachmentsIds,
-                        scheduledAt: this.createMessageForm.scheduledAt ? this.createMessageForm.scheduledAt.toISOString() : undefined
-                    })
-                        .then(({data}) => {
-                            if (!this.createMessageForm.scheduledAt) {
-                                this.entitiesStore.insertMessage(data);
-                            } else {
-                                if (this.routerStore && this.routerStore.router && this.routerStore.router.goTo) {
-                                    const chat = this.entitiesStore.chats.findById(chatId);
-                                    this.routerStore.router.goTo(Routes.scheduledMessagesPage, {
-                                        slug: chat.slug ? chat.slug : chatId
-                                    });
-                                }
-                            }
-
-                            this.resetForm();
-                        })
-                        .catch(error => this.submissionError = getInitialApiErrorFromResponse(error))
-                        .finally(() => this.pending = false)
+                    this.resetForm();
+                })
+                .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
+                .finally(() => runInAction(() => this.pending = false))
+        } else if (this.userId) {
+            const userId = this.userId;
+            ChatApi.startPrivateChat({
+                userId,
+                message: {
+                    text: this.createMessageForm.text,
+                    referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined,
+                    uploadAttachments: this.attachmentsIds,
+                    scheduledAt: this.createMessageForm.scheduledAt ? this.createMessageForm.scheduledAt.toISOString() : undefined
                 }
             })
+                .then(({data}) => {
+                    this.entitiesStore.insertChat(data);
+
+                    if (this.routerStore && this.routerStore.router.goTo) {
+                        this.routerStore.router.goTo(Routes.chatPage, {
+                            slug: data.id
+                        }, {}, {});
+                    }
+                })
+                .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
+                .finally(() => runInAction(() => this.pending = false))
         }
     }
 
     @action
-    validateForm = (): Promise<boolean> => {
-        return new Promise<boolean>(resolve => {
-            this.formErrors.text = validateMessageText(this.createMessageForm.text, {acceptEmpty: this.attachmentsIds.length !== 0});
-            resolve(!Boolean(this.formErrors.text));
-        });
+    validateForm = (): boolean => {
+        this.formErrors = {
+            ...this.formErrors,
+            text: validateMessageText(this.createMessageForm.text, {
+                acceptEmpty: this.attachmentsIds.length !== 0
+            })
+        };
+
+        return !this.formErrors.text;
     }
 
     @action

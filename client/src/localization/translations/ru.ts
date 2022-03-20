@@ -456,5 +456,16 @@ export const ru: Labels = {
     "username.empty": "Имя пользователя не должно быть пустым",
     "username.has-already-been-taken": "Имя пользователя уже используется",
     "username.too-long": "Имя пользователя слишком длинное",
-    "username.too-short": "Имя пользователя слишком короткое"
+    "username.too-short": "Имя пользователя слишком короткое",
+    "message.list": "Сообщения",
+    "blacklist.users": "Заблокированные пользователи",
+    "blacklist.users.add": "Заблокировать пользователя",
+    "blacklist.users.add.success": "Пользователь {username} был заблокирован",
+    "blacklist.users.add.error": "Не удалось заблокировать пользователя, сервер ответил со статусом {errorStatus}",
+    "blacklist.users.remove": "Разблокировать пользователя",
+    "blacklist.users.remove.success": "Пользователь {username} был разблокирован",
+    "blacklist.users.remove.error": "Не удалось разблокировать пользователя, сервер ответил со статусом {errorStatus}",
+    "common.error.server-unreachable": "Сервер недоступен",
+    "common.retry": "Повторить",
+    "blacklist.users.error": "Не удалось загрузить список заблокированных пользователей, сервер ответил со статусом {errorStatus}"
 };

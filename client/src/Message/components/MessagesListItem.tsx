@@ -148,7 +148,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     withOneImage: {
         [theme.breakpoints.up("lg")]: {
-            width: "50% !important"
+            width: "30% !important"
         },
         [theme.breakpoints.down("md")]: {
             width: "70% !important"
@@ -252,7 +252,6 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
     const sentByCurrentUser = currentUser && currentUser.id === sender.id;
     const containsCode = message.text.includes("`");
-    const hasOneImage = message.uploads.length === 1;
     const withAudio = message.audios.length !== 0;
 
     const cardClasses = clsx({
@@ -260,7 +259,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         [classes.messageCard]: !fullWidth,
         [classes.messageOfCurrentUserCard]: sentByCurrentUser,
         [classes.withCode]: containsCode,
-        [classes.withOneImage]: hasOneImage || withAudio,
+        [classes.withOneImage]: withAudio,
     });
     const wrapperClasses = clsx({
         [classes.messageListItemWrapper]: true,

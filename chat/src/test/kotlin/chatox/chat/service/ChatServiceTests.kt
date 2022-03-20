@@ -474,7 +474,8 @@ class ChatServiceTests {
             tags = chat.tags,
             slug = chat.slug,
             description = chat.description,
-            createdByCurrentUser = false
+            createdByCurrentUser = false,
+            type = chat.type
     )
 
     private fun <T>toUploadResponse(upload: Upload<T>) = UploadResponse(

@@ -454,5 +454,16 @@ export interface Labels {
     "username.empty": string,
     "username.has-already-been-taken": string
     "username.too-long": string,
-    "username.too-short": string
+    "username.too-short": string,
+    "message.list": string,
+    "blacklist.users": string,
+    "blacklist.users.add": string,
+    "blacklist.users.add.success": string,
+    "blacklist.users.add.error": string,
+    "blacklist.users.remove": string,
+    "blacklist.users.remove.success": string,
+    "blacklist.users.remove.error": string,
+    "common.error.server-unreachable": string,
+    "common.retry": string,
+    "blacklist.users.error": string
 }

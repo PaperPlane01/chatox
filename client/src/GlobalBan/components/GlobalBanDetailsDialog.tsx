@@ -18,7 +18,7 @@ import {format} from "date-fns";
 import {GlobalBanMenu} from "./GlobalBanMenu";
 import {isGlobalBanActive} from "../utils";
 import {useLocalization, useStore} from "../../store";
-import {getUserDisplayedName} from "../../User/utils/get-user-displayed-name";
+import {getUserDisplayedName} from "../../User/utils/labels";
 import {UserLink} from "../../UserLink";
 import {Labels} from "../../localization";
 

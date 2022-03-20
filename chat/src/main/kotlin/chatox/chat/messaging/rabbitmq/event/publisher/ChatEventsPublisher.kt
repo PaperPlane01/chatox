@@ -3,6 +3,7 @@ package chatox.chat.messaging.rabbitmq.event.publisher
 import chatox.chat.api.response.ChatBlockingResponse
 import chatox.chat.api.response.ChatParticipationResponse
 import chatox.chat.api.response.MessageResponse
+import chatox.chat.messaging.rabbitmq.event.PrivateChatCreated
 import chatox.chat.messaging.rabbitmq.event.ChatDeleted
 import chatox.chat.messaging.rabbitmq.event.ChatParticipationDeleted
 import chatox.chat.messaging.rabbitmq.event.ChatUpdated
@@ -90,6 +91,12 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.events",
             "chat.participants.offline.#",
             chatParticipants
+    )
+
+    fun privateChatCreated(privateChatCreated: PrivateChatCreated) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.private.created.#",
+            privateChatCreated
     )
 
     fun chatUpdated(chatUpdated: ChatUpdated) = rabbitTemplate.convertAndSend(

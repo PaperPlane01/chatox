@@ -4,9 +4,11 @@ import chatox.chat.model.Chat
 import chatox.chat.model.ChatBlocking
 import chatox.chat.model.Message
 import chatox.chat.model.User
+import chatox.chat.model.UserBlacklistItem
 import chatox.chat.repository.ChatBlockingRepository
 import chatox.chat.repository.ChatRepository
 import chatox.chat.repository.MessageRepository
+import chatox.chat.repository.UserBlacklistItemRepository
 import chatox.chat.repository.UserRepository
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
@@ -40,6 +42,12 @@ class CacheWrappersConfig {
     @Autowired
     private lateinit var messageCacheService: ReactiveCacheService<Message, String>
 
+    @Autowired
+    private lateinit var userBlacklistItemRepository: UserBlacklistItemRepository
+
+    @Autowired
+    private lateinit var userBlacklistItemCacheService: ReactiveCacheService<UserBlacklistItem, String>
+
     @Bean
     fun chatCacheWrapper() = ReactiveRepositoryCacheWrapper(chatCacheService, chatRepository)
 
@@ -51,4 +59,7 @@ class CacheWrappersConfig {
 
     @Bean
     fun messageCacheWrapper() = ReactiveRepositoryCacheWrapper(messageCacheService, messageRepository)
+
+    @Bean
+    fun userBlacklistItemCacheWrapper() = ReactiveRepositoryCacheWrapper(userBlacklistItemCacheService, userBlacklistItemRepository)
 }

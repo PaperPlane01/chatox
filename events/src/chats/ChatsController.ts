@@ -1,13 +1,15 @@
-import {Injectable} from "@nestjs/common";
+import {forwardRef, Inject, Injectable} from "@nestjs/common";
 import {RabbitSubscribe} from "@nestjs-plus/rabbitmq";
+import {ChatsService} from "./ChatsService";
 import {WebsocketEventsPublisher} from "../websocket";
 import {Chat} from "../common/types";
-import {ChatDeleted} from "../common/types/events";
+import {ChatDeleted, PrivateChatCreated} from "../common/types/events";
 import {config} from "../env-config";
 
 @Injectable()
 export class ChatsController {
-    constructor(private readonly websocketEventsPublisher: WebsocketEventsPublisher) {}
+    constructor(@Inject(forwardRef(() => WebsocketEventsPublisher)) private readonly websocketEventsPublisher: WebsocketEventsPublisher,
+                private readonly chatsService: ChatsService) {}
 
     @RabbitSubscribe({
         exchange: "chat.events",
@@ -25,5 +27,16 @@ export class ChatsController {
     })
     public async onChatDeleted(chatDeleted: ChatDeleted): Promise<void> {
         await this.websocketEventsPublisher.publishChatDeleted(chatDeleted);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        routingKey: "chat.private.created.#",
+        queue: `events_service_private_chat_created-${config.EVENTS_SERVICE_PORT}`
+    })
+    public async onPrivateChatCreated(privateChatCreated: PrivateChatCreated): Promise<void> {
+        console.log(privateChatCreated);
+        await this.chatsService.savePrivateChat(privateChatCreated);
+        await this.websocketEventsPublisher.publishPrivateChatCreated(privateChatCreated);
     }
 }

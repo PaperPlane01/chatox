@@ -16,7 +16,7 @@ import {
 import {DateTimePicker} from "@material-ui/pickers";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import randomColor from "randomcolor";
-import {getUserAvatarLabel} from "../../User/utils/get-user-avatar-label";
+import {getUserAvatarLabel} from "../../User/utils/labels";
 import {Avatar} from "../../Avatar/components";
 import {TranslationFunction} from "../../localization/types";
 import {useLocalization, useStore} from "../../store";

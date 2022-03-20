@@ -1,14 +1,17 @@
-import React, {FunctionComponent, ReactNode} from "react";
+import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardHeader, CircularProgress, createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
-import {format, formatDistanceStrict, isSameDay, isSameYear, Locale} from "date-fns";
+import {format} from "date-fns";
 import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
 import {UserMenu} from "./UserMenu";
+import {DialogWithUserButton} from "./DialogWithUserButton";
+import {getDateOfBirthLabel, getOnlineOrLastSeenLabel} from "../utils/labels"
 import {Avatar} from "../../Avatar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
+import {HasAnyRole} from "../../Authorization";
 
 const breaks = require("remark-breaks");
 
@@ -37,31 +40,6 @@ const getErrorLabel = (apiError: ApiError, l: TranslationFunction): string => {
     } else return l("user.error.server-unreachable");
 };
 
-const getDateOfBirthLabel = (dateOfBirth: Date, dateFnsLocale: Locale): string => {
-    const dateLabel = format(dateOfBirth, "dd MMMM yyyy", {locale: dateFnsLocale});
-    const ageLabel = formatDistanceStrict(
-        dateOfBirth,
-        new Date(),
-        {
-            unit: "year",
-            locale: dateFnsLocale
-        }
-    );
-    return `${dateLabel} (${ageLabel})`;
-};
-
-const getLastSeenLabel = (lastSeen: Date, locale: Locale): string => {
-    const currentDate = new Date();
-
-    if (isSameDay(lastSeen, currentDate)) {
-        return format(lastSeen, "HH:mm", {locale});
-    } else if (isSameYear(lastSeen, currentDate)) {
-        return format(lastSeen, "d MMM HH:mm", {locale});
-    } else {
-        return format(lastSeen, "d MMM yyyy HH:mm", {locale});
-    }
-};
-
 export const UserProfileInfo: FunctionComponent = observer(() => {
     const {
         userProfile: {
@@ -87,23 +65,14 @@ export const UserProfileInfo: FunctionComponent = observer(() => {
         const avatarLetter = `${user.firstName[0]} ${user.lastName ? user.lastName[0] : ""}`;
         const color = randomColor({seed: user.id});
 
-        let onlineOrLastSeenLabel: ReactNode;
-
-        if (user.online) {
-            onlineOrLastSeenLabel = (
-                <Typography className={classes.onlineLabel}>
-                    {l("user.profile.online")}
-                </Typography>
-            )
-        } else if (user.lastSeen) {
-            onlineOrLastSeenLabel = (
-                <Typography>
-                    {l("user.profile.last-seen", {lastSeenLabel: getLastSeenLabel(user.lastSeen, dateFnsLocale)})}
-                </Typography>
-            )
-        } else {
-            onlineOrLastSeenLabel = null;
-        }
+        const onlineOrLastSeenLabel = getOnlineOrLastSeenLabel(
+            user,
+            dateFnsLocale,
+            l,
+            user.online
+                ? {className: classes.onlineLabel}
+                : undefined
+        );
 
         return (
             <div>
@@ -120,6 +89,9 @@ export const UserProfileInfo: FunctionComponent = observer(() => {
                                 action={<UserMenu userId={user.id}/>}
                     />
                 </Card>
+                <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
+                    <DialogWithUserButton/>
+                </HasAnyRole>
                 <Card className={classes.userInfoCard}>
                     {user.slug && user.slug !== user.id && (
                         <CardHeader title={

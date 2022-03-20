@@ -5,7 +5,7 @@ import {createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
 import {Avatar} from "../../Avatar";
 import {UserEntity} from "../../User/types";
 import {Routes} from "../../router";
-import {getUserAvatarLabel} from "../../User/utils/get-user-avatar-label";
+import {getUserAvatarLabel} from "../../User/utils/labels";
 import {useRouter} from "../../store";
 
 const {Link} = require("mobx-router");

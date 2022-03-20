@@ -35,3 +35,5 @@ export * from "./ReportTakenAction";
 export * from "./ChatWithCreatorId";
 export * from "./Sticker";
 export * from "./StickerPack";
+export * from "./ChatType";
+export * from "./BlacklistStatus";

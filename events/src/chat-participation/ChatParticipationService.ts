@@ -7,6 +7,12 @@ import {ChatParticipation, ChatParticipationDto, ChatRole} from "./types";
 export class ChatParticipationService {
     constructor(@InjectModel("chatParticipation") private readonly chatParticipationModel: Model<ChatParticipation>) {}
 
+    public async saveChatParticipations(chatParticipations: ChatParticipationDto[]): Promise<void> {
+        for (const chatParticipation of chatParticipations) {
+            await this.saveChatParticipation(chatParticipation);
+        }
+    }
+
     public async saveChatParticipation(createChatParticipationDto: ChatParticipationDto): Promise<void> {
         const chatParticipation = new this.chatParticipationModel({
             id: createChatParticipationDto.id,

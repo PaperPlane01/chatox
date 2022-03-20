@@ -20,7 +20,7 @@ data class CreateChatRequest(
 
         @field:Size(max = 25)
         @field:Pattern(regexp = "^[a-zA-Z0-9_.]+$")
-        @field:StringNotIn(["my", "popular"])
+        @field:StringNotIn(["my", "popular", "private"])
         val slug: String?
 ) {
         val name: String

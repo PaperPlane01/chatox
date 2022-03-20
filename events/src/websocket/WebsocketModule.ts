@@ -4,6 +4,7 @@ import {WebsocketController} from "./WebsocketController";
 import {RabbitMQConfigModule} from "../rabbitmq";
 import {WebsocketEventsPublisher} from "./WebsocketEventsPublisher";
 import {ChatParticipationModule} from "../chat-participation";
+import {ChatsModule} from "../chats";
 
 @Module({
     controllers: [WebsocketController],
@@ -11,9 +12,10 @@ import {ChatParticipationModule} from "../chat-participation";
     imports: [
         RabbitMQConfigModule,
         forwardRef(() => ChatParticipationModule),
+        forwardRef(() => ChatsModule),
         JwtModule.register({
             // TODO
-            // temporary workaround - should move to external file
+            // temporary workaround - should move to external file or env variable
             publicKey: `-----BEGIN CERTIFICATE-----
 MIIDdTCCAl2gAwIBAgIEaWzSsDANBgkqhkiG9w0BAQsFADBrMRAwDgYDVQQGEwdV
 bmtub3duMRAwDgYDVQQIEwdVbmtub3duMRAwDgYDVQQHEwdVbmtub3duMQ8wDQYD

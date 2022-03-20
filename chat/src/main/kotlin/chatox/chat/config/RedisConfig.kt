@@ -5,6 +5,8 @@ import chatox.chat.model.ChatBlocking
 import chatox.chat.model.Message
 import chatox.chat.model.Upload
 import chatox.chat.model.User
+import chatox.chat.model.UserBlacklistItem
+import chatox.chat.util.generateBlacklistItemCacheId
 import chatox.platform.cache.CacheKeyGenerator
 import chatox.platform.cache.DefaultCacheKeyGenerator
 import chatox.platform.cache.redis.RedisReactiveCacheService
@@ -60,6 +62,14 @@ class RedisConfig {
     ) { message -> message.id }
 
     @Bean
+    fun userBlackListItemCacheService() = RedisReactiveCacheService<UserBlacklistItem>(
+            userBlacklistItemRedisTemplate(),
+            cacheKeyGenerator(),
+            UserBlacklistItem::class.java,
+            ::generateBlacklistItemCacheId
+    )
+
+    @Bean
     fun cacheKeyGenerator() = DefaultCacheKeyGenerator(applicationName, CacheKeyGenerator.ClassKeyMode.SIMPLE)
 
     @Bean
@@ -76,6 +86,9 @@ class RedisConfig {
 
     @Bean
     fun uploadRedisTemplate() = createRedisTemplate(Upload::class)
+
+    @Bean
+    fun userBlacklistItemRedisTemplate() = createRedisTemplate(UserBlacklistItem::class)
 
     private fun <T: Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
         val stringRedisSerializer = StringRedisSerializer()

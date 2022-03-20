@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
+import {observer} from "mobx-react";
 import {Grid, Hidden} from "@material-ui/core";
 import {
-    ChatAppBar,
     ChatInfoContainer,
     ChatInfoDialog,
     ChatsOfCurrentUserList,
@@ -10,14 +10,15 @@ import {
     UpdateChatDialog,
     UpdateChatParticipantDialog
 } from "../Chat";
+import {ChatAppBar} from "../ChatAppBar";
 import {
     AttachedFilesDialog,
     MessageDialog,
     MessagesListWrapper,
     PinMessageSnackbarManager,
+    ScheduleMessageDialog,
     UnpinMessageSnackbarManager,
-    UpdateMessageDialog,
-    ScheduleMessageDialog
+    UpdateMessageDialog
 } from "../Message";
 import {
     BlockUserInChatByIdOrSlugDialog,
@@ -27,57 +28,72 @@ import {
     UpdateChatBlockingDialog
 } from "../ChatBlocking";
 import {BanUserGloballyDialog} from "../GlobalBan";
-import {ReportMessageDialog, ReportChatDialog} from "../Report";
+import {ReportChatDialog, ReportMessageDialog} from "../Report";
 import {StickerPackDialog} from "../Sticker";
+import {useStore} from "../store";
+import {ChatType} from "../api/types/response";
+import {toJS} from "mobx";
 
-export const ChatPage: FunctionComponent = () => (
-    <Fragment>
-        <Grid container>
-            <Grid item xs={12}>
-                <ChatAppBar/>
-            </Grid>
-            <Grid item xs={12}>
-                <Grid item xs={12}
-                      style={{display: "flex"}}
-                      justify="space-between"
-                >
-                    <Hidden mdDown>
-                        <ChatsOfCurrentUserList/>
-                    </Hidden>
-                    <Grid container>
-                        <Grid item xs={12} lg={9}>
-                            <MessagesListWrapper/>
-                        </Grid>
+export const ChatPage: FunctionComponent = observer(() => {
+    const {
+        chat: {
+            selectedChat
+        }
+    } = useStore();
+
+    console.log(toJS(selectedChat))
+
+    return (
+        <Fragment>
+            <Grid container>
+                <Grid item xs={12}>
+                    <ChatAppBar/>
+                </Grid>
+                <Grid item xs={12}>
+                    <Grid item xs={12}
+                          style={{display: "flex"}}
+                          justify="space-between"
+                    >
                         <Hidden mdDown>
-                            <Grid item lg={3}>
-                                <ChatInfoContainer/>
-                            </Grid>
+                            <ChatsOfCurrentUserList/>
                         </Hidden>
+                        <Grid container>
+                            <Grid item xs={12} lg={selectedChat && selectedChat.type === ChatType.DIALOG ? 12 : 9}>
+                                <MessagesListWrapper/>
+                            </Grid>
+                            {selectedChat && selectedChat.type !== ChatType.DIALOG && (
+                                <Hidden mdDown>
+                                    <Grid item lg={3}>
+                                        <ChatInfoContainer/>
+                                    </Grid>
+                                </Hidden>
+                            )}
+                        </Grid>
                     </Grid>
                 </Grid>
+                <CreateChatBlockingDialog/>
+                <ChatBlockingsDialog/>
+                <ChatBlockingInfoDialog/>
+                <UpdateChatBlockingDialog/>
+                <ChatInfoDialog/>
+                <BlockUserInChatByIdOrSlugDialog/>
+                <UpdateChatDialog/>
+                <MessageDialog/>
+                <UpdateMessageDialog/>
+                <AttachedFilesDialog/>
+                <ConfirmChatDeletionDialog/>
+                <SpecifyChatDeletionReasonDialog/>
+                <BanUserGloballyDialog/>
+                <UpdateChatParticipantDialog/>
+                <PinMessageSnackbarManager/>
+                <UnpinMessageSnackbarManager/>
+                <ScheduleMessageDialog/>
+                <ReportMessageDialog/>
+                <ReportChatDialog/>
+                <StickerPackDialog/>
             </Grid>
-            <CreateChatBlockingDialog/>
-            <ChatBlockingsDialog/>
-            <ChatBlockingInfoDialog/>
-            <UpdateChatBlockingDialog/>
-            <ChatInfoDialog/>
-            <BlockUserInChatByIdOrSlugDialog/>
-            <UpdateChatDialog/>
-            <MessageDialog/>
-            <UpdateMessageDialog/>
-            <AttachedFilesDialog/>
-            <ConfirmChatDeletionDialog/>
-            <SpecifyChatDeletionReasonDialog/>
-            <BanUserGloballyDialog/>
-            <UpdateChatParticipantDialog/>
-            <PinMessageSnackbarManager/>
-            <UnpinMessageSnackbarManager/>
-            <ScheduleMessageDialog/>
-            <ReportMessageDialog/>
-            <ReportChatDialog/>
-            <StickerPackDialog/>
-        </Grid>
-    </Fragment>
-);
+        </Fragment>
+    );
+});
 
 export default ChatPage;
