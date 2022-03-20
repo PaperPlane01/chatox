@@ -378,9 +378,13 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
                 val user = if (chat.type == ChatType.DIALOG) {
                     val chatParticipants = chatParticipationRepository.findByChatIdAndDeletedFalse(chat.id).collectList().awaitFirst()
-                    val otherUserId = chatParticipants.filter { chatParticipant -> chatParticipant.user.id != currentUser.id }[0].user.id
+                    val otherUserChatParticipation = chatParticipants.find { chatParticipant -> chatParticipant.user.id != currentUser.id }
 
-                    userCacheWrapper.findById(otherUserId).awaitFirst()
+                    if (otherUserChatParticipation != null) {
+                        userCacheWrapper.findById(otherUserChatParticipation.user.id).awaitFirst()
+                    } else {
+                        currentUser
+                    }
                 } else null
 
                 chatMapper.toChatOfCurrentUserResponse(
