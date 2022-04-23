@@ -8,6 +8,7 @@ import {ChatsPreferencesStore, ChatStore, ReverseScrollDirectionOption} from "..
 import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api";
 import {Message} from "../../api/types/response";
+import {SearchMessagesStore} from "./SearchMessagesStore";
 
 export class MessagesOfChatStore {
     @observable
@@ -30,7 +31,9 @@ export class MessagesOfChatStore {
     @computed
     get messagesOfChat(): string[] {
         if (this.selectedChatId) {
-            const messages = this.entities.chats.findById(this.selectedChatId).messages;
+            const messages = this.isInSearchMode
+                ? this.searchMessagesStore.foundMessagesIds
+                : this.entities.chats.findById(this.selectedChatId).messages;
             return messages.slice().sort(createSortMessages(
                 this.entities.messages.findById,
                 this.messagesListReverted
@@ -42,7 +45,13 @@ export class MessagesOfChatStore {
 
     @computed
     get firstMessage(): MessageEntity | undefined {
-        const messages = this.messagesOfChat;
+        if (!this.selectedChatId) {
+            return undefined;
+        }
+
+        const messages = this.isInSearchMode
+            ? this.entities.chats.findById(this.selectedChatId).messages
+            : this.messagesOfChat;
 
         if (messages.length !== 0) {
             if (this.messagesListReverted) {
@@ -57,7 +66,13 @@ export class MessagesOfChatStore {
 
     @computed
     get lastMessage(): MessageEntity | undefined {
-        const messages = this.messagesOfChat;
+        if (!this.selectedChatId) {
+            return undefined;
+        }
+
+        const messages = this.isInSearchMode
+            ? this.entities.chats.findById(this.selectedChatId).messages
+            : this.messagesOfChat;
 
         if (messages.length !== 0) {
             if (this.messagesListReverted) {
@@ -70,9 +85,15 @@ export class MessagesOfChatStore {
         return undefined;
     }
 
+    @computed
+    get isInSearchMode(): boolean {
+        return this.searchMessagesStore.query.trim().length !== 0;
+    }
+
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
-                private readonly chatPreferencesStore: ChatsPreferencesStore) {
+                private readonly chatPreferencesStore: ChatsPreferencesStore,
+                private readonly searchMessagesStore: SearchMessagesStore) {
         reaction(
             () => this.selectedChatId,
             () => this.fetchMessages({abortIfInitiallyFetched: true})
@@ -92,7 +113,7 @@ export class MessagesOfChatStore {
 
     @action
     fetchMessages = async (options: FetchOptions = {abortIfInitiallyFetched: false}): Promise<void> => {
-        if (!this.selectedChatId) {
+        if (!this.selectedChatId || this.isInSearchMode) {
             return;
         }
 
@@ -112,7 +133,6 @@ export class MessagesOfChatStore {
 
         let fetchMessageFunction: (...ars: any[]) => AxiosPromise<Message[]>;
         let beforeMessage: string | undefined = undefined;
-        const initialLength = this.messagesOfChat.length;
 
         if (this.getFetchingState(chatId).initiallyFetched && this.messagesOfChat.length !== 0) {
             fetchMessageFunction = MessageApi.getMessagesByChatBeforeMessage;

@@ -69,4 +69,8 @@ export class MessageApi {
     public static markMessageAsRead(chatId: string, messageId: string): AxiosPromise<void> {
         return axiosInstance.post(`/${CHATS}/${chatId}/${MESSAGES}/${messageId}/${READ}`);
     }
+
+    public static searchMessagesInChat(chatId: string, query: string): AxiosPromise<Message[]> {
+        return axiosInstance.get(`/${CHATS}/${chatId}/${MESSAGES}?query=${query}`);
+    }
 }

@@ -2,6 +2,7 @@ import React, {FunctionComponent, MouseEvent, ReactNode, useState} from "react";
 import {observer} from "mobx-react";
 import {Divider, IconButton, Menu} from "@material-ui/core";
 import {MoreVert} from "@material-ui/icons";
+import {SearchMessagesMenuItem} from "./SearchMessagesMenuItem";
 import {ChatBlockingsMenuItem} from "./ChatBlockingsMenuItem";
 import {BlockUserInChatByIdOrSlugMenuItem} from "./BlockUserInChatByIdOrSlugMenuItem";
 import {EditChatMenuItem} from "./EditChatMenuItem";
@@ -61,6 +62,7 @@ export const ChatMenu: FunctionComponent = observer(() => {
 
     const menuItems: ReactNode[] = [];
 
+    menuItems.push(<SearchMessagesMenuItem onClick={handleClose}/>);
     canUpdateChat(chat) && menuItems.push(<EditChatMenuItem onClick={handleClose}/>);
     canScheduleMessage(chatParticipation) && menuItems.push(<ScheduleMessageMenuItem onClick={handleClose}/>);
     canScheduleMessage(chatParticipation) && menuItems.push(<ShowScheduledMessagesMenuItem onClick={handleClose}/>);

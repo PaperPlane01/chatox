@@ -18,3 +18,5 @@ export * from "./UpdateScheduledMessageStore";
 export * from "./MessagesListScrollPositionsStore";
 export * from "./MarkMessageReadStore";
 export * from "./EmojiPickerTabsStore";
+export * from "./SearchMessagesStore";
+

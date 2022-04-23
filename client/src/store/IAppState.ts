@@ -43,7 +43,8 @@ import {
     UnpinMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
-    UploadMessageAttachmentsStore
+    UploadMessageAttachmentsStore,
+    SearchMessagesStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
@@ -203,5 +204,6 @@ export interface IAppState {
     blacklistedUsers: BlacklistedUsersStore,
     addUserToBlacklist: AddUserToBlacklistStore,
     removeUserFromBlacklist: RemoveUserFromBlacklistStore,
+    messagesSearch: SearchMessagesStore
     store?: any
 }

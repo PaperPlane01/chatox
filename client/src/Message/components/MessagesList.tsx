@@ -47,6 +47,7 @@ export const MessagesList: FunctionComponent = observer(() => {
             firstMessage,
             lastMessage,
             messagesListReverted,
+            isInSearchMode,
             fetchMessages
         },
         messageCreation: {
@@ -355,19 +356,24 @@ export const MessagesList: FunctionComponent = observer(() => {
                <div id="messagesList"
                     ref={messagesDivRef}
                >
-                   <Virtuoso totalCount={lastMessage && lastMessage.index}
+                   <Virtuoso totalCount={isInSearchMode ? messagesOfChat.length : (lastMessage && lastMessage.index)}
                              data={messagesOfChat}
                              itemContent={index => {
                                  let correctedIndex = messagesListReverted
-                                     ? lastMessage!.index - index + 1
+                                     ? (isInSearchMode ? messagesOfChat.length - index + 1 : lastMessage!.index - index + 1)
                                      : index;
 
-                                 if (index > lastMessage!.index || !selectedChat.indexToMessageMap[correctedIndex]) {
+                                 const messageId = isInSearchMode
+                                     ? messagesOfChat[correctedIndex]
+                                     : selectedChat.indexToMessageMap[correctedIndex]
+                                 console.log(messageId)
+
+                                 if (!messageId) {
                                      return <div style={{height: 1}}/>
                                  }
 
                                  return (
-                                     <MessagesListItem messageId={selectedChat.indexToMessageMap[correctedIndex]}
+                                     <MessagesListItem messageId={messageId}
                                                        inverted={reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE}
                                                        messagesListHeight={typeof styles.height === "number" ? styles.height : undefined}
                                      />
@@ -378,7 +384,7 @@ export const MessagesList: FunctionComponent = observer(() => {
                              ref={virtuosoRef}
                              computeItemKey={index => messagesOfChat[index]}
                              onScroll={(event: any) => handleDivScroll(event)}
-                             firstItemIndex={firstMessage && firstMessage.index}
+                             firstItemIndex={isInSearchMode ? 0 : (firstMessage && firstMessage.index)}
                              startReached={() => !messagesListReverted && fetchMessages()}
                              endReached={() => messagesListReverted && fetchMessages()}
                    />

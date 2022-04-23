@@ -62,7 +62,7 @@ import {
     PublishScheduledMessageStore,
     ScheduledMessagesOfChatStore,
     ScheduledMessagesStore,
-    ScheduleMessageStore,
+    ScheduleMessageStore, SearchMessagesStore,
     UnpinMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
@@ -183,7 +183,8 @@ const chatParticipants = new ChatParticipantsStore(entities, chat);
 const messageUploads = new UploadMessageAttachmentsStore();
 const messageCreation = new CreateMessageStore(chat, entities, messageUploads);
 const chatsPreferences = new ChatsPreferencesStore();
-const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences);
+const messagesSearch = new SearchMessagesStore(entities, chat);
+const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences, messagesSearch);
 const joinChat = new JoinChatStore(entities, authorization);
 const userProfile = new UserProfileStore(entities);
 const createChatBlocking = new CreateChatBlockingStore(chat, entities);
@@ -385,5 +386,6 @@ export const store: IAppState = {
     emojiPickerTabs,
     blacklistedUsers,
     addUserToBlacklist,
-    removeUserFromBlacklist
+    removeUserFromBlacklist,
+    messagesSearch
 };
