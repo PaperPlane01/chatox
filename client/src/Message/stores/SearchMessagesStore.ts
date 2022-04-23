@@ -67,5 +67,6 @@ export class SearchMessagesStore {
     reset = (): void => {
         this.setQuery("");
         this.setShowInput(false);
+        this.foundMessagesIds = [];
     }
 }
