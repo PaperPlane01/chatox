@@ -1,14 +1,20 @@
-package chatox.chat.model
+package chatox.chat.model.mongodb
 
+import chatox.chat.model.EmojiInfo
+import chatox.chat.model.Sticker
+import chatox.chat.model.Upload
+import chatox.chat.model.elasticsearch.MessageElasticsearch
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
 
 @Document
-data class Message(
+@org.springframework.data.elasticsearch.annotations.Document(indexName = "message")
+data class MessageMongoDB(
         @Id
         var id: String,
+
         var text: String,
 
         @Indexed
@@ -41,4 +47,6 @@ data class Message(
         var index: Long = 0L,
 
         var sticker: Sticker<Any>? = null
-)
+) {
+        fun toElasticsearch() = MessageElasticsearch(id, text, referredMessageId, senderId, chatId, createdAt, updatedAt, deleted, deletedAt, deletedById, uploadAttachmentsIds, attachments, emoji, pinned, pinnedById, pinnedAt, fromScheduled, index, sticker)
+}
