@@ -28,18 +28,13 @@ const useClasses = makeStyles(() => createStyles({
 export const ChatAppBarSearchInput: FunctionComponent = observer(() => {
     const {
         messagesSearch: {
-            setShowInput,
             query,
-            setQuery
+            setQuery,
+            reset
         }
     } = useStore();
     const {l} = useLocalization();
     const classes = useClasses();
-
-    const exitInputMode = () => {
-        setShowInput(false);
-        setQuery("");
-    }
 
     return (
         <TextField placeholder={l("common.search")}
@@ -56,7 +51,7 @@ export const ChatAppBarSearchInput: FunctionComponent = observer(() => {
                        ),
                        endAdornment: (
                            <InputAdornment position="end">
-                               <IconButton onClick={exitInputMode}
+                               <IconButton onClick={reset}
                                            color="inherit"
                                >
                                    <Close/>

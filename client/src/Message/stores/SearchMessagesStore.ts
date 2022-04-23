@@ -62,4 +62,10 @@ export class SearchMessagesStore {
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => this.pending = false);
     }
+
+    @action
+    reset = (): void => {
+        this.setQuery("");
+        this.setShowInput(false);
+    }
 }
