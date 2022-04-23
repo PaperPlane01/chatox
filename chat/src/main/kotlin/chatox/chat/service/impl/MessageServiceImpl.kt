@@ -27,16 +27,15 @@ import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Sticker
 import chatox.chat.model.Upload
 import chatox.chat.model.User
-import chatox.chat.repository.ChatMessagesCounterRepository
-import chatox.chat.repository.ChatParticipationRepository
-import chatox.chat.repository.ChatUploadAttachmentRepository
-import chatox.chat.repository.MessageReadRepository
-import chatox.chat.repository.MessageRepository
-import chatox.chat.repository.ScheduledMessageRepository
-import chatox.chat.repository.StickerRepository
-import chatox.chat.repository.UploadRepository
+import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
+import chatox.chat.repository.mongodb.ChatParticipationRepository
+import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
+import chatox.chat.repository.mongodb.MessageMongoRepository
+import chatox.chat.repository.mongodb.MessageReadRepository
+import chatox.chat.repository.mongodb.ScheduledMessageRepository
+import chatox.chat.repository.mongodb.StickerRepository
+import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.security.AuthenticationFacade
-import chatox.chat.security.access.MessagePermissions
 import chatox.chat.service.EmojiParserService
 import chatox.chat.service.MessageService
 import chatox.chat.util.NTuple6
@@ -48,8 +47,6 @@ import chatox.platform.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
@@ -61,7 +58,7 @@ import java.util.UUID
 @Transactional
 @LogExecution
 class MessageServiceImpl(
-        private val messageRepository: MessageRepository,
+        private val messageRepository: MessageMongoRepository,
         private val messageReadRepository: MessageReadRepository,
         private val chatParticipationRepository: ChatParticipationRepository,
         private val uploadRepository: UploadRepository,
@@ -73,18 +70,11 @@ class MessageServiceImpl(
         private val emojiParserService: EmojiParserService,
         private val messageCacheService: ReactiveCacheService<Message, String>,
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
-        private val messageMapper: MessageMapper,
-        private val chatEventsPublisher: ChatEventsPublisher) : MessageService {
+        private val chatEventsPublisher: ChatEventsPublisher,
+        private val messageMapper: MessageMapper) : MessageService {
 
     private companion object {
         const val ALLOWED_NUMBER_OF_SCHEDULED_MESSAGES = 50
-    }
-
-    private lateinit var messagePermissions: MessagePermissions
-
-    @Autowired
-    fun setMessagePermissions(messagePermissions: MessagePermissions) {
-        this.messagePermissions = messagePermissions
     }
 
     override fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse> {
@@ -157,8 +147,6 @@ class MessageServiceImpl(
 
     private fun createScheduledMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: User): Mono<MessageResponse> {
         return mono {
-            assertCanCreateScheduledMessage(chatId).awaitFirst()
-
             val chat = findChatById(chatId).awaitFirst()
             val numberOfScheduledMessagesInChat = scheduledMessageRepository.countByChatId(chat.id).awaitFirst()
 
@@ -306,16 +294,6 @@ class MessageServiceImpl(
         }
     }
 
-    private fun assertCanCreateScheduledMessage(chatId: String): Mono<Boolean> {
-        return mono {
-            if (!messagePermissions.canScheduleMessage(chatId).awaitFirst()) {
-                throw AccessDeniedException("Cannot create scheduled message")
-            }
-
-            return@mono true
-        }
-    }
-
     override fun updateMessage(id: String, chatId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
         return mono {
             var message = findMessageEntityById(id).awaitFirst()
@@ -460,7 +438,7 @@ class MessageServiceImpl(
                 .flatMapMany { it }
     }
 
-    private fun mapMessages(messages: Flux<Message>, hasAnyReadMessages: Boolean, currentUser: User, chat: Chat): Flux<MessageResponse> {
+    protected fun mapMessages(messages: Flux<Message>, hasAnyReadMessages: Boolean, currentUser: User, chat: Chat): Flux<MessageResponse> {
         return mono {
 
             return@mono if (hasAnyReadMessages) {
@@ -469,39 +447,12 @@ class MessageServiceImpl(
                         chatId = chat.id
                 )
                         .awaitFirst()
-                mapMessages(messages, lastMessageRead)
+                messageMapper.mapMessages(messages, lastMessageRead)
             } else {
-                mapMessages(messages)
+                messageMapper.mapMessages(messages)
             }
         }
                 .flatMapMany { it }
-    }
-
-    private fun mapMessages(messages: Flux<Message>, lastMessageRead: MessageRead? = null): Flux<MessageResponse> {
-        val localUsersCache = HashMap<String, UserResponse>()
-        val localReferredMessagesCache = HashMap<String, MessageResponse>()
-
-        if (lastMessageRead != null) {
-            return messages.flatMap { message -> messageMapper.toMessageResponse(
-                    message = message,
-                    readByCurrentUser = isDateBeforeOrEquals(
-                            dateToCheck = message.createdAt,
-                            dateToCompareWith = lastMessageRead.date
-                    ),
-                    mapReferredMessage = true,
-                    localUsersCache = localUsersCache,
-                    localReferredMessagesCache = localReferredMessagesCache
-            ) }
-
-        } else {
-            return messages.flatMap { message -> messageMapper.toMessageResponse(
-                    message = message,
-                    readByCurrentUser = false,
-                    mapReferredMessage = true,
-                    localReferredMessagesCache = localReferredMessagesCache,
-                    localUsersCache = localUsersCache
-            ) }
-        }
     }
 
     override fun markMessageRead(messageId: String): Mono<Void> {
@@ -624,8 +575,6 @@ class MessageServiceImpl(
 
     override fun findScheduledMessagesByChat(chatId: String): Flux<MessageResponse> {
         return mono {
-            assertCanSeeScheduledMessages(chatId).awaitFirst()
-
             val scheduledMessages = scheduledMessageRepository.findByChatId(chatId)
 
             val localUsersCache = HashMap<String, UserResponse>()
@@ -644,8 +593,6 @@ class MessageServiceImpl(
 
     override fun publishScheduledMessage(chatId: String, messageId: String): Mono<MessageResponse> {
         return mono {
-            assertCanCreateScheduledMessage(chatId).awaitFirst()
-
             val scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
 
             return@mono publishScheduledMessageInternal(
@@ -706,16 +653,6 @@ class MessageServiceImpl(
         }
     }
 
-    private fun assertCanSeeScheduledMessages(chatId: String): Mono<Boolean> {
-        return mono {
-            if (!messagePermissions.canSeeScheduledMessages(chatId).awaitFirst()) {
-                throw AccessDeniedException("Can't see scheduled messages in this chat")
-            }
-
-            return@mono true
-        }
-    }
-
     private fun findChatById(chatId: String): Mono<Chat> {
         return mono {
             val chat = chatCacheWrapper.findById(chatId).awaitFirstOrNull()
@@ -754,8 +691,6 @@ class MessageServiceImpl(
 
     override fun deleteScheduledMessage(chatId: String, messageId: String): Mono<Void> {
         return mono {
-            assertCanCreateScheduledMessage(chatId).awaitFirst()
-
             val scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
 
             scheduledMessageRepository.delete(scheduledMessage).awaitFirstOrNull()
@@ -768,8 +703,6 @@ class MessageServiceImpl(
 
     override fun updateScheduledMessage(chatId: String, messageId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
         return mono {
-            assertCanUpdateScheduledMessage(messageId = messageId, chatId = chatId).awaitFirst()
-
             val chat = findChatById(chatId).awaitFirst()
 
             if (chat.deleted) {
@@ -825,16 +758,6 @@ class MessageServiceImpl(
             return@mono Mono.empty<Void>()
         }
                 .flatMap { it }
-    }
-
-    private fun assertCanUpdateScheduledMessage(messageId: String, chatId: String): Mono<Boolean> {
-        return mono {
-            if (messagePermissions.canUpdateScheduledMessage(messageId = messageId, chatId = chatId).awaitFirst()) {
-                return@mono true
-            }
-
-            throw AccessDeniedException("Cannot update scheduled message")
-        }
     }
 
     private fun findScheduledMessageEntityById(messageId: String): Mono<ScheduledMessage> {

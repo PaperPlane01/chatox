@@ -1,8 +1,8 @@
-package chatox.chat.repository.custom.impl
+package chatox.chat.repository.mongodb.custom.impl
 
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatMessagesCounter
-import chatox.chat.repository.custom.ChatMessagesCounterCustomRepository
+import chatox.chat.repository.mongodb.custom.ChatMessagesCounterCustomRepository
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.springframework.data.mongodb.core.FindAndModifyOptions

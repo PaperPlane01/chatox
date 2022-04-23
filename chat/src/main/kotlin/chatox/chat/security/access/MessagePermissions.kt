@@ -1,10 +1,12 @@
 package chatox.chat.security.access
 
+import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.model.ChatRole
-import chatox.chat.model.User
+import chatox.chat.model.ChatType
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatParticipationService
+import chatox.chat.service.ChatService
 import chatox.chat.service.MessageService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -20,13 +22,19 @@ class MessagePermissions(private val chatParticipationService: ChatParticipation
                          private val authenticationFacade: AuthenticationFacade) {
 
     private lateinit var messageService: MessageService
+    private lateinit var chatService: ChatService
 
     @Autowired
     fun setMessageService(messageService: MessageService) {
         this.messageService = messageService
     }
 
-    fun canCreateMessage(chatId: String): Mono<Boolean> {
+    @Autowired
+    fun setChatService(chatService: ChatService) {
+        this.chatService = chatService
+    }
+
+    fun canCreateMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<Boolean> {
         return mono {
             val currentUserDetails = authenticationFacade.getCurrentUserDetails().awaitFirst()
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
@@ -34,10 +42,14 @@ class MessagePermissions(private val chatParticipationService: ChatParticipation
                     .awaitFirstOrNull()
 
             if (chatParticipation == null) {
-                false
+                return@mono false
             } else {
-                (chatParticipation.role == ChatRole.MODERATOR || chatParticipation.role == ChatRole.ADMIN || chatParticipation.activeChatBlocking == null)
-                        && !currentUserDetails.isBannedGlobally()
+                if (createMessageRequest.scheduledAt != null) {
+                    return@mono canScheduleMessage(chatId).awaitFirst()
+                } else {
+                    return@mono (chatParticipation.role == ChatRole.MODERATOR || chatParticipation.role == ChatRole.ADMIN || chatParticipation.activeChatBlocking == null)
+                            && !currentUserDetails.isBannedGlobally()
+                }
             }
         }
     }
@@ -131,6 +143,21 @@ class MessagePermissions(private val chatParticipationService: ChatParticipation
             val message = messageService.findScheduledMessageById(messageId).awaitFirst()
 
             return@mono message.chatId == chatId && chatParticipation.role === ChatRole.ADMIN && !currentUserDetails.isBannedGlobally()
+        }
+    }
+
+    fun canReadMessages(chatId: String): Mono<Boolean> {
+        return mono{
+            val chat = chatService.findChatById(chatId).awaitFirst()
+
+            if (chat.type == ChatType.GROUP) {
+                return@mono true
+            } else {
+                val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirstOrNull() ?: return@mono false
+                val userRoleInChat = chatParticipationService.getRoleOfUserInChat(chatId,  currentUser.id).awaitFirst()
+
+                return@mono userRoleInChat != ChatRole.NOT_PARTICIPANT
+            }
         }
     }
 }

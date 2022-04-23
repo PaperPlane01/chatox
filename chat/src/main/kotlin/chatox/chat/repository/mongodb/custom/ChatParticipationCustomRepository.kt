@@ -1,4 +1,4 @@
-package chatox.chat.repository.custom
+package chatox.chat.repository.mongodb.custom
 
 import chatox.chat.model.User
 import com.mongodb.client.result.UpdateResult

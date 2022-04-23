@@ -1,6 +1,5 @@
-package chatox.chat.repository
+package chatox.chat.repository.mongodb
 
-import chatox.chat.model.Chat
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.UploadType
 import org.springframework.data.domain.Pageable

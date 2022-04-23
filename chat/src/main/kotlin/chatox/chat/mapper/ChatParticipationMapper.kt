@@ -5,7 +5,7 @@ import chatox.chat.api.response.ChatBlockingResponse
 import chatox.chat.api.response.ChatParticipationMinifiedResponse
 import chatox.chat.api.response.ChatParticipationResponse
 import chatox.chat.model.ChatParticipation
-import chatox.chat.repository.ChatParticipationRepository
+import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.service.ChatBlockingService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono

@@ -1,8 +1,8 @@
-package chatox.chat.repository
+package chatox.chat.repository.mongodb
 
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatType
-import chatox.chat.repository.custom.ChatCustomRepository
+import chatox.chat.repository.mongodb.custom.ChatCustomRepository
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository

@@ -1,7 +1,7 @@
 package chatox.chat.messaging.rabbitmq.event.listener
 
 import chatox.chat.api.response.MessageResponse
-import chatox.chat.repository.ChatRepository
+import chatox.chat.repository.mongodb.ChatRepository
 import com.rabbitmq.client.Channel
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono

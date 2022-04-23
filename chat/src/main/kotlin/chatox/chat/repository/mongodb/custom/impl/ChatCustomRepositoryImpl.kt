@@ -1,7 +1,7 @@
-package chatox.chat.repository.custom.impl
+package chatox.chat.repository.mongodb.custom.impl
 
 import chatox.chat.model.Chat
-import chatox.chat.repository.custom.ChatCustomRepository
+import chatox.chat.repository.mongodb.custom.ChatCustomRepository
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query

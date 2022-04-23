@@ -1,4 +1,4 @@
-package chatox.chat.repository
+package chatox.chat.repository.mongodb
 
 import chatox.chat.model.ChatBlocking
 import org.springframework.data.domain.Pageable
@@ -7,7 +7,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 
-interface ChatBlockingRepository : ReactiveMongoRepository<ChatBlocking, String> {
+interface ChatBlockingMongoRepository : ReactiveMongoRepository<ChatBlocking, String> {
     fun save(chatBlocking: ChatBlocking): Mono<ChatBlocking>
     override fun findById(id: String): Mono<ChatBlocking>
     fun findByChatIdAndBlockedUntilAfterAndCanceled(chatId: String, date: ZonedDateTime, canceled: Boolean, pageable: Pageable): Flux<ChatBlocking>

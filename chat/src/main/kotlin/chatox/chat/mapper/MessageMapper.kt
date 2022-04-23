@@ -7,15 +7,18 @@ import chatox.chat.api.response.UserResponse
 import chatox.chat.model.Chat
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
+import chatox.chat.model.MessageRead
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Sticker
 import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.chat.service.UserService
+import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -26,6 +29,33 @@ class MessageMapper(private val userService: UserService,
                     private val uploadMapper: UploadMapper,
                     private val stickerMapper: StickerMapper,
                     private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>) {
+
+    fun mapMessages(messages: Flux<Message>, lastMessageRead: MessageRead? = null): Flux<MessageResponse> {
+        val localUsersCache = HashMap<String, UserResponse>()
+        val localReferredMessagesCache = HashMap<String, MessageResponse>()
+
+        if (lastMessageRead != null) {
+            return messages.flatMap { message -> toMessageResponse(
+                    message = message,
+                    readByCurrentUser = isDateBeforeOrEquals(
+                            dateToCheck = message.createdAt,
+                            dateToCompareWith = lastMessageRead.date
+                    ),
+                    mapReferredMessage = true,
+                    localUsersCache = localUsersCache,
+                    localReferredMessagesCache = localReferredMessagesCache
+            ) }
+
+        } else {
+            return messages.flatMap { message -> toMessageResponse(
+                    message = message,
+                    readByCurrentUser = false,
+                    mapReferredMessage = true,
+                    localReferredMessagesCache = localReferredMessagesCache,
+                    localUsersCache = localUsersCache
+            ) }
+        }
+    }
 
     fun toMessageResponse(
             message: Message,

@@ -34,11 +34,11 @@ import chatox.chat.model.Message
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
 import chatox.chat.model.User
-import chatox.chat.repository.ChatMessagesCounterRepository
-import chatox.chat.repository.ChatParticipationRepository
-import chatox.chat.repository.ChatRepository
-import chatox.chat.repository.MessageRepository
-import chatox.chat.repository.UploadRepository
+import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
+import chatox.chat.repository.mongodb.ChatParticipationRepository
+import chatox.chat.repository.mongodb.ChatRepository
+import chatox.chat.repository.mongodb.MessageMongoRepository
+import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatService
 import chatox.chat.service.MessageService
@@ -68,7 +68,7 @@ import java.util.UUID
 @LogExecution
 class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationRepository: ChatParticipationRepository,
-                      private val messageRepository: MessageRepository,
+                      private val messageRepository: MessageMongoRepository,
                       private val uploadRepository: UploadRepository,
                       private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
                       private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
@@ -441,7 +441,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
             var currentUserId: String? = null
 
-            if (currentUser != authenticationFacade.EMPTY_USER) {
+            if (currentUser != AuthenticationFacade.EMPTY_USER) {
                 currentUserId = currentUser.id
             }
 

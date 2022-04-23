@@ -1,4 +1,4 @@
-package chatox.chat.repository
+package chatox.chat.repository.mongodb
 
 import chatox.chat.model.Message
 import org.springframework.data.domain.Pageable
@@ -7,7 +7,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 
-interface MessageRepository : ReactiveMongoRepository<Message, String> {
+interface MessageMongoRepository : ReactiveMongoRepository<Message, String> {
     fun save(message: Message): Mono<Message>
     override fun findById(id: String): Mono<Message>
     fun findByChatId(chatId: String, pageable: Pageable): Flux<Message>

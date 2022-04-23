@@ -1,4 +1,4 @@
-package chatox.chat.repository
+package chatox.chat.repository.mongodb
 
 import chatox.chat.model.UserBlacklistItem
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository

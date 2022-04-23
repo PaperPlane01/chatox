@@ -3,7 +3,7 @@ package chatox.chat.messaging.rabbitmq.event.listener
 import chatox.chat.messaging.rabbitmq.event.UserAddedToBlacklist
 import chatox.chat.messaging.rabbitmq.event.UserRemovedFromBlacklist
 import chatox.chat.model.UserBlacklistItem
-import chatox.chat.repository.UserBlacklistItemRepository
+import chatox.chat.repository.mongodb.UserBlacklistItemRepository
 import chatox.platform.cache.ReactiveCacheService
 import com.rabbitmq.client.Channel
 import kotlinx.coroutines.reactive.awaitFirst

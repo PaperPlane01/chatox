@@ -1,7 +1,7 @@
 package chatox.chat.security
 
 import chatox.chat.model.User
-import chatox.chat.repository.UserRepository
+import chatox.chat.repository.mongodb.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Lazy
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
@@ -17,21 +17,23 @@ class AuthenticationFacade {
     @Autowired
     private lateinit var userRepository: UserRepository
 
-    val EMPTY_USER = User(
-            id = "EMPTY_ID",
-            firstName = "anon",
-            lastName = null,
-            slug = null,
-            avatarUri = null,
-            accountId = "",
-            deleted = true,
-            lastSeen = null,
-            bio = null,
-            createdAt = ZonedDateTime.now(),
-            dateOfBirth = null,
-            online = false,
-            email = null
-    )
+    companion object {
+        val EMPTY_USER = User(
+                id = "EMPTY_ID",
+                firstName = "anon",
+                lastName = null,
+                slug = null,
+                avatarUri = null,
+                accountId = "",
+                deleted = true,
+                lastSeen = null,
+                bio = null,
+                createdAt = ZonedDateTime.now(),
+                dateOfBirth = null,
+                online = false,
+                email = null
+        )
+    }
 
     fun getCurrentAuthentication() = ReactiveSecurityContextHolder.getContext()
             .map { it.authentication }
