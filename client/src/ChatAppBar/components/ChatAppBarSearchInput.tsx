@@ -19,6 +19,9 @@ const useClasses = makeStyles(() => createStyles({
         "&:hover": {
             borderBottomColor: "inherit"
         },
+        "&:hover:not(.Mui-Disabled):before": {
+            "borderBottomColor": "inherit"
+        },
         "&:after": {
             borderBottomColor: "inherit"
         }
