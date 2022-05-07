@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -36,7 +35,7 @@ class MessageSearchServiceImpl(private val messageElasticsearchRepository: Messa
                 pageable = paginationRequest.toPageRequest()
         )
 
-        return messageMapper.mapMessages(messages.map { message -> message.toMongoDB() })
+        return messageMapper.mapMessages(messages)
     }
 
     override fun searchMessagesInChatsOfCurrentUser(text: String, paginationRequest: PaginationRequest): Flux<MessageResponse> {
@@ -53,7 +52,7 @@ class MessageSearchServiceImpl(private val messageElasticsearchRepository: Messa
                     pageable = paginationRequest.toPageRequest()
             )
 
-            return@mono messageMapper.mapMessages(messages.map { message -> message.toMongoDB() })
+            return@mono messageMapper.mapMessages(messages)
         }
                 .flatMapMany { it }
     }

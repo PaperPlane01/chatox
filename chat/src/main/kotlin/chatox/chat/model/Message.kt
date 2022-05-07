@@ -9,40 +9,41 @@ import java.time.ZonedDateTime
 @Document
 data class Message(
         @Id
-        val id: String,
+        override val id: String,
 
-        val text: String,
-
-        @Indexed
-        val referredMessageId: String? = null,
+        override val text: String,
 
         @Indexed
-        val senderId: String,
+        override val referredMessageId: String? = null,
 
         @Indexed
-        val chatId: String,
-        val createdAt: ZonedDateTime,
-        val updatedAt: ZonedDateTime?,
-        val deleted: Boolean,
-        val deletedAt: ZonedDateTime?,
+        override val senderId: String,
 
         @Indexed
-        val deletedById: String? = null,
-
-        val uploadAttachmentsIds: List<String> = listOf(),
-        val attachments: List<Upload<Any>> = listOf(),
-        val emoji: EmojiInfo = EmojiInfo(),
-
-        @Indexed
-        val pinned: Boolean = false,
-        val pinnedById: String? = null,
-        val pinnedAt: ZonedDateTime? = null,
-        val fromScheduled: Boolean = false,
+        override val chatId: String,
+        override val createdAt: ZonedDateTime,
+        override val updatedAt: ZonedDateTime?,
+        override val deleted: Boolean,
+        override val deletedAt: ZonedDateTime?,
 
         @Indexed
-        val index: Long = 0L,
+        override val deletedById: String? = null,
 
-        val sticker: Sticker<Any>? = null
-) {
+        override val uploadAttachmentsIds: List<String> = listOf(),
+        override val attachments: List<Upload<Any>> = listOf(),
+        override val emoji: EmojiInfo = EmojiInfo(),
+
+        @Indexed
+        override val pinned: Boolean = false,
+        override val pinnedById: String? = null,
+        override val pinnedAt: ZonedDateTime? = null,
+        override val fromScheduled: Boolean = false,
+
+        @Indexed
+        override val index: Long = 0L,
+
+        override val sticker: Sticker<Any>? = null,
+        override val scheduledAt: ZonedDateTime? = null
+) : MessageInterface {
         fun toElasticsearch() = MessageElasticsearch(id, text, referredMessageId, senderId, chatId, createdAt, updatedAt, deleted, deletedAt, deletedById, uploadAttachmentsIds, attachments, emoji, pinned, pinnedById, pinnedAt, fromScheduled, index, sticker)
 }

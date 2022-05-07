@@ -7,6 +7,7 @@ import chatox.chat.api.response.UserResponse
 import chatox.chat.model.Chat
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
+import chatox.chat.model.MessageInterface
 import chatox.chat.model.MessageRead
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Sticker
@@ -30,7 +31,7 @@ class MessageMapper(private val userService: UserService,
                     private val stickerMapper: StickerMapper,
                     private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>) {
 
-    fun mapMessages(messages: Flux<Message>, lastMessageRead: MessageRead? = null): Flux<MessageResponse> {
+    fun <T: MessageInterface> mapMessages(messages: Flux<T>, lastMessageRead: MessageRead? = null): Flux<MessageResponse> {
         val localUsersCache = HashMap<String, UserResponse>()
         val localReferredMessagesCache = HashMap<String, MessageResponse>()
 
@@ -57,8 +58,8 @@ class MessageMapper(private val userService: UserService,
         }
     }
 
-    fun toMessageResponse(
-            message: Message,
+    fun <T: MessageInterface> toMessageResponse(
+            message: T,
             mapReferredMessage: Boolean,
             readByCurrentUser: Boolean,
             localReferredMessagesCache: MutableMap<String, MessageResponse>? = null,
@@ -128,73 +129,8 @@ class MessageMapper(private val userService: UserService,
                         stickerMapper.toStickerResponse(message.sticker!!)
                     } else {
                         null
-                    }
-            )
-        }
-    }
-
-    fun toMessageResponse(
-            message: ScheduledMessage,
-            mapReferredMessage: Boolean,
-            readByCurrentUser: Boolean,
-            localReferredMessagesCache: MutableMap<String, MessageResponse>? = null,
-            localUsersCache: MutableMap<String, UserResponse>? = null
-    ): Mono<MessageResponse> {
-        return mono {
-            var referredMessage: MessageResponse? = null
-
-            if (message.referredMessageId != null && mapReferredMessage) {
-                if (localReferredMessagesCache != null && localReferredMessagesCache[message.referredMessageId!!] != null) {
-                    referredMessage = localReferredMessagesCache[message.referredMessageId!!]!!
-                } else {
-                    val referredMessageEntity = messageCacheWrapper.findById(message.referredMessageId!!).awaitFirst()
-                    referredMessage = toMessageResponse(
-                            message = referredMessageEntity,
-                            localUsersCache = localUsersCache,
-                            localReferredMessagesCache = null,
-                            readByCurrentUser = readByCurrentUser,
-                            mapReferredMessage = false
-                    )
-                            .awaitFirst()
-
-                    if (localReferredMessagesCache != null) {
-                        localReferredMessagesCache[message.referredMessageId!!] = referredMessage
-                    }
-                }
-            }
-
-            val sender: UserResponse = if (localUsersCache != null && localUsersCache[message.senderId] != null) {
-                localUsersCache[message.senderId]!!
-            } else {
-                userService.findUserByIdAndPutInLocalCache(message.senderId, localUsersCache)
-                        .awaitFirst()
-            }
-
-            MessageResponse(
-                    id = message.id,
-                    deleted = message.deleted,
-                    createdAt = message.createdAt,
-                    sender = sender,
-                    text = message.text,
-                    readByCurrentUser = readByCurrentUser,
-                    referredMessage = referredMessage,
-                    updatedAt = message.updatedAt,
-                    chatId = message.chatId,
-                    emoji = message.emoji,
-                    attachments = message.attachments.map { attachment ->
-                        uploadMapper.toUploadResponse(
-                                attachment
-                        )
                     },
-                    pinnedAt = null,
-                    pinned = false,
-                    pinnedBy = null,
-                    scheduledAt = message.scheduledAt,
-                    sticker = if (message.sticker != null) {
-                        stickerMapper.toStickerResponse(message.sticker!!)
-                    } else {
-                        null
-                    }
+                    scheduledAt = message.scheduledAt
             )
         }
     }

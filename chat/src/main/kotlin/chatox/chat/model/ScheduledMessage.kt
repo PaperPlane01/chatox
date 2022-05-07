@@ -8,29 +8,34 @@ import java.time.ZonedDateTime
 @Document
 data class ScheduledMessage(
         @Id
-        var id: String,
-        var text: String,
+        override val id: String,
+        override val text: String,
 
         @Indexed
-        var referredMessageId: String? = null,
+        override val referredMessageId: String? = null,
 
         @Indexed
-        var senderId: String,
+        override val senderId: String,
 
         @Indexed
-        var chatId: String,
-        var createdAt: ZonedDateTime,
-        var updatedAt: ZonedDateTime?,
-        var deleted: Boolean,
-        var deletedAt: ZonedDateTime?,
+        override val chatId: String,
+        override val createdAt: ZonedDateTime,
+        override val updatedAt: ZonedDateTime?,
+        override val deleted: Boolean,
+        override val deletedAt: ZonedDateTime?,
 
         @Indexed
-        var deletedById: String? = null,
+        override val deletedById: String? = null,
 
-        var uploadAttachmentsIds: List<String> = listOf(),
-        var attachments: List<Upload<Any>> = listOf(),
-        var emoji: EmojiInfo = EmojiInfo(),
-        var scheduledAt: ZonedDateTime,
-        var numberOfFailedAttemptsToPublish: Int = 0,
-        var sticker: Sticker<Any>? = null
-)
+        override val uploadAttachmentsIds: List<String> = listOf(),
+        override val attachments: List<Upload<Any>> = listOf(),
+        override val emoji: EmojiInfo = EmojiInfo(),
+        override val scheduledAt: ZonedDateTime,
+        val numberOfFailedAttemptsToPublish: Int = 0,
+        override val sticker: Sticker<Any>? = null, 
+        override val pinned: Boolean = false,
+        override val pinnedById: String? = null,
+        override val pinnedAt: ZonedDateTime? = null,
+        override val fromScheduled: Boolean = true,
+        override val index: Long = -1
+) : MessageInterface 
