@@ -16,6 +16,7 @@ interface ChatRepository : ReactiveMongoRepository<Chat, String>, ChatCustomRepo
     fun existsBySlugOrId(slug: String, id: String): Mono<Boolean>
     fun findByIdEqualsOrSlugEquals(id: String, slug: String): Mono<Chat>
     fun findAllByDeletedFalseAndTypeIn(types: List<ChatType>, pageable: Pageable): Flux<Chat>
+    fun findByDialogDisplayOtherParticipantUserId(userId: String): Flux<Chat>
 
     @Query(
             "{\n" +

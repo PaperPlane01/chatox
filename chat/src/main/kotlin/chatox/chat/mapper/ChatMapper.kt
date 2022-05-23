@@ -8,6 +8,7 @@ import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.UserResponse
 import chatox.chat.messaging.rabbitmq.event.ChatUpdated
 import chatox.chat.model.Chat
+import chatox.chat.model.ChatInterface
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatType
 import chatox.chat.model.Message
@@ -26,7 +27,7 @@ class ChatMapper(
         private val uploadMapper: UploadMapper,
         private val userMapper: UserMapper
 ) {
-    fun toChatResponse(chat: Chat, user: User? = null) = ChatResponse(
+    fun toChatResponse(chat: ChatInterface, user: User? = null) = ChatResponse(
             id = chat.id,
             description = chat.description,
             name = chat.name,
@@ -40,7 +41,7 @@ class ChatMapper(
             type = chat.type
     )
 
-    fun toChatResponse(chat: Chat, currentUserId: String?, user: User? = null) = ChatResponse(
+    fun toChatResponse(chat: ChatInterface, currentUserId: String?, user: User? = null) = ChatResponse(
             id = chat.id,
             description = chat.description,
             name = chat.name,
@@ -56,7 +57,7 @@ class ChatMapper(
     )
 
     fun toChatOfCurrentUserResponse(
-            chat: Chat,
+            chat: ChatInterface,
             chatParticipation: ChatParticipation,
             lastMessage: Message?,
             lastReadMessage: Message?,
@@ -108,7 +109,7 @@ class ChatMapper(
     }
 
     fun toChatOfCurrentUserResponse(
-            chat: Chat,
+            chat: ChatInterface,
             chatParticipation: ChatParticipation,
             lastMessage: MessageResponse?,
             lastReadMessage: MessageResponse?,
@@ -136,7 +137,7 @@ class ChatMapper(
     }
 
     fun toChatOfCurrentUserResponse(
-            chat: Chat,
+            chat: ChatInterface,
             chatParticipation: ChatParticipation,
             lastMessage: MessageResponse?,
             lastReadMessage: MessageResponse?,
@@ -181,7 +182,7 @@ class ChatMapper(
         }
     }
 
-    fun toChatResponseWithCreatorId(chat: Chat) = ChatResponseWithCreatorId(
+    fun toChatResponseWithCreatorId(chat: ChatInterface) = ChatResponseWithCreatorId(
             id = chat.id,
             description = chat.description,
             name = chat.name,

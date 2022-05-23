@@ -110,7 +110,7 @@ class ChatMessageController(private val messageService: MessageService,
                        paginationRequest: PaginationRequest
     ) = messageSearchService.searchMessages(query, chatId, paginationRequest)
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @PaginationConfig(
             pageSize = PageSize(defaultValue = 200, max = 300),
             sortBy = SortBy(defaultValue = "createdAt", allowed = ["createdAt"])

@@ -12,8 +12,7 @@ import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
 
 @Repository
-class ChatParticipationCustomRepositoryImpl(
-        private val reactiveMongoTemplate: ReactiveMongoTemplate) : ChatParticipationCustomRepository {
+class ChatParticipationCustomRepositoryImpl(private val reactiveMongoTemplate: ReactiveMongoTemplate) : ChatParticipationCustomRepository {
 
     override fun updateChatParticipationsOfUser(user: User): Mono<UpdateResult> {
         val query = Query()
@@ -27,6 +26,7 @@ class ChatParticipationCustomRepositoryImpl(
 
         val update = Update()
         update.set("userDisplayedName", displayedName)
+        update.set("userSlug", user.slug)
         update.set("user", user)
 
         return reactiveMongoTemplate

@@ -17,7 +17,6 @@ class MessageMongoEventListener : AbstractMongoEventListener<Message>() {
     private lateinit var messageElasticsearchRepository: MessageElasticsearchRepository
 
     override fun onAfterSave(event: AfterSaveEvent<Message>) {
-        println("HOLA")
         val message = event.source
         messageCacheService.put(message).subscribe()
         messageElasticsearchRepository.save(message.toElasticsearch()).subscribe()

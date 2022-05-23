@@ -78,7 +78,8 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                         createdAt = ZonedDateTime.now(),
                         role = ChatRole.USER,
                         lastReadMessageId = null,
-                        userDisplayedName = userDisplayedName
+                        userDisplayedName = userDisplayedName,
+                        userSlug = currentUser.slug
                 )
                 chatParticipation = chatParticipationRepository.save(chatParticipation).awaitFirst()
             }

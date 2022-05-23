@@ -52,7 +52,14 @@ scheduled:
 messages:
   elasticsearch:
     sync-on-start: false
+chats:
+  elasticsearch:
+    sync-on-start: false
 
 logging:
   level:
-    chatox.platform.security.reactive: DEBUG
+    org:
+      springframework:
+        data:
+          elasticsearch:
+            core: DEBUG
