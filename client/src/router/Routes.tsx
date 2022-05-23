@@ -114,6 +114,28 @@ export const Routes = {
             store.messagesSearch.reset();
         }
     }),
+    chatMessagePage: new Route({
+        path: "/chat/:slug/message/:messageId",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <ChatPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: (view: any, params: any) => {
+            store.chat.setSelectedChat(params.slug);
+            store.messageDialog.setMessageId(params.messageId);
+        },
+        onParamsChange: (view: any, params: any) => {
+            store.chat.setSelectedChat(params.slug);
+            store.messageDialog.setMessageId(params.messageId);
+            store.messagesSearch.reset();
+        },
+        onExit: () => {
+            store.messageDialog.setMessageId(undefined);
+        }
+    }),
     userPage: new Route({
         path: "/user/:slug",
         component: (

@@ -1,6 +1,7 @@
 import {action, computed, observable} from "mobx";
 import {EntitiesStore} from "../../entities-store";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
+import {ChatListEntry} from "../types";
 
 export class ChatsOfCurrentUserStore {
     @observable
@@ -16,7 +17,7 @@ export class ChatsOfCurrentUserStore {
     }
 
     @computed
-    get chatsOfCurrentUser(): string[] {
+    get chatsOfCurrentUser(): ChatListEntry[] {
         return this.entities.chats.ids
             .map(chatId => this.entities.chats.findById(chatId))
             .filter(chat => Boolean(chat.currentUserParticipationId))
@@ -33,7 +34,7 @@ export class ChatsOfCurrentUserStore {
 
                 return rightDate.getTime() - leftDate.getTime();
             })
-            .map(chat => chat.id)
+            .map(chat => ({chatId: chat.id, messageId: chat.lastMessage}))
     }
 
     @computed

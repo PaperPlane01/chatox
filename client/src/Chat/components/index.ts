@@ -28,3 +28,4 @@ export * from "./ChatRoleSelect";
 export * from "./UpdateChatParticipantDialog";
 export * from "./UpdateChatParticipantMenuItem";
 export * from "./ShowScheduledMessagesMenuItem";
+export * from "./ChatsOfCurrentUserListWrapper";

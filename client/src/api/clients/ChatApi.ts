@@ -34,6 +34,10 @@ export class ChatApi {
         return axiosInstance.get(`/${CHATS}/${MY}`);
     }
 
+    public static searchChatsOfCurrentUser(query: String): AxiosPromise<Chat[]> {
+        return axiosInstance.get(`/${CHATS}/${MY}?query=${query}`);
+    }
+
     public static joinChat(chatId: string): AxiosPromise<ChatParticipationWithoutUser> {
         return axiosInstance.post(`/${CHATS}/${chatId}/${JOIN}`);
     }

@@ -7,10 +7,9 @@ import {UploadType} from "../../api/types/response";
 import {upperCaseFirstLetter} from "../../utils/string-utils";
 import {Labels} from "../../localization";
 
-interface LastMessagePreviewProps {
+interface ChatListMessagePreviewProps {
     messageId: string
 }
-
 
 const getSingularOrPluralLabel = (count: number, singularLabel: keyof Labels): keyof Labels => {
     if (count > 1) {
@@ -18,9 +17,9 @@ const getSingularOrPluralLabel = (count: number, singularLabel: keyof Labels): k
     } else {
         return singularLabel;
     }
-}
+};
 
-export const LastMessagePreview: FunctionComponent<LastMessagePreviewProps> = observer(({
+export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewProps> = observer(({
     messageId
 }) => {
     const {

@@ -29,8 +29,9 @@ const useClasses = makeStyles(() => createStyles({
 }));
 
 type SearchTextFieldProps = TextFieldProps & {
-    onClear?: () => void,
     value: string,
+    hideClearButton?: boolean,
+    onClear?: () => void,
     onQueryChange?: (value: string) => void
 }
 
@@ -42,6 +43,7 @@ export const SearchTextField: FunctionComponent<SearchTextFieldProps> = observer
     fullWidth,
     onChange,
     classes,
+    hideClearButton,
     ...other
 }) => {
     const {l} = useLocalization();
@@ -73,7 +75,7 @@ export const SearchTextField: FunctionComponent<SearchTextFieldProps> = observer
                                <Search/>
                            </InputAdornment>
                        ),
-                       endAdornment: (
+                       endAdornment: !hideClearButton && (
                            <InputAdornment position="end">
                                <IconButton onClick={handleClear}
                                            color="inherit"

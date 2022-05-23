@@ -103,6 +103,11 @@ import {
     UninstallStickerPackStore
 } from "../Sticker";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
+import {
+    AllChatsMessagesSearchStore,
+    ChatsAndMessagesSearchQueryStore,
+    ChatsOfCurrentUserSearchStore
+} from "../ChatsAndMessagesSearch";
 
 export interface IAppState {
     language: LocaleStore,
@@ -204,6 +209,9 @@ export interface IAppState {
     blacklistedUsers: BlacklistedUsersStore,
     addUserToBlacklist: AddUserToBlacklistStore,
     removeUserFromBlacklist: RemoveUserFromBlacklistStore,
-    messagesSearch: SearchMessagesStore
+    messagesSearch: SearchMessagesStore,
+    chatsAndMessagesSearchQuery: ChatsAndMessagesSearchQueryStore,
+    allChatsMessagesSearch: AllChatsMessagesSearchStore,
+    chatsOfCurrentUserSearch: ChatsOfCurrentUserSearchStore,
     store?: any
 }

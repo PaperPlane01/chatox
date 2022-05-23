@@ -2,18 +2,21 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Badge, CardHeader, createStyles, Divider, ListItem, makeStyles, Theme, Typography} from "@material-ui/core";
 import randomColor from "randomcolor";
-import {LastMessagePreview} from "./LastMessagePreview";
-import {getAvatarLabel} from "../utils";
+import {ChatListMessagePreview} from "./ChatListMessagePreview";
+import {getAvatarLabel, getChatLinkProps} from "../utils";
+import {ChatLinkPropsGenerationStrategy} from "../types";
 import {Avatar} from "../../Avatar";
 import {useRouter, useStore} from "../../store";
-import {Routes} from "../../router";
 import {ChatType} from "../../api/types/response";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 
 const {Link} = require("mobx-router");
 
 interface ChatsOfCurrentUserListItemProps {
-    chatId: string
+    chatId: string,
+    messageId?: string,
+    linkGenerationStrategy?: ChatLinkPropsGenerationStrategy,
+    ignoreSelection?: boolean
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -66,7 +69,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemProps> = observer(({
-    chatId
+    chatId,
+    messageId,
+    linkGenerationStrategy = "chat",
+    ignoreSelection = false
 }) => {
     const {
         chat: {
@@ -86,6 +92,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
     const chat = findChat(chatId);
     const chatUser = chat.type === ChatType.DIALOG && chat.userId && findUser(chat.userId);
     const selected = selectedChatId === chatId;
+    const linkProps = getChatLinkProps(linkGenerationStrategy, {chat, messageId});
 
     const avatar = chatUser
         ? (
@@ -105,11 +112,10 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
 
     return (
         <Link store={routerStore}
-              view={Routes.chatPage}
-              params={{slug: chat.slug || chat.id}}
               className={classes.undecoratedLink}
+              {...linkProps}
         >
-            <ListItem className={`${classes.chatsOfCurrentUserListItem} ${selected && classes.selected}`}
+            <ListItem className={`${classes.chatsOfCurrentUserListItem} ${selected && !ignoreSelection && classes.selected}`}
                       classes={{
                           gutters: classes.gutters
                       }}
@@ -134,11 +140,11 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                         </div>
 
                     }
-                                subheader={chat.lastMessage && (
+                                subheader={messageId && (
                                     <div className={classes.flexWrapper}>
                                         <div className={classes.flexTruncatedTextContainer}>
-                                            <Typography className={`${classes.flexTruncatedText} ${selected && classes.selected}`}>
-                                                <LastMessagePreview messageId={chat.lastMessage}/>
+                                            <Typography className={`${classes.flexTruncatedText} ${selected && !ignoreSelection && classes.selected}`}>
+                                                <ChatListMessagePreview messageId={messageId}/>
                                             </Typography>
                                         </div>
                                     </div>

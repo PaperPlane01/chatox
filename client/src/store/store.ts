@@ -122,6 +122,11 @@ import {
     UninstallStickerPackStore
 } from "../Sticker";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
+import {
+    AllChatsMessagesSearchStore,
+    ChatsAndMessagesSearchQueryStore,
+    ChatsOfCurrentUserSearchStore
+} from "../ChatsAndMessagesSearch";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -286,6 +291,9 @@ const emojiPickerTabs = new EmojiPickerTabsStore();
 const blacklistedUsers = new BlacklistedUsersStore(entities);
 const addUserToBlacklist = new AddUserToBlacklistStore(blacklistedUsers);
 const removeUserFromBlacklist = new RemoveUserFromBlacklistStore(blacklistedUsers);
+const chatsAndMessagesSearchQuery = new ChatsAndMessagesSearchQueryStore();
+const allChatsMessagesSearch = new AllChatsMessagesSearchStore(chatsAndMessagesSearchQuery, entities);
+const chatsOfCurrentUserSearch = new ChatsOfCurrentUserSearchStore(chatsAndMessagesSearchQuery, entities);
 
 export const store: IAppState = {
     authorization,
@@ -387,5 +395,8 @@ export const store: IAppState = {
     blacklistedUsers,
     addUserToBlacklist,
     removeUserFromBlacklist,
-    messagesSearch
+    messagesSearch,
+    chatsAndMessagesSearchQuery,
+    allChatsMessagesSearch,
+    chatsOfCurrentUserSearch
 };

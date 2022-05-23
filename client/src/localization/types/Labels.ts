@@ -466,4 +466,6 @@ export interface Labels {
     "common.error.server-unreachable": string,
     "common.retry": string,
     "blacklist.users.error": string,
+    "search.result.chats": string,
+    "search.result.messages": string
 }

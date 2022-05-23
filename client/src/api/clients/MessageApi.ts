@@ -7,7 +7,7 @@ import {
     UpdateMessageRequest,
     UpdateScheduledMessageRequest
 } from "../types/request";
-import {CHATS, MESSAGES, PIN, PINNED, PUBLISH, READ, SCHEDULED, UNPIN} from "../endpoints";
+import {CHATS, MESSAGES, MY, PIN, PINNED, PUBLISH, READ, SCHEDULED, UNPIN} from "../endpoints";
 
 export class MessageApi {
     public static getMessagesByChat(chatId: string): AxiosPromise<Message[]> {
@@ -72,5 +72,9 @@ export class MessageApi {
 
     public static searchMessagesInChat(chatId: string, query: string): AxiosPromise<Message[]> {
         return axiosInstance.get(`/${CHATS}/${chatId}/${MESSAGES}?query=${query}`);
+    }
+
+    public static searchMessagesInChatsOfCurrentUser(query: string): AxiosPromise<Message[]> {
+        return axiosInstance.get(`/${CHATS}/${MY}/${MESSAGES}?query=${query}`);
     }
 }

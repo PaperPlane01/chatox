@@ -321,7 +321,7 @@ export const MessagesList: FunctionComponent = observer(() => {
         }
     }
 
-    if (!enableVirtualScroll) {
+    if (!enableVirtualScroll || !lastMessage) {
         return (
             <Fragment>
                 <PinnedMessage ref={pinnedMessageRef}
