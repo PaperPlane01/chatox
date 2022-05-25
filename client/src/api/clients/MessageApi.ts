@@ -22,6 +22,10 @@ export class MessageApi {
         return axiosInstance.get(`/${CHATS}/${chatId}/${MESSAGES}?beforeId=${beforeId}`)
     }
 
+    public static getMessage(chatId: string, messageId: String): AxiosPromise<Message> {
+        return axiosInstance.get(`/${CHATS}/${chatId}/${MESSAGES}/${messageId}`);
+    }
+
     public static createMessage(chatId: string, createMessageRequest: CreateMessageRequest): AxiosPromise<Message> {
         return axiosInstance.post(`/${CHATS}/${chatId}/${MESSAGES}`, createMessageRequest);
     }
