@@ -27,7 +27,6 @@ import chatox.chat.model.ChatDeletion
 import chatox.chat.model.ChatDeletionReason
 import chatox.chat.model.ChatMessagesCounter
 import chatox.chat.model.ChatParticipation
-import chatox.chat.model.DialogParticipant
 import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatType
 import chatox.chat.model.DialogDisplay
@@ -64,7 +63,6 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.ObjectUtils
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import java.awt.Dialog
 import java.time.ZonedDateTime
 import java.util.UUID
 
