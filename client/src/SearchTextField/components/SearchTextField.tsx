@@ -39,7 +39,7 @@ export const SearchTextField: FunctionComponent<SearchTextFieldProps> = observer
     onQueryChange,
     onClear,
     value,
-    variant,
+    variant = "standard",
     fullWidth,
     onChange,
     classes,
@@ -57,18 +57,19 @@ export const SearchTextField: FunctionComponent<SearchTextFieldProps> = observer
         if (onQueryChange) {
             onQueryChange(event.target.value);
         }
-    }
+    };
 
     const handleClear = (): void => {
         if (onClear) {
             onClear();
         }
-    }
+    };
 
     return (
         <TextField placeholder={l("common.search")}
                    value={value}
                    fullWidth
+                   variant={variant as any} // https://github.com/mui/material-ui/issues/15697#issuecomment-612397854
                    InputProps={{
                        startAdornment: (
                            <InputAdornment position="start">

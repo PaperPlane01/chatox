@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
 import {createStyles, Hidden, makeStyles, Theme} from "@material-ui/core";
 import clsx from "clsx";
@@ -20,17 +20,18 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     chatListWrapper: {
         [theme.breakpoints.up("lg")]: {
             height: `calc(100vh - 64px)`,
-            width: 280,
+            width: 480,
             overflow: "auto"
         },
         [theme.breakpoints.down("md")]: {
             width: "100%"
-        }
+        },
+        position: "relative"
     },
     chatList: {
         width: "100%"
     },
-    padding: {
+    noTopBottomPadding: {
         paddingTop: 0,
         paddingBottom: 0
     },
@@ -48,11 +49,13 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
         authorization
     } = useStore();
     const classes = useStyles();
+    const [hovered, setHovered] = useState(false);
+
     const listProps: ChatsOfCurrentUserListProps = {
         classes: {
             circularProgress: classes.centered,
             list: clsx({
-                [classes.padding]: true,
+                [classes.noTopBottomPadding]: true,
                 [classes.chatList]: true
             }),
             accordion: classes.noLeftRightPadding,
@@ -62,16 +65,25 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
 
     return (
        <Fragment>
-           <div className={classes.chatListWrapper}>
+           <div className={classes.chatListWrapper}
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
+           >
                <Hidden mdDown>
                    <div style={{flex: 1}}>
-                       <ChatsAndMessagesSearchInput style={{padding: "16px"}}/>
+                       <ChatsAndMessagesSearchInput style={{padding: "8px"}}/>
                    </div>
                </Hidden>
                {searchModeActive
                    ? <ChatsAndMessagesSearchResult {...listProps}/>
                    : <ChatsOfCurrentUserList {...listProps}/>
                }
+               <Hidden lgUp>
+                   {canCreateChat(authorization) && <CreateChatFloatingActionButton/>}
+               </Hidden>
+               <Hidden mdDown>
+                   {hovered && (authorization) && <CreateChatFloatingActionButton/>}
+               </Hidden>
            </div>
            <CreateChatDialog/>
        </Fragment>

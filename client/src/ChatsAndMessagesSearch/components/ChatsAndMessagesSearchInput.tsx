@@ -16,6 +16,7 @@ export const ChatsAndMessagesSearchInput: FunctionComponent<TextFieldProps> = ob
 
     return (
         <SearchTextField {...props}
+                         variant="outlined"
                          value={query}
                          onQueryChange={setQuery}
                          onClear={reset}
