@@ -362,6 +362,17 @@ class MessageServiceImpl(
                 ) }
     }
 
+    override fun findMessageByIdAndChatId(id: String, chatId: String): Mono<MessageResponse> {
+        return messageRepository
+                .findByIdAndChatId(id, chatId)
+                .switchIfEmpty(Mono.error(MessageNotFoundException("Could not find message with id $id and chat id $chatId")))
+                .flatMap { message -> messageMapper.toMessageResponse(
+                        message = message,
+                        mapReferredMessage = true,
+                        readByCurrentUser = true
+                ) }
+    }
+
     override fun findMessagesByChat(chatId: String, paginationRequest: PaginationRequest): Flux<MessageResponse> {
         return mono {
             val chat = findChatById(chatId).awaitFirst()

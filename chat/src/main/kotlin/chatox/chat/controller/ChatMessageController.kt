@@ -51,6 +51,13 @@ class ChatMessageController(private val messageService: MessageService,
     @GetMapping("/{chatId}/messages/pinned")
     fun findPinnedMessageByChat(@PathVariable chatId: String) = messageService.findPinnedMessageByChat(chatId)
 
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canReadMessages(#chatId)")
+    @GetMapping("/{chatId}/messages/{messageId}")
+    fun findMessageByChatIdAndMessageId(@PathVariable chatId: String,
+                                        @PathVariable messageId: String
+    ) = messageService.findMessageByIdAndChatId(messageId, chatId)
+
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
     @ReactivePermissionCheck("@messagePermissions.canDeleteMessage(#messageId, #chatId)")

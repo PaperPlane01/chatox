@@ -18,4 +18,5 @@ interface MessageMongoRepository : ReactiveMongoRepository<Message, String> {
     fun findBySenderIdAndCreatedAtAfter(senderId: String, date: ZonedDateTime): Flux<Message>
     fun findAllByChatIdOrderByCreatedAtAsc(chatId: String): Flux<Message>
     fun findByPinnedTrueAndChatId(chatId: String): Mono<Message>
+    fun findByIdAndChatId(id: String, chatId: String): Mono<Message>
 }
