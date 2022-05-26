@@ -1,9 +1,11 @@
 import React, {Fragment, FunctionComponent} from "react";
-import {createStyles, Grid, Hidden, makeStyles, Typography} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {createStyles, Grid, Hidden, makeStyles, Typography, useMediaQuery, useTheme} from "@material-ui/core";
 import {HasRole} from "../Authorization";
 import {AppBar} from "../AppBar";
 import {ChatsOfCurrentUserListWrapper} from "../Chat";
-import {useLocalization} from "../store";
+import {ChatsAndMessagesSearchInputWrapper} from "../ChatsAndMessagesSearch";
+import {useLocalization, useStore} from "../store";
 
 const ScrollLock = require("react-scrolllock").default;
 
@@ -17,14 +19,23 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-export const ChatsPage: FunctionComponent = () => {
+export const ChatsPage: FunctionComponent = observer(() => {
+    const {
+        chatsAndMessagesSearchQuery: {
+            showInput
+        }
+    } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
+    const theme = useTheme();
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
     const content = (
         <Grid container style={{overflow: "hidden"}}>
             <Grid item xs={12}>
-                <AppBar/>
+                <AppBar hideTitle={showInput && onSmallScreen}
+                        additionalLeftItem={<ChatsAndMessagesSearchInputWrapper/>}
+                />
             </Grid>
             <HasRole role="ROLE_ACCESS_TOKEN_PRESENT"
                      alternative={(
@@ -62,7 +73,7 @@ export const ChatsPage: FunctionComponent = () => {
                 {content}
             </Hidden>
         </Fragment>
-    )
-};
+    );
+});
 
 export default ChatsPage;
