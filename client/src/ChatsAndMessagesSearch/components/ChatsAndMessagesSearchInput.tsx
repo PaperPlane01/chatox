@@ -4,7 +4,14 @@ import {TextFieldProps} from "@material-ui/core";
 import {useStore} from "../../store";
 import {SearchTextField} from "../../SearchTextField";
 
-export const ChatsAndMessagesSearchInput: FunctionComponent<TextFieldProps> = observer((props) => {
+type ChatsAndMessagesSearchInputProps = TextFieldProps &  {
+    alwaysShowClearButton?: boolean
+}
+
+export const ChatsAndMessagesSearchInput: FunctionComponent<ChatsAndMessagesSearchInputProps> = observer(({
+    alwaysShowClearButton = false,
+    ...props
+}) => {
     const {
         chatsAndMessagesSearchQuery: {
             query,
@@ -15,12 +22,12 @@ export const ChatsAndMessagesSearchInput: FunctionComponent<TextFieldProps> = ob
     } = useStore();
 
     return (
-        <SearchTextField {...props}
-                         variant="outlined"
-                         value={query}
+        <SearchTextField value={query as any}
                          onQueryChange={setQuery}
                          onClear={reset}
-                         hideClearButton={!searchModeActive}
+                         hideClearButton={alwaysShowClearButton ? false : !searchModeActive}
+                         variant={props.variant ? props.variant as any : "outlined"}
+                         {...props}
         />
     );
 })

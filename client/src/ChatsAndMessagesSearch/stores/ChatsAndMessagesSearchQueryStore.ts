@@ -4,6 +4,9 @@ export class ChatsAndMessagesSearchQueryStore {
     @observable
     query = "";
 
+    @observable
+    showInput = false;
+
     @computed
     get searchModeActive(): boolean {
         return this.query.trim().length !== 0;
@@ -15,7 +18,13 @@ export class ChatsAndMessagesSearchQueryStore {
     }
 
     @action
+    setShowInput = (showInput: boolean) => {
+        this.showInput = showInput;
+    }
+
+    @action
     reset = (): void => {
+        this.showInput = false;
         this.query = "";
     }
 }
