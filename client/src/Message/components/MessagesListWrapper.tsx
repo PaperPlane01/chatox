@@ -44,7 +44,10 @@ export const MessagesListWrapper = observer(() => {
         )
     }
 
+    console.log(selectedChatId)
+
     if (!selectedChatId) {
+        console.log("No selected chat id")
         return null;
     }
 
@@ -60,5 +63,6 @@ export const MessagesListWrapper = observer(() => {
         )
     }
 
+    console.log("Returning message list")
     return <MessagesList/>
 });

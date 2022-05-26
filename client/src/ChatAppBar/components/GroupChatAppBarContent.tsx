@@ -7,6 +7,7 @@ import {getAvatarLabel} from "../../Chat/utils";
 import {useLocalization, useStore} from "../../store";
 import {trimString} from "../../utils/string-utils";
 import {Avatar} from "../../Avatar";
+import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
 
 interface GroupChatAppBarContentProps {
     chatId: string
@@ -32,6 +33,9 @@ export const GroupChatAppBarContent: FunctionComponent<GroupChatAppBarContentPro
         },
         chatInfoDialog: {
             setChatInfoDialogOpen
+        },
+        messagesSearch: {
+            showInput
         }
     } = useStore();
     const {l} = useLocalization();
@@ -39,19 +43,22 @@ export const GroupChatAppBarContent: FunctionComponent<GroupChatAppBarContentPro
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-    const chat = findChat(chatId);
+    if (showInput) {
+        return <ChatAppBarSearchInput/>
+    } else {
+        const chat = findChat(chatId);
 
-    return (
-        <CardHeader title={(
-            <div style={{display: "flex"}}>
-                <Typography variant="body1"
-                            style={{cursor: "pointer"}}
-                            onClick={() => setChatInfoDialogOpen(true)}
-                >
-                    {onSmallScreen ? trimString(chat.name, 25) : chat.name}
-                </Typography>
-            </div>
-        )}
+        return (
+            <CardHeader title={(
+                <div style={{display: "flex"}}>
+                    <Typography variant="body1"
+                                style={{cursor: "pointer"}}
+                                onClick={() => setChatInfoDialogOpen(true)}
+                    >
+                        {onSmallScreen ? trimString(chat.name, 25) : chat.name}
+                    </Typography>
+                </div>
+            )}
                         subheader={(
                             <Typography variant="body2"
                                         style={{
@@ -86,6 +93,7 @@ export const GroupChatAppBarContent: FunctionComponent<GroupChatAppBarContentPro
                         classes={{
                             root: classes.cardHeaderRoot
                         }}
-        />
-    );
+            />
+        );
+    }
 });

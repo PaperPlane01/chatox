@@ -43,7 +43,8 @@ import {
     UnpinMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
-    UploadMessageAttachmentsStore
+    UploadMessageAttachmentsStore,
+    SearchMessagesStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
@@ -102,6 +103,11 @@ import {
     UninstallStickerPackStore
 } from "../Sticker";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
+import {
+    AllChatsMessagesSearchStore,
+    ChatsAndMessagesSearchQueryStore,
+    ChatsOfCurrentUserSearchStore
+} from "../ChatsAndMessagesSearch";
 
 export interface IAppState {
     language: LocaleStore,
@@ -203,5 +209,9 @@ export interface IAppState {
     blacklistedUsers: BlacklistedUsersStore,
     addUserToBlacklist: AddUserToBlacklistStore,
     removeUserFromBlacklist: RemoveUserFromBlacklistStore,
+    messagesSearch: SearchMessagesStore,
+    chatsAndMessagesSearchQuery: ChatsAndMessagesSearchQueryStore,
+    allChatsMessagesSearch: AllChatsMessagesSearchStore,
+    chatsOfCurrentUserSearch: ChatsOfCurrentUserSearchStore,
     store?: any
 }

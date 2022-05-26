@@ -11,6 +11,10 @@ spring:
       host: ${MONGODB_HOST:localhost}
       port: ${MONGODB_PORT:27017}
       auto-index-creation: true
+    elasticsearch:
+      client:
+        reactive:
+          endpoints: ${ELASTICSEARCH_HOSTS:localhost:9200}
   rabbitmq:
     listener:
       direct:
@@ -45,6 +49,17 @@ scheduled:
   messages:
     check:
       enabled: true
+messages:
+  elasticsearch:
+    sync-on-start: false
+chats:
+  elasticsearch:
+    sync-on-start: false
+
 logging:
   level:
-    chatox.platform.security.reactive: DEBUG
+    org:
+      springframework:
+        data:
+          elasticsearch:
+            core: DEBUG

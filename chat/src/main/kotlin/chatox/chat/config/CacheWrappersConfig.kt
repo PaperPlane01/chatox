@@ -5,11 +5,11 @@ import chatox.chat.model.ChatBlocking
 import chatox.chat.model.Message
 import chatox.chat.model.User
 import chatox.chat.model.UserBlacklistItem
-import chatox.chat.repository.ChatBlockingRepository
-import chatox.chat.repository.ChatRepository
-import chatox.chat.repository.MessageRepository
-import chatox.chat.repository.UserBlacklistItemRepository
-import chatox.chat.repository.UserRepository
+import chatox.chat.repository.mongodb.ChatBlockingMongoRepository
+import chatox.chat.repository.mongodb.ChatRepository
+import chatox.chat.repository.mongodb.MessageMongoRepository
+import chatox.chat.repository.mongodb.UserBlacklistItemRepository
+import chatox.chat.repository.mongodb.UserRepository
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,7 +25,7 @@ class CacheWrappersConfig {
     private lateinit var chatCacheService: ReactiveCacheService<Chat, String>
 
     @Autowired
-    private lateinit var chatBlockingRepository: ChatBlockingRepository
+    private lateinit var chatBlockingRepository: ChatBlockingMongoRepository
 
     @Autowired
     private lateinit var chatBlockingCacheService: ReactiveCacheService<ChatBlocking, String>
@@ -37,7 +37,7 @@ class CacheWrappersConfig {
     private lateinit var userCacheService: ReactiveCacheService<User, String>
 
     @Autowired
-    private lateinit var messageRepository: MessageRepository
+    private lateinit var messageRepository: MessageMongoRepository
 
     @Autowired
     private lateinit var messageCacheService: ReactiveCacheService<Message, String>

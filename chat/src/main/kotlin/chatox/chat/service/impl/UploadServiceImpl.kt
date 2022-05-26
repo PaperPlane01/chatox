@@ -6,8 +6,8 @@ import chatox.chat.messaging.rabbitmq.event.UploadCreated
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Upload
 import chatox.chat.model.User
-import chatox.chat.repository.UploadRepository
-import chatox.chat.repository.UserRepository
+import chatox.chat.repository.mongodb.UploadRepository
+import chatox.chat.repository.mongodb.UserRepository
 import chatox.chat.service.UploadService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull

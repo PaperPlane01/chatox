@@ -467,5 +467,7 @@ export const ru: Labels = {
     "blacklist.users.remove.error": "Не удалось разблокировать пользователя, сервер ответил со статусом {errorStatus}",
     "common.error.server-unreachable": "Сервер недоступен",
     "common.retry": "Повторить",
-    "blacklist.users.error": "Не удалось загрузить список заблокированных пользователей, сервер ответил со статусом {errorStatus}"
+    "blacklist.users.error": "Не удалось загрузить список заблокированных пользователей, сервер ответил со статусом {errorStatus}",
+    "search.result.chats": "Чаты",
+    "search.result.messages": "Сообщения"
 };

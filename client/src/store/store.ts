@@ -62,7 +62,7 @@ import {
     PublishScheduledMessageStore,
     ScheduledMessagesOfChatStore,
     ScheduledMessagesStore,
-    ScheduleMessageStore,
+    ScheduleMessageStore, SearchMessagesStore,
     UnpinMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
@@ -122,6 +122,11 @@ import {
     UninstallStickerPackStore
 } from "../Sticker";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
+import {
+    AllChatsMessagesSearchStore,
+    ChatsAndMessagesSearchQueryStore,
+    ChatsOfCurrentUserSearchStore
+} from "../ChatsAndMessagesSearch";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -183,7 +188,8 @@ const chatParticipants = new ChatParticipantsStore(entities, chat);
 const messageUploads = new UploadMessageAttachmentsStore();
 const messageCreation = new CreateMessageStore(chat, entities, messageUploads);
 const chatsPreferences = new ChatsPreferencesStore();
-const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences);
+const messagesSearch = new SearchMessagesStore(entities, chat);
+const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences, messagesSearch);
 const joinChat = new JoinChatStore(entities, authorization);
 const userProfile = new UserProfileStore(entities);
 const createChatBlocking = new CreateChatBlockingStore(chat, entities);
@@ -197,7 +203,7 @@ const blockUserInChatByIdOrSlug = new BlockUserInChatByIdOrSlugStore(entities, c
 const onlineChatParticipants = new OnlineChatParticipantsStore(entities, chat);
 const chatAvatarUpload = new UploadImageStore(entities);
 const chatUpdate = new UpdateChatStore(chatAvatarUpload, chat, entities);
-const messageDialog = new MessageDialogStore();
+const messageDialog = new MessageDialogStore(chat, entities);
 const userAvatarUpload = new UploadImageStore(entities);
 const editProfile = new EditProfileStore(authorization, userAvatarUpload, entities);
 const settingsTabs = new SettingsTabsStore();
@@ -285,6 +291,9 @@ const emojiPickerTabs = new EmojiPickerTabsStore();
 const blacklistedUsers = new BlacklistedUsersStore(entities);
 const addUserToBlacklist = new AddUserToBlacklistStore(blacklistedUsers);
 const removeUserFromBlacklist = new RemoveUserFromBlacklistStore(blacklistedUsers);
+const chatsAndMessagesSearchQuery = new ChatsAndMessagesSearchQueryStore();
+const allChatsMessagesSearch = new AllChatsMessagesSearchStore(chatsAndMessagesSearchQuery, entities);
+const chatsOfCurrentUserSearch = new ChatsOfCurrentUserSearchStore(chatsAndMessagesSearchQuery, entities);
 
 export const store: IAppState = {
     authorization,
@@ -385,5 +394,9 @@ export const store: IAppState = {
     emojiPickerTabs,
     blacklistedUsers,
     addUserToBlacklist,
-    removeUserFromBlacklist
+    removeUserFromBlacklist,
+    messagesSearch,
+    chatsAndMessagesSearchQuery,
+    allChatsMessagesSearch,
+    chatsOfCurrentUserSearch
 };

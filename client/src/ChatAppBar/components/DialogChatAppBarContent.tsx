@@ -6,6 +6,7 @@ import {Avatar} from "../../Avatar";
 import {getOnlineOrLastSeenLabel, getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {useLocalization, useStore} from "../../store";
 import {trimString} from "../../utils/string-utils";
+import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
 
 interface DialogChatAppBarContentProps {
     chatId: string
@@ -28,6 +29,9 @@ export const DialogChatAppBarContent: FunctionComponent<DialogChatAppBarContentP
             users: {
                 findById: findUser
             }
+        },
+        messagesSearch: {
+            showInput
         }
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
@@ -35,46 +39,52 @@ export const DialogChatAppBarContent: FunctionComponent<DialogChatAppBarContentP
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-    const chat = findChat(chatId);
-    const user = findUser(chat.userId!);
+    if (showInput) {
+        return (
+            <ChatAppBarSearchInput/>
+        );
+    } else {
+        const chat = findChat(chatId);
+        const user = findUser(chat.userId!);
 
-    return (
-        <CardHeader title={(
-            <div style={{display: "flex"}}>
-                <Typography variant="body1"
-                            style={{cursor: "pointer"}}
-                >
-                    {onSmallScreen ? trimString(getUserDisplayedName(user), 25) : getUserDisplayedName(user)}
-                </Typography>
-            </div>
-        )}
-                    subheader={getOnlineOrLastSeenLabel(
-                        user,
-                        dateFnsLocale,
-                        l,
-                        {
-                            variant: "body2",
-                            style: {
-                                opacity: user.online ? 1 : 0.5,
-                                cursor: "pointer"
+        return (
+            <CardHeader title={(
+                <div style={{display: "flex"}}>
+                    <Typography variant="body1"
+                                style={{cursor: "pointer"}}
+                    >
+                        {onSmallScreen ? trimString(getUserDisplayedName(user), 25) : getUserDisplayedName(user)}
+                    </Typography>
+                </div>
+            )}
+                        subheader={getOnlineOrLastSeenLabel(
+                            user,
+                            dateFnsLocale,
+                            l,
+                            {
+                                variant: "body2",
+                                style: {
+                                    opacity: user.online ? 1 : 0.5,
+                                    cursor: "pointer"
+                                }
                             }
-                        }
-                    )}
-                    avatar={(
-                        <div>
-                            <Avatar avatarLetter={getUserAvatarLabel(user)}
-                                    avatarColor={randomColor({seed: user.id})}
-                                    avatarUri={user.externalAvatarUri}
-                                    avatarId={user.avatarId}
-                            />
-                        </div>
-                    )}
-                    style={{
-                        width: "100%"
-                    }}
-                    classes={{
-                        root: classes.cardHeaderRoot
-                    }}
-        />
-    );
+                        )}
+                        avatar={(
+                            <div>
+                                <Avatar avatarLetter={getUserAvatarLabel(user)}
+                                        avatarColor={randomColor({seed: user.id})}
+                                        avatarUri={user.externalAvatarUri}
+                                        avatarId={user.avatarId}
+                                />
+                            </div>
+                        )}
+                        style={{
+                            width: "100%"
+                        }}
+                        classes={{
+                            root: classes.cardHeaderRoot
+                        }}
+            />
+        );
+    }
 });

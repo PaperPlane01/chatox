@@ -29,16 +29,17 @@ import chatox.chat.model.ChatMessagesCounter
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatType
+import chatox.chat.model.DialogDisplay
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Message
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
 import chatox.chat.model.User
-import chatox.chat.repository.ChatMessagesCounterRepository
-import chatox.chat.repository.ChatParticipationRepository
-import chatox.chat.repository.ChatRepository
-import chatox.chat.repository.MessageRepository
-import chatox.chat.repository.UploadRepository
+import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
+import chatox.chat.repository.mongodb.ChatParticipationRepository
+import chatox.chat.repository.mongodb.ChatRepository
+import chatox.chat.repository.mongodb.MessageMongoRepository
+import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatService
 import chatox.chat.service.MessageService
@@ -52,6 +53,8 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.access.AccessDeniedException
@@ -68,7 +71,7 @@ import java.util.UUID
 @LogExecution
 class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationRepository: ChatParticipationRepository,
-                      private val messageRepository: MessageRepository,
+                      private val messageRepository: MessageMongoRepository,
                       private val uploadRepository: UploadRepository,
                       private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
                       private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
@@ -109,7 +112,8 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                             chatId = chat.id,
                             role = ChatRole.ADMIN,
                             createdAt = timeService.now(),
-                            userDisplayedName = creatorDisplayedName
+                            userDisplayedName = creatorDisplayedName,
+                            userSlug = currentUser.slug
                     )
             )
                     .awaitFirst()
@@ -170,6 +174,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     chatDeleted = false,
                     userOnline = currentUser.online ?: false,
                     userDisplayedName = userDisplayedNameHelper.getDisplayedName(currentUser),
+                    userSlug = currentUser.slug,
                     lastReadMessageId = message.id
             )
             val otherUserChatParticipation = ChatParticipation(
@@ -181,15 +186,22 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     role = ChatRole.USER,
                     chatDeleted = false,
                     userOnline = user.online ?: false,
-                    userDisplayedName = userDisplayedNameHelper.getDisplayedName(user)
+                    userDisplayedName = userDisplayedNameHelper.getDisplayedName(user),
+                    userSlug = user.slug
             )
 
             val chatParticipations = mutableListOf(currentUserChatParticipation, otherUserChatParticipation)
             chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
 
+            val dialogParticipantsDisplay = listOf(
+                    DialogDisplay(currentUser.id, chatParticipationMapper.toDialogParticipant(otherUserChatParticipation)),
+                    DialogDisplay(user.id, chatParticipationMapper.toDialogParticipant(currentUserChatParticipation))
+            )
+
             chatRepository.save(chat.copy(
                     lastMessageId = message.id,
-                    lastMessageDate = message.createdAt
+                    lastMessageDate = message.createdAt,
+                    dialogDisplay = dialogParticipantsDisplay
             )).awaitFirst()
 
             val privateChatCreated = PrivateChatCreated(
@@ -441,7 +453,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
             var currentUserId: String? = null
 
-            if (currentUser != authenticationFacade.EMPTY_USER) {
+            if (currentUser != AuthenticationFacade.EMPTY_USER) {
                 currentUserId = currentUser.id
             }
 
@@ -504,4 +516,35 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
     private fun findChatByIdInternal(id: String, retrieveFromCache: Boolean = false) = chatRepository.findById(id)
             .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
+
+    @EventListener(ApplicationReadyEvent::class)
+    fun populateDialogParticipants(): Mono<Unit> {
+        return mono {
+            log.info("Populating dialog participants")
+            val chats = chatRepository.findAll().collectList().awaitFirst()
+            val dialogParticipants = mutableMapOf<Chat, List<DialogDisplay>>()
+
+            for (chat in chats) {
+                if (chat.type == ChatType.DIALOG) {
+
+                    val chatParticipants = chatParticipationRepository.findByChatId(chat.id).collectList().awaitFirst()
+                    val firstChatParticipant = chatParticipants[0]
+                    val secondChatParticipant = chatParticipants[1]
+
+                    dialogParticipants[chat] = listOf(
+                            DialogDisplay(firstChatParticipant.user.id, chatParticipationMapper.toDialogParticipant(secondChatParticipant)),
+                            DialogDisplay(secondChatParticipant.user.id, chatParticipationMapper.toDialogParticipant(firstChatParticipant))
+                    )
+                }
+            }
+
+            for (chat in chats) {
+                chatRepository.save(chat.copy(dialogDisplay = if (dialogParticipants.containsKey(chat)) dialogParticipants[chat]!! else mutableListOf())).awaitFirst()
+            }
+
+            for (pair in dialogParticipants) {
+                log.info("Populating dialog participants for chat ${pair.key.id}")
+            }
+        }
+    }
 }

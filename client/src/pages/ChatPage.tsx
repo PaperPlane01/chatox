@@ -4,7 +4,7 @@ import {Grid, Hidden} from "@material-ui/core";
 import {
     ChatInfoContainer,
     ChatInfoDialog,
-    ChatsOfCurrentUserList,
+    ChatsOfCurrentUserListWrapper,
     ConfirmChatDeletionDialog,
     SpecifyChatDeletionReasonDialog,
     UpdateChatDialog,
@@ -32,7 +32,6 @@ import {ReportChatDialog, ReportMessageDialog} from "../Report";
 import {StickerPackDialog} from "../Sticker";
 import {useStore} from "../store";
 import {ChatType} from "../api/types/response";
-import {toJS} from "mobx";
 
 export const ChatPage: FunctionComponent = observer(() => {
     const {
@@ -40,8 +39,6 @@ export const ChatPage: FunctionComponent = observer(() => {
             selectedChat
         }
     } = useStore();
-
-    console.log(toJS(selectedChat))
 
     return (
         <Fragment>
@@ -55,7 +52,7 @@ export const ChatPage: FunctionComponent = observer(() => {
                           justify="space-between"
                     >
                         <Hidden mdDown>
-                            <ChatsOfCurrentUserList/>
+                            <ChatsOfCurrentUserListWrapper/>
                         </Hidden>
                         <Grid container>
                             <Grid item xs={12} lg={selectedChat && selectedChat.type === ChatType.DIALOG ? 12 : 9}>

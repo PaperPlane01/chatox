@@ -6,7 +6,7 @@ import {useLocalization, useStore} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     createChatFloatingActionButton: {
-        position: "fixed",
+        position: "absolute",
         bottom: theme.spacing(2),
         right: theme.spacing(2)
     }

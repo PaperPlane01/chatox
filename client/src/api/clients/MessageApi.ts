@@ -7,7 +7,7 @@ import {
     UpdateMessageRequest,
     UpdateScheduledMessageRequest
 } from "../types/request";
-import {CHATS, MESSAGES, PIN, PINNED, PUBLISH, READ, SCHEDULED, UNPIN} from "../endpoints";
+import {CHATS, MESSAGES, MY, PIN, PINNED, PUBLISH, READ, SCHEDULED, UNPIN} from "../endpoints";
 
 export class MessageApi {
     public static getMessagesByChat(chatId: string): AxiosPromise<Message[]> {
@@ -20,6 +20,10 @@ export class MessageApi {
 
     public static getMessagesByChatBeforeMessage(chatId: string, beforeId: string): AxiosPromise<Message[]> {
         return axiosInstance.get(`/${CHATS}/${chatId}/${MESSAGES}?beforeId=${beforeId}`)
+    }
+
+    public static getMessage(chatId: string, messageId: String): AxiosPromise<Message> {
+        return axiosInstance.get(`/${CHATS}/${chatId}/${MESSAGES}/${messageId}`);
     }
 
     public static createMessage(chatId: string, createMessageRequest: CreateMessageRequest): AxiosPromise<Message> {
@@ -68,5 +72,13 @@ export class MessageApi {
 
     public static markMessageAsRead(chatId: string, messageId: string): AxiosPromise<void> {
         return axiosInstance.post(`/${CHATS}/${chatId}/${MESSAGES}/${messageId}/${READ}`);
+    }
+
+    public static searchMessagesInChat(chatId: string, query: string): AxiosPromise<Message[]> {
+        return axiosInstance.get(`/${CHATS}/${chatId}/${MESSAGES}?query=${query}`);
+    }
+
+    public static searchMessagesInChatsOfCurrentUser(query: string): AxiosPromise<Message[]> {
+        return axiosInstance.get(`/${CHATS}/${MY}/${MESSAGES}?query=${query}`);
     }
 }

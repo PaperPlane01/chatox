@@ -5,6 +5,7 @@ import chatox.chat.api.request.CreatePrivateChatRequest
 import chatox.chat.api.request.DeleteChatRequest
 import chatox.chat.api.request.DeleteMultipleChatsRequest
 import chatox.chat.api.request.UpdateChatRequest
+import chatox.chat.service.ChatSearchService
 import chatox.chat.service.ChatService
 import chatox.platform.pagination.PaginationRequest
 import chatox.platform.pagination.annotation.PageSize
@@ -25,7 +26,8 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/chats")
-class ChatController(private val chatService: ChatService) {
+class ChatController(private val chatService: ChatService,
+                     private val chatSearchService: ChatSearchService) {
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL
@@ -60,6 +62,10 @@ class ChatController(private val chatService: ChatService) {
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @GetMapping("/my")
     fun getChatsOfCurrentUser() = chatService.getChatsOfCurrentUser()
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    @GetMapping("/my", params = ["query"])
+    fun searchChatsOfCurrentUser(@RequestParam query: String) = chatSearchService.searchChatsOfCurrentUser(query)
 
     @GetMapping("/{idOrSlug}")
     fun findChatByIdOrSlug(@PathVariable idOrSlug: String) = chatService.findChatBySlugOrId(idOrSlug)

@@ -33,8 +33,8 @@ data class CreateMessageRequest(
                 message = "Scheduled message must be scheduled at least 5 minutes from now"
         )
         @field:MaxIntervalFromNow(
-                value = 1,
-                chronoUnit = ChronoUnit.MONTHS,
+                value = 30,
+                chronoUnit = ChronoUnit.DAYS,
                 message = "Scheduled message date must be no more than 30 days from now"
         )
         val scheduledAt: ZonedDateTime?,

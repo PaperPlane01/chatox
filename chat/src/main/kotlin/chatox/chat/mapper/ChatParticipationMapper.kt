@@ -5,8 +5,10 @@ import chatox.chat.api.response.ChatBlockingResponse
 import chatox.chat.api.response.ChatParticipationMinifiedResponse
 import chatox.chat.api.response.ChatParticipationResponse
 import chatox.chat.model.ChatParticipation
-import chatox.chat.repository.ChatParticipationRepository
+import chatox.chat.model.DialogParticipant
+import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.service.ChatBlockingService
+import chatox.chat.support.UserDisplayedNameHelper
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Component
@@ -16,7 +18,8 @@ import java.time.ZonedDateTime
 @Component
 class ChatParticipationMapper(private val userMapper: UserMapper,
                               private val chatBlockingService: ChatBlockingService,
-                              private val chatParticipationRepository: ChatParticipationRepository) {
+                              private val chatParticipationRepository: ChatParticipationRepository,
+                              private val userDisplayedNameHelper: UserDisplayedNameHelper) {
 
     fun toMinifiedChatParticipationResponse(chatParticipation: ChatParticipation, updateChatBlockingStatusIfNecessary: Boolean = false): Mono<ChatParticipationMinifiedResponse> {
         return mono {
@@ -56,5 +59,12 @@ class ChatParticipationMapper(private val userMapper: UserMapper,
                                    originalChatParticipation: ChatParticipation
     ) = originalChatParticipation.copy(
             role = updateChatParticipationRequest.chatRole
+    )
+
+    fun toDialogParticipant(chatParticipation: ChatParticipation) = DialogParticipant(
+            id = chatParticipation.id!!,
+            userId = chatParticipation.user.id,
+            userSlug = chatParticipation.user.slug,
+            userDisplayedName = userDisplayedNameHelper.getDisplayedName(chatParticipation.user)
     )
 }

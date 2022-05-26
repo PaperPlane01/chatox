@@ -1,5 +1,6 @@
 package chatox.chat.model
 
+import chatox.chat.model.elasticsearch.MessageElasticsearch
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
@@ -8,37 +9,41 @@ import java.time.ZonedDateTime
 @Document
 data class Message(
         @Id
-        var id: String,
-        var text: String,
+        override val id: String,
+
+        override val text: String,
 
         @Indexed
-        var referredMessageId: String? = null,
+        override val referredMessageId: String? = null,
 
         @Indexed
-        var senderId: String,
+        override val senderId: String,
 
         @Indexed
-        var chatId: String,
-        var createdAt: ZonedDateTime,
-        var updatedAt: ZonedDateTime?,
-        var deleted: Boolean,
-        var deletedAt: ZonedDateTime?,
+        override val chatId: String,
+        override val createdAt: ZonedDateTime,
+        override val updatedAt: ZonedDateTime?,
+        override val deleted: Boolean,
+        override val deletedAt: ZonedDateTime?,
 
         @Indexed
-        var deletedById: String? = null,
+        override val deletedById: String? = null,
 
-        var uploadAttachmentsIds: List<String> = listOf(),
-        var attachments: List<Upload<Any>> = listOf(),
-        var emoji: EmojiInfo = EmojiInfo(),
-
-        @Indexed
-        var pinned: Boolean = false,
-        var pinnedById: String? = null,
-        var pinnedAt: ZonedDateTime? = null,
-        var fromScheduled: Boolean = false,
+        override val uploadAttachmentsIds: List<String> = listOf(),
+        override val attachments: List<Upload<Any>> = listOf(),
+        override val emoji: EmojiInfo = EmojiInfo(),
 
         @Indexed
-        var index: Long = 0L,
+        override val pinned: Boolean = false,
+        override val pinnedById: String? = null,
+        override val pinnedAt: ZonedDateTime? = null,
+        override val fromScheduled: Boolean = false,
 
-        var sticker: Sticker<Any>? = null
-)
+        @Indexed
+        override val index: Long = 0L,
+
+        override val sticker: Sticker<Any>? = null,
+        override val scheduledAt: ZonedDateTime? = null
+) : MessageInterface {
+        fun toElasticsearch() = MessageElasticsearch(id, text, referredMessageId, senderId, chatId, createdAt, updatedAt, deleted, deletedAt, deletedById, uploadAttachmentsIds, attachments, emoji, pinned, pinnedById, pinnedAt, fromScheduled, index, sticker)
+}

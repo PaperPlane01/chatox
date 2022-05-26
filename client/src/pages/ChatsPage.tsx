@@ -2,8 +2,8 @@ import React, {Fragment, FunctionComponent} from "react";
 import {createStyles, Grid, Hidden, makeStyles, Typography} from "@material-ui/core";
 import {HasRole} from "../Authorization";
 import {AppBar} from "../AppBar";
-import {ChatsOfCurrentUserList} from "../Chat";
-import {useLocalization} from "../store/hooks";
+import {ChatsOfCurrentUserListWrapper} from "../Chat";
+import {useLocalization} from "../store";
 
 const ScrollLock = require("react-scrolllock").default;
 
@@ -36,7 +36,7 @@ export const ChatsPage: FunctionComponent = () => {
                      )}
             >
                 <Grid item xs={12} style={{display: "flex"}}>
-                    <ChatsOfCurrentUserList/>
+                    <ChatsOfCurrentUserListWrapper/>
                     <Hidden mdDown>
                         <div className={classes.centered}>
                             <Typography variant="body1"

@@ -8,3 +8,6 @@ export * from "./ReverseScrollDirectionOption";
 export * from "./ChatDeletionStep";
 export * from "./DeleteChatFormData";
 export * from "./UpdateChatParticipantFormData";
+export * from "./ChatListEntry";
+export * from "./ChatLinkPropsGenerationStrategy";
+export * from "./ChatsOfCurrentUserListProps";

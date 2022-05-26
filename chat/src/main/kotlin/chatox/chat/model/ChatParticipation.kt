@@ -1,6 +1,9 @@
 package chatox.chat.model
 
 import org.springframework.data.annotation.Id
+import org.springframework.data.elasticsearch.annotations.DateFormat
+import org.springframework.data.elasticsearch.annotations.Field
+import org.springframework.data.elasticsearch.annotations.FieldType
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
@@ -8,36 +11,43 @@ import java.time.ZonedDateTime
 @Document
 data class ChatParticipation(
         @Id
-        var id: String? = null,
+        val id: String? = null,
 
         @Indexed
-        var chatId: String,
+        val chatId: String,
 
-        var user: User,
+        val user: User,
 
-        var role: ChatRole,
-
-        @Indexed
-        var lastReadMessageId: String? = null,
-
-        var lastReadMessageAt: ZonedDateTime? = null,
+        val role: ChatRole,
 
         @Indexed
-        var lastReadMessageCreatedAt: ZonedDateTime? = null,
+        val lastReadMessageId: String? = null,
+
+        val lastReadMessageAt: ZonedDateTime? = null,
+
+        @Indexed
+        val lastReadMessageCreatedAt: ZonedDateTime? = null,
 
         @Indexed
         val lastMessageReadId: String? = null,
+
+        @field:Field(type = FieldType.Date, format = DateFormat.ordinal_date_time)
         val createdAt: ZonedDateTime,
+
+        @field:Field(type = FieldType.Date, format = DateFormat.ordinal_date_time)
         val lastModifiedAt: ZonedDateTime? = null,
 
         @Indexed
-        var lastActiveChatBlockingId: String? = null,
-        var userOnline: Boolean = false,
-        var deleted: Boolean = false,
-        var deletedAt: ZonedDateTime? = null,
+        val lastActiveChatBlockingId: String? = null,
+        val userOnline: Boolean = false,
+        val deleted: Boolean = false,
+
+        @field:Field(type = FieldType.Date, format = DateFormat.ordinal_date_time)
+        val deletedAt: ZonedDateTime? = null,
 
         @Indexed
-        var deletedById: String? = null,
-        var userDisplayedName: String?,
-        var chatDeleted: Boolean = false
+        val deletedById: String? = null,
+        val userDisplayedName: String?,
+        val userSlug: String?,
+        val chatDeleted: Boolean = false
 )

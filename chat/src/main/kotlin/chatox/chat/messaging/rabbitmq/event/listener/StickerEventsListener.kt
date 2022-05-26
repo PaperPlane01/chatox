@@ -2,8 +2,8 @@ package chatox.chat.messaging.rabbitmq.event.listener
 
 import chatox.chat.messaging.rabbitmq.event.StickerPackCreated
 import chatox.chat.model.Sticker
-import chatox.chat.repository.StickerRepository
-import chatox.chat.repository.UploadRepository
+import chatox.chat.repository.mongodb.StickerRepository
+import chatox.chat.repository.mongodb.UploadRepository
 import com.rabbitmq.client.Channel
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono

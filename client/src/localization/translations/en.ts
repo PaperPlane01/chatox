@@ -467,5 +467,7 @@ export const en: Labels = {
     "blacklist.users.remove.error": "Error occurred when tried to unblock user. Server responded with {errorStatus} status",
     "common.error.server-unreachable": "Server is unreachable",
     "common.retry": "Retry",
-    "blacklist.users.error": "Error occurred when tried to fetch blacklisted users. Server responded with {errorStatus} status"
+    "blacklist.users.error": "Error occurred when tried to fetch blacklisted users. Server responded with {errorStatus} status",
+    "search.result.chats": "Found chats",
+    "search.result.messages": "Found messages"
 };

@@ -2,7 +2,7 @@ package chatox.chat.scheduled
 
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.UserResponse
-import chatox.chat.repository.ScheduledMessageRepository
+import chatox.chat.repository.mongodb.ScheduledMessageRepository
 import chatox.chat.service.MessageService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono

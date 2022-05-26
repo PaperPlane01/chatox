@@ -13,10 +13,10 @@ import chatox.chat.model.Chat
 import chatox.chat.model.ChatBlocking
 import chatox.chat.model.ChatRole
 import chatox.chat.model.User
-import chatox.chat.repository.ChatBlockingRepository
-import chatox.chat.repository.ChatRepository
-import chatox.chat.repository.MessageRepository
-import chatox.chat.repository.UserRepository
+import chatox.chat.repository.mongodb.ChatBlockingMongoRepository
+import chatox.chat.repository.mongodb.ChatRepository
+import chatox.chat.repository.mongodb.MessageMongoRepository
+import chatox.chat.repository.mongodb.UserRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatParticipationService
@@ -34,10 +34,10 @@ import java.time.ZonedDateTime
 
 @Service
 @Transactional
-class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRepository,
+class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingMongoRepository,
                               private val chatRepository: ChatRepository,
                               private val userRepository: UserRepository,
-                              private val messageRepository: MessageRepository,
+                              private val messageRepository: MessageMongoRepository,
                               private val authenticationFacade: AuthenticationFacade,
                               private val chatBlockingMapper: ChatBlockingMapper,
                               private val chatEventsPublisher: ChatEventsPublisher,

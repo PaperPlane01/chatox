@@ -15,17 +15,20 @@ import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatType
 import chatox.chat.model.ImageUploadMetadata
+import chatox.chat.model.Message
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
 import chatox.chat.model.User
-import chatox.chat.repository.ChatDeletionRepository
-import chatox.chat.repository.ChatMessagesCounterRepository
-import chatox.chat.repository.ChatParticipationRepository
-import chatox.chat.repository.ChatRepository
-import chatox.chat.repository.MessageRepository
-import chatox.chat.repository.UploadRepository
+import chatox.chat.repository.mongodb.ChatDeletionRepository
+import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
+import chatox.chat.repository.mongodb.ChatParticipationRepository
+import chatox.chat.repository.mongodb.ChatRepository
+import chatox.chat.repository.mongodb.MessageMongoRepository
+import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.impl.ChatServiceImpl
+import chatox.chat.support.UserDisplayedNameHelper
+import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.time.TimeService
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -52,7 +55,7 @@ class ChatServiceTests {
     lateinit var chatParticipationRepository: ChatParticipationRepository
 
     @Mock
-    lateinit var messageRepository: MessageRepository
+    lateinit var messageRepository: MessageMongoRepository
 
     @Mock
     lateinit var uploadRepository: UploadRepository
@@ -80,6 +83,12 @@ class ChatServiceTests {
 
     @Mock
     lateinit var messageService: MessageService
+
+    @Mock
+    lateinit var messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>
+
+    @Mock
+    lateinit var userDisplayedNameHelper: UserDisplayedNameHelper
 
     @Nested
     @DisplayName("updateChat() tests")
