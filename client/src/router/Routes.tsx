@@ -1,5 +1,5 @@
 import React, {lazy, Suspense} from "react";
-import {CircularProgress} from "@material-ui/core";
+import {CircularProgress} from "@mui/material";
 import {store} from "../store";
 import {getSettingsTabFromString} from "../Settings";
 import {ErrorBoundary} from "../ErrorBoundary";

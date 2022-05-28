@@ -1,7 +1,9 @@
 import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles, TableCell, TableRow} from "@material-ui/core";
-import {Check, Remove} from "@material-ui/icons";
+import { TableCell, TableRow } from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import {Check, Remove} from "@mui/icons-material";
 import {format} from "date-fns";
 import {CancelGlobalBanButton} from "./CancelGlobalBanButton";
 import {UpdateGlobalBanButton} from "./UpdateGlobalBanButton";

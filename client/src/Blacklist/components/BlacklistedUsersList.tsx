@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Card, CardContent, CardHeader, CircularProgress, List} from "@material-ui/core";
+import {Card, CardContent, CardHeader, CircularProgress, List} from "@mui/material";
 import {BlacklistedUsersListItem} from "./BlacklistedUsersListItem";
 import {useLocalization, useStore} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";

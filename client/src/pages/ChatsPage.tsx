@@ -1,6 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, Grid, Hidden, makeStyles, Typography, useMediaQuery, useTheme} from "@material-ui/core";
+import {Grid, Hidden, Typography, useMediaQuery, useTheme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {HasRole} from "../Authorization";
 import {AppBar} from "../AppBar";
 import {ChatsOfCurrentUserListWrapper} from "../Chat";
@@ -28,7 +29,7 @@ export const ChatsPage: FunctionComponent = observer(() => {
     const {l} = useLocalization();
     const classes = useStyles();
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down('xl'));
 
     const content = (
         <Grid container style={{overflow: "hidden"}}>
@@ -48,7 +49,7 @@ export const ChatsPage: FunctionComponent = observer(() => {
             >
                 <Grid item xs={12} style={{display: "flex"}}>
                     <ChatsOfCurrentUserListWrapper/>
-                    <Hidden mdDown>
+                    <Hidden xlDown>
                         <div className={classes.centered}>
                             <Typography variant="body1"
                                         color="textSecondary"
@@ -64,7 +65,7 @@ export const ChatsPage: FunctionComponent = observer(() => {
 
     return (
         <Fragment>
-            <Hidden mdDown>
+            <Hidden xlDown>
                 <ScrollLock>
                     {content}
                 </ScrollLock>

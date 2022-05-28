@@ -1,22 +1,13 @@
 import React, {forwardRef, Fragment, SyntheticEvent} from "react";
 import {observer} from "mobx-react";
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    createStyles,
-    IconButton,
-    makeStyles,
-    Menu,
-    Theme,
-    Typography
-} from "@material-ui/core";
-import {Close} from "@material-ui/icons";
+import {Card, CardContent, CardHeader, IconButton, Menu, Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Close} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {ClosePinnedMessageMenuItem} from "./ClosePinnedMessageMenuItem";
 import {UnpinMessageMenuItem} from "./UnpinMessageMenuItem";
-import {useAuthorization, useLocalization, useStore} from "../../store/hooks";
-import {useEmojiParser} from "../../Emoji/hooks";
+import {useAuthorization, useLocalization, useStore} from "../../store";
+import {useEmojiParser} from "../../Emoji";
 import {canUnpinMessage} from "../permissions";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 
@@ -27,7 +18,7 @@ interface PinnedMessageProps {
 const useStyles = makeStyles((theme: Theme) => createStyles({
     cardRoot: {
         maxHeight: 120,
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down('lg')]: {
             position: "fixed",
             zIndex: theme.zIndex.modal - 1
         }
@@ -157,10 +148,11 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
                 {ableToUnpinMessage
                     ? (
                         <Fragment>
-                            <IconButton className={classes.unpinButton}
-                                        disableRipple
-                                        {...closeOrUnpinMessageMenuButtonProps}
-                            >
+                            <IconButton
+                                className={classes.unpinButton}
+                                disableRipple
+                                {...closeOrUnpinMessageMenuButtonProps}
+                                size="large">
                                 <Close/>
                             </IconButton>
                             <Menu {...bindMenu(closeOrUnpinMessageMenuPopupState)}>
@@ -178,16 +170,17 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
                         </Fragment>
                     )
                     : (
-                        <IconButton onClick={event => {
-                            ensureEventWontPropagate(event);
+                        <IconButton
+                            onClick={event => {
+                                ensureEventWontPropagate(event);
 
-                            if (chat.pinnedMessageId) {
-                                closePinnedMessage(chat.pinnedMessageId);
-                            }
-                        }}
-                                    className={classes.unpinButton}
-                                    disableRipple
-                        >
+                                if (chat.pinnedMessageId) {
+                                    closePinnedMessage(chat.pinnedMessageId);
+                                }
+                            }}
+                            className={classes.unpinButton}
+                            disableRipple
+                            size="large">
                             <Close/>
                         </IconButton>
                     )

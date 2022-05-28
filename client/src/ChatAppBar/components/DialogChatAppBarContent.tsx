@@ -1,6 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {CardHeader, createStyles, makeStyles, Typography, useMediaQuery, useTheme} from "@material-ui/core";
+import {CardHeader, Typography, useMediaQuery, useTheme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {Avatar} from "../../Avatar";
 import {getOnlineOrLastSeenLabel, getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
@@ -37,7 +38,7 @@ export const DialogChatAppBarContent: FunctionComponent<DialogChatAppBarContentP
     const {l, dateFnsLocale} = useLocalization();
     const classes = useStyles();
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
 
     if (showInput) {
         return (

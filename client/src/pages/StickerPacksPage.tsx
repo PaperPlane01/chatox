@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {Grid} from "@material-ui/core";
+import {Grid} from "@mui/material";
 import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
 import {

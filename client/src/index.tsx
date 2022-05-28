@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import {Provider} from "mobx-react";
+import {parse} from "query-string";
 import {App} from "./App";
 import {store, routerStore} from "./store";
 import {Routes} from "./router";
 import * as serviceWorker from "./serviceWorker";
-import {parse} from "query-string";
 
 const {startRouter} = require("mobx-router");
 

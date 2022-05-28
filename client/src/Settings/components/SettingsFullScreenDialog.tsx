@@ -1,7 +1,8 @@
-import React, {FunctionComponent, ReactNode} from "react";
+import React, {FunctionComponent, PropsWithChildren, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {createStyles, Dialog, DialogContent, DialogTitle, IconButton, makeStyles} from "@material-ui/core";
-import {ArrowBack} from "@material-ui/icons";
+import {Dialog, DialogContent, DialogTitle, IconButton} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {ArrowBack} from "@mui/icons-material";
 import {Routes} from "../../router";
 import {useRouter} from "../../store";
 
@@ -19,7 +20,7 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-export const SettingsFullScreenDialog: FunctionComponent<SettingsFullScreenDialogProps> = observer(({
+export const SettingsFullScreenDialog: FunctionComponent<PropsWithChildren<SettingsFullScreenDialogProps>> = observer(({
     title,
     open,
     children
@@ -36,7 +37,7 @@ export const SettingsFullScreenDialog: FunctionComponent<SettingsFullScreenDialo
                       view={Routes.settingsPage}
                       store={routerStore}
                 >
-                    <IconButton>
+                    <IconButton size="large">
                         <ArrowBack/>
                     </IconButton>
                 </Link>
@@ -46,5 +47,5 @@ export const SettingsFullScreenDialog: FunctionComponent<SettingsFullScreenDialo
                 {children}
             </DialogContent>
         </Dialog>
-    )
+    );
 });

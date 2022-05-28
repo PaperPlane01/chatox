@@ -1,6 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles, ListItem, ListItemAvatar, ListItemText} from "@material-ui/core";
+import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {useStore} from "../../store";
 import {Avatar} from "../../Avatar";
 

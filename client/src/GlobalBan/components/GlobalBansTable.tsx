@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Card, CardContent, CircularProgress, Button, Table, TableBody, TableRow, TableHead, TableCell} from "@material-ui/core";
-import {useLocalization, useStore} from "../../store";
+import {Table, TableBody, TableCell, TableHead, TableRow} from "@mui/material";
 import {GlobalBansTableRow} from "./GlobalBansTableRow";
+import {useLocalization, useStore} from "../../store";
 
 export const GlobalBansTable: FunctionComponent = observer(() => {
     const {

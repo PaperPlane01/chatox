@@ -1,9 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Dialog, DialogContent, DialogActions, Button} from "@material-ui/core";
-import {useStore, useLocalization} from "../../store/hooks";
+import {Dialog, DialogContent, DialogActions, Button} from "@mui/material";
+import {useStore, useLocalization} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
-import {MessagesListItem} from "../../Message/components";
+import {MessagesListItem} from "../../Message";
 
 export const ReportedMessageDialog: FunctionComponent = observer(() => {
     const {

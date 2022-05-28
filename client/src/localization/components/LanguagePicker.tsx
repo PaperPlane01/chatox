@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Card, CardContent, CardHeader, FormControlLabel, Radio, RadioGroup} from "@material-ui/core";
+import {Card, CardContent, CardHeader, FormControlLabel, Radio, RadioGroup} from "@mui/material";
 import {Language} from "../types";
 import {LanguageLabel} from "./LanguageLabel";
 import {useLocalization, useStore} from "../../store";

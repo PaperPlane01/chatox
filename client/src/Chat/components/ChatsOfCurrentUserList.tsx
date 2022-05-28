@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {CircularProgress, Divider, List} from "@material-ui/core";
+import {CircularProgress, Divider, List} from "@mui/material";
 import {ChatsOfCurrentUserListItem} from "./ChatsOfCurrentUserListItem";
 import {useStore} from "../../store";
 import {ChatsOfCurrentUserListProps} from "../types";
@@ -35,5 +35,5 @@ export const ChatsOfCurrentUserList: FunctionComponent<ChatsOfCurrentUserListPro
                </Fragment>
            ))}
        </List>
-   )
+   );
 });

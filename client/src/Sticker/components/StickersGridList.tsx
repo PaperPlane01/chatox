@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {GridList, GridListTile} from "@material-ui/core";
+import {ImageList, ImageListItem} from "@mui/material";
 import {Sticker} from "./Sticker";
 import {useStore} from "../../store";
 
@@ -37,17 +37,17 @@ export const StickersGridList: FunctionComponent<StickersGridListProps> = observ
     };
 
     return (
-        <GridList cols={5}>
+        <ImageList cols={5}>
             {stickers.map(stickerId => (
-                <GridListTile cols={1}
+                <ImageListItem cols={1}
                               key={stickerId}
                               style={gridListTileStyle}
                 >
                     <Sticker stickerId={stickerId}
                              onClick={() => handleStickerClick(stickerId)}
                     />
-                </GridListTile>
+                </ImageListItem>
             ))}
-        </GridList>
+        </ImageList>
     );
 });

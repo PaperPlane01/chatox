@@ -1,10 +1,12 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, IconButton, makeStyles, Mark, Menu, Slider, Theme, Typography} from "@material-ui/core";
-import {Pause, PlayArrow, VolumeDown, VolumeOff, VolumeUp} from "@material-ui/icons";
+import {IconButton, Menu, Slider, Theme, Typography} from "@mui/material";
+import {Mark} from "@mui/base";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Pause, PlayArrow, VolumeDown, VolumeOff, VolumeUp} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {format} from "date-fns";
-import {useStore} from "../../store/hooks";
+import {useStore} from "../../store";
 
 interface AudioPlayerControlsProps {
     audioId: string
@@ -18,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     trackMarkLabel: {
         top: 0,
         paddingTop: theme.spacing(3) + 2,
-        [theme.breakpoints.down("sm")]: {
+        [theme.breakpoints.down('lg')]: {
             paddingTop: theme.spacing(2)
         }
     },
@@ -42,7 +44,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         display: "flex",
         width: "80%",
         alignItems: "flex-start",
-        [theme.breakpoints.down("sm")]: {
+        [theme.breakpoints.down('lg')]: {
             width: "90%"
         }
     },
@@ -101,21 +103,23 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                 "mm:ss"
             )
         }
-    ]
+    ];
 
     return (
         <div>
             <div className={classes.playerControlsWrapper}>
                 {playing && currentTrackId === audioId && (
-                    <IconButton onClick={() => setPlaying(false)}>
+                    <IconButton onClick={() => setPlaying(false)} size="large">
                         <Pause/>
                     </IconButton>
                 )}
                 {(!playing || (currentTrackId !== audioId)) && (
-                    <IconButton onClick={() => {
-                        setCurrentTrackId(audioId);
-                        setPlaying(true);
-                    }}>
+                    <IconButton
+                        onClick={() => {
+                            setCurrentTrackId(audioId);
+                            setPlaying(true);
+                        }}
+                        size="large">
                         <PlayArrow/>
                     </IconButton>
                 )}
@@ -141,7 +145,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                     />
                 </div>
                 <Fragment>
-                    <IconButton {...bindToggle(volumePopupState)}>
+                    <IconButton {...bindToggle(volumePopupState)} size="large">
                         {volume >= 0.6 && (
                             <VolumeUp/>
                         )}
@@ -177,5 +181,5 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                 </Fragment>
             </div>
         </div>
-    )
+    );
 })

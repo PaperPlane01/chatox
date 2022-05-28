@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {IconButton, Tooltip} from "@material-ui/core";
-import {Edit} from "@material-ui/icons";
+import {IconButton, Tooltip} from "@mui/material";
+import {Edit} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
 
 interface UpdateChatBlockingButtonProps {
@@ -24,9 +24,9 @@ export const UpdateChatBlockingButton: FunctionComponent<UpdateChatBlockingButto
 
     return (
         <Tooltip title={l("chat.blocking.edit")}>
-            <IconButton onClick={handleClick}>
+            <IconButton onClick={handleClick} size="large">
                 <Edit/>
             </IconButton>
         </Tooltip>
-    )
+    );
 });

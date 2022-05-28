@@ -12,7 +12,7 @@ import {
     TableCell,
     TableRow,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import {format} from "date-fns";
 import {CancelChatBlockingButton} from "./CancelChatBlockingButton";
 import {UserLink} from "../../UserLink";
@@ -151,5 +151,5 @@ export const ChatBlockingInfoDialog: FunctionComponent = observer(() => {
                 </Button>
             </DialogActions>
         </Dialog>
-    )
+    );
 });

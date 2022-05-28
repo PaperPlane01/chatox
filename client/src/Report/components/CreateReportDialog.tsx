@@ -1,11 +1,11 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress, TextField, Typography} from "@material-ui/core";
+import {Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress, TextField, Typography} from "@mui/material";
 import {ReportReasonSelect} from "./ReportReasonSelect";
 import {CreateReportFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {useLocalization} from "../../store/hooks";
+import {useLocalization} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 
 interface CreateReportDialogProps {
@@ -62,7 +62,7 @@ export const CreateReportDialog: FunctionComponent<CreateReportDialogProps> = ob
                                        fullWidth
                                        multiline
                                        rows={4}
-                                       rowsMax={4}
+                                       maxRows={4}
                                        margin="dense"
                             />
                             {error && (

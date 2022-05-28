@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {SvgIcon, SvgIconProps} from "@material-ui/core";
+import {SvgIcon, SvgIconProps} from "@mui/material";
 
 export const Pin: FunctionComponent<SvgIconProps> = (props) => (
     <SvgIcon {...props}>

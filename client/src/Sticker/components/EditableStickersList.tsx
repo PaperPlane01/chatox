@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {GridList, GridListTile, useMediaQuery, useTheme} from "@material-ui/core";
+import {ImageList, ImageListItem, useMediaQuery, useTheme} from "@mui/material";
 import {EditableSticker} from "./EditableSticker";
 import {AddStickerButton} from "./AddStickerButton";
 import {StickerContainer} from "../stores";
@@ -13,19 +13,19 @@ export const EditableStickersList: FunctionComponent<EditableStickersListProps> 
     stickerContainers
 }) => {
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
     return (
-        <GridList cols={onSmallScreen ? 2 : 4}>
+        <ImageList cols={onSmallScreen ? 2 : 4}>
             {stickerContainers.map(stickerContainer => (
-                <GridListTile cols={1}>
+                <ImageListItem cols={1}>
                     <EditableSticker stickerContainer={stickerContainer}/>
-                </GridListTile>
+                </ImageListItem>
             ))}
-            <GridListTile cols={1}>
+            <ImageListItem cols={1}>
                 <AddStickerButton/>
-            </GridListTile>
-        </GridList>
+            </ImageListItem>
+        </ImageList>
     );
 });
 

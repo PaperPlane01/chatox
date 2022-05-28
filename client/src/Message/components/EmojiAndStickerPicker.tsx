@@ -1,11 +1,14 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, Tab, useMediaQuery, useTheme} from "@material-ui/core";
-import {TabContext, TabList, TabPanel} from "@material-ui/lab";
-import {EmojiData, Picker} from "emoji-mart";
+import {Tab, useMediaQuery, useTheme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {TabContext, TabList, TabPanel} from "@mui/lab";
+import {EmojiData} from "emoji-mart";
 import {StickerPicker} from "../../Sticker";
 import {useLocalization, useStore} from "../../store";
-import {makeStyles} from "@material-ui/core/styles";
+
+//FIXME Temporary fix due to broken type definitions
+const {Picker} = require("emoji-mart");
 
 interface EmojiAndStickerPickerProps {
     onEmojiPicked: (emoji: EmojiData) => void,
@@ -37,7 +40,7 @@ export const EmojiAndStickerPicker: FunctionComponent<EmojiAndStickerPickerProps
     const {l} = useLocalization();
     const classes = useStyles();
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down('lg'));
     const pickerStyles = onSmallScreen
         ? {width: "100%", backgroundColor: theme.palette.background.paper}
         : {};
@@ -59,7 +62,6 @@ export const EmojiAndStickerPicker: FunctionComponent<EmojiAndStickerPickerProps
                             autoFocus={false}
                             native={selectedEmojiSet === "native"}
                             style={pickerStyles}
-
                     />
                 </TabPanel>
                 <TabPanel value="stickers"

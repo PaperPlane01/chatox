@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText} from "@material-ui/core";
-import {Visibility} from "@material-ui/icons";
-import {useStore, useLocalization} from "../../store/hooks";
+import {MenuItem, ListItemIcon, ListItemText} from "@mui/material";
+import {Visibility} from "@mui/icons-material";
+import {useStore, useLocalization} from "../../store";
 
 interface ShowPinnedMessageMenuItemProps {
     onClick?: () => void

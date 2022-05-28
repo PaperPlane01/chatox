@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import ReactMarkdown from "react-markdown";
 import {useEmojiParser} from "../hooks";
 import {MessageEmoji} from "../../api/types/response";
+import {Typography} from "@mui/material";
 
 const remarkBreaks = require("remark-breaks");
 
@@ -16,17 +17,17 @@ export const MarkdownTextWithEmoji: FunctionComponent<MardkownTextWithEmojiProps
     const {parseEmoji} = useEmojiParser();
 
     return (
-        <ReactMarkdown source={text}
-                       plugins={disableRemarkBreaks ? [] : [remarkBreaks]}
-                       renderers={{
-                           text: props => {
+        <ReactMarkdown children={text}
+                       remarkPlugins={disableRemarkBreaks ? [] : [remarkBreaks]}
+                       components={{
+                           p: ({node}) => {
                                return (
-                                   <Fragment>
-                                       {parseEmoji(props.value as string, emojiData)}
-                                   </Fragment>
+                                   <Typography paddingBottom={0}>
+                                       {parseEmoji((node.children[0] as any).value, emojiData)}
+                                   </Typography>
                                )
                            }
                        }}
         />
-    )
+    );
 })

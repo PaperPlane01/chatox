@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ListItem, ListItemAvatar, ListItemText} from "@material-ui/core";
+import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
 import randomColor from "randomcolor";
 import {BlacklistedUserMenu} from "./BlacklistedUserMenu";
 import {Avatar} from "../../Avatar";

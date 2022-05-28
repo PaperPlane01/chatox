@@ -1,8 +1,8 @@
 import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
-import {IconButton, AppBar, Typography, Toolbar} from "@material-ui/core";
-import {ArrowBack} from "@material-ui/icons";
-import {useRouter, useStore, useLocalization} from "../../store/hooks";
+import {IconButton, AppBar, Typography, Toolbar} from "@mui/material";
+import {ArrowBack} from "@mui/icons-material";
+import {useRouter, useStore, useLocalization} from "../../store";
 import {Routes} from "../../router";
 
 const {Link} = require("mobx-router");

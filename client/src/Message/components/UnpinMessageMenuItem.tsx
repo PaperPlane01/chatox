@@ -1,7 +1,7 @@
 import React, {FunctionComponent, MouseEvent} from "react";
 import {observer} from "mobx-react";
-import {ListItemText, MenuItem} from "@material-ui/core";
-import {useLocalization, useStore} from "../../store/hooks";
+import {ListItemText, MenuItem} from "@mui/material";
+import {useLocalization, useStore} from "../../store";
 
 interface UnpinMessageMenuItemProps {
     onClick?: (event: MouseEvent) => void

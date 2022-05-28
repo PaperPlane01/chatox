@@ -3,7 +3,6 @@ import {observer} from "mobx-react";
 import {
     Button,
     CircularProgress,
-    createStyles,
     Dialog,
     DialogActions,
     DialogContent,
@@ -11,15 +10,15 @@ import {
     FormControl,
     FormControlLabel,
     InputLabel,
-    makeStyles,
     MenuItem,
     Select,
     Switch,
     TextField,
     Typography,
     useTheme
-} from "@material-ui/core";
-import {DateTimePicker} from "@material-ui/pickers";
+} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {DateTimePicker} from "@mui/x-date-pickers";
 import {useSnackbar} from "notistack";
 import randomColor from "randomcolor";
 import {RecentMessagesDeletionPeriod} from "../types";
@@ -123,17 +122,17 @@ export const CreateChatBlockingDialog: FunctionComponent = observer(() => {
                         {user.firstName} {user.lastName && user.lastName}
                     </Typography>
                 </div>
-                <DateTimePicker label={l("chat.blocking.blocked-until")}
-                                value={formData.blockedUntil}
+                <DateTimePicker value={formData.blockedUntil}
                                 onChange={date => setFormValue("blockedUntil", date ? date : undefined)}
                                 disablePast
-                                autoOk
-                                error={Boolean(errors.blockedUntil)}
-                                helperText={errors.blockedUntil && l(errors.blockedUntil)}
-                                format="dd MMMM yyyy HH:mm"
-                                fullWidth
-                                margin="dense"
+                                inputFormat="dd MMMM yyyy HH:mm"
                                 ampm={false}
+                                renderInput={props => (
+                                    <TextField {...props}
+                                               label={l("chat.blocking.blocked-until")}
+                                    />
+                                )}
+                                showToolbar
                 />
                 <TextField label={l("chat.blocking.description")}
                            value={formData.description}
@@ -199,5 +198,5 @@ export const CreateChatBlockingDialog: FunctionComponent = observer(() => {
                 </Button>
             </DialogActions>
         </Dialog>
-    )
+    );
 });

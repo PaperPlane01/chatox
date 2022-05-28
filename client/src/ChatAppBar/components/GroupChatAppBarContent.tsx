@@ -1,13 +1,14 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {CardHeader, createStyles, makeStyles, Typography, useMediaQuery, useTheme} from "@material-ui/core";
+import {CardHeader, Typography, useMediaQuery, useTheme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
+import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
 import {ChatMenu} from "../../Chat";
 import {getAvatarLabel} from "../../Chat/utils";
 import {useLocalization, useStore} from "../../store";
 import {trimString} from "../../utils/string-utils";
 import {Avatar} from "../../Avatar";
-import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
 
 interface GroupChatAppBarContentProps {
     chatId: string
@@ -41,7 +42,7 @@ export const GroupChatAppBarContent: FunctionComponent<GroupChatAppBarContentPro
     const {l} = useLocalization();
     const classes = useStyles();
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
     if (showInput) {
         return <ChatAppBarSearchInput/>

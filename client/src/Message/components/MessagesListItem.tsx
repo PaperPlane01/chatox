@@ -1,17 +1,8 @@
 import React, {Fragment, FunctionComponent, memo, ReactNode, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {
-    Card,
-    CardActions,
-    CardContent,
-    CardHeader,
-    createStyles,
-    makeStyles,
-    Theme,
-    Tooltip,
-    Typography,
-} from "@material-ui/core";
-import {Edit, Event} from "@material-ui/icons";
+import {Card, CardActions, CardContent, CardHeader, Theme, Tooltip, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Edit, Event} from "@mui/icons-material";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactVisibilitySensor from "react-visibility-sensor";
@@ -23,14 +14,14 @@ import {MessageImagesSimplifiedGrid} from "./MessageImagesSimplifiedGrid";
 import {ReferredMessageContent} from "./ReferredMessageContent";
 import {MessageAudios} from "./MessageAudios";
 import {MessageFiles} from "./MessageFiles";
+import {MessageSticker} from "./MessageSticker";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {MarkdownTextWithEmoji} from "../../Emoji/components";
-import {TranslationFunction} from "../../localization/types";
+import {MarkdownTextWithEmoji} from "../../Emoji";
+import {TranslationFunction} from "../../localization";
 import {MessageEntity} from "../types";
-import {UserEntity} from "../../User/types";
-import {MessageSticker} from "./MessageSticker";
+import {UserEntity} from "../../User";
 
 const {Link} = require("mobx-router");
 
@@ -77,7 +68,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         }
     },
     messageOfCurrentUserListItemWrapper: {
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down("lg")]: {
             flexDirection: "row-reverse"
         }
     },
@@ -87,10 +78,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         [theme.breakpoints.up("lg")]: {
             maxWidth: "50%"
         },
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down("lg")]: {
             maxWidth: "60%"
         },
-        [theme.breakpoints.down("sm")]: {
+        [theme.breakpoints.down("md")]: {
             maxWidth: "80%"
         },
         overflowX: "auto"
@@ -136,7 +127,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         [theme.breakpoints.up("lg")]: {
             paddingRight: theme.spacing(1),
         },
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down("lg")]: {
             paddingLeft: theme.spacing(1),
         }
     },
@@ -150,10 +141,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         [theme.breakpoints.up("lg")]: {
             width: "30% !important"
         },
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down("lg")]: {
             width: "70% !important"
         },
-        [theme.breakpoints.down("sm")]: {
+        [theme.breakpoints.down("md")]: {
             width: "80% !important"
         },
     },

@@ -10,9 +10,9 @@ import {
     Switch,
     TextField,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import {parseReverseScrollingDirectionOptionFromString, ReverseScrollDirectionOption} from "../types";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 
 interface ChatsPreferencesCardProps {
     hideHeader?: boolean
@@ -102,5 +102,5 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                 )}
             </CardContent>
         </Card>
-    )
-})
+    );
+});

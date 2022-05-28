@@ -1,6 +1,7 @@
 import React, {Fragment, FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
-import {createStyles, Hidden, makeStyles, Theme} from "@material-ui/core";
+import {Hidden, Theme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import clsx from "clsx";
 import {ChatsOfCurrentUserList} from "./ChatsOfCurrentUserList";
 import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
@@ -23,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             width: 480,
             overflow: "auto"
         },
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down("lg")]: {
             width: "100%"
         },
         position: "relative"
@@ -64,28 +65,28 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
     };
 
     return (
-       <Fragment>
-           <div className={classes.chatListWrapper}
-                onMouseEnter={() => setHovered(true)}
-                onMouseLeave={() => setHovered(false)}
-           >
-               <Hidden mdDown>
-                   <div style={{flex: 1}}>
-                       <ChatsAndMessagesSearchInput style={{padding: "8px"}}/>
-                   </div>
-               </Hidden>
-               {searchModeActive
-                   ? <ChatsAndMessagesSearchResult {...listProps}/>
-                   : <ChatsOfCurrentUserList {...listProps}/>
-               }
-               <Hidden lgUp>
-                   {canCreateChat(authorization) && <CreateChatFloatingActionButton/>}
-               </Hidden>
-               <Hidden mdDown>
-                   {hovered && (authorization) && <CreateChatFloatingActionButton/>}
-               </Hidden>
-           </div>
-           <CreateChatDialog/>
-       </Fragment>
-    )
+        <Fragment>
+            <div className={classes.chatListWrapper}
+                 onMouseEnter={() => setHovered(true)}
+                 onMouseLeave={() => setHovered(false)}
+            >
+                <Hidden lgDown>
+                    <div style={{flex: 1}}>
+                        <ChatsAndMessagesSearchInput style={{padding: "8px"}}/>
+                    </div>
+                </Hidden>
+                {searchModeActive
+                    ? <ChatsAndMessagesSearchResult {...listProps}/>
+                    : <ChatsOfCurrentUserList {...listProps}/>
+                }
+                <Hidden lgUp>
+                    {canCreateChat(authorization) && <CreateChatFloatingActionButton/>}
+                </Hidden>
+                <Hidden lgDown>
+                    {hovered && (authorization) && <CreateChatFloatingActionButton/>}
+                </Hidden>
+            </div>
+            <CreateChatDialog/>
+        </Fragment>
+    );
 })

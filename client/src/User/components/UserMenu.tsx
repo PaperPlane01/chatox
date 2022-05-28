@@ -1,10 +1,10 @@
 import React, {FunctionComponent, Fragment, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {IconButton, Menu} from "@material-ui/core";
-import {MoreVert} from "@material-ui/icons";
+import {IconButton, Menu} from "@mui/material";
+import {MoreVert} from "@mui/icons-material";
 import {usePopupState, bindMenu, bindToggle} from "material-ui-popup-state/hooks";
 import {canReportUser, ReportUserMenuItem} from "../../Report";
-import {useAuthorization} from "../../store/hooks";
+import {useAuthorization} from "../../store";
 
 interface UserMenuProps {
     userId: string
@@ -28,7 +28,7 @@ export const UserMenu: FunctionComponent<UserMenuProps> = observer(({
 
     return (
         <Fragment>
-            <IconButton {...bindToggle(popupState)}>
+            <IconButton {...bindToggle(popupState)} size="large">
                 <MoreVert/>
             </IconButton>
             <Menu {...bindMenu(popupState)}>

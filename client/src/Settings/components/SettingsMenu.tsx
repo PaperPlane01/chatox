@@ -1,7 +1,8 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, List, ListItemIcon, ListItemText, makeStyles, MenuItem, Typography} from "@material-ui/core";
-import {ChatBubble, Image, Language, Palette, Person, Security} from "@material-ui/icons";
+import {List, ListItemIcon, ListItemText, MenuItem, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {ChatBubble, Image, Language, Palette, Person, Security} from "@mui/icons-material";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
 import {ChangePasswordContainer, EditProfileForm} from "../../User";
 import {EmojiSetPicker} from "../../Emoji";
@@ -158,5 +159,5 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                 </HasAnyRole>
             </SettingsFullScreenDialog>
         </Fragment>
-    )
+    );
 });

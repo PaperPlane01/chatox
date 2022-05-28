@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, CircularProgress} from "@material-ui/core";
+import {Button, CircularProgress} from "@mui/material";
 import {useSnackbar} from "notistack";
 import {useLocalization, useStore} from "../../store";
 
@@ -41,5 +41,5 @@ export const JoinChatButton: FunctionComponent = observer(() => {
             {pending && <CircularProgress size={15} color="primary"/>}
             {l("chat.join")}
         </Button>
-    )
+    );
 });

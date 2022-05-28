@@ -1,8 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, createStyles, makeStyles, Theme} from "@material-ui/core";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {Button, Theme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {stringify} from "query-string";
+import {useLocalization, useRouter, useStore} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     loginWithGoogleButton: {

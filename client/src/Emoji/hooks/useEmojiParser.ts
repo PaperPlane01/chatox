@@ -21,6 +21,8 @@ export const useEmojiParser = (): UseEmojiParser => {
     } = useStore();
 
     const parseEmoji = (text: string, emojiData?: MessageEmoji): ReactNode | ReactNode[] => {
+        console.log(text);
+
         return emojiParser.parseEmoji(text, {
             set: selectedEmojiSet,
             emojiData,

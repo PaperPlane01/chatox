@@ -1,6 +1,7 @@
 import React, {ChangeEvent, Fragment, FunctionComponent, useState} from "react";
-import {Button, CircularProgress, createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
-import {Image} from "@material-ui/icons";
+import {Button, CircularProgress, Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Image} from "@mui/icons-material";
 import {ApiError} from "../../api";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ImageUploadMetadata} from "../../api/types/response";
@@ -75,5 +76,5 @@ export const ImageUpload: FunctionComponent<ImageUploadProps> = ({
                 </Typography>
             )}
         </Fragment>
-    )
+    );
 };

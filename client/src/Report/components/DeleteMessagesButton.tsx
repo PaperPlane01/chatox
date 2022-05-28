@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {BottomNavigationAction, CircularProgress} from "@material-ui/core";
-import {Delete} from "@material-ui/icons";
-import {useLocalization, useStore} from "../../store/hooks";
+import {BottomNavigationAction, CircularProgress} from "@mui/material";
+import {Delete} from "@mui/icons-material";
+import {useLocalization, useStore} from "../../store";
 
 export const DeleteMessagesButton: FunctionComponent = observer(() => {
     const {

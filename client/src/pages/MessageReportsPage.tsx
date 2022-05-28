@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Grid, Typography} from "@material-ui/core";
+import {Grid, Typography} from "@mui/material";
 import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
 import {HasRole} from "../Authorization";
@@ -12,7 +12,7 @@ import {
     DeleteMessagesSnackbarManager,
     BanMessageSendersDialog
 } from "../Report";
-import {useLocalization} from "../store/hooks";
+import {useLocalization} from "../store";
 
 const StickyFooter = require("react-sticky-footer").default;
 

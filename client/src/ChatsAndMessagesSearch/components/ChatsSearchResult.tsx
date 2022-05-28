@@ -8,7 +8,7 @@ import {
     Divider,
     List,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import {useLocalization, useStore} from "../../store";
 import {ChatsOfCurrentUserListProps, ChatsOfCurrentUserListItem} from "../../Chat";
 

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
-import PersonAddIcon from "@material-ui/icons/PersonAdd";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import {useLocalization, useStore} from "../../store";
 
 interface RegistrationMenuItemProps {
@@ -35,5 +35,5 @@ export const RegistrationMenuItem: FunctionComponent<RegistrationMenuItemProps> 
                 {l("register")}
             </ListItemText>
         </MenuItem>
-    )
+    );
 });

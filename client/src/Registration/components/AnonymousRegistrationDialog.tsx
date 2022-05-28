@@ -7,14 +7,15 @@ import {
     Button,
     CircularProgress,
     TextField,
-    createStyles,
-    makeStyles,
-    Theme, Typography
-} from "@material-ui/core";
-import {useLocalization, useStore} from "../../store/hooks";
+    Theme,
+    Typography,
+} from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {TranslationFunction} from "../../localization/types";
+import {TranslationFunction} from "../../localization";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     registerButton: {
@@ -104,5 +105,5 @@ export const AnonymousRegistrationDialog: FunctionComponent = observer(() => {
                 </Button>
             </DialogContent>
         </Dialog>
-    )
-})
+    );
+});

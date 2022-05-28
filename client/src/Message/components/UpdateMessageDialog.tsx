@@ -10,8 +10,7 @@ import {
     InputAdornment,
     TextField,
     Typography,
-    withMobileDialog
-} from "@material-ui/core";
+} from "@mui/material";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {Language, TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
@@ -121,7 +120,7 @@ export const UpdateMessageDialog: FunctionComponent = observer(() => {
                            margin="dense"
                            multiline
                            rows={4}
-                           rowsMax={Number.MAX_SAFE_INTEGER}
+                           maxRows={Number.MAX_SAFE_INTEGER}
                            InputProps={{
                                endAdornment: (
                                    <InputAdornment position="end">
@@ -150,5 +149,5 @@ export const UpdateMessageDialog: FunctionComponent = observer(() => {
             </DialogActions>
             <MarkdownPreviewDialog text={updateMessageForm.text}/>
         </Dialog>
-    )
+    );
 });

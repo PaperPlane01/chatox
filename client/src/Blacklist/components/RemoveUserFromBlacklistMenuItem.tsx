@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {CircularProgress, ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
-import {Block} from "@material-ui/icons";
+import {CircularProgress, ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {Block} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
 
 interface RemoveUserFromBlacklistMenuItemProps {

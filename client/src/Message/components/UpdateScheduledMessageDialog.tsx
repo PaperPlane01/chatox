@@ -10,15 +10,15 @@ import {
     InputAdornment,
     TextField,
     Typography
-} from "@material-ui/core";
-import {DateTimePicker} from "@material-ui/pickers";
+} from "@mui/material";
+import {DateTimePicker} from "@mui/x-date-pickers";
 import {useSnackbar} from "notistack";
-import {useLocalization, useStore} from "../../store/hooks";
+import {addMinutes, addMonths} from "date-fns";
+import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {TranslationFunction} from "../../localization/types";
-import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown/components";
-import {addMinutes, addMonths} from "date-fns";
+import {TranslationFunction} from "../../localization";
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 
 const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     if (error.metadata && error.metadata.errorCode) {
@@ -94,7 +94,7 @@ export const UpdateScheduledMessageDialog: FunctionComponent = observer(() => {
                            margin="dense"
                            multiline
                            rows={4}
-                           rowsMax={Number.MAX_SAFE_INTEGER}
+                           maxRows={Number.MAX_SAFE_INTEGER}
                            InputProps={{
                                endAdornment: (
                                    <InputAdornment position="end">
@@ -105,21 +105,25 @@ export const UpdateScheduledMessageDialog: FunctionComponent = observer(() => {
                 />
                 <DateTimePicker value={formValues.scheduledAt}
                                 onChange={date => setFormValue("scheduledAt", date!)}
-                                openTo="date"
-                                format="dd MMMM yyyy HH:mm"
+                                openTo="day"
+                                inputFormat="dd MMMM yyyy HH:mm"
                                 minDate={addMinutes(new Date(), 5)}
                                 maxDate={addMonths(new Date(), 1)}
                                 disablePast
-                                fullWidth
-                                margin="dense"
-                                error={Boolean(
-                                    formErrors.scheduledAt
-                                    || (error && error.metadata
-                                    && error.metadata.errorCode
-                                    && error.metadata.errorCode === "SCHEDULED_MESSAGE_IS_TOO_CLOSE_TO_ANOTHER_SCHEDULED_MESSAGE")
-                                )}
-                                helperText={formErrors.scheduledAt && l(formErrors.scheduledAt)}
                                 ampm={false}
+                                renderInput={props => (
+                                    <TextField {...props}
+                                               fullWidth
+                                               margin="dense"
+                                               error={Boolean(
+                                                   formErrors.scheduledAt
+                                                   || (error && error.metadata
+                                                       && error.metadata.errorCode
+                                                       && error.metadata.errorCode === "SCHEDULED_MESSAGE_IS_TOO_CLOSE_TO_ANOTHER_SCHEDULED_MESSAGE")
+                                               )}
+                                               helperText={formErrors.scheduledAt && l(formErrors.scheduledAt)}
+                                    />
+                                )}
                 />
                 <Typography style={{color: "red"}}>
                     {error && getErrorText(error, l)}

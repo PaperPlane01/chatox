@@ -1,9 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Dialog} from "@material-ui/core";
-import {useStore} from "../../store/hooks";
+import {Dialog} from "@mui/material";
+import {useStore} from "../../store";
 import {ChangePasswordStep} from "../types";
-import {CheckEmailConfirmationCodeDialogContent} from "../../EmailConfirmation/components";
+import {CheckEmailConfirmationCodeDialogContent} from "../../EmailConfirmation";
 import {useMobileDialog} from "../../utils/hooks";
 
 export const CheckPasswordChangeEmailConfirmationDialog: FunctionComponent = observer(() => {
@@ -28,5 +28,5 @@ export const CheckPasswordChangeEmailConfirmationDialog: FunctionComponent = obs
                                                      confirmationCodeId={emailConfirmationCodeResponse && emailConfirmationCodeResponse.id}
             />
         </Dialog>
-    )
+    );
 });

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {ExitToApp} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
 
 interface LogOutMenuItemProps {
@@ -23,11 +23,11 @@ export const LogOutMenuItem: FunctionComponent<LogOutMenuItemProps> = observer((
     return (
         <MenuItem onClick={handleClick}>
             <ListItemIcon>
-                <ExitToAppIcon/>
+                <ExitToApp/>
             </ListItemIcon>
             <ListItemText>
                 {l("logout")}
             </ListItemText>
         </MenuItem>
-    )
+    );
 });

@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Hidden} from "@material-ui/core";
+import {Hidden} from "@mui/material";
 import {ChatsAndMessagesSearchButton} from "./ChatsAndMessagesSearchButton";
 import {ChatsAndMessagesSearchInput} from "./ChatsAndMessagesSearchInput";
 import {useStore} from "../../store";

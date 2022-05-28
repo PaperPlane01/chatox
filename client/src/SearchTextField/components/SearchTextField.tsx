@@ -1,7 +1,8 @@
 import React, {ChangeEvent, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, IconButton, InputAdornment, makeStyles, TextField, TextFieldProps} from "@material-ui/core";
-import {Close, Search} from "@material-ui/icons";
+import {IconButton, InputAdornment, TextField, TextFieldProps} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Close, Search} from "@mui/icons-material";
 import {useLocalization} from "../../store";
 
 const useClasses = makeStyles(() => createStyles({
@@ -78,9 +79,7 @@ export const SearchTextField: FunctionComponent<SearchTextFieldProps> = observer
                        ),
                        endAdornment: !hideClearButton && (
                            <InputAdornment position="end">
-                               <IconButton onClick={handleClear}
-                                           color="inherit"
-                               >
+                               <IconButton onClick={handleClear} color="inherit" size="large">
                                    <Close/>
                                </IconButton>
                            </InputAdornment>

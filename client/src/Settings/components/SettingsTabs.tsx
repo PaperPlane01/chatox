@@ -1,17 +1,9 @@
 import React, {ChangeEvent, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {
-    createStyles,
-    ListItemIcon,
-    ListItemText,
-    makeStyles,
-    MenuItem,
-    Tab,
-    Theme,
-    Typography
-} from "@material-ui/core";
-import {TabContext, TabList, TabPanel} from "@material-ui/lab";
-import {Language, Palette, Person, Security, ChatBubble, Image, Block} from "@material-ui/icons";
+import {ListItemIcon, ListItemText, MenuItem, Tab, Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {TabContext, TabList, TabPanel} from "@mui/lab";
+import {Language, Palette, Person, Security, ChatBubble, Image, Block} from "@mui/icons-material";
 import {SettingsTab} from "../types";
 import {HasAnyRole, HasRole} from "../../Authorization";
 import {EditProfileForm, ChangePasswordContainer} from "../../User";
@@ -222,5 +214,5 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                 </TabPanel>
             </TabContext>
         </div>
-    )
+    );
 });

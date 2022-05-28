@@ -9,8 +9,8 @@ import {
     InputAdornment,
     TextField,
     Typography,
-} from "@material-ui/core";
-import {Visibility, VisibilityOff} from "@material-ui/icons";
+} from "@mui/material";
+import {Visibility, VisibilityOff} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
 
 export const RegisterStep: FunctionComponent = observer(() => {
@@ -67,7 +67,7 @@ export const RegisterStep: FunctionComponent = observer(() => {
                            InputProps={{
                                endAdornment: (
                                    <InputAdornment position="end">
-                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)}>
+                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)} size="large">
                                            {displayPassword
                                                ? <VisibilityOff/>
                                                : <Visibility/>
@@ -88,7 +88,7 @@ export const RegisterStep: FunctionComponent = observer(() => {
                            InputProps={{
                                endAdornment: (
                                    <InputAdornment position="end">
-                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)}>
+                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)} size="large">
                                            {displayPassword
                                                ? <VisibilityOff/>
                                                : <Visibility/>
@@ -164,5 +164,5 @@ export const RegisterStep: FunctionComponent = observer(() => {
                 </Button>
             </DialogContent>
         </Fragment>
-    )
+    );
 });

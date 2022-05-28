@@ -1,8 +1,8 @@
 import React, {FunctionComponent, MouseEvent} from "react";
 import {observer} from "mobx-react";
-import {IconButton, CircularProgress, Tooltip} from "@material-ui/core";
-import {Cancel} from "@material-ui/icons";
-import {useLocalization, useStore} from "../../store/hooks";
+import {IconButton, CircularProgress, Tooltip} from "@mui/material";
+import {Cancel} from "@mui/icons-material";
+import {useLocalization, useStore} from "../../store";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 
 interface CancelGlobalBanButtonProps {
@@ -29,9 +29,9 @@ export const CancelGlobalBanButton: FunctionComponent<CancelGlobalBanButtonProps
 
     return (
         <Tooltip title={l("cancel")}>
-            <IconButton onClick={handleClick}>
+            <IconButton onClick={handleClick} size="large">
                 <Cancel/>
             </IconButton>
         </Tooltip>
-    )
+    );
 });

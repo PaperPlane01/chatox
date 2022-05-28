@@ -1,8 +1,9 @@
 import React, {FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {Card, CardContent, createStyles, Grid, GridSize, makeStyles, Typography} from "@material-ui/core";
+import { Card, CardContent, Grid, GridSize, Typography } from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {ClearReportsSelectionButton} from "./ClearReportsSelectionButton";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 
 interface ReportsActionsProps {
     children: ReactNode[]

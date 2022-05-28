@@ -1,9 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import randomColor from "randomcolor";
-import {createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
+import {Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {Avatar} from "../../Avatar";
-import {UserEntity} from "../../User/types";
+import {UserEntity} from "../../User";
 import {Routes} from "../../router";
 import {getUserAvatarLabel} from "../../User/utils/labels";
 import {useRouter} from "../../store";
@@ -67,7 +68,7 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
                     }
                 </Typography>
             </Link>
-        )
+        );
     } else {
         return (
             <Link view={Routes.userPage}
@@ -82,6 +83,6 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
                     }
                 </Typography>
             </Link>
-        )
+        );
     }
 });

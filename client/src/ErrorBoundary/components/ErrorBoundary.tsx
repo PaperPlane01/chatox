@@ -1,8 +1,8 @@
-import React, {Component, ComponentType, CSSProperties, ReactNode} from "react";
+import React, {Component, ComponentType, CSSProperties, PropsWithChildren, ReactNode} from "react";
 import {inject, observer} from "mobx-react";
-import {Grid, Typography} from "@material-ui/core";
+import {Grid, Typography} from "@mui/material";
 import {Layout} from "../../Layout";
-import {Language, TranslationFunction} from "../../localization/types";
+import {Language, TranslationFunction} from "../../localization";
 import {replacePlaceholder} from "../../localization/utils";
 import {IAppState} from "../../store";
 
@@ -172,7 +172,7 @@ const fatalErrorTranslations: ErrorBoundaryTranslations = {
     }
 }))
 @observer
-class _ErrorBoundary extends Component<ErrorBoundaryMobxProps, ErrorBoundaryState> {
+class _ErrorBoundary extends Component<PropsWithChildren<ErrorBoundaryMobxProps>, ErrorBoundaryState> {
     constructor(props: ErrorBoundaryMobxProps) {
         super(props);
 
@@ -249,4 +249,4 @@ class _ErrorBoundary extends Component<ErrorBoundaryMobxProps, ErrorBoundaryStat
     }
 }
 
-export const ErrorBoundary = _ErrorBoundary as unknown as ComponentType;
+export const ErrorBoundary = _ErrorBoundary as unknown as ComponentType<PropsWithChildren<{}>>;

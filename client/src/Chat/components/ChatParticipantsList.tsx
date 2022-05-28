@@ -1,6 +1,7 @@
 import React, {FunctionComponent} from "react";
-import {Card, CardContent, CardHeader, createStyles, makeStyles, Typography} from "@material-ui/core";
-import GroupOutlinedIcon from "@material-ui/icons/GroupOutlined";
+import {Card, CardContent, CardHeader, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
 import {ChatParticipantsListItem} from "./ChatParticipantsListItem";
 import {FetchingState} from "../../utils/types";
 
@@ -52,5 +53,5 @@ export const ChatParticipantsList: FunctionComponent<ChatParticipantsListProps> 
                 ))}
             </CardContent>
         </Card>
-    )
+    );
 };

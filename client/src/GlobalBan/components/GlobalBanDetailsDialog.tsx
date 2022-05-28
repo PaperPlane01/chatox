@@ -2,18 +2,17 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {
     Button,
-    createStyles,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    makeStyles,
     Table,
     TableBody,
     TableCell,
-    TableRow
-} from "@material-ui/core";
-import {Check, Remove} from "@material-ui/icons";
+    TableRow,
+} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Check, Remove} from "@mui/icons-material";
 import {format} from "date-fns";
 import {GlobalBanMenu} from "./GlobalBanMenu";
 import {isGlobalBanActive} from "../utils";

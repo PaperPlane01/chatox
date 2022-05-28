@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {BottomNavigationAction, CircularProgress, Tooltip} from "@material-ui/core";
-import {Delete} from "@material-ui/icons";
-import {useLocalization} from "../../store/hooks";
+import {BottomNavigationAction, Tooltip} from "@mui/material";
+import {Delete} from "@mui/icons-material";
+import {useLocalization} from "../../store";
 
 export const DeleteChatsButton: FunctionComponent = observer(() => {
     const {l} = useLocalization();

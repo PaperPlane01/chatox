@@ -1,8 +1,9 @@
 import React, {Fragment, FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
-import {createStyles, ListItemIcon, ListItemText, makeStyles, MenuItem, Theme} from "@material-ui/core";
-import {ArrowDownward, ArrowUpward, ChatBubble, Message, Person, Report} from "@material-ui/icons";
-import {useLocalization, useRouter} from "../../store/hooks";
+import {ListItemIcon, ListItemText, MenuItem, Theme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {ArrowDownward, ArrowUpward, ChatBubble, Message, Person, Report} from "@mui/icons-material";
+import {useLocalization, useRouter} from "../../store";
 import {Routes} from "../../router";
 
 const {Link} = require("mobx-router");

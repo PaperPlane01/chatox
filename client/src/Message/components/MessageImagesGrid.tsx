@@ -1,10 +1,10 @@
 import React, {FunctionComponent, memo, useCallback, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
-import Gallery, {PhotoProps} from "react-photo-gallery";
-import Carousel, {Modal, ModalGateway} from "react-images";
+import PhotoAlbum, {Photo} from "react-photo-album";
+import {Lightbox} from "yet-another-react-lightbox";
 import {MessageImagesSimplifiedGrid} from "./MessageImagesSimplifiedGrid";
-import {useStore} from "../../store/hooks";
 import {useMessageGalleryWidthMultiplier} from "../hooks";
+import {useStore} from "../../store";
 
 interface MessageImagesGridProps {
     imagesIds: string[],
@@ -75,40 +75,32 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
         return <MessageImagesSimplifiedGrid imagesIds={imagesIds} messageId="test"/>
     }
 
-    const images: PhotoProps<{source: string}>[] = imagesIds
+    const images: Photo[] = imagesIds
         .map(id => findImage(id))
         .map(image => ({
             src: `${image.uri}?size=512`,
             height: image.meta!.height,
             width: image.meta!.width,
-            source: image.uri
         }));
-    Object.freeze(images);
+    const slides = images
+        .map(({src, width, height}) => ({
+            src,
+            aspectRatio: width / height
+        }));
 
     return (
         <div style={{width: galleryWidth}}>
-            <Gallery photos={images}
-                     margin={0}
-                     targetRowHeight={180}
-                     onClick={(event, {index}) => openLightbox(index)}
-                     useParentContainerWidth
-                     parentContainerWidth={galleryWidth}
+            <PhotoAlbum photos={images}
+                        layout="rows"
+                        onClick={(event, photo, index) => openLightbox(index)}
             />
-            <ModalGateway>
-                {viewerIsOpen
-                    ? (
-                        <Modal onClose={closeLightbox}>
-                            <Carousel
-                                currentIndex={currentImage}
-                                views={images}
-                            />
-                        </Modal>
-                    )
-                    : null
-                }
-            </ModalGateway>
+            <Lightbox slides={slides}
+                      open={viewerIsOpen}
+                      index={currentImage}
+                      close={closeLightbox}
+            />
         </div>
-    )
-})
+    );
+});
 
 export const MessageImagesGrid = memo(_MessageImagesGrid);

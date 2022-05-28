@@ -1,8 +1,8 @@
-import {createMuiTheme} from "@material-ui/core";
+import { createTheme, adaptV4Theme } from "@mui/material";
 
 const PRIMARY_MAIN = "rgba(0, 131, 143, 1)";
 
-export const cyan = createMuiTheme({
+export const cyan = createTheme(adaptV4Theme({
     "palette": {
         "common": {
             "black": "#000",
@@ -33,8 +33,7 @@ export const cyan = createMuiTheme({
         "text": {
             "primary": "rgba(0, 0, 0, 0.87)",
             "secondary": "rgba(0, 0, 0, 0.54)",
-            "disabled": "rgba(0, 0, 0, 0.38)",
-            "hint": "rgba(0, 0, 0, 0.38)"
+            "disabled": "rgba(0, 0, 0, 0.38)"
         }
     },
     overrides: {
@@ -58,4 +57,4 @@ export const cyan = createMuiTheme({
             noSsr: true
         }
     }
-});
+}));

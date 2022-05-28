@@ -1,8 +1,8 @@
 import React, {FunctionComponent, MouseEvent} from "react";
 import {observer} from "mobx-react";
-import {IconButton, Tooltip} from "@material-ui/core";
-import {Edit} from "@material-ui/icons";
-import {useLocalization, useStore} from "../../store/hooks";
+import {IconButton, Tooltip} from "@mui/material";
+import {Edit} from "@mui/icons-material";
+import {useLocalization, useStore} from "../../store";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 
 interface UpdateGlobalBanButtonProps {
@@ -26,9 +26,9 @@ export const UpdateGlobalBanButton: FunctionComponent<UpdateGlobalBanButtonProps
 
     return (
         <Tooltip title={l("global.ban.update")}>
-            <IconButton onClick={openUpdateGlobalBanDialog}>
+            <IconButton onClick={openUpdateGlobalBanDialog} size="large">
                 <Edit/>
             </IconButton>
         </Tooltip>
-    )
+    );
 });

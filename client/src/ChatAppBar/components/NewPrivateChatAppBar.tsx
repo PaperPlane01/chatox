@@ -3,15 +3,15 @@ import {observer} from "mobx-react";
 import {
     AppBar,
     CardHeader,
-    createStyles,
     Hidden,
     IconButton,
-    makeStyles,
     Toolbar,
-    Typography, useMediaQuery,
-    useTheme
-} from "@material-ui/core";
-import {ArrowBack} from "@material-ui/icons";
+    Typography,
+    useMediaQuery,
+    useTheme,
+} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {ArrowBack} from "@mui/icons-material";
 import randomColor from "randomcolor";
 import {useStore, useLocalization, useRouter} from "../../store";
 import {trimString} from "../../utils/string-utils";
@@ -43,7 +43,7 @@ export const NewPrivateChatAppBar: FunctionComponent = observer(() => {
     const {l, dateFnsLocale} = useLocalization();
     const classes = useStyles();
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
     let appBarContent: ReactNode;
 
@@ -90,14 +90,14 @@ export const NewPrivateChatAppBar: FunctionComponent = observer(() => {
                             root: classes.cardHeaderRoot
                         }}
             />
-        )
+        );
     }
 
     return (
         <Fragment>
             <AppBar position="fixed">
                 <Toolbar>
-                    <Hidden mdDown>
+                    <Hidden xlDown>
                         <OpenDrawerButton/>
                     </Hidden>
                     <Hidden lgUp>

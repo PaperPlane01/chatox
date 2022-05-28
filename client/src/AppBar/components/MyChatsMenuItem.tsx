@@ -1,7 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
-import ChatBubbleIcon from "@material-ui/icons/ChatBubble";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {ChatBubble} from "@mui/icons-material";
 import {Routes} from "../../router";
 import {useLocalization, useRouter} from "../../store";
 
@@ -36,7 +37,7 @@ export const MyChatsMenuItem: FunctionComponent<MyChatsMenuItemProps> = observer
         >
             <MenuItem onClick={handleClick}>
                 <ListItemIcon>
-                    <ChatBubbleIcon/>
+                    <ChatBubble/>
                 </ListItemIcon>
                 <ListItemText>
                     {l("chat.my-chats")}

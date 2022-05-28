@@ -1,7 +1,7 @@
 import React, {FunctionComponent, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import ReactPlayer from "react-player";
-import {useStore} from "../../store/hooks";
+import {useStore} from "../../store";
 
 export const AudioPlayerContainer: FunctionComponent = observer(() => {
     const {
@@ -53,5 +53,5 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
                      volume={volume}
                      ref={playerRef}
         />
-    )
-})
+    );
+});

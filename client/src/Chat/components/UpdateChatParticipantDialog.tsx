@@ -1,13 +1,13 @@
 import React, {FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
-import {DialogTitle, Dialog, DialogContent, DialogActions, Button, CircularProgress, Typography} from "@material-ui/core";
+import {DialogTitle, Dialog, DialogContent, DialogActions, Button, CircularProgress, Typography} from "@mui/material";
 import {ChatRoleSelect} from "./ChatRoleSelect";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {useSnackbar} from "notistack";
 import {getUserDisplayedName} from "../../User/utils/labels";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {TranslationFunction} from "../../localization/types";
+import {TranslationFunction} from "../../localization";
 
 const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
     if (error.status === API_UNREACHABLE_STATUS) {

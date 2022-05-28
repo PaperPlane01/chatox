@@ -1,9 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Badge, IconButton, CircularProgress, Typography, createStyles, makeStyles, Theme} from "@material-ui/core";
-import {FileCopy} from "@material-ui/icons";
+import { Badge, IconButton, CircularProgress, Typography, Theme } from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {FileCopy} from "@mui/icons-material";
 import prettyBytes from "pretty-bytes";
-import {useStore} from "../../store/hooks";
+import {useStore} from "../../store";
 
 interface MessageFileProps {
     chatUploadId: string
@@ -51,9 +52,9 @@ export const MessageFile: FunctionComponent<MessageFileProps> = observer(({
 
     return (
         <div className={classes.fileContainer}>
-            <IconButton onClick={handleDownloadButtonClick}>
+            <IconButton onClick={handleDownloadButtonClick} size="large">
                 <Badge badgeContent={downloadProgressMap[file.name] && downloadProgressMap[file.name].downloading && (
-                    <CircularProgress color="primary" variant="static" value={downloadProgressMap[file.name].percentage} size={15}/>
+                    <CircularProgress color="primary" variant="determinate" value={downloadProgressMap[file.name].percentage} size={15}/>
                 )}
                        anchorOrigin={{
                            horizontal: "right",
@@ -78,5 +79,5 @@ export const MessageFile: FunctionComponent<MessageFileProps> = observer(({
                 {file.originalName}
             </Typography>
         </div>
-    )
+    );
 })

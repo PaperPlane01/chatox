@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Dialog} from "@material-ui/core";
+import {Dialog} from "@mui/material";
 import {SendVerificationEmailStep} from "./SendVerificationEmailStep";
 import {ConfirmSkippingEmailStep} from "./ConfirmSkippingEmailStep";
 import {CheckVerificationCodeStep} from "./CheckVerificationCodeStep";

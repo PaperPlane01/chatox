@@ -1,7 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {IconButton, createStyles, makeStyles} from "@material-ui/core";
-import {Edit, Delete} from "@material-ui/icons";
+import {IconButton} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Edit, Delete} from "@mui/icons-material";
 import {StickerContainer} from "../stores";
 import {useLocalization, useStore} from "../../store";
 
@@ -69,5 +70,5 @@ export const EditableSticker: FunctionComponent<EditableStickerProps> = observer
                 </IconButton>
             </div>
         </div>
-    )
-})
+    );
+});

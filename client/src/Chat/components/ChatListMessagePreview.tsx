@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {Image, VideoLibrary, FileCopy, Audiotrack} from "@material-ui/icons";
+import {Image, VideoLibrary, FileCopy, Audiotrack} from "@mui/icons-material";
 import {useStore, useLocalization} from "../../store";
 import {useEmojiParser} from "../../Emoji";
 import {UploadType} from "../../api/types/response";
@@ -60,7 +60,7 @@ export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewPro
                 {messageSticker.emojis.length !== 0 && parseEmoji((messageSticker.emojis[0] as any).native)}
                 {` [${l("sticker")}]`}
             </Fragment>
-        )
+        );
     }
 
     if (message.text && message.text.length !== 0) {
@@ -70,7 +70,7 @@ export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewPro
                 {": "}
                 {parseEmoji(message.text, message.emoji)}
             </Fragment>
-        )
+        );
     }
 
     if (messageUploads.length !== 0) {

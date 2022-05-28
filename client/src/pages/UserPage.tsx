@@ -1,5 +1,7 @@
 import React, {FunctionComponent} from "react";
-import {Grid, createStyles, makeStyles} from "@material-ui/core";
+import { Grid } from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
 import {AppBar} from "../AppBar";
 import {Layout} from "../Layout";
 import {UserProfileInfo} from "../User";

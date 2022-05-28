@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {TextFieldProps} from "@material-ui/core";
+import {TextFieldProps} from "@mui/material";
 import {useStore} from "../../store";
 import {SearchTextField} from "../../SearchTextField";
 

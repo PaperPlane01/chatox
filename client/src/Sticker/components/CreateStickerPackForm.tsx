@@ -1,9 +1,18 @@
-import React, {FunctionComponent, Fragment} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {TextField, Button, CircularProgress, Card, Typography, CardActions, CardContent, CardHeader} from "@material-ui/core";
+import {
+    Button,
+    Card,
+    CardActions,
+    CardContent,
+    CardHeader,
+    CircularProgress,
+    TextField,
+    Typography
+} from "@mui/material";
 import {EditableStickersList} from "./EditableStickersList";
 import {CreateStickerDialog} from "./CreateStickerDialog";
-import {useStore, useLocalization} from "../../store";
+import {useLocalization, useStore} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 
@@ -66,7 +75,7 @@ export const CreateStickerPackForm: FunctionComponent = observer(() => {
                                helperText={formErrors.description && l(formErrors.description)}
                                multiline
                                rows={4}
-                               rowsMax={Number.MAX_SAFE_INTEGER}
+                               maxRows={Number.MAX_SAFE_INTEGER}
                     />
                     <EditableStickersList stickerContainers={stickerContainers}/>
                     {error && (

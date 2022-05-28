@@ -1,8 +1,8 @@
 import React, {FunctionComponent, useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {useMediaQuery, useTheme} from "@material-ui/core";
+import {useMediaQuery, useTheme} from "@mui/material";
 import {MessagesListItem} from "./MessagesListItem";
-import {useStore} from "../../store/hooks";
+import {useStore} from "../../store";
 
 interface ScheduledMessagesListStyles {
     height: string | number | undefined,
@@ -23,7 +23,7 @@ export const ScheduledMessagesList: FunctionComponent = observer(() => {
             return {height: "100%"};
         } else {
             return {
-                height: window.innerHeight - theme.spacing(10)
+                height: window.innerHeight - Number(theme.spacing(10).replace("px", ""))
             }
         }
     };

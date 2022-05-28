@@ -1,9 +1,8 @@
 import React, {FunctionComponent, useCallback, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {GridList, GridListTile, useTheme, useMediaQuery} from "@material-ui/core";
-import {Skeleton} from "@material-ui/lab";
-import Carousel, {ModalGateway, Modal} from "react-images";
-import {useStore} from "../../store/hooks";
+import {ImageList, ImageListItem, useTheme, useMediaQuery, Skeleton} from "@mui/material";
+import {Lightbox, SlideImage} from "yet-another-react-lightbox";
+import {useStore} from "../../store";
 import {ImageUploadMetadata, Upload} from "../../api/types/response";
 
 interface MessageImagesSimplifiedGridProps {
@@ -44,7 +43,7 @@ export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplif
         }
     } = useStore();
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("xs"));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const [currentImage, setCurrentImage] = useState(0);
     const [viewerIsOpen, setViewerIsOpen] = useState(false);
     const [imagesLoadingState, setImagesLoadingState] = useState<ImagesLoadingStateMap>({});
@@ -76,26 +75,23 @@ export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplif
         setViewerIsOpen(false);
     };
 
-    const images = imagesIds
-        .map(id => findImage(id))
-        .map(image => ({
-            ...image,
-            source: image.uri
-        }));
+    const images = imagesIds.map(id => findImage(id))
+    const slides: SlideImage[] = images.map(({uri, meta}) => ({
+        src: uri,
+        aspectRatio: meta!.width / meta!.height
+    }));
 
     const maxCols =  4
     const totalCols = imagesIds.length < maxCols ? imagesIds.length : maxCols;
 
-    console.log(targetOneColWidth);
-
     return (
-        <GridList cellHeight={totalCols === 1 ? Math.ceil(images[0].meta!.height * (targetOneColWidth / images[0].meta!.width)) : 180}
+        <ImageList rowHeight={totalCols === 1 ? Math.ceil(images[0].meta!.height * (targetOneColWidth / images[0].meta!.width)) : 180}
                   cols={totalCols}
                   style={{margin: "0px! important"}}
-                  spacing={0}
+                  gap={0}
         >
             {images.map((image, index) => (
-                <GridListTile cols={getThumbnailCols(image, totalCols)}
+                <ImageListItem cols={getThumbnailCols(image, totalCols)}
                               style={{
                                   cursor: "pointer",
                               }}
@@ -103,36 +99,26 @@ export const MessageImagesSimplifiedGrid: FunctionComponent<MessageImagesSimplif
                 >
                     {!imagesLoadingState[index] && (
                         <Skeleton style={{
-                            width: totalCols === 1 ? "100%" : targetOneColWidth * getThumbnailCols(image, maxCols),
+                            width: targetOneColWidth * getThumbnailCols(image, maxCols),
                             height: "100%"
                         }}
-                                  variant="rect"
+                                  variant="rectangular"
                         />
                     )}
-                    <img src={`${image.source}?size=512`}
-                         style={{
-                             display: imagesLoadingState[index] ? "block" : "none"
-                         }}
+                    <img src={`${image.uri}?size=512`}
+                         style={{display: imagesLoadingState[index] ? "block" : "none"}}
                          onLoad={() => setImagesLoadingState({
                              ...imagesLoadingState,
                              [index]: true
                          })}
                     />
-                </GridListTile>
+                </ImageListItem>
             ))}
-            <ModalGateway>
-                {viewerIsOpen
-                    ? (
-                        <Modal onClose={closeLightbox}>
-                            <Carousel
-                                currentIndex={currentImage}
-                                views={images}
-                            />
-                        </Modal>
-                    )
-                    : null
-                }
-            </ModalGateway>
-        </GridList>
-    )
-})
+            <Lightbox slides={slides}
+                      open={viewerIsOpen}
+                      index={currentImage}
+                      close={closeLightbox}
+            />
+        </ImageList>
+    );
+});

@@ -1,9 +1,9 @@
 import React, {FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText} from "@material-ui/core";
-import {HighlightOff} from "@material-ui/icons";
+import {MenuItem, ListItemIcon, ListItemText} from "@mui/material";
+import {HighlightOff} from "@mui/icons-material";
 import {useSnackbar} from "notistack";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 
 interface KickChatParticipantMenuItemProps {
     chatParticipationId: string,
@@ -56,5 +56,5 @@ export const KickChatParticipantMenuItem: FunctionComponent<KickChatParticipantM
                 {l("chat.participant.kick")}
             </ListItemText>
         </MenuItem>
-    )
+    );
 });

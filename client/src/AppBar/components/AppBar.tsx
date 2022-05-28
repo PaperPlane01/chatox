@@ -1,6 +1,7 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {AppBar as MuiAppBar, createStyles, makeStyles, Toolbar, Typography} from "@material-ui/core";
+import { AppBar as MuiAppBar, Toolbar, Typography } from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {NavigationalDrawer} from "./NavigationalDrawer";
 import {OpenDrawerButton} from "./OpenDrawerButton";
 import {AppBarMenu} from "./AppBarMenu";
@@ -72,5 +73,5 @@ export const AppBar: FunctionComponent<AppBarProps> = observer(({
             <Toolbar/>
             <NavigationalDrawer/>
         </Fragment>
-    )
+    );
 });

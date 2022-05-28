@@ -1,12 +1,13 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, Dialog, DialogActions, DialogContent, createStyles, makeStyles} from "@material-ui/core";
-import ChipInput from "material-ui-chip-input";
+import {Button, Dialog, DialogActions, DialogContent} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {Emoji} from "emoji-mart";
-import {StickerContainer} from "../stores";
-import {useLocalization, useStore} from "../../store";
 import {StickerEmojiPickerDialog} from "./StickerEmojiPickerDialog";
+import {StickerContainer} from "../stores";
 import {ImageUpload} from "../../Upload";
+import {ChipInput} from "../../ChipInput";
+import {useLocalization, useStore} from "../../store";
 
 interface CreateStickerDialogProps {
     stickerContainer: StickerContainer
@@ -84,19 +85,15 @@ export const CreateStickerDialog: FunctionComponent<CreateStickerDialogProps> = 
                                native={selectedEmojiSet === "native"}
                         />
                     ))}
-                               onDelete={(_, index) => stickerContainer.removeEmojiByIndex(index)}
+                               onDelete={index => stickerContainer.removeEmojiByIndex(index)}
                                onClick={() => setStickerEmojiPickerDialogOpen(true)}
                                InputProps={{
                                    onChange: () => {}
                                }}
-                               helperText={stickerContainer.errors.emojis && l(stickerContainer.errors.emojis)}
-                               label={l("sticker.emojis")}
-                               fullWidth
-                               margin="dense"
                     />
                     <ChipInput value={stickerContainer.keywords}
                                onAdd={keyword => stickerContainer.addKeyword(keyword)}
-                               onDelete={(_, index) => stickerContainer.removeKeywordByIndex(index)}
+                               onDelete={index => stickerContainer.removeKeywordByIndex(index)}
                                helperText={stickerContainer.errors.keywords && l(stickerContainer.errors.keywords)}
                                label={l("sticker.keywords")}
                                fullWidth

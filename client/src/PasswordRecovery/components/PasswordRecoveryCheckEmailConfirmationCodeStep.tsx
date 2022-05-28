@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CheckEmailConfirmationCodeDialogContent} from "../../EmailConfirmation";
-import {useStore} from "../../store/hooks";
+import {useStore} from "../../store";
 
 export const PasswordRecoveryCheckEmailConfirmationCodeStep: FunctionComponent = observer(() => {
     const {
@@ -20,5 +20,5 @@ export const PasswordRecoveryCheckEmailConfirmationCodeStep: FunctionComponent =
                                                  closeable
                                                  onClose={() => setPasswordRecoveryDialogOpen(false)}
         />
-    )
-})
+    );
+});

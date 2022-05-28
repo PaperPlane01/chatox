@@ -9,7 +9,7 @@ import {
     TableRow,
     TableSortLabel,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import {ChatBlockingsTableRow} from "./ChatBlockingsTableRow";
 import {ChatBlockingSortableProperties} from "../types";
 import {useLocalization, useStore} from "../../store";
@@ -115,5 +115,5 @@ export const ChatBlockingsTable: FunctionComponent = observer(() => {
                 ))}
             </TableBody>
         </Table>
-    )
+    );
  });

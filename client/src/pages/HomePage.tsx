@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {Card, CardContent, CardHeader, Grid, Typography} from "@material-ui/core";
+import {Card, CardContent, CardHeader, Grid, Typography} from "@mui/material";
 import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
 import {HasRole} from "../Authorization";

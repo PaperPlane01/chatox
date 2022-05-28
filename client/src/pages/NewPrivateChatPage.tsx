@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {Grid, Hidden} from "@material-ui/core";
+import {Grid, Hidden} from "@mui/material";
 import {ChatAppBar} from "../ChatAppBar";
 import {MessagesList} from "../Message";
 import {ChatsOfCurrentUserList} from "../Chat";
@@ -12,9 +12,9 @@ export const NewPrivateChatPage: FunctionComponent = () => (
         <Grid item
               xs={12}
               style={{display: "flex"}}
-              justify="space-between"
+              justifyContent="space-between"
         >
-            <Hidden mdDown>
+            <Hidden xlDown>
                 <ChatsOfCurrentUserList/>
             </Hidden>
             <Grid container>

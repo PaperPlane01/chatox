@@ -9,7 +9,9 @@ import React, {
     useState
 } from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles, Theme, useMediaQuery, useTheme} from "@material-ui/core";
+import { Theme, useMediaQuery, useTheme } from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
 import {Virtuoso, VirtuosoHandle} from "react-virtuoso";
 import useResizeObserver from "@react-hook/resize-observer";
 import {MessagesListItem} from "./MessagesListItem";
@@ -24,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         [theme.breakpoints.up("lg")]: {
             overflowY: "auto",
         },
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down('lg')]: {
             overflowY: "auto",
             overflowX: "auto"
         }
@@ -80,7 +82,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     const phantomBottomRef = useRef<HTMLDivElement>(null);
     const messagesListBottomRef = useRef<HTMLDivElement>(null);
     const classes = useStyles();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down('lg'));
     const virtuosoRef = useRef<VirtuosoHandle>() as RefObject<VirtuosoHandle>
     const messagesDivRef = useRef<HTMLDivElement>(null);
     const pinnedMessageRef = useRef<HTMLDivElement>(null);
@@ -98,7 +100,7 @@ export const MessagesList: FunctionComponent = observer(() => {
         if (onSmallScreen) {
             if (enableVirtualScroll) {
                 if (messagesListBottomRef && messagesListBottomRef.current) {
-                    let heightToSubtract = theme.spacing(7) + messagesListBottomRef.current.getBoundingClientRect().height;
+                    let heightToSubtract = Number(theme.spacing(7).replace("px", "")) + messagesListBottomRef.current.getBoundingClientRect().height;
 
                     if (pinnedMessageRef && pinnedMessageRef.current) {
                         heightToSubtract = pinnedMessageRef.current.getBoundingClientRect().height;
@@ -121,7 +123,8 @@ export const MessagesList: FunctionComponent = observer(() => {
             }
         } else {
             if (messagesListBottomRef && messagesListBottomRef.current) {
-                let heightToSubtract = theme.spacing(8) + messagesListBottomRef.current.getBoundingClientRect().height + theme.spacing(2);
+                let heightToSubtract = Number(theme.spacing(8).replace("px", ""))
+                    + messagesListBottomRef.current.getBoundingClientRect().height + Number(theme.spacing(2).replace("px", ""));
 
                 if (pinnedMessageRef && pinnedMessageRef.current) {
                     heightToSubtract = heightToSubtract + pinnedMessageRef.current.getBoundingClientRect().height;
@@ -391,6 +394,6 @@ export const MessagesList: FunctionComponent = observer(() => {
                    <MessagesListBottom ref={messagesListBottomRef}/>
                </div>
            </Fragment>
-        )
+        );
     }
 });

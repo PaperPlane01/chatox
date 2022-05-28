@@ -3,23 +3,22 @@ import {observer} from "mobx-react";
 import {
     Badge,
     CircularProgress,
-    createStyles,
     Divider,
     IconButton,
     ListItemIcon,
     ListItemText,
-    makeStyles,
     Menu,
-    MenuItem
-} from "@material-ui/core";
-import {AttachFile, VideoLibrary} from "@material-ui/icons";
+    MenuItem,
+} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {AttachFile, VideoLibrary} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {useSnackbar} from "notistack";
 import {AttachImageMenuItem} from "./AttachImageMenuItem";
 import {ShowAttachedFilesMenuItem} from "./ShowAttachedFiledMenuItem";
 import {AttachAudioMenuItem} from "./AttachAudioMenuItem";
 import {AttachFileMenuItem} from "./AttachFileMenuItem";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 
 interface AttachFilesButtonProps {
     className?: string
@@ -69,9 +68,10 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
 
     return (
         <Fragment>
-            <IconButton className={className}
-                        {...bindToggle(attachFileMenuPopupState)}
-            >
+            <IconButton
+                className={className}
+                {...bindToggle(attachFileMenuPopupState)}
+                size="large">
                 <Badge badgeContent={uploadPending && <CircularProgress size={14} color="primary"/>}
                        anchorOrigin={{
                            vertical: "bottom",
@@ -91,7 +91,7 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
                 <AttachImageMenuItem onClick={attachFileMenuPopupState.close}
                                      buttonClassName={classes.attachFileButton}
                 />
-                <MenuItem button
+                <MenuItem component="button"
                           disabled
                 >
                     <ListItemIcon>
@@ -115,5 +115,5 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
                 )}
             </Menu>
         </Fragment>
-    )
+    );
 })

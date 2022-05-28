@@ -9,7 +9,7 @@ import {
     InputAdornment,
     TextField,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import {RegistrationStep} from "../types";
 import {TranslationFunction} from "../../localization";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";

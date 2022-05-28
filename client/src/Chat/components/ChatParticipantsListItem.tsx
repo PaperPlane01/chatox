@@ -1,6 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, ListItemText, makeStyles, MenuItem, Theme} from "@material-ui/core";
+import {ListItemText, MenuItem, Theme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {ChatParticipantMenu} from "./ChatParticipantMenu";
 import {Avatar} from "../../Avatar";
@@ -69,5 +70,5 @@ export const ChatParticipantsListItem: FunctionComponent<ChatParticipantsListIte
             </ListItemText>
             <ChatParticipantMenu chatParticipation={chatParticipant}/>
         </MenuItem>
-    )
+    );
 });

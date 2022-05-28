@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {IconButton} from "@material-ui/core";
-import {Search} from "@material-ui/icons";
+import {IconButton} from "@mui/material";
+import {Search} from "@mui/icons-material";
 import {useStore} from "../../store";
 
 export const ChatsAndMessagesSearchButton: FunctionComponent = observer(() => {
@@ -14,6 +14,7 @@ export const ChatsAndMessagesSearchButton: FunctionComponent = observer(() => {
     return (
         <IconButton onClick={() => setShowInput(true)}
                     color="inherit"
+                    size="large"
         >
             <Search/>
         </IconButton>
