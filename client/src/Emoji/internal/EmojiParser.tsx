@@ -5,7 +5,6 @@ import {Position} from "react-markdown/lib/ast-to-react";
 import {ParseEmojiOptions} from "./ParseEmojiOptions";
 import {ExtendedEmojiSet} from "../types";
 import {MessageEmoji} from "../../api/types/response";
-import {toJS} from "mobx";
 
 export class EmojiParser {
     private readonly emojiRegExp = createRegEmojiRegExp();
@@ -23,7 +22,6 @@ export class EmojiParser {
                 return this.parseWithEmojiMartData(text, options.emojiMartData, options.set);
             }
         } else {
-            console.log("Returning plain text", text)
             return text;
         }
     }
@@ -35,22 +33,14 @@ export class EmojiParser {
             .emojiPositions
             .filter(position => position.start + 1 >= partPosition.start.offset! && position.end + 1 <= partPosition.end.offset!);
         const offset = partPosition.start.offset!;
-        console.log(toJS(emojiData));
-        console.log(emojisWithinTextPart.map(e => toJS(e)));
 
         for (let emojiPosition of emojisWithinTextPart) {
-            console.log(textPart);
-            console.log(partPosition);
-            console.log(toJS(emojiPosition));
-            console.log(cursor);
-
             if (emojiPosition.end - offset + 1 !== cursor) {
                 console.log("Rest of the text is ", textPart.substring(cursor, emojiPosition.start - offset))
                 result.push(textPart.substring(cursor, emojiPosition.start - offset));
             }
 
             cursor = emojiPosition.end - offset + 1;
-            console.log("New cursor is ", cursor);
 
             const emojiMartData = emojiData.emoji[emojiPosition.emojiId];
             const emojiSet = set === "native" ? undefined : set;

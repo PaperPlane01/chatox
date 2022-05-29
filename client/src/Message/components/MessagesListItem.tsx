@@ -207,7 +207,6 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                 setHeight(messagesListItemRef.current.getBoundingClientRect().height);
 
                 if (!messageCardDimensionsCache[messageId]) {
-                    console.log("Setting message cache");
                     messageCardDimensionsCache[messageId] = {
                         width: width!,
                         height: height!
