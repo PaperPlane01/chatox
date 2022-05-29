@@ -20,19 +20,17 @@ export const MarkdownTextWithEmoji: FunctionComponent<MardkownTextWithEmojiProps
     disableRemarkBreaks = false
 }) => {
     const {parseEmoji} = useEmojiParser();
-    const processEmoji = (node: Element, props: any): ReactNode | ReactNode[] => {
-        return node.children.map(child => {
-            if (child.type === "text") {
-                return parseEmoji(child.value, emojiData, child.position);
-            } else {
-                return (
-                    <Fragment {...props}
-                              children={props.children.filter((child: any) => typeof child !== "string")}
-                    />
-                );
-            }
-        });
-    }
+    const processEmoji = (node: Element, props: any): ReactNode | ReactNode[] => node.children.map(child => {
+        if (child.type === "text") {
+            return parseEmoji(child.value, emojiData, child.position);
+        } else {
+            return (
+                <Fragment {...props}
+                          children={props.children.filter((child: any) => typeof child !== "string")}
+                />
+            );
+        }
+    })
 
     return (
         <ReactMarkdown remarkPlugins={!disableRemarkBreaks ? [remarkBreaks] : []}
@@ -48,9 +46,9 @@ export const MarkdownTextWithEmoji: FunctionComponent<MardkownTextWithEmojiProps
                                </li>
                            ),
                            em: ({node, ...props}) => (
-                               <strong>
-                                   {processEmoji(node, props.children)}
-                               </strong>
+                               <i>
+                                   {processEmoji(node, props)}
+                               </i>
                            ),
                            i: ({node, ...props}) => (
                                <i>
