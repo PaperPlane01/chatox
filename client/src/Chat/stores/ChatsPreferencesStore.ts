@@ -6,9 +6,6 @@ export class ChatsPreferencesStore {
     enableVirtualScroll: boolean = false;
 
     @observable
-    useSimplifiedGalleryForVirtualScroll: boolean = true;
-
-    @observable
     reverseScrollingDirectionOption: ReverseScrollDirectionOption = ReverseScrollDirectionOption.DO_NOT_REVERSE;
 
     @observable
@@ -16,6 +13,9 @@ export class ChatsPreferencesStore {
 
     @observable
     virtualScrollOverscan: number = 120;
+
+    @observable
+    enableImagesCaching = false;
 
     constructor() {
         if (localStorage.getItem("enableVirtualScroll")) {
@@ -36,16 +36,16 @@ export class ChatsPreferencesStore {
             );
         }
 
-        if (localStorage.getItem("useSimplifiedGalleryForVirtualScroll")) {
-            this.useSimplifiedGalleryForVirtualScroll = localStorage.getItem("useSimplifiedGalleryForVirtualScroll") === "true";
-        }
-
         if (localStorage.getItem("reversedScrollSpeedCoefficient")) {
             const reversedScrollSpeedCoefficient = Number(localStorage.getItem("reversedScrollSpeedCoefficient"));
 
             if (!isNaN(reversedScrollSpeedCoefficient) && reversedScrollSpeedCoefficient > 0) {
                 this.restoredScrollingSpeedCoefficient = reversedScrollSpeedCoefficient;
             }
+        }
+
+        if (localStorage.getItem("enableImagesCaching")) {
+            this.enableImagesCaching = localStorage.getItem("enableImagesCaching" ) === "true";
         }
     }
 
@@ -70,14 +70,14 @@ export class ChatsPreferencesStore {
     };
 
     @action
-    setUseSimplifiedGalleryForVirtualScroll = (useSimplifiedGalleryForVirtualScroll: boolean): void => {
-        this.useSimplifiedGalleryForVirtualScroll = useSimplifiedGalleryForVirtualScroll;
-        localStorage.setItem("useSimplifiedGalleryForVirtualScroll", `${useSimplifiedGalleryForVirtualScroll}`);
-    };
-
-    @action
     setReverseScrollDirectionOption = (reverseScrollOption: ReverseScrollDirectionOption): void => {
         this.reverseScrollingDirectionOption = reverseScrollOption;
         localStorage.setItem("reverseScrollDirectionOption", reverseScrollOption);
+    };
+
+    @action
+    setEnableImagesCaching = (enableImagesCaching: boolean): void => {
+        this.enableImagesCaching = enableImagesCaching;
+        localStorage.setItem("enableImagesCaching", `${enableImagesCaching}`);
     };
 }

@@ -25,12 +25,12 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
             setEnableVirtualScroll,
             setVirtualScrollOverscan,
             virtualScrollOverscan,
-            useSimplifiedGalleryForVirtualScroll,
-            setUseSimplifiedGalleryForVirtualScroll,
             reverseScrollingDirectionOption,
             setReverseScrollDirectionOption,
             restoredScrollingSpeedCoefficient,
-            setReversedScrollSpeedCoefficient
+            setReversedScrollSpeedCoefficient,
+            enableImagesCaching,
+            setEnableImagesCaching
         }
     } = useStore();
     const {l} = useLocalization();
@@ -54,15 +54,6 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                                inputProps={{
                                    min: 0
                                }}
-                    />
-                )}
-                {enableVirtualScroll && (
-                    <FormControlLabel control={
-                        <Switch checked={useSimplifiedGalleryForVirtualScroll}
-                                onChange={() => setUseSimplifiedGalleryForVirtualScroll(!useSimplifiedGalleryForVirtualScroll)}
-                        />
-                    }
-                                      label={l("settings.chat.virtual-scroll.use-simplified-gallery")}
                     />
                 )}
                 {enableVirtualScroll && (
@@ -98,6 +89,11 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                                        }}
                             />
                         )}
+                        <FormControlLabel control={
+                            <Switch checked={enableImagesCaching} onChange={() => setEnableImagesCaching(!enableImagesCaching)}/>
+                        }
+                                          label={"Enable images caching"}
+                        />
                     </Fragment>
                 )}
             </CardContent>

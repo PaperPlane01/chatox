@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from "react";
+import React, {FunctionComponent, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {ImageList, ImageListItem} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -6,7 +6,8 @@ import {useStore} from "../../store";
 
 interface MessageStickerProps {
     stickerId: string,
-    messageId: string
+    messageId: string,
+    onImageLoaded?: () => void
 }
 
 const useStyles = makeStyles(() => createStyles({
@@ -25,8 +26,15 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
+let heightCache: {[messageId: string]: number} = {};
+let stickersCache: {[stickerId: string]: string} = {};
+
+window.addEventListener("resize", () => heightCache = {});
+
 export const MessageSticker: FunctionComponent<MessageStickerProps> = observer(({
-    stickerId
+    stickerId,
+    messageId,
+    onImageLoaded
 }) => {
     const {
         entities: {
@@ -39,9 +47,39 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
         },
         stickerPackDialog: {
             setStickerPackId
+        },
+        chatsPreferences: {
+            enableImagesCaching
         }
     } = useStore();
     const classes = useStyles();
+    const [loaded, setLoaded] = useState(false);
+    const imageContainerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (loaded && !heightCache[messageId] && imageContainerRef && imageContainerRef.current) {
+            console.log("Setting height cache")
+
+            heightCache[messageId] = imageContainerRef.current.getBoundingClientRect().height;
+
+            if (onImageLoaded) {
+                onImageLoaded();
+            }
+
+            if (enableImagesCaching) {
+                (async () => {
+                    const image = findImage(sticker.imageId);
+                    const blob = await (await fetch(`${image.uri}?size=512`)).blob();
+
+                    const fileReader = new FileReader();
+                    fileReader.onloadend = () => {
+                        stickersCache[stickerId] = `${fileReader.result}`;
+                    }
+                    fileReader.readAsDataURL(blob);
+                })();
+            }
+        }
+    });
 
     const sticker = findSticker(stickerId);
     const image = findImage(sticker.imageId);
@@ -53,10 +91,16 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
                    gap={0}
         >
             <ImageListItem cols={1}>
-                <div className={classes.imageWrapper}>
-                    <img src={`${image.uri}?size=${targetSize}`}
+                <div className={classes.imageWrapper}
+                     style={{
+                         height: stickersCache[stickerId] && stickersCache[stickerId]
+                     }}
+                     ref={imageContainerRef}
+                >
+                    <img src={(enableImagesCaching && stickersCache[stickerId]) ? stickersCache[stickerId] : `${image.uri}?size=${targetSize}`}
                          className={classes.image}
                          onClick={() => setStickerPackId(sticker.stickerPackId)}
+                         onLoad={() => setLoaded(true)}
                     />
                 </div>
             </ImageListItem>
