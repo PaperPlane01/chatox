@@ -19,8 +19,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     trackMarkLabel: {
         top: 0,
-        paddingTop: theme.spacing(3) + 2,
-        [theme.breakpoints.down('lg')]: {
+        paddingTop: Number(theme.spacing(3).replace("px", "")) + 2,
+        [theme.breakpoints.down("lg")]: {
             paddingTop: theme.spacing(2)
         }
     },
@@ -37,14 +37,20 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     volumeSlider: {
         height: 100
     },
+    sliderThumb: {
+        width: 15,
+        height: 15
+    },
     volumeSliderThumb: {
-        marginBottom: 0
+        marginBottom: 0,
+        width: 15,
+        height: 15
     },
     playerControlsWrapper: {
         display: "flex",
         width: "80%",
         alignItems: "flex-start",
-        [theme.breakpoints.down('lg')]: {
+        [theme.breakpoints.down("lg")]: {
             width: "90%"
         }
     },
@@ -134,7 +140,8 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                                 root: classes.trackSliderRoot,
                                 mark: classes.trackSliderMark,
                                 marked: classes.trackSliderMarked,
-                                markLabel: classes.trackMarkLabel
+                                markLabel: classes.trackMarkLabel,
+                                thumb: classes.sliderThumb
                             }}
                             onChange={(_, value) => {
                                 if (currentTrackId === audioId) {
