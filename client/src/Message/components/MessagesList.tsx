@@ -369,7 +369,6 @@ export const MessagesList: FunctionComponent = observer(() => {
                                  const messageId = isInSearchMode
                                      ? messagesOfChat[correctedIndex]
                                      : selectedChat.indexToMessageMap[correctedIndex]
-                                 console.log(messageId)
 
                                  if (!messageId) {
                                      return <div style={{height: 1}}/>

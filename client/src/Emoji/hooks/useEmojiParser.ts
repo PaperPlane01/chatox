@@ -3,11 +3,12 @@ import {Data} from "emoji-mart";
 import allData from "emoji-mart/data/all.json";
 import {EmojiParser} from "../internal/EmojiParser";
 import {MessageEmoji} from "../../api/types/response";
-import {useStore} from "../../store/hooks";
+import {useStore} from "../../store";
+import {Position} from "react-markdown/lib/ast-to-react";
 
 const emojiParser = new EmojiParser();
 
-export type ParseEmojiFunction = (text: string, emojiData?: MessageEmoji) => ReactNode | ReactNode[];
+export type ParseEmojiFunction = (text: string, emojiData?: MessageEmoji, nodePosition?: Position) => ReactNode | ReactNode[];
 
 interface UseEmojiParser {
     parseEmoji: ParseEmojiFunction
@@ -20,13 +21,12 @@ export const useEmojiParser = (): UseEmojiParser => {
         }
     } = useStore();
 
-    const parseEmoji = (text: string, emojiData?: MessageEmoji): ReactNode | ReactNode[] => {
-        console.log(text);
-
+    const parseEmoji = (text: string, emojiData?: MessageEmoji, nodePosition?: Position): ReactNode | ReactNode[] => {
         return emojiParser.parseEmoji(text, {
             set: selectedEmojiSet,
             emojiData,
-            emojiMartData: allData as any as Data
+            emojiMartData: allData as any as Data,
+            nodePosition
         });
     };
 
