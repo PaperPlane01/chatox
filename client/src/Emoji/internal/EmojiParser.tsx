@@ -36,7 +36,6 @@ export class EmojiParser {
 
         for (let emojiPosition of emojisWithinTextPart) {
             if (emojiPosition.end - offset + 1 !== cursor) {
-                console.log("Rest of the text is ", textPart.substring(cursor, emojiPosition.start - offset))
                 result.push(textPart.substring(cursor, emojiPosition.start - offset));
             }
 
