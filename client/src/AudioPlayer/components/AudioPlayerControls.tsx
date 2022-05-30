@@ -19,10 +19,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     trackMarkLabel: {
         top: 0,
-        paddingTop: Number(theme.spacing(3).replace("px", "")) + 2,
-        [theme.breakpoints.down("lg")]: {
-            paddingTop: theme.spacing(2)
-        }
+        paddingTop: Number(theme.spacing(3).replace("px", "")) + 2
     },
     trackSliderMarked: {
         paddingBottom: theme.spacing(4),
@@ -189,4 +186,4 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
             </div>
         </div>
     );
-})
+});
