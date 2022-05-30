@@ -9,6 +9,7 @@ import {
     ListItemText,
     Menu,
     MenuItem,
+    Theme,
 } from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {AttachFile, VideoLibrary} from "@mui/icons-material";
@@ -24,13 +25,14 @@ interface AttachFilesButtonProps {
     className?: string
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles((theme: Theme) => createStyles({
     attachFileButton: {
         padding: 0,
         textTransform: "none",
         "&:hover": {
             backgroundColor: "unset"
-        }
+        },
+        color: theme.palette.text.primary
     }
 }))
 
