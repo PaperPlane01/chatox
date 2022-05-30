@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import {createRoot} from "react-dom/client";
 import {Provider} from "mobx-react";
 import {parse} from "query-string";
 import {App} from "./App";
@@ -27,11 +27,11 @@ startRouter(Routes, routerStore, {
     }
 });
 
-ReactDOM.render(
+const root = createRoot(document.getElementById("root")!);
+root.render(
     <Provider store={routerStore} {...store}>
         <App/>
     </Provider>,
-    document.getElementById("root")
 );
 
 if (localStorage.getItem("accessToken")) {
