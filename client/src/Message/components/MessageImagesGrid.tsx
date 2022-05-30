@@ -109,6 +109,8 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
                                 }}
                             />
                         )}
+                        spacing={0}
+                        padding={0}
             />
             <Lightbox slides={slides}
                       open={viewerIsOpen}
