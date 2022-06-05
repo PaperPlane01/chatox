@@ -8,15 +8,14 @@ import {useEmojiParser} from "../hooks";
 import {MessageEmoji} from "../../api/types/response";
 import {EmojiKeyProviderFunction} from "../internal/ParseEmojiOptions";
 
-
-interface MardkownTextWithEmojiProps {
+interface MarkdownTextWithEmojiProps {
     text: string,
     emojiData?: MessageEmoji,
     disableRemarkBreaks?: boolean,
     uniqueId?: string
 }
 
-export const MarkdownTextWithEmoji: FunctionComponent<MardkownTextWithEmojiProps> = observer(({
+export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps> = observer(({
     text,
     emojiData,
     disableRemarkBreaks = false,
@@ -76,6 +75,26 @@ export const MarkdownTextWithEmoji: FunctionComponent<MardkownTextWithEmojiProps
                                <strong>
                                    {processEmoji(node, props)}
                                </strong>
+                           ),
+                           h1: ({node, ...props}) => (
+                               <h1>
+                                   {processEmoji(node, props)}
+                               </h1>
+                           ),
+                           h2: ({node, ...props}) => (
+                               <h2>
+                                   {processEmoji(node, props)}
+                               </h2>
+                           ),
+                           h3: ({node, ...props}) => (
+                               <h3>
+                                   {processEmoji(node, props)}
+                               </h3>
+                           ),
+                           h4: ({node, ...props}) => (
+                               <h4>
+                                   {processEmoji(node, props)}
+                               </h4>
                            )
                        }}
                        children={text}
