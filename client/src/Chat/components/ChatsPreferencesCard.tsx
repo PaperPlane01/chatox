@@ -11,7 +11,12 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import {parseReverseScrollingDirectionOptionFromString, ReverseScrollDirectionOption} from "../types";
+import {
+    parseReverseScrollingDirectionOptionFromString,
+    parseVirtualScrollElementFromString,
+    ReverseScrollDirectionOption,
+    VirtualScrollElement
+} from "../types";
 import {useLocalization, useStore} from "../../store";
 
 interface ChatsPreferencesCardProps {
@@ -30,7 +35,9 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
             restoredScrollingSpeedCoefficient,
             setReversedScrollSpeedCoefficient,
             enableImagesCaching,
-            setEnableImagesCaching
+            setEnableImagesCaching,
+            virtualScrollElement,
+            setVirtualScrollElement
         }
     } = useStore();
     const {l} = useLocalization();
@@ -59,41 +66,60 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                 {enableVirtualScroll && (
                     <Fragment>
                         <Typography variant="h6">
-                            {l("settings.chat.virtual-scroll.scroll-direction-behavior")}
+                            {l("settings.chat.virtual-scroll.scrollable-element")}
                         </Typography>
-                        <RadioGroup value={reverseScrollingDirectionOption}
-                                    onChange={event => setReverseScrollDirectionOption(parseReverseScrollingDirectionOptionFromString(event.target.value))}
+                        <RadioGroup value={virtualScrollElement}
+                                    onChange={event => setVirtualScrollElement(parseVirtualScrollElementFromString(event.target.value))}
                         >
                             <FormControlLabel control={<Radio/>}
-                                              label={l("settings.chat.virtual-scroll.scroll-direction-behavior.do-not-reverse")}
-                                              value={ReverseScrollDirectionOption.DO_NOT_REVERSE}
+                                              label={l("settings.chat.virtual-scroll.scrollable-element.MESSAGES_LIST")}
+                                              value={VirtualScrollElement.MESSAGES_LIST}
                             />
                             <FormControlLabel control={<Radio/>}
-                                              label={l("settings.chat.virtual-scroll.scroll-direction-behavior.reverse")}
-                                              value={ReverseScrollDirectionOption.REVERSE}
-                            />
-                            <FormControlLabel control={<Radio/>}
-                                              label={l("settings.chat.virtual-scroll.scroll-direction-behavior.reverse-and-try-to-restore")}
-                                              value={ReverseScrollDirectionOption.REVERSE_AND_TRY_TO_RESTORE}
+                                              label={l("settings.chat.virtual-scroll.scrollable-element.WINDOW")}
+                                              value={VirtualScrollElement.WINDOW}
                             />
                         </RadioGroup>
-                        {reverseScrollingDirectionOption === ReverseScrollDirectionOption.REVERSE_AND_TRY_TO_RESTORE && (
-                            <TextField fullWidth
-                                       margin="dense"
-                                       onChange={event => setReversedScrollSpeedCoefficient(Number(event.target.value))}
-                                       label={l("setting.chat.virtual-scroll.reversed-scroll-speed-coefficient")}
-                                       value={restoredScrollingSpeedCoefficient}
-                                       type="number"
-                                       inputProps={{
-                                           step: 0.0001
-                                       }}
-                            />
+                        {virtualScrollElement !== VirtualScrollElement.WINDOW && (
+                            <Fragment>
+                                <Typography variant="h6">
+                                    {l("settings.chat.virtual-scroll.scroll-direction-behavior")}
+                                </Typography>
+                                <RadioGroup value={reverseScrollingDirectionOption}
+                                            onChange={event => setReverseScrollDirectionOption(parseReverseScrollingDirectionOptionFromString(event.target.value))}
+                                >
+                                    <FormControlLabel control={<Radio/>}
+                                                      label={l("settings.chat.virtual-scroll.scroll-direction-behavior.do-not-reverse")}
+                                                      value={ReverseScrollDirectionOption.DO_NOT_REVERSE}
+                                    />
+                                    <FormControlLabel control={<Radio/>}
+                                                      label={l("settings.chat.virtual-scroll.scroll-direction-behavior.reverse")}
+                                                      value={ReverseScrollDirectionOption.REVERSE}
+                                    />
+                                    <FormControlLabel control={<Radio/>}
+                                                      label={l("settings.chat.virtual-scroll.scroll-direction-behavior.reverse-and-try-to-restore")}
+                                                      value={ReverseScrollDirectionOption.REVERSE_AND_TRY_TO_RESTORE}
+                                    />
+                                </RadioGroup>
+                                {reverseScrollingDirectionOption === ReverseScrollDirectionOption.REVERSE_AND_TRY_TO_RESTORE && (
+                                    <TextField fullWidth
+                                               margin="dense"
+                                               onChange={event => setReversedScrollSpeedCoefficient(Number(event.target.value))}
+                                               label={l("setting.chat.virtual-scroll.reversed-scroll-speed-coefficient")}
+                                               value={restoredScrollingSpeedCoefficient}
+                                               type="number"
+                                               inputProps={{
+                                                   step: 0.0001
+                                               }}
+                                    />
+                                )}
+                                <FormControlLabel control={
+                                    <Switch checked={enableImagesCaching} onChange={() => setEnableImagesCaching(!enableImagesCaching)}/>
+                                }
+                                                  label={"Enable images caching"}
+                                />
+                            </Fragment>
                         )}
-                        <FormControlLabel control={
-                            <Switch checked={enableImagesCaching} onChange={() => setEnableImagesCaching(!enableImagesCaching)}/>
-                        }
-                                          label={"Enable images caching"}
-                        />
                     </Fragment>
                 )}
             </CardContent>

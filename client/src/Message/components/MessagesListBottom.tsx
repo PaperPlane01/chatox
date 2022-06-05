@@ -1,4 +1,4 @@
-import React, {forwardRef, ReactNode} from "react";
+import React, {CSSProperties, forwardRef, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -65,7 +65,7 @@ const getBlockingLabel = (
     return l(labelCode, bindings);
 };
 
-const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
+const _MessagesListBottom = forwardRef<HTMLDivElement, {style?: CSSProperties}>((props, ref) => {
     const {
         entities: {
             chatParticipations: {
@@ -163,6 +163,7 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
         <div id="messagesListBottom"
              ref={ref}
              className={classes.messagesListBottom}
+             style={props.style}
         >
             {messagesListBottomContent}
         </div>

@@ -467,5 +467,8 @@ export interface Labels {
     "common.retry": string,
     "blacklist.users.error": string,
     "search.result.chats": string,
-    "search.result.messages": string
+    "search.result.messages": string,
+    "settings.chat.virtual-scroll.scrollable-element": string,
+    "settings.chat.virtual-scroll.scrollable-element.WINDOW": string,
+    "settings.chat.virtual-scroll.scrollable-element.MESSAGES_LIST": string
 }

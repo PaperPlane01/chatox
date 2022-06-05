@@ -1,5 +1,10 @@
-import {action, observable} from "mobx";
-import {parseReverseScrollingDirectionOptionFromString, ReverseScrollDirectionOption} from "../types";
+import {action, observable, reaction} from "mobx";
+import {
+    parseReverseScrollingDirectionOptionFromString,
+    parseVirtualScrollElementFromString,
+    ReverseScrollDirectionOption,
+    VirtualScrollElement
+} from "../types";
 
 export class ChatsPreferencesStore {
     @observable
@@ -16,6 +21,9 @@ export class ChatsPreferencesStore {
 
     @observable
     enableImagesCaching = false;
+
+    @observable
+    virtualScrollElement: VirtualScrollElement = VirtualScrollElement.MESSAGES_LIST;
 
     constructor() {
         if (localStorage.getItem("enableVirtualScroll")) {
@@ -47,6 +55,19 @@ export class ChatsPreferencesStore {
         if (localStorage.getItem("enableImagesCaching")) {
             this.enableImagesCaching = localStorage.getItem("enableImagesCaching" ) === "true";
         }
+
+        if (localStorage.getItem("virtualScrollElement")) {
+            this.virtualScrollElement = parseVirtualScrollElementFromString(localStorage.getItem("virtualScrollElement"));
+        }
+
+        reaction(
+            () => this.virtualScrollElement,
+            element => {
+                if (element === VirtualScrollElement.WINDOW) {
+                    this.setReverseScrollDirectionOption(ReverseScrollDirectionOption.DO_NOT_REVERSE);
+                }
+            }
+        )
     }
 
     @action
@@ -80,4 +101,10 @@ export class ChatsPreferencesStore {
         this.enableImagesCaching = enableImagesCaching;
         localStorage.setItem("enableImagesCaching", `${enableImagesCaching}`);
     };
+
+    @action
+    setVirtualScrollElement = (virtualScrollElement: VirtualScrollElement): void => {
+        this.virtualScrollElement = virtualScrollElement;
+        localStorage.setItem("virtualScrollElement", virtualScrollElement);
+    }
 }

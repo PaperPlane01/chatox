@@ -1,12 +1,12 @@
-import React, {Fragment, FunctionComponent, useState} from "react";
+import React, {CSSProperties, Fragment, FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
-import {Hidden, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {Hidden, Theme, useMediaQuery} from "@mui/material";
+import {createStyles, makeStyles, useTheme} from "@mui/styles";
 import clsx from "clsx";
 import {ChatsOfCurrentUserList} from "./ChatsOfCurrentUserList";
 import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
 import {CreateChatDialog} from "./CreateChatDialog";
-import {ChatsOfCurrentUserListProps} from "../types";
+import {ChatsOfCurrentUserListProps, VirtualScrollElement} from "../types";
 import {canCreateChat} from "../permissions";
 import {ChatsAndMessagesSearchInput, ChatsAndMessagesSearchResult} from "../../ChatsAndMessagesSearch";
 import {useStore} from "../../store";
@@ -47,10 +47,16 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
         chatsAndMessagesSearchQuery: {
             searchModeActive
         },
-        authorization
+        authorization,
+        chatsPreferences: {
+            enableVirtualScroll,
+            virtualScrollElement
+        }
     } = useStore();
     const classes = useStyles();
     const [hovered, setHovered] = useState(false);
+    const theme = useTheme<Theme>();
+    const onLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
 
     const listProps: ChatsOfCurrentUserListProps = {
         classes: {
@@ -64,14 +70,30 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
         }
     };
 
+    const wrapperStyle: CSSProperties | undefined = onLargeScreen && enableVirtualScroll && virtualScrollElement === VirtualScrollElement.WINDOW
+        ? ({
+            position: "sticky",
+            overflowY: "auto",
+            top: theme.spacing(8),
+            minHeight: "100%"
+        })
+        : undefined;
+
     return (
         <Fragment>
             <div className={classes.chatListWrapper}
                  onMouseEnter={() => setHovered(true)}
                  onMouseLeave={() => setHovered(false)}
+                 style={wrapperStyle}
             >
                 <Hidden lgDown>
-                    <div style={{flex: 1}}>
+                    <div style={{
+                        flex: 1,
+                        position: "sticky",
+                        backgroundColor: theme.palette.background.default,
+                        zIndex: 100,
+                        top: 0
+                    }}>
                         <ChatsAndMessagesSearchInput style={{padding: "8px"}}/>
                     </div>
                 </Hidden>
@@ -89,4 +111,4 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
             <CreateChatDialog/>
         </Fragment>
     );
-})
+});

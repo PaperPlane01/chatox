@@ -68,7 +68,7 @@ export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewPro
             <Fragment>
                 {messageSenderName}
                 {": "}
-                {parseEmoji(message.text, message.emoji)}
+                {parseEmoji(message.text, message.emoji, undefined, emoji => `chatList-${messageId}`)}
             </Fragment>
         );
     }

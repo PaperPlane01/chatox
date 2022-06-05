@@ -44,6 +44,9 @@ export const cyan = createTheme({
                 },
                 ".emoji-mart-anchor-selected": {
                     color: `${PRIMARY_MAIN} !important`
+                },
+                ".yarl__portal": {
+                    zIndex: "1500 !important"
                 }
             }
         },

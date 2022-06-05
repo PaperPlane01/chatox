@@ -330,6 +330,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                     <div className={classes.cardContentWithPadding}>
                                         <MarkdownTextWithEmoji text={message.text}
                                                                emojiData={message.emoji}
+                                                               uniqueId={messageId}
                                         />
                                     </div>
                                     {message.stickerId && (

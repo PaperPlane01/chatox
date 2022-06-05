@@ -469,5 +469,8 @@ export const ru: Labels = {
     "common.retry": "Повторить",
     "blacklist.users.error": "Не удалось загрузить список заблокированных пользователей, сервер ответил со статусом {errorStatus}",
     "search.result.chats": "Чаты",
-    "search.result.messages": "Сообщения"
+    "search.result.messages": "Сообщения",
+    "settings.chat.virtual-scroll.scrollable-element": "Прокручиваемый элемент",
+    "settings.chat.virtual-scroll.scrollable-element.WINDOW": "Объект window",
+    "settings.chat.virtual-scroll.scrollable-element.MESSAGES_LIST": "Список сообщений"
 };

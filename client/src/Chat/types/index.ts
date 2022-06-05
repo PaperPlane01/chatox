@@ -11,3 +11,4 @@ export * from "./UpdateChatParticipantFormData";
 export * from "./ChatListEntry";
 export * from "./ChatLinkPropsGenerationStrategy";
 export * from "./ChatsOfCurrentUserListProps";
+export * from "./VirtualScrollElement";
