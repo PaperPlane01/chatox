@@ -58,8 +58,6 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
 
     useEffect(() => {
         if (loaded && !heightCache[messageId] && imageContainerRef && imageContainerRef.current) {
-            console.log("Setting height cache")
-
             heightCache[messageId] = imageContainerRef.current.getBoundingClientRect().height;
 
             if (onImageLoaded) {
