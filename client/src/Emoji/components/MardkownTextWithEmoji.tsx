@@ -2,12 +2,12 @@ import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {Typography} from "@mui/material";
 import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
 import {Element} from "hast";
 import {useEmojiParser} from "../hooks";
 import {MessageEmoji} from "../../api/types/response";
 import {EmojiKeyProviderFunction} from "../internal/ParseEmojiOptions";
 
-const remarkBreaks = require("remark-breaks");
 
 interface MardkownTextWithEmojiProps {
     text: string,
