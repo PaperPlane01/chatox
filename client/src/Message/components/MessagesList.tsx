@@ -388,6 +388,11 @@ export const MessagesList: FunctionComponent = observer(() => {
                              overscan={virtualScrollOverscan}
                              style={styles}
                              ref={virtuosoRef}
+                             scrollerRef={scrollRef => {
+                                 if (scrollRef) {
+                                     (scrollRef as HTMLElement).style.willChange = "transform";
+                                 }
+                             }}
                              computeItemKey={index => messagesOfChat[index]}
                              onScroll={(event: any) => virtualScrollElement === VirtualScrollElement.MESSAGES_LIST
                                  ?  handleDivScroll(event)
