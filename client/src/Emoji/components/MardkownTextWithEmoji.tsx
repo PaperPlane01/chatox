@@ -5,24 +5,31 @@ import ReactMarkdown from "react-markdown";
 import {Element} from "hast";
 import {useEmojiParser} from "../hooks";
 import {MessageEmoji} from "../../api/types/response";
+import {EmojiKeyProviderFunction} from "../internal/ParseEmojiOptions";
 
 const remarkBreaks = require("remark-breaks");
 
 interface MardkownTextWithEmojiProps {
     text: string,
     emojiData?: MessageEmoji,
-    disableRemarkBreaks?: boolean
+    disableRemarkBreaks?: boolean,
+    uniqueId?: string
 }
 
 export const MarkdownTextWithEmoji: FunctionComponent<MardkownTextWithEmojiProps> = observer(({
     text,
     emojiData,
-    disableRemarkBreaks = false
+    disableRemarkBreaks = false,
+    uniqueId
 }) => {
     const {parseEmoji} = useEmojiParser();
     const processEmoji = (node: Element, props: any): ReactNode | ReactNode[] => node.children.map(child => {
         if (child.type === "text") {
-            return parseEmoji(child.value, emojiData, child.position);
+            const keyProvider: EmojiKeyProviderFunction | undefined = uniqueId
+                ? emoji => `${uniqueId}-${emoji.colons}-${child.position?.start.column}`
+                : undefined;
+
+            return parseEmoji(child.value, emojiData, child.position, keyProvider);
         } else {
             return (
                 <Fragment {...props}

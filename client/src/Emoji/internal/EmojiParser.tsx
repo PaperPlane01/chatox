@@ -2,7 +2,7 @@ import React, {ReactNode} from "react";
 import {Data, Emoji, getEmojiDataFromNative} from "emoji-mart";
 import createRegEmojiRegExp from "emoji-regex";
 import {Position} from "react-markdown/lib/ast-to-react";
-import {ParseEmojiOptions} from "./ParseEmojiOptions";
+import {EmojiKeyProviderFunction, ParseEmojiOptions} from "./ParseEmojiOptions";
 import {ExtendedEmojiSet} from "../types";
 import {MessageEmoji} from "../../api/types/response";
 
@@ -26,7 +26,7 @@ export class EmojiParser {
         }
     }
 
-    private parseTextPart(textPart: string, emojiData: MessageEmoji, set: ExtendedEmojiSet, partPosition: Position): ReactNode | ReactNode[] {
+    private parseTextPart(textPart: string, emojiData: MessageEmoji, set: ExtendedEmojiSet, partPosition: Position, keyProvider?: EmojiKeyProviderFunction): ReactNode | ReactNode[] {
         const result: ReactNode[] = [];
         let cursor = 0;
         const emojisWithinTextPart = emojiData
@@ -44,8 +44,9 @@ export class EmojiParser {
             const emojiMartData = emojiData.emoji[emojiPosition.emojiId];
             const emojiSet = set === "native" ? undefined : set;
             const native = set === "native";
+            const key = keyProvider ? keyProvider(emojiMartData, partPosition) : `${emojiMartData.colons}-${partPosition.start.column}-${cursor}`;
 
-            result.push(<Emoji size={20} emoji={emojiMartData} set={emojiSet} native={native}/>)
+            result.push(<Emoji size={20} emoji={emojiMartData} set={emojiSet} native={native} key={key}/>)
         }
 
         if (cursor !== textPart.length) {
