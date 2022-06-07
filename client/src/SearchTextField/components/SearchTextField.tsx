@@ -26,6 +26,9 @@ const useClasses = makeStyles(() => createStyles({
         "&:after": {
             borderBottomColor: "inherit"
         }
+    },
+    inputAdornmentRoot: {
+        "color": "inherit"
     }
 }));
 
@@ -73,12 +76,20 @@ export const SearchTextField: FunctionComponent<SearchTextFieldProps> = observer
                    variant={variant as any} // https://github.com/mui/material-ui/issues/15697#issuecomment-612397854
                    InputProps={{
                        startAdornment: (
-                           <InputAdornment position="start">
-                               <Search/>
+                           <InputAdornment position="start"
+                                           classes={{
+                                               root: defaultClasses.inputAdornmentRoot
+                                           }}
+                           >
+                               <Search color="inherit"/>
                            </InputAdornment>
                        ),
                        endAdornment: !hideClearButton && (
-                           <InputAdornment position="end">
+                           <InputAdornment position="end"
+                                           classes={{
+                                               root: defaultClasses.inputAdornmentRoot
+                                           }}
+                           >
                                <IconButton onClick={handleClear} color="inherit" size="large">
                                    <Close/>
                                </IconButton>

@@ -16,6 +16,7 @@ export const ChatAppBarSearchInput: FunctionComponent = observer(() => {
         <SearchTextField value={query}
                          onQueryChange={setQuery}
                          onClear={reset}
+                         style={{color: "inherit"}}
         />
     )
 });
