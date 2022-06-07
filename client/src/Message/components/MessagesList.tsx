@@ -165,6 +165,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     };
 
     const handleDivScroll = (event: UIEvent<HTMLElement>): void => {
+        console.log("Handling div scroll")
         const coveredDistance = event.currentTarget.scrollHeight - event.currentTarget.scrollTop;
         setScrollPosition(selectedChatId!, event.currentTarget.scrollTop);
 
@@ -211,13 +212,13 @@ export const MessagesList: FunctionComponent = observer(() => {
         }
     };
 
-    useEffect(
+    useLayoutEffect(
         () => {
             if (selectedChatId && getReachedBottom(selectedChatId)) {
                 scrollToBottom();
             }
     },
-        [messagesOfChat, emojiPickerExpanded]
+        [messagesOfChat, emojiPickerExpanded, selectedChatId]
     );
     useEffect(() => {
         const handleResize = () => {
@@ -395,13 +396,14 @@ export const MessagesList: FunctionComponent = observer(() => {
                              }}
                              computeItemKey={index => messagesOfChat[index]}
                              onScroll={(event: any) => virtualScrollElement === VirtualScrollElement.MESSAGES_LIST
-                                 ?  handleDivScroll(event)
+                                 ? handleDivScroll(event)
                                  : handleWindowScroll()
                              }
                              firstItemIndex={isInSearchMode ? 0 : (firstMessage && firstMessage.index)}
                              startReached={() => !messagesListReverted && fetchMessages()}
                              endReached={() => messagesListReverted && fetchMessages()}
                              useWindowScroll={virtualScrollElement === VirtualScrollElement.WINDOW}
+                             initialScrollTop={selectedChatId ? getScrollPosition(selectedChatId) : undefined}
                    />
                    <div style={{
                        width: (messagesDivRef && messagesDivRef.current && messagesDivRef.current.getBoundingClientRect().width) || undefined,
