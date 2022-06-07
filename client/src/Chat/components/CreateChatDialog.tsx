@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent, KeyboardEvent} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {
     Button,
@@ -35,7 +35,6 @@ export const CreateChatDialog: FunctionComponent = observer(() => {
             formErrors,
             submissionError,
             pending,
-            currentTag,
             checkingSlugAvailability,
             setCurrentTag,
             setFormValue,
@@ -115,6 +114,7 @@ export const CreateChatDialog: FunctionComponent = observer(() => {
                            }}
                 />
                 <ChipInput value={createChatForm.tags}
+                           label={l("chat.tags")}
                            onChange={value => setFormValue("tags", value as string[])}
                            onTextValueChange={setCurrentTag}
                            fullWidth
