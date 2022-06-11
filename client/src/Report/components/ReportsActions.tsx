@@ -1,8 +1,9 @@
-import React, {FunctionComponent, ReactNode} from "react";
+import React, {forwardRef, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {Card, CardContent, createStyles, Grid, GridSize, makeStyles, Typography} from "@material-ui/core";
+import {Card, CardContent, Grid, GridSize, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {ClearReportsSelectionButton} from "./ClearReportsSelectionButton";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 
 interface ReportsActionsProps {
     children: ReactNode[]
@@ -12,8 +13,10 @@ const useStyles = makeStyles(() => createStyles({
     centerAligned: {
         textAlign: "center"
     },
-    fullWidth: {
-        width: "100%"
+    cardRoot: {
+        width: "100%",
+        position: "fixed",
+        bottom: 0
     },
     floatRight: {
         display: "inline",
@@ -21,7 +24,7 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-export const ReportsActions: FunctionComponent<ReportsActionsProps> = observer(({children}) => {
+export const _RepostsActions = forwardRef<HTMLDivElement, ReportsActionsProps>((props, ref) => {
     const {
         currentReportsList: {
             currentReportsList: {
@@ -32,7 +35,9 @@ export const ReportsActions: FunctionComponent<ReportsActionsProps> = observer((
     const {l} = useLocalization();
     const classes = useStyles();
 
-    if (children.length === 0) {
+    console.log(ref)
+
+    if (props.children.length === 0) {
         return null;
     }
 
@@ -40,11 +45,14 @@ export const ReportsActions: FunctionComponent<ReportsActionsProps> = observer((
         return null;
     }
 
-    const actionWidth = 12 / children.length as unknown as GridSize;
+    const actionWidth = 12 / props.children.length as unknown as GridSize;
 
     return (
         <Card raised
-              className={classes.fullWidth}
+              classes={{
+                  root: classes.cardRoot
+              }}
+              ref={ref}
         >
             <CardContent>
                 <Typography variant="h6">
@@ -56,8 +64,8 @@ export const ReportsActions: FunctionComponent<ReportsActionsProps> = observer((
                 <Grid container
                       alignItems="center"
                 >
-                    {children.map(action => (
-                        <Grid item xs={actionWidth} className={classes.centerAligned}>
+                    {props.children.map((action, index) => (
+                        <Grid item xs={actionWidth} className={classes.centerAligned} key={index}>
                             {action}
                         </Grid>
                     ))}
@@ -65,4 +73,6 @@ export const ReportsActions: FunctionComponent<ReportsActionsProps> = observer((
             </CardContent>
         </Card>
     );
-});
+})
+
+export const ReportsActions = observer(_RepostsActions);

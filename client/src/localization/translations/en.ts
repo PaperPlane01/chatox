@@ -469,5 +469,8 @@ export const en: Labels = {
     "common.retry": "Retry",
     "blacklist.users.error": "Error occurred when tried to fetch blacklisted users. Server responded with {errorStatus} status",
     "search.result.chats": "Found chats",
-    "search.result.messages": "Found messages"
+    "search.result.messages": "Found messages",
+    "settings.chat.virtual-scroll.scrollable-element": "Scrollable element",
+    "settings.chat.virtual-scroll.scrollable-element.WINDOW": "Window",
+    "settings.chat.virtual-scroll.scrollable-element.MESSAGES_LIST": "Messages list"
 };

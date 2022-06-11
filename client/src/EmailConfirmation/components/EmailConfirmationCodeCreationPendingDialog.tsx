@@ -3,17 +3,16 @@ import {observer} from "mobx-react";
 import {
     Button,
     CircularProgress,
-    createStyles,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    makeStyles,
-    Typography
-} from "@material-ui/core";
-import {useLocalization} from "../../store/hooks";
+    Typography,
+} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {useLocalization} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {TranslationFunction} from "../../localization/types";
+import {TranslationFunction} from "../../localization";
 
 interface EmailConfirmationCodeCreationPendingDialogProps {
     pending: boolean,
@@ -96,5 +95,5 @@ export const EmailConfirmationCodeCreationPendingDialog: FunctionComponent<Email
                     </DialogActions>
                 )}
             </Dialog>
-        )
+        );
     });

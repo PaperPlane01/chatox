@@ -1,7 +1,11 @@
-import React, {FunctionComponent} from "react";
-import {createStyles, makeStyles, Theme} from "@material-ui/core";
+import React, {CSSProperties, FunctionComponent} from "react";
+import {observer} from "mobx-react";
+import {Theme, useMediaQuery} from "@mui/material";
+import {createStyles, makeStyles, useTheme} from "@mui/styles";
 import {ChatDescription} from "./ChatDescription";
 import {OnlineChatParticipantsList} from "./OnlineChatParticipantsList";
+import {VirtualScrollElement} from "../types";
+import {useStore} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatInfoContainer: {
@@ -14,15 +18,34 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-export const ChatInfoContainer: FunctionComponent = () => {
+export const ChatInfoContainer: FunctionComponent = observer(() => {
     const classes = useStyles();
+    const {
+        chatsPreferences: {
+            enableVirtualScroll,
+            virtualScrollElement
+        }
+    } = useStore();
+    const theme = useTheme<Theme>()
+    const onLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
+    const style: CSSProperties | undefined = onLargeScreen && enableVirtualScroll && virtualScrollElement === VirtualScrollElement.WINDOW
+        ? ({
+            position: "fixed",
+            overflowY: "auto",
+            top: theme.spacing(8),
+            height: "100vh"
+        })
+        : undefined;
+
 
     return (
-        <div className={classes.chatInfoContainer}>
+        <div className={classes.chatInfoContainer}
+             style={style}
+        >
             <ChatDescription/>
             <div className={classes.withPadding}>
                 <OnlineChatParticipantsList/>
             </div>
         </div>
     );
-};
+});

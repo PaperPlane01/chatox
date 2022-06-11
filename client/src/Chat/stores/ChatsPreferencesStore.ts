@@ -1,12 +1,14 @@
-import {action, observable} from "mobx";
-import {parseReverseScrollingDirectionOptionFromString, ReverseScrollDirectionOption} from "../types";
+import {action, observable, reaction} from "mobx";
+import {
+    parseReverseScrollingDirectionOptionFromString,
+    parseVirtualScrollElementFromString,
+    ReverseScrollDirectionOption,
+    VirtualScrollElement
+} from "../types";
 
 export class ChatsPreferencesStore {
     @observable
     enableVirtualScroll: boolean = false;
-
-    @observable
-    useSimplifiedGalleryForVirtualScroll: boolean = true;
 
     @observable
     reverseScrollingDirectionOption: ReverseScrollDirectionOption = ReverseScrollDirectionOption.DO_NOT_REVERSE;
@@ -16,6 +18,12 @@ export class ChatsPreferencesStore {
 
     @observable
     virtualScrollOverscan: number = 120;
+
+    @observable
+    enableImagesCaching = false;
+
+    @observable
+    virtualScrollElement: VirtualScrollElement = VirtualScrollElement.MESSAGES_LIST;
 
     constructor() {
         if (localStorage.getItem("enableVirtualScroll")) {
@@ -36,10 +44,6 @@ export class ChatsPreferencesStore {
             );
         }
 
-        if (localStorage.getItem("useSimplifiedGalleryForVirtualScroll")) {
-            this.useSimplifiedGalleryForVirtualScroll = localStorage.getItem("useSimplifiedGalleryForVirtualScroll") === "true";
-        }
-
         if (localStorage.getItem("reversedScrollSpeedCoefficient")) {
             const reversedScrollSpeedCoefficient = Number(localStorage.getItem("reversedScrollSpeedCoefficient"));
 
@@ -47,6 +51,23 @@ export class ChatsPreferencesStore {
                 this.restoredScrollingSpeedCoefficient = reversedScrollSpeedCoefficient;
             }
         }
+
+        if (localStorage.getItem("enableImagesCaching")) {
+            this.enableImagesCaching = localStorage.getItem("enableImagesCaching" ) === "true";
+        }
+
+        if (localStorage.getItem("virtualScrollElement")) {
+            this.virtualScrollElement = parseVirtualScrollElementFromString(localStorage.getItem("virtualScrollElement"));
+        }
+
+        reaction(
+            () => this.virtualScrollElement,
+            element => {
+                if (element === VirtualScrollElement.WINDOW) {
+                    this.setReverseScrollDirectionOption(ReverseScrollDirectionOption.DO_NOT_REVERSE);
+                }
+            }
+        )
     }
 
     @action
@@ -70,14 +91,20 @@ export class ChatsPreferencesStore {
     };
 
     @action
-    setUseSimplifiedGalleryForVirtualScroll = (useSimplifiedGalleryForVirtualScroll: boolean): void => {
-        this.useSimplifiedGalleryForVirtualScroll = useSimplifiedGalleryForVirtualScroll;
-        localStorage.setItem("useSimplifiedGalleryForVirtualScroll", `${useSimplifiedGalleryForVirtualScroll}`);
-    };
-
-    @action
     setReverseScrollDirectionOption = (reverseScrollOption: ReverseScrollDirectionOption): void => {
         this.reverseScrollingDirectionOption = reverseScrollOption;
         localStorage.setItem("reverseScrollDirectionOption", reverseScrollOption);
     };
+
+    @action
+    setEnableImagesCaching = (enableImagesCaching: boolean): void => {
+        this.enableImagesCaching = enableImagesCaching;
+        localStorage.setItem("enableImagesCaching", `${enableImagesCaching}`);
+    };
+
+    @action
+    setVirtualScrollElement = (virtualScrollElement: VirtualScrollElement): void => {
+        this.virtualScrollElement = virtualScrollElement;
+        localStorage.setItem("virtualScrollElement", virtualScrollElement);
+    }
 }

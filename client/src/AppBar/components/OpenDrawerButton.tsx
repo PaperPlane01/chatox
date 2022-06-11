@@ -1,7 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, IconButton, makeStyles} from "@material-ui/core";
-import MenuIcon from "@material-ui/icons/Menu";
+import {IconButton} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Menu} from "@mui/icons-material";
 import {useStore} from "../../store";
 
 const useStyles = makeStyles(() => createStyles({
@@ -18,10 +19,11 @@ export const OpenDrawerButton: FunctionComponent = observer(() => {
     const {setDrawerExpanded} = appBar;
 
     return (
-        <IconButton onClick={() => setDrawerExpanded(true)}
-                    className={classes.openDrawerButton}
-        >
-            <MenuIcon/>
+        <IconButton
+            onClick={() => setDrawerExpanded(true)}
+            className={classes.openDrawerButton}
+            size="large">
+            <Menu/>
         </IconButton>
-    )
+    );
 });

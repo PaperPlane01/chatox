@@ -1,10 +1,11 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {CssBaseline, MuiThemeProvider} from "@material-ui/core";
-import {MuiPickersUtilsProvider} from "@material-ui/pickers";
-import DateFnsUtils from "@date-io/date-fns";
-import {Helmet} from "react-helmet";
+import {CssBaseline, StyledEngineProvider, ThemeProvider} from "@mui/material";
+import {LocalizationProvider} from "@mui/x-date-pickers";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
+import {Helmet, HelmetProvider} from "react-helmet-async";
 import rgbToHex from "rgb-hex";
+import "yet-another-react-lightbox/dist/styles.css";
 import {SnackbarProvider} from "notistack";
 import {cyan} from "./themes";
 import {LoadingCurrentUserProgressIndicator} from "./Authorization";
@@ -19,23 +20,27 @@ export const App: FunctionComponent = observer(() => {
     const {dateFnsLocale} = useLocalization();
 
     return (
-       <ErrorBoundary>
-           <MuiPickersUtilsProvider utils={DateFnsUtils}
-                                    locale={dateFnsLocale}
-           >
-               <Helmet>
-                   <meta name="theme-color" content={`#${rgbToHex(cyan.palette.primary.main)}`}/>
-               </Helmet>
-               <SnackbarProvider maxSnack={3}>
-                   <MuiThemeProvider theme={cyan}>
-                       <LoadingCurrentUserProgressIndicator/>
-                       <CssBaseline/>
-                       <MobxRouter/>
-                       <AudioPlayerContainer/>
-                       <AnonymousRegistrationDialog/>
-                   </MuiThemeProvider>
-               </SnackbarProvider>
-           </MuiPickersUtilsProvider>
-       </ErrorBoundary>
-    )
+        <ErrorBoundary>
+           <HelmetProvider>
+               <LocalizationProvider dateAdapter={AdapterDateFns}
+                                     adapterLocale={dateFnsLocale}
+               >
+                   <Helmet>
+                       <meta name="theme-color" content={`#${rgbToHex(cyan.palette.primary.main)}`}/>
+                   </Helmet>
+                   <SnackbarProvider maxSnack={3}>
+                       <StyledEngineProvider injectFirst>
+                           <ThemeProvider theme={cyan}>
+                               <LoadingCurrentUserProgressIndicator/>
+                               <CssBaseline/>
+                               <MobxRouter/>
+                               <AudioPlayerContainer/>
+                               <AnonymousRegistrationDialog/>
+                           </ThemeProvider>
+                       </StyledEngineProvider>
+                   </SnackbarProvider>
+               </LocalizationProvider>
+           </HelmetProvider>
+        </ErrorBoundary>
+    );
 });

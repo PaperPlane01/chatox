@@ -1,15 +1,16 @@
-import React, {forwardRef, ReactNode} from "react";
+import React, {CSSProperties, forwardRef, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
+import {Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {format} from "date-fns";
 import {CreateMessageForm} from "./CreateMessageForm";
 import {JoinChatButton} from "../../Chat";
-import {ChatParticipationEntity} from "../../Chat/types";
+import {ChatParticipationEntity} from "../../Chat";
 import {useAuthorization, useLocalization, useStore} from "../../store";
-import {ChatBlockingEntity} from "../../ChatBlocking/types";
+import {ChatBlockingEntity} from "../../ChatBlocking";
 import {isChatBlockingActive} from "../../ChatBlocking/utils";
 import {isStringEmpty} from "../../utils/string-utils";
-import {UserEntity} from "../../User/types";
+import {UserEntity} from "../../User";
 import {Labels, TranslationFunction} from "../../localization";
 import {getGlobalBanLabel, isGlobalBanActive} from "../../GlobalBan/utils";
 
@@ -20,7 +21,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             verticalAlign: "bottom",
             width: "100%",
         },
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down("lg")]: {
             position: "fixed",
             bottom: 0,
             width: "100%",
@@ -64,7 +65,7 @@ const getBlockingLabel = (
     return l(labelCode, bindings);
 };
 
-const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
+const _MessagesListBottom = forwardRef<HTMLDivElement, {style?: CSSProperties}>((props, ref) => {
     const {
         entities: {
             chatParticipations: {
@@ -162,6 +163,7 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {}>((props, ref) => {
         <div id="messagesListBottom"
              ref={ref}
              className={classes.messagesListBottom}
+             style={props.style}
         >
             {messagesListBottomContent}
         </div>

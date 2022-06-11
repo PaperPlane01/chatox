@@ -1,5 +1,5 @@
 import React, {FunctionComponent} from "react";
-import {Grid, Typography} from "@material-ui/core";
+import {Grid, Typography} from "@mui/material";
 import {AppBar} from "../AppBar";
 import {CreateStickerPackForm} from "../Sticker";
 import {HasRole} from "../Authorization";

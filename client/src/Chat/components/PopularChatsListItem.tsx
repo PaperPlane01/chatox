@@ -1,16 +1,17 @@
 import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
-import {Card, CardHeader, CardContent, CardActions, createStyles, makeStyles, Typography} from "@material-ui/core";
+import {Card, CardHeader, CardContent, CardActions, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
 import randomColor from "randomcolor";
-import {useStore, useLocalization, useRouter} from "../../store/hooks";
+import {useStore, useLocalization, useRouter} from "../../store";
 import {Routes} from "../../router";
-import {Avatar} from "../../Avatar/components";
+import {Avatar} from "../../Avatar";
 import {getAvatarLabel} from "../utils";
 import {useLuminosity} from "../../utils/hooks";
 
 const {Link} = require("mobx-router");
-const breaks = require("remark-breaks");
 
 interface PopularChatsListItemProps {
     chatId: string
@@ -68,9 +69,11 @@ export const PopularChatsListItem: FunctionComponent<PopularChatsListItemProps> 
                         }
             />
             <CardContent>
-                <ReactMarkdown plugins={[breaks]}>
-                    {chat.description}
-                </ReactMarkdown>
+                {chat.description && (
+                    <ReactMarkdown children={chat.description}
+                                   remarkPlugins={[remarkBreaks]}
+                    />
+                )}
             </CardContent>
             {chat.tags.length !== 0 && (
                 <CardActions>
@@ -85,5 +88,5 @@ export const PopularChatsListItem: FunctionComponent<PopularChatsListItemProps> 
                 </CardActions>
             )}
         </Card>
-    )
+    );
 });

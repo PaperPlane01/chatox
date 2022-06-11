@@ -10,10 +10,10 @@ import {
     InputAdornment,
     TextField,
     Typography
-} from "@material-ui/core";
-import ChipInput from "material-ui-chip-input";
+} from "@mui/material";
 import {useSnackbar} from "notistack";
 import {ChatAvatarUpload} from "./ChatAvatarUpload";
+import {ChipInput} from "../../ChipInput";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {Language, TranslationFunction} from "../../localization";
@@ -156,7 +156,7 @@ export const UpdateChatDialog: FunctionComponent = observer(() => {
                            }}
                            multiline
                            rows={4}
-                           rowsMax={20}
+                           maxRows={20}
                 />
                 <TextField label={l("chat.slug")}
                            value={updateChatForm.slug}
@@ -217,5 +217,5 @@ export const UpdateChatDialog: FunctionComponent = observer(() => {
             </DialogActions>
             <MarkdownPreviewDialog text={updateChatForm.description || ""}/>
         </Dialog>
-    )
+    );
 });

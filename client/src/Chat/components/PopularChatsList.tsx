@@ -1,8 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, CircularProgress, createStyles, Grid, makeStyles, Typography} from "@material-ui/core";
+import {Button, CircularProgress, Grid, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {PopularChatsListItem} from "./PopularChatsListItem";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 
 const useStyles = makeStyles(() => createStyles({
     centered: {

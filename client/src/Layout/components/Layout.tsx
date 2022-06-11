@@ -1,5 +1,6 @@
-import React, {FunctionComponent} from "react";
-import {Grid, createStyles, makeStyles} from "@material-ui/core";
+import React, {FunctionComponent, PropsWithChildren} from "react";
+import {Grid} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 
 const useStyles = makeStyles(() => createStyles({
     defaultLayout: {
@@ -9,7 +10,7 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-export const Layout: FunctionComponent<{}> = ({children}) => {
+export const Layout: FunctionComponent<PropsWithChildren<{}>> = ({children}) => {
     const classes = useStyles();
 
     return (
@@ -18,5 +19,5 @@ export const Layout: FunctionComponent<{}> = ({children}) => {
                 {children}
             </Grid>
         </Grid>
-    )
+    );
 };

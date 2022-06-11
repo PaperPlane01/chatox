@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText, CircularProgress} from "@material-ui/core";
-import {Send} from "@material-ui/icons";
-import {useLocalization, useStore} from "../../store/hooks";
+import {MenuItem, ListItemIcon, ListItemText, CircularProgress} from "@mui/material";
+import {Send} from "@mui/icons-material";
+import {useLocalization, useStore} from "../../store";
 
 interface SendScheduledMessageNowMenuItemProps {
     messageId: string,

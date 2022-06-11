@@ -10,7 +10,7 @@ import {
     InputAdornment,
     TextField,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import {TranslationFunction} from "../../localization";
 import {ApiError} from "../../api";
 import {useLocalization, useStore} from "../../store";
@@ -93,5 +93,5 @@ export const BlockUserInChatByIdOrSlugDialog: FunctionComponent = observer(() =>
                 </Button>
             </DialogActions>
         </Dialog>
-    )
+    );
 });

@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {TableCell, TableRow} from "@material-ui/core";
+import {TableCell, TableRow} from "@mui/material";
 import {format} from "date-fns";
 import {CancelChatBlockingButton} from "./CancelChatBlockingButton";
 import {UpdateChatBlockingButton} from "./UpdateChatBlockingButton";
@@ -82,5 +82,5 @@ export const ChatBlockingsTableRow: FunctionComponent<ChatBlockingsTableRowProps
                 </Fragment>
             )}
         </TableRow>
-    )
+    );
 });

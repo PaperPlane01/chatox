@@ -1,6 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Card, CardHeader, CircularProgress, createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
+import { Card, CardHeader, CircularProgress, Theme, Typography } from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {format} from "date-fns";
 import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
@@ -152,8 +153,8 @@ export const UserProfileInfo: FunctionComponent = observer(() => {
                             }
                                         subheader={
                                             <Typography>
-                                                <ReactMarkdown source={user.bio}
-                                                               plugins={[breaks]}
+                                                <ReactMarkdown children={user.bio}
+                                                               remarkPlugins={[breaks]}
                                                 />
                                             </Typography>
                                         }

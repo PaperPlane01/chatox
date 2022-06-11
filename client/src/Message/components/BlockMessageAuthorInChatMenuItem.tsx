@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
-import {Block} from "@material-ui/icons";
-import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {Block} from "@mui/icons-material";
+import {canBlockUsersInChat} from "../../ChatBlocking";
 import {useAuthorization, useLocalization, useStore} from "../../store";
 
 interface BlockMessageAuthorInChatMenuItemProps {
@@ -67,7 +67,7 @@ export const BlockMessageAuthorInChatMenuItem: FunctionComponent<BlockMessageAut
                     {l("chat.blocking.block-user")}
                 </ListItemText>
             </MenuItem>
-        )
+        );
     } else {
         return null;
     }

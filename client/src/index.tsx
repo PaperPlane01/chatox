@@ -1,11 +1,11 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import {createRoot} from "react-dom/client";
 import {Provider} from "mobx-react";
+import {parse} from "query-string";
 import {App} from "./App";
 import {store, routerStore} from "./store";
 import {Routes} from "./router";
 import * as serviceWorker from "./serviceWorker";
-import {parse} from "query-string";
 
 const {startRouter} = require("mobx-router");
 
@@ -27,11 +27,11 @@ startRouter(Routes, routerStore, {
     }
 });
 
-ReactDOM.render(
+const root = createRoot(document.getElementById("root")!);
+root.render(
     <Provider store={routerStore} {...store}>
         <App/>
     </Provider>,
-    document.getElementById("root")
 );
 
 if (localStorage.getItem("accessToken")) {

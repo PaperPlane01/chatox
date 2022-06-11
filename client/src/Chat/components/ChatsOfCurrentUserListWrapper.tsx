@@ -1,11 +1,12 @@
-import React, {Fragment, FunctionComponent, useState} from "react";
+import React, {CSSProperties, Fragment, FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
-import {createStyles, Hidden, makeStyles, Theme} from "@material-ui/core";
+import {Hidden, Theme, useMediaQuery} from "@mui/material";
+import {createStyles, makeStyles, useTheme} from "@mui/styles";
 import clsx from "clsx";
 import {ChatsOfCurrentUserList} from "./ChatsOfCurrentUserList";
 import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
 import {CreateChatDialog} from "./CreateChatDialog";
-import {ChatsOfCurrentUserListProps} from "../types";
+import {ChatsOfCurrentUserListProps, VirtualScrollElement} from "../types";
 import {canCreateChat} from "../permissions";
 import {ChatsAndMessagesSearchInput, ChatsAndMessagesSearchResult} from "../../ChatsAndMessagesSearch";
 import {useStore} from "../../store";
@@ -23,7 +24,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             width: 480,
             overflow: "auto"
         },
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down("lg")]: {
             width: "100%"
         },
         position: "relative"
@@ -46,10 +47,16 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
         chatsAndMessagesSearchQuery: {
             searchModeActive
         },
-        authorization
+        authorization,
+        chatsPreferences: {
+            enableVirtualScroll,
+            virtualScrollElement
+        }
     } = useStore();
     const classes = useStyles();
     const [hovered, setHovered] = useState(false);
+    const theme = useTheme<Theme>();
+    const onLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
 
     const listProps: ChatsOfCurrentUserListProps = {
         classes: {
@@ -63,29 +70,45 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
         }
     };
 
+    const wrapperStyle: CSSProperties | undefined = onLargeScreen && enableVirtualScroll && virtualScrollElement === VirtualScrollElement.WINDOW
+        ? ({
+            position: "sticky",
+            overflowY: "auto",
+            top: theme.spacing(8),
+            minHeight: "100%"
+        })
+        : undefined;
+
     return (
-       <Fragment>
-           <div className={classes.chatListWrapper}
-                onMouseEnter={() => setHovered(true)}
-                onMouseLeave={() => setHovered(false)}
-           >
-               <Hidden mdDown>
-                   <div style={{flex: 1}}>
-                       <ChatsAndMessagesSearchInput style={{padding: "8px"}}/>
-                   </div>
-               </Hidden>
-               {searchModeActive
-                   ? <ChatsAndMessagesSearchResult {...listProps}/>
-                   : <ChatsOfCurrentUserList {...listProps}/>
-               }
-               <Hidden lgUp>
-                   {canCreateChat(authorization) && <CreateChatFloatingActionButton/>}
-               </Hidden>
-               <Hidden mdDown>
-                   {hovered && (authorization) && <CreateChatFloatingActionButton/>}
-               </Hidden>
-           </div>
-           <CreateChatDialog/>
-       </Fragment>
-    )
-})
+        <Fragment>
+            <div className={classes.chatListWrapper}
+                 onMouseEnter={() => setHovered(true)}
+                 onMouseLeave={() => setHovered(false)}
+                 style={wrapperStyle}
+            >
+                <Hidden lgDown>
+                    <div style={{
+                        flex: 1,
+                        position: "sticky",
+                        backgroundColor: theme.palette.background.default,
+                        zIndex: 100,
+                        top: 0
+                    }}>
+                        <ChatsAndMessagesSearchInput style={{padding: "8px"}}/>
+                    </div>
+                </Hidden>
+                {searchModeActive
+                    ? <ChatsAndMessagesSearchResult {...listProps}/>
+                    : <ChatsOfCurrentUserList {...listProps}/>
+                }
+                <Hidden lgUp>
+                    {canCreateChat(authorization) && <CreateChatFloatingActionButton/>}
+                </Hidden>
+                <Hidden lgDown>
+                    {hovered && (authorization) && <CreateChatFloatingActionButton/>}
+                </Hidden>
+            </div>
+            <CreateChatDialog/>
+        </Fragment>
+    );
+});

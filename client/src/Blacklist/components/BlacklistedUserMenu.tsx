@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
-import {IconButton, Menu} from "@material-ui/core";
-import {MoreVert} from "@material-ui/icons";
+import {IconButton, Menu} from "@mui/material";
+import {MoreVert} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {RemoveUserFromBlacklistMenuItem} from "./RemoveUserFromBlacklistMenuItem";
 
@@ -13,7 +13,9 @@ export const BlacklistedUserMenu: FunctionComponent<BlacklistedUserMenuProps> = 
 
    return (
        <Fragment>
-           <IconButton {...bindToggle(popupState)}>
+           <IconButton {...bindToggle(popupState)}
+                       size="large"
+           >
                <MoreVert/>
            </IconButton>
            <Menu {...bindMenu(popupState)}>

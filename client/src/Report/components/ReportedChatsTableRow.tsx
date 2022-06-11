@@ -1,11 +1,12 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {format} from "date-fns";
-import {Checkbox, createStyles, makeStyles, TableCell, TableRow, Typography} from "@material-ui/core";
-import {Remove} from "@material-ui/icons";
+import { Checkbox, TableCell, TableRow, Typography } from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Remove} from "@mui/icons-material";
 import randomColor from "randomcolor";
-import {useLocalization, useRouter, useStore} from "../../store/hooks";
-import {Labels} from "../../localization/types";
+import {useLocalization, useRouter, useStore} from "../../store";
+import {Labels} from "../../localization";
 import {Routes} from "../../router";
 
 const {Link} = require("mobx-router");

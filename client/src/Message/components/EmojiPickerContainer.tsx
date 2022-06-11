@@ -1,7 +1,7 @@
 import React, {FunctionComponent, Fragment, useLayoutEffect} from "react";
 import {observer} from "mobx-react";
-import {IconButton, Hidden, Menu, useMediaQuery, useTheme} from "@material-ui/core";
-import {InsertEmoticon} from "@material-ui/icons";
+import {IconButton, Hidden, Menu, useMediaQuery, useTheme} from "@mui/material";
+import {InsertEmoticon} from "@mui/icons-material";
 import {usePopupState, bindToggle, bindMenu} from "material-ui-popup-state/hooks";
 import {EmojiData} from "emoji-mart";
 import 'emoji-mart/css/emoji-mart.css';
@@ -38,7 +38,7 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
         popupId: "emojiPicker"
     });
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
     useLayoutEffect(() => {
             if (!onSmallScreen) {
@@ -89,10 +89,11 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
 
     return (
         <Fragment>
-            <Hidden mdDown>
-                <IconButton className={iconButtonClassName}
-                            {...bindToggle(emojiPickerPopupState)}
-                >
+            <Hidden lgDown>
+                <IconButton
+                    className={iconButtonClassName}
+                    {...bindToggle(emojiPickerPopupState)}
+                    size="large">
                     <InsertEmoticon/>
                 </IconButton>
                 <Menu {...bindMenu(emojiPickerPopupState)}>
@@ -104,6 +105,7 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
             <Hidden lgUp>
                 <IconButton className={iconButtonClassName}
                             onClick={handleExpandEmojiPickerButtonClick}
+                            size="large"
                 >
                     <InsertEmoticon/>
                 </IconButton>

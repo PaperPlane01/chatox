@@ -1,6 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, createStyles, makeStyles, Theme} from "@material-ui/core";
+import {Button, Theme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {useStore, useLocalization} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({

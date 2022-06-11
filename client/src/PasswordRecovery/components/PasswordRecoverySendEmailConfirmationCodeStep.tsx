@@ -1,9 +1,9 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, CircularProgress, DialogActions, DialogContent, DialogTitle, TextField, Typography} from "@material-ui/core";
-import {useLocalization, useStore} from "../../store/hooks";
+import {Button, CircularProgress, DialogActions, DialogContent, DialogTitle, TextField, Typography} from "@mui/material";
+import {useLocalization, useStore} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {TranslationFunction} from "../../localization/types";
+import {TranslationFunction} from "../../localization";
 
 const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     if (error.status === 404) {

@@ -1,8 +1,8 @@
 import React, {FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
-import {Button, MenuItem, ListItemIcon, ListItemText} from "@material-ui/core";
-import {Audiotrack} from "@material-ui/icons";
-import {useLocalization, useStore} from "../../store/hooks";
+import {Button, MenuItem, ListItemIcon, ListItemText} from "@mui/material";
+import {Audiotrack} from "@mui/icons-material";
+import {useLocalization, useStore} from "../../store";
 
 interface AttachAudioMenuItemProps {
     buttonClassName?: string,
@@ -22,8 +22,8 @@ export const AttachAudioMenuItem: FunctionComponent<AttachAudioMenuItemProps> = 
     const [dummyInputValue, setDummyInputValue] = useState("");
 
     return (
-        <MenuItem button
-                  onClick={onClick}
+        <MenuItem onClick={onClick}
+                  component="button"
         >
             <Button variant="text"
                     disableRipple
@@ -49,5 +49,5 @@ export const AttachAudioMenuItem: FunctionComponent<AttachAudioMenuItemProps> = 
                 />
             </Button>
         </MenuItem>
-    )
-})
+    );
+});

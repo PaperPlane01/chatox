@@ -1,7 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles, Tab, Theme} from "@material-ui/core";
-import {TabContext, TabList, TabPanel} from "@material-ui/lab";
+import {Tab, Theme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {TabContext, TabList, TabPanel} from "@mui/lab";
 import {StickersGridList} from "./StickersGridList";
 import {useStore} from "../../store";
 

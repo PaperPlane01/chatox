@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles} from "@material-ui/core";
+import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {AvatarUpload} from "../../Upload";
 import {getAvatarLabel} from "../utils";
@@ -53,5 +53,5 @@ export const ChatAvatarUpload: FunctionComponent = observer(() => {
                           defaultAvatarId={chat.avatarId}
             />
         </div>
-    )
+    );
 });

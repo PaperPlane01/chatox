@@ -3,18 +3,17 @@ import {observer} from "mobx-react";
 import {
     Button,
     CircularProgress,
-    createStyles,
     Dialog,
     DialogContent,
     DialogTitle,
     IconButton,
     InputAdornment,
-    makeStyles,
     TextField,
     Theme,
-    Typography
-} from "@material-ui/core";
-import {Visibility, VisibilityOff} from "@material-ui/icons";
+    Typography,
+} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Visibility, VisibilityOff} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {PasswordRecoveryStep} from "../../PasswordRecovery/types";
@@ -99,7 +98,7 @@ export const LoginDialog: FunctionComponent = observer(() => {
                            InputProps={{
                                endAdornment: (
                                    <InputAdornment position="end">
-                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)}>
+                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)} size="large">
                                            {displayPassword
                                                ? <VisibilityOff/>
                                                : <Visibility/>
@@ -135,7 +134,6 @@ export const LoginDialog: FunctionComponent = observer(() => {
                 </Button>
                 <LoginWithGoogleButton/>
                 <Button variant="text"
-                        color="default"
                         className={classes.loginAsAnonymousButton}
                         onClick={() => {
                             setLoginDialogOpen(false);
@@ -153,5 +151,5 @@ export const LoginDialog: FunctionComponent = observer(() => {
                 </Button>
             </DialogContent>
         </Dialog>
-    )
+    );
 });

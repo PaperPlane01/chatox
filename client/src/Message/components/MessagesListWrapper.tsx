@@ -1,9 +1,9 @@
 import React from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles} from "@material-ui/core";
+import {createStyles, makeStyles} from "@mui/styles";
 import {MessagesList} from "./MessagesList";
 import {ChatDeletionLabel} from "../../Chat";
-import {useStore} from "../../store/hooks";
+import {useStore} from "../../store";
 
 const useStyles = makeStyles(() => createStyles({
     centered: {
@@ -41,10 +41,8 @@ export const MessagesListWrapper = observer(() => {
                                className={classes.centered}
                                color="textSecondary"
             />
-        )
+        );
     }
-
-    console.log(selectedChatId)
 
     if (!selectedChatId) {
         console.log("No selected chat id")
@@ -60,9 +58,8 @@ export const MessagesListWrapper = observer(() => {
                                className={classes.centered}
                                color="textSecondary"
             />
-        )
+        );
     }
 
-    console.log("Returning message list")
-    return <MessagesList/>
+    return <MessagesList/>;
 });

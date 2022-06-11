@@ -1,7 +1,7 @@
 import React, {ReactNode} from "react";
 import {format, formatDistanceStrict, isSameDay, isSameYear, Locale} from "date-fns";
 import {isStringEmpty} from "../../utils/string-utils";
-import {Typography, TypographyProps} from "@material-ui/core";
+import {Typography, TypographyProps} from "@mui/material";
 import {UserEntity} from "../types";
 import {TranslationFunction} from "../../localization";
 
@@ -55,7 +55,6 @@ export const getOnlineOrLastSeenLabel = (user: UserEntity, dateFnsLocale: Locale
     if (user.online) {
         onlineOrLastSeenLabel = (
             <Typography {...props}>
-            >
                 {l("user.profile.online")}
             </Typography>
         )

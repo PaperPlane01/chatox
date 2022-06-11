@@ -9,8 +9,8 @@ import {
     CircularProgress,
     InputAdornment,
     TextField, Typography
-} from "@material-ui/core";
-import {DatePicker} from "@material-ui/pickers";
+} from "@mui/material";
+import {DatePicker} from "@mui/x-date-pickers";
 import {useSnackbar} from "notistack";
 import {UserAvatarUpload} from "./UserAvatarUpload";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
@@ -122,15 +122,17 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
                                )
                            }}
                 />
-                <DatePicker label={l("user.profile.birth-date")}
-                            value={editProfileForm.dateOfBirth ? editProfileForm.dateOfBirth : null}
+                <DatePicker value={editProfileForm.dateOfBirth ? editProfileForm.dateOfBirth : null}
                             disableFuture
                             openTo="year"
                             onChange={date => setFormValue("dateOfBirth", date ? date : undefined)}
-                            clearable
-                            fullWidth
-                            format="dd MMMM yyyy"
-                            autoOk
+                            inputFormat="dd MMMM yyyy"
+                            renderInput={props => (
+                                <TextField {...props}
+                                           label={l("user.profile.birth-date")}
+                                           fullWidth
+                                />
+                            )}
                 />
                 <TextField label={l("user.profile.bio")}
                            value={editProfileForm.bio}
@@ -148,7 +150,7 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
                            }}
                            multiline
                            rows={4}
-                           rowsMax={Number.MAX_SAFE_INTEGER}
+                           maxRows={Number.MAX_SAFE_INTEGER}
                 />
             </CardContent>
             <CardActions>
@@ -163,5 +165,5 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
             </CardActions>
             <MarkdownPreviewDialog text={editProfileForm.bio || ""}/>
         </Card>
-    )
+    );
 });

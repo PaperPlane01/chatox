@@ -1,7 +1,7 @@
 import React, {FunctionComponent, MouseEvent, ReactNode, useState} from "react";
 import {observer} from "mobx-react";
-import {Divider, IconButton, Menu} from "@material-ui/core";
-import {MoreVert} from "@material-ui/icons";
+import {Divider, IconButton, Menu} from "@mui/material";
+import {MoreVert} from "@mui/icons-material";
 import {SearchMessagesMenuItem} from "./SearchMessagesMenuItem";
 import {ChatBlockingsMenuItem} from "./ChatBlockingsMenuItem";
 import {BlockUserInChatByIdOrSlugMenuItem} from "./BlockUserInChatByIdOrSlugMenuItem";
@@ -12,7 +12,7 @@ import {ScheduleMessageMenuItem} from "./ScheduleMessageMenuItem";
 import {ShowScheduledMessagesMenuItem} from "./ShowScheduledMessagesMenuItem";
 import {ShowPinnedMessageMenuItem} from "./ShowPinnedMessageMenuItem";
 import {canDeleteChat, canLeaveChat, canUpdateChat} from "../permissions";
-import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
+import {canBlockUsersInChat} from "../../ChatBlocking";
 import {useAuthorization, useStore} from "../../store";
 import {canScheduleMessage} from "../../Message/permissions";
 import {ReportChatMenuItem} from "../../Report";
@@ -79,7 +79,7 @@ export const ChatMenu: FunctionComponent = observer(() => {
 
     return (
         <div>
-            <IconButton onClick={handleOpenClick} color="inherit">
+            <IconButton onClick={handleOpenClick} color="inherit" size="large">
                 <MoreVert/>
             </IconButton>
             <Menu open={menuOpen}
@@ -89,5 +89,5 @@ export const ChatMenu: FunctionComponent = observer(() => {
                 {menuItems}
             </Menu>
         </div>
-    )
+    );
 });

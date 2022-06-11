@@ -1,12 +1,12 @@
 import React, {FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {Dialog} from "@material-ui/core";
+import {Dialog} from "@mui/material";
 import {PasswordRecoverySendEmailConfirmationCodeStep} from "./PasswordRecoverySendEmailConfirmationCodeStep";
 import {PasswordRecoveryCheckEmailConfirmationCodeStep} from "./PasswordRecoveryCheckEmailConfirmationCodeStep";
 import {PasswordRecoveryChangePasswordStep} from "./PasswordRecoveryChangePasswordStep";
 import {PasswordRecoveryCompletedStep} from "./PasswordRecoveryCompletedStep";
 import {PasswordRecoveryStep} from "../types";
-import {useStore} from "../../store/hooks";
+import {useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 
 type RecoverPasswordStepsMap = {
@@ -40,5 +40,5 @@ export const PasswordRecoveryDialog: FunctionComponent = observer(() => {
         >
             {recoverPasswordStepsMap[currentStep]}
         </Dialog>
-    )
+    );
 });

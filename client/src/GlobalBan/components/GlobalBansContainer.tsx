@@ -1,6 +1,7 @@
 import React, {FunctionComponent, Fragment, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {Grid, Card, CardContent, Hidden, CircularProgress, Typography, Button, createStyles, makeStyles} from "@material-ui/core";
+import {Grid, Card, CardContent, Hidden, CircularProgress, Typography, Button} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {GlobalBanFiltersForm} from "./GlobalBanFiltersForm";
 import {GlobalBansTable} from "./GlobalBansTable";
 import {GlobalBansList} from "./GlobalBansList";
@@ -48,7 +49,7 @@ export const GlobalBansContainer: FunctionComponent = observer(() => {
     } else {
         globalBansCardContent = (
             <Fragment>
-                <Hidden mdDown>
+                <Hidden xlDown>
                     <GlobalBansTable/>
                 </Hidden>
                 <Hidden lgUp>

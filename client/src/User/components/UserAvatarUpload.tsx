@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles} from "@material-ui/core";
+import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {getUserAvatarLabel} from "../utils/labels";
 import {AvatarUpload} from "../../Upload";

@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, DialogActions, DialogContent, DialogTitle} from "@material-ui/core";
-import {useLocalization, useStore} from "../../store/hooks";
+import {Button, DialogActions, DialogContent, DialogTitle} from "@mui/material";
+import {useLocalization, useStore} from "../../store";
 
 export const PasswordRecoveryCompletedStep: FunctionComponent = observer(() => {
     const {
@@ -28,5 +28,5 @@ export const PasswordRecoveryCompletedStep: FunctionComponent = observer(() => {
                 </Button>
             </DialogActions>
         </Fragment>
-    )
+    );
 });

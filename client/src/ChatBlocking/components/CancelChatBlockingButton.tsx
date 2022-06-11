@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {CircularProgress, IconButton, Tooltip} from "@material-ui/core";
-import {Cancel} from "@material-ui/icons";
+import {CircularProgress, IconButton, Tooltip} from "@mui/material";
+import {Cancel} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
 
 interface CancelChatBlockingButtonProps {
@@ -23,9 +23,9 @@ export const CancelChatBlockingButton: FunctionComponent<CancelChatBlockingButto
 
     return (
         <Tooltip title={l("cancel")}>
-            <IconButton onClick={() => cancelChatBlocking(chatBlockingId)}>
+            <IconButton onClick={() => cancelChatBlocking(chatBlockingId)} size="large">
                 <Cancel/>
             </IconButton>
         </Tooltip>
-    )
+    );
 });

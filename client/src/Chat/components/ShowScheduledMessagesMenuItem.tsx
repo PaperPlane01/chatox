@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText} from "@material-ui/core";
-import {Event} from "@material-ui/icons";
-import {useLocalization, useRouter, useStore} from "../../store/hooks";
+import {MenuItem, ListItemIcon, ListItemText} from "@mui/material";
+import {Event} from "@mui/icons-material";
+import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 
 interface ShowScheduledMessagesMenuItemProps {

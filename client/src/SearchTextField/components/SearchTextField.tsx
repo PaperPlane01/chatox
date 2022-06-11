@@ -1,7 +1,8 @@
 import React, {ChangeEvent, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, IconButton, InputAdornment, makeStyles, TextField, TextFieldProps} from "@material-ui/core";
-import {Close, Search} from "@material-ui/icons";
+import {IconButton, InputAdornment, TextField, TextFieldProps} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Close, Search} from "@mui/icons-material";
 import {useLocalization} from "../../store";
 
 const useClasses = makeStyles(() => createStyles({
@@ -25,6 +26,9 @@ const useClasses = makeStyles(() => createStyles({
         "&:after": {
             borderBottomColor: "inherit"
         }
+    },
+    inputAdornmentRoot: {
+        "color": "inherit"
     }
 }));
 
@@ -72,15 +76,21 @@ export const SearchTextField: FunctionComponent<SearchTextFieldProps> = observer
                    variant={variant as any} // https://github.com/mui/material-ui/issues/15697#issuecomment-612397854
                    InputProps={{
                        startAdornment: (
-                           <InputAdornment position="start">
-                               <Search/>
+                           <InputAdornment position="start"
+                                           classes={{
+                                               root: defaultClasses.inputAdornmentRoot
+                                           }}
+                           >
+                               <Search color="inherit"/>
                            </InputAdornment>
                        ),
                        endAdornment: !hideClearButton && (
-                           <InputAdornment position="end">
-                               <IconButton onClick={handleClear}
-                                           color="inherit"
-                               >
+                           <InputAdornment position="end"
+                                           classes={{
+                                               root: defaultClasses.inputAdornmentRoot
+                                           }}
+                           >
+                               <IconButton onClick={handleClear} color="inherit" size="large">
                                    <Close/>
                                </IconButton>
                            </InputAdornment>

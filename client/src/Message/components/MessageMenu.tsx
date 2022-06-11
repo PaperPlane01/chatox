@@ -1,7 +1,7 @@
 import React, {FunctionComponent, MouseEvent, ReactNode, useState} from "react";
 import {observer} from "mobx-react";
-import {IconButton, Menu, Divider} from "@material-ui/core";
-import {MoreVert} from "@material-ui/icons";
+import {IconButton, Menu, Divider} from "@mui/material";
+import {MoreVert} from "@mui/icons-material";
 import {BlockMessageAuthorInChatMenuItem} from "./BlockMessageAuthorInChatMenuItem";
 import {ReplyToMessageMenuItem} from "./ReplyToMessageMenuItem";
 import {EditMessageMenuItem} from "./EditMessageMenuItem";
@@ -125,5 +125,5 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
                 {menuItems}
             </Menu>
         </div>
-    )
+    );
 });

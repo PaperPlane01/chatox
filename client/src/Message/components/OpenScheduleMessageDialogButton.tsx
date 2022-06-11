@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {IconButton} from "@material-ui/core";
-import {Event} from "@material-ui/icons";
-import {useStore} from "../../store/hooks";
+import {IconButton} from "@mui/material";
+import {Event} from "@mui/icons-material";
+import {useStore} from "../../store";
 
 interface OpenScheduleMessageDialogButtonProps {
     className?: string
@@ -18,9 +18,10 @@ export const OpenScheduleMessageDialogButton: FunctionComponent<OpenScheduleMess
     } = useStore();
 
     return (
-        <IconButton onClick={() => setScheduleMessageDialogOpen(true)}
-                    className={className}
-        >
+        <IconButton
+            onClick={() => setScheduleMessageDialogOpen(true)}
+            className={className}
+            size="large">
             <Event/>
         </IconButton>
     );

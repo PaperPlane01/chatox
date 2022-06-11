@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, DialogActions, DialogContent, DialogTitle} from "@material-ui/core";
+import {Button, DialogActions, DialogContent, DialogTitle} from "@mui/material";
 import {RegistrationStep} from "../types";
 import {useLocalization, useStore} from "../../store";
 

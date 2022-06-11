@@ -1,7 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
-import {PersonOutlined} from "@material-ui/icons";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {PersonOutlined} from "@mui/icons-material";
 import {Routes} from "../../router";
 import {useAuthorization, useLocalization, useRouter} from "../../store";
 

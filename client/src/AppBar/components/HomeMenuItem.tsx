@@ -1,7 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
-import HomeIcon from "@material-ui/icons/Home";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Home} from "@mui/icons-material";
 import {Routes} from "../../router";
 import {useLocalization, useRouter} from "../../store";
 
@@ -36,7 +37,7 @@ export const HomeMenuItem: FunctionComponent<HomeMenuItemProps> = observer(({onC
         >
             <MenuItem onClick={handleClick}>
                 <ListItemIcon>
-                    <HomeIcon/>
+                    <Home/>
                 </ListItemIcon>
                 <ListItemText>
                     {l("home")}

@@ -1,17 +1,16 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography} from "@material-ui/core";
-import {Skeleton} from "@material-ui/lab";
-import {ArrowBack} from "@material-ui/icons";
+import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography, Skeleton} from "@mui/material";
+import {ArrowBack} from "@mui/icons-material";
 import {DialogChatAppBarContent} from "./DialogChatAppBarContent";
 import {GroupChatAppBarContent} from "./GroupChatAppBarContent";
+import {NewPrivateChatAppBar} from "./NewPrivateChatAppBar";
 import {NavigationalDrawer, OpenDrawerButton} from "../../AppBar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {Labels} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {ChatType} from "../../api/types/response";
-import {NewPrivateChatAppBar} from "./NewPrivateChatAppBar";
 
 const {Link} = require("mobx-router");
 
@@ -54,7 +53,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
         appBarContent = (
             <CardHeader title={<Skeleton width={90}/>}
                         subheader={<Skeleton width={60}/>}
-                        avatar={<Skeleton variant="circle" width={40} height={40}/>}
+                        avatar={<Skeleton variant="circular" width={40} height={40}/>}
             />
         );
     } else if (selectedChatId) {
@@ -86,7 +85,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
         <Fragment>
             <AppBar position="fixed">
                 <Toolbar>
-                    <Hidden mdDown>
+                    <Hidden lgDown>
                         <OpenDrawerButton/>
                     </Hidden>
                     <Hidden lgUp>

@@ -1,9 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Select, FormControl, InputLabel, MenuItem} from "@material-ui/core";
+import {Select, FormControl, InputLabel, MenuItem} from "@mui/material";
 import {ChatRole} from "../../api/types/response";
-import {useLocalization} from "../../store/hooks";
-import {Labels} from "../../localization/types";
+import {useLocalization} from "../../store";
+import {Labels} from "../../localization";
 
 interface ChatRoleSelectProps {
     onSelect: (chatRole: ChatRole) => void,

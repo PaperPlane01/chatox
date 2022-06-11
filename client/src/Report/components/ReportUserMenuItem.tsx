@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
-import {Report} from "@material-ui/icons";
-import {useStore, useLocalization} from "../../store/hooks";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {Report} from "@mui/icons-material";
+import {useStore, useLocalization} from "../../store";
 
 interface ReportUserMenuItemProps {
     userId: string,

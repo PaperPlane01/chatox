@@ -1,6 +1,6 @@
 import React, {FunctionComponent, ReactNode, Fragment} from "react";
 import {observer} from "mobx-react";
-import {Card, CardContent, CardHeader, Typography, List} from "@material-ui/core";
+import {Card, CardContent, CardHeader, Typography, List} from "@mui/material";
 import {StickerPacksListItem} from "./StickerPacksListItem";
 import {useStore, useLocalization, useRouter} from "../../store";
 import {Language} from "../../localization";
@@ -72,5 +72,5 @@ export const InstalledStickerPacksList: FunctionComponent = observer(() => {
                 }
             </CardContent>
         </Card>
-    )
-})
+    );
+});

@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Hidden} from "@material-ui/core";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Hidden} from "@mui/material";
 import {ChatBlockingsTable} from "./ChatBlockingsTable";
 import {ChatBlockingsList} from "./ChatBlockingsList";
 import {ShowActiveOnlySwitch} from "./ShowActiveOnlySwitch";
@@ -50,7 +50,7 @@ export const ChatBlockingsDialog: FunctionComponent = observer(() => {
                 <Hidden lgUp>
                     <ChatBlockingsList/>
                 </Hidden>
-                <Hidden mdDown>
+                <Hidden lgDown>
                     <ChatBlockingsTable/>
                 </Hidden>
             </DialogContent>
@@ -63,5 +63,5 @@ export const ChatBlockingsDialog: FunctionComponent = observer(() => {
                 </Button>
             </DialogActions>
         </Dialog>
-    )
+    );
 });

@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Divider, List, SwipeableDrawer} from "@material-ui/core";
+import {Divider, List, SwipeableDrawer} from "@mui/material";
 import {DrawerUserInfo} from "./DrawerUserInfo";
 import {ProfileMenuItem} from "./ProfileMenuItem";
 import {HomeMenuItem} from "./HomeMenuItem";
@@ -8,11 +8,11 @@ import {MyChatsMenuItem} from "./MyChatsMenuItem";
 import {SettingsMenuItem} from "./SettingsMenuItem";
 import {DrawerAudioControls} from "./DrawerAudioControls";
 import {GlobalBansMenuItem} from "./GlobalBansMenuItem";
+import {ReportsMenuItem} from "./ReportsMenuItem";
 import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {PasswordRecoveryDialog} from "../../PasswordRecovery";
 import {useStore} from "../../store";
-import {ReportsMenuItem} from "./ReportsMenuItem";
 
 export const NavigationalDrawer: FunctionComponent = observer(() => {
     const {appBar} = useStore();

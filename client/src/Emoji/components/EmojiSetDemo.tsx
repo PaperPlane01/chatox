@@ -12,7 +12,7 @@ const DEMO_EMOJI = [
     "new_moon_with_face",
     "v",
     "heart_eyes"
-]
+];
 
 export const EmojiSetDemo: FunctionComponent<EmojiSetDemoProps> = ({set}) => {
     const emojiSet = set === "native" ? undefined : set;
@@ -22,5 +22,5 @@ export const EmojiSetDemo: FunctionComponent<EmojiSetDemoProps> = ({set}) => {
         <Fragment>
             {DEMO_EMOJI.map(emojiCode => <Emoji size={20} emoji={emojiCode} set={emojiSet} native={native}/>)}
         </Fragment>
-    )
-}
+    );
+};

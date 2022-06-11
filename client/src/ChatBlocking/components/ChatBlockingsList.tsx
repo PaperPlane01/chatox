@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {CircularProgress, List, Typography} from "@material-ui/core";
+import {CircularProgress, List, Typography} from "@mui/material";
 import {ChatBlockingsListItem} from "./ChatBlockingsListItem";
 import {useLocalization, useStore} from "../../store";
 
@@ -59,5 +59,5 @@ export const ChatBlockingsList: FunctionComponent = observer(() => {
                 <ChatBlockingsListItem key={chatBlockingId} chatBlockingId={chatBlockingId}/>
             ))}
         </List>
-    )
+    );
 });

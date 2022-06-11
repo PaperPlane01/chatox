@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button} from "@material-ui/core";
-import {ChatBubble} from "@material-ui/icons";
+import {Button} from "@mui/material";
+import {ChatBubble} from "@mui/icons-material";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 

@@ -1,17 +1,9 @@
 import React, {Fragment, FunctionComponent, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
-import {
-    createStyles,
-    Divider,
-    Hidden,
-    IconButton,
-    InputAdornment,
-    makeStyles,
-    TextField,
-    Theme,
-    Tooltip
-} from "@material-ui/core";
-import {KeyboardVoice, Send} from "@material-ui/icons";
+import { Divider, Hidden, IconButton, InputAdornment, TextField, Theme, Tooltip } from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import {KeyboardVoice, Send} from "@mui/icons-material";
 import {EmojiData} from "emoji-mart";
 import 'emoji-mart/css/emoji-mart.css';
 import {AttachFilesButton} from "./AttachFilesButton";
@@ -23,7 +15,7 @@ import {EmojiPickerContainer} from "./EmojiPickerContainer";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     textField: {
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down('lg')]: {
             backgroundColor: theme.palette.background
         }
     },
@@ -108,8 +100,9 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                        onPaste={updateText}
                        inputRef={inputRef}
                        multiline
-                       rows={2}
-                       rowsMax={8}
+                       minRows={2}
+                       maxRows={8}
+                       variant="standard"
                        InputProps={{
                            disableUnderline: true,
                            startAdornment: (
@@ -128,20 +121,19 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                        </Fragment>
                                        {formValues.text.length !== 0 || attachmentsIds.length !== 0
                                            ? (
-                                               <IconButton onClick={createMessage}
-                                                           color="primary"
-                                                           disabled={pending}
-                                                           className={classes.inputIconButton}
-                                               >
+                                               <IconButton
+                                                   onClick={createMessage}
+                                                   color="primary"
+                                                   disabled={pending}
+                                                   className={classes.inputIconButton}
+                                                   size="large">
                                                    <Send/>
                                                </IconButton>
                                            )
                                            : (
                                                <Tooltip title={l("feature.not-available")}>
                                                   <div>
-                                                      <IconButton disabled
-                                                                  className={classes.inputIconButton}
-                                                      >
+                                                      <IconButton disabled className={classes.inputIconButton} size="large">
                                                           <KeyboardVoice/>
                                                       </IconButton>
                                                   </div>

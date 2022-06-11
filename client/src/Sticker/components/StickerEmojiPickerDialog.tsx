@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Dialog, DialogTitle, DialogContent, IconButton} from "@material-ui/core";
-import {Close} from "@material-ui/icons";
+import {Dialog, DialogTitle, DialogContent, IconButton} from "@mui/material";
+import {Close} from "@mui/icons-material";
 import {Picker, EmojiData} from "emoji-mart";
 import {useStore} from "../../store";
 
@@ -34,11 +34,12 @@ export const StickerEmojiPickerDialog: FunctionComponent<StickerEmojiPickerDialo
                 maxWidth="sm"
         >
             <DialogTitle>
-                <IconButton onClick={() => setStickerEmojiPickerDialogOpen(false)}
-                            style={{
-                                float: "left"
-                            }}
-                >
+                <IconButton
+                    onClick={() => setStickerEmojiPickerDialogOpen(false)}
+                    style={{
+                        float: "left"
+                    }}
+                    size="large">
                     <Close/>
                 </IconButton>
             </DialogTitle>

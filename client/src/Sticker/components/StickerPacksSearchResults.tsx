@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, CircularProgress, Card, CardHeader, CardContent, CardActions, List, TextField} from "@material-ui/core";
+import {Button, CircularProgress, Card, CardHeader, CardContent, CardActions, List, TextField} from "@mui/material";
 import {StickerPacksListItem} from "./StickerPacksListItem";
 import {useStore, useLocalization} from "../../store";
 

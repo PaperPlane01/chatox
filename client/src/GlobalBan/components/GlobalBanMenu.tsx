@@ -1,6 +1,6 @@
 import React, {FunctionComponent, Fragment} from "react";
-import {IconButton, Menu} from "@material-ui/core";
-import {MoreVert} from "@material-ui/icons";
+import {IconButton, Menu} from "@mui/material";
+import {MoreVert} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {CancelGlobalBanMenuItem} from "./CancelGlobalBanMenuItem";
 import {UpdateGlobalBanMenuItem} from "./UpdateGlobalBanMenuItem";
@@ -17,7 +17,7 @@ export const GlobalBanMenu: FunctionComponent<GlobalBanMenuProps> = ({globalBanI
 
     return (
         <Fragment>
-            <IconButton {...bindToggle(globalBanMenuPopupState)}>
+            <IconButton {...bindToggle(globalBanMenuPopupState)} size="large">
                 <MoreVert/>
             </IconButton>
             <Menu {...bindMenu(globalBanMenuPopupState)}>

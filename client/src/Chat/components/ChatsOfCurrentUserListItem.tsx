@@ -1,6 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Badge, CardHeader, createStyles, Divider, ListItem, makeStyles, Theme, Typography} from "@material-ui/core";
+import {Badge, CardHeader, Divider, ListItem, Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {ChatListMessagePreview} from "./ChatListMessagePreview";
 import {getAvatarLabel, getChatLinkProps} from "../utils";
@@ -35,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         }
     },
     listItemHeaderRoot: {
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down('xl')]: {
             padding: theme.spacing(2),
             paddingLeft: 0
         },
@@ -124,7 +125,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                        color="secondary"
                        classes={{
                            root: classes.unreadMessagesBadgeRoot,
-                           anchorOriginTopRightRectangle: classes.unreadMessagesBadgeTopRightRectangle
+                           anchorOriginTopRightRectangular: classes.unreadMessagesBadgeTopRightRectangle
                        }}
                        hidden={chat.unreadMessagesCount === 0}
                 >

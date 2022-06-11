@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
 import {useSnackbar} from "notistack";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 
 export const DeleteMessagesSnackbarManager: FunctionComponent = observer(() => {
     const {

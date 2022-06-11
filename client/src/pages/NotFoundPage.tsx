@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
-import {Grid, Typography} from "@material-ui/core";
+import {Grid, Typography} from "@mui/material";
 import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
-import {useLocalization} from "../store/hooks";
+import {useLocalization} from "../store";
 
 export const NotFoundPage: FunctionComponent = () => {
     const {l} = useLocalization();

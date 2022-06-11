@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
-import {Select, FormControl, InputLabel, MenuItem} from "@material-ui/core";
-import {useLocalization} from "../../store/hooks";
+import {Select, FormControl, InputLabel, MenuItem} from "@mui/material";
+import {useLocalization} from "../../store";
 import {ReportReason} from "../../api/types/response";
-import {Labels} from "../../localization/types";
+import {Labels} from "../../localization";
 
 interface ReportReasonSelectProps {
     value: ReportReason,

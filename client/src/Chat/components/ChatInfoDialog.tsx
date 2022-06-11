@@ -4,14 +4,13 @@ import {
     Button,
     Card,
     CardHeader,
-    createStyles,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    makeStyles,
-    Theme
-} from "@material-ui/core";
+    Theme,
+} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {ChatDescription} from "./ChatDescription";
 import {AllChatParticipantsList} from "./AllChatParticipantsList";
@@ -116,5 +115,5 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
                 </Button>
             </DialogActions>
         </Dialog>
-    )
+    );
 });

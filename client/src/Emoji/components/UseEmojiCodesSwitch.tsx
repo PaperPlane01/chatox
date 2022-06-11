@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {FormControlLabel, Switch} from "@material-ui/core";
-import {useLocalization, useStore} from "../../store/hooks";
+import {FormControlLabel, Switch} from "@mui/material";
+import {useLocalization, useStore} from "../../store";
 
 export const UseEmojiCodesSwitch: FunctionComponent = observer(() => {
     const {
@@ -20,5 +20,5 @@ export const UseEmojiCodesSwitch: FunctionComponent = observer(() => {
         }
                           label={l("emoji.use-codes")}
         />
-    )
+    );
 });

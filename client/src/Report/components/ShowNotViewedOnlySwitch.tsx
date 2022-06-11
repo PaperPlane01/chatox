@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {FormControlLabel, Switch} from "@material-ui/core";
+import {FormControlLabel, Switch} from "@mui/material";
 import {useLocalization, useStore} from "../../store";
 
 export const ShowNotViewedOnlySwitch: FunctionComponent = observer(() => {
@@ -22,5 +22,5 @@ export const ShowNotViewedOnlySwitch: FunctionComponent = observer(() => {
         )}
                           label={l("report.list.show-not-viewed-only")}
         />
-    )
+    );
 });

@@ -11,13 +11,13 @@ import {
     InputAdornment,
     TextField,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
+import {Visibility, VisibilityOff} from "@mui/icons-material";
 import {useSnackbar} from "notistack";
 import {ChangePasswordStep} from "../types";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {Labels, TranslationFunction} from "../../localization";
-import {Visibility, VisibilityOff} from "@material-ui/icons";
 
 const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     let errorCode: keyof Labels = "change-password.error.unknown-error";
@@ -93,7 +93,7 @@ export const ChangePasswordForm: FunctionComponent = observer(() => {
                            InputProps={{
                                endAdornment: (
                                    <InputAdornment position="end">
-                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)}>
+                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)} size="large">
                                            {displayPassword
                                                ? <VisibilityOff/>
                                                : <Visibility/>
@@ -138,5 +138,5 @@ export const ChangePasswordForm: FunctionComponent = observer(() => {
                 </Button>
             </CardActions>
         </Card>
-    )
+    );
 });

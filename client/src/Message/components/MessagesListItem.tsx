@@ -1,17 +1,8 @@
 import React, {Fragment, FunctionComponent, memo, ReactNode, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {
-    Card,
-    CardActions,
-    CardContent,
-    CardHeader,
-    createStyles,
-    makeStyles,
-    Theme,
-    Tooltip,
-    Typography,
-} from "@material-ui/core";
-import {Edit, Event} from "@material-ui/icons";
+import {Card, CardActions, CardContent, CardHeader, Theme, Tooltip, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Edit, Event} from "@mui/icons-material";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactVisibilitySensor from "react-visibility-sensor";
@@ -19,18 +10,17 @@ import clsx from "clsx";
 import {MessageMenu, MessageMenuItemType} from "./MessageMenu";
 import {ScheduledMessageMenu, ScheduledMessageMenuItemType} from "./ScheduledMessageMenu";
 import {MessageImagesGrid} from "./MessageImagesGrid";
-import {MessageImagesSimplifiedGrid} from "./MessageImagesSimplifiedGrid";
 import {ReferredMessageContent} from "./ReferredMessageContent";
 import {MessageAudios} from "./MessageAudios";
 import {MessageFiles} from "./MessageFiles";
+import {MessageSticker} from "./MessageSticker";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {MarkdownTextWithEmoji} from "../../Emoji/components";
-import {TranslationFunction} from "../../localization/types";
+import {MarkdownTextWithEmoji} from "../../Emoji";
+import {TranslationFunction} from "../../localization";
 import {MessageEntity} from "../types";
-import {UserEntity} from "../../User/types";
-import {MessageSticker} from "./MessageSticker";
+import {UserEntity} from "../../User";
 
 const {Link} = require("mobx-router");
 
@@ -77,7 +67,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         }
     },
     messageOfCurrentUserListItemWrapper: {
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down("lg")]: {
             flexDirection: "row-reverse"
         }
     },
@@ -87,10 +77,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         [theme.breakpoints.up("lg")]: {
             maxWidth: "50%"
         },
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down("lg")]: {
             maxWidth: "60%"
         },
-        [theme.breakpoints.down("sm")]: {
+        [theme.breakpoints.down("md")]: {
             maxWidth: "80%"
         },
         overflowX: "auto"
@@ -136,7 +126,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         [theme.breakpoints.up("lg")]: {
             paddingRight: theme.spacing(1),
         },
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down("lg")]: {
             paddingLeft: theme.spacing(1),
         }
     },
@@ -150,10 +140,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         [theme.breakpoints.up("lg")]: {
             width: "30% !important"
         },
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down("lg")]: {
             width: "70% !important"
         },
-        [theme.breakpoints.down("sm")]: {
+        [theme.breakpoints.down("md")]: {
             width: "80% !important"
         },
     },
@@ -161,6 +151,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         transform: "scaleY(-1)"
     }
 }));
+
+let messageCardDimensionsCache: {[messageId: string]: {width: number, height: number}} = {};
+
+window.addEventListener("resize", () => messageCardDimensionsCache = {});
 
 const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     messageId,
@@ -187,10 +181,6 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                 findById: findScheduledMessage
             }
         },
-        chatsPreferences: {
-            enableVirtualScroll,
-            useSimplifiedGalleryForVirtualScroll
-        },
         markMessageRead: {
             addMessageToQueue
         }
@@ -201,34 +191,29 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     const classes = useStyles();
     const [width, setWidth] = useState<number | undefined>(undefined);
     const [height, setHeight] = useState<number | undefined>(undefined);
+
+    const message = findMessageFunction
+        ? findMessageFunction(messageId)
+        : !scheduledMessage ? findMessage(messageId) : findScheduledMessage(messageId);
+
+    const [allImagesLoaded, setAllImagesLoaded] = useState(message.images.length === 0);
+    const [stickerLoaded, setStickerLoaded] = useState(message.stickerId === undefined);
     const messagesListItemRef = useRef<HTMLDivElement>(null)
 
-    useLayoutEffect(
+    useEffect(
         () => {
-            setTimeout(
-                () => {
-                    if (messagesListItemRef.current) {
-                        setWidth(messagesListItemRef.current.clientWidth);
-                        setHeight(messagesListItemRef.current.clientHeight);
+            if (messagesListItemRef.current && allImagesLoaded && stickerLoaded) {
+                setWidth(messagesListItemRef.current.getBoundingClientRect().width);
+                setHeight(messagesListItemRef.current.getBoundingClientRect().height);
+
+                if (!messageCardDimensionsCache[messageId]) {
+                    messageCardDimensionsCache[messageId] = {
+                        width: width!,
+                        height: height!
                     }
                 }
-            )
-        },
-        [messagesListItemRef]
-    );
-
-    useLayoutEffect(
-        () => {
-            const updateWidth = (): void => {
-                if (messagesListItemRef.current) {
-                    setWidth(messagesListItemRef.current.clientWidth);
-                }
-            };
-
-            window.addEventListener("resize", updateWidth);
-
-            return () => window.removeEventListener("resize", updateWidth);
-        }
+            }
+        }, [allImagesLoaded, stickerLoaded, messageId, width, height]
     );
 
     useEffect(() => {
@@ -239,9 +224,6 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         }
     });
 
-    const message = findMessageFunction
-        ? findMessageFunction(messageId)
-        : !scheduledMessage ? findMessage(messageId) : findScheduledMessage(messageId);
     const sender = findMessageSenderFunction
         ? findMessageSenderFunction(message.sender)
         : findUser(message.sender);
@@ -294,7 +276,6 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         >
             <div className={wrapperClasses}
                  id={`message-${messageId}`}
-                 ref={messagesListItemRef}
             >
                 <Link store={routerStore}
                       className={userAvatarLinkClasses}
@@ -333,7 +314,10 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                     />
                     <CardContent classes={{
                         root: classes.cardContentRoot
-                    }}>
+                    }}
+                                 ref={messagesListItemRef}
+                                 style={messageCardDimensionsCache[messageId] && messageCardDimensionsCache[messageId]}
+                    >
                         <ReferredMessageContent messageId={message.referredMessageId}/>
                         {message.deleted
                             ? (
@@ -346,23 +330,22 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                     <div className={classes.cardContentWithPadding}>
                                         <MarkdownTextWithEmoji text={message.text}
                                                                emojiData={message.emoji}
+                                                               uniqueId={messageId}
                                         />
                                     </div>
                                     {message.stickerId && (
-                                        <MessageSticker stickerId={message.stickerId} messageId={message.id}/>
-                                    )}
-                                    {!hideAttachments && message.images.length === 1 && (
-                                        <MessageImagesSimplifiedGrid imagesIds={message.images}
-                                                                     messageId={message.id}
-                                                                     parentWidth={width}
+                                        <MessageSticker stickerId={message.stickerId}
+                                                        messageId={message.id}
+                                                        onImageLoaded={() => setStickerLoaded(true)}
                                         />
                                     )}
-                                    {!hideAttachments && message.images.length !== 0 && message.images.length !== 1 && (
+                                    {!hideAttachments && message.images.length !== 0 && (
                                         <div className={classes.cardContentWithPadding}>
-                                            {enableVirtualScroll && useSimplifiedGalleryForVirtualScroll
-                                                ? <MessageImagesSimplifiedGrid imagesIds={message.images} messageId={messageId}/>
-                                                : <MessageImagesGrid imagesIds={message.images} parentWidth={width}/>
-                                            }
+                                            <MessageImagesGrid imagesIds={message.images}
+                                                               parentWidth={width}
+                                                               messageId={messageId}
+                                                               onImagesLoaded={() => setAllImagesLoaded(true)}
+                                            />
                                         </div>
                                     )}
                                     {!hideAttachments && message.audios.length !== 0 && (

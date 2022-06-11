@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, Dialog, DialogContent, DialogActions, DialogTitle, List} from "@material-ui/core";
+import {Button, Dialog, DialogContent, DialogActions, DialogTitle, List} from "@mui/material";
 import {CreateMessageFormMediaAttachment} from "./CreateMessageFormMediaAttachment";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 
 export const AttachedFilesDialog: FunctionComponent = observer(() => {
@@ -48,5 +48,5 @@ export const AttachedFilesDialog: FunctionComponent = observer(() => {
                 </Button>
             </DialogActions>
         </Dialog>
-    )
-})
+    );
+});

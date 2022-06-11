@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Grid, Hidden} from "@material-ui/core";
+import {Grid, Hidden} from "@mui/material";
 import {
     ChatInfoContainer,
     ChatInfoDialog,
@@ -49,9 +49,9 @@ export const ChatPage: FunctionComponent = observer(() => {
                 <Grid item xs={12}>
                     <Grid item xs={12}
                           style={{display: "flex"}}
-                          justify="space-between"
+                          justifyContent="space-between"
                     >
-                        <Hidden mdDown>
+                        <Hidden xlDown>
                             <ChatsOfCurrentUserListWrapper/>
                         </Hidden>
                         <Grid container>
@@ -59,7 +59,7 @@ export const ChatPage: FunctionComponent = observer(() => {
                                 <MessagesListWrapper/>
                             </Grid>
                             {selectedChat && selectedChat.type !== ChatType.DIALOG && (
-                                <Hidden mdDown>
+                                <Hidden xlDown>
                                     <Grid item lg={3}>
                                         <ChatInfoContainer/>
                                     </Grid>

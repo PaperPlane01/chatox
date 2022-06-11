@@ -1,6 +1,6 @@
 import React, {FunctionComponent, useEffect, Fragment} from "react";
 import {observer} from "mobx-react";
-import {Typography, Grid, CircularProgress} from "@material-ui/core";
+import {Typography, Grid, CircularProgress} from "@mui/material";
 import {AppBar} from "../AppBar";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../store";
 import {getRouteByPath} from "../router";

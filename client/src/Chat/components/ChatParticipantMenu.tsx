@@ -1,12 +1,12 @@
 import React, {Fragment, FunctionComponent, MouseEvent, ReactNode, useState} from "react";
 import {observer} from "mobx-react";
-import {Divider, IconButton, Menu} from "@material-ui/core";
-import {MoreVert} from "@material-ui/icons";
+import {Divider, IconButton, Menu} from "@mui/material";
+import {MoreVert} from "@mui/icons-material";
 import {BlockChatParticipantMenuItem} from "./BlockChatParticipantMenuItem";
 import {KickChatParticipantMenuItem} from "./KickChatParticipantMenuItem";
 import {ChatParticipationEntity} from "../types";
 import {canKickChatParticipant, canUpdateChatParticipant} from "../permissions";
-import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
+import {canBlockUsersInChat} from "../../ChatBlocking";
 import {BanUserGloballyMenuItem, canBanUsersGlobally} from "../../GlobalBan";
 import {useAuthorization, useStore} from "../../store";
 import {UpdateChatParticipantMenuItem} from "./UpdateChatParticipantMenuItem";

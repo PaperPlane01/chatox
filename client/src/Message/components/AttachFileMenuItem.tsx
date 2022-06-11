@@ -1,8 +1,8 @@
 import React, {FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
-import {Button, MenuItem, ListItemIcon, ListItemText} from "@material-ui/core";
-import {FileCopy} from "@material-ui/icons";
-import {useLocalization, useStore} from "../../store/hooks";
+import {Button, MenuItem, ListItemIcon, ListItemText} from "@mui/material";
+import {FileCopy} from "@mui/icons-material";
+import {useLocalization, useStore} from "../../store";
 
 interface AttachFileMenuItemProps {
     buttonClassName?: string,
@@ -22,7 +22,7 @@ export const AttachFileMenuItem: FunctionComponent<AttachFileMenuItemProps> = ob
     const [dummyInputValue, setDummyInputValue] = useState("");
 
     return (
-        <MenuItem button
+        <MenuItem component="button"
                   onClick={onClick}
         >
             <Button variant="text"
@@ -48,5 +48,5 @@ export const AttachFileMenuItem: FunctionComponent<AttachFileMenuItemProps> = ob
                 />
             </Button>
         </MenuItem>
-    )
-})
+    );
+});

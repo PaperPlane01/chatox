@@ -1,10 +1,12 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, IconButton, makeStyles, Mark, Menu, Slider, Theme, Typography} from "@material-ui/core";
-import {Pause, PlayArrow, VolumeDown, VolumeOff, VolumeUp} from "@material-ui/icons";
+import {IconButton, Menu, Slider, Theme, Typography} from "@mui/material";
+import {Mark} from "@mui/base";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Pause, PlayArrow, VolumeDown, VolumeOff, VolumeUp} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {format} from "date-fns";
-import {useStore} from "../../store/hooks";
+import {useStore} from "../../store";
 
 interface AudioPlayerControlsProps {
     audioId: string
@@ -17,10 +19,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     trackMarkLabel: {
         top: 0,
-        paddingTop: theme.spacing(3) + 2,
-        [theme.breakpoints.down("sm")]: {
-            paddingTop: theme.spacing(2)
-        }
+        paddingTop: Number(theme.spacing(3).replace("px", "")) + 2
     },
     trackSliderMarked: {
         paddingBottom: theme.spacing(4),
@@ -35,14 +34,20 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     volumeSlider: {
         height: 100
     },
+    sliderThumb: {
+        width: 15,
+        height: 15
+    },
     volumeSliderThumb: {
-        marginBottom: 0
+        marginBottom: 0,
+        width: 15,
+        height: 15
     },
     playerControlsWrapper: {
         display: "flex",
         width: "80%",
         alignItems: "flex-start",
-        [theme.breakpoints.down("sm")]: {
+        [theme.breakpoints.down("lg")]: {
             width: "90%"
         }
     },
@@ -101,21 +106,23 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                 "mm:ss"
             )
         }
-    ]
+    ];
 
     return (
         <div>
             <div className={classes.playerControlsWrapper}>
                 {playing && currentTrackId === audioId && (
-                    <IconButton onClick={() => setPlaying(false)}>
+                    <IconButton onClick={() => setPlaying(false)} size="large">
                         <Pause/>
                     </IconButton>
                 )}
                 {(!playing || (currentTrackId !== audioId)) && (
-                    <IconButton onClick={() => {
-                        setCurrentTrackId(audioId);
-                        setPlaying(true);
-                    }}>
+                    <IconButton
+                        onClick={() => {
+                            setCurrentTrackId(audioId);
+                            setPlaying(true);
+                        }}
+                        size="large">
                         <PlayArrow/>
                     </IconButton>
                 )}
@@ -130,7 +137,8 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                                 root: classes.trackSliderRoot,
                                 mark: classes.trackSliderMark,
                                 marked: classes.trackSliderMarked,
-                                markLabel: classes.trackMarkLabel
+                                markLabel: classes.trackMarkLabel,
+                                thumb: classes.sliderThumb
                             }}
                             onChange={(_, value) => {
                                 if (currentTrackId === audioId) {
@@ -141,7 +149,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                     />
                 </div>
                 <Fragment>
-                    <IconButton {...bindToggle(volumePopupState)}>
+                    <IconButton {...bindToggle(volumePopupState)} size="large">
                         {volume >= 0.6 && (
                             <VolumeUp/>
                         )}
@@ -177,5 +185,5 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                 </Fragment>
             </div>
         </div>
-    )
-})
+    );
+});

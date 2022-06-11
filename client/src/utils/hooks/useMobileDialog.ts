@@ -1,8 +1,8 @@
-import {useMediaQuery, useTheme} from "@material-ui/core";
+import {useMediaQuery, useTheme} from "@mui/material";
 
 export const useMobileDialog = (): {fullScreen: boolean} => {
     const theme = useTheme();
-    const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
     return {fullScreen};
 };

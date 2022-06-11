@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent, ReactElement} from "react";
+import React, {Fragment, FunctionComponent, PropsWithChildren, ReactElement} from "react";
 import {observer} from "mobx-react";
 import {convertStringToUserRole} from "../../api/types/response";
 import {AuthorizationStore} from "../stores";
@@ -10,7 +10,7 @@ interface HasRoleProps {
     alternative?: ReactElement
 }
 
-export const HasRole: FunctionComponent<HasRoleProps> = observer(({
+export const HasRole: FunctionComponent<PropsWithChildren<HasRoleProps>> = observer(({
     role,
     additionalCondition = true,
     children,

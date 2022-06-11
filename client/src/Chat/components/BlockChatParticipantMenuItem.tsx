@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
-import {Block} from "@material-ui/icons";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {Block} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
 
 interface BlockChatParticipantMenuItemProps {
@@ -41,5 +41,5 @@ export const BlockChatParticipantMenuItem: FunctionComponent<BlockChatParticipan
                 {l("chat.blocking.block-user")}
             </ListItemText>
         </MenuItem>
-    )
+    );
 });

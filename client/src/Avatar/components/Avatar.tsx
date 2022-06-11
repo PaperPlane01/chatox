@@ -1,7 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Avatar as MuiAvatar} from "@material-ui/core";
-import {Skeleton} from "@material-ui/lab";
+import {Avatar as MuiAvatar, Skeleton} from "@mui/material";
 import {isStringEmpty} from "../../utils/string-utils";
 import {useStore} from "../../store";
 
@@ -14,7 +13,7 @@ export interface AvatarProps {
     height?: number,
     pending?: boolean,
     className?: string,
-    shape?: "circle" | "rounded" | "square"
+    shape?: "circular" | "rectangular" | "square" | "rounded"
 }
 
 export const Avatar: FunctionComponent<AvatarProps> = observer(({
@@ -26,7 +25,7 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
     height = 40,
     pending,
     className,
-    shape = "circle"
+    shape = "circular"
 }) => {
     const {
         entities: {
@@ -38,7 +37,7 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
 
     if (pending) {
         return (
-            <Skeleton variant={shape === "circle" || shape === "rounded" ? "circle" : "rect"}
+            <Skeleton variant={shape === "circular" || shape === "rounded" ? "circular" : "rectangular"}
                       width={width}
                       height={height}
             />
@@ -66,11 +65,11 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
                                height: imageProps.height
                            }}
                            className={className}
-                           variant={shape}
+                           variant={shape === "rectangular" ? "square" : shape }
                 >
                     {avatarLetter}
                 </MuiAvatar>
-            )
+            );
         } else {
             return (
                 <MuiAvatar src={uri}
@@ -79,9 +78,9 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
                                height: imageProps.height
                            }}
                            className={className}
-                           variant={shape}
+                           variant={shape === "rectangular" ? "square" : shape}
                 />
-            )
+            );
         }
     }
 });
