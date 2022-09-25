@@ -27,15 +27,21 @@ import {PartialBy} from "../utils/types";
 import {GlobalBansStore} from "../GlobalBan/stores";
 import {ReportedChatsStore, ReportsStore} from "../Report/stores";
 import {StickerPacksStore, StickersStore} from "../Sticker";
+import {ChatRolesStore, UserChatRolesStore} from "../ChatRole";
 
 type DecreaseChatParticipantsCountCallback = (chatParticipation?: ChatParticipationEntity, currentUser?: CurrentUser) => boolean;
 
 export class EntitiesStore {
     private authorizationStore: AuthorizationStore;
+    private userChatRolesStore?: UserChatRolesStore;
 
     setAuthorizationStore = (authorizationStore: AuthorizationStore): void => {
         this.authorizationStore = authorizationStore;
     };
+
+    setUserChatRolesStore = (userChatRolesStore: UserChatRolesStore): void => {
+        this.userChatRolesStore = userChatRolesStore;
+    }
 
     @computed
     get currentUser(): CurrentUser | undefined {
@@ -58,7 +64,8 @@ export class EntitiesStore {
         public reportedUsers: UsersStore,
         public reportedChats: ReportedChatsStore,
         public stickers: StickersStore,
-        public stickerPacks: StickerPacksStore
+        public stickerPacks: StickerPacksStore,
+        public chatRoles: ChatRolesStore
     ) {
     }
 
@@ -90,6 +97,15 @@ export class EntitiesStore {
         }
 
         this.uploads.insertAll(message.attachments);
+        this.chatRoles.insert(message.senderChatRole);
+
+        if (this.userChatRolesStore) {
+            this.userChatRolesStore.insertInCache({
+                userId: message.sender.id,
+                chatId: message.chatId,
+                roleId: message.senderChatRole.id
+            });
+        }
 
         if (message.scheduledAt) {
             this.scheduledMessages.insert(message);
@@ -165,6 +181,8 @@ export class EntitiesStore {
                 this.chatBlockings.insert(chat.chatParticipation.activeChatBlocking);
             }
 
+            this.insertChatRole(chat.chatParticipation.role);
+
             this.chatParticipations.insert({
                 ...chat.chatParticipation,
                 user: {
@@ -179,7 +197,7 @@ export class EntitiesStore {
             chatEntity.participants = Array.from(new Set([
                 ...chatEntity.participants,
                 chat.chatParticipation.id
-            ]))
+            ]));
         }
     }
 
@@ -191,6 +209,8 @@ export class EntitiesStore {
     @action
     insertChatParticipation = (chatParticipation: ChatParticipation, increaseChatParticipantsCount: boolean = false): void => {
         this.insertUser(chatParticipation.user);
+        this.insertChatRole(chatParticipation.role);
+
         this.chatParticipations.insert(chatParticipation);
 
         if (increaseChatParticipantsCount) {
@@ -287,7 +307,7 @@ export class EntitiesStore {
                 userId: this.authorizationStore.currentUser.id,
                 chatId: chatBlockingEntity.chatId
             });
-            if (chatParticipation && chatParticipation.role === ChatRole.USER) {
+            if (chatParticipation) {
                 chatParticipation.activeChatBlockingId = chatBlockingEntity.id;
                 this.chatParticipations.insertEntity(chatParticipation);
             }
@@ -499,5 +519,23 @@ export class EntitiesStore {
 
         this.insertChatParticipations(privateChatCreated.chatParticipations);
         this.insertMessage(privateChatCreated.message);
+    }
+
+    @action
+    insertChatRoles = (chatRoles: ChatRole[]): void  => {
+        chatRoles.forEach(this.insertChatRole);
+    }
+
+    @action
+    insertChatRole = (chatRole: ChatRole): void => {
+        if (chatRole.createdBy) {
+            this.insertUser(chatRole.createdBy, true);
+        }
+
+        if (chatRole.updatedBy) {
+            this.insertUser(chatRole.updatedBy, true);
+        }
+
+        this.chatRoles.insert(chatRole);
     }
 }

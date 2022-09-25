@@ -20,15 +20,19 @@ export class ChatParticipationsStore extends AbstractEntityStore<ChatParticipati
                 && chatParticipation.userId === options.userId)
     });
 
+    existsByUserAndChat = createTransformer((options: FindChatParticipationByUserAndChatOptions) => Boolean(
+        this.findByUserAndChat(options)
+    ));
+
     protected convertToNormalizedForm(denormalizedEntity: ChatParticipation): ChatParticipationEntity {
         return {
             id: denormalizedEntity.id,
             chatId: denormalizedEntity.chatId,
-            role: denormalizedEntity.role,
+            roleId: denormalizedEntity.role.id,
             userId: denormalizedEntity.user.id,
             activeChatBlockingId: denormalizedEntity.activeChatBlocking
                 ? denormalizedEntity.activeChatBlocking.id
-                : undefined
+                : undefined,
         };
     }
 

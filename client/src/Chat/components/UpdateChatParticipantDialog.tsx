@@ -20,17 +20,19 @@ const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
 export const UpdateChatParticipantDialog: FunctionComponent = observer(() => {
     const {
         updateChatParticipant: {
-            updateChatParticipantFormData,
+            formValues,
             updatedParticipant,
             updateChatParticipantDialogOpen,
             pending,
             error,
             showSnackbar,
+            assignableRoles,
+            fetchingChatRoles,
             setUpdatedParticipantId,
             setUpdateChatParticipantDialogOpen,
             setShowSnackbar,
             setFormValue,
-            updateChatParticipant
+            submitForm
         },
         entities: {
             users: {
@@ -73,9 +75,11 @@ export const UpdateChatParticipantDialog: FunctionComponent = observer(() => {
                 {l("chat.participant.update.with-username", {username: getUserDisplayedName(updatedUser)})}
             </DialogTitle>
             <DialogContent>
-                <ChatRoleSelect onSelect={chatRole => setFormValue("chatRole", chatRole)}
+                <ChatRoleSelect onSelect={chatRole => setFormValue("roleId", chatRole)}
                                 label={l("chat.participant.role")}
-                                value={updateChatParticipantFormData.chatRole}
+                                value={formValues.roleId}
+                                rolesIds={assignableRoles}
+                                pending={fetchingChatRoles}
                 />
                 {error && (
                     <Typography style={{color: "red"}}>
@@ -92,7 +96,7 @@ export const UpdateChatParticipantDialog: FunctionComponent = observer(() => {
                 </Button>
                 <Button variant="contained"
                         color="primary"
-                        onClick={updateChatParticipant}
+                        onClick={submitForm}
                         disabled={pending}
                 >
                     {pending && <CircularProgress size={25} color="primary"/>}

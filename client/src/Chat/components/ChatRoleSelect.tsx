@@ -1,22 +1,34 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Select, FormControl, InputLabel, MenuItem} from "@mui/material";
-import {ChatRole} from "../../api/types/response";
-import {useLocalization} from "../../store";
+import {Select, FormControl, InputLabel, MenuItem, CircularProgress} from "@mui/material";
+import {isStandardChatRole, StandardChatRole} from "../../api/types/response";
+import {useLocalization, useStore} from "../../store";
 import {Labels} from "../../localization";
 
 interface ChatRoleSelectProps {
-    onSelect: (chatRole: ChatRole) => void,
-    value?: ChatRole,
-    label: string
+    onSelect: (roleId: string) => void,
+    value?: string,
+    label: string,
+    rolesIds: string[],
+    pending: boolean
 }
 
 export const ChatRoleSelect: FunctionComponent<ChatRoleSelectProps> = observer(({
     onSelect,
     value,
-    label
+    label,
+    rolesIds,
+    pending = false
 }) => {
+    const {
+        entities: {
+            chatRoles: {
+                findAllById: findChatRoles
+            }
+        }
+    } = useStore();
     const {l} = useLocalization();
+    const roles = findChatRoles(rolesIds);
 
     return (
         <FormControl fullWidth>
@@ -24,13 +36,17 @@ export const ChatRoleSelect: FunctionComponent<ChatRoleSelectProps> = observer((
                 {label}
             </InputLabel>
             <Select value={value || ""}
-                    onChange={event => onSelect(event.target.value as ChatRole)}
+                    onChange={event => onSelect(event.target.value as string)}
             >
-                {Object.keys(ChatRole).map(key => (
-                    <MenuItem value={ChatRole[key as keyof typeof ChatRole]}
-                              key={key}
+                {pending && <CircularProgress size={15} color="primary"/>}
+                {roles.map(role => (
+                    <MenuItem value={role.id}
+                              key={role.id}
                     >
-                        {l(`chat.participant.role.${ChatRole[key as keyof typeof ChatRole]}` as keyof Labels)}
+                        {isStandardChatRole(role.name)
+                            ? l(`chat.participant.role.${role.name as keyof typeof StandardChatRole}` as keyof Labels)
+                            : role.name
+                        }
                     </MenuItem>
                 ))}
             </Select>

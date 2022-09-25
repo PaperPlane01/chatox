@@ -76,5 +76,6 @@ export const convertMessageToNormalizedForm = (message: Message): MessageEntity 
         stickerId: message.sticker ? message.sticker.id : undefined,
         ...uploadStats,
         ...uploadsByType,
+        senderRoleId: message.senderChatRole.id
     };
 }

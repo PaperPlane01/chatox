@@ -19,7 +19,8 @@ export const PinMessageSnackbarManager: FunctionComponent = observer(() => {
                 enqueueSnackbar(l("message.pin.success"));
                 setShowSnackbar(false);
             }
-        }
+        },
+        [showSnackbar]
     );
 
     return <Fragment/>

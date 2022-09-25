@@ -1,5 +1,9 @@
-export enum ChatRole {
-    ADMIN = "ADMIN",
+export enum StandardChatRole {
+    USER = "USER",
     MODERATOR = "MODERATOR",
-    USER = "USER"
+    ADMIN = "ADMIN",
+    SUPER_ADMIN = "SUPER_ADMIN",
+    OWNER = "OWNER"
 }
+
+export const isStandardChatRole = (roleName: string): boolean => Object.keys(StandardChatRole).includes(roleName);

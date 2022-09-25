@@ -2,6 +2,7 @@ import {User} from "./User";
 import {MessageEmoji} from "./MessageEmoji";
 import {Upload} from "./Upload";
 import {Sticker} from "./Sticker";
+import {ChatRole} from "./ChatRole";
 
 export interface Message {
     id: string,
@@ -20,5 +21,6 @@ export interface Message {
     pinnedAt: string,
     scheduledAt?: string,
     index: number,
-    sticker?: Sticker
+    sticker?: Sticker,
+    senderChatRole: ChatRole
 }

@@ -2,7 +2,7 @@ import {action, observable} from "mobx";
 import {FormStore} from "./FormStore";
 import {FormErrors} from "../utils/types";
 import {ApiError} from "../api";
-import {Labels} from "../localization/types";
+import {Labels} from "../localization";
 
 export abstract class AbstractFormStore<FormType extends object> implements FormStore<FormType> {
     @observable

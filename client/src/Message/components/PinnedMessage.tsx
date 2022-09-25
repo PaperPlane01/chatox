@@ -6,9 +6,8 @@ import {Close} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {ClosePinnedMessageMenuItem} from "./ClosePinnedMessageMenuItem";
 import {UnpinMessageMenuItem} from "./UnpinMessageMenuItem";
-import {useAuthorization, useLocalization, useStore} from "../../store";
+import {useLocalization, usePermissions, useStore} from "../../store";
 import {useEmojiParser} from "../../Emoji";
-import {canUnpinMessage} from "../permissions";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 
 interface PinnedMessageProps {
@@ -68,9 +67,6 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
             messages: {
                 findById: findMessage
             },
-            chatParticipations: {
-                findByUserAndChat: findChatParticipation
-            }
         },
         messageDialog: {
             setMessageId
@@ -80,10 +76,14 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
             closePinnedMessagesMap
         }
     } = useStore();
+    const {
+        messages: {
+            canUnpinMessage
+        }
+    } = usePermissions();
     const classes = useStyles();
     const {parseEmoji} = useEmojiParser();
     const {l} = useLocalization();
-    const {currentUser} = useAuthorization();
     const closeOrUnpinMessageMenuPopupState = usePopupState({
         variant: "popover",
         popupId: "closeOrUnpinMessageMenuPopup"
@@ -110,10 +110,7 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
     }
 
     const pinnedMessage = findMessage(chat.pinnedMessageId);
-    const currentUserChatParticipation = currentUser
-        ? findChatParticipation({chatId: selectedChatId, userId: currentUser.id})
-        : undefined;
-    const ableToUnpinMessage = canUnpinMessage(currentUserChatParticipation);
+    const ableToUnpinMessage = canUnpinMessage(pinnedMessage.chatId);
 
     return (
         <Card ref={ref}
