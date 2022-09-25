@@ -11,7 +11,6 @@ import chatox.chat.mapper.ChatBlockingMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatBlocking
-import chatox.chat.model.ChatRole
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatBlockingMongoRepository
 import chatox.chat.repository.mongodb.ChatRepository
@@ -65,29 +64,23 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingMo
 
             chatBlocking = chatBlockingRepository.save(chatBlocking).awaitFirst()
 
-            if (createChatBlockingRequest.deleteRecentMessages) {
-                val roleOfUserInChat = chatParticipationService.getRoleOfUserInChat(chat, blockedUser).awaitFirst()
-
-                if (roleOfUserInChat != ChatRole.MODERATOR && roleOfUserInChat != ChatRole.ADMIN) {
-                    val deleteMessagesSince = createChatBlockingRequest.deleteMessagesSince ?: ZonedDateTime.now().minusMinutes(5L)
-                    var deletedMessages = messageRepository.findBySenderIdAndCreatedAtAfter(
-                            senderId = blockedUser.id,
-                            date = deleteMessagesSince
-                    )
-                            .collectList()
-                            .awaitFirst()
-                    deletedMessages = deletedMessages.map { it.copy(
-                            deleted = true,
-                            deletedAt = ZonedDateTime.now(),
-                            deletedById = currentUser.id
-                    ) }
-                    deletedMessages = messageRepository.saveAll(deletedMessages).collectList().awaitFirst()
-                    chatEventsPublisher.messagesDeleted(
-                            chatId = chat.id,
-                            messagesIds = deletedMessages.map { it.id }
-                    )
-                }
-            }
+            val deleteMessagesSince = createChatBlockingRequest.deleteMessagesSince ?: ZonedDateTime.now().minusMinutes(5L)
+            var deletedMessages = messageRepository.findBySenderIdAndCreatedAtAfter(
+                    senderId = blockedUser.id,
+                    date = deleteMessagesSince
+            )
+                    .collectList()
+                    .awaitFirst()
+            deletedMessages = deletedMessages.map { it.copy(
+                    deleted = true,
+                    deletedAt = ZonedDateTime.now(),
+                    deletedById = currentUser.id
+            ) }
+            deletedMessages = messageRepository.saveAll(deletedMessages).collectList().awaitFirst()
+            chatEventsPublisher.messagesDeleted(
+                    chatId = chat.id,
+                    messagesIds = deletedMessages.map { it.id }
+            )
 
             val chatBlockingResponse = chatBlockingMapper.toChatBlockingResponse(chatBlocking).awaitFirst()
             chatEventsPublisher.chatBlockingCreated(chatBlockingResponse)

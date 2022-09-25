@@ -43,7 +43,8 @@ data class Message(
         override val index: Long = 0L,
 
         override val sticker: Sticker<Any>? = null,
-        override val scheduledAt: ZonedDateTime? = null
+        override val scheduledAt: ZonedDateTime? = null,
+        override val chatParticipationId: String
 ) : MessageInterface {
-        fun toElasticsearch() = MessageElasticsearch(id, text, referredMessageId, senderId, chatId, createdAt, updatedAt, deleted, deletedAt, deletedById, uploadAttachmentsIds, attachments, emoji, pinned, pinnedById, pinnedAt, fromScheduled, index, sticker)
+        fun toElasticsearch() = MessageElasticsearch(id, text, referredMessageId, senderId, chatId, createdAt, updatedAt, deleted, deletedAt, deletedById, uploadAttachmentsIds, attachments, emoji, pinned, pinnedById, pinnedAt, fromScheduled, index, sticker, scheduledAt, chatParticipationId)
 }

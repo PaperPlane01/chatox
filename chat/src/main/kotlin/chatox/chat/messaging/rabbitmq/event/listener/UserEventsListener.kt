@@ -178,7 +178,7 @@ class UserEventsListener(private val userRepository: UserRepository,
 
                 chatEventsPublisher.chatParticipantsWentOnline(
                         chatParticipants = chatParticipations.map { chatParticipation ->
-                            chatParticipationMapper.toChatParticipationResponse(chatParticipation)
+                            chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst()
                         }
                 )
             }
@@ -221,7 +221,7 @@ class UserEventsListener(private val userRepository: UserRepository,
 
                 chatEventsPublisher.chatParticipantsWentOffline(
                         chatParticipants = chatParticipations.map { chatParticipation ->
-                            chatParticipationMapper.toChatParticipationResponse(chatParticipation)
+                            chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst()
                         }
                 )
                 log.debug("Chat participations have been updated")

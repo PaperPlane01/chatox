@@ -10,6 +10,7 @@ import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.api.response.ChatResponseWithCreatorId
+import chatox.chat.cache.DefaultChatRoleCacheWrapper
 import chatox.chat.exception.InvalidChatDeletionCommentException
 import chatox.chat.exception.InvalidChatDeletionReasonException
 import chatox.chat.exception.SlugIsAlreadyInUseException
@@ -27,7 +28,7 @@ import chatox.chat.model.ChatDeletion
 import chatox.chat.model.ChatDeletionReason
 import chatox.chat.model.ChatMessagesCounter
 import chatox.chat.model.ChatParticipation
-import chatox.chat.model.ChatRole
+import chatox.chat.model.StandardChatRole
 import chatox.chat.model.ChatType
 import chatox.chat.model.DialogDisplay
 import chatox.chat.model.ImageUploadMetadata
@@ -41,6 +42,7 @@ import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.security.AuthenticationFacade
+import chatox.chat.service.ChatRoleService
 import chatox.chat.service.ChatService
 import chatox.chat.service.MessageService
 import chatox.chat.support.UserDisplayedNameHelper
@@ -82,6 +84,8 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatEventsPublisher: ChatEventsPublisher,
                       private val timeService: TimeService,
                       private val messageService: MessageService,
+                      private val chatRoleService: ChatRoleService,
+                      private val defaultChatRoleCacheWrapper: DefaultChatRoleCacheWrapper,
                       private val userDisplayedNameHelper: UserDisplayedNameHelper) : ChatService {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
@@ -106,20 +110,24 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 creatorDisplayedName = "$creatorDisplayedName ${currentUser.lastName}"
             }
 
+            val chatRoles = chatRoleService.createRolesForChat(chat).collectList().awaitFirst()
+            val ownerRole = chatRoles.find { role -> role.name == StandardChatRole.OWNER.name }!!
+
             val creatorChatParticipation = chatParticipationRepository.save(
                     chatParticipation = ChatParticipation(
+                            id = ObjectId().toHexString(),
                             user = currentUser,
                             chatId = chat.id,
-                            role = ChatRole.ADMIN,
+                            role = ownerRole,
                             createdAt = timeService.now(),
                             userDisplayedName = creatorDisplayedName,
                             userSlug = currentUser.slug
                     )
             )
                     .awaitFirst()
-            chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(creatorChatParticipation))
+            chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(creatorChatParticipation).awaitFirst())
 
-            chatMapper.toChatOfCurrentUserResponse(
+            return@mono chatMapper.toChatOfCurrentUserResponse(
                     chat = chat,
                     chatParticipation = creatorChatParticipation,
                     unreadMessagesCount = 0,
@@ -161,8 +169,8 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     messagesCount = 1L
             )
             chatMessagesCounterRepository.save(chatMessagesCounter).awaitFirst()
-
-            val message = messageService.createFirstMessageForPrivateChat(chatId, createPrivateChatRequest.message).awaitFirst()
+            val messageId = UUID.randomUUID().toString()
+            val userRole = chatRoleService.createUserRoleForChat(chat).awaitFirst()
 
             val currentUserChatParticipation = ChatParticipation(
                     id = ObjectId().toHexString(),
@@ -170,12 +178,12 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     deleted = false,
                     createdAt = ZonedDateTime.now(),
                     user = currentUser,
-                    role = ChatRole.USER,
+                    role = userRole,
                     chatDeleted = false,
                     userOnline = currentUser.online ?: false,
                     userDisplayedName = userDisplayedNameHelper.getDisplayedName(currentUser),
                     userSlug = currentUser.slug,
-                    lastReadMessageId = message.id
+                    lastReadMessageId = messageId
             )
             val otherUserChatParticipation = ChatParticipation(
                     id = ObjectId().toHexString(),
@@ -183,12 +191,14 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     deleted = false,
                     createdAt = ZonedDateTime.now(),
                     user = user,
-                    role = ChatRole.USER,
+                    role = userRole,
                     chatDeleted = false,
                     userOnline = user.online ?: false,
                     userDisplayedName = userDisplayedNameHelper.getDisplayedName(user),
                     userSlug = user.slug
             )
+
+            val message = messageService.createFirstMessageForPrivateChat(chatId, createPrivateChatRequest.message, currentUserChatParticipation).awaitFirst().copy(id = messageId)
 
             val chatParticipations = mutableListOf(currentUserChatParticipation, otherUserChatParticipation)
             chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
@@ -206,7 +216,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
             val privateChatCreated = PrivateChatCreated(
                     id = chat.id,
-                    chatParticipations = chatParticipations.map { chatParticipation -> chatParticipationMapper.toChatParticipationResponse(chatParticipation) },
+                    chatParticipations = chatParticipations.map { chatParticipation -> chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst() },
                     message = message
             )
             chatEventsPublisher.privateChatCreated(privateChatCreated)
@@ -270,7 +280,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             val chatUpdatedEvent = chatMapper.toChatUpdated(chat)
             chatEventsPublisher.chatUpdated(chatUpdatedEvent)
 
-            chatMapper.toChatResponse(chat)
+            return@mono chatMapper.toChatResponse(chat)
         }
     }
 
@@ -320,7 +330,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     )
             )
 
-            Mono.empty<Void>()
+            return@mono Mono.empty<Void>()
         }
                 .flatMap { it }
     }
@@ -350,7 +360,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 }
             }
 
-            chatMapper.toChatResponse(
+            return@mono chatMapper.toChatResponse(
                     chat = chat,
                     currentUserId = currentUser.id,
                     user = otherUser
@@ -417,14 +427,14 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     private fun countUnreadMessages(chatParticipation: ChatParticipation): Mono<Long> {
         return mono {
             if (chatParticipation.lastReadMessageCreatedAt != null) {
-                messageRepository.countByChatIdAndCreatedAtAfterAndSenderIdNot(
+                return@mono messageRepository.countByChatIdAndCreatedAtAfterAndSenderIdNot(
                         chatId = chatParticipation.chatId,
                         date = chatParticipation.lastReadMessageAt!!,
                         senderId = chatParticipation.user.id
                 )
                         .awaitFirst()
             } else {
-                0
+                return@mono 0
             }
         }
     }

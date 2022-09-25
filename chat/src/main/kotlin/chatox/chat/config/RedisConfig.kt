@@ -2,6 +2,8 @@ package chatox.chat.config
 
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatBlocking
+import chatox.chat.model.ChatParticipation
+import chatox.chat.model.ChatRole
 import chatox.chat.model.Message
 import chatox.chat.model.Upload
 import chatox.chat.model.User
@@ -34,40 +36,61 @@ class RedisConfig {
     private lateinit var applicationName: String
 
     @Bean
-    fun chatCacheService() = RedisReactiveCacheService<Chat>(
+    fun chatCacheService() = RedisReactiveCacheService(
             chatRedisTemplate(),
             cacheKeyGenerator(),
             Chat::class.java
     ) { chat -> chat.id }
 
     @Bean
-    fun userCacheService() = RedisReactiveCacheService<User>(
+    fun userCacheService() = RedisReactiveCacheService(
             userRedisTemplate(),
             cacheKeyGenerator(),
             User::class.java
     ) { user -> user.id }
 
     @Bean
-    fun chatBlockingCacheService() = RedisReactiveCacheService<ChatBlocking>(
+    fun chatBlockingCacheService() = RedisReactiveCacheService(
             chatBlockingRedisTemplate(),
             cacheKeyGenerator(),
             ChatBlocking::class.java
     ) { chatBlocking -> chatBlocking.id }
 
     @Bean
-    fun messageCacheService() = RedisReactiveCacheService<Message>(
+    fun messageCacheService() = RedisReactiveCacheService(
             messageRedisTemplate(),
             cacheKeyGenerator(),
             Message::class.java
     ) { message -> message.id }
 
     @Bean
-    fun userBlackListItemCacheService() = RedisReactiveCacheService<UserBlacklistItem>(
+    fun userBlackListItemCacheService() = RedisReactiveCacheService(
             userBlacklistItemRedisTemplate(),
             cacheKeyGenerator(),
             UserBlacklistItem::class.java,
             ::generateBlacklistItemCacheId
     )
+
+    @Bean
+    fun chatRoleCacheService() = RedisReactiveCacheService(
+            chatRoleRedisTemplate(),
+            cacheKeyGenerator(),
+            ChatRole::class.java
+    ) { chatRole -> chatRole.id }
+
+    @Bean
+    fun defaultChatRoleCacheService() = RedisReactiveCacheService(
+            chatRoleRedisTemplate(),
+            cacheKeyGenerator(),
+            ChatRole::class.java
+    ) { chatRole -> chatRole.chatId }
+
+    @Bean
+    fun chatParticipationCacheService() = RedisReactiveCacheService(
+            chatParticipationRedisTemplate(),
+            cacheKeyGenerator(),
+            ChatParticipation::class.java
+    ) { chatParticipation -> chatParticipation.id }
 
     @Bean
     fun cacheKeyGenerator() = DefaultCacheKeyGenerator(applicationName, CacheKeyGenerator.ClassKeyMode.SIMPLE)
@@ -89,6 +112,12 @@ class RedisConfig {
 
     @Bean
     fun userBlacklistItemRedisTemplate() = createRedisTemplate(UserBlacklistItem::class)
+
+    @Bean
+    fun chatRoleRedisTemplate() = createRedisTemplate(ChatRole::class)
+
+    @Bean
+    fun chatParticipationRedisTemplate() = createRedisTemplate(ChatParticipation::class)
 
     private fun <T: Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
         val stringRedisSerializer = StringRedisSerializer()

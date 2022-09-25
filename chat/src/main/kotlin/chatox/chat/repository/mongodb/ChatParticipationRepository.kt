@@ -26,6 +26,7 @@ interface ChatParticipationRepository : ReactiveMongoRepository<ChatParticipatio
     fun findByChatIdAndUserAndDeletedTrue(chatId: String, user: User): Mono<ChatParticipation>
     fun findByChatIdAndUserOnlineTrue(chatId: String): Flux<ChatParticipation>
     fun findByIdAndChatId(id: String, chatId: String): Mono<ChatParticipation>
+    fun findByChatIdAndRoleIdAndDeletedFalse(chatId: String, roleId: String, pageable: Pageable): Flux<ChatParticipation>
 
     @Query("{'chatId' : :#{#chatId}, 'userDisplayedName': {'\$regex': :#{#query}, '\$options' : 'i' }, 'deleted': false }")
     fun searchChatParticipants(@Param("chatId") chatId: String, @Param("query") query: String, pageable: Pageable): Flux<ChatParticipation>

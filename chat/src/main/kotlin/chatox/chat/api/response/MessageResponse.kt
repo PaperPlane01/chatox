@@ -20,5 +20,6 @@ data class MessageResponse(
         val pinnedAt: ZonedDateTime?,
         val pinnedBy: UserResponse?,
         val scheduledAt: ZonedDateTime? = null,
-        val sticker: StickerResponse<Any>? = null
+        val sticker: StickerResponse<Any>? = null,
+        val senderChatRole: ChatRoleResponse
 )

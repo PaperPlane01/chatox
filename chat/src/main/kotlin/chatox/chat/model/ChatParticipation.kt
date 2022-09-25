@@ -11,14 +11,17 @@ import java.time.ZonedDateTime
 @Document
 data class ChatParticipation(
         @Id
-        val id: String? = null,
+        val id: String,
 
         @Indexed
         val chatId: String,
 
         val user: User,
 
-        val role: ChatRole,
+        val role: ChatRole? = null,
+
+        @Indexed
+        val roleId: String = "",
 
         @Indexed
         val lastReadMessageId: String? = null,

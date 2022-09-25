@@ -2,17 +2,22 @@ package chatox.chat.config
 
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatBlocking
+import chatox.chat.model.ChatParticipation
+import chatox.chat.model.ChatRole
 import chatox.chat.model.Message
 import chatox.chat.model.User
 import chatox.chat.model.UserBlacklistItem
 import chatox.chat.repository.mongodb.ChatBlockingMongoRepository
+import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
+import chatox.chat.repository.mongodb.ChatRoleRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.UserBlacklistItemRepository
 import chatox.chat.repository.mongodb.UserRepository
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -48,6 +53,18 @@ class CacheWrappersConfig {
     @Autowired
     private lateinit var userBlacklistItemCacheService: ReactiveCacheService<UserBlacklistItem, String>
 
+    @Autowired
+    private lateinit var chatRoleRepository: ChatRoleRepository
+
+    @Autowired
+    private lateinit var chatRoleCacheService: ReactiveCacheService<ChatRole, String>
+
+    @Autowired
+    private lateinit var chatParticipationRepository: ChatParticipationRepository
+
+    @Autowired
+    private lateinit var chatParticipationCacheService: ReactiveCacheService<ChatParticipation, String>
+
     @Bean
     fun chatCacheWrapper() = ReactiveRepositoryCacheWrapper(chatCacheService, chatRepository)
 
@@ -62,4 +79,11 @@ class CacheWrappersConfig {
 
     @Bean
     fun userBlacklistItemCacheWrapper() = ReactiveRepositoryCacheWrapper(userBlacklistItemCacheService, userBlacklistItemRepository)
+
+    @Bean
+    @Qualifier("chatRoleCacheWrapper")
+    fun chatRoleCacheWrapper() = ReactiveRepositoryCacheWrapper(chatRoleCacheService, chatRoleRepository)
+
+    @Bean
+    fun chatParticipationCacheWrapper() = ReactiveRepositoryCacheWrapper(chatParticipationCacheService, chatParticipationRepository)
 }

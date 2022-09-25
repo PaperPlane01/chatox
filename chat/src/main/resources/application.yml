@@ -15,6 +15,7 @@ spring:
       client:
         reactive:
           endpoints: ${ELASTICSEARCH_HOSTS:localhost:9200}
+          socket-timeout: 5m
   rabbitmq:
     listener:
       direct:
