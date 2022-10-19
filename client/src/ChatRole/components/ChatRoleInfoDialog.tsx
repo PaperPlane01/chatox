@@ -1,8 +1,7 @@
-import React, {Fragment, FunctionComponent, useEffect} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, CircularProgress} from "@mui/material";
+import {Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {ArrowBack, Edit} from "@mui/icons-material";
-import {useSnackbar} from "notistack";
 import {ChatRoleFeatures} from "./ChatRoleFeatures";
 import {EditChatRoleForm} from "./EditChatRoleForm";
 import {getChatRoleTranslation} from "../utils";
@@ -28,22 +27,12 @@ export const ChatRoleInfoDialog: FunctionComponent = observer(() => {
         },
         editChatRole: {
             pending,
-            showSnackbar,
             setRoleId,
             submitForm,
-            setShowSnackbar
         }
     } = useStore();
     const {l} = useLocalization();
     const {fullScreen} = useMobileDialog();
-    const {enqueueSnackbar} = useSnackbar();
-
-    useEffect(() => {
-        if (showSnackbar) {
-            enqueueSnackbar(l("chat.role.update.success"));
-            setShowSnackbar(false);
-        }
-    });
 
     if (!roleId) {
         return null;
@@ -124,7 +113,10 @@ export const ChatRoleInfoDialog: FunctionComponent = observer(() => {
                         </Fragment>
                     )
                     : (
-                        <Button onClick={() => handleClose(false)}>
+                        <Button onClick={() => handleClose(false)}
+                                variant="outlined"
+                                color="secondary"
+                        >
                             {l("close")}
                         </Button>
                     )

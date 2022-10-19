@@ -1,47 +1,29 @@
 import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
-import {TextField, Typography, FormControlLabel, Switch} from "@mui/material";
+import {TextField, FormControlLabel, Switch, Typography} from "@mui/material";
 import {ChatRoleFeatureForms} from "./ChatRoleFeatureForms";
-import {ChatRoleSelect} from "./ChatRoleSelect";
-import {useLocalization, useStore} from "../../store";
+import {useStore, useLocalization} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 
 const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     if (error.status === API_UNREACHABLE_STATUS) {
-        return l("common.error.server-unreachable");
+        return l("server.unreachable");
     }
 
-    return l("chat.role.update.error.unknown", {errorStatus: error.status});
+    return l("chat.role.create.error.unknown");
 }
 
-export const EditChatRoleForm: FunctionComponent = observer(() => {
+export const CreateChatRoleForm: FunctionComponent = observer(() => {
     const {
-        editChatRole: {
+        createChatRole: {
             formValues,
             formErrors,
             error,
-            requireDefaultRole,
-            defaultRoleError,
-            defaultRoleId,
-            setFormValue,
-            roleId,
-            setDefaultRoleId
-        },
-        entities: {
-            chatRoles: {
-                findAllByChat: findChatRoles,
-                findById: findChatRole
-            }
+            setFormValue
         }
     } = useStore();
     const {l} = useLocalization();
-
-    if (!roleId) {
-        return null;
-    }
-
-    const role = findChatRole(roleId);
 
     return (
         <Fragment>
@@ -70,15 +52,6 @@ export const EditChatRoleForm: FunctionComponent = observer(() => {
             }
                               label={l("chat.role.default-for-new-participants")}
             />
-            {requireDefaultRole && (
-                <ChatRoleSelect onSelect={setDefaultRoleId}
-                                label={l("chat.role.default-role.replacement")}
-                                rolesIds={findChatRoles(role.chatId).map(role => role.id)}
-                                pending={false}
-                                validationError={defaultRoleError && l(defaultRoleError)}
-                                value={defaultRoleId}
-                />
-            )}
             <ChatRoleFeatureForms/>
             {error && (
                 <Typography style={{color: "red"}}>

@@ -4,13 +4,15 @@ import {MessagePermissions} from "../../Message/permissions";
 import {ChatParticipantPermissions, ChatPermissions} from "../../Chat/permissions";
 import {ChatBlockingPermissions} from "../../ChatBlocking";
 import {GlobalBanPermissions} from "../../GlobalBan";
+import {ChatRolePermissions} from "../../ChatRole/permissions";
 
 class PermissionsContext {
     constructor(public readonly messages: MessagePermissions,
                 public readonly chats: ChatPermissions,
                 public readonly chatParticipants: ChatParticipantPermissions,
                 public readonly chatBlockings: ChatBlockingPermissions,
-                public readonly globalBans: GlobalBanPermissions) {
+                public readonly globalBans: GlobalBanPermissions,
+                public readonly chatRoles: ChatRolePermissions) {
     }
 }
 
@@ -38,6 +40,11 @@ const globalBans = new GlobalBanPermissions(
     store.entities,
     store.authorization
 );
+const chatRoles = new ChatRolePermissions(
+    store.entities,
+    store.authorization,
+    store.userChatRoles
+);
 
 export const permissionsContext = createContext(
     new PermissionsContext(
@@ -45,6 +52,7 @@ export const permissionsContext = createContext(
         chats,
         chatParticipants,
         chatBlockings,
-        globalBans
+        globalBans,
+        chatRoles
     )
 );

@@ -16,8 +16,8 @@ const INITIAL_FORM_ERRORS: FormErrors<BlockUsersFeatureFormData> = {
 };
 
 export class BlockUsersFeatureFormStore extends AbstractChatFeatureFormStore<BlockUsersFeatureFormData> implements ConvertableChatFeatureFormStore<"blockUsers"> {
-    constructor(private readonly entities: EntitiesStore) {
-        super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
+    constructor(private readonly entities: EntitiesStore, initialValues: BlockUsersFeatureFormData = INITIAL_FORM_VALUES) {
+        super(initialValues, INITIAL_FORM_ERRORS);
     }
 
     @action

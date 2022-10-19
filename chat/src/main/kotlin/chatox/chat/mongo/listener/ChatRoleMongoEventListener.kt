@@ -20,6 +20,9 @@ class ChatRoleMongoEventListener : AbstractMongoEventListener<ChatRole>() {
 
     override fun onAfterSave(event: AfterSaveEvent<ChatRole>) {
         chatRoleCache.put(event.source).subscribe()
-        defaultChatRoleCache.put(event.source).subscribe()
+
+        if (event.source.default) {
+            defaultChatRoleCache.put(event.source).subscribe()
+        }
     }
 }

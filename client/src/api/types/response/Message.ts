@@ -22,5 +22,5 @@ export interface Message {
     scheduledAt?: string,
     index: number,
     sticker?: Sticker,
-    senderChatRole: ChatRole
+    senderChatRole?: ChatRole
 }

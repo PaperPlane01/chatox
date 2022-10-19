@@ -97,14 +97,17 @@ export class EntitiesStore {
         }
 
         this.uploads.insertAll(message.attachments);
-        this.chatRoles.insert(message.senderChatRole);
 
-        if (this.userChatRolesStore) {
-            this.userChatRolesStore.insertInCache({
-                userId: message.sender.id,
-                chatId: message.chatId,
-                roleId: message.senderChatRole.id
-            });
+        if (message.senderChatRole) {
+            this.chatRoles.insert(message.senderChatRole);
+
+            if (this.userChatRolesStore) {
+                this.userChatRolesStore.insertInCache({
+                    userId: message.sender.id,
+                    chatId: message.chatId,
+                    roleId: message.senderChatRole.id
+                });
+            }
         }
 
         if (message.scheduledAt) {

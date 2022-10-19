@@ -1,16 +1,16 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Select, FormControl, InputLabel, MenuItem, CircularProgress} from "@mui/material";
-import {isStandardChatRole, StandardChatRole} from "../../api/types/response";
+import {CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select} from "@mui/material";
+import {getChatRoleTranslation} from "../utils";
 import {useLocalization, useStore} from "../../store";
-import {Labels} from "../../localization";
 
 interface ChatRoleSelectProps {
     onSelect: (roleId: string) => void,
     value?: string,
     label: string,
     rolesIds: string[],
-    pending: boolean
+    pending: boolean,
+    validationError?: string
 }
 
 export const ChatRoleSelect: FunctionComponent<ChatRoleSelectProps> = observer(({
@@ -18,7 +18,8 @@ export const ChatRoleSelect: FunctionComponent<ChatRoleSelectProps> = observer((
     value,
     label,
     rolesIds,
-    pending = false
+    pending = false,
+    validationError
 }) => {
     const {
         entities: {
@@ -31,7 +32,9 @@ export const ChatRoleSelect: FunctionComponent<ChatRoleSelectProps> = observer((
     const roles = findChatRoles(rolesIds);
 
     return (
-        <FormControl fullWidth>
+        <FormControl fullWidth
+                     error={Boolean(validationError)}
+        >
             <InputLabel>
                 {label}
             </InputLabel>
@@ -43,13 +46,11 @@ export const ChatRoleSelect: FunctionComponent<ChatRoleSelectProps> = observer((
                     <MenuItem value={role.id}
                               key={role.id}
                     >
-                        {isStandardChatRole(role.name)
-                            ? l(`chat.participant.role.${role.name as keyof typeof StandardChatRole}` as keyof Labels)
-                            : role.name
-                        }
+                        {getChatRoleTranslation(role.name, l)}
                     </MenuItem>
                 ))}
             </Select>
+            {validationError && <FormHelperText>{validationError}</FormHelperText>}
         </FormControl>
     );
 });

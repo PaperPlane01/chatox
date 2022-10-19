@@ -34,7 +34,7 @@ export const ChatRolesListItem: FunctionComponent<ChatRolesListItemProps> = obse
     return (
         <MenuItem onClick={handleClick}>
             <ListItemText>
-                {getChatRoleTranslation(chatRole.name, l)}
+                {getChatRoleTranslation(chatRole.name, l)} ({chatRole.level})
             </ListItemText>
         </MenuItem>
     );

@@ -42,6 +42,16 @@ export abstract class AbstractFormStore<FormType extends object> implements Form
         this.formValues = form;
     }
 
+    @action.bound
+    protected setPending(pending: boolean): void {
+        this.pending = pending;
+    }
+
+    @action.bound
+    protected setError(error?: ApiError): void {
+        this.error = error;
+    }
+
     public abstract submitForm(): void;
 
     protected abstract validateForm(): boolean;

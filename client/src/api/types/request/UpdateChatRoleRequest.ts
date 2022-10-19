@@ -1,7 +1,5 @@
-import {ChatFeatures} from "../response";
+import {CreateChatRoleRequest} from "./CreateChatRoleRequest";
 
-export interface UpdateChatRoleRequest {
-    name: string,
-    level: number,
-    features: ChatFeatures
+export interface UpdateChatRoleRequest extends CreateChatRoleRequest{
+    defaultRoleId?: string
 }

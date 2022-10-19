@@ -1,4 +1,5 @@
-export interface EditChatRoleFormData {
+export interface ChatRoleFormData {
     name: string,
-    level: string
+    level: string,
+    default: boolean
 }

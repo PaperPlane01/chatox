@@ -1,34 +1,41 @@
-import {action, observable, reaction, runInAction} from "mobx";
+import {action, computed, observable, reaction} from "mobx";
 import {ChatFeaturesFormStore} from "./ChatFeaturesFormStore";
 import {ChatRoleInfoDialogStore} from "./ChatRoleInfoDialogStore";
-import {ChatRoleEntity, EditChatRoleFormData} from "../types";
-import {validateRoleName, validateRoleLevel} from "../validation";
-import {AbstractFormStore} from "../../form-store";
-import {FormErrors} from "../../utils/types";
+import {AbstractChatRoleFormStore} from "./AbstractChatRoleFormStore";
+import {ChatRoleEntity} from "../types";
 import {EntitiesStore} from "../../entities-store";
 import {ChatRoleApi, getInitialApiErrorFromResponse} from "../../api";
+import {Labels, LocaleStore} from "../../localization";
 import {UpdateChatRoleRequest} from "../../api/types/request";
+import {SnackbarService} from "../../Snackbar";
 
-const INITIAL_FORM_VALUES: EditChatRoleFormData = {
-    name: "",
-    level: "0"
-};
-const INITIAL_FORM_ERRORS: FormErrors<EditChatRoleFormData> = {
-    name: undefined,
-    level: undefined
-};
-
-export class EditChatRoleStore extends AbstractFormStore<EditChatRoleFormData> {
+export class EditChatRoleStore extends AbstractChatRoleFormStore {
     @observable
     roleId?: string = undefined;
 
     @observable
-    showSnackbar: boolean = false;
+    defaultRoleId?: string = undefined;
 
-    constructor(private readonly chatFeaturesForm: ChatFeaturesFormStore,
-                private readonly entities: EntitiesStore,
-                private readonly chatRoleInfoDialog: ChatRoleInfoDialogStore) {
-        super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
+    @observable
+    defaultRoleError?: keyof  Labels = undefined;
+
+    @computed
+    get requireDefaultRole(): boolean {
+        if (!this.roleId) {
+            return false;
+        }
+
+        const role = this.entities.chatRoles.findById(this.roleId);
+
+        return role.default && !this.formValues.default;
+    }
+
+    constructor(chatFeaturesForm: ChatFeaturesFormStore,
+                entities: EntitiesStore,
+                localeStore: LocaleStore,
+                snackbarService: SnackbarService,
+                private readonly chatRoleInfoDialog: ChatRoleInfoDialogStore,) {
+        super(chatFeaturesForm, entities, localeStore, snackbarService);
 
         reaction(
             () => this.roleId,
@@ -41,14 +48,6 @@ export class EditChatRoleStore extends AbstractFormStore<EditChatRoleFormData> {
                 }
             }
         );
-        reaction(
-            () => this.formValues.name,
-            name => this.setFormError("name", validateRoleName(name))
-        );
-        reaction(
-            () => this.formValues.level,
-            level => this.setFormError("level", validateRoleLevel(level))
-        );
     }
 
     @action
@@ -58,15 +57,16 @@ export class EditChatRoleStore extends AbstractFormStore<EditChatRoleFormData> {
     }
 
     @action
-    setShowSnackbar = (showSnackbar: boolean): void => {
-        this.showSnackbar = showSnackbar;
+    setDefaultRoleId = (defaultRoleId?: string): void => {
+        this.defaultRoleId = defaultRoleId;
     }
 
     @action
     populateFromRole = (role: ChatRoleEntity): void => {
         this.setForm({
             name: role.name,
-            level:`${role.level}`
+            level:`${role.level}`,
+            default: role.default
         });
     }
 
@@ -81,8 +81,8 @@ export class EditChatRoleStore extends AbstractFormStore<EditChatRoleFormData> {
         }
 
         const role = this.entities.chatRoles.findById(this.roleId);
-        this.pending = true;
-        this.error = undefined;
+        this.setPending(true);
+        this.setError(undefined);
 
         const request = this.convertToApiRequest();
 
@@ -95,29 +95,39 @@ export class EditChatRoleStore extends AbstractFormStore<EditChatRoleFormData> {
                 this.entities.insertChatRole(data);
                 this.chatRoleInfoDialog.setEditMode(false);
                 this.resetForm();
-                this.setShowSnackbar(true);
+                this.showSuccessLabel();
             })
-            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
-            .finally(() => runInAction(() => this.pending = false));
+            .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
+            .finally(() => this.setPending(false));
     }
 
-    @action
-    protected validateForm = (): boolean => {
-        this.setFormErrors({
-            name: validateRoleName(this.formValues.name),
-            level: validateRoleLevel(this.formValues.level)
-        });
 
-        return !Boolean(this.formErrors.name && this.formValues.level) && this.chatFeaturesForm.validateForms();
+    @action.bound
+    protected validateForm(): boolean {
+        const formValidationResult = super.validateForm();
+
+        if (this.requireDefaultRole && !this.defaultRoleId) {
+            this.defaultRoleError = "chat.role.default-role.required";
+        }
+
+        return formValidationResult && !this.defaultRoleError;
     }
 
-    private convertToApiRequest = (): UpdateChatRoleRequest => {
-        const features = this.chatFeaturesForm.convertToApiRequest();
-
-        return {
-            name: this.formValues.name,
-            level: Number(this.formValues.level),
-            features
+    protected convertToApiRequest(): UpdateChatRoleRequest {
+        return  {
+            ...super.convertToApiRequest(),
+            defaultRoleId: this.defaultRoleId
         };
+    }
+
+    @action.bound
+    protected resetForm() {
+        super.resetForm();
+        this.defaultRoleId = undefined;
+        this.defaultRoleError = undefined;
+    }
+
+    protected getSuccessLabel(): keyof Labels {
+        return "chat.role.update.success";
     }
 }

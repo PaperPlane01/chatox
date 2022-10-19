@@ -1,7 +1,7 @@
 import React, {FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
 import {DialogTitle, Dialog, DialogContent, DialogActions, Button, CircularProgress, Typography} from "@mui/material";
-import {ChatRoleSelect} from "./ChatRoleSelect";
+import {ChatRoleSelect} from "../../ChatRole";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {useSnackbar} from "notistack";
@@ -51,7 +51,7 @@ export const UpdateChatParticipantDialog: FunctionComponent = observer(() => {
                 enqueueSnackbar(l("chat.participant.update.success"));
             }
         }
-    )
+    );
 
     if (!updatedParticipant) {
         return null;

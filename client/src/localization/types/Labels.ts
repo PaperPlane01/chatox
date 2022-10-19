@@ -513,5 +513,13 @@ export interface Labels {
     "chat.role.level.is-too-low": string,
     "chat.role.update": string,
     "chat.role.update.success": string,
-    "chat.role.update.error.unknown": string
+    "chat.role.update.error.unknown": string,
+    "chat.role.default-for-new-participants": string,
+    "chat.role.default-role.replacement": string,
+    "chat.role.default-role.required": string,
+    "chat.role.create": string,
+    "chat.role.create.with-chat-name": string,
+    "chat.role.create.success": string,
+    "chat.role.create.error.unknown": string,
+    "common.create": string
 }

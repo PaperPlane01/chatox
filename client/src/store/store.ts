@@ -131,10 +131,13 @@ import {
 import {
     ChatFeaturesFormStore,
     ChatRoleInfoDialogStore,
-    ChatRolesStore, EditChatRoleStore,
+    ChatRolesStore,
+    CreateChatRoleStore,
+    EditChatRoleStore,
     RolesOfChatStore,
     UserChatRolesStore
 } from "../ChatRole";
+import {SnackbarService} from "../Snackbar";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -310,7 +313,9 @@ entities.setUserChatRolesStore(userChatRoles);
 const chatFeaturesForm = ChatFeaturesFormStore.createInstance(entities);
 const updateChatParticipant = new UpdateChatParticipantStore(entities, authorization, userChatRoles);
 const chatRoleInfo = new ChatRoleInfoDialogStore();
-const editChatRole = new EditChatRoleStore(chatFeaturesForm, entities, chatRoleInfo);
+const snackbarService = new SnackbarService();
+const editChatRole = new EditChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chatRoleInfo);
+const createChatRole = new CreateChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chat, rolesOfChats);
 
 export const store: IAppState = {
     authorization,
@@ -420,5 +425,6 @@ export const store: IAppState = {
     userChatRoles,
     chatFeaturesForm,
     chatRoleInfo,
-    editChatRole
+    editChatRole,
+    createChatRole
 };

@@ -110,7 +110,7 @@ import {
 } from "../ChatsAndMessagesSearch";
 import {
     ChatFeaturesFormStore,
-    ChatRoleInfoDialogStore,
+    ChatRoleInfoDialogStore, CreateChatRoleStore,
     EditChatRoleStore,
     RolesOfChatStore,
     UserChatRolesStore
@@ -225,5 +225,6 @@ export interface IAppState {
     chatFeaturesForm: ChatFeaturesFormStore,
     chatRoleInfo: ChatRoleInfoDialogStore,
     editChatRole: EditChatRoleStore,
+    createChatRole: CreateChatRoleStore,
     store?: any
 }

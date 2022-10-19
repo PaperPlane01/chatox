@@ -515,5 +515,13 @@ export const en: Labels = {
     "chat.role.level.is-too-low": "Role name cannot be lower than -1000",
     "chat.role.update": "Edit role {roleName}",
     "chat.role.update.success": "Role has been updated",
-    "chat.role.update.error.unknown": "Unknown error occurred when tried to update chat role, server responded with {errorStatus} status"
+    "chat.role.update.error.unknown": "Unknown error occurred when tried to update chat role, server responded with {errorStatus} status",
+    "chat.role.default-for-new-participants": "Is default for new participants",
+    "chat.role.default-role.replacement": "New default role",
+    "chat.role.default-role.required": "New default role is required",
+    "chat.role.create": "Create new chat role",
+    "chat.role.create.with-chat-name": "Create new role in chat {chatName}",
+    "chat.role.create.success": "Role has been created",
+    "chat.role.create.error.unknown": "Unknown error occurred when tried to create chat role, server responded with {errorStatus} status",
+    "common.create": "Create"
 };

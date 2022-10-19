@@ -165,7 +165,6 @@ export const MessagesList: FunctionComponent = observer(() => {
     };
 
     const handleDivScroll = (event: UIEvent<HTMLElement>): void => {
-        console.log("Handling div scroll")
         const coveredDistance = event.currentTarget.scrollHeight - event.currentTarget.scrollTop;
         setScrollPosition(selectedChatId!, event.currentTarget.scrollTop);
 

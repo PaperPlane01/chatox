@@ -82,4 +82,10 @@ export class RolesOfChatStore {
     setChatRolesDialogOpen = (chatRolesDialogOpen: boolean): void => {
         this.chatRolesDialogOpen = chatRolesDialogOpen;
     }
+
+    @action
+    openRolesList = (): void => this.setChatRolesDialogOpen(true);
+
+    @action
+    closeRolesList = (): void => this.setChatRolesDialogOpen(false);
 }

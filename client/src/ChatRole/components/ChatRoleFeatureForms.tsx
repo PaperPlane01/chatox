@@ -12,6 +12,7 @@ export const ChatRoleFeatureForms: FunctionComponent = observer(() => {
         chatFeaturesForm: {
             featuresForms: {
                 pinMessages,
+                showRoleNameInMessages,
                 scheduleMessages,
                 deleteOwnMessages,
                 deleteOtherUsersMessages,
@@ -31,6 +32,11 @@ export const ChatRoleFeatureForms: FunctionComponent = observer(() => {
     return (
         <Fragment>
             <SendMessagesChatFeatureForm/>
+            <Divider/>
+            <DefaultChatFeatureForm formValues={showRoleNameInMessages.formValues}
+                                    name={l("chat.feature.showRoleNameInChat")}
+                                    setFormValue={showRoleNameInMessages.setFormValue}
+            />
             <Divider/>
             <DefaultChatFeatureForm formValues={pinMessages.formValues}
                                     name={l("chat.feature.pinMessages")}

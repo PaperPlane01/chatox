@@ -23,8 +23,10 @@ export class LevelBasedChatFeatureFromStore
     extends AbstractChatFeatureFormStore<LevelBasedFeatureFromData>
     implements ConvertableChatFeatureFormStore<"deleteOtherUsersMessages" | "assignChatRole" | "kickImmunity" | "blockingImmunity" | "messageDeletionsImmunity"> {
 
-    constructor(private readonly entities: EntitiesStore, private readonly featureName: keyof ChatFeatures) {
-        super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
+    constructor(private readonly entities: EntitiesStore,
+                private readonly featureName: keyof ChatFeatures,
+                initialValues: LevelBasedFeatureFromData = INITIAL_FORM_VALUES) {
+        super(initialValues, INITIAL_FORM_ERRORS);
 
         reaction(
             () => this.formValues.fromLevel,

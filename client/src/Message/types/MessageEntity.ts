@@ -25,5 +25,5 @@ export interface MessageEntity {
     scheduledAt?: Date,
     index: number,
     stickerId?: string,
-    senderRoleId: string
+    senderRoleId?: string
 }

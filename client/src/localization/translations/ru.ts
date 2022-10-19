@@ -515,5 +515,13 @@ export const ru: Labels = {
     "chat.role.level.is-too-low": "Уровень роли не может быть меньше -1000",
     "chat.role.update": "Обновить роль {roleName}",
     "chat.role.update.success": "Роль обновлена",
-    "chat.role.update.error.unknown": "При попытке обновить роль произошла ошибка, сервер ответил со статусом {errorStatus}"
+    "chat.role.update.error.unknown": "При попытке обновить роль произошла ошибка, сервер ответил со статусом {errorStatus}",
+    "chat.role.default-for-new-participants": "Назначается по умолчанию",
+    "chat.role.default-role.replacement": "Новая роль по умолчанию",
+    "chat.role.default-role.required": "Необходимо выбрать новую роль",
+    "chat.role.create": "Создать новую роль",
+    "chat.role.create.with-chat-name": "Создать новую роль в чате {chatName}",
+    "chat.role.create.success": "Роль создана",
+    "chat.role.create.error.unknown": "При попытке создать роль произошла ошибка, сервер ответил со статусом {errorStatus}",
+    "common.create": "Создать"
 };

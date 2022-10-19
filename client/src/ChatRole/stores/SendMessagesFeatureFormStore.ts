@@ -26,8 +26,8 @@ const INITIAL_FORM_ERRORS: FormErrors<SendMessagesFeatureFormData> = {
 };
 
 export class SendMessagesFeatureFormStore extends AbstractChatFeatureFormStore<SendMessagesFeatureFormData> implements ConvertableChatFeatureFormStore<"sendMessages"> {
-    constructor(private entities: EntitiesStore) {
-        super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
+    constructor(private entities: EntitiesStore, initialValues: SendMessagesFeatureFormData = INITIAL_FORM_VALUES) {
+        super(initialValues, INITIAL_FORM_ERRORS);
     }
 
     convertToApiRequest(): ChatFeatures["sendMessages"] {

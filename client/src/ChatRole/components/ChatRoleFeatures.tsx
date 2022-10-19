@@ -19,6 +19,8 @@ export const ChatRoleFeatures: FunctionComponent<ChatRoleFeaturesProps> = observ
        <Fragment>
            <SendMessagesChatFeature feature={role.features.sendMessages}/>
            <Divider/>
+           <DefaultChatFeature name={l("chat.feature.showRoleNameInChat")} feature={role.features.showRoleNameInMessages}/>
+           <Divider/>
            <DefaultChatFeature name={l("chat.feature.pinMessages")} feature={role.features.pinMessages}/>
            <Divider/>
            <DefaultChatFeature name={l("chat.feature.scheduleMessages")} feature={role.features.scheduleMessages}/>

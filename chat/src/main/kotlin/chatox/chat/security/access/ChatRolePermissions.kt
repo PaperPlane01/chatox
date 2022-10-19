@@ -5,6 +5,7 @@ import chatox.chat.api.request.UpdateChatRoleRequest
 import chatox.chat.model.ChatFeatures
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatRoleService
+import chatox.chat.service.ChatService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -13,7 +14,8 @@ import reactor.core.publisher.Mono
 
 @Component
 class ChatRolePermissions(private val chatRoleService: ChatRoleService,
-                          private val authenticationFacade: AuthenticationFacade) {
+                          private val authenticationFacade: AuthenticationFacade,
+                          private val chatService: ChatService) {
 
     fun canCreateChatRole(chatId: String, createChatRoleRequest: CreateChatRoleRequest) = canCreateOrUpdateRoleWithFeatures(
             chatId,
@@ -30,6 +32,11 @@ class ChatRolePermissions(private val chatRoleService: ChatRoleService,
             val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
             val currentUserChatRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
+            val chat = chatService.findChatById(chatId).awaitFirst()
+
+            if (currentUser.id == chat.createdById) {
+                return@mono true
+            }
 
             if (!currentUserChatRole.features.modifyChatRoles.enabled) {
                 return@mono false

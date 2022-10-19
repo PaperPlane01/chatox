@@ -32,10 +32,6 @@ class ChatBlockingPermissions(private val chatRoleService: ChatRoleService,
 
             val otherUserBlockingImmunity = otherUserRole.features.blockingImmunity
 
-            if (otherUserBlockingImmunity.additional == null) {
-                return@mono false
-            }
-
             if (otherUserBlockingImmunity.additional.upToLevel == null) {
                 return@mono false
             }
@@ -52,17 +48,18 @@ class ChatBlockingPermissions(private val chatRoleService: ChatRoleService,
     }
 
     fun canSeeChatBlockings(chatId: String): Mono<Boolean> {
-        return authenticationFacade.getCurrentUserDetails()
-                .filter { it.authorities.map { authority -> authority.authority }.contains("ROLE_USER") }
-                .flatMap { chatRoleService.getRoleOfUserInChat(chatId, it.id) }
-                .map { it.features.blockUsers.enabled }
-                .switchIfEmpty(Mono.just(false))
+        return mono {
+            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val chatRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
+                    ?: return@mono false
 
+            return@mono chatRole.features.blockUsers.enabled
+        }
     }
 
     fun canUpdateBlocking(chatId: String): Mono<Boolean> {
         return authenticationFacade.getCurrentUserDetails()
-                .flatMap { chatRoleService.getRoleOfUserInChat(chatId, it.id) }
+                .flatMap { chatRoleService.getRoleOfUserInChat(userId = it.id, chatId = chatId) }
                 .map { it.features.blockUsers.enabled }
     }
 }

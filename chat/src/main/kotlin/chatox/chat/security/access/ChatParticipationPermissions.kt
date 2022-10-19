@@ -79,10 +79,6 @@ class ChatParticipationPermissions(private val chatBlockingService: ChatBlocking
             val currentUserRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
 
-            if (currentUserRole.features.modifyChatRoles.enabled) {
-                return@mono false
-            }
-
             val chatRole = chatRoleService.findRoleByIdAndChatId(roleId = updateChatParticipantRequest.roleId, chatId = chatId).awaitFirst()
             val chatParticipation = chatParticipationService.findChatParticipationById(chatParticipationId).awaitFirst()
 
@@ -96,7 +92,7 @@ class ChatParticipationPermissions(private val chatBlockingService: ChatBlocking
                 return@mono false
             }
 
-            if (assignRoleFeature.additional?.upToLevel == null) {
+            if (assignRoleFeature.additional.upToLevel == null) {
                 return@mono true
             }
 

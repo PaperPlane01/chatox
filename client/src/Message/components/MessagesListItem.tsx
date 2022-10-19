@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent, memo, ReactNode, useEffect, useLayoutEffect, useRef, useState} from "react";
+import React, {Fragment, FunctionComponent, memo, ReactNode, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {Card, CardActions, CardContent, CardHeader, Theme, Tooltip, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -21,6 +21,7 @@ import {MarkdownTextWithEmoji} from "../../Emoji";
 import {TranslationFunction} from "../../localization";
 import {MessageEntity} from "../types";
 import {UserEntity} from "../../User";
+import {getChatRoleTranslation} from "../../ChatRole/utils";
 
 const {Link} = require("mobx-router");
 
@@ -149,6 +150,13 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     inverted: {
         transform: "scaleY(-1)"
+    },
+    messageSender: {
+        display: "flex"
+    },
+    senderChatRole: {
+        paddingLeft: theme.spacing(1),
+        paddingTop: theme.spacing(0.5)
     }
 }));
 
@@ -179,6 +187,9 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
             },
             scheduledMessages: {
                 findById: findScheduledMessage
+            },
+            chatRoles: {
+                findById: findChatRole
             }
         },
         markMessageRead: {
@@ -230,6 +241,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     const createAtLabel = !scheduledMessage
         ? getCreatedAtLabel(message.createdAt, dateFnsLocale)
         : getScheduledAtLabel(message.scheduledAt!, dateFnsLocale, l);
+    const senderChatRole = message.senderRoleId && findChatRole(message.senderRoleId);
     const color = randomColor({seed: sender.id});
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
     const sentByCurrentUser = currentUser && currentUser.id === sender.id;
@@ -290,15 +302,22 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                 </Link>
                 <Card className={cardClasses}>
                     <CardHeader title={
-                        <Link store={routerStore}
-                              className={classes.undecoratedLink}
-                              view={Routes.userPage}
-                              params={{slug: sender.slug || sender.id}}
-                        >
-                            <Typography variant="body1" style={{color}}>
-                                <strong>{sender.firstName} {sender.lastName && sender.lastName}</strong>
-                            </Typography>
-                        </Link>
+                       <div className={classes.messageSender}>
+                           <Link store={routerStore}
+                                 className={classes.undecoratedLink}
+                                 view={Routes.userPage}
+                                 params={{slug: sender.slug || sender.id}}
+                           >
+                               <Typography variant="body1" style={{color}}>
+                                   <strong>{sender.firstName} {sender.lastName && sender.lastName}</strong>
+                               </Typography>
+                           </Link>
+                           {senderChatRole && senderChatRole.features.showRoleNameInMessages.enabled && (
+                               <Typography variant="caption" color="textSecondary" className={classes.senderChatRole}>
+                                   {getChatRoleTranslation(senderChatRole.name, l)}
+                               </Typography>
+                           )}
+                       </div>
                     }
                                 classes={{
                                     root: classes.cardHeaderRoot,
@@ -340,13 +359,11 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                                         />
                                     )}
                                     {!hideAttachments && message.images.length !== 0 && (
-                                        <div className={classes.cardContentWithPadding}>
-                                            <MessageImagesGrid imagesIds={message.images}
-                                                               parentWidth={width}
-                                                               messageId={messageId}
-                                                               onImagesLoaded={() => setAllImagesLoaded(true)}
-                                            />
-                                        </div>
+                                        <MessageImagesGrid imagesIds={message.images}
+                                                           parentWidth={width}
+                                                           messageId={messageId}
+                                                           onImagesLoaded={() => setAllImagesLoaded(true)}
+                                        />
                                     )}
                                     {!hideAttachments && message.audios.length !== 0 && (
                                         <MessageAudios audios={message.audios}/>

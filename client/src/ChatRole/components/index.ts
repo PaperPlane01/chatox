@@ -8,3 +8,7 @@ export * from "./ChatRoleInfoDialog";
 export * from "./DefaultChatFeature";
 export * from "./LevelBasedChatFeature";
 export * from "./SendMessagesChatFeature";
+export * from "./ChatRoleSelect";
+export * from "./CreateChatRoleDialog";
+export * from "./CreateChatRoleForm";
+export * from "./CreateChatRoleButton";

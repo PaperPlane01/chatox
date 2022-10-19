@@ -13,6 +13,7 @@ import {useLocalization} from "./store";
 import {AudioPlayerContainer} from "./AudioPlayer";
 import {ErrorBoundary} from "./ErrorBoundary";
 import {AnonymousRegistrationDialog} from "./Registration";
+import {SnackbarManager} from "./Snackbar";
 
 const {MobxRouter} = require("mobx-router");
 
@@ -36,6 +37,7 @@ export const App: FunctionComponent = observer(() => {
                                <MobxRouter/>
                                <AudioPlayerContainer/>
                                <AnonymousRegistrationDialog/>
+                               <SnackbarManager/>
                            </ThemeProvider>
                        </StyledEngineProvider>
                    </SnackbarProvider>

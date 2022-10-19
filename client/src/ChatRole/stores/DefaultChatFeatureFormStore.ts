@@ -9,9 +9,9 @@ export class DefaultChatFeatureFormStore
     extends AbstractChatFeatureFormStore<ChatFeatureFormData>
     implements ConvertableChatFeatureFormStore<"kickUsers" | "scheduleMessages" | "deleteChat" | "changeChatSettings" | "modifyChatRoles" | "showRoleNameInMessages" | "pinMessages">{
 
-    constructor(private readonly entitiesStore: EntitiesStore, private readonly featureName: keyof ChatFeatures) {
+    constructor(private readonly entitiesStore: EntitiesStore, private readonly featureName: keyof ChatFeatures, initialValues: ChatFeatureFormData = {enabled: false}) {
         super(
-            {enabled: false},
+            initialValues,
             {enabled: undefined}
         );
     }
