@@ -14,7 +14,7 @@ import {
     WebsocketEvent,
     WebsocketEventType
 } from "../../api/types/websocket";
-import {ChatBlocking, ChatParticipation, GlobalBan, Message} from "../../api/types/response";
+import {ChatBlocking, ChatParticipation, ChatRole, GlobalBan, Message} from "../../api/types/response";
 import {ChatStore} from "../../Chat";
 import {MarkMessageReadStore, MessagesListScrollPositionsStore} from "../../Message";
 
@@ -201,6 +201,14 @@ export class WebsocketStore {
         this.socketIoClient.on(
             WebsocketEventType.PRIVATE_CHAT_CREATED,
             (event: WebsocketEvent<PrivateChatCreated>) => this.entities.insertNewPrivateChat(event.payload)
+        );
+        this.socketIoClient.on(
+            WebsocketEventType.CHAT_ROLE_CREATED,
+            (event: WebsocketEvent<ChatRole>) => this.entities.insertChatRole(event.payload)
+        );
+        this.socketIoClient.on(
+            WebsocketEventType.CHAT_ROLE_UPDATED,
+            (event: WebsocketEvent<ChatRole>) => this.entities.insertChatRole(event.payload)
         );
     }
 

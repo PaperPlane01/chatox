@@ -28,6 +28,7 @@ import {ChatParticipationService} from "../chat-participation";
 import {ChatParticipationDto} from "../chat-participation/types";
 import {LoggerFactory} from "../logging";
 import {ChatsService} from "../chats/ChatsService";
+import {ChatRole} from "../chat-roles";
 
 @WebSocketGateway({
     path: "/api/v1/events/",
@@ -371,6 +372,22 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             await this.publishEventToUser(userId, privateChatCreatedEvent);
         }
      }
+
+     public async publishChatRoleCreated(chatRole: ChatRole) {
+        const chatRoleCreated: WebsocketEvent<ChatRole> = {
+            payload: chatRole,
+            type: EventType.CHAT_ROLE_CREATED
+        };
+        await this.publishEventToChatParticipants(chatRole.chatId, chatRoleCreated);
+     }
+
+     public async publishChatRoleUpdated(chatRole: ChatRole) {
+        const chatRoleUpdated: WebsocketEvent<ChatRole> = {
+            payload: chatRole,
+            type: EventType.CHAT_ROLE_UPDATED
+        };
+        await this.publishEventToChatParticipants(chatRole.chatId, chatRoleUpdated);
+      }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent<any>): Promise<void> {
         const chatParticipants = await this.chatParticipationService.findByChatId(chatId);
