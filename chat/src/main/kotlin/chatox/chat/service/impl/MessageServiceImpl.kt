@@ -44,14 +44,11 @@ import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
-import chatox.platform.log.LogLevel
 import chatox.platform.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
@@ -787,22 +784,6 @@ class MessageServiceImpl(
         return mono {
             return@mono scheduledMessageRepository.findById(messageId).awaitFirstOrNull()
                     ?: throw ScheduledMessageNotFoundException("Could not find scheduled message with id $messageId")
-        }
-    }
-
-    @EventListener(ApplicationReadyEvent::class)
-    fun migrateChatParticipations(): Mono<Unit> {
-        return mono {
-            log.info("Writing chat participations to messages")
-
-            val messages = messageRepository.findAll().collectList().awaitFirst()
-
-            for (message in messages) {
-                val chatParticipation = chatParticipationRepository.findByChatIdAndUserId(message.chatId, message.senderId).awaitFirst()
-                log.info("Writing chat participation ${chatParticipation.id} to message ${message.id}")
-
-                messageRepository.save(message.copy(chatParticipationId = chatParticipation.id)).awaitFirst()
-            }
         }
     }
 }

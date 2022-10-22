@@ -21,16 +21,20 @@ import chatox.chat.service.ChatRoleService
 import chatox.chat.util.NTuple2
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
+import chatox.platform.log.LogExecution
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.bson.types.ObjectId
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 
 @Service
+@Transactional
+@LogExecution
 class ChatRoleServiceImpl(
         private val chatParticipationRepository: ChatParticipationRepository,
         private val chatRoleRepository: ChatRoleRepository,
@@ -43,7 +47,6 @@ class ChatRoleServiceImpl(
         private val defaultChatRoleCache: DefaultChatRoleCacheWrapper,
         private val chatRoleEventsPublisher: ChatRoleEventsPublisher
 ) : ChatRoleService {
-
     override fun getRoleOfUserInChat(userId: String, chatId: String): Mono<ChatRole> {
         return mono {
             val chatParticipation = chatParticipationRepository.findByChatIdAndUserIdAndDeletedFalse(chatId, userId).awaitFirstOrNull()

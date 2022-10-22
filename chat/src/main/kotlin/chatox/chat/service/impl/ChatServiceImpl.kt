@@ -10,7 +10,6 @@ import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.api.response.ChatResponseWithCreatorId
-import chatox.chat.cache.DefaultChatRoleCacheWrapper
 import chatox.chat.exception.InvalidChatDeletionCommentException
 import chatox.chat.exception.InvalidChatDeletionReasonException
 import chatox.chat.exception.SlugIsAlreadyInUseException
@@ -28,11 +27,11 @@ import chatox.chat.model.ChatDeletion
 import chatox.chat.model.ChatDeletionReason
 import chatox.chat.model.ChatMessagesCounter
 import chatox.chat.model.ChatParticipation
-import chatox.chat.model.StandardChatRole
 import chatox.chat.model.ChatType
 import chatox.chat.model.DialogDisplay
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Message
+import chatox.chat.model.StandardChatRole
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
 import chatox.chat.model.User
@@ -55,8 +54,6 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.event.EventListener
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.access.AccessDeniedException
@@ -85,7 +82,6 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val timeService: TimeService,
                       private val messageService: MessageService,
                       private val chatRoleService: ChatRoleService,
-                      private val defaultChatRoleCacheWrapper: DefaultChatRoleCacheWrapper,
                       private val userDisplayedNameHelper: UserDisplayedNameHelper) : ChatService {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
@@ -526,35 +522,4 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
     private fun findChatByIdInternal(id: String, retrieveFromCache: Boolean = false) = chatRepository.findById(id)
             .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
-
-    @EventListener(ApplicationReadyEvent::class)
-    fun populateDialogParticipants(): Mono<Unit> {
-        return mono {
-            log.info("Populating dialog participants")
-            val chats = chatRepository.findAll().collectList().awaitFirst()
-            val dialogParticipants = mutableMapOf<Chat, List<DialogDisplay>>()
-
-            for (chat in chats) {
-                if (chat.type == ChatType.DIALOG) {
-
-                    val chatParticipants = chatParticipationRepository.findByChatId(chat.id).collectList().awaitFirst()
-                    val firstChatParticipant = chatParticipants[0]
-                    val secondChatParticipant = chatParticipants[1]
-
-                    dialogParticipants[chat] = listOf(
-                            DialogDisplay(firstChatParticipant.user.id, chatParticipationMapper.toDialogParticipant(secondChatParticipant)),
-                            DialogDisplay(secondChatParticipant.user.id, chatParticipationMapper.toDialogParticipant(firstChatParticipant))
-                    )
-                }
-            }
-
-            for (chat in chats) {
-                chatRepository.save(chat.copy(dialogDisplay = if (dialogParticipants.containsKey(chat)) dialogParticipants[chat]!! else mutableListOf())).awaitFirst()
-            }
-
-            for (pair in dialogParticipants) {
-                log.info("Populating dialog participants for chat ${pair.key.id}")
-            }
-        }
-    }
 }
