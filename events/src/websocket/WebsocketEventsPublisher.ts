@@ -262,6 +262,14 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         })
     }
 
+    public async publishChatParticipantUpdated(chatParticipant: ChatParticipationDto) {
+        const chatParticipantUpdated: WebsocketEvent<ChatParticipationDto> = {
+            payload: chatParticipant,
+            type: EventType.CHAT_PARTICIPANT_UPDATED
+        };
+        await this.publishEventToChatParticipants(chatParticipant.chatId, chatParticipantUpdated);
+    }
+
     public async publishChatUpdated(chat: Chat) {
         const chatUpdated: WebsocketEvent<Chat> = {
             payload: chat,

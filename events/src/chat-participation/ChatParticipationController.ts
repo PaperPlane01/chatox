@@ -58,4 +58,14 @@ export class ChatParticipationController {
     public async onChatParticipantsWentOffline(chatParticipants: ChatParticipationDto[]): Promise<void> {
         await this.websocketEventsPublisher.publishChatParticipantsWentOffline(chatParticipants);
     }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        routingKey: "chat.participation.updated.#",
+        queue: `events_service_chat_participant_updated-${config.EVENTS_SERVICE_PORT}`
+    })
+    public async onChatParticipationUpdated(chatParticipation: ChatParticipationDto): Promise<void> {
+        await this.chatParticipationService.saveChatParticipation(chatParticipation);
+        await this.websocketEventsPublisher.publishChatParticipantUpdated(chatParticipation);
+    }
 }
