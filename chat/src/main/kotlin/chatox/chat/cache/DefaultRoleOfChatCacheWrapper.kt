@@ -1,5 +1,7 @@
 package chatox.chat.cache
 
+import chatox.chat.config.CacheWrappersConfig
+import chatox.chat.config.RedisConfig
 import chatox.chat.exception.metadata.NoDefaultChatRoleException
 import chatox.chat.model.ChatRole
 import chatox.chat.repository.mongodb.ChatRoleRepository
@@ -13,9 +15,9 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.util.function.Function
 
-@Component
-class DefaultChatRoleCacheWrapper @Autowired constructor(
-        @Qualifier("defaultChatRoleCacheService")
+@Component(CacheWrappersConfig.DEFAULT_ROLE_OF_CHAT_CACHE_WRAPPER)
+class DefaultRoleOfChatCacheWrapper @Autowired constructor(
+        @Qualifier(RedisConfig.DEFAULT_ROLE_OF_CHAT_CACHE_SERVICE)
         private val cacheService: ReactiveCacheService<ChatRole, String>,
         private val chatRoleRepository: ChatRoleRepository
 ) : ReactiveRepositoryCacheWrapper<ChatRole, String>(

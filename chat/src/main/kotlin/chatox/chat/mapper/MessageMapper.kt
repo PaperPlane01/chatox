@@ -5,6 +5,7 @@ import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.ChatRoleResponse
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.UserResponse
+import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
@@ -21,6 +22,7 @@ import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -33,6 +35,8 @@ class MessageMapper(private val userService: UserService,
                     private val uploadMapper: UploadMapper,
                     private val stickerMapper: StickerMapper,
                     private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
+
+                    @Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
                     private val chatRoleCacheWrapper: ReactiveRepositoryCacheWrapper<ChatRole, String>,
                     private val chatParticipationCacheWrapper: ReactiveRepositoryCacheWrapper<ChatParticipation, String>,
                     private val chatRoleMapper: ChatRoleMapper) {

@@ -81,9 +81,14 @@ class CacheWrappersConfig {
     fun userBlacklistItemCacheWrapper() = ReactiveRepositoryCacheWrapper(userBlacklistItemCacheService, userBlacklistItemRepository)
 
     @Bean
-    @Qualifier("chatRoleCacheWrapper")
+    @Qualifier(CHAT_ROLE_CACHE_WRAPPER)
     fun chatRoleCacheWrapper() = ReactiveRepositoryCacheWrapper(chatRoleCacheService, chatRoleRepository)
 
     @Bean
     fun chatParticipationCacheWrapper() = ReactiveRepositoryCacheWrapper(chatParticipationCacheService, chatParticipationRepository)
+
+    companion object {
+        const val CHAT_ROLE_CACHE_WRAPPER = "chatRoleCacheWrapper"
+        const val DEFAULT_ROLE_OF_CHAT_CACHE_WRAPPER = "defaultRoleOfChatCacheWrapper"
+    }
 }

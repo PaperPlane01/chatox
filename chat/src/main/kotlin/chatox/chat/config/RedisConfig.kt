@@ -14,6 +14,7 @@ import chatox.platform.cache.DefaultCacheKeyGenerator
 import chatox.platform.cache.redis.RedisReactiveCacheService
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -72,6 +73,7 @@ class RedisConfig {
     )
 
     @Bean
+    @Qualifier(CHAT_ROLE_CACHE_SERVICE)
     fun chatRoleCacheService() = RedisReactiveCacheService(
             chatRoleRedisTemplate(),
             cacheKeyGenerator(),
@@ -79,6 +81,7 @@ class RedisConfig {
     ) { chatRole -> chatRole.id }
 
     @Bean
+    @Qualifier(DEFAULT_ROLE_OF_CHAT_CACHE_SERVICE)
     fun defaultChatRoleCacheService() = RedisReactiveCacheService(
             chatRoleRedisTemplate(),
             cacheKeyGenerator(),
@@ -128,5 +131,10 @@ class RedisConfig {
                 .build()
 
         return ReactiveRedisTemplate(connectionFactory, redisSerializationContext)
+    }
+
+    companion object {
+        const val DEFAULT_ROLE_OF_CHAT_CACHE_SERVICE = "defaultRoleOfChatCacheService"
+        const val CHAT_ROLE_CACHE_SERVICE = "chatRoleCacheService"
     }
 }
