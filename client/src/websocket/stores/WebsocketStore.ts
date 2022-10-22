@@ -1,5 +1,5 @@
 import {action, computed, reaction} from "mobx";
-import {Socket, connect} from "socket.io-client"
+import {connect, Socket} from "socket.io-client"
 import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
 import {
@@ -37,7 +37,6 @@ export class WebsocketStore {
         );
     }
 
-    @action
     startListening = (): void => {
         if (this.socketIoClient) {
             this.socketIoClient.disconnect();
@@ -58,8 +57,7 @@ export class WebsocketStore {
         this.subscribeToEvents();
     }
 
-    @action
-    subscribeToEvents = (): void => {
+    private subscribeToEvents = (): void => {
         if (!this.socketIoClient) {
             return;
         }
@@ -209,6 +207,10 @@ export class WebsocketStore {
         this.socketIoClient.on(
             WebsocketEventType.CHAT_ROLE_UPDATED,
             (event: WebsocketEvent<ChatRole>) => this.entities.insertChatRole(event.payload)
+        );
+        this.socketIoClient.on(
+            WebsocketEventType.CHAT_ROLE_UPDATED,
+            (event: WebsocketEvent<ChatParticipation>) => this.entities.insertChatParticipation(event.payload)
         );
     }
 
