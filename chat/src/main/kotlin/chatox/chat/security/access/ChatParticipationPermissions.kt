@@ -76,11 +76,18 @@ class ChatParticipationPermissions(private val chatBlockingService: ChatBlocking
     fun canUpdateChatParticipant(chatId: String, chatParticipationId: String, updateChatParticipantRequest: UpdateChatParticipationRequest): Mono<Boolean> {
         return mono {
             val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
-            val currentUserRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
-                    ?: return@mono false
+            val (currentUserRole, currentUserChatParticipation) = chatRoleService.getRoleAndChatParticipationOfUserInChat(
+                    userId = currentUser.id,
+                    chatId = chatId
+            )
+                    .awaitFirstOrNull() ?: return@mono false;
 
             val chatRole = chatRoleService.findRoleByIdAndChatId(roleId = updateChatParticipantRequest.roleId, chatId = chatId).awaitFirst()
             val chatParticipation = chatParticipationService.findChatParticipationById(chatParticipationId).awaitFirst()
+
+            if (currentUserChatParticipation.id === chatParticipation.id) {
+                return@mono false
+            }
 
             if (chatParticipation.chatId != chatId) {
                 return@mono false

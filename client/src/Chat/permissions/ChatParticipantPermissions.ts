@@ -62,6 +62,25 @@ export class ChatParticipantPermissions {
         );
     });
 
+    canModifyChatParticipant = createTransformer((parameters: {chatId: string, chatParticipantId: string}): boolean => {
+        if (!this.currentUser) {
+            return false;
+        }
+
+        const {chatId, chatParticipantId} = parameters;
+
+        const currentUserChatParticipation = this.entities.chatParticipations.findByUserAndChat({
+            userId: this.currentUser.id,
+            chatId
+        });
+
+        if (!currentUserChatParticipation || currentUserChatParticipation.id === chatParticipantId) {
+            return false;
+        }
+
+        return this.canAssignRole(chatId);
+    });
+
     canAssignRole = createTransformer((chatId: string): boolean => {
         if (!this.currentUser) {
             return false;

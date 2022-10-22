@@ -10,6 +10,7 @@ import chatox.chat.exception.metadata.DefaultRoleIdMustBeSpecifiedException
 import chatox.chat.mapper.ChatRoleMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatRoleEventsPublisher
 import chatox.chat.model.Chat
+import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.StandardChatRole
 import chatox.chat.model.User
@@ -48,12 +49,17 @@ class ChatRoleServiceImpl(
         private val chatRoleEventsPublisher: ChatRoleEventsPublisher
 ) : ChatRoleService {
     override fun getRoleOfUserInChat(userId: String, chatId: String): Mono<ChatRole> {
+        return getRoleAndChatParticipationOfUserInChat(userId, chatId)
+                .map { tuple -> tuple.t1 }
+    }
+
+    override fun getRoleAndChatParticipationOfUserInChat(userId: String, chatId: String): Mono<NTuple2<ChatRole, ChatParticipation>> {
         return mono {
             val chatParticipation = chatParticipationRepository.findByChatIdAndUserIdAndDeletedFalse(chatId, userId).awaitFirstOrNull()
-                    ?: return@mono Mono.empty<ChatRole>()
-            val roleId = chatParticipation.roleId
+                    ?: return@mono Mono.empty<NTuple2<ChatRole, ChatParticipation>>()
+            val role = chatRoleCacheService.find(chatParticipation.roleId).awaitFirst()
 
-            return@mono chatRoleCacheService.find(roleId)
+            return@mono Mono.just(NTuple2(role, chatParticipation))
         }
                 .flatMap { it }
     }

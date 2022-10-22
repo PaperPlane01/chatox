@@ -19,7 +19,7 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
     const {
         chatParticipants: {
             canKickChatParticipant,
-            canAssignRole
+            canModifyChatParticipant
         },
         chatBlockings: {
             canBlockUserInChat
@@ -57,7 +57,7 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
         );
     }
 
-    if (canAssignRole(chatParticipation.chatId)) {
+    if (canModifyChatParticipant({chatId: chatParticipation.chatId, chatParticipantId: chatParticipation.id})) {
         menuItems.push(
             <UpdateChatParticipantMenuItem chatParticipantId={chatParticipation.id}
                                            onClick={handleClose}
