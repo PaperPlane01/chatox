@@ -1,19 +1,21 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {MongooseModule} from "@nestjs/mongoose";
-import {ChatParticipationSchema} from "./schemas";
+import {ChatParticipation, ChatParticipationSchema} from "./entities";
 import {ChatParticipationController} from "./ChatParticipationController";
 import {ChatParticipationService} from "./ChatParticipationService";
 import {WebsocketModule} from "../websocket";
+import {ChatRoleModule} from "../chat-roles";
 
 @Module({
     imports: [
         MongooseModule.forFeature([
             {
-                name: "chatParticipation",
+                name: ChatParticipation.name,
                 schema: ChatParticipationSchema
             }
         ]),
-        forwardRef(() => WebsocketModule)
+        forwardRef(() => WebsocketModule),
+        ChatRoleModule
     ],
     providers: [ChatParticipationController, ChatParticipationService],
     exports: [ChatParticipationService]

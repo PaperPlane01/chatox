@@ -1,6 +1,6 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {MongooseModule} from "@nestjs/mongoose";
-import {PrivateChatSchema} from "./schemas";
+import {PrivateChat, PrivateChatSchema} from "./entities";
 import {ChatsController} from "./ChatsController";
 import {WebsocketModule} from "../websocket";
 import {ChatParticipationModule} from "../chat-participation";
@@ -11,7 +11,7 @@ import {ChatsService} from "./ChatsService";
     imports: [
         MongooseModule.forFeature([
             {
-                name: "privateChat",
+                name: PrivateChat.name,
                 schema: PrivateChatSchema
             }
         ]),

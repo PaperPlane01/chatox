@@ -1,5 +1,5 @@
 import {action, computed, reaction} from "mobx";
-import SocketIo from "socket.io-client";
+import {Socket, connect} from "socket.io-client"
 import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
 import {
@@ -19,7 +19,7 @@ import {ChatStore} from "../../Chat";
 import {MarkMessageReadStore, MessagesListScrollPositionsStore} from "../../Message";
 
 export class WebsocketStore {
-    socketIoClient?: SocketIOClient.Socket;
+    socketIoClient?: Socket;
 
     @computed
     get refreshingToken(): boolean {
@@ -44,12 +44,12 @@ export class WebsocketStore {
         }
 
         if (localStorage.getItem("accessToken")) {
-            this.socketIoClient = SocketIo.connect(`${process.env.REACT_APP_API_BASE_URL}?accessToken=${localStorage.getItem("accessToken")}`, {
+            this.socketIoClient = connect(`${process.env.REACT_APP_API_BASE_URL}?accessToken=${localStorage.getItem("accessToken")}`, {
                 path: "/api/v1/events",
                 transports: ["websocket"]
             });
         } else {
-            this.socketIoClient = SocketIo.connect(`${process.env.REACT_APP_API_BASE_URL}`, {
+            this.socketIoClient = connect(`${process.env.REACT_APP_API_BASE_URL}`, {
                 path: "/api/v1/events",
                 transports: ["websocket"]
             });

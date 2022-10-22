@@ -1,17 +1,23 @@
 import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
-import {PrivateChat} from "./types";
+import {PrivateChat, PrivateChatDocument} from "./entities";
 import {PrivateChatCreated} from "../common/types/events";
 import {ChatParticipationService} from "../chat-participation";
 
 @Injectable()
 export class ChatsService {
-    constructor(@InjectModel("privateChat") private readonly chatModel: Model<PrivateChat>,
+    constructor(@InjectModel(PrivateChat.name) private readonly chatModel: Model<PrivateChatDocument>,
                 private readonly chatParticipationService: ChatParticipationService) {
     }
 
     public async savePrivateChat(privateChatCreated: PrivateChatCreated): Promise<void> {
+        const existingPrivateChat = await this.chatModel.findOne({id: privateChatCreated.id});
+
+        if (existingPrivateChat) {
+            return;
+        }
+
         const privateChat = new this.chatModel({
             _id: privateChatCreated.id,
             id: privateChatCreated.id,

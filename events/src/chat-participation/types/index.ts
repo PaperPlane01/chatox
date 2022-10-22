@@ -1,3 +1,2 @@
-export * from "./ChatParticipation";
-export * from "./ChatRole";
+export * from "./StandardChatRole";
 export * from "./ChatParticipationDto";

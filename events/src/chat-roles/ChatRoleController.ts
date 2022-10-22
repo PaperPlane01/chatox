@@ -1,12 +1,14 @@
-import {Injectable} from "@nestjs/common";
+import {forwardRef, Inject, Injectable} from "@nestjs/common";
 import {RabbitSubscribe} from "@nestjs-plus/rabbitmq";
-import {ChatRole} from "./types";
+import {ChatRoleResponse} from "./types";
+import {ChatRoleService} from "./ChatRoleService";
 import {WebsocketEventsPublisher} from "../websocket";
 import {config} from "../env-config";
 
 @Injectable()
-export class ChatRolesController {
-    constructor(private readonly websocketEventsPublisher: WebsocketEventsPublisher) {
+export class ChatRoleController {
+    constructor(private readonly chatRoleService: ChatRoleService,
+                @Inject(forwardRef(() => WebsocketEventsPublisher)) private readonly websocketEventsPublisher: WebsocketEventsPublisher) {
     }
 
     @RabbitSubscribe({
@@ -14,7 +16,8 @@ export class ChatRolesController {
         routingKey: "chat.role.created.#",
         queue: `events_service_chat_role_created_${config.EVENTS_SERVICE_PORT}`
     })
-    public async onChatRoleCreated(chatRole: ChatRole): Promise<void> {
+    public async onChatRoleCreated(chatRole: ChatRoleResponse): Promise<void> {
+        await this.chatRoleService.saveChatRole(chatRole);
         await this.websocketEventsPublisher.publishChatRoleCreated(chatRole);
     }
 
@@ -23,7 +26,8 @@ export class ChatRolesController {
         routingKey: "chat.role.created.#",
         queue: `events_service_chat_role_updated_${config.EVENTS_SERVICE_PORT}`
     })
-    public async onChatRoleUpdated(chatRole: ChatRole): Promise<void> {
+    public async onChatRoleUpdated(chatRole: ChatRoleResponse): Promise<void> {
+        await this.chatRoleService.saveChatRole(chatRole);
         await this.websocketEventsPublisher.publishChatRoleUpdated(chatRole);
     }
 }

@@ -1,7 +1,7 @@
 import {ChatFeatures} from "./ChatFeatures";
 import {User} from "../../common/types";
 
-export interface ChatRole {
+export interface ChatRoleResponse {
     id: string,
     name: string,
     level: number,

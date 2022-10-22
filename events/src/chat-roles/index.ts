@@ -1,2 +1,3 @@
 export * from "./types";
-export * from "./ChatRolesModule";
+export * from "./ChatRoleModule";
+export * from "./ChatRoleService";
