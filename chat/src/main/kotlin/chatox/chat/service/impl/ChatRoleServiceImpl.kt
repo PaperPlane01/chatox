@@ -3,7 +3,8 @@ package chatox.chat.service.impl
 import chatox.chat.api.request.CreateChatRoleRequest
 import chatox.chat.api.request.UpdateChatRoleRequest
 import chatox.chat.api.response.ChatRoleResponse
-import chatox.chat.cache.DefaultChatRoleCacheWrapper
+import chatox.chat.cache.DefaultRoleOfChatCacheWrapper
+import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.exception.ChatRoleNotFoundException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.exception.metadata.DefaultRoleIdMustBeSpecifiedException
@@ -20,13 +21,13 @@ import chatox.chat.repository.mongodb.ChatRoleTemplateRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatRoleService
 import chatox.chat.util.NTuple2
-import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.bson.types.ObjectId
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
@@ -41,11 +42,13 @@ class ChatRoleServiceImpl(
         private val chatRoleRepository: ChatRoleRepository,
         private val chatRoleTemplateRepository: ChatRoleTemplateRepository,
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
-        private val chatRoleCacheService: ReactiveCacheService<ChatRole, String>,
+
+        @Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
+        private val chatRoleCacheService: ReactiveRepositoryCacheWrapper<ChatRole, String>,
         private val userCacheService: ReactiveRepositoryCacheWrapper<User, String>,
         private val chatRoleMapper: ChatRoleMapper,
         private val authenticationFacade: AuthenticationFacade,
-        private val defaultChatRoleCache: DefaultChatRoleCacheWrapper,
+        private val defaultChatRoleCache: DefaultRoleOfChatCacheWrapper,
         private val chatRoleEventsPublisher: ChatRoleEventsPublisher
 ) : ChatRoleService {
     override fun getRoleOfUserInChat(userId: String, chatId: String): Mono<ChatRole> {
@@ -57,7 +60,7 @@ class ChatRoleServiceImpl(
         return mono {
             val chatParticipation = chatParticipationRepository.findByChatIdAndUserIdAndDeletedFalse(chatId, userId).awaitFirstOrNull()
                     ?: return@mono Mono.empty<NTuple2<ChatRole, ChatParticipation>>()
-            val role = chatRoleCacheService.find(chatParticipation.roleId).awaitFirst()
+            val role = chatRoleCacheService.findById(chatParticipation.roleId).awaitFirst()
 
             return@mono Mono.just(NTuple2(role, chatParticipation))
         }
@@ -66,7 +69,7 @@ class ChatRoleServiceImpl(
 
     override fun findRoleByIdAndChatId(roleId: String, chatId: String): Mono<ChatRole> {
         return mono {
-            val chatRole = chatRoleCacheService.find(roleId).awaitFirstOrNull()
+            val chatRole = chatRoleCacheService.findById(roleId).awaitFirstOrNull()
 
             if (chatRole == null || chatRole.chatId != chatId) {
                 throw ChatRoleNotFoundException("Could not find chat role $roleId in chat $chatId")
