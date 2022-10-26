@@ -29,7 +29,7 @@ export const ChatRoleSelect: FunctionComponent<ChatRoleSelectProps> = observer((
         }
     } = useStore();
     const {l} = useLocalization();
-    const roles = findChatRoles(rolesIds);
+    const roles = findChatRoles(rolesIds).sort((first, second) => first.level - second.level);
 
     return (
         <FormControl fullWidth
@@ -46,7 +46,7 @@ export const ChatRoleSelect: FunctionComponent<ChatRoleSelectProps> = observer((
                     <MenuItem value={role.id}
                               key={role.id}
                     >
-                        {getChatRoleTranslation(role.name, l)}
+                        {getChatRoleTranslation(role.name, l)} ({role.level})
                     </MenuItem>
                 ))}
             </Select>
