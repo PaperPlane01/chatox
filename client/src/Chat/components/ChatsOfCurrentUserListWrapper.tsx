@@ -7,9 +7,8 @@ import {ChatsOfCurrentUserList} from "./ChatsOfCurrentUserList";
 import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
 import {CreateChatDialog} from "./CreateChatDialog";
 import {ChatsOfCurrentUserListProps, VirtualScrollElement} from "../types";
-import {canCreateChat} from "../permissions";
 import {ChatsAndMessagesSearchInput, ChatsAndMessagesSearchResult} from "../../ChatsAndMessagesSearch";
-import {useStore} from "../../store";
+import {usePermissions, useStore} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     centered: {
@@ -53,6 +52,11 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
             virtualScrollElement
         }
     } = useStore();
+    const {
+        chats: {
+            canCreateChat
+        }
+    } = usePermissions();
     const classes = useStyles();
     const [hovered, setHovered] = useState(false);
     const theme = useTheme<Theme>();
@@ -102,7 +106,7 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
                     : <ChatsOfCurrentUserList {...listProps}/>
                 }
                 <Hidden lgUp>
-                    {canCreateChat(authorization) && <CreateChatFloatingActionButton/>}
+                    {canCreateChat && <CreateChatFloatingActionButton/>}
                 </Hidden>
                 <Hidden lgDown>
                     {hovered && (authorization) && <CreateChatFloatingActionButton/>}

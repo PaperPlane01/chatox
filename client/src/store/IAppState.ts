@@ -40,11 +40,11 @@ import {
     PublishScheduledMessageStore,
     ScheduledMessagesOfChatStore,
     ScheduleMessageStore,
+    SearchMessagesStore,
     UnpinMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
-    UploadMessageAttachmentsStore,
-    SearchMessagesStore
+    UploadMessageAttachmentsStore
 } from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
@@ -108,6 +108,13 @@ import {
     ChatsAndMessagesSearchQueryStore,
     ChatsOfCurrentUserSearchStore
 } from "../ChatsAndMessagesSearch";
+import {
+    ChatFeaturesFormStore,
+    ChatRoleInfoDialogStore, CreateChatRoleStore,
+    EditChatRoleStore,
+    RolesOfChatStore,
+    UserChatRolesStore
+} from "../ChatRole";
 
 export interface IAppState {
     language: LocaleStore,
@@ -213,5 +220,11 @@ export interface IAppState {
     chatsAndMessagesSearchQuery: ChatsAndMessagesSearchQueryStore,
     allChatsMessagesSearch: AllChatsMessagesSearchStore,
     chatsOfCurrentUserSearch: ChatsOfCurrentUserSearchStore,
+    rolesOfChats: RolesOfChatStore,
+    userChatRoles: UserChatRolesStore,
+    chatFeaturesForm: ChatFeaturesFormStore,
+    chatRoleInfo: ChatRoleInfoDialogStore,
+    editChatRole: EditChatRoleStore,
+    createChatRole: CreateChatRoleStore,
     store?: any
 }

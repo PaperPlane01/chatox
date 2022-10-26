@@ -30,6 +30,7 @@ import {
 import {BanUserGloballyDialog} from "../GlobalBan";
 import {ReportChatDialog, ReportMessageDialog} from "../Report";
 import {StickerPackDialog} from "../Sticker";
+import {ChatRolesDialog, ChatRoleInfoDialog, CreateChatRoleDialog} from "../ChatRole";
 import {useStore} from "../store";
 import {ChatType} from "../api/types/response";
 
@@ -88,6 +89,9 @@ export const ChatPage: FunctionComponent = observer(() => {
                 <ReportMessageDialog/>
                 <ReportChatDialog/>
                 <StickerPackDialog/>
+                <ChatRolesDialog/>
+                <ChatRoleInfoDialog/>
+                <CreateChatRoleDialog/>
             </Grid>
         </Fragment>
     );

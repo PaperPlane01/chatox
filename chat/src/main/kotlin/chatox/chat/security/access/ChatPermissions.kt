@@ -1,8 +1,8 @@
 package chatox.chat.security.access
 
-import chatox.chat.model.ChatType
 import chatox.chat.model.UserBlacklistItem
 import chatox.chat.security.AuthenticationFacade
+import chatox.chat.service.ChatRoleService
 import chatox.chat.service.ChatService
 import chatox.chat.util.generateCacheBlacklistItemCacheId
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class ChatPermissions(private val authenticationFacade: AuthenticationFacade,
+class ChatPermissions(private val chatRoleService: ChatRoleService,
+                      private val authenticationFacade: AuthenticationFacade,
                       private val userBlacklistItemCacheWrapper: ReactiveRepositoryCacheWrapper<UserBlacklistItem, String>) {
     private lateinit var chatService: ChatService
 
@@ -25,10 +26,11 @@ class ChatPermissions(private val authenticationFacade: AuthenticationFacade,
 
     fun canUpdateChat(chatId: String): Mono<Boolean> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
-            val chat = chatService.findChatById(chatId).awaitFirst()
+            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val userRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
+                    ?: return@mono false
 
-            return@mono chat.type != ChatType.DIALOG && chat.createdById.equals(currentUser.id)
+            return@mono userRole.features.changeChatSettings.enabled
         }
     }
 
@@ -41,7 +43,7 @@ class ChatPermissions(private val authenticationFacade: AuthenticationFacade,
             )
                     .awaitFirst()
 
-            chatCreatedByCurrentUser || currentUser.isAdmin()
+            return@mono chatCreatedByCurrentUser || currentUser.isAdmin()
         }
     }
 

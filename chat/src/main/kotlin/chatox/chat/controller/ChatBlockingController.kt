@@ -25,7 +25,7 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL
-    @ReactivePermissionCheck("@chatBlockingPermissions.canBlockUser(#chatId)")
+    @ReactivePermissionCheck("@chatBlockingPermissions.canBlockUser(#chatId, #createChatBlockingRequest)")
     @PostMapping("/{chatId}/blockings")
     fun createChatBlocking(@PathVariable chatId: String,
                            @RequestBody @Valid createChatBlockingRequest: CreateChatBlockingRequest

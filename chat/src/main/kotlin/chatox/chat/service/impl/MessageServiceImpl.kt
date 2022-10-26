@@ -19,6 +19,7 @@ import chatox.chat.mapper.MessageMapper
 import chatox.chat.messaging.rabbitmq.event.MessageReadEvent
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
+import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
@@ -38,7 +39,7 @@ import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.EmojiParserService
 import chatox.chat.service.MessageService
-import chatox.chat.util.NTuple6
+import chatox.chat.util.NTuple7
 import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
@@ -47,6 +48,7 @@ import chatox.platform.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
@@ -72,6 +74,7 @@ class MessageServiceImpl(
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val chatEventsPublisher: ChatEventsPublisher,
         private val messageMapper: MessageMapper) : MessageService {
+    private val log = LoggerFactory.getLogger(this.javaClass)
 
     private companion object {
         const val ALLOWED_NUMBER_OF_SCHEDULED_MESSAGES = 50
@@ -97,7 +100,8 @@ class MessageServiceImpl(
                     referredMessage,
                     emoji,
                     uploadAttachments,
-                    uploads
+                    uploads,
+                    chatParticipation
             ) = prepareDataForSavingMessage(chatId, createMessageRequest, currentUser).awaitFirst()
 
             val messageIndex = chatMessagesCounterRepository.getNextCounterValue(chat).awaitFirst()
@@ -110,7 +114,8 @@ class MessageServiceImpl(
                     attachments = uploads,
                     chatAttachmentsIds = uploadAttachments.map { attachment -> attachment.id },
                     index = messageIndex,
-                    sticker = sticker
+                    sticker = sticker,
+                    chatParticipation = chatParticipation
             )
             message = messageRepository.save(message).awaitFirst()
             linkChatUploadAttachmentsToMessage(uploadAttachments, message).collectList().awaitFirst()
@@ -160,7 +165,8 @@ class MessageServiceImpl(
                     referredMessage,
                     emoji,
                     uploadAttachments,
-                    uploads
+                    uploads,
+                    chatParticipation
             ) = prepareDataForSavingMessage(chatId, createMessageRequest, currentUser).awaitFirst()
 
             val numberOfMessagesScheduledCloseToThisMessage = scheduledMessageRepository.countByChatIdAndScheduledAtBetween(
@@ -182,7 +188,8 @@ class MessageServiceImpl(
                     emoji = emoji,
                     attachments = uploads,
                     chatAttachmentsIds = uploadAttachments.map { attachment -> attachment.id },
-                    sticker = sticker
+                    sticker = sticker,
+                    chatParticipation = chatParticipation
             )
             scheduledMessageRepository.save(scheduledMessage).awaitFirst()
 
@@ -198,7 +205,7 @@ class MessageServiceImpl(
         }
     }
 
-    override fun createFirstMessageForPrivateChat(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse> {
+    override fun createFirstMessageForPrivateChat(chatId: String, createMessageRequest: CreateMessageRequest, chatParticipation: ChatParticipation): Mono<MessageResponse> {
         return mono {
             val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
             val (
@@ -219,7 +226,8 @@ class MessageServiceImpl(
                     attachments = uploads,
                     chatAttachmentsIds = uploadAttachments.map { attachment -> attachment.id },
                     index = messageIndex,
-                    sticker = sticker
+                    sticker = sticker,
+                    chatParticipation = chatParticipation
             )
             message = messageRepository.save(message).awaitFirst()
             linkChatUploadAttachmentsToMessage(uploadAttachments, message).collectList().awaitFirst()
@@ -233,7 +241,7 @@ class MessageServiceImpl(
         }
     }
 
-    private fun prepareDataForSavingMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: User): Mono<NTuple6<Chat, Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>>> {
+    private fun prepareDataForSavingMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: User): Mono<NTuple7<Chat, Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, ChatParticipation>> {
         return mono {
             val chat = findChatById(chatId).awaitFirst()
 
@@ -290,7 +298,9 @@ class MessageServiceImpl(
                 }
             }
 
-            return@mono NTuple6(chat, sticker, referredMessage, emoji, uploadAttachments, uploads)
+            val chatParticipation = chatParticipationRepository.findByChatIdAndUserId(chatId, currentUser.id).awaitFirst()
+
+            return@mono NTuple7(chat, sticker, referredMessage, emoji, uploadAttachments, uploads, chatParticipation)
         }
     }
 
@@ -588,15 +598,14 @@ class MessageServiceImpl(
         return mono {
             val scheduledMessages = scheduledMessageRepository.findByChatId(chatId)
 
-            val localUsersCache = HashMap<String, UserResponse>()
-            val localReferredMessagesCache = HashMap<String, MessageResponse>()
-
             return@mono scheduledMessages.flatMap { message -> messageMapper.toMessageResponse(
                     message = message,
                     mapReferredMessage = true,
                     readByCurrentUser = false,
-                    localReferredMessagesCache = localReferredMessagesCache,
-                    localUsersCache = localUsersCache
+                    localReferredMessagesCache = hashMapOf(),
+                    localUsersCache = hashMapOf(),
+                    localChatRolesCache = hashMapOf(),
+                    localChatParticipationsCache = hashMapOf()
             ) }
         }
                 .flatMapMany { it }
@@ -673,7 +682,7 @@ class MessageServiceImpl(
                 throw ChatDeletedException(chat.chatDeletion)
             }
 
-            chat
+            return@mono chat
         }
     }
 

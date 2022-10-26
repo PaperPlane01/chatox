@@ -62,7 +62,8 @@ import {
     PublishScheduledMessageStore,
     ScheduledMessagesOfChatStore,
     ScheduledMessagesStore,
-    ScheduleMessageStore, SearchMessagesStore,
+    ScheduleMessageStore,
+    SearchMessagesStore,
     UnpinMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
@@ -127,6 +128,16 @@ import {
     ChatsAndMessagesSearchQueryStore,
     ChatsOfCurrentUserSearchStore
 } from "../ChatsAndMessagesSearch";
+import {
+    ChatFeaturesFormStore,
+    ChatRoleInfoDialogStore,
+    ChatRolesStore,
+    CreateChatRoleStore,
+    EditChatRoleStore,
+    RolesOfChatStore,
+    UserChatRolesStore
+} from "../ChatRole";
+import {SnackbarService} from "../Snackbar";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -144,6 +155,7 @@ const reportedUsers = new UsersStore();
 const reportedChats = new ReportedChatsStore();
 const stickers = new StickersStore();
 const stickerPacks = new StickerPacksStore();
+const chatRoles = new ChatRolesStore();
 const entities = new EntitiesStore(
     messages,
     chatsOfCurrentUserEntities,
@@ -160,7 +172,8 @@ const entities = new EntitiesStore(
     reportedUsers,
     reportedChats,
     stickers,
-    stickerPacks
+    stickerPacks,
+    chatRoles
 );
 const authorization = new AuthorizationStore(entities);
 
@@ -251,7 +264,6 @@ const globalBansList = new GlobalBansListStore(entities);
 const globalBanDetailsDialog = new GlobalBanDetailsDialogStore();
 const cancelGlobalBan = new CancelGlobalBanStore(entities);
 const updateGlobalBan = new UpdateGlobalBanStore(entities);
-const updateChatParticipant = new UpdateChatParticipantStore(entities);
 const pinMessage = new PinMessageStore(entities, chat);
 const unpinMessage = new UnpinMessageStore(entities, chat);
 const closedPinnedMessages = new ClosedPinnedMessagesStore();
@@ -294,6 +306,16 @@ const removeUserFromBlacklist = new RemoveUserFromBlacklistStore(blacklistedUser
 const chatsAndMessagesSearchQuery = new ChatsAndMessagesSearchQueryStore();
 const allChatsMessagesSearch = new AllChatsMessagesSearchStore(chatsAndMessagesSearchQuery, entities);
 const chatsOfCurrentUserSearch = new ChatsOfCurrentUserSearchStore(chatsAndMessagesSearchQuery, entities);
+const rolesOfChats = new RolesOfChatStore(chat, entities);
+const userChatRoles = new UserChatRolesStore(chatParticipations, entities);
+entities.setUserChatRolesStore(userChatRoles);
+
+const chatFeaturesForm = ChatFeaturesFormStore.createInstance(entities);
+const updateChatParticipant = new UpdateChatParticipantStore(entities, authorization, userChatRoles);
+const chatRoleInfo = new ChatRoleInfoDialogStore();
+const snackbarService = new SnackbarService();
+const editChatRole = new EditChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chatRoleInfo);
+const createChatRole = new CreateChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chat, rolesOfChats);
 
 export const store: IAppState = {
     authorization,
@@ -398,5 +420,11 @@ export const store: IAppState = {
     messagesSearch,
     chatsAndMessagesSearchQuery,
     allChatsMessagesSearch,
-    chatsOfCurrentUserSearch
+    chatsOfCurrentUserSearch,
+    rolesOfChats,
+    userChatRoles,
+    chatFeaturesForm,
+    chatRoleInfo,
+    editChatRole,
+    createChatRole
 };

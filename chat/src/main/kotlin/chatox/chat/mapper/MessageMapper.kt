@@ -2,9 +2,13 @@ package chatox.chat.mapper
 
 import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
+import chatox.chat.api.response.ChatRoleResponse
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.UserResponse
+import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.model.Chat
+import chatox.chat.model.ChatParticipation
+import chatox.chat.model.ChatRole
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.MessageInterface
@@ -18,6 +22,7 @@ import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -29,11 +34,18 @@ import java.util.UUID
 class MessageMapper(private val userService: UserService,
                     private val uploadMapper: UploadMapper,
                     private val stickerMapper: StickerMapper,
-                    private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>) {
+                    private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
+
+                    @Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
+                    private val chatRoleCacheWrapper: ReactiveRepositoryCacheWrapper<ChatRole, String>,
+                    private val chatParticipationCacheWrapper: ReactiveRepositoryCacheWrapper<ChatParticipation, String>,
+                    private val chatRoleMapper: ChatRoleMapper) {
 
     fun <T: MessageInterface> mapMessages(messages: Flux<T>, lastMessageRead: MessageRead? = null): Flux<MessageResponse> {
         val localUsersCache = HashMap<String, UserResponse>()
         val localReferredMessagesCache = HashMap<String, MessageResponse>()
+        val localChatParticipationsCache = HashMap<String, ChatParticipation>()
+        val localChatRolesCache = HashMap<String, ChatRoleResponse>()
 
         if (lastMessageRead != null) {
             return messages.flatMap { message -> toMessageResponse(
@@ -44,7 +56,9 @@ class MessageMapper(private val userService: UserService,
                     ),
                     mapReferredMessage = true,
                     localUsersCache = localUsersCache,
-                    localReferredMessagesCache = localReferredMessagesCache
+                    localReferredMessagesCache = localReferredMessagesCache,
+                    localChatParticipationsCache = localChatParticipationsCache,
+                    localChatRolesCache = localChatRolesCache
             ) }
 
         } else {
@@ -53,7 +67,9 @@ class MessageMapper(private val userService: UserService,
                     readByCurrentUser = false,
                     mapReferredMessage = true,
                     localReferredMessagesCache = localReferredMessagesCache,
-                    localUsersCache = localUsersCache
+                    localUsersCache = localUsersCache,
+                    localChatParticipationsCache = localChatParticipationsCache,
+                    localChatRolesCache = localChatRolesCache
             ) }
         }
     }
@@ -63,7 +79,9 @@ class MessageMapper(private val userService: UserService,
             mapReferredMessage: Boolean,
             readByCurrentUser: Boolean,
             localReferredMessagesCache: MutableMap<String, MessageResponse>? = null,
-            localUsersCache: MutableMap<String, UserResponse>? = null
+            localUsersCache: MutableMap<String, UserResponse>? = null,
+            localChatParticipationsCache: MutableMap<String, ChatParticipation>? = null,
+            localChatRolesCache: MutableMap<String, ChatRoleResponse>? = null
     ): Mono<MessageResponse> {
         return mono {
             var referredMessage: MessageResponse? = null
@@ -82,9 +100,7 @@ class MessageMapper(private val userService: UserService,
                     )
                             .awaitFirst()
 
-                    if (localReferredMessagesCache != null) {
-                        localReferredMessagesCache[message.referredMessageId!!] = referredMessage
-                    }
+                    putInLocalCache(referredMessage, localReferredMessagesCache) { it.id }
                 }
             }
 
@@ -100,12 +116,27 @@ class MessageMapper(private val userService: UserService,
             if (message.pinnedById != null) {
                 pinnedBy = if (localUsersCache != null && localUsersCache[message.pinnedById!!] != null) {
                     localUsersCache[message.pinnedById!!]
-                } else{
+                } else {
                     userService.findUserByIdAndPutInLocalCache(message.pinnedById!!, localUsersCache).awaitFirst()
                 }
             }
 
-            MessageResponse(
+            val chatParticipation = if (localChatParticipationsCache != null && localChatParticipationsCache[message.chatParticipationId!!] != null) {
+                localChatParticipationsCache[message.chatParticipationId!!]!!
+            } else {
+                chatParticipationCacheWrapper.findById(message.chatParticipationId!!).awaitFirst()
+            }
+
+            val chatRole = if (localChatRolesCache != null && localChatRolesCache[chatParticipation.roleId] != null) {
+                localChatRolesCache[chatParticipation.roleId]!!
+            } else {
+                putInLocalCache(
+                        chatRoleMapper.toChatRoleResponse(chatRoleCacheWrapper.findById(chatParticipation.roleId).awaitFirst()),
+                        localChatRolesCache
+                ) { it.id }
+            }
+
+            return@mono MessageResponse(
                     id = message.id,
                     deleted = message.deleted,
                     createdAt = message.createdAt,
@@ -130,9 +161,19 @@ class MessageMapper(private val userService: UserService,
                     } else {
                         null
                     },
-                    scheduledAt = message.scheduledAt
+                    scheduledAt = message.scheduledAt,
+                    senderChatRole = chatRole
             )
         }
+    }
+
+    private fun <T> putInLocalCache(item: T, cache: MutableMap<String, T>?, extractKey: (T) -> String): T {
+        if (cache == null) {
+            return item
+        }
+
+        cache[extractKey(item)] = item
+        return item
     }
 
     fun fromCreateMessageRequest(
@@ -144,7 +185,8 @@ class MessageMapper(private val userService: UserService,
             attachments: List<Upload<Any>>,
             chatAttachmentsIds: List<String>,
             index: Long,
-            sticker: Sticker<Any>? = null
+            sticker: Sticker<Any>? = null,
+            chatParticipation: ChatParticipation
     ) = Message(
             id = UUID.randomUUID().toString(),
             createdAt = ZonedDateTime.now(),
@@ -160,7 +202,8 @@ class MessageMapper(private val userService: UserService,
             attachments = attachments,
             uploadAttachmentsIds = chatAttachmentsIds,
             index = index,
-            sticker = sticker
+            sticker = sticker,
+            chatParticipationId = chatParticipation.id
     )
 
     fun fromScheduledMessage(
@@ -183,7 +226,8 @@ class MessageMapper(private val userService: UserService,
             uploadAttachmentsIds = scheduledMessage.uploadAttachmentsIds,
             index = messageIndex,
             fromScheduled = true,
-            sticker = scheduledMessage.sticker
+            sticker = scheduledMessage.sticker,
+            chatParticipationId = scheduledMessage.chatParticipationId
     )
 
     fun scheduledMessageFromCreateMessageRequest(
@@ -194,7 +238,8 @@ class MessageMapper(private val userService: UserService,
             emoji: EmojiInfo = EmojiInfo(),
             attachments: List<Upload<Any>>,
             chatAttachmentsIds: List<String>,
-            sticker: Sticker<Any>? = null
+            sticker: Sticker<Any>? = null,
+            chatParticipation: ChatParticipation
     ) = ScheduledMessage(
             id = UUID.randomUUID().toString(),
             createdAt = ZonedDateTime.now(),
@@ -210,7 +255,8 @@ class MessageMapper(private val userService: UserService,
             attachments = attachments,
             uploadAttachmentsIds = chatAttachmentsIds,
             scheduledAt = createMessageRequest.scheduledAt!!.truncatedTo(ChronoUnit.MINUTES),
-            sticker = sticker
+            sticker = sticker,
+            chatParticipationId = chatParticipation.id
     )
 
     fun mapMessageUpdate(updateMessageRequest: UpdateMessageRequest,

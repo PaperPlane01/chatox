@@ -1,5 +1,5 @@
 import {action, computed, reaction} from "mobx";
-import SocketIo from "socket.io-client";
+import {connect, Socket} from "socket.io-client"
 import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
 import {
@@ -14,12 +14,12 @@ import {
     WebsocketEvent,
     WebsocketEventType
 } from "../../api/types/websocket";
-import {ChatBlocking, ChatParticipation, GlobalBan, Message} from "../../api/types/response";
+import {ChatBlocking, ChatParticipation, ChatRole, GlobalBan, Message} from "../../api/types/response";
 import {ChatStore} from "../../Chat";
 import {MarkMessageReadStore, MessagesListScrollPositionsStore} from "../../Message";
 
 export class WebsocketStore {
-    socketIoClient?: SocketIOClient.Socket;
+    socketIoClient?: Socket;
 
     @computed
     get refreshingToken(): boolean {
@@ -37,19 +37,18 @@ export class WebsocketStore {
         );
     }
 
-    @action
     startListening = (): void => {
         if (this.socketIoClient) {
             this.socketIoClient.disconnect();
         }
 
         if (localStorage.getItem("accessToken")) {
-            this.socketIoClient = SocketIo.connect(`${process.env.REACT_APP_API_BASE_URL}?accessToken=${localStorage.getItem("accessToken")}`, {
+            this.socketIoClient = connect(`${process.env.REACT_APP_API_BASE_URL}?accessToken=${localStorage.getItem("accessToken")}`, {
                 path: "/api/v1/events",
                 transports: ["websocket"]
             });
         } else {
-            this.socketIoClient = SocketIo.connect(`${process.env.REACT_APP_API_BASE_URL}`, {
+            this.socketIoClient = connect(`${process.env.REACT_APP_API_BASE_URL}`, {
                 path: "/api/v1/events",
                 transports: ["websocket"]
             });
@@ -58,8 +57,7 @@ export class WebsocketStore {
         this.subscribeToEvents();
     }
 
-    @action
-    subscribeToEvents = (): void => {
+    private subscribeToEvents = (): void => {
         if (!this.socketIoClient) {
             return;
         }
@@ -201,6 +199,18 @@ export class WebsocketStore {
         this.socketIoClient.on(
             WebsocketEventType.PRIVATE_CHAT_CREATED,
             (event: WebsocketEvent<PrivateChatCreated>) => this.entities.insertNewPrivateChat(event.payload)
+        );
+        this.socketIoClient.on(
+            WebsocketEventType.CHAT_ROLE_CREATED,
+            (event: WebsocketEvent<ChatRole>) => this.entities.insertChatRole(event.payload)
+        );
+        this.socketIoClient.on(
+            WebsocketEventType.CHAT_ROLE_UPDATED,
+            (event: WebsocketEvent<ChatRole>) => this.entities.insertChatRole(event.payload)
+        );
+        this.socketIoClient.on(
+            WebsocketEventType.CHAT_ROLE_UPDATED,
+            (event: WebsocketEvent<ChatParticipation>) => this.entities.insertChatParticipation(event.payload)
         );
     }
 

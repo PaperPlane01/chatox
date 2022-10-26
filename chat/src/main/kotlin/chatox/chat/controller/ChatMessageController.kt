@@ -135,7 +135,7 @@ class ChatMessageController(private val messageService: MessageService,
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
-    @ReactivePermissionCheck("@messagePermissions.canUpdateScheduledMessage(#messageId, #chatId)")
+    @ReactivePermissionCheck("@messagePermissions.canDeleteScheduledMessage(#messageId, #chatId)")
     @DeleteMapping("/{chatId}/messages/scheduled/{messageId}")
     fun deleteScheduledMessage(@PathVariable chatId: String,
                                @PathVariable messageId: String
@@ -152,7 +152,7 @@ class ChatMessageController(private val messageService: MessageService,
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
-    @ReactivePermissionCheck("@messagePermissions.canScheduleMessage(#chatId)")
+    @ReactivePermissionCheck("@messagePermissions.canPublishScheduledMessage(#chatId)")
     @PostMapping("/{chatId}/messages/scheduled/{messageId}/publish")
     fun publishScheduledMessage(@PathVariable chatId: String,
                                 @PathVariable messageId: String

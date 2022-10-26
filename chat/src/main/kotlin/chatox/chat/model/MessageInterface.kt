@@ -22,5 +22,6 @@ interface MessageInterface {
     val fromScheduled: Boolean;
     val index: Long;
     val sticker: Sticker<Any>?;
-    val scheduledAt: ZonedDateTime?
+    val scheduledAt: ZonedDateTime?;
+    val chatParticipationId: String?
 }

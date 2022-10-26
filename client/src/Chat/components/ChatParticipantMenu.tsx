@@ -4,12 +4,10 @@ import {Divider, IconButton, Menu} from "@mui/material";
 import {MoreVert} from "@mui/icons-material";
 import {BlockChatParticipantMenuItem} from "./BlockChatParticipantMenuItem";
 import {KickChatParticipantMenuItem} from "./KickChatParticipantMenuItem";
-import {ChatParticipationEntity} from "../types";
-import {canKickChatParticipant, canUpdateChatParticipant} from "../permissions";
-import {canBlockUsersInChat} from "../../ChatBlocking";
-import {BanUserGloballyMenuItem, canBanUsersGlobally} from "../../GlobalBan";
-import {useAuthorization, useStore} from "../../store";
 import {UpdateChatParticipantMenuItem} from "./UpdateChatParticipantMenuItem";
+import {ChatParticipationEntity} from "../types";
+import {BanUserGloballyMenuItem} from "../../GlobalBan";
+import {usePermissions} from "../../store";
 
 interface ChatParticipantMenuProps {
     chatParticipation: ChatParticipationEntity
@@ -19,16 +17,17 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
     chatParticipation
 }) => {
     const {
-        entities: {
-            chatParticipations: {
-                findByUserAndChat: findChatParticipation,
-            },
-            chats: {
-                findById: findChat
-            }
+        chatParticipants: {
+            canKickChatParticipant,
+            canModifyChatParticipant
+        },
+        chatBlockings: {
+            canBlockUserInChat
+        },
+        globalBans: {
+            canBanUsersGlobally
         }
-    } = useStore();
-    const {currentUser} = useAuthorization();
+    } = usePermissions();
     const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
     const menuOpen = Boolean(anchorElement);
 
@@ -40,14 +39,9 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
         setAnchorElement(null);
     };
 
-    const currentUserChatParticipation = currentUser && findChatParticipation({
-        userId: currentUser.id,
-        chatId: chatParticipation.chatId
-    });
-
     const menuItems: ReactNode[] = [];
 
-    if (canKickChatParticipant(chatParticipation, currentUserChatParticipation)) {
+    if (canKickChatParticipant(chatParticipation.id)) {
         menuItems.push(
             <KickChatParticipantMenuItem chatParticipationId={chatParticipation.id}
                                          onClick={handleClose}
@@ -55,7 +49,7 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
         );
     }
 
-    if (canBlockUsersInChat(currentUserChatParticipation)) {
+    if (canBlockUserInChat({chatId: chatParticipation.chatId, userId: chatParticipation.userId})) {
         menuItems.push(
             <BlockChatParticipantMenuItem userId={chatParticipation.userId}
                                           onClick={handleClose}
@@ -63,7 +57,7 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
         );
     }
 
-    if (canUpdateChatParticipant(chatParticipation, findChat(chatParticipation.chatId))) {
+    if (canModifyChatParticipant({chatId: chatParticipation.chatId, chatParticipantId: chatParticipation.id})) {
         menuItems.push(
             <UpdateChatParticipantMenuItem chatParticipantId={chatParticipation.id}
                                            onClick={handleClose}
@@ -71,7 +65,7 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
         );
     }
 
-    if (canBanUsersGlobally(currentUser)) {
+    if (canBanUsersGlobally) {
         menuItems.push(<Divider/>);
         menuItems.push(
             <BanUserGloballyMenuItem userId={chatParticipation.userId}

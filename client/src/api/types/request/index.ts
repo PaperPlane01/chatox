@@ -30,3 +30,5 @@ export * from "./GoogleRegistrationRequest";
 export * from "./CreateStickerPackRequest";
 export * from "./CreateStickerRequest";
 export * from "./StartPrivateChatRequest";
+export * from "./CreateChatRoleRequest";
+export * from "./UpdateChatRoleRequest";

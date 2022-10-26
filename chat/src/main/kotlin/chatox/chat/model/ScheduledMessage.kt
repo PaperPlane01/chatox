@@ -31,11 +31,12 @@ data class ScheduledMessage(
         override val attachments: List<Upload<Any>> = listOf(),
         override val emoji: EmojiInfo = EmojiInfo(),
         override val scheduledAt: ZonedDateTime,
-        val numberOfFailedAttemptsToPublish: Int = 0,
-        override val sticker: Sticker<Any>? = null, 
+        override val sticker: Sticker<Any>? = null,
         override val pinned: Boolean = false,
         override val pinnedById: String? = null,
         override val pinnedAt: ZonedDateTime? = null,
         override val fromScheduled: Boolean = true,
-        override val index: Long = -1
-) : MessageInterface 
+        override val index: Long = -1,
+        override val chatParticipationId: String,
+        val numberOfFailedAttemptsToPublish: Int = 0,
+) : MessageInterface

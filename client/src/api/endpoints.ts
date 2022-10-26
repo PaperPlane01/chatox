@@ -46,3 +46,4 @@ export const INSTALLED = "installed";
 export const PRIVATE = "private";
 export const BLACKLIST = "blacklist";
 export const STATUS = "status";
+export const ROLES = "roles";

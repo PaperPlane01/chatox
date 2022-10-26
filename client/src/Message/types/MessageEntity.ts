@@ -24,5 +24,6 @@ export interface MessageEntity {
     filesCount: number,
     scheduledAt?: Date,
     index: number,
-    stickerId?: string
+    stickerId?: string,
+    senderRoleId?: string
 }

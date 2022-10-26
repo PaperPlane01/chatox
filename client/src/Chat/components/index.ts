@@ -24,7 +24,6 @@ export * from "./ChatDeletionReasonSelect";
 export * from "./ConfirmChatDeletionDialog";
 export * from "./SpecifyChatDeletionReasonDialog";
 export * from "./ChatDeletionLabel";
-export * from "./ChatRoleSelect";
 export * from "./UpdateChatParticipantDialog";
 export * from "./UpdateChatParticipantMenuItem";
 export * from "./ShowScheduledMessagesMenuItem";

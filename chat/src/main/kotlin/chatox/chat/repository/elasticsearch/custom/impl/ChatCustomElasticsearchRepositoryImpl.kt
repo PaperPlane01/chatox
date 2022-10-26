@@ -47,9 +47,10 @@ class ChatCustomElasticsearchRepositoryImpl(
                 ))
                 .build()
         val resultQuery = NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.boolQuery()
-                        .should(chatQuery.query)
-                        .should(userQuery.query)
+                .withQuery(
+                        QueryBuilders.boolQuery()
+                                .should(chatQuery.query)
+                                .should(userQuery.query)
                 )
                 .withFilter(QueryBuilders.termsQuery("_id", chatIds))
                 .build()

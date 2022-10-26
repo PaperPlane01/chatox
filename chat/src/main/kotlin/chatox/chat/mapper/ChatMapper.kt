@@ -10,6 +10,7 @@ import chatox.chat.messaging.rabbitmq.event.ChatUpdated
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatInterface
 import chatox.chat.model.ChatParticipation
+import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatType
 import chatox.chat.model.Message
 import chatox.chat.model.User
@@ -25,7 +26,7 @@ class ChatMapper(
         private val chatParticipationMapper: ChatParticipationMapper,
         private val messageMapper: MessageMapper,
         private val uploadMapper: UploadMapper,
-        private val userMapper: UserMapper
+        private val userMapper: UserMapper,
 ) {
     fun toChatResponse(chat: ChatInterface, user: User? = null) = ChatResponse(
             id = chat.id,
@@ -64,7 +65,7 @@ class ChatMapper(
             unreadMessagesCount: Long,
             onlineParticipantsCount: Int,
             localUsersCache: MutableMap<String, UserResponse>? = null,
-            user: User? = null
+            user: User? = null,
     ): Mono<ChatOfCurrentUserResponse> {
         return mono {
             var lastReadMessageMapped: MessageResponse? = null
@@ -103,7 +104,7 @@ class ChatMapper(
                     lastReadMessage = lastReadMessageMapped,
                     unreadMessagesCount = unreadMessagesCount,
                     onlineParticipantsCount = onlineParticipantsCount,
-                    localUsersCache = localUsersCache
+                    localUsersCache = localUsersCache,
             ).awaitFirst()
         }
     }
@@ -115,7 +116,7 @@ class ChatMapper(
             lastReadMessage: MessageResponse?,
             unreadMessagesCount: Long,
             onlineParticipantsCount: Int,
-            user: User? = null
+            user: User? = null,
     ): Mono<ChatOfCurrentUserResponse> {
         return mono {
             val userMapped = if (user != null) {
@@ -144,7 +145,7 @@ class ChatMapper(
             unreadMessagesCount: Long,
             onlineParticipantsCount: Int,
             localUsersCache: MutableMap<String, UserResponse>? = null,
-            user: UserResponse? = null
+            user: UserResponse? = null,
     ): Mono<ChatOfCurrentUserResponse> {
         return mono {
             val avatar = if (chat.avatar != null && !chat.deleted) {
