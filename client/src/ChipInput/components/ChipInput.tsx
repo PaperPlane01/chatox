@@ -1,4 +1,5 @@
 import React, {ChangeEvent, KeyboardEvent, ReactNode, useState} from "react";
+import {observer} from "mobx-react";
 import {Chip, InputAdornment, InputProps, TextField, TextFieldProps} from "@mui/material";
 
 type ChipInputProps<ChipType> = TextFieldProps & {
@@ -14,7 +15,7 @@ type ChipInputProps<ChipType> = TextFieldProps & {
 
 const defaultLabelRenderer = <ChipType extends {toString: () => string}>(chip: ChipType): ReactNode => chip.toString();
 
-export const ChipInput = <ChipType extends {toString: () => string}>(props: ChipInputProps<ChipType>) => {
+const _ChipInput = <ChipType extends {toString: () => string}>(props: ChipInputProps<ChipType>) => {
     const [rawText, setRawText] = useState("");
     const {
         value,
@@ -71,7 +72,8 @@ export const ChipInput = <ChipType extends {toString: () => string}>(props: Chip
     ));
 
     return (
-        <TextField value={rawText}
+        <TextField {...rest}
+                   value={rawText}
                    onChange={handleTextChange}
                    fullWidth
                    margin="dense"
@@ -81,9 +83,11 @@ export const ChipInput = <ChipType extends {toString: () => string}>(props: Chip
                                {chips}
                            </InputAdornment>
                        ),
-                       onKeyDown: event => handleTagsInputKeydown(event)
+                       onKeyDown: event => handleTagsInputKeydown(event),
+                       ...rest.InputProps
                    }}
-                   {...rest}
         />
     );
 }
+
+export const ChipInput = observer(_ChipInput);

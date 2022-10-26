@@ -78,18 +78,20 @@ export const CreateStickerDialog: FunctionComponent<CreateStickerDialogProps> = 
                                      validationError={stickerContainer.imageValidationError && l(stickerContainer.imageValidationError)}
                         />
                     </div>
-                    <ChipInput value={stickerContainer.emojis.map(emoji => (
-                        <Emoji size={16}
-                               emoji={emoji}
-                               set={selectedEmojiSet !== "native" ? selectedEmojiSet : undefined}
-                               native={selectedEmojiSet === "native"}
-                        />
-                    ))}
+                    <ChipInput value={stickerContainer.emojis}
                                onDelete={index => stickerContainer.removeEmojiByIndex(index)}
                                onClick={() => setStickerEmojiPickerDialogOpen(true)}
                                InputProps={{
                                    onChange: () => {}
                                }}
+                               renderLabel={emoji => (
+                                   <Emoji size={16}
+                                          emoji={emoji}
+                                          set={selectedEmojiSet !== "native" ? selectedEmojiSet : undefined}
+                                          native={selectedEmojiSet === "native"}
+                                   />
+                               )}
+                               getChipKey={emoji => emoji.name}
                     />
                     <ChipInput value={stickerContainer.keywords}
                                onAdd={keyword => stickerContainer.addKeyword(keyword)}
