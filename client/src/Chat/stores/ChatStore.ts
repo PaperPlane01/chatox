@@ -1,6 +1,6 @@
 import {action, computed, observable} from "mobx";
 import {ChatApi} from "../../api/clients";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStore, EntitiesStoreV2} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse} from "../../api";
 import {ChatOfCurrentUserEntity} from "../types";
 
@@ -24,7 +24,10 @@ export class ChatStore {
     @observable
     previousChatId?: string = undefined;
 
-    constructor(private readonly entities: EntitiesStore) {}
+    constructor(private readonly entities: EntitiesStore,
+                private readonly entitiesV2: EntitiesStoreV2) {
+
+    }
 
     @computed
     get selectedChat(): ChatOfCurrentUserEntity | undefined {
@@ -53,13 +56,15 @@ export class ChatStore {
             this.pending = true;
             ChatApi.findChatByIdOrSlug(slug)
                 .then(({data}) => {
-                    this.entities.insertChat({
+                    const chat = {
                         ...data,
                         deletionReason: undefined,
                         deletionComment: undefined,
                         deleted: false,
                         unreadMessagesCount: 0
-                    });
+                    }
+                    this.entities.insertChat(chat);
+                    this.entitiesV2.chats.insert(chat);
                     this.previousChatId = this.selectedChatId;
                     this.selectedChatId = data.id;
 

@@ -35,7 +35,7 @@ import {
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
-import {EntitiesStore} from "../entities-store";
+import {EntitiesStore, EntitiesStoreV2, RawEntitiesStore} from "../entities-store";
 import {
     createSetChangePasswordStepCallback,
     EditProfileStore,
@@ -138,6 +138,7 @@ import {
     UserChatRolesStore
 } from "../ChatRole";
 import {SnackbarService} from "../Snackbar";
+import {MessagesStoreV2} from "../Message/stores/MessagesStoreV2";
 
 const messages = new MessagesStore();
 const chatsOfCurrentUserEntities = new ChatsStore();
@@ -179,6 +180,8 @@ const authorization = new AuthorizationStore(entities);
 
 entities.setAuthorizationStore(authorization);
 
+const rawEntities = new RawEntitiesStore();
+const entitiesV2 = new EntitiesStoreV2(rawEntities, authorization);
 const login = new LoginStore(authorization);
 const registrationDialog = new RegistrationDialogStore();
 const language = new LocaleStore();
@@ -196,13 +199,13 @@ const appBar = new AppBarStore();
 const markdownPreviewDialog = new MarkdownPreviewDialogStore();
 const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entities);
 const chatCreation = new CreateChatStore(entities);
-const chat = new ChatStore(entities);
+const chat = new ChatStore(entities, entitiesV2);
 const chatParticipants = new ChatParticipantsStore(entities, chat);
 const messageUploads = new UploadMessageAttachmentsStore();
-const messageCreation = new CreateMessageStore(chat, entities, messageUploads);
+const messageCreation = new CreateMessageStore(chat, entities, messageUploads, entitiesV2);
 const chatsPreferences = new ChatsPreferencesStore();
 const messagesSearch = new SearchMessagesStore(entities, chat);
-const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences, messagesSearch);
+const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences, messagesSearch, entitiesV2);
 const joinChat = new JoinChatStore(entities, authorization);
 const userProfile = new UserProfileStore(entities);
 const createChatBlocking = new CreateChatBlockingStore(chat, entities);
@@ -290,7 +293,7 @@ const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsSto
 const googleLogin = new LoginWithGoogleStore(authorization);
 const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
 const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
-const websocket = new WebsocketStore(authorization, entities, chat, messagesListScrollPositions, markMessageRead);
+const websocket = new WebsocketStore(authorization, entities, chat, messagesListScrollPositions, markMessageRead, entitiesV2);
 const stickerPackCreation = new CreateStickerPackStore(entities);
 const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
 const installedStickerPacks = new InstalledStickerPacksStore(authorization, entities);
@@ -426,5 +429,7 @@ export const store: IAppState = {
     chatFeaturesForm,
     chatRoleInfo,
     editChatRole,
-    createChatRole
+    createChatRole,
+    rawEntities,
+    entitiesV2
 };

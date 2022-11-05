@@ -1,7 +1,7 @@
 import {action, computed, reaction} from "mobx";
 import {connect, Socket} from "socket.io-client"
 import {AuthorizationStore} from "../../Authorization";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStore, EntitiesStoreV2} from "../../entities-store";
 import {
     ChatDeleted,
     ChatUpdated,
@@ -30,7 +30,8 @@ export class WebsocketStore {
                 private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
                 private readonly scrollPositionStore: MessagesListScrollPositionsStore,
-                private readonly markMessageReadStore: MarkMessageReadStore) {
+                private readonly markMessageReadStore: MarkMessageReadStore,
+                private readonly entitiesV2: EntitiesStoreV2) {
         reaction(
             () => authorization.currentUser,
             () => this.startListening()
@@ -71,6 +72,10 @@ export class WebsocketStore {
                     ...message,
                     readByCurrentUser: false
                 });
+                this.entitiesV2.messages.insert({
+                    ...message,
+                    readByCurrentUser: false
+                });
 
                 if (this.authorization.currentUser) {
                     if (this.authorization.currentUser.id !== message.sender.id) {
@@ -89,11 +94,17 @@ export class WebsocketStore {
         );
         this.socketIoClient.on(
             WebsocketEventType.MESSAGE_UPDATED,
-            (event: WebsocketEvent<Message>) => this.entities.insertMessage(event.payload)
+            (event: WebsocketEvent<Message>) => {
+                this.entities.insertMessage(event.payload);
+                this.entitiesV2.messages.insert(event.payload);
+            }
         );
         this.socketIoClient.on(
             WebsocketEventType.MESSAGES_DELETED,
-            (event: WebsocketEvent<MessagesDeleted>) => this.entities.messages.deleteAllById(event.payload.messagesIds)
+            (event: WebsocketEvent<MessagesDeleted>) => {
+                this.entities.messages.deleteAllById(event.payload.messagesIds);
+                this.entitiesV2.messages.deleteAllById(event.payload.messagesIds);
+            }
         );
         this.socketIoClient.on(
             WebsocketEventType.CHAT_BLOCKING_CREATED,
@@ -121,7 +132,10 @@ export class WebsocketStore {
         );
         this.socketIoClient.on(
             WebsocketEventType.MESSAGE_DELETED,
-            (event: WebsocketEvent<MessageDeleted>) => this.entities.messages.deleteById(event.payload.messageId)
+            (event: WebsocketEvent<MessageDeleted>) => {
+                this.entities.messages.deleteById(event.payload.messageId);
+                this.entitiesV2.messages.deleteById(event.payload.messageId);
+            }
         );
         this.socketIoClient.on(
             WebsocketEventType.USER_KICKED_FROM_CHAT,
@@ -163,6 +177,7 @@ export class WebsocketStore {
 
                 if (chat && event.payload.pinnedAt) {
                     this.entities.insertMessage(event.payload);
+                    this.entitiesV2.messages.insert(event.payload);
                     chat.pinnedMessageId = event.payload.id;
                     this.entities.chats.insertEntity(chat);
                 }

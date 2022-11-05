@@ -5,3 +5,4 @@ export * from "./ChatFeaturesFormStore";
 export * from "./ChatRoleInfoDialogStore";
 export * from "./EditChatRoleStore";
 export * from "./CreateChatRoleStore";
+export * from "./ChatRolesStoreV2";

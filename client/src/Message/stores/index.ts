@@ -19,3 +19,4 @@ export * from "./MessagesListScrollPositionsStore";
 export * from "./MarkMessageReadStore";
 export * from "./EmojiPickerTabsStore";
 export * from "./SearchMessagesStore";
+export * from "./MessagesStoreV2";

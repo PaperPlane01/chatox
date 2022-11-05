@@ -5,8 +5,9 @@ import {validateMessageText} from "../validation";
 import {ChatStore} from "../../Chat";
 import {FormErrors} from "../../utils/types";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStore, EntitiesStoreV2} from "../../entities-store";
 import {Routes} from "../../router";
+import {Message} from "../../api/types/response";
 
 export class CreateMessageStore {
     @observable
@@ -64,7 +65,8 @@ export class CreateMessageStore {
     constructor(
         private readonly chatStore: ChatStore,
         private readonly entitiesStore: EntitiesStore,
-        private readonly messageUploads: UploadMessageAttachmentsStore
+        private readonly messageUploads: UploadMessageAttachmentsStore,
+        private readonly entitiesStoreV2: EntitiesStoreV2
     ) {
         reaction(
             () => this.createMessageForm.text,
@@ -106,7 +108,7 @@ export class CreateMessageStore {
             uploadAttachments: [],
             stickerId
         })
-            .then(({data}) => this.entitiesStore.insertMessage(data))
+            .then(({data}) => this.insertMessage(data))
             .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.pending = false));
     }
@@ -136,7 +138,7 @@ export class CreateMessageStore {
             })
                 .then(({data}) => {
                     if (!this.createMessageForm.scheduledAt) {
-                        this.entitiesStore.insertMessage(data);
+                        this.insertMessage(data);
                     } else {
                         if (this.routerStore && this.routerStore.router && this.routerStore.router.goTo) {
                             const chat = this.entitiesStore.chats.findById(chatId);
@@ -173,6 +175,12 @@ export class CreateMessageStore {
                 .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
                 .finally(() => runInAction(() => this.pending = false))
         }
+    }
+
+    @action
+    private insertMessage = (message: Message): void => {
+        this.entitiesStore.insertMessage(message);
+        this.entitiesStoreV2.messages.insert(message);
     }
 
     @action

@@ -9,3 +9,5 @@ export * from "./InstallStickerPackStore";
 export * from "./SearchStickerPacksStore";
 export * from "./StickerPackDialogStore";
 export * from "./StickerPickerStore";
+export * from "./StickerPacksStoreV2";
+export * from "./StickersStoreV2";
