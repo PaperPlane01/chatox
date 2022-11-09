@@ -1,7 +1,7 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {MessagesListScrollPositionsStore} from "./MessagesListScrollPositionsStore";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {MessageApi} from "../../api";
 import {ChatStore} from "../../Chat";
 
@@ -17,7 +17,7 @@ export class MarkMessageReadStore {
         return this.chatStore.selectedChatId;
     }
 
-    constructor(private readonly entities: EntitiesStore,
+    constructor(private readonly entities: EntitiesStoreV2,
                 private readonly chatStore: ChatStore,
                 private readonly scrollPositionStore: MessagesListScrollPositionsStore) {
         reaction(

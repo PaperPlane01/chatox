@@ -1,6 +1,6 @@
-import {action, computed, observable} from "mobx";
+import {action, computed, observable, runInAction} from "mobx";
 import {ChatApi} from "../../api/clients";
-import {EntitiesStore, EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse} from "../../api";
 import {ChatOfCurrentUserEntity} from "../types";
 
@@ -24,8 +24,7 @@ export class ChatStore {
     @observable
     previousChatId?: string = undefined;
 
-    constructor(private readonly entities: EntitiesStore,
-                private readonly entitiesV2: EntitiesStoreV2) {
+    constructor(private readonly entities: EntitiesStoreV2) {
 
     }
 
@@ -55,7 +54,7 @@ export class ChatStore {
         } else {
             this.pending = true;
             ChatApi.findChatByIdOrSlug(slug)
-                .then(({data}) => {
+                .then(({data}) => runInAction(() => {
                     const chat = {
                         ...data,
                         deletionReason: undefined,
@@ -63,17 +62,16 @@ export class ChatStore {
                         deleted: false,
                         unreadMessagesCount: 0
                     }
-                    this.entities.insertChat(chat);
-                    this.entitiesV2.chats.insert(chat);
+                    this.entities.chats.insert(chat);
                     this.previousChatId = this.selectedChatId;
                     this.selectedChatId = data.id;
 
                     if (this.errorsMap[slug]) {
                         delete this.errorsMap[slug];
                     }
-                })
-                .catch(error => this.errorsMap[slug] = getInitialApiErrorFromResponse(error))
-                .finally(() => this.pending = false);
+                }))
+                .catch(error => runInAction(() => this.errorsMap[slug] = getInitialApiErrorFromResponse(error)))
+                .finally(() => runInAction(() => this.pending = false));
         }
     }
 }

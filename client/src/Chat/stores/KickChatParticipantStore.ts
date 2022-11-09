@@ -1,7 +1,7 @@
-import {action, computed, observable} from "mobx";
+import {action, computed, observable, runInAction} from "mobx";
 import {ChatStore} from "./ChatStore";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 
 export class KickChatParticipantStore {
     @observable
@@ -15,7 +15,7 @@ export class KickChatParticipantStore {
         return this.chatStore.selectedChatId;
     }
 
-    constructor(private readonly entities: EntitiesStore,
+    constructor(private readonly entities: EntitiesStoreV2,
                 private readonly chatStore: ChatStore) {
     }
 
@@ -29,10 +29,12 @@ export class KickChatParticipantStore {
 
         ChatApi.deleteChatParticipation(this.selectedChatId, chatParticipantId)
             .then(() => {
-                this.entities.deleteChatParticipation(chatParticipantId);
+                this.entities.chatParticipations.deleteById(chatParticipantId, {
+                    decreaseChatParticipantsCount: true
+                });
                 this.setShowSnackbar(true);
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => this.setShowSnackbar(true));
     };
 

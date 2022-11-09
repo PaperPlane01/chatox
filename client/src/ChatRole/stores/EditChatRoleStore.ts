@@ -3,7 +3,7 @@ import {ChatFeaturesFormStore} from "./ChatFeaturesFormStore";
 import {ChatRoleInfoDialogStore} from "./ChatRoleInfoDialogStore";
 import {AbstractChatRoleFormStore} from "./AbstractChatRoleFormStore";
 import {ChatRoleEntity} from "../types";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ChatRoleApi, getInitialApiErrorFromResponse} from "../../api";
 import {Labels, LocaleStore} from "../../localization";
 import {UpdateChatRoleRequest} from "../../api/types/request";
@@ -31,7 +31,7 @@ export class EditChatRoleStore extends AbstractChatRoleFormStore {
     }
 
     constructor(chatFeaturesForm: ChatFeaturesFormStore,
-                entities: EntitiesStore,
+                entities: EntitiesStoreV2,
                 localeStore: LocaleStore,
                 snackbarService: SnackbarService,
                 private readonly chatRoleInfoDialog: ChatRoleInfoDialogStore,) {
@@ -92,7 +92,7 @@ export class EditChatRoleStore extends AbstractChatRoleFormStore {
             request
         )
             .then(({data}) => {
-                this.entities.insertChatRole(data);
+                this.entities.chatRoles.insert(data);
                 this.chatRoleInfoDialog.setEditMode(false);
                 this.resetForm();
                 this.showSuccessLabel();

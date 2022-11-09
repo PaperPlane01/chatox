@@ -1,10 +1,10 @@
 import {action, computed, observable, reaction} from "mobx";
+import {addMinutes} from "date-fns";
 import {MessageEntity, UpdateScheduledMessageFormData} from "../types";
 import {validateMessageScheduledDate, validateMessageText} from "../validation";
 import {AbstractFormStore} from "../../form-store";
 import {getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
-import {addMinutes} from "date-fns";
+import {EntitiesStoreV2} from "../../entities-store";
 
 export class UpdateScheduledMessageStore extends AbstractFormStore<UpdateScheduledMessageFormData> {
     @observable
@@ -25,7 +25,7 @@ export class UpdateScheduledMessageStore extends AbstractFormStore<UpdateSchedul
         }
     }
 
-    constructor(private readonly entities: EntitiesStore) {
+    constructor(private readonly entities: EntitiesStoreV2) {
         super(
             {text: "", scheduledAt: addMinutes(new Date(), 10)},
             {text: undefined, scheduledAt: undefined}
@@ -94,10 +94,10 @@ export class UpdateScheduledMessageStore extends AbstractFormStore<UpdateSchedul
             .then(({data}) => {
                 this.setShowSnackbar(true);
                 this.resetForm();
-                this.entities.insertMessage(data);
+                this.entities.scheduledMessages.insert(data);
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false);
+            .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
+            .finally(() => this.setPending(false));
     }
 
     @action.bound

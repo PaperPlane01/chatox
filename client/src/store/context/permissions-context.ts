@@ -37,7 +37,6 @@ const chatBlockings = new ChatBlockingPermissions(
     store.userChatRoles
 );
 const globalBans = new GlobalBanPermissions(
-    store.entities,
     store.authorization
 );
 const chatRoles = new ChatRolePermissions(

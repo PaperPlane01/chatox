@@ -1,5 +1,5 @@
 import {action, computed} from "mobx";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ChatStore} from "../../Chat/stores";
 import {MessageApi} from "../../api/clients";
 
@@ -9,7 +9,7 @@ export class DeleteScheduledMessageStore {
         return this.chatStore.selectedChatId;
     }
 
-    constructor(private entities: EntitiesStore,
+    constructor(private entities: EntitiesStoreV2,
                 private chatStore: ChatStore) {
     }
 
@@ -19,7 +19,7 @@ export class DeleteScheduledMessageStore {
             return;
         }
 
-        this.entities.deleteScheduledMessage(this.selectedChatId, messageId);
+        this.entities.scheduledMessages.deleteById(messageId);
 
         MessageApi.deleteScheduledMessage(this.selectedChatId, messageId);
     }

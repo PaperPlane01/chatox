@@ -7,7 +7,7 @@ import {GlobalBanApi} from "../../api/clients";
 import {BanUserRequest} from "../../api/types/request";
 import {GlobalBanReason} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 
 const BAN_USER_FORM_INITIAL_STATE: BanUserFormData = {
     comment: "",
@@ -45,7 +45,7 @@ export class BanUserStore {
     @observable
     showSnackbar: boolean = false;
 
-    constructor(private readonly entities: EntitiesStore) {
+    constructor(private readonly entities: EntitiesStoreV2) {
         reaction(
             () => this.banUserDialogOpen,
             dialogOpen => {
@@ -124,7 +124,7 @@ export class BanUserStore {
 
         GlobalBanApi.banUser(this.bannedUserId, banUserRequest)
             .then(({data}) => {
-                this.entities.insertGlobalBan(data);
+                this.entities.globalBans.insert(data);
                 this.setBanUserDialogOpen(false);
                 this.setShowSnackbar(true);
                 this.resetForm();

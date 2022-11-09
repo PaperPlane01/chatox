@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction, runInAction} from "mobx";
+import {action, computed, observable, reaction} from "mobx";
 import {StickerContainer} from "./StickerContainer";
 import {CreateStickerPackFormData} from "../types";
 import {validateStickerPackDescription, validateStickerPackName} from "../validation";
@@ -6,7 +6,7 @@ import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
 import {CreateStickerRequest} from "../../api/types/request";
 import {getInitialApiErrorFromResponse, StickerApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {UploadImageStore} from "../../Upload";
 
 const INITIAL_FORM_VALUES: CreateStickerPackFormData = {
@@ -37,7 +37,7 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
         return Object.keys(this.formValues.stickers).map(stickerLocalId => this.formValues.stickers[stickerLocalId])
     }
 
-    constructor(private readonly entities: EntitiesStore) {
+    constructor(private readonly entities: EntitiesStoreV2) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
 
         reaction(
@@ -106,9 +106,9 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
             description: this.formValues.description!,
             stickers
         })
-            .then(({data}) => this.entities.insertStickerPack(data))
-            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
-            .finally(() => runInAction(() => this.pending = false));
+            .then(({data}) => this.entities.stickerPacks.insert(data))
+            .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
+            .finally(() => this.setPending(false));
     }
 
     @action.bound

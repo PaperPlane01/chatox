@@ -1,12 +1,12 @@
-import {observable, action, reaction, computed} from "mobx";
+import {action, computed, observable, reaction} from "mobx";
 import {throttle} from "lodash";
 import {ChatStore} from "./ChatStore";
-import {UpdateChatFormData, TagErrorsMapContainer} from "../types";
+import {TagErrorsMapContainer, UpdateChatFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {UploadImageStore} from "../../Upload";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ImageUploadMetadata} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {Labels} from "../../localization/types";
 import {
     validateChatDescription,
@@ -89,7 +89,7 @@ export class UpdateChatStore {
 
     constructor(private readonly uploadChatAvatarStore: UploadImageStore,
                 private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStore) {
+                private readonly entities: EntitiesStoreV2) {
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300);
 
         reaction(
@@ -182,7 +182,7 @@ export class UpdateChatStore {
             tags: this.updateChatForm.tags
         })
             .then(({data}) => {
-                this.entities.insertChat(data);
+                this.entities.chats.insert(data);
                 this.setUpdateChatDialogOpen(false);
                 this.setShowSnackbar(true);
             })

@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Avatar as MuiAvatar, Skeleton} from "@mui/material";
 import {isStringEmpty} from "../../utils/string-utils";
-import {useStore} from "../../store";
+import {useEntities} from "../../store";
 
 export interface AvatarProps {
     avatarUri?: string,
@@ -28,12 +28,10 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
     shape = "circular"
 }) => {
     const {
-        entities: {
-            uploads: {
-                findImage
-            }
+        uploads: {
+            findImage
         }
-    } = useStore();
+    } = useEntities();
 
     if (pending) {
         return (

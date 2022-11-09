@@ -1,10 +1,8 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
-import {createTransformer} from "mobx-utils";
 import {ChatStore} from "../../Chat";
 import {FetchingState} from "../../utils/types";
 import {ChatRoleApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
-import {ChatRoleEntity} from "../types";
+import {EntitiesStoreV2} from "../../entities-store";
 
 export class RolesOfChatStore {
     @observable
@@ -42,7 +40,7 @@ export class RolesOfChatStore {
     }
 
     constructor(private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStore) {
+                private readonly entities: EntitiesStoreV2) {
         reaction(
             () => this.chatRolesDialogOpen,
             dialogOpen => {
@@ -71,7 +69,7 @@ export class RolesOfChatStore {
 
         ChatRoleApi.getRolesOfChat(this.selectedChatId)
             .then(({data}) => runInAction(() => {
-                this.entities.insertChatRoles(data);
+                this.entities.chatRoles.insertAll(data);
 
                 this.pendingRolesMap[chatId].initiallyFetched = true;
             }))

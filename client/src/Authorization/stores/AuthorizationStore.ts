@@ -1,7 +1,7 @@
 import {action, computed, observable} from "mobx";
 import {UserApi} from "../../api";
 import {CurrentUser, UserRole} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {tokenRefreshState} from "../../api/axios-instance";
 import {isGlobalBanActive} from "../../GlobalBan/utils";
 
@@ -20,19 +20,23 @@ export class AuthorizationStore {
         return tokenRefreshState.refreshingToken;
     }
 
-    constructor(private readonly entities: EntitiesStore) {}
+    private entities: EntitiesStoreV2;
+
+    setEntities = (entities: EntitiesStoreV2): void => {
+        this.entities = entities;
+    }
 
     @action
     setCurrentUser = (currentUser: CurrentUser): void => {
         if (currentUser.globalBan) {
-            this.entities.insertGlobalBan(currentUser.globalBan);
+            this.entities.globalBans.insert(currentUser.globalBan);
         }
 
         this.currentUser = {
             ...currentUser,
             avatarId: currentUser.avatar ? currentUser.avatar.id : undefined
         };
-        this.entities.insertUser({
+        this.entities.users.insert({
             ...currentUser,
             deleted: false,
             online: true

@@ -1,11 +1,20 @@
 import {mergeWith} from "lodash";
-import {ChatBlockingEntity} from "../types";
+import {ChatBlockingEntity, ChatBlockingSortableProperties} from "../types";
 import {AbstractEntityStoreV2} from "../../entity-store";
 import {ChatBlocking, CurrentUser} from "../../api/types/response";
 import {EntitiesPatch, EntitiesStoreV2, RawEntitiesStore} from "../../entities-store";
 import {mergeCustomizer} from "../../utils/object-utils";
 import {AuthorizationStore} from "../../Authorization";
-import {computed} from "mobx";
+import {action, computed} from "mobx";
+import {createTransformer} from "mobx-utils";
+import {SortingDirection} from "../../utils/types";
+
+export interface FindChatBlockingsByChatOptions {
+    chatId: string,
+    sortingProperty?: ChatBlockingSortableProperties,
+    sortingDirection?: SortingDirection,
+    filter?: (chatBlocking: ChatBlockingEntity) => boolean
+}
 
 export class ChatBlockingsStoreV2 extends AbstractEntityStoreV2<"chatBlockings", ChatBlockingEntity, ChatBlocking> {
     @computed
@@ -18,6 +27,52 @@ export class ChatBlockingsStoreV2 extends AbstractEntityStoreV2<"chatBlockings",
                 private readonly authorization: AuthorizationStore) {
         super(rawEntities, "chatBlockings", entities);
     }
+
+    findByChat = createTransformer((options: FindChatBlockingsByChatOptions) => {
+        const {
+            chatId,
+            sortingProperty = "blockedUntil",
+            sortingDirection = "desc",
+            filter = (chatBlocking: ChatBlockingEntity) => !chatBlocking.hidden
+        } = options;
+
+        switch (sortingProperty) {
+            case "blockedUntil":
+                return this.ids.map(id => this.findById(id))
+                    .filter(blocking => blocking.chatId === chatId && filter(blocking))
+                    .slice()
+                    .sort((left, right) => {
+                        if (sortingDirection === "desc") {
+                            return right.blockedUntil.getTime() - left.blockedUntil.getTime();
+                        } else {
+                            return left.blockedUntil.getTime() - right.blockedUntil.getTime();
+                        }
+                    })
+                    .map(blocking => blocking.id);
+            case "createdAt":
+            default:
+                return this.ids.map(id => this.findById(id))
+                    .filter(blocking => blocking.chatId === chatId && filter(blocking))
+                    .slice()
+                    .sort((left, right) => {
+                        if (sortingDirection === "desc") {
+                            return left.createdAt.getTime() - right.createdAt.getTime();
+                        } else {
+                            return right.createdAt.getTime() - left.createdAt.getTime();
+                        }
+                    })
+                    .map(blocking => blocking.id);
+
+        }
+    });
+
+    @action
+    hideByChat = (chatId: string): void => {
+        const chatBlockingsIds = this.findByChat({chatId});
+        const chatBlockings = chatBlockingsIds.map(id => this.findById(id));
+        chatBlockings.forEach(blocking => blocking.hidden = true);
+        this.insertAllEntities(chatBlockings);
+    };
 
     createPatchForArray(denormalizedEntities: ChatBlocking[], options: {} = {}): EntitiesPatch {
         const patch = this.createEmptyEntitiesPatch("chatBlockings", "chatParticipations");

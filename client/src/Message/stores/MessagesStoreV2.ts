@@ -1,4 +1,4 @@
-import {mergeWith} from "lodash";
+import {mergeWith, uniq} from "lodash";
 import {MessageInsertOptions} from "../types";
 import {convertMessageToNormalizedForm} from "../utils";
 import {SoftDeletableEntityStoreV2} from "../../entity-store";
@@ -36,7 +36,7 @@ export class MessagesStoreV2<MessageType extends "messages" | "scheduledMessages
             patch.ids.messages.push(message.id);
 
             if (chat) {
-                chat.messages.push(message.id);
+                chat.messages = uniq(chat.messages.concat(message.id));
                 chat.indexToMessageMap[message.index] = message.id;
                 if (!insertOptions || !insertOptions.skipSettingLastMessage) {
                     chat.lastMessage = message.id;
@@ -44,6 +44,10 @@ export class MessagesStoreV2<MessageType extends "messages" | "scheduledMessages
 
                 patch.entities.chats[message.chatId] = chat;
                 patch.ids.chats.push(message.chatId);
+
+                if (insertOptions && insertOptions.pinnedMessageId === message.id) {
+                    chat.pinnedMessageId = message.id;
+                }
             }
 
             patches.push(this.entities.users.createPatch(message.sender));
@@ -54,6 +58,10 @@ export class MessagesStoreV2<MessageType extends "messages" | "scheduledMessages
 
             if (message.sticker) {
                 patches.push(this.entities.stickers.createPatch(message.sticker));
+            }
+
+            if (message.attachments.length !== 0) {
+                patches.push(this.entities.uploads.createPatchForArray(message.attachments));
             }
 
             if (message.referredMessage) {

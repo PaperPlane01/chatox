@@ -1,14 +1,14 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {AxiosPromise} from "axios";
+import {SearchMessagesStore} from "./SearchMessagesStore";
 import {createSortMessages} from "../utils";
 import {ChatMessagesFetchingStateMap, MessageEntity} from "../types";
-import {EntitiesStore, EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ChatsPreferencesStore, ChatStore, ReverseScrollDirectionOption} from "../../Chat";
 import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api";
 import {Message} from "../../api/types/response";
-import {SearchMessagesStore} from "./SearchMessagesStore";
 
 export class MessagesOfChatStore {
     @observable
@@ -90,11 +90,10 @@ export class MessagesOfChatStore {
         return this.searchMessagesStore.query.trim().length !== 0;
     }
 
-    constructor(private readonly entities: EntitiesStore,
+    constructor(private readonly entities: EntitiesStoreV2,
                 private readonly chatStore: ChatStore,
                 private readonly chatPreferencesStore: ChatsPreferencesStore,
-                private readonly searchMessagesStore: SearchMessagesStore,
-                private readonly entitiesV2: EntitiesStoreV2) {
+                private readonly searchMessagesStore: SearchMessagesStore) {
         reaction(
             () => this.selectedChatId,
             () => this.fetchMessages({abortIfInitiallyFetched: true})
@@ -150,15 +149,7 @@ export class MessagesOfChatStore {
             .then(({data}) => {
                 runInAction(() => {
                     if (data.length !== 0) {
-                        const startOld = new Date().getTime();
-                        this.entities.insertMessages(data, true);
-                        const endOld = new Date().getTime();
-                        console.log(`Old insert: ${endOld - startOld} ms`);
-
-                        const startNew = new Date().getTime();
-                        this.entitiesV2.messages.insertAll(data, {skipSettingLastMessage: true});
-                        const endNew = new Date().getTime();
-                        console.log(`New insert ${endNew - startNew} ms`);
+                        this.entities.messages.insertAll(data, {skipSettingLastMessage: true});
 
                         if (beforeMessage) {
                             this.initialMessagesMap[chatId] = this.initialMessagesMap[chatId]

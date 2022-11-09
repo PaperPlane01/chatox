@@ -20,6 +20,7 @@ export interface EntityStoreV2<
     findByIdOptional: (id: string) => Entity | undefined,
     deleteById: (id: string, options?: DeleteOptions) => void,
     deleteAllById: (id: string[], options?: DeleteOptions) => void,
+    deleteAll: () => void,
     findAllById: (ids: string[]) => Entity[],
     findAll: () => Entity[]
 }

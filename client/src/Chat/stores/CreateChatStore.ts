@@ -1,4 +1,4 @@
-import {action, observable, reaction} from "mobx";
+import {action, observable, reaction, runInAction} from "mobx";
 import {throttle} from "lodash";
 import {CreateChatFormData, TagErrorsMapContainer} from "../types";
 import {
@@ -12,7 +12,7 @@ import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {FormErrors} from "../../utils/types";
 import {countMotUndefinedValues} from "../../utils/object-utils";
 import {ChatOfCurrentUser} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 
 export class CreateChatStore {
     @observable
@@ -50,7 +50,7 @@ export class CreateChatStore {
     @observable
     createChatDialogOpen: boolean = false;
 
-    constructor(private readonly entities: EntitiesStore) {
+    constructor(private readonly entities: EntitiesStoreV2) {
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300);
 
         reaction(
@@ -121,15 +121,12 @@ export class CreateChatStore {
                     slug: this.createChatForm.slug,
                     tags: this.createChatForm.tags || []
                 })
-                    .then(({data}) => {
+                    .then(({data}) => runInAction(() => {
                         this.createdChat = data;
-                        console.log(data);
-                        this.entities.insertChat(data);
-                    })
-                    .catch(error => {
-                        this.submissionError = getInitialApiErrorFromResponse(error);
-                    })
-                    .finally(() => this.pending = false)
+                        this.entities.chats.insert(data);
+                    }))
+                    .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
+                    .finally(() => runInAction(() => this.pending = false))
             }
         })
     };

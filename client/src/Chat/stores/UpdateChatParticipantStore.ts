@@ -1,6 +1,6 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {ChatParticipationEntity, UpdateChatParticipantFormData} from "../types";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ApiError, ChatApi, ChatRoleApi, getInitialApiErrorFromResponse} from "../../api";
 import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
@@ -88,7 +88,7 @@ export class UpdateChatParticipantStore extends AbstractFormStore<UpdateChatPart
             .map(role => role.id);
     }
 
-    constructor(private readonly entities: EntitiesStore,
+    constructor(private readonly entities: EntitiesStoreV2,
                 private readonly authorization: AuthorizationStore,
                 private readonly userChatRoles: UserChatRolesStore) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
@@ -124,7 +124,7 @@ export class UpdateChatParticipantStore extends AbstractFormStore<UpdateChatPart
         this.fetchingChatRolesError = undefined;
 
         ChatRoleApi.getRolesOfChat(this.chatId)
-            .then(({data}) => this.entities.insertChatRoles(data))
+            .then(({data}) => this.entities.chatRoles.insertAll(data))
             .catch(error => runInAction(() => this.fetchingChatRolesError = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.fetchingChatRoles = false));
     }
@@ -157,13 +157,13 @@ export class UpdateChatParticipantStore extends AbstractFormStore<UpdateChatPart
             roleId: this.formValues.roleId
         })
             .then(({data}) => {
-                this.entities.insertChatParticipation(data);
+                this.entities.chatParticipations.insert(data);
                 this.setUpdateChatParticipantDialogOpen(false);
                 this.setUpdatedParticipantId(undefined);
                 this.setShowSnackbar(true);
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false);
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.pending = false));
     }
 
     protected validateForm(): boolean {

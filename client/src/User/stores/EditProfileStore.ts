@@ -1,4 +1,4 @@
-import {action, reaction, observable, computed} from "mobx";
+import {action, computed, observable, reaction, runInAction} from "mobx";
 import {throttle} from "lodash";
 import {EditProfileFormData} from "../types";
 import {FormErrors} from "../../utils/types";
@@ -10,7 +10,7 @@ import {CurrentUser, ImageUploadMetadata} from "../../api/types/response";
 import {UploadImageStore} from "../../Upload/stores";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {Labels} from "../../localization/types";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 
 export class EditProfileStore {
     @observable
@@ -76,7 +76,7 @@ export class EditProfileStore {
 
     constructor(private readonly authorizationStore: AuthorizationStore,
                 private readonly uploadUserAvatarStore: UploadImageStore,
-                private readonly entities: EntitiesStore) {
+                private readonly entities: EntitiesStoreV2) {
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300) as () => Promise<void>;
 
         reaction(
@@ -164,12 +164,12 @@ export class EditProfileStore {
                             ...data,
                             avatarId: data.avatar && data.avatar.id
                         });
-                        this.entities.insertUser(data);
+                        this.entities.users.insert(data);
                         this.setShowSnackbar(true);
                     }
                 })
-                .catch(error => this.error = getInitialApiErrorFromResponse(error))
-                .finally(() => this.pending = false);
+                .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+                .finally(() => runInAction(() => this.pending = false));
         })
     };
 
@@ -187,14 +187,16 @@ export class EditProfileStore {
         this.checkingSlugAvailability = true;
 
         return UserApi.isSlugAvailable(this.editProfileForm.slug)
-            .then(({data}) => {
+            .then(({data}) => runInAction(() => {
                 if (!data.available) {
                     this.formErrors.slug = "slug.has-already-been-taken";
                 } else {
                     this.formErrors.slug = undefined;
                 }
-            })
-            .finally(() => this.checkingSlugAvailability = false);
+            }))
+            .finally(() => runInAction(() => {
+                this.checkingSlugAvailability = false
+            }));
     };
 
     @action

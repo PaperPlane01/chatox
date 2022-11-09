@@ -1,24 +1,39 @@
 import {mergeWith} from "lodash";
+import {createTransformer} from "mobx-utils";
 import {UserEntity} from "../types";
-import {AbstractEntityStoreV2} from "../../entity-store";
+import {AbstractEntityStoreV2, EntityMap} from "../../entity-store";
+import {EntitiesPatch, GetEntityType} from "../../entities-store";
 import {User} from "../../api/types/response";
-import {EntitiesPatch} from "../../entities-store";
 import {mergeCustomizer} from "../../utils/object-utils";
 
 interface UserInsertOptions {
     retrieveOnlineStatusFromExistingUser: boolean
 }
 
-export class UsersStoreV2 extends AbstractEntityStoreV2<"users", UserEntity, User, UserInsertOptions> {
+export class UsersStoreV2<UserType extends "users" | "reportedMessageSenders" | "reportedUsers"> extends AbstractEntityStoreV2<
+    UserType,
+    GetEntityType<UserType>,
+    User,
+    UserInsertOptions> {
+
+    findByIdOrSlug = createTransformer((idOrSlug: string): UserEntity | undefined => {
+       const user = this.findByIdOptional(idOrSlug);
+
+       if (user) {
+           return user;
+       }
+
+       return this.findAll().find(user => user.slug === idOrSlug);
+    });
 
     createPatchForArray(denormalizedEntities: User[], options: UserInsertOptions = {retrieveOnlineStatusFromExistingUser: false}): EntitiesPatch {
-        const patch = this.createEmptyEntitiesPatch("users");
+        const patch = this.createEmptyEntitiesPatch(this.entityName);
         const patches: EntitiesPatch[] = [];
 
         denormalizedEntities.forEach(user => {
             const userEntity = this.convertToNormalizedForm(user);
-            patch.entities.users[userEntity.id] = userEntity;
-            patch.ids.users.push(userEntity.id);
+            (patch.entities[this.entityName] as EntityMap<UserEntity>)[userEntity.id] = userEntity;
+            patch.ids[this.entityName]!.push(userEntity.id);
 
             if (user.avatar) {
                 patches.push(this.entities.uploads.createPatch(user.avatar));
@@ -28,7 +43,7 @@ export class UsersStoreV2 extends AbstractEntityStoreV2<"users", UserEntity, Use
         return mergeWith(patch, ...patches, mergeCustomizer);
     }
 
-    protected convertToNormalizedForm(denormalizedEntity: User): UserEntity {
+    protected convertToNormalizedForm(denormalizedEntity: User): GetEntityType<UserType> {
         return {
             id: denormalizedEntity.id,
             bio: denormalizedEntity.bio,
@@ -43,6 +58,6 @@ export class UsersStoreV2 extends AbstractEntityStoreV2<"users", UserEntity, Use
             lastSeen: denormalizedEntity.lastSeen ? new Date(denormalizedEntity.lastSeen) : undefined,
             avatarId: denormalizedEntity.avatar ? denormalizedEntity.avatar.id : undefined,
             onlineStatusMightBeInaccurate: denormalizedEntity.onlineStatusMightBeInaccurate
-        };
+        } as GetEntityType<UserType>
     }
 }

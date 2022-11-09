@@ -2,7 +2,7 @@ import {action, computed, observable, reaction, runInAction} from "mobx";
 import {debounce} from "lodash";
 import {ChatsAndMessagesSearchQueryStore} from "./ChatsAndMessagesSearchQueryStore";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ChatListEntry} from "../../Chat";
 
 export class AllChatsMessagesSearchStore {
@@ -24,7 +24,7 @@ export class AllChatsMessagesSearchStore {
     }
 
     constructor(private readonly chatsAndMessagesSearchQuery: ChatsAndMessagesSearchQueryStore,
-                private readonly entities: EntitiesStore) {
+                private readonly entities: EntitiesStoreV2) {
         this.searchMessages = debounce(this.searchMessages, 300);
 
         reaction(
@@ -57,7 +57,7 @@ export class AllChatsMessagesSearchStore {
 
         MessageApi.searchMessagesInChatsOfCurrentUser(this.query)
             .then(({data}) => runInAction(() => {
-                this.entities.insertMessages(data, true);
+                this.entities.messages.insertAll(data, {skipSettingLastMessage: true});
                 this.foundMessages = data.map(message => ({
                     chatId: message.chatId,
                     messageId: message.id

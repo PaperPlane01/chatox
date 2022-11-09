@@ -1,7 +1,7 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {debounce} from "lodash";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ChatStore} from "../../Chat";
 
 export class SearchMessagesStore {
@@ -25,7 +25,7 @@ export class SearchMessagesStore {
         return this.chatStore.selectedChatId;
     }
 
-    constructor(private readonly entities: EntitiesStore,
+    constructor(private readonly entities: EntitiesStoreV2,
                 private readonly chatStore: ChatStore) {
         reaction(
             () => this.query,
@@ -56,11 +56,11 @@ export class SearchMessagesStore {
 
         MessageApi.searchMessagesInChat(this.selectedChatId, this.query)
             .then(({data}) => runInAction(() => {
-                this.entities.insertMessages(data, true);
+                this.entities.messages.insertAll(data, {skipSettingLastMessage: true});
                 this.foundMessagesIds = data.map(message => message.id);
             }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
-            .finally(() => this.pending = false);
+            .finally(() => runInAction(() => this.pending = false));
     }
 
     @action

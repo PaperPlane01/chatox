@@ -1,7 +1,7 @@
 import {action, observable, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ApiError, BlacklistApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {User} from "../../api/types/response";
 
 export class BlacklistedUsersStore {
@@ -14,7 +14,7 @@ export class BlacklistedUsersStore {
     @observable
     error?: ApiError = undefined;
 
-    constructor(private readonly entities: EntitiesStore) {
+    constructor(private readonly entities: EntitiesStoreV2) {
     }
 
     isUserBlacklisted = createTransformer((userId: string) => this.usersIds.includes(userId));
@@ -32,7 +32,7 @@ export class BlacklistedUsersStore {
 
     @action
     setUsers = (users: User[]): void => {
-        this.entities.insertUsers(users);
+        this.entities.users.insertAll(users);
         this.usersIds = users.map(user => user.id);
     }
 }

@@ -1,7 +1,7 @@
 import {action, computed, observable, reaction} from "mobx";
 import {UpdateMessageFormData} from "../types";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {validateMessageText} from "../validation";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {ChatStore} from "../../Chat/stores";
@@ -32,7 +32,7 @@ export class UpdateMessageStore {
     }
 
     constructor(private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStore) {
+                private readonly entities: EntitiesStoreV2) {
         reaction(
             () => this.updatedMessageId,
             messageId => {
@@ -76,7 +76,7 @@ export class UpdateMessageStore {
             {text: this.updateMessageForm.text}
         )
             .then(({data}) => {
-                this.entities.insertMessage(data);
+                this.entities.messages.insert(data);
                 this.updatedMessageId = undefined;
                 this.reset();
             })

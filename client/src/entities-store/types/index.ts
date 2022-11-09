@@ -4,7 +4,7 @@ import {UserEntity} from "../../User";
 import {ChatBlockingEntity} from "../../ChatBlocking";
 import {Upload} from "../../api/types/response";
 import {GlobalBanEntity} from "../../GlobalBan/types";
-import {ReportEntity} from "../../Report/types";
+import {ChatWithCreatorIdEntity, ReportEntity} from "../../Report/types";
 import {StickerEntity, StickerPackEntity} from "../../Sticker";
 import {ChatRoleEntity} from "../../ChatRole/types";
 import {RequiredField} from "../../utils/types";
@@ -20,7 +20,7 @@ export type Entities = "messages"
     | "scheduledMessages"
     | "reports"
     | "reportedMessages"
-    | "reportedMessagesSenders"
+    | "reportedMessageSenders"
     | "reportedUsers"
     | "reportedChats"
     | "stickers"
@@ -44,9 +44,9 @@ export type GetEntityType<Key extends Entities>
     : Key extends "scheduledMessages" ? MessageEntity
     : Key extends "reports" ? ReportEntity
     : Key extends "reportedMessages" ? MessageEntity
-    : Key extends "reportedMessagesSenders" ? UserEntity
+    : Key extends "reportedMessageSenders" ? UserEntity
     : Key extends "reportedUsers" ? UserEntity
-    : Key extends "reportedChats" ? ChatOfCurrentUserEntity
+    : Key extends "reportedChats" ? ChatWithCreatorIdEntity
     : Key extends "stickers" ? StickerEntity
     : Key extends "stickerPacks" ? StickerPackEntity
     : Key extends "chatRoles" ? ChatRoleEntity

@@ -1,6 +1,6 @@
 import {action, observable, reaction, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, StickerApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 
 export class SearchStickerPacksStore {
     @observable
@@ -21,7 +21,7 @@ export class SearchStickerPacksStore {
     @observable
     reactToNameChange = false;
 
-    constructor(private readonly entities: EntitiesStore) {
+    constructor(private readonly entities: EntitiesStoreV2) {
         reaction(
             () => this.name,
             () => runInAction(() => {
@@ -58,7 +58,7 @@ export class SearchStickerPacksStore {
         })
             .then(({data}) => runInAction(() => {
                 if (data.length !== 0) {
-                    this.entities.insertStickerPacks(data);
+                    this.entities.stickerPacks.insertAll(data);
                     this.searchResults.push(...data.map(stickerPack => stickerPack.id));
                     this.currentPage = this.currentPage + 1;
                 }

@@ -1,7 +1,7 @@
 import {action, computed, observable} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {ChatStore} from "../../Chat/stores";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ChatOfCurrentUserEntity} from "../../Chat/types";
 
 export class UnpinMessageStore {
@@ -23,7 +23,7 @@ export class UnpinMessageStore {
         return undefined;
     }
 
-    constructor(private readonly entities: EntitiesStore,
+    constructor(private readonly entities: EntitiesStoreV2,
                 private readonly chatStore: ChatStore) {
     }
 
@@ -44,7 +44,7 @@ export class UnpinMessageStore {
 
         MessageApi.unpinMessage(this.selectedChat.id, this.selectedChat.pinnedMessageId)
             .then(({data}) => {
-                this.entities.insertMessage(data);
+                this.entities.messages.insert(data);
                 chat.pinnedMessageId = undefined;
                 this.entities.chats.insertEntity(chat);
                 this.setShowSnackbar(true);

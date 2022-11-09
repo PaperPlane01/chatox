@@ -1,9 +1,9 @@
-import {action, computed, observable, reaction} from "mobx";
+import {action, computed, observable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatMessagesFetchingStateMap} from "../types";
 import {createSortMessages} from "../utils";
 import {ChatStore} from "../../Chat/stores";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api/clients";
 
@@ -32,7 +32,7 @@ export class ScheduledMessagesOfChatStore {
 
     private reactToChatIdChange: boolean = false;
 
-    constructor(private readonly entities: EntitiesStore,
+    constructor(private readonly entities: EntitiesStoreV2,
                 private readonly chatStore: ChatStore) {
         reaction(
             () => this.selectedChatId,
@@ -74,13 +74,13 @@ export class ScheduledMessagesOfChatStore {
         this.fetchingStateMap[chatId].pending = true;
 
         MessageApi.getScheduledMessagesByChat(chatId)
-            .then(({data}) => {
+            .then(({data}) => runInAction(() => {
                 if (data.length !== 0) {
-                    this.entities.insertMessages(data);
+                    this.entities.scheduledMessages.insertAll(data);
                 }
                 this.fetchingStateMap[chatId].initiallyFetched = true;
-            })
-            .finally(() => this.fetchingStateMap[chatId].pending = false);
+            }))
+            .finally(() => runInAction(() => this.fetchingStateMap[chatId].pending = false));
     }
 
     @action

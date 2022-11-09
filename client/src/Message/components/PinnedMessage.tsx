@@ -6,7 +6,7 @@ import {Close} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {ClosePinnedMessageMenuItem} from "./ClosePinnedMessageMenuItem";
 import {UnpinMessageMenuItem} from "./UnpinMessageMenuItem";
-import {useLocalization, usePermissions, useStore} from "../../store";
+import {useEntities, useLocalization, usePermissions, useStore} from "../../store";
 import {useEmojiParser} from "../../Emoji";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 
@@ -60,14 +60,6 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
         chat: {
             selectedChatId
         },
-        entities: {
-            chats: {
-                findById: findChat
-            },
-            messages: {
-                findById: findMessage
-            },
-        },
         messageDialog: {
             setMessageId
         },
@@ -76,6 +68,14 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
             closePinnedMessagesMap
         }
     } = useStore();
+    const {
+        chats: {
+            findById: findChat
+        },
+        messages: {
+            findById: findMessage
+        },
+    } = useEntities();
     const {
         messages: {
             canUnpinMessage
@@ -135,7 +135,8 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
                 <div className={classes.truncatedTextContainer}>
                     <Typography classes={{
                         root: classes.cardContentTypography
-                    }}>
+                    }}
+                    >
                         {pinnedMessage.deleted
                             ? <i>{l("message.deleted")}</i>
                             : parseEmoji(pinnedMessage.text, pinnedMessage.emoji)
@@ -149,7 +150,8 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
                                 className={classes.unpinButton}
                                 disableRipple
                                 {...closeOrUnpinMessageMenuButtonProps}
-                                size="large">
+                                size="large"
+                            >
                                 <Close/>
                             </IconButton>
                             <Menu {...bindMenu(closeOrUnpinMessageMenuPopupState)}>
@@ -177,7 +179,8 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
                             }}
                             className={classes.unpinButton}
                             disableRipple
-                            size="large">
+                            size="large"
+                        >
                             <Close/>
                         </IconButton>
                     )

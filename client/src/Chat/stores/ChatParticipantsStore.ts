@@ -1,9 +1,9 @@
-import {observable, action, computed, reaction} from "mobx";
+import {action, computed, observable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatStore} from "./ChatStore";
 import {PaginationState} from "../../utils/types";
 import {ChatApi} from "../../api/clients";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 
 interface ChatParticipantsPaginationStateMap {
     [chatId: string]: PaginationState
@@ -32,7 +32,7 @@ export class ChatParticipantsStore {
     }
 
     constructor(
-        private readonly entities: EntitiesStore,
+        private readonly entities: EntitiesStoreV2,
         private readonly chatStore: ChatStore
     ) {
         reaction(
@@ -75,16 +75,16 @@ export class ChatParticipantsStore {
                 this.paginationStateMap[chatId].pending = true;
 
                 ChatApi.getChatParticipants(chatId, this.paginationStateMap[chatId].page)
-                    .then(({data}) => {
+                    .then(({data}) => runInAction(() => {
                         if (data.length !== 0) {
-                            this.entities.insertChatParticipations(data);
+                            this.entities.chatParticipations.insertAll(data);
                             this.paginationStateMap[chatId].initiallyFetched = true;
                             this.paginationStateMap[chatId].page = this.paginationStateMap[chatId].page + 1;
                         } else {
                             this.paginationStateMap[chatId].noMoreItems = true;
                         }
-                    })
-                    .finally(() => this.paginationStateMap[chatId].pending = false);
+                    }))
+                    .finally(() => runInAction(() => this.paginationStateMap[chatId].pending = false));
             }
         }
     }

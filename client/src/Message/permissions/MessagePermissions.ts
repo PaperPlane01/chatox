@@ -2,7 +2,7 @@ import {computed} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {differenceInDays, isBefore} from "date-fns";
 import {MessageEntity} from "../types";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
 import {UserChatRolesStore} from "../../ChatRole";
 import {ChatParticipationEntity} from "../../Chat";
@@ -14,7 +14,7 @@ type SendMessagesPermission = "allowedToSendAudios" | "allowedToSendStickers" | 
     | "allowedToSendFiles" | "allowedToSendVoiceMessages" | "allowedToSendVideos";
 
 export class MessagePermissions {
-    constructor(private readonly entities: EntitiesStore,
+    constructor(private readonly entities: EntitiesStoreV2,
                 private readonly authorization: AuthorizationStore,
                 private readonly userChatRoles: UserChatRolesStore) {
     }

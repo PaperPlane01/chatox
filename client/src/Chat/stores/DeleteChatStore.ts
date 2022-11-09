@@ -5,7 +5,7 @@ import {validateChatDeletionComment} from "../validation";
 import {ChatDeletionReason} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {DeleteChatRequest} from "../../api/types/request";
 
 export class DeleteChatStore {
@@ -52,7 +52,7 @@ export class DeleteChatStore {
         return this.currentStep !== ChatDeletionStep.NONE;
     }
 
-    constructor(private readonly entities: EntitiesStore,
+    constructor(private readonly entities: EntitiesStoreV2,
                 private readonly chatStore: ChatStore) {
         reaction(
             () => this.deleteChatForm.reason,
@@ -110,11 +110,10 @@ export class DeleteChatStore {
                 this.entities.chats.deleteById(chatId);
 
                 if (requestData) {
-                    this.entities.chats.setDeletionReasonAndComment(
-                        chatId,
-                        requestData.reason,
-                        requestData.comment
-                    )
+                    this.entities.chats.deleteById(chatId, {
+                        deletionReason: requestData.reason,
+                        deletionComment: requestData.comment
+                    });
                 }
 
                 this.setShowSnackbar(true);

@@ -1,17 +1,10 @@
 import {action} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {ChatBlockingEntity, ChatBlockingSortableProperties} from "../types";
+import {ChatBlockingEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {ChatBlocking} from "../../api/types/response";
 import {UsersStore} from "../../User/stores";
-import {SortingDirection} from "../../utils/types";
-
-export interface FindChatBlockingsByChatOptions {
-    chatId: string,
-    sortingProperty?: ChatBlockingSortableProperties,
-    sortingDirection?: SortingDirection,
-    filter?: (chatBlocking: ChatBlockingEntity) => boolean
-}
+import {FindChatBlockingsByChatOptions} from "./ChatBlockingsStoreV2";
 
 export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, ChatBlocking> {
     constructor(private readonly users: UsersStore) {

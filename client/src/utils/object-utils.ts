@@ -1,3 +1,5 @@
+import {union} from "lodash";
+
 export const countMotUndefinedValues = <T extends object>(object: T): number => {
     let notUndefinedValues = 0;
 
@@ -18,6 +20,6 @@ export const isDefined = <T>(value: T | undefined | number): value is T => value
 
 export const mergeCustomizer = (object: unknown, source: unknown): unknown => {
     if (Array.isArray(object)) {
-        return object.concat(source);
+        return union(object, source as Array<any>);
     }
 }

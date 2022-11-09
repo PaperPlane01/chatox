@@ -1,6 +1,6 @@
-import {observable, action, computed, runInAction, reaction} from "mobx";
+import {action, computed, observable, reaction, runInAction} from "mobx";
 import {ChatStore} from "../../Chat";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 
 export class MessageDialogStore {
@@ -29,11 +29,10 @@ export class MessageDialogStore {
     }
 
     constructor(private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStore) {
+                private readonly entities: EntitiesStoreV2) {
         reaction(
             () => this.messageId,
             (messageId) => {
-                console.log("reacting")
                 if (messageId) {
                     this.fetchMessage();
                 }
@@ -68,11 +67,8 @@ export class MessageDialogStore {
         this.messagePending = true;
 
         MessageApi.getMessage(this.selectedChatId, this.messageId)
-            .then(({data}) => this.entities.insertMessage(data, true))
-            .catch(error => runInAction(() => {
-                console.error("Caught error!")
-                this.error = getInitialApiErrorFromResponse(error)
-            }))
+            .then(({data}) => this.entities.messages.insert(data, {skipSettingLastMessage: true}))
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.messagePending = false));
     }
 }

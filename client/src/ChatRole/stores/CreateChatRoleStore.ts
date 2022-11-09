@@ -2,7 +2,7 @@ import {action, computed, observable} from "mobx";
 import {AbstractChatRoleFormStore} from "./AbstractChatRoleFormStore";
 import {ChatFeaturesFormStore} from "./ChatFeaturesFormStore";
 import {RolesOfChatStore} from "./RolesOfChatStore";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ChatRoleApi, getInitialApiErrorFromResponse} from "../../api";
 import {ChatOfCurrentUserEntity, ChatStore} from "../../Chat";
 import {SnackbarService} from "../../Snackbar";
@@ -27,7 +27,7 @@ export class CreateChatRoleStore extends AbstractChatRoleFormStore {
     }
 
     constructor(chatFeaturesForm: ChatFeaturesFormStore,
-                entities: EntitiesStore,
+                entities: EntitiesStoreV2,
                 localeStore: LocaleStore,
                 snackbarService: SnackbarService,
                 private readonly chatStore: ChatStore,
@@ -65,7 +65,7 @@ export class CreateChatRoleStore extends AbstractChatRoleFormStore {
         ChatRoleApi
             .createChatRole(this.selectedChatId, apiRequest)
             .then(({data}) => {
-                this.entities.insertChatRole(data);
+                this.entities.chatRoles.insert(data);
                 this.showSuccessLabel();
                 this.openRolesList();
             })

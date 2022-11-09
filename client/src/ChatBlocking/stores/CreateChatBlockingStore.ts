@@ -1,11 +1,11 @@
-import {action, computed, observable, reaction} from "mobx";
+import {action, computed, observable, reaction, runInAction} from "mobx";
 import {addHours, subDays, subHours, subMinutes, subYears} from "date-fns";
 import {CreateChatBlockingFormData, RecentMessagesDeletionPeriod} from "../types";
 import {validateBlockedUntil, validateBlockingDescription} from "../validation";
 import {ChatStore} from "../../Chat";
 import {ApiError, ChatBlockingApi, getInitialApiErrorFromResponse} from "../../api";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 
 export class CreateChatBlockingStore {
     @observable
@@ -44,7 +44,7 @@ export class CreateChatBlockingStore {
     }
 
     constructor(private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStore) {
+                private readonly entities: EntitiesStoreV2) {
         reaction(
             () => this.createChatBlockingFormData.description,
             description => this.formErrors.description = validateBlockingDescription(description)
@@ -103,13 +103,13 @@ export class CreateChatBlockingStore {
                         }
                     )
                         .then(({data}) => {
-                            this.entities.insertChatBlocking(data);
+                            this.entities.chatBlockings.insert(data);
                             this.setCreateChatBlockingDialogOpen(false);
                             this.setShowSnackbar(true);
                             this.resetForm();
                         })
-                        .catch(error => this.submissionError = getInitialApiErrorFromResponse(error))
-                        .finally(() => this.pending = false);
+                        .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
+                        .finally(() => runInAction(() => this.pending = false));
                 }
             })
         }

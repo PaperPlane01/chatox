@@ -4,7 +4,7 @@ import {ConvertableChatFeatureFormStore} from "./ConvertableChatFeatureFormStore
 import {SendMessagesFeatureFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {ChatFeatures} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 
 const INITIAL_FORM_VALUES: SendMessagesFeatureFormData = {
     enabled: false,
@@ -26,7 +26,7 @@ const INITIAL_FORM_ERRORS: FormErrors<SendMessagesFeatureFormData> = {
 };
 
 export class SendMessagesFeatureFormStore extends AbstractChatFeatureFormStore<SendMessagesFeatureFormData> implements ConvertableChatFeatureFormStore<"sendMessages"> {
-    constructor(private entities: EntitiesStore, initialValues: SendMessagesFeatureFormData = INITIAL_FORM_VALUES) {
+    constructor(private entities: EntitiesStoreV2, initialValues: SendMessagesFeatureFormData = INITIAL_FORM_VALUES) {
         super(initialValues, INITIAL_FORM_ERRORS);
     }
 

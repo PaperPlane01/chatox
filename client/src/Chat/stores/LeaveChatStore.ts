@@ -1,6 +1,6 @@
-import {action, observable} from "mobx";
+import {action, observable, runInAction} from "mobx";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 
 export class LeaveChatStore {
     @observable
@@ -9,7 +9,7 @@ export class LeaveChatStore {
     @observable
     error?: ApiError = undefined;
 
-    constructor(private readonly entitiesStore: EntitiesStore) {
+    constructor(private readonly entities: EntitiesStoreV2) {
     }
 
     @action
@@ -18,8 +18,8 @@ export class LeaveChatStore {
         this.error = undefined;
 
         ChatApi.leaveChat(chatId)
-            .then(() => this.entitiesStore.deleteChatParticipation(chatParticipationId))
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false);
+            .then(() => this.entities.chatParticipations.deleteById(chatParticipationId, {decreaseChatParticipantsCount: true}))
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.pending = false));
     }
 }

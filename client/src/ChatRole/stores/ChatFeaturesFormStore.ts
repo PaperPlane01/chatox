@@ -3,7 +3,7 @@ import {BlockUsersFeatureFormStore} from "./BlockUsersFeatureFormStore";
 import {SendMessagesFeatureFormStore} from "./SendMessagesFeatureFormStore";
 import {DefaultChatFeatureFormStore} from "./DefaultChatFeatureFormStore";
 import {LevelBasedChatFeatureFromStore} from "./LevelBasedChatFeatureFromStore";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ChatFeatures} from "../../api/types/response";
 
 interface FeaturesForms {
@@ -96,7 +96,7 @@ export class ChatFeaturesFormStore {
         ];
     }
 
-    public static createInstance(entities: EntitiesStore): ChatFeaturesFormStore {
+    public static createInstance(entities: EntitiesStoreV2): ChatFeaturesFormStore {
         const blockUsers = new BlockUsersFeatureFormStore(entities);
         const sendMessages = new SendMessagesFeatureFormStore(entities);
         const kickUsers = new DefaultChatFeatureFormStore(entities, "kickUsers");

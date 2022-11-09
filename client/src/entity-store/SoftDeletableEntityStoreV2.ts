@@ -8,7 +8,13 @@ type SoftDeletableEntity<EntityName extends Entities> = GetEntityType<EntityName
     deleted: boolean
 }
 
-export abstract class SoftDeletableEntityStoreV2<EntityName extends Entities, Entity extends SoftDeletableEntity<EntityName>, DenormalizedEntity extends BaseEntity, InsertOptions extends object = {}>
+export abstract class SoftDeletableEntityStoreV2<
+    EntityName extends Entities,
+    Entity extends SoftDeletableEntity<EntityName>,
+    DenormalizedEntity extends BaseEntity,
+    InsertOptions extends object = {},
+    DeleteOptions extends object = {}
+    >
     extends AbstractEntityStoreV2<EntityName, Entity, DenormalizedEntity, InsertOptions> {
 
     @action.bound

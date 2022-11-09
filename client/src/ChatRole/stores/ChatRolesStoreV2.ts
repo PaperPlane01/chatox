@@ -4,8 +4,13 @@ import {AbstractEntityStoreV2} from "../../entity-store";
 import {EntitiesPatch} from "../../entities-store";
 import {ChatRole} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
+import {createTransformer} from "mobx-utils";
 
 export class ChatRolesStoreV2 extends AbstractEntityStoreV2<"chatRoles", ChatRoleEntity, ChatRole> {
+
+    findAllByChat = createTransformer((chatId: string): ChatRoleEntity[] => {
+        return this.findAll().filter(chatRole => chatRole.chatId === chatId);
+    })
 
     createPatchForArray(denormalizedEntities: ChatRole[], options: {} | undefined): EntitiesPatch {
         const patch = this.createEmptyEntitiesPatch("chatRoles", "users");

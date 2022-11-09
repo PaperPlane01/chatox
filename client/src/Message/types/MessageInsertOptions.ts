@@ -1,3 +1,4 @@
 export interface MessageInsertOptions {
-    skipSettingLastMessage: boolean
+    skipSettingLastMessage: boolean,
+    pinnedMessageId?: string
 }

@@ -30,6 +30,11 @@ export abstract class AbstractEntityStoreV2<
     }
 
     @action.bound
+    deleteAll(): void {
+        this.deleteAllById(this.ids);
+    }
+
+    @action.bound
     deleteAllById(ids: string[]): void {
         ids.forEach(id => this.rawEntities.deleteEntity(this.entityName, id));
     }
@@ -45,7 +50,7 @@ export abstract class AbstractEntityStoreV2<
 
     findAllById = createTransformer((ids: Iterable<string>): Entity[] => {
         const entities: Entity[] = [];
-        for (const id in ids) {
+        for (const id of ids) {
             entities.push(this.findById(id));
         }
         return entities;
@@ -56,7 +61,7 @@ export abstract class AbstractEntityStoreV2<
     });
 
     findByIdOptional = createTransformer((id: string): Entity | undefined => {
-        return this.rawEntities.entities[this.entityName][id]  as Entity | undefined;
+        return this.rawEntities.entities[this.entityName][id] as Entity | undefined;
     });
 
     @action.bound

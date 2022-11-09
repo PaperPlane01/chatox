@@ -1,11 +1,11 @@
-import {action, computed, observable, reaction} from "mobx";
+import {action, computed, observable, reaction, runInAction} from "mobx";
 import {addMonths} from "date-fns";
 import {BanUserFormData, GlobalBanEntity} from "../types";
 import {validateGlobalBanComment, validateGlobalBanExpirationDate} from "../validation";
 import {GlobalBanReason} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {ApiError, getInitialApiErrorFromResponse, GlobalBanApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 
 const UPDATE_GLOBAL_BAN_FORM_INITIAL_STATE: BanUserFormData = {
     comment: "",
@@ -52,7 +52,7 @@ export class UpdateGlobalBanStore {
         }
     }
     
-    constructor(private readonly entities: EntitiesStore) {
+    constructor(private readonly entities: EntitiesStoreV2) {
         reaction(
             () => this.updatedGlobalBan,
             () => {
@@ -135,10 +135,10 @@ export class UpdateGlobalBanStore {
                 this.setUpdateGlobalBanDialogOpen(false);
                 this.setUpdatedGlobalBanId(undefined);
                 this.setShowSnackbar(true);
-                this.entities.insertGlobalBan(data);
+                this.entities.globalBans.insert(data);
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false);
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.pending = false));
     }
     
     @action

@@ -1,8 +1,8 @@
-import {observable, action, runInAction, reaction} from "mobx";
+import {action, observable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ApiError, getInitialApiErrorFromResponse, StickerApi} from "../../api";
 import {AuthorizationStore} from "../../Authorization";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 
 export class InstalledStickerPacksStore {
     @observable
@@ -15,7 +15,7 @@ export class InstalledStickerPacksStore {
     error?: ApiError = undefined;
 
     constructor(private readonly authorizationStore: AuthorizationStore,
-                private readonly entities: EntitiesStore) {
+                private readonly entities: EntitiesStoreV2) {
         reaction(
             () => this.authorizationStore.currentUser,
             currentUser => {
@@ -35,7 +35,7 @@ export class InstalledStickerPacksStore {
 
         StickerApi.getInstalledStickerPacks()
             .then(({data}) => runInAction(() => {
-                this.entities.insertStickerPacks(data);
+                this.entities.stickerPacks.insertAll(data);
                 this.installedStickerPacksIds = data.map(stickerPack => stickerPack.id);
             }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))

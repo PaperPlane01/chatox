@@ -1,3 +1,4 @@
+import {action, computed} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {mergeWith} from "lodash";
 import {FindChatParticipationByUserAndChatOptions} from "./ChatParticipationsStore";
@@ -6,8 +7,11 @@ import {AbstractEntityStoreV2} from "../../entity-store";
 import {EntitiesPatch, EntitiesStoreV2, RawEntitiesStore} from "../../entities-store";
 import {ChatParticipation, CurrentUser} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
-import {action, computed} from "mobx";
 import {AuthorizationStore} from "../../Authorization";
+
+interface InsertChatParticipantOptions {
+    increaseChatParticipantsCount: boolean
+}
 
 type DecreaseChatParticipantsCountCallback = (chatParticipation?: ChatParticipationEntity, currentUser?: CurrentUser) => boolean;
 
@@ -15,8 +19,13 @@ interface DeleteChatParticipantOptions {
     decreaseChatParticipantsCount?: boolean | DecreaseChatParticipantsCountCallback
 }
 
-
-export class ChatParticipationsStoreV2 extends AbstractEntityStoreV2<"chatParticipations", ChatParticipationEntity, ChatParticipation, {}, DeleteChatParticipantOptions> {
+export class ChatParticipationsStoreV2 extends AbstractEntityStoreV2<
+    "chatParticipations",
+    ChatParticipationEntity,
+    ChatParticipation,
+    InsertChatParticipantOptions,
+    DeleteChatParticipantOptions
+    > {
     @computed
     private get currentUser(): CurrentUser | undefined {
         return this.authorization.currentUser;
@@ -63,12 +72,13 @@ export class ChatParticipationsStoreV2 extends AbstractEntityStoreV2<"chatPartic
         super.deleteById(id);
     }
 
-    createPatchForArray(denormalizedEntities: ChatParticipation[], options?: {}): EntitiesPatch {
+    createPatchForArray(denormalizedEntities: ChatParticipation[], options?: InsertChatParticipantOptions): EntitiesPatch {
         const patch = this.createEmptyEntitiesPatch(
             "chatParticipations",
             "users",
             "uploads",
-            "chatRoles"
+            "chatRoles",
+            "chats"
         );
         const patches: EntitiesPatch[] = [];
 
@@ -82,6 +92,13 @@ export class ChatParticipationsStoreV2 extends AbstractEntityStoreV2<"chatPartic
 
             if (chatParticipation.activeChatBlocking) {
                 patches.push(this.entities.chatBlockings.createPatch(chatParticipation.activeChatBlocking));
+            }
+
+            if (options && options.increaseChatParticipantsCount) {
+                const chat = this.entities.chats.findById(chatParticipation.chatId);
+                chat.participantsCount = chat.participantsCount + 1;
+
+                patch.entities.chats[chat.id] = chat;
             }
         });
 

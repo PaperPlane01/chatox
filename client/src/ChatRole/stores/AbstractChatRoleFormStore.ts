@@ -5,7 +5,7 @@ import {validateRoleLevel, validateRoleName} from "../validation";
 import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
 import {CreateChatRoleRequest} from "../../api/types/request";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {Labels, LocaleStore} from "../../localization";
 import {SnackbarService} from "../../Snackbar";
 
@@ -22,7 +22,7 @@ const INITIAL_FORM_ERRORS: FormErrors<ChatRoleFormData> = {
 
 export abstract class AbstractChatRoleFormStore extends AbstractFormStore<ChatRoleFormData> {
     protected constructor(protected readonly chatFeaturesForm: ChatFeaturesFormStore,
-                          protected readonly entities: EntitiesStore,
+                          protected readonly entities: EntitiesStoreV2,
                           private readonly localeStore: LocaleStore,
                           private readonly snackbarService: SnackbarService) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);

@@ -1,7 +1,7 @@
-import {action, observable, reaction} from "mobx";
+import {action, observable, reaction, runInAction} from "mobx";
 import {ChatBlockingEntity, UpdateChatBlockingFormData} from "../types";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ApiError, ChatBlockingApi, getInitialApiErrorFromResponse} from "../../api";
 import {validateBlockedUntil, validateBlockingDescription} from "../validation";
 
@@ -30,7 +30,7 @@ export class UpdateChatBlockingStore {
     @observable
     updatedChatBlocking?: ChatBlockingEntity = undefined;
 
-    constructor(private readonly entities: EntitiesStore) {
+    constructor(private readonly entities: EntitiesStoreV2) {
         reaction(
             () => this.updateChatBlockingForm.blockedUntil,
             blockedUntil => this.formErrors.blockedUntil = validateBlockedUntil(blockedUntil)
@@ -79,13 +79,13 @@ export class UpdateChatBlockingStore {
                     }
                 )
                     .then(({data}) => {
-                        this.entities.insertChatBlocking(data);
+                        this.entities.chatBlockings.insert(data);
                         this.setUpdateChatBlockingDialogOpen(false);
                         this.updatedChatBlocking = undefined;
                         this.resetForm();
                     })
-                    .catch(error => this.submissionError = getInitialApiErrorFromResponse(error))
-                    .finally(() => this.pending = false);
+                    .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
+                    .finally(() => runInAction(() => this.pending = false));
             }
         })
     };

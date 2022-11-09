@@ -1,6 +1,6 @@
 import {action, computed, observable} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ChatStore} from "../../Chat/stores";
 
 export class PublishScheduledMessageStore {
@@ -18,7 +18,7 @@ export class PublishScheduledMessageStore {
         return this.chatStore.selectedChatId;
     }
 
-    constructor(private readonly entities: EntitiesStore,
+    constructor(private readonly entities: EntitiesStoreV2,
                 private readonly chatStore: ChatStore) {
     }
 
@@ -34,8 +34,9 @@ export class PublishScheduledMessageStore {
 
         MessageApi.publishScheduledMessage(chatId, messageId)
             .then(({data}) => {
-                this.entities.deleteScheduledMessage(chatId, messageId);
-                this.entities.insertMessage(data);
+                this.entities.chats.removeScheduledMessageFromChat(chatId, messageId);
+                this.entities.scheduledMessages.deleteById(messageId);
+                this.entities.messages.insert(data);
             })
             .catch(error => this.error = getInitialApiErrorFromResponse(error))
             .finally(() => {

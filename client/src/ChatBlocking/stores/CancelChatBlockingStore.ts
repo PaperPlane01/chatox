@@ -1,6 +1,6 @@
-import {observable, action} from "mobx";
+import {action, observable, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStoreV2} from "../../entities-store";
 import {ChatBlockingApi} from "../../api/clients";
 
 export class CancelChatBlockingStore {
@@ -9,7 +9,7 @@ export class CancelChatBlockingStore {
         [chatBlockingId: string]: boolean
     } = {};
 
-    constructor(private readonly entities: EntitiesStore) {}
+    constructor(private readonly entities: EntitiesStoreV2) {}
 
     isChatBlockingCancellationPending = createTransformer((blockingId: string) => {
         return Boolean(this.pendingCancellationsMap[blockingId]);
@@ -22,6 +22,6 @@ export class CancelChatBlockingStore {
 
         ChatBlockingApi.cancelChatBlocking(chatBlocking.chatId, id)
             .then(({data}) => this.entities.chatBlockings.insert(data))
-            .finally(() => this.pendingCancellationsMap[id] = false);
+            .finally(() => runInAction(() => this.pendingCancellationsMap[id] = false));
     }
 }

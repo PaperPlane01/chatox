@@ -17,12 +17,9 @@ import {
 import {
     ChatInfoDialogStore,
     ChatParticipantsStore,
-    ChatParticipationsStore,
     ChatsOfCurrentUserStore,
     ChatsPreferencesStore,
-    ChatsStore,
     ChatStore,
-    ChatUploadsStore,
     CreateChatStore,
     DeleteChatStore,
     JoinChatStore,
@@ -35,7 +32,7 @@ import {
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
-import {EntitiesStore, EntitiesStoreV2, RawEntitiesStore} from "../entities-store";
+import {EntitiesStoreV2, RawEntitiesStore} from "../entities-store";
 import {
     createSetChangePasswordStepCallback,
     EditProfileStore,
@@ -43,8 +40,7 @@ import {
     PasswordChangeStepStore,
     PasswordChangeStore,
     SendPasswordChangeEmailConfirmationCodeStore,
-    UserProfileStore,
-    UsersStore
+    UserProfileStore
 } from "../User";
 import {
     ClosedPinnedMessagesStore,
@@ -56,12 +52,10 @@ import {
     MessageDialogStore,
     MessagesListScrollPositionsStore,
     MessagesOfChatStore,
-    MessagesStore,
     PinMessageStore,
     PinnedMessagesStore,
     PublishScheduledMessageStore,
     ScheduledMessagesOfChatStore,
-    ScheduledMessagesStore,
     ScheduleMessageStore,
     SearchMessagesStore,
     UnpinMessageStore,
@@ -76,11 +70,10 @@ import {
     ChatBlockingInfoDialogStore,
     ChatBlockingsDialogStore,
     ChatBlockingsOfChatStore,
-    ChatBlockingsStore,
     CreateChatBlockingStore,
     UpdateChatBlockingStore
 } from "../ChatBlocking";
-import {UploadImageStore, UploadsStore} from "../Upload";
+import {UploadImageStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
 import {EmojiSettingsStore} from "../Emoji";
@@ -91,7 +84,6 @@ import {
     CancelGlobalBanStore,
     GlobalBanDetailsDialogStore,
     GlobalBansListStore,
-    GlobalBansStore,
     UpdateGlobalBanStore
 } from "../GlobalBan";
 import {
@@ -100,12 +92,10 @@ import {
     CurrentReportsListStore,
     DeclineSelectedReportsStore,
     reportedChatsCreatorsSelector,
-    ReportedChatsStore,
     ReportedMessageDialogStore,
     reportedMessagesSendersSelector,
     reportedUsersSelector,
     ReportsListStore,
-    ReportsStore,
     UpdateSelectedReportsStore
 } from "../Report";
 import {ReportType} from "../api/types/response";
@@ -117,9 +107,7 @@ import {
     SearchStickerPacksStore,
     StickerEmojiPickerDialogStore,
     StickerPackDialogStore,
-    StickerPacksStore,
     StickerPickerStore,
-    StickersStore,
     UninstallStickerPackStore
 } from "../Sticker";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
@@ -131,57 +119,18 @@ import {
 import {
     ChatFeaturesFormStore,
     ChatRoleInfoDialogStore,
-    ChatRolesStore,
     CreateChatRoleStore,
     EditChatRoleStore,
     RolesOfChatStore,
     UserChatRolesStore
 } from "../ChatRole";
 import {SnackbarService} from "../Snackbar";
-import {MessagesStoreV2} from "../Message/stores/MessagesStoreV2";
-
-const messages = new MessagesStore();
-const chatsOfCurrentUserEntities = new ChatsStore();
-const usersStore = new UsersStore();
-const chatParticipations = new ChatParticipationsStore();
-const chatBlockings = new ChatBlockingsStore(usersStore);
-const uploads = new UploadsStore();
-const chatUploads = new ChatUploadsStore();
-const globalBans = new GlobalBansStore();
-const scheduledMessages = new ScheduledMessagesStore();
-const reports = new ReportsStore();
-const reportedMessages = new MessagesStore();
-const reportedMessagesSenders = new UsersStore();
-const reportedUsers = new UsersStore();
-const reportedChats = new ReportedChatsStore();
-const stickers = new StickersStore();
-const stickerPacks = new StickerPacksStore();
-const chatRoles = new ChatRolesStore();
-const entities = new EntitiesStore(
-    messages,
-    chatsOfCurrentUserEntities,
-    usersStore,
-    chatParticipations,
-    chatBlockings,
-    uploads,
-    chatUploads,
-    globalBans,
-    scheduledMessages,
-    reports,
-    reportedMessages,
-    reportedMessagesSenders,
-    reportedUsers,
-    reportedChats,
-    stickers,
-    stickerPacks,
-    chatRoles
-);
-const authorization = new AuthorizationStore(entities);
-
-entities.setAuthorizationStore(authorization);
 
 const rawEntities = new RawEntitiesStore();
+const authorization = new AuthorizationStore();
 const entitiesV2 = new EntitiesStoreV2(rawEntities, authorization);
+authorization.setEntities(entitiesV2);
+
 const login = new LoginStore(authorization);
 const registrationDialog = new RegistrationDialogStore();
 const language = new LocaleStore();
@@ -197,33 +146,33 @@ const userRegistration = new UserRegistrationStore(
 );
 const appBar = new AppBarStore();
 const markdownPreviewDialog = new MarkdownPreviewDialogStore();
-const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entities);
-const chatCreation = new CreateChatStore(entities);
-const chat = new ChatStore(entities, entitiesV2);
-const chatParticipants = new ChatParticipantsStore(entities, chat);
+const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entitiesV2);
+const chatCreation = new CreateChatStore(entitiesV2);
+const chat = new ChatStore(entitiesV2);
+const chatParticipants = new ChatParticipantsStore(entitiesV2, chat);
 const messageUploads = new UploadMessageAttachmentsStore();
-const messageCreation = new CreateMessageStore(chat, entities, messageUploads, entitiesV2);
+const messageCreation = new CreateMessageStore(chat, entitiesV2, messageUploads);
 const chatsPreferences = new ChatsPreferencesStore();
-const messagesSearch = new SearchMessagesStore(entities, chat);
-const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences, messagesSearch, entitiesV2);
-const joinChat = new JoinChatStore(entities, authorization);
-const userProfile = new UserProfileStore(entities);
-const createChatBlocking = new CreateChatBlockingStore(chat, entities);
-const chatBlockingsOfChat = new ChatBlockingsOfChatStore(entities, chat);
+const messagesSearch = new SearchMessagesStore(entitiesV2, chat);
+const messagesOfChat = new MessagesOfChatStore(entitiesV2, chat, chatsPreferences, messagesSearch);
+const joinChat = new JoinChatStore(entitiesV2, authorization);
+const userProfile = new UserProfileStore(entitiesV2);
+const createChatBlocking = new CreateChatBlockingStore(chat, entitiesV2);
+const chatBlockingsOfChat = new ChatBlockingsOfChatStore(entitiesV2, chat);
 const chatBlockingsDialog = new ChatBlockingsDialogStore();
-const cancelChatBlocking = new CancelChatBlockingStore(entities);
+const cancelChatBlocking = new CancelChatBlockingStore(entitiesV2);
 const chatBlockingInfoDialog = new ChatBlockingInfoDialogStore();
-const updateChatBlocking = new UpdateChatBlockingStore(entities);
+const updateChatBlocking = new UpdateChatBlockingStore(entitiesV2);
 const chatInfoDialog = new ChatInfoDialogStore();
-const blockUserInChatByIdOrSlug = new BlockUserInChatByIdOrSlugStore(entities, createChatBlocking);
-const onlineChatParticipants = new OnlineChatParticipantsStore(entities, chat);
-const chatAvatarUpload = new UploadImageStore(entities);
-const chatUpdate = new UpdateChatStore(chatAvatarUpload, chat, entities);
-const messageDialog = new MessageDialogStore(chat, entities);
-const userAvatarUpload = new UploadImageStore(entities);
-const editProfile = new EditProfileStore(authorization, userAvatarUpload, entities);
+const blockUserInChatByIdOrSlug = new BlockUserInChatByIdOrSlugStore(entitiesV2, createChatBlocking);
+const onlineChatParticipants = new OnlineChatParticipantsStore(entitiesV2, chat);
+const chatAvatarUpload = new UploadImageStore(entitiesV2);
+const chatUpdate = new UpdateChatStore(chatAvatarUpload, chat, entitiesV2);
+const messageDialog = new MessageDialogStore(chat, entitiesV2);
+const userAvatarUpload = new UploadImageStore(entitiesV2);
+const editProfile = new EditProfileStore(authorization, userAvatarUpload, entitiesV2);
 const settingsTabs = new SettingsTabsStore();
-const messageUpdate = new UpdateMessageStore(chat, entities);
+const messageUpdate = new UpdateMessageStore(chat, entitiesV2);
 const passwordChangeStep = new PasswordChangeStepStore();
 const passwordChangeForm = new PasswordChangeFormSubmissionStore(passwordChangeStep);
 const passwordChangeEmailConfirmationCodeSending = new SendPasswordChangeEmailConfirmationCodeStore(
@@ -256,69 +205,67 @@ const passwordRecoveryForm = new RecoverPasswordStore(
     passwordRecoveryEmailConfirmationCodeSending,
     passwordRecoveryEmailConfirmationCodeCheck
 );
-const leaveChat = new LeaveChatStore(entities);
-const popularChats = new PopularChatsStore(entities);
-const messageDeletion = new DeleteMessageStore(entities, chat);
+const leaveChat = new LeaveChatStore(entitiesV2);
+const popularChats = new PopularChatsStore(entitiesV2);
+const messageDeletion = new DeleteMessageStore(entitiesV2, chat);
 const anonymousRegistration = new AnonymousRegistrationDialogStore(authorization);
-const kickFromChat = new KickChatParticipantStore(entities, chat);
-const chatDeletion = new DeleteChatStore(entities, chat);
-const userGlobalBan = new BanUserStore(entities);
-const globalBansList = new GlobalBansListStore(entities);
+const kickFromChat = new KickChatParticipantStore(entitiesV2, chat);
+const chatDeletion = new DeleteChatStore(entitiesV2, chat);
+const userGlobalBan = new BanUserStore(entitiesV2);
+const globalBansList = new GlobalBansListStore(entitiesV2);
 const globalBanDetailsDialog = new GlobalBanDetailsDialogStore();
-const cancelGlobalBan = new CancelGlobalBanStore(entities);
-const updateGlobalBan = new UpdateGlobalBanStore(entities);
-const pinMessage = new PinMessageStore(entities, chat);
-const unpinMessage = new UnpinMessageStore(entities, chat);
+const cancelGlobalBan = new CancelGlobalBanStore(entitiesV2);
+const updateGlobalBan = new UpdateGlobalBanStore(entitiesV2);
+const pinMessage = new PinMessageStore(entitiesV2, chat);
+const unpinMessage = new UnpinMessageStore(entitiesV2, chat);
 const closedPinnedMessages = new ClosedPinnedMessagesStore();
-const pinnedMessages = new PinnedMessagesStore(entities, chat, closedPinnedMessages);
+const pinnedMessages = new PinnedMessagesStore(entitiesV2, chat, closedPinnedMessages);
 const scheduleMessage = new ScheduleMessageStore(messageCreation);
-const scheduledMessagesOfChat = new ScheduledMessagesOfChatStore(entities, chat);
-const publishScheduledMessage = new PublishScheduledMessageStore(entities, chat);
-const deleteScheduledMessage = new DeleteScheduledMessageStore(entities, chat);
-const updateScheduledMessage = new UpdateScheduledMessageStore(entities);
+const scheduledMessagesOfChat = new ScheduledMessagesOfChatStore(entitiesV2, chat);
+const publishScheduledMessage = new PublishScheduledMessageStore(entitiesV2, chat);
+const deleteScheduledMessage = new DeleteScheduledMessageStore(entitiesV2, chat);
+const updateScheduledMessage = new UpdateScheduledMessageStore(entitiesV2);
 const reportMessage = new CreateReportStore(ReportType.MESSAGE);
-const messageReports = new ReportsListStore(entities, authorization, ReportType.MESSAGE);
+const messageReports = new ReportsListStore(entitiesV2, authorization, ReportType.MESSAGE);
 const reportedMessageDialog = new ReportedMessageDialogStore();
 const currentReportsList = new CurrentReportsListStore();
-const selectedReportsUpdate = new UpdateSelectedReportsStore(entities, currentReportsList)
+const selectedReportsUpdate = new UpdateSelectedReportsStore(entitiesV2, currentReportsList)
 const selectedReportedMessagesDeletion = new DeleteSelectedReportedMessagesStore(messageReports, selectedReportsUpdate);
-const selectedReportedMessagesSendersBan = new BanUsersRelatedToSelectedReportsStore(entities, messageReports, selectedReportsUpdate, reportedMessagesSendersSelector);
+const selectedReportedMessagesSendersBan = new BanUsersRelatedToSelectedReportsStore(entitiesV2, messageReports, selectedReportsUpdate, reportedMessagesSendersSelector);
 const declineReports = new DeclineSelectedReportsStore(selectedReportsUpdate);
 const reportUser = new CreateReportStore(ReportType.USER);
-const userReports = new ReportsListStore(entities, authorization, ReportType.USER);
-const selectedReportedUsersBan = new BanUsersRelatedToSelectedReportsStore(entities, userReports, selectedReportsUpdate, reportedUsersSelector);
+const userReports = new ReportsListStore(entitiesV2, authorization, ReportType.USER);
+const selectedReportedUsersBan = new BanUsersRelatedToSelectedReportsStore(entitiesV2, userReports, selectedReportsUpdate, reportedUsersSelector);
 const reportChat = new CreateReportStore(ReportType.CHAT);
-const chatReports = new ReportsListStore(entities, authorization, ReportType.CHAT);
-const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsStore(entities, chatReports, selectedReportsUpdate, reportedChatsCreatorsSelector);
+const chatReports = new ReportsListStore(entitiesV2, authorization, ReportType.CHAT);
+const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsStore(entitiesV2, chatReports, selectedReportsUpdate, reportedChatsCreatorsSelector);
 const googleLogin = new LoginWithGoogleStore(authorization);
 const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
-const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
-const websocket = new WebsocketStore(authorization, entities, chat, messagesListScrollPositions, markMessageRead, entitiesV2);
-const stickerPackCreation = new CreateStickerPackStore(entities);
+const markMessageRead = new MarkMessageReadStore(entitiesV2, chat, messagesListScrollPositions);
+const websocket = new WebsocketStore(authorization, entitiesV2, chat, messagesListScrollPositions, markMessageRead);
+const stickerPackCreation = new CreateStickerPackStore(entitiesV2);
 const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
-const installedStickerPacks = new InstalledStickerPacksStore(authorization, entities);
+const installedStickerPacks = new InstalledStickerPacksStore(authorization, entitiesV2);
 const stickerPackInstallation = new InstallStickerPackStore(installedStickerPacks);
 const stickerPackUninstallation = new UninstallStickerPackStore(installedStickerPacks);
-const stickerPacksSearch = new SearchStickerPacksStore(entities);
+const stickerPacksSearch = new SearchStickerPacksStore(entitiesV2);
 const stickerPackDialog = new StickerPackDialogStore();
 const stickerPicker = new StickerPickerStore(installedStickerPacks, authorization);
 const emojiPickerTabs = new EmojiPickerTabsStore();
-const blacklistedUsers = new BlacklistedUsersStore(entities);
+const blacklistedUsers = new BlacklistedUsersStore(entitiesV2);
 const addUserToBlacklist = new AddUserToBlacklistStore(blacklistedUsers);
 const removeUserFromBlacklist = new RemoveUserFromBlacklistStore(blacklistedUsers);
 const chatsAndMessagesSearchQuery = new ChatsAndMessagesSearchQueryStore();
-const allChatsMessagesSearch = new AllChatsMessagesSearchStore(chatsAndMessagesSearchQuery, entities);
-const chatsOfCurrentUserSearch = new ChatsOfCurrentUserSearchStore(chatsAndMessagesSearchQuery, entities);
-const rolesOfChats = new RolesOfChatStore(chat, entities);
-const userChatRoles = new UserChatRolesStore(chatParticipations, entities);
-entities.setUserChatRolesStore(userChatRoles);
-
-const chatFeaturesForm = ChatFeaturesFormStore.createInstance(entities);
-const updateChatParticipant = new UpdateChatParticipantStore(entities, authorization, userChatRoles);
+const allChatsMessagesSearch = new AllChatsMessagesSearchStore(chatsAndMessagesSearchQuery, entitiesV2);
+const chatsOfCurrentUserSearch = new ChatsOfCurrentUserSearchStore(chatsAndMessagesSearchQuery, entitiesV2);
+const rolesOfChats = new RolesOfChatStore(chat, entitiesV2);
+const userChatRoles = new UserChatRolesStore(entitiesV2);
+const chatFeaturesForm = ChatFeaturesFormStore.createInstance(entitiesV2);
+const updateChatParticipant = new UpdateChatParticipantStore(entitiesV2, authorization, userChatRoles);
 const chatRoleInfo = new ChatRoleInfoDialogStore();
 const snackbarService = new SnackbarService();
-const editChatRole = new EditChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chatRoleInfo);
-const createChatRole = new CreateChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chat, rolesOfChats);
+const editChatRole = new EditChatRoleStore(chatFeaturesForm, entitiesV2, language, snackbarService, chatRoleInfo);
+const createChatRole = new CreateChatRoleStore(chatFeaturesForm, entitiesV2, language, snackbarService, chat, rolesOfChats);
 
 export const store: IAppState = {
     authorization,
@@ -328,7 +275,7 @@ export const store: IAppState = {
     appBar,
     chatCreation,
     markdownPreviewDialog,
-    entities,
+    entities: entitiesV2,
     chatsOfCurrentUser,
     chat,
     chatParticipants,
@@ -430,6 +377,5 @@ export const store: IAppState = {
     chatRoleInfo,
     editChatRole,
     createChatRole,
-    rawEntities,
-    entitiesV2
+    rawEntities
 };

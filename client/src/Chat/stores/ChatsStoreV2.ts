@@ -1,15 +1,33 @@
 import {action, computed, observable} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {mergeWith} from "lodash";
+import {mergeWith, uniq} from "lodash";
 import {ChatOfCurrentUserEntity} from "../types";
 import {SoftDeletableEntityStoreV2} from "../../entity-store";
-import {ChatDeletionReason, ChatOfCurrentUser, ChatType, CurrentUser} from "../../api/types/response";
+import {
+    ChatDeletionReason,
+    ChatOfCurrentUser,
+    ChatParticipation,
+    ChatType,
+    CurrentUser
+} from "../../api/types/response";
 import {EntitiesPatch, EntitiesStoreV2, RawEntitiesStore} from "../../entities-store";
 import {mergeCustomizer} from "../../utils/object-utils";
 import {AuthorizationStore} from "../../Authorization";
 import {PartialBy} from "../../utils/types";
+import {ChatUpdated, PrivateChatCreated} from "../../api/types/websocket";
 
-export class ChatsStoreV2 extends SoftDeletableEntityStoreV2<"chats", ChatOfCurrentUserEntity, PartialBy<ChatOfCurrentUser, "unreadMessagesCount">> {
+interface DeleteChatOptions {
+    deletionReason?: ChatDeletionReason,
+    deletionComment?: string
+}
+
+export class ChatsStoreV2 extends SoftDeletableEntityStoreV2<
+    "chats",
+    ChatOfCurrentUserEntity,
+    PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted">,
+    {},
+    {deletionReason: ChatDeletionReason, deletionComment: string}
+    > {
     @observable
     privateChats: {[userId: string]: string} = {};
 
@@ -27,7 +45,76 @@ export class ChatsStoreV2 extends SoftDeletableEntityStoreV2<"chats", ChatOfCurr
     findBySlug = createTransformer((slug: string) => {
         const chats = this.ids.map(id => this.findById(id));
         return chats.find(chat => chat.slug === slug);
-    })
+    });
+
+    @action
+    onChatUpdated = (chatUpdated: ChatUpdated): void => {
+        const chat = this.findByIdOptional(chatUpdated.id);
+
+        if (!chat) {
+            return;
+        }
+
+        chat.name = chatUpdated.name;
+        chat.slug = chatUpdated.slug;
+        chat.avatarId = chatUpdated.avatar ? chatUpdated.avatar.id : undefined;
+        chat.description = chatUpdated.description;
+
+        this.insertEntity(chat);
+    }
+
+    @action
+    onPrivateChatCreated = (privateChatCreated: PrivateChatCreated): void => {
+        if (!this.currentUser) {
+            return;
+        }
+
+        let currentUserChatParticipation: ChatParticipation | undefined;
+        let otherUserChatParticipation: ChatParticipation | undefined;
+
+        for (const chatParticipation of privateChatCreated.chatParticipations) {
+            if (chatParticipation.user.id === this.currentUser.id) {
+                currentUserChatParticipation = chatParticipation;
+            } else {
+                otherUserChatParticipation = chatParticipation;
+            }
+        }
+
+        if (!otherUserChatParticipation || !currentUserChatParticipation) {
+            return;
+        }
+
+        const patch = this.createEmptyEntitiesPatch("chats", "chatParticipations");
+        const patches: EntitiesPatch[] = [];
+
+        patch.entities.chats[privateChatCreated.id] = {
+            id: privateChatCreated.id,
+            name: "",
+            lastMessage: privateChatCreated.message.id,
+            type: ChatType.DIALOG,
+            userId: otherUserChatParticipation.user.id,
+            deleted: false,
+            messages: [],
+            unreadMessagesCount: privateChatCreated.message.sender.id === this.currentUser.id ? 0 : 1,
+            participantsCount: 0,
+            participants: [],
+            indexToMessageMap: {},
+            createdAt: new Date(),
+            createdByCurrentUser: privateChatCreated.message.sender.id === this.currentUser.id,
+            onlineParticipantsCount: 0,
+            scheduledMessages: [],
+            tags: []
+        };
+        patch.ids.chats.push(privateChatCreated.id);
+
+        patches.push(this.entities.chatParticipations.createPatchForArray([currentUserChatParticipation, otherUserChatParticipation]));
+
+        this.rawEntities.applyPatch(mergeWith(
+            patch,
+            ...patches,
+            mergeCustomizer
+        ));
+    }
 
     @action
     setLastMessageOfChat = (chatId: string, messageId: string): void => {
@@ -138,16 +225,22 @@ export class ChatsStoreV2 extends SoftDeletableEntityStoreV2<"chats", ChatOfCurr
         }
     }
 
-    @action
-    setDeletionReasonAndComment = (chatId: string, deletionReason?: ChatDeletionReason, comment?: string): void => {
-        const chat = this.findByIdOptional(chatId);
+    @action.bound
+    deleteById(id: string, options?: DeleteChatOptions): void {
+        if (!options) {
+            super.deleteById(id);
+            return;
+        }
+
+        const chat = this.findByIdOptional(id);
 
         if (!chat) {
             return;
         }
 
-        chat.deletionReason = deletionReason;
-        chat.deletionComment = comment;
+        chat.deleted = true;
+        chat.deletionReason = options.deletionReason;
+        chat.deletionComment = options.deletionReason;
 
         this.insertEntity(chat);
     }
