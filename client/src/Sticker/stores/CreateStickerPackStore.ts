@@ -6,7 +6,7 @@ import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
 import {CreateStickerRequest} from "../../api/types/request";
 import {getInitialApiErrorFromResponse, StickerApi} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {UploadImageStore} from "../../Upload";
 
 const INITIAL_FORM_VALUES: CreateStickerPackFormData = {
@@ -37,7 +37,7 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
         return Object.keys(this.formValues.stickers).map(stickerLocalId => this.formValues.stickers[stickerLocalId])
     }
 
-    constructor(private readonly entities: EntitiesStoreV2) {
+    constructor(private readonly entities: EntitiesStore) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
 
         reaction(

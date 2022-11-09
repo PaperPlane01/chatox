@@ -4,7 +4,7 @@ import {MessageEntity, UpdateScheduledMessageFormData} from "../types";
 import {validateMessageScheduledDate, validateMessageText} from "../validation";
 import {AbstractFormStore} from "../../form-store";
 import {getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 export class UpdateScheduledMessageStore extends AbstractFormStore<UpdateScheduledMessageFormData> {
     @observable
@@ -25,7 +25,7 @@ export class UpdateScheduledMessageStore extends AbstractFormStore<UpdateSchedul
         }
     }
 
-    constructor(private readonly entities: EntitiesStoreV2) {
+    constructor(private readonly entities: EntitiesStore) {
         super(
             {text: "", scheduledAt: addMinutes(new Date(), 10)},
             {text: undefined, scheduledAt: undefined}

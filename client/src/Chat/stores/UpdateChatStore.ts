@@ -6,7 +6,7 @@ import {FormErrors} from "../../utils/types";
 import {UploadImageStore} from "../../Upload";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ImageUploadMetadata} from "../../api/types/response";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {Labels} from "../../localization/types";
 import {
     validateChatDescription,
@@ -89,7 +89,7 @@ export class UpdateChatStore {
 
     constructor(private readonly uploadChatAvatarStore: UploadImageStore,
                 private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStoreV2) {
+                private readonly entities: EntitiesStore) {
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300);
 
         reaction(

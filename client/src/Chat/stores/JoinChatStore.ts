@@ -1,7 +1,7 @@
 import {action, observable, runInAction} from "mobx";
 import {ChatApi} from "../../api/clients";
 import {ApiError, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
 
 export class JoinChatStore {
@@ -17,7 +17,7 @@ export class JoinChatStore {
     @observable
     showSnackbar: boolean = false;
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly authorization: AuthorizationStore) {}
 
     @action

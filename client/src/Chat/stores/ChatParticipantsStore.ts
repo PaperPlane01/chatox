@@ -3,7 +3,7 @@ import {createTransformer} from "mobx-utils";
 import {ChatStore} from "./ChatStore";
 import {PaginationState} from "../../utils/types";
 import {ChatApi} from "../../api/clients";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 interface ChatParticipantsPaginationStateMap {
     [chatId: string]: PaginationState
@@ -32,9 +32,8 @@ export class ChatParticipantsStore {
     }
 
     constructor(
-        private readonly entities: EntitiesStoreV2,
-        private readonly chatStore: ChatStore
-    ) {
+        private readonly entities: EntitiesStore,
+        private readonly chatStore: ChatStore) {
         reaction(
             () => this.selectedChat,
             () => this.fetchChatParticipants({abortIfInitiallyFetched: true})

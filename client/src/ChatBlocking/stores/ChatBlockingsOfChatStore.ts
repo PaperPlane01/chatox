@@ -4,7 +4,7 @@ import {ChatBlockingEntity, ChatBlockingSortableProperties} from "../types";
 import {isChatBlockingActive} from "../utils";
 import {ChatStore} from "../../Chat";
 import {FetchOptions, PaginationWithSortingState, SortingDirection} from "../../utils/types";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ChatBlockingApi} from "../../api";
 import {ChatBlocking} from "../../api/types/response";
 
@@ -31,7 +31,7 @@ export class ChatBlockingsOfChatStore {
         return this.chat.selectedChatId;
     }
 
-    constructor(private readonly entities: EntitiesStoreV2, private readonly chat: ChatStore) {}
+    constructor(private readonly entities: EntitiesStore, private readonly chat: ChatStore) {}
 
     getChatBlockingsOfChatState = createTransformer((chatId: string) => this.chatBlockingsOfChatStateMap[chatId]);
 

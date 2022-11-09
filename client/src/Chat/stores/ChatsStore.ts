@@ -1,17 +1,120 @@
-import {action, observable} from "mobx";
+import {action, computed, observable} from "mobx";
 import {createTransformer} from "mobx-utils";
+import {mergeWith, uniq} from "lodash";
 import {ChatOfCurrentUserEntity} from "../types";
-import {SoftDeletableEntityStore} from "../../entity-store";
-import {ChatDeletionReason, ChatOfCurrentUser, ChatType} from "../../api/types/response";
+import {SoftDeletableEntityStoreV2} from "../../entity-store";
+import {
+    ChatDeletionReason,
+    ChatOfCurrentUser,
+    ChatParticipation,
+    ChatType,
+    CurrentUser
+} from "../../api/types/response";
+import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
+import {mergeCustomizer} from "../../utils/object-utils";
+import {AuthorizationStore} from "../../Authorization";
+import {PartialBy} from "../../utils/types";
+import {ChatUpdated, PrivateChatCreated} from "../../api/types/websocket";
 
-export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity, ChatOfCurrentUser> {
+interface DeleteChatOptions {
+    deletionReason?: ChatDeletionReason,
+    deletionComment?: string
+}
+
+export class ChatsStore extends SoftDeletableEntityStoreV2<
+    "chats",
+    ChatOfCurrentUserEntity,
+    PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted">,
+    {},
+    {deletionReason: ChatDeletionReason, deletionComment: string}
+    > {
     @observable
     privateChats: {[userId: string]: string} = {};
+
+    @computed
+    private get currentUser(): CurrentUser | undefined {
+        return this.authorization.currentUser;
+    }
+
+    constructor(rawEntities: RawEntitiesStore,
+                entities: EntitiesStore,
+                private readonly authorization: AuthorizationStore) {
+        super(rawEntities, "chats", entities);
+    }
 
     findBySlug = createTransformer((slug: string) => {
         const chats = this.ids.map(id => this.findById(id));
         return chats.find(chat => chat.slug === slug);
-    })
+    });
+
+    @action
+    onChatUpdated = (chatUpdated: ChatUpdated): void => {
+        const chat = this.findByIdOptional(chatUpdated.id);
+
+        if (!chat) {
+            return;
+        }
+
+        chat.name = chatUpdated.name;
+        chat.slug = chatUpdated.slug;
+        chat.avatarId = chatUpdated.avatar ? chatUpdated.avatar.id : undefined;
+        chat.description = chatUpdated.description;
+
+        this.insertEntity(chat);
+    }
+
+    @action
+    onPrivateChatCreated = (privateChatCreated: PrivateChatCreated): void => {
+        if (!this.currentUser) {
+            return;
+        }
+
+        let currentUserChatParticipation: ChatParticipation | undefined;
+        let otherUserChatParticipation: ChatParticipation | undefined;
+
+        for (const chatParticipation of privateChatCreated.chatParticipations) {
+            if (chatParticipation.user.id === this.currentUser.id) {
+                currentUserChatParticipation = chatParticipation;
+            } else {
+                otherUserChatParticipation = chatParticipation;
+            }
+        }
+
+        if (!otherUserChatParticipation || !currentUserChatParticipation) {
+            return;
+        }
+
+        const patch = this.createEmptyEntitiesPatch("chats", "chatParticipations");
+        const patches: EntitiesPatch[] = [];
+
+        patch.entities.chats[privateChatCreated.id] = {
+            id: privateChatCreated.id,
+            name: "",
+            lastMessage: privateChatCreated.message.id,
+            type: ChatType.DIALOG,
+            userId: otherUserChatParticipation.user.id,
+            deleted: false,
+            messages: [],
+            unreadMessagesCount: privateChatCreated.message.sender.id === this.currentUser.id ? 0 : 1,
+            participantsCount: 0,
+            participants: [],
+            indexToMessageMap: {},
+            createdAt: new Date(),
+            createdByCurrentUser: privateChatCreated.message.sender.id === this.currentUser.id,
+            onlineParticipantsCount: 0,
+            scheduledMessages: [],
+            tags: []
+        };
+        patch.ids.chats.push(privateChatCreated.id);
+
+        patches.push(this.entities.chatParticipations.createPatchForArray([currentUserChatParticipation, otherUserChatParticipation]));
+
+        this.rawEntities.applyPatch(mergeWith(
+            patch,
+            ...patches,
+            mergeCustomizer
+        ));
+    }
 
     @action
     setLastMessageOfChat = (chatId: string, messageId: string): void => {
@@ -122,16 +225,22 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
         }
     }
 
-    @action
-    setDeletionReasonAndComment = (chatId: string, deletionReason?: ChatDeletionReason, comment?: string): void => {
-        const chat = this.findByIdOptional(chatId);
+    @action.bound
+    deleteById(id: string, options?: DeleteChatOptions): void {
+        if (!options) {
+            super.deleteById(id);
+            return;
+        }
+
+        const chat = this.findByIdOptional(id);
 
         if (!chat) {
             return;
         }
 
-        chat.deletionReason = deletionReason;
-        chat.deletionComment = comment;
+        chat.deleted = true;
+        chat.deletionReason = options.deletionReason;
+        chat.deletionComment = options.deletionReason;
 
         this.insertEntity(chat);
     }
@@ -160,11 +269,71 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
         return super.insertEntity(entity);
     }
 
-    protected convertToNormalizedForm(denormalizedEntity: ChatOfCurrentUser): ChatOfCurrentUserEntity {
+    createPatchForArray(denormalizedEntities: ChatOfCurrentUser[], options?: {}): EntitiesPatch {
+        const patch = this.createEmptyEntitiesPatch("chats");
+        const patches: EntitiesPatch[] = [];
+
+        denormalizedEntities.forEach(denormalizedEntity => {
+            const chat = this.convertToNormalizedForm(denormalizedEntity);
+
+            if (denormalizedEntity.user) {
+                patches.push(this.entities.users.createPatch(denormalizedEntity.user));
+            }
+
+            if (denormalizedEntity.chatParticipation && this.currentUser) {
+                patches.push(this.entities.chatParticipations.createPatch({
+                    ...denormalizedEntity.chatParticipation,
+                    user: {
+                        ...this.currentUser,
+                        online: true,
+                        deleted: false
+                    },
+                    chatId: denormalizedEntity.id
+                }));
+            }
+
+            if (denormalizedEntity.lastReadMessage) {
+                patches.push(
+                    this.entities.messages.createPatch(denormalizedEntity.lastReadMessage, {skipSettingLastMessage: true})
+                );
+                chat.lastReadMessage = denormalizedEntity.lastReadMessage.id;
+                chat.messages.push(denormalizedEntity.lastReadMessage.id);
+            }
+
+            if (denormalizedEntity.lastMessage) {
+                patches.push(this.entities.messages.createPatch(denormalizedEntity.lastMessage, {skipSettingLastMessage: true}));
+                chat.lastMessage = denormalizedEntity.lastMessage.id;
+                chat.messages.push(denormalizedEntity.lastMessage.id);
+            }
+
+            if (denormalizedEntity.avatar) {
+                patches.push(this.entities.uploads.createPatch(denormalizedEntity.avatar));
+            }
+
+            patch.entities.chats[denormalizedEntity.id] = chat;
+            patch.ids.chats.push(chat.id);
+        });
+
+        return mergeWith(patch, ...patches, mergeCustomizer);
+    }
+
+    protected convertToNormalizedForm(denormalizedEntity: PartialBy<ChatOfCurrentUser, "unreadMessagesCount">): ChatOfCurrentUserEntity {
         const indexToMessageMap: {[index: number]: string} = {};
 
         if (denormalizedEntity.lastMessage) {
             indexToMessageMap[denormalizedEntity.lastMessage.index] = denormalizedEntity.lastMessage.id;
+        }
+
+        let unreadMessagesCount = 0;
+
+        if (denormalizedEntity.unreadMessagesCount !== undefined) {
+            unreadMessagesCount = denormalizedEntity.unreadMessagesCount;
+        } else {
+            const existingChat = this.findByIdOptional(denormalizedEntity.id);
+
+            if (existingChat) {
+                unreadMessagesCount = existingChat.unreadMessagesCount;
+            }
         }
 
         return {
@@ -177,7 +346,7 @@ export class ChatsStore extends SoftDeletableEntityStore<ChatOfCurrentUserEntity
             createdAt: new Date(denormalizedEntity.createdAt),
             messages: denormalizedEntity.lastMessage ? [denormalizedEntity.lastMessage.id] : [],
             indexToMessageMap,
-            unreadMessagesCount: denormalizedEntity.unreadMessagesCount,
+            unreadMessagesCount,
             participantsCount: denormalizedEntity.participantsCount,
             participants: [],
             currentUserParticipationId: denormalizedEntity.chatParticipation

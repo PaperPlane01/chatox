@@ -1,7 +1,7 @@
 import {action, observable, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ApiError, getInitialApiErrorFromResponse, GlobalBanApi} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 export class CancelGlobalBanStore {
     @observable
@@ -12,7 +12,7 @@ export class CancelGlobalBanStore {
     @observable
     error?: ApiError = undefined;
 
-    constructor(private readonly entities: EntitiesStoreV2) {
+    constructor(private readonly entities: EntitiesStore) {
     }
 
     isGlobalBanCancellationPending = createTransformer((globalBanId: string) => {

@@ -2,7 +2,7 @@ import {action, observable} from "mobx";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ApiError, getInitialApiErrorFromResponse, UploadApi} from "../../api";
 import {ImageUploadMetadata, UploadType} from "../../api/types/response";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {Labels} from "../../localization";
 
 const IMAGE_MAX_SIZE = Number(process.env.REACT_APP_IMAGE_MAX_SIZE);
@@ -20,7 +20,7 @@ export class UploadImageStore {
     @observable
     pending: boolean = false;
 
-    constructor(private readonly entities: EntitiesStoreV2) {}
+    constructor(private readonly entities: EntitiesStore) {}
 
     @action
     uploadFile = (file: File): void => {

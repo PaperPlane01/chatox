@@ -1,6 +1,6 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {ChatStore} from "../../Chat";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 
 export class MessageDialogStore {
@@ -29,7 +29,7 @@ export class MessageDialogStore {
     }
 
     constructor(private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStoreV2) {
+                private readonly entities: EntitiesStore) {
         reaction(
             () => this.messageId,
             (messageId) => {

@@ -6,4 +6,3 @@ export * from "./CancelChatBlockingStore";
 export * from "./ChatBlockingInfoDialogStore";
 export * from "./UpdateChatBlockingStore";
 export * from "./BlockUserInChatByIdOrSlugStore";
-export * from "./ChatBlockingsStoreV2";

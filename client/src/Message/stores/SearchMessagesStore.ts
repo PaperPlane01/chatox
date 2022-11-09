@@ -1,7 +1,7 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {debounce} from "lodash";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ChatStore} from "../../Chat";
 
 export class SearchMessagesStore {
@@ -25,7 +25,7 @@ export class SearchMessagesStore {
         return this.chatStore.selectedChatId;
     }
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore) {
         reaction(
             () => this.query,

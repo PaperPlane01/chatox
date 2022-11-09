@@ -1,6 +1,6 @@
 import {action, observable} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 export class UserProfileStore {
     @observable
@@ -12,7 +12,7 @@ export class UserProfileStore {
     @observable
     error?: ApiError = undefined;
 
-    constructor(private readonly entities: EntitiesStoreV2) {}
+    constructor(private readonly entities: EntitiesStore) {}
 
     @action
     setSelectedUser = (slug: string): void => {

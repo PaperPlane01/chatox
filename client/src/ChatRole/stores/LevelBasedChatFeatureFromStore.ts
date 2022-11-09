@@ -2,7 +2,7 @@ import {action, reaction} from "mobx";
 import {AbstractChatFeatureFormStore} from "./AbstractChatFeatureFormStore";
 import {validateFromLevel, validateUpToLevel} from "../validation";
 import {ChatFeatures, LevelBasedChatFeatureData} from "../../api/types/response";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {LevelBasedFeatureFromData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {ConvertableChatFeatureFormStore} from "./ConvertableChatFeatureFormStore";
@@ -23,7 +23,7 @@ export class LevelBasedChatFeatureFromStore
     extends AbstractChatFeatureFormStore<LevelBasedFeatureFromData>
     implements ConvertableChatFeatureFormStore<"deleteOtherUsersMessages" | "assignChatRole" | "kickImmunity" | "blockingImmunity" | "messageDeletionsImmunity"> {
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly featureName: keyof ChatFeatures,
                 initialValues: LevelBasedFeatureFromData = INITIAL_FORM_VALUES) {
         super(initialValues, INITIAL_FORM_ERRORS);

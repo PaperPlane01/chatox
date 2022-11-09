@@ -1,7 +1,7 @@
 import {action, computed, observable} from "mobx";
 import {UserApi} from "../../api";
 import {CurrentUser, UserRole} from "../../api/types/response";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {tokenRefreshState} from "../../api/axios-instance";
 import {isGlobalBanActive} from "../../GlobalBan/utils";
 
@@ -20,9 +20,9 @@ export class AuthorizationStore {
         return tokenRefreshState.refreshingToken;
     }
 
-    private entities: EntitiesStoreV2;
+    private entities: EntitiesStore;
 
-    setEntities = (entities: EntitiesStoreV2): void => {
+    setEntities = (entities: EntitiesStore): void => {
         this.entities = entities;
     }
 

@@ -1,7 +1,7 @@
 import {computed} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {UserChatRolesStore} from "../stores";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
 import {ChatFeatures, CurrentUser} from "../../api/types/response";
 
@@ -16,7 +16,7 @@ export class ChatRolePermissions {
         return this.authorization.currentUser;
     }
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly authorization: AuthorizationStore,
                 private readonly userChatRoles: UserChatRolesStore) {
     }

@@ -2,7 +2,7 @@ import {action, observable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ApiError, getInitialApiErrorFromResponse, StickerApi} from "../../api";
 import {AuthorizationStore} from "../../Authorization";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 export class InstalledStickerPacksStore {
     @observable
@@ -15,7 +15,7 @@ export class InstalledStickerPacksStore {
     error?: ApiError = undefined;
 
     constructor(private readonly authorizationStore: AuthorizationStore,
-                private readonly entities: EntitiesStoreV2) {
+                private readonly entities: EntitiesStore) {
         reaction(
             () => this.authorizationStore.currentUser,
             currentUser => {

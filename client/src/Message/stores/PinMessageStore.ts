@@ -1,6 +1,6 @@
 import {action, computed, observable, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ChatStore} from "../../Chat/stores";
 import {ChatOfCurrentUserEntity} from "../../Chat/types";
 
@@ -23,7 +23,7 @@ export class PinMessageStore {
         return undefined;
     }
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore) {
     }
 

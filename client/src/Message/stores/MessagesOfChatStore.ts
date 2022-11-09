@@ -4,7 +4,7 @@ import {AxiosPromise} from "axios";
 import {SearchMessagesStore} from "./SearchMessagesStore";
 import {createSortMessages} from "../utils";
 import {ChatMessagesFetchingStateMap, MessageEntity} from "../types";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ChatsPreferencesStore, ChatStore, ReverseScrollDirectionOption} from "../../Chat";
 import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api";
@@ -90,7 +90,7 @@ export class MessagesOfChatStore {
         return this.searchMessagesStore.query.trim().length !== 0;
     }
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
                 private readonly chatPreferencesStore: ChatsPreferencesStore,
                 private readonly searchMessagesStore: SearchMessagesStore) {

@@ -3,7 +3,7 @@ import {createTransformer} from "mobx-utils";
 import {ChatMessagesFetchingStateMap} from "../types";
 import {createSortMessages} from "../utils";
 import {ChatStore} from "../../Chat/stores";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api/clients";
 
@@ -32,7 +32,7 @@ export class ScheduledMessagesOfChatStore {
 
     private reactToChatIdChange: boolean = false;
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore) {
         reaction(
             () => this.selectedChatId,

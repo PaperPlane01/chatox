@@ -1,6 +1,6 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {ChatParticipationEntity, UpdateChatParticipantFormData} from "../types";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ApiError, ChatApi, ChatRoleApi, getInitialApiErrorFromResponse} from "../../api";
 import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
@@ -88,7 +88,7 @@ export class UpdateChatParticipantStore extends AbstractFormStore<UpdateChatPart
             .map(role => role.id);
     }
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly authorization: AuthorizationStore,
                 private readonly userChatRoles: UserChatRolesStore) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);

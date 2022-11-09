@@ -1,6 +1,6 @@
 import {action, observable, reaction} from "mobx";
 import {CreateChatBlockingStore} from "./CreateChatBlockingStore";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {isStringEmpty} from "../../utils/string-utils";
 
@@ -17,7 +17,7 @@ export class BlockUserInChatByIdOrSlugStore {
     @observable
     error?: ApiError = undefined;
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly createChatBlockingStore: CreateChatBlockingStore) {
         reaction(
             () => this.userIdOrSlug,

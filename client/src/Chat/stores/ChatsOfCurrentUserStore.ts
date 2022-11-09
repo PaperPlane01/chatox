@@ -1,5 +1,5 @@
 import {action, computed, observable, runInAction} from "mobx";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {ChatListEntry} from "../types";
 
@@ -13,7 +13,7 @@ export class ChatsOfCurrentUserStore {
     @observable
     selectedChatId?: string = undefined;
 
-    constructor(private readonly entities: EntitiesStoreV2) {
+    constructor(private readonly entities: EntitiesStore) {
     }
 
     @computed

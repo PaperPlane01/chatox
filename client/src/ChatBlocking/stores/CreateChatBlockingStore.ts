@@ -5,7 +5,7 @@ import {validateBlockedUntil, validateBlockingDescription} from "../validation";
 import {ChatStore} from "../../Chat";
 import {ApiError, ChatBlockingApi, getInitialApiErrorFromResponse} from "../../api";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 export class CreateChatBlockingStore {
     @observable
@@ -44,7 +44,7 @@ export class CreateChatBlockingStore {
     }
 
     constructor(private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStoreV2) {
+                private readonly entities: EntitiesStore) {
         reaction(
             () => this.createChatBlockingFormData.description,
             description => this.formErrors.description = validateBlockingDescription(description)

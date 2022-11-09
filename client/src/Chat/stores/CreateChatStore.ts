@@ -12,7 +12,7 @@ import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {FormErrors} from "../../utils/types";
 import {countMotUndefinedValues} from "../../utils/object-utils";
 import {ChatOfCurrentUser} from "../../api/types/response";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 export class CreateChatStore {
     @observable
@@ -50,7 +50,7 @@ export class CreateChatStore {
     @observable
     createChatDialogOpen: boolean = false;
 
-    constructor(private readonly entities: EntitiesStoreV2) {
+    constructor(private readonly entities: EntitiesStore) {
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300);
 
         reaction(

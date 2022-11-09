@@ -2,7 +2,7 @@ import {action, computed, observable, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatStore} from "./ChatStore";
 import {FetchingState, FetchOptions} from "../../utils/types";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ChatApi} from "../../api/clients";
 
 interface OnlineChatParticipantsFetchingStateMap {
@@ -39,7 +39,7 @@ export class OnlineChatParticipantsStore {
     }
 
     constructor(
-        private readonly entities: EntitiesStoreV2,
+        private readonly entities: EntitiesStore,
         private readonly chatStore: ChatStore
     ) {}
 

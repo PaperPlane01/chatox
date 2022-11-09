@@ -1,6 +1,6 @@
 import {action, observable, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ChatBlockingApi} from "../../api/clients";
 
 export class CancelChatBlockingStore {
@@ -9,7 +9,7 @@ export class CancelChatBlockingStore {
         [chatBlockingId: string]: boolean
     } = {};
 
-    constructor(private readonly entities: EntitiesStoreV2) {}
+    constructor(private readonly entities: EntitiesStore) {}
 
     isChatBlockingCancellationPending = createTransformer((blockingId: string) => {
         return Boolean(this.pendingCancellationsMap[blockingId]);

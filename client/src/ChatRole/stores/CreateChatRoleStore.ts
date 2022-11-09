@@ -2,7 +2,7 @@ import {action, computed, observable} from "mobx";
 import {AbstractChatRoleFormStore} from "./AbstractChatRoleFormStore";
 import {ChatFeaturesFormStore} from "./ChatFeaturesFormStore";
 import {RolesOfChatStore} from "./RolesOfChatStore";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ChatRoleApi, getInitialApiErrorFromResponse} from "../../api";
 import {ChatOfCurrentUserEntity, ChatStore} from "../../Chat";
 import {SnackbarService} from "../../Snackbar";
@@ -27,7 +27,7 @@ export class CreateChatRoleStore extends AbstractChatRoleFormStore {
     }
 
     constructor(chatFeaturesForm: ChatFeaturesFormStore,
-                entities: EntitiesStoreV2,
+                entities: EntitiesStore,
                 localeStore: LocaleStore,
                 snackbarService: SnackbarService,
                 private readonly chatStore: ChatStore,

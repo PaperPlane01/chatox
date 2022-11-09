@@ -6,7 +6,7 @@ import {AbstractFormStore} from "../../form-store";
 import {BanUserFormData} from "../../GlobalBan/types";
 import {validateGlobalBanComment, validateGlobalBanExpirationDate} from "../../GlobalBan/validation";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {GlobalBanReason, ReportStatus, ReportTakenAction} from "../../api/types/response";
 import {BanUserRequest} from "../../api/types/request";
 import {GlobalBanApi} from "../../api/clients";
@@ -38,7 +38,7 @@ export class BanUsersRelatedToSelectedReportsStore extends AbstractFormStore<Ban
         return this.bannedUsersSelector(this.reportsListStore.selectedReportsIds, this.entities);
     }
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly reportsListStore: ReportsListStore,
                 private readonly updateSelectedReportsStore: UpdateSelectedReportsStore,
                 private readonly bannedUsersSelector: CalculateUsersIdsToBanFunction) {

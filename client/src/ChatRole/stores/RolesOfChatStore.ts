@@ -2,7 +2,7 @@ import {action, computed, observable, reaction, runInAction} from "mobx";
 import {ChatStore} from "../../Chat";
 import {FetchingState} from "../../utils/types";
 import {ChatRoleApi} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 export class RolesOfChatStore {
     @observable
@@ -40,7 +40,7 @@ export class RolesOfChatStore {
     }
 
     constructor(private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStoreV2) {
+                private readonly entities: EntitiesStore) {
         reaction(
             () => this.chatRolesDialogOpen,
             dialogOpen => {

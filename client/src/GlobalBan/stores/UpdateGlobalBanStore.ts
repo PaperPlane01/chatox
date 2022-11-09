@@ -5,7 +5,7 @@ import {validateGlobalBanComment, validateGlobalBanExpirationDate} from "../vali
 import {GlobalBanReason} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {ApiError, getInitialApiErrorFromResponse, GlobalBanApi} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 const UPDATE_GLOBAL_BAN_FORM_INITIAL_STATE: BanUserFormData = {
     comment: "",
@@ -52,7 +52,7 @@ export class UpdateGlobalBanStore {
         }
     }
     
-    constructor(private readonly entities: EntitiesStoreV2) {
+    constructor(private readonly entities: EntitiesStore) {
         reaction(
             () => this.updatedGlobalBan,
             () => {

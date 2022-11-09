@@ -1,12 +1,37 @@
-import {createTransformer} from "mobx-utils";
+import {mergeWith} from "lodash";
 import {ChatRoleEntity} from "../types";
-import {AbstractEntityStore} from "../../entity-store";
+import {AbstractEntityStoreV2} from "../../entity-store";
+import {EntitiesPatch} from "../../entities-store";
 import {ChatRole} from "../../api/types/response";
+import {mergeCustomizer} from "../../utils/object-utils";
+import {createTransformer} from "mobx-utils";
 
-export class ChatRolesStore extends AbstractEntityStore<ChatRoleEntity, ChatRole> {
-    public findAllByChat = createTransformer((chatId: string): ChatRoleEntity[] => {
-        return this.findAll().filter(role => role.chatId === chatId);
+export class ChatRolesStore extends AbstractEntityStoreV2<"chatRoles", ChatRoleEntity, ChatRole> {
+
+    findAllByChat = createTransformer((chatId: string): ChatRoleEntity[] => {
+        return this.findAll().filter(chatRole => chatRole.chatId === chatId);
     })
+
+    createPatchForArray(denormalizedEntities: ChatRole[], options: {} | undefined): EntitiesPatch {
+        const patch = this.createEmptyEntitiesPatch("chatRoles", "users");
+        const patches: EntitiesPatch[] = [];
+
+        denormalizedEntities.forEach(chatRole => {
+            const entity = this.convertToNormalizedForm(chatRole);
+            patch.entities.chatRoles[entity.id] = entity;
+            patch.ids.chatRoles.push(entity.id);
+
+            if (chatRole.createdBy) {
+                patches.push(this.entities.users.createPatch(chatRole.createdBy));
+            }
+
+            if (chatRole.updatedBy) {
+                patches.push(this.entities.users.createPatch(chatRole.updatedBy));
+            }
+        });
+
+        return mergeWith(patch, ...patches, mergeCustomizer);
+    }
 
     protected convertToNormalizedForm(denormalizedEntity: ChatRole): ChatRoleEntity {
         return {
@@ -20,6 +45,6 @@ export class ChatRolesStore extends AbstractEntityStore<ChatRoleEntity, ChatRole
             name: denormalizedEntity.name,
             updatedAt: denormalizedEntity.updatedAt ? new Date(denormalizedEntity.updatedAt) : undefined,
             updatedById: denormalizedEntity.updatedBy?.id
-        }
+        };
     }
 }

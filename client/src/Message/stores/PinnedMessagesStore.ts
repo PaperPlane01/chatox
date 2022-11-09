@@ -1,6 +1,6 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {ChatStore} from "../../Chat/stores";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ChatOfCurrentUserEntity} from "../../Chat/types";
 import {MessageApi} from "../../api/clients";
 import {ClosedPinnedMessagesStore} from "./ClosedPinnedMessagesStore";
@@ -43,7 +43,7 @@ export class PinnedMessagesStore {
         return Boolean(this.closedPinnedMessagesStore.closePinnedMessagesMap[this.currentPinnedMessageId]);
     }
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
                 private readonly closedPinnedMessagesStore: ClosedPinnedMessagesStore) {
         reaction(

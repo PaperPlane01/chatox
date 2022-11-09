@@ -4,7 +4,7 @@ import {BaseEntity, EntityStoreV2} from "./EntityStoreV2";
 import {
     Entities,
     EntitiesPatch,
-    EntitiesStoreV2,
+    EntitiesStore,
     GetEntityType,
     PopulatedEntitiesPatch,
     RawEntitiesStore
@@ -26,7 +26,7 @@ export abstract class AbstractEntityStoreV2<
 
     public constructor(protected readonly rawEntities: RawEntitiesStore,
                        protected readonly entityName: EntityName,
-                       protected readonly entities: EntitiesStoreV2) {
+                       protected readonly entities: EntitiesStore) {
     }
 
     @action.bound

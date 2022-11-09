@@ -2,7 +2,7 @@ import {action, computed, observable, reaction, runInAction} from "mobx";
 import {debounce} from "lodash";
 import {ChatsAndMessagesSearchQueryStore} from "./ChatsAndMessagesSearchQueryStore";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 export class ChatsOfCurrentUserSearchStore {
     @observable
@@ -28,7 +28,7 @@ export class ChatsOfCurrentUserSearchStore {
     }
 
     constructor(private readonly chatsAndMessagesSearchQuery: ChatsAndMessagesSearchQueryStore,
-                private readonly entities: EntitiesStoreV2) {
+                private readonly entities: EntitiesStore) {
         this.searchChats = debounce(this.searchChats, 300);
 
         reaction(

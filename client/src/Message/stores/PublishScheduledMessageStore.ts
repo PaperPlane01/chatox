@@ -1,6 +1,6 @@
 import {action, computed, observable} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ChatStore} from "../../Chat/stores";
 
 export class PublishScheduledMessageStore {
@@ -18,7 +18,7 @@ export class PublishScheduledMessageStore {
         return this.chatStore.selectedChatId;
     }
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore) {
     }
 

@@ -5,7 +5,7 @@ import {validateChatDeletionComment} from "../validation";
 import {ChatDeletionReason} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {DeleteChatRequest} from "../../api/types/request";
 
 export class DeleteChatStore {
@@ -52,7 +52,7 @@ export class DeleteChatStore {
         return this.currentStep !== ChatDeletionStep.NONE;
     }
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore) {
         reaction(
             () => this.deleteChatForm.reason,

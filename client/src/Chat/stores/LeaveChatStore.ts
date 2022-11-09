@@ -1,6 +1,6 @@
 import {action, observable, runInAction} from "mobx";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 export class LeaveChatStore {
     @observable
@@ -9,7 +9,7 @@ export class LeaveChatStore {
     @observable
     error?: ApiError = undefined;
 
-    constructor(private readonly entities: EntitiesStoreV2) {
+    constructor(private readonly entities: EntitiesStore) {
     }
 
     @action

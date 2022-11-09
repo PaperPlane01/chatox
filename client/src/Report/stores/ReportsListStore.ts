@@ -1,6 +1,6 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {CurrentUser, ReportStatus, ReportType} from "../../api/types/response";
 import {ApiError, getInitialApiErrorFromResponse, ReportsApi} from "../../api";
 import {AuthorizationStore} from "../../Authorization/stores";
@@ -59,7 +59,7 @@ export class ReportsListStore {
         return this.selectedReportsIds.length;
     }
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly authorizationStore: AuthorizationStore,
                 private readonly type: ReportType) {
         reaction(

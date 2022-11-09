@@ -1,7 +1,7 @@
 import {computed} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatOfCurrentUserEntity} from "../types";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
 import {UserChatRolesStore} from "../../ChatRole";
 import {CurrentUser, UserRole} from "../../api/types/response";
@@ -21,7 +21,7 @@ export class ChatPermissions {
         return !this.authorization.isCurrentUserBannedGlobally();
     }
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly authorization: AuthorizationStore,
                 private readonly userChatRoles: UserChatRolesStore) {
     }

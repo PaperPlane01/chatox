@@ -1,7 +1,7 @@
 import {action, computed, reaction} from "mobx";
 import {connect, Socket} from "socket.io-client"
 import {AuthorizationStore} from "../../Authorization";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {
     ChatDeleted,
     ChatUpdated,
@@ -27,7 +27,7 @@ export class WebsocketStore {
     }
 
     constructor(private readonly authorization: AuthorizationStore,
-                private readonly entities: EntitiesStoreV2,
+                private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
                 private readonly scrollPositionStore: MessagesListScrollPositionsStore,
                 private readonly markMessageReadStore: MarkMessageReadStore) {

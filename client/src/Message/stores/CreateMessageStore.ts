@@ -5,7 +5,7 @@ import {validateMessageText} from "../validation";
 import {ChatStore} from "../../Chat";
 import {FormErrors} from "../../utils/types";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {Routes} from "../../router";
 
 export class CreateMessageStore {
@@ -63,7 +63,7 @@ export class CreateMessageStore {
 
     constructor(
         private readonly chatStore: ChatStore,
-        private readonly entities: EntitiesStoreV2,
+        private readonly entities: EntitiesStore,
         private readonly messageUploads: UploadMessageAttachmentsStore) {
         reaction(
             () => this.createMessageForm.text,

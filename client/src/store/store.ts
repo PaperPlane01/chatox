@@ -32,7 +32,7 @@ import {
 } from "../Chat";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
-import {EntitiesStoreV2, RawEntitiesStore} from "../entities-store";
+import {EntitiesStore, RawEntitiesStore} from "../entities-store";
 import {
     createSetChangePasswordStepCallback,
     EditProfileStore,
@@ -128,7 +128,7 @@ import {SnackbarService} from "../Snackbar";
 
 const rawEntities = new RawEntitiesStore();
 const authorization = new AuthorizationStore();
-const entitiesV2 = new EntitiesStoreV2(rawEntities, authorization);
+const entitiesV2 = new EntitiesStore(rawEntities, authorization);
 authorization.setEntities(entitiesV2);
 
 const login = new LoginStore(authorization);

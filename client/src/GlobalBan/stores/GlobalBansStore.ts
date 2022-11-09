@@ -1,8 +1,11 @@
+import {mergeWith} from "lodash";
 import {GlobalBanEntity} from "../types";
-import {SoftDeletableEntityStore} from "../../entity-store";
-import {GlobalBan} from "../../api/types/response";
+import {AbstractEntityStoreV2} from "../../entity-store";
+import {EntitiesPatch} from "../../entities-store";
+import {GlobalBan, User} from "../../api/types/response";
+import {isDefined, mergeCustomizer} from "../../utils/object-utils";
 
-export class GlobalBansStore extends SoftDeletableEntityStore<GlobalBanEntity, GlobalBan> {
+export class GlobalBansStore extends AbstractEntityStoreV2<"globalBans", GlobalBanEntity, GlobalBan> {
     protected convertToNormalizedForm(denormalizedEntity: GlobalBan): GlobalBanEntity {
         return {
             id: denormalizedEntity.id,
@@ -20,4 +23,26 @@ export class GlobalBansStore extends SoftDeletableEntityStore<GlobalBanEntity, G
             updatedById: denormalizedEntity.updatedBy ? denormalizedEntity.updatedBy.id : undefined
         }
     }
+
+    createPatchForArray(denormalizedEntities: GlobalBan[], options: {} | undefined): EntitiesPatch {
+        const patch = this.createEmptyEntitiesPatch("globalBans", "users");
+        const patches: EntitiesPatch[] = [];
+
+        denormalizedEntities.forEach(globalBan => {
+            patch.entities.globalBans[globalBan.id] = this.convertToNormalizedForm(globalBan);
+            patch.ids.globalBans.push(globalBan.id);
+
+            const users = [
+                globalBan.createdBy,
+                globalBan.bannedUser,
+                globalBan.updatedBy,
+                globalBan.canceledBy
+            ]
+                .filter(user => isDefined(user)) as User[];
+            patches.push(this.entities.users.createPatchForArray(users));
+        });
+
+        return mergeWith(patch, ...patches, mergeCustomizer);
+    }
+
 }

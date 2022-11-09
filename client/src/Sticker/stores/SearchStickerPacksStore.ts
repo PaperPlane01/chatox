@@ -1,6 +1,6 @@
 import {action, observable, reaction, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, StickerApi} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 export class SearchStickerPacksStore {
     @observable
@@ -21,7 +21,7 @@ export class SearchStickerPacksStore {
     @observable
     reactToNameChange = false;
 
-    constructor(private readonly entities: EntitiesStoreV2) {
+    constructor(private readonly entities: EntitiesStore) {
         reaction(
             () => this.name,
             () => runInAction(() => {

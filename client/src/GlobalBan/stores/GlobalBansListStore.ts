@@ -2,7 +2,7 @@ import {action, observable, reaction, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, GlobalBanApi} from "../../api";
 import {GlobalBanFilters} from "../../api/types/request";
 import {PaginationWithSortingState} from "../../utils/types";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 const PAGE_SIZE = 30;
 
@@ -31,7 +31,7 @@ export class GlobalBansListStore {
     @observable
     paginationState: PaginationWithSortingState = INITIAL_PAGINATION_STATE;
 
-    constructor(private readonly entities: EntitiesStoreV2) {
+    constructor(private readonly entities: EntitiesStore) {
         reaction(
             () => this.filters.excludeCanceled,
             () => this.resetAndFetch()

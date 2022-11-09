@@ -3,7 +3,7 @@ import {AbstractChatFeatureFormStore} from "./AbstractChatFeatureFormStore";
 import {ConvertableChatFeatureFormStore} from "./ConvertableChatFeatureFormStore";
 import {BlockUsersFeatureFormData} from "../types";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ChatFeatures} from "../../api/types/response";
 
 const INITIAL_FORM_VALUES: BlockUsersFeatureFormData = {
@@ -16,7 +16,7 @@ const INITIAL_FORM_ERRORS: FormErrors<BlockUsersFeatureFormData> = {
 };
 
 export class BlockUsersFeatureFormStore extends AbstractChatFeatureFormStore<BlockUsersFeatureFormData> implements ConvertableChatFeatureFormStore<"blockUsers"> {
-    constructor(private readonly entities: EntitiesStoreV2, initialValues: BlockUsersFeatureFormData = INITIAL_FORM_VALUES) {
+    constructor(private readonly entities: EntitiesStore, initialValues: BlockUsersFeatureFormData = INITIAL_FORM_VALUES) {
         super(initialValues, INITIAL_FORM_ERRORS);
     }
 

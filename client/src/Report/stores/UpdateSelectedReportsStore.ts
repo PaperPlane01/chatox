@@ -1,6 +1,6 @@
 import {action, computed, observable, runInAction} from "mobx";
 import {CurrentReportsListStore} from "./CurrentReportsListStore";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse, ReportsApi} from "../../api";
 import {ReportStatus, ReportTakenAction} from "../../api/types/response";
 import {UpdateReportRequest} from "../../api/types/request";
@@ -19,7 +19,7 @@ export class UpdateSelectedReportsStore {
             : [];
     }
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly currentReportsListStore: CurrentReportsListStore) {
     }
 

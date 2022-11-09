@@ -10,7 +10,7 @@ import {CurrentUser, ImageUploadMetadata} from "../../api/types/response";
 import {UploadImageStore} from "../../Upload/stores";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {Labels} from "../../localization/types";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 export class EditProfileStore {
     @observable
@@ -76,7 +76,7 @@ export class EditProfileStore {
 
     constructor(private readonly authorizationStore: AuthorizationStore,
                 private readonly uploadUserAvatarStore: UploadImageStore,
-                private readonly entities: EntitiesStoreV2) {
+                private readonly entities: EntitiesStore) {
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300) as () => Promise<void>;
 
         reaction(

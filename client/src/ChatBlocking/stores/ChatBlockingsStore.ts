@@ -1,14 +1,31 @@
-import {action} from "mobx";
+import {mergeWith} from "lodash";
+import {ChatBlockingEntity, ChatBlockingSortableProperties} from "../types";
+import {AbstractEntityStoreV2} from "../../entity-store";
+import {ChatBlocking, CurrentUser} from "../../api/types/response";
+import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
+import {mergeCustomizer} from "../../utils/object-utils";
+import {AuthorizationStore} from "../../Authorization";
+import {action, computed} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {ChatBlockingEntity} from "../types";
-import {AbstractEntityStore} from "../../entity-store";
-import {ChatBlocking} from "../../api/types/response";
-import {UsersStore} from "../../User/stores";
-import {FindChatBlockingsByChatOptions} from "./ChatBlockingsStoreV2";
+import {SortingDirection} from "../../utils/types";
 
-export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, ChatBlocking> {
-    constructor(private readonly users: UsersStore) {
-        super();
+export interface FindChatBlockingsByChatOptions {
+    chatId: string,
+    sortingProperty?: ChatBlockingSortableProperties,
+    sortingDirection?: SortingDirection,
+    filter?: (chatBlocking: ChatBlockingEntity) => boolean
+}
+
+export class ChatBlockingsStore extends AbstractEntityStoreV2<"chatBlockings", ChatBlockingEntity, ChatBlocking> {
+    @computed
+    private get currentUser(): CurrentUser | undefined {
+        return this.authorization.currentUser;
+    }
+
+    constructor(rawEntities: RawEntitiesStore,
+                entities: EntitiesStore,
+                private readonly authorization: AuthorizationStore) {
+        super(rawEntities, "chatBlockings", entities);
     }
 
     findByChat = createTransformer((options: FindChatBlockingsByChatOptions) => {
@@ -21,7 +38,7 @@ export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, 
 
         switch (sortingProperty) {
             case "blockedUntil":
-                return this.ids.map(id => this.entities[id])
+                return this.ids.map(id => this.findById(id))
                     .filter(blocking => blocking.chatId === chatId && filter(blocking))
                     .slice()
                     .sort((left, right) => {
@@ -56,6 +73,43 @@ export class ChatBlockingsStore extends AbstractEntityStore<ChatBlockingEntity, 
         chatBlockings.forEach(blocking => blocking.hidden = true);
         this.insertAllEntities(chatBlockings);
     };
+
+    createPatchForArray(denormalizedEntities: ChatBlocking[], options: {} = {}): EntitiesPatch {
+        const patch = this.createEmptyEntitiesPatch("chatBlockings", "chatParticipations");
+        const patches: EntitiesPatch[] = [];
+
+        denormalizedEntities.forEach(chatBlocking => {
+            const chatBlockingEntity = this.convertToNormalizedForm(chatBlocking);
+            patch.entities.chatBlockings[chatBlocking.id] = chatBlockingEntity;
+            patch.ids.chatBlockings.push(chatBlocking.id);
+
+            patches.push(this.entities.users.createPatch(chatBlocking.blockedUser));
+            patches.push(this.entities.users.createPatch(chatBlocking.blockedBy));
+
+            if (chatBlocking.canceledBy) {
+                patches.push(this.entities.users.createPatch(chatBlocking.canceledBy));
+            }
+
+            if (chatBlocking.lastModifiedBy) {
+                patches.push(this.entities.users.createPatch(chatBlocking.lastModifiedBy));
+            }
+
+            if (this.currentUser && chatBlocking.blockedUser.id === this.currentUser.id) {
+                const chatParticipation = this.entities.chatParticipations.findByUserAndChat({
+                    userId: this.currentUser.id,
+                    chatId: chatBlocking.chatId
+                });
+
+                if (chatParticipation) {
+                    chatParticipation.activeChatBlockingId = chatBlocking.id;
+                    patch.entities.chatParticipations[chatParticipation.id] = chatParticipation;
+                }
+            }
+        });
+
+        return mergeWith(patch, ...patches, mergeCustomizer);
+    }
+
 
     protected convertToNormalizedForm(denormalizedEntity: ChatBlocking): ChatBlockingEntity {
         return {

@@ -1,7 +1,7 @@
 import {action, observable, reaction, runInAction} from "mobx";
 import {ChatBlockingEntity, UpdateChatBlockingFormData} from "../types";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 import {ApiError, ChatBlockingApi, getInitialApiErrorFromResponse} from "../../api";
 import {validateBlockedUntil, validateBlockingDescription} from "../validation";
 
@@ -30,7 +30,7 @@ export class UpdateChatBlockingStore {
     @observable
     updatedChatBlocking?: ChatBlockingEntity = undefined;
 
-    constructor(private readonly entities: EntitiesStoreV2) {
+    constructor(private readonly entities: EntitiesStore) {
         reaction(
             () => this.updateChatBlockingForm.blockedUntil,
             blockedUntil => this.formErrors.blockedUntil = validateBlockedUntil(blockedUntil)

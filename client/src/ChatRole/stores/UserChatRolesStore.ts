@@ -1,6 +1,6 @@
 import {action, observable} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 interface GetRoleOfUserInChatOptions {
     chatId: string,
@@ -17,7 +17,7 @@ export class UserChatRolesStore {
         [cacheKey: string]: string
     } = {};
 
-    constructor(private readonly entitiesStore: EntitiesStoreV2) {
+    constructor(private readonly entitiesStore: EntitiesStore) {
     }
 
     @action

@@ -1,7 +1,7 @@
 import {action, computed, observable, runInAction} from "mobx";
 import {ChatStore} from "./ChatStore";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStoreV2} from "../../entities-store";
+import {EntitiesStore} from "../../entities-store";
 
 export class KickChatParticipantStore {
     @observable
@@ -15,7 +15,7 @@ export class KickChatParticipantStore {
         return this.chatStore.selectedChatId;
     }
 
-    constructor(private readonly entities: EntitiesStoreV2,
+    constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore) {
     }
 
