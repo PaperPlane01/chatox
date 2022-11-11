@@ -1,7 +1,7 @@
 import {mergeWith} from "lodash";
 import {createTransformer} from "mobx-utils";
 import {UserEntity} from "../types";
-import {AbstractEntityStore, EntityMap} from "../../entity-store";
+import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch, GetEntityType} from "../../entities-store";
 import {User} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
@@ -27,13 +27,13 @@ export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "r
     });
 
     createPatchForArray(denormalizedEntities: User[], options: UserInsertOptions = {retrieveOnlineStatusFromExistingUser: false}): EntitiesPatch {
-        const patch = this.createEmptyEntitiesPatch(this.entityName);
+        const patch = this.createEmptyEntitiesPatch(this.getEntityName());
         const patches: EntitiesPatch[] = [];
 
         denormalizedEntities.forEach(user => {
             const userEntity = this.convertToNormalizedForm(user);
-            (patch.entities[this.entityName] as EntityMap<UserEntity>)[userEntity.id] = userEntity;
-            patch.ids[this.entityName]!.push(userEntity.id);
+            patch.entities[this.getEntityName()][userEntity.id] = userEntity;
+            patch.ids[this.entityName].push(userEntity.id);
 
             if (user.avatar) {
                 patches.push(this.entities.uploads.createPatch(user.avatar));
@@ -41,6 +41,10 @@ export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "r
         });
 
         return mergeWith(patch, ...patches, mergeCustomizer);
+    }
+
+    private getEntityName(): "users" | "reportedUsers" | "reportedMessageSenders" {
+        return this.entityName;
     }
 
     protected convertToNormalizedForm(denormalizedEntity: User): GetEntityType<UserType> {
