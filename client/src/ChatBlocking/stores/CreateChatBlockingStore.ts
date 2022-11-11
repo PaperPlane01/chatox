@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction} from "mobx";
+import {action, computed, observable, reaction, runInAction} from "mobx";
 import {addHours, subDays, subHours, subMinutes, subYears} from "date-fns";
 import {CreateChatBlockingFormData, RecentMessagesDeletionPeriod} from "../types";
 import {validateBlockedUntil, validateBlockingDescription} from "../validation";
@@ -103,13 +103,13 @@ export class CreateChatBlockingStore {
                         }
                     )
                         .then(({data}) => {
-                            this.entities.insertChatBlocking(data);
+                            this.entities.chatBlockings.insert(data);
                             this.setCreateChatBlockingDialogOpen(false);
                             this.setShowSnackbar(true);
                             this.resetForm();
                         })
-                        .catch(error => this.submissionError = getInitialApiErrorFromResponse(error))
-                        .finally(() => this.pending = false);
+                        .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
+                        .finally(() => runInAction(() => this.pending = false));
                 }
             })
         }

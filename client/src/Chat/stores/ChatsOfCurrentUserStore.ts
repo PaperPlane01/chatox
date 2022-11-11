@@ -1,4 +1,4 @@
-import {action, computed, observable} from "mobx";
+import {action, computed, observable, runInAction} from "mobx";
 import {EntitiesStore} from "../../entities-store";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {ChatListEntry} from "../types";
@@ -52,9 +52,9 @@ export class ChatsOfCurrentUserStore {
         this.error = undefined;
 
         ChatApi.getChatsOfCurrentUser()
-            .then(({data}) => this.entities.insertChats(data))
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false)
+            .then(({data}) => this.entities.chats.insertAll(data))
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.pending = false))
     };
 
     @action

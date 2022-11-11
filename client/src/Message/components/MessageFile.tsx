@@ -4,7 +4,7 @@ import { Badge, IconButton, CircularProgress, Typography, Theme } from "@mui/mat
 import {createStyles, makeStyles} from "@mui/styles";
 import {FileCopy} from "@mui/icons-material";
 import prettyBytes from "pretty-bytes";
-import {useStore} from "../../store";
+import {useEntities, useStore} from "../../store";
 
 interface MessageFileProps {
     chatUploadId: string
@@ -27,22 +27,19 @@ export const MessageFile: FunctionComponent<MessageFileProps> = observer(({
     chatUploadId
 }) => {
     const {
-        entities: {
-            chatUploads: {
-                findById: findChatUpload
-            },
-            uploads: {
-                findById: findUpload
-            }
-        },
         messageFileDownload: {
             downloadFile,
             downloadProgressMap
         }
     } = useStore();
+    const {
+        uploads: {
+            findById: findUpload
+        }
+    } = useEntities();
     const classes = useStyles();
 
-    const file = findUpload(findChatUpload(chatUploadId).uploadId);
+    const file = findUpload(chatUploadId);
 
     const handleDownloadButtonClick = (): void => {
         if (!downloadProgressMap[file.name] || !downloadProgressMap[file.name].downloading) {

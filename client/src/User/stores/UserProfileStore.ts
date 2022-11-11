@@ -1,6 +1,5 @@
 import {action, observable} from "mobx";
-import {UserApi} from "../../api/clients";
-import {ApiError, getInitialApiErrorFromResponse} from "../../api";
+import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 
 export class UserProfileStore {
@@ -27,7 +26,7 @@ export class UserProfileStore {
 
             UserApi.getUserByIdOrSlug(slug)
                 .then(({data}) => {
-                    this.entities.insertUser(data);
+                    this.entities.users.insert(data);
                     this.selectedUserId = data.id;
                     this.pending = false;
                 })

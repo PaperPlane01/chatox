@@ -1,4 +1,4 @@
-import {EntitiesStore} from "../entities-store";
+import {EntitiesStore, RawEntitiesStore} from "../entities-store";
 import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore, LoginWithGoogleStore} from "../Authorization";
@@ -110,7 +110,8 @@ import {
 } from "../ChatsAndMessagesSearch";
 import {
     ChatFeaturesFormStore,
-    ChatRoleInfoDialogStore, CreateChatRoleStore,
+    ChatRoleInfoDialogStore,
+    CreateChatRoleStore,
     EditChatRoleStore,
     RolesOfChatStore,
     UserChatRolesStore
@@ -125,6 +126,7 @@ export interface IAppState {
     chatCreation: CreateChatStore,
     markdownPreviewDialog: MarkdownPreviewDialogStore,
     entities: EntitiesStore,
+    rawEntities: RawEntitiesStore,
     chatsOfCurrentUser: ChatsOfCurrentUserStore,
     chat: ChatStore,
     chatParticipants: ChatParticipantsStore,

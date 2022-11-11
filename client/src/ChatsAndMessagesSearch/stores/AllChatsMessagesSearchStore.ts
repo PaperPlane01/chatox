@@ -57,7 +57,7 @@ export class AllChatsMessagesSearchStore {
 
         MessageApi.searchMessagesInChatsOfCurrentUser(this.query)
             .then(({data}) => runInAction(() => {
-                this.entities.insertMessages(data, true);
+                this.entities.messages.insertAll(data, {skipSettingLastMessage: true});
                 this.foundMessages = data.map(message => ({
                     chatId: message.chatId,
                     messageId: message.id

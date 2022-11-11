@@ -1,6 +1,7 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {AxiosPromise} from "axios";
+import {SearchMessagesStore} from "./SearchMessagesStore";
 import {createSortMessages} from "../utils";
 import {ChatMessagesFetchingStateMap, MessageEntity} from "../types";
 import {EntitiesStore} from "../../entities-store";
@@ -8,7 +9,6 @@ import {ChatsPreferencesStore, ChatStore, ReverseScrollDirectionOption} from "..
 import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api";
 import {Message} from "../../api/types/response";
-import {SearchMessagesStore} from "./SearchMessagesStore";
 
 export class MessagesOfChatStore {
     @observable
@@ -149,7 +149,7 @@ export class MessagesOfChatStore {
             .then(({data}) => {
                 runInAction(() => {
                     if (data.length !== 0) {
-                        this.entities.insertMessages(data, true);
+                        this.entities.messages.insertAll(data, {skipSettingLastMessage: true});
 
                         if (beforeMessage) {
                             this.initialMessagesMap[chatId] = this.initialMessagesMap[chatId]

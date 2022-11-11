@@ -120,7 +120,7 @@ export class ReportsListStore {
         })
             .then(({data}) => runInAction(() => {
                 if (data.length !== 0) {
-                    this.entities.insertReports(data);
+                    this.entities.reports.insertAll(data);
                     this.currentPage = this.currentPage + 1;
                 }
             }))
@@ -132,8 +132,25 @@ export class ReportsListStore {
     reset = (): void => {
         this.currentPage = 0;
         this.error = undefined;
-
-        this.entities.deleteAllReports(this.type);
+        this.entities.reports.deleteAll();
+        this.cleanUpEntities();
         this.clearSelection();
+    }
+
+    private cleanUpEntities = (): void => {
+        switch (this.type) {
+            case ReportType.MESSAGE:
+                this.entities.reportedMessages.deleteAll();
+                this.entities.reportedMessageSenders.deleteAll();
+                return;
+            case ReportType.USER:
+                this.entities.reportedUsers.deleteAll();
+                return;
+            case ReportType.CHAT:
+                this.entities.reportedChats.deleteAll();
+                return;
+            default:
+                return;
+        }
     }
 }

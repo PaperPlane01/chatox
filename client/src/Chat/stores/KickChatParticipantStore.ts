@@ -1,4 +1,4 @@
-import {action, computed, observable} from "mobx";
+import {action, computed, observable, runInAction} from "mobx";
 import {ChatStore} from "./ChatStore";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {EntitiesStore} from "../../entities-store";
@@ -29,10 +29,12 @@ export class KickChatParticipantStore {
 
         ChatApi.deleteChatParticipation(this.selectedChatId, chatParticipantId)
             .then(() => {
-                this.entities.deleteChatParticipation(chatParticipantId);
+                this.entities.chatParticipations.deleteById(chatParticipantId, {
+                    decreaseChatParticipantsCount: true
+                });
                 this.setShowSnackbar(true);
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => this.setShowSnackbar(true));
     };
 

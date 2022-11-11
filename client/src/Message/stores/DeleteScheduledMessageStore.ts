@@ -19,7 +19,7 @@ export class DeleteScheduledMessageStore {
             return;
         }
 
-        this.entities.deleteScheduledMessage(this.selectedChatId, messageId);
+        this.entities.scheduledMessages.deleteById(messageId);
 
         MessageApi.deleteScheduledMessage(this.selectedChatId, messageId);
     }

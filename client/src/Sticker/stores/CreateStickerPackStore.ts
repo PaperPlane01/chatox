@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction, runInAction} from "mobx";
+import {action, computed, observable, reaction} from "mobx";
 import {StickerContainer} from "./StickerContainer";
 import {CreateStickerPackFormData} from "../types";
 import {validateStickerPackDescription, validateStickerPackName} from "../validation";
@@ -106,9 +106,9 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
             description: this.formValues.description!,
             stickers
         })
-            .then(({data}) => this.entities.insertStickerPack(data))
-            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
-            .finally(() => runInAction(() => this.pending = false));
+            .then(({data}) => this.entities.stickerPacks.insert(data))
+            .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
+            .finally(() => this.setPending(false));
     }
 
     @action.bound

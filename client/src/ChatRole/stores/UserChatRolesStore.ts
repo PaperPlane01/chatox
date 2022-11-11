@@ -1,6 +1,5 @@
 import {action, observable} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {ChatParticipationsStore} from "../../Chat";
 import {EntitiesStore} from "../../entities-store";
 
 interface GetRoleOfUserInChatOptions {
@@ -18,8 +17,7 @@ export class UserChatRolesStore {
         [cacheKey: string]: string
     } = {};
 
-    constructor(private readonly chatParticipationsStore: ChatParticipationsStore,
-                private readonly entitiesStore: EntitiesStore) {
+    constructor(private readonly entitiesStore: EntitiesStore) {
     }
 
     @action
@@ -37,7 +35,7 @@ export class UserChatRolesStore {
         if (this.rolesCache[cacheKey]) {
             roleId = this.rolesCache[cacheKey];
         } else {
-            const chatParticipation = this.chatParticipationsStore.findByUserAndChat(options);
+            const chatParticipation = this.entitiesStore.chatParticipations.findByUserAndChat(options);
 
             if (!chatParticipation) {
                 return undefined;

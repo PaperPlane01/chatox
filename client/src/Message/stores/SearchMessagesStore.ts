@@ -56,11 +56,11 @@ export class SearchMessagesStore {
 
         MessageApi.searchMessagesInChat(this.selectedChatId, this.query)
             .then(({data}) => runInAction(() => {
-                this.entities.insertMessages(data, true);
+                this.entities.messages.insertAll(data, {skipSettingLastMessage: true});
                 this.foundMessagesIds = data.map(message => message.id);
             }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
-            .finally(() => this.pending = false);
+            .finally(() => runInAction(() => this.pending = false));
     }
 
     @action

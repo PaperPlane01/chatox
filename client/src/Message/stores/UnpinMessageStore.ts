@@ -44,7 +44,7 @@ export class UnpinMessageStore {
 
         MessageApi.unpinMessage(this.selectedChat.id, this.selectedChat.pinnedMessageId)
             .then(({data}) => {
-                this.entities.insertMessage(data);
+                this.entities.messages.insert(data);
                 chat.pinnedMessageId = undefined;
                 this.entities.chats.insertEntity(chat);
                 this.setShowSnackbar(true);

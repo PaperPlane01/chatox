@@ -110,11 +110,10 @@ export class DeleteChatStore {
                 this.entities.chats.deleteById(chatId);
 
                 if (requestData) {
-                    this.entities.chats.setDeletionReasonAndComment(
-                        chatId,
-                        requestData.reason,
-                        requestData.comment
-                    )
+                    this.entities.chats.deleteById(chatId, {
+                        deletionReason: requestData.reason,
+                        deletionComment: requestData.comment
+                    });
                 }
 
                 this.setShowSnackbar(true);

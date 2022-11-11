@@ -15,13 +15,14 @@ import {MessageAudios} from "./MessageAudios";
 import {MessageFiles} from "./MessageFiles";
 import {MessageSticker} from "./MessageSticker";
 import {Avatar} from "../../Avatar";
-import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
+import {useAuthorization, useEntities, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {MarkdownTextWithEmoji} from "../../Emoji";
 import {TranslationFunction} from "../../localization";
 import {MessageEntity} from "../types";
 import {UserEntity} from "../../User";
 import {getChatRoleTranslation} from "../../ChatRole/utils";
+import {toJS} from "mobx";
 
 const {Link} = require("mobx-router");
 
@@ -178,24 +179,24 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     menu
 }) => {
     const {
-        entities: {
-            users: {
-                findById: findUser
-            },
-            messages: {
-                findById: findMessage
-            },
-            scheduledMessages: {
-                findById: findScheduledMessage
-            },
-            chatRoles: {
-                findById: findChatRole
-            }
-        },
         markMessageRead: {
             addMessageToQueue
         }
     } = useStore();
+    const {
+        users: {
+            findById: findUser
+        },
+        messages: {
+            findById: findMessage
+        },
+        scheduledMessages: {
+            findById: findScheduledMessage
+        },
+        chatRoles: {
+            findById: findChatRole
+        }
+    } = useEntities();
     const {l, dateFnsLocale} = useLocalization();
     const {currentUser} = useAuthorization();
     const routerStore = useRouter();

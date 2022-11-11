@@ -7,8 +7,9 @@ import {
     Upload,
     VideoUploadMetadata
 } from "../../api/types/response";
+import {EntitiesPatch} from "../../entities-store";
 
-export class UploadsStore extends AbstractEntityStore<Upload<any>, Upload<any>> {
+export class UploadsStore extends AbstractEntityStore<"uploads", Upload<any>, Upload<any>> {
     findImage = createTransformer((id: string) => this.findById(id) as Upload<ImageUploadMetadata>);
 
     findGif = createTransformer((id: string) => this.findById(id) as Upload<GifUploadMetadata>);
@@ -16,6 +17,17 @@ export class UploadsStore extends AbstractEntityStore<Upload<any>, Upload<any>> 
     findAudio = createTransformer((id: string) => this.findById(id) as Upload<AudioUploadMetadata>);
 
     findVideo = createTransformer((id: string) => this.findById(id) as Upload<VideoUploadMetadata>);
+
+    createPatchForArray(denormalizedEntities: Upload<any>[], options: {} = {}): EntitiesPatch {
+        const patch = this.createEmptyEntitiesPatch("uploads");
+
+        denormalizedEntities.forEach(upload => {
+            patch.entities.uploads[upload.id] = upload;
+            patch.ids.uploads.push(upload.id);
+        });
+
+        return patch;
+    }
 
     protected convertToNormalizedForm(denormalizedEntity: Upload<any>): Upload<any> {
         return denormalizedEntity;

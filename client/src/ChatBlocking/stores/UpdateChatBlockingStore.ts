@@ -1,4 +1,4 @@
-import {action, observable, reaction} from "mobx";
+import {action, observable, reaction, runInAction} from "mobx";
 import {ChatBlockingEntity, UpdateChatBlockingFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {EntitiesStore} from "../../entities-store";
@@ -79,13 +79,13 @@ export class UpdateChatBlockingStore {
                     }
                 )
                     .then(({data}) => {
-                        this.entities.insertChatBlocking(data);
+                        this.entities.chatBlockings.insert(data);
                         this.setUpdateChatBlockingDialogOpen(false);
                         this.updatedChatBlocking = undefined;
                         this.resetForm();
                     })
-                    .catch(error => this.submissionError = getInitialApiErrorFromResponse(error))
-                    .finally(() => this.pending = false);
+                    .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
+                    .finally(() => runInAction(() => this.pending = false));
             }
         })
     };

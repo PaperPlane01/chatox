@@ -51,7 +51,7 @@ export class CreateMessageStore {
     @computed
     get shouldSendReferredMessageId(): boolean {
         if (this.referredMessageId && this.selectedChatId) {
-            const referredMessage = this.entitiesStore.messages.findById(this.referredMessageId);
+            const referredMessage = this.entities.messages.findById(this.referredMessageId);
 
             return referredMessage.chatId === this.selectedChatId;
         }
@@ -63,12 +63,13 @@ export class CreateMessageStore {
 
     constructor(
         private readonly chatStore: ChatStore,
-        private readonly entitiesStore: EntitiesStore,
-        private readonly messageUploads: UploadMessageAttachmentsStore
-    ) {
+        private readonly entities: EntitiesStore,
+        private readonly messageUploads: UploadMessageAttachmentsStore) {
         reaction(
             () => this.createMessageForm.text,
-            text => this.formErrors.text = validateMessageText(text, {acceptEmpty: this.attachmentsIds.length !== 0})
+            text => runInAction(() => {
+                this.formErrors.text = validateMessageText(text, {acceptEmpty: this.attachmentsIds.length !== 0});
+            })
         );
     };
 
@@ -106,7 +107,7 @@ export class CreateMessageStore {
             uploadAttachments: [],
             stickerId
         })
-            .then(({data}) => this.entitiesStore.insertMessage(data))
+            .then(({data}) => this.entities.messages.insert(data))
             .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.pending = false));
     }
@@ -136,10 +137,10 @@ export class CreateMessageStore {
             })
                 .then(({data}) => {
                     if (!this.createMessageForm.scheduledAt) {
-                        this.entitiesStore.insertMessage(data);
+                        this.entities.messages.insert(data);
                     } else {
                         if (this.routerStore && this.routerStore.router && this.routerStore.router.goTo) {
-                            const chat = this.entitiesStore.chats.findById(chatId);
+                            const chat = this.entities.chats.findById(chatId);
                             this.routerStore.router.goTo(Routes.scheduledMessagesPage, {
                                 slug: chat.slug ? chat.slug : chatId
                             });
@@ -162,7 +163,7 @@ export class CreateMessageStore {
                 }
             })
                 .then(({data}) => {
-                    this.entitiesStore.insertChat(data);
+                    this.entities.chats.insert(data);
 
                     if (this.routerStore && this.routerStore.router.goTo) {
                         this.routerStore.router.goTo(Routes.chatPage, {

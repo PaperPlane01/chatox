@@ -20,19 +20,23 @@ export class AuthorizationStore {
         return tokenRefreshState.refreshingToken;
     }
 
-    constructor(private readonly entities: EntitiesStore) {}
+    private entities: EntitiesStore;
+
+    setEntities = (entities: EntitiesStore): void => {
+        this.entities = entities;
+    }
 
     @action
     setCurrentUser = (currentUser: CurrentUser): void => {
         if (currentUser.globalBan) {
-            this.entities.insertGlobalBan(currentUser.globalBan);
+            this.entities.globalBans.insert(currentUser.globalBan);
         }
 
         this.currentUser = {
             ...currentUser,
             avatarId: currentUser.avatar ? currentUser.avatar.id : undefined
         };
-        this.entities.insertUser({
+        this.entities.users.insert({
             ...currentUser,
             deleted: false,
             online: true

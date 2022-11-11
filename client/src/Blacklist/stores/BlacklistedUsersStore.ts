@@ -32,7 +32,7 @@ export class BlacklistedUsersStore {
 
     @action
     setUsers = (users: User[]): void => {
-        this.entities.insertUsers(users);
+        this.entities.users.insertAll(users);
         this.usersIds = users.map(user => user.id);
     }
 }

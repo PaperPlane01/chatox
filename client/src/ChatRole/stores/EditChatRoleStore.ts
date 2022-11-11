@@ -92,7 +92,7 @@ export class EditChatRoleStore extends AbstractChatRoleFormStore {
             request
         )
             .then(({data}) => {
-                this.entities.insertChatRole(data);
+                this.entities.chatRoles.insert(data);
                 this.chatRoleInfoDialog.setEditMode(false);
                 this.resetForm();
                 this.showSuccessLabel();

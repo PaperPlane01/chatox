@@ -1,4 +1,4 @@
-import {observable, action, reaction} from "mobx";
+import {action, observable, reaction, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, GlobalBanApi} from "../../api";
 import {GlobalBanFilters} from "../../api/types/request";
 import {PaginationWithSortingState} from "../../utils/types";
@@ -54,9 +54,9 @@ export class GlobalBansListStore {
             sortBy: this.paginationState.sortBy,
             sortingDirection: this.paginationState.sortingDirection
         })
-            .then(({data}) => {
+            .then(({data}) => runInAction(() => {
                 if (data.length !== 0) {
-                    this.entities.insertGlobalBans(data);
+                    this.entities.globalBans.insertAll(data);
                     this.globalBanIds = [
                         ...this.globalBanIds,
                         ...data.map(globalBan => globalBan.id)
@@ -74,9 +74,9 @@ export class GlobalBansListStore {
                 } else {
                     this.paginationState.noMoreItems = true;
                 }
-            })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.paginationState.pending = false);
+            }))
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.paginationState.pending = false));
     }
 
     @action

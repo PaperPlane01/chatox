@@ -1,4 +1,4 @@
-import {observable, action} from "mobx";
+import {action, observable, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {EntitiesStore} from "../../entities-store";
 import {ChatBlockingApi} from "../../api/clients";
@@ -22,6 +22,6 @@ export class CancelChatBlockingStore {
 
         ChatBlockingApi.cancelChatBlocking(chatBlocking.chatId, id)
             .then(({data}) => this.entities.chatBlockings.insert(data))
-            .finally(() => this.pendingCancellationsMap[id] = false);
+            .finally(() => runInAction(() => this.pendingCancellationsMap[id] = false));
     }
 }

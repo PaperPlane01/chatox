@@ -1,4 +1,4 @@
-import {observable, action} from "mobx";
+import {action, observable, runInAction} from "mobx";
 import {ChatApi} from "../../api/clients";
 import {ApiError, getInitialApiErrorFromResponse} from "../../api";
 import {EntitiesStore} from "../../entities-store";
@@ -28,7 +28,7 @@ export class JoinChatStore {
 
         ChatApi.joinChat(chatId)
             .then(({data}) => {
-                this.entities.insertChatParticipation({
+                this.entities.chatParticipations.insert({
                     ...data,
                     chatId,
                     user: {
@@ -36,13 +36,15 @@ export class JoinChatStore {
                         deleted: false,
                         online: true
                     }
-                }, true);
+                }, {
+                    increaseChatParticipantsCount: true
+                });
             })
-            .catch(error => {
+            .catch(error => runInAction(() => {
                 this.error = getInitialApiErrorFromResponse(error);
                 this.showSnackbar = true;
-            })
-            .finally(() => this.pending = false)
+            }))
+            .finally(() => runInAction(() => this.pending = false));
     };
 
     @action

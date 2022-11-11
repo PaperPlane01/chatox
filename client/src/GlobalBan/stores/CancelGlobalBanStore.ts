@@ -1,4 +1,4 @@
-import {action, observable} from "mobx";
+import {action, observable, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ApiError, getInitialApiErrorFromResponse, GlobalBanApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
@@ -25,8 +25,8 @@ export class CancelGlobalBanStore {
         this.pendingCancellationsMap[id] = true;
 
         GlobalBanApi.cancelBan(globalBan.bannedUserId, id)
-            .then(({data}) => this.entities.insertGlobalBan(data))
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pendingCancellationsMap[id] = false);
+            .then(({data}) => this.entities.globalBans.insert(data))
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.pendingCancellationsMap[id] = false));
     }
 }

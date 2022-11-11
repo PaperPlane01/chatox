@@ -1,7 +1,7 @@
-import {observable, action, reaction, computed} from "mobx";
+import {action, computed, observable, reaction} from "mobx";
 import {throttle} from "lodash";
 import {ChatStore} from "./ChatStore";
-import {UpdateChatFormData, TagErrorsMapContainer} from "../types";
+import {TagErrorsMapContainer, UpdateChatFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {UploadImageStore} from "../../Upload";
 import {UploadedFileContainer} from "../../utils/file-utils";
@@ -182,7 +182,7 @@ export class UpdateChatStore {
             tags: this.updateChatForm.tags
         })
             .then(({data}) => {
-                this.entities.insertChat(data);
+                this.entities.chats.insert(data);
                 this.setUpdateChatDialogOpen(false);
                 this.setShowSnackbar(true);
             })

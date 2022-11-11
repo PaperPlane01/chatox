@@ -1,4 +1,4 @@
-import {observable, action} from "mobx";
+import {action, observable, runInAction} from "mobx";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {PaginationState} from "../../utils/types";
@@ -42,14 +42,14 @@ export class PopularChatsStore {
                     }
 
                     this.paginationState.initiallyFetched = true;
-                    this.entities.insertChats(data);
+                    this.entities.chats.insertAll(data);
                     this.popularChats.push(...data.map(chat => chat.id));
                 } else {
                     this.paginationState.noMoreItems = true;
                 }
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.paginationState.pending = false);
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.paginationState.pending = false));
     };
 
     @action

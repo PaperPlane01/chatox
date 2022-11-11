@@ -34,8 +34,9 @@ export class PublishScheduledMessageStore {
 
         MessageApi.publishScheduledMessage(chatId, messageId)
             .then(({data}) => {
-                this.entities.deleteScheduledMessage(chatId, messageId);
-                this.entities.insertMessage(data);
+                this.entities.chats.removeScheduledMessageFromChat(chatId, messageId);
+                this.entities.scheduledMessages.deleteById(messageId);
+                this.entities.messages.insert(data);
             })
             .catch(error => this.error = getInitialApiErrorFromResponse(error))
             .finally(() => {

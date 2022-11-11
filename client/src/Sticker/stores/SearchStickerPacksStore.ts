@@ -58,7 +58,7 @@ export class SearchStickerPacksStore {
         })
             .then(({data}) => runInAction(() => {
                 if (data.length !== 0) {
-                    this.entities.insertStickerPacks(data);
+                    this.entities.stickerPacks.insertAll(data);
                     this.searchResults.push(...data.map(stickerPack => stickerPack.id));
                     this.currentPage = this.currentPage + 1;
                 }

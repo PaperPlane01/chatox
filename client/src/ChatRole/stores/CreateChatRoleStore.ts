@@ -65,7 +65,7 @@ export class CreateChatRoleStore extends AbstractChatRoleFormStore {
         ChatRoleApi
             .createChatRole(this.selectedChatId, apiRequest)
             .then(({data}) => {
-                this.entities.insertChatRole(data);
+                this.entities.chatRoles.insert(data);
                 this.showSuccessLabel();
                 this.openRolesList();
             })

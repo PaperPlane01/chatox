@@ -76,7 +76,7 @@ export class UpdateMessageStore {
             {text: this.updateMessageForm.text}
         )
             .then(({data}) => {
-                this.entities.insertMessage(data);
+                this.entities.messages.insert(data);
                 this.updatedMessageId = undefined;
                 this.reset();
             })

@@ -18,7 +18,7 @@ export interface Message {
     nextMessageId?: string,
     emoji: MessageEmoji,
     attachments: Upload<any>[],
-    pinnedAt: string,
+    pinnedAt?: string,
     scheduledAt?: string,
     index: number,
     sticker?: Sticker,

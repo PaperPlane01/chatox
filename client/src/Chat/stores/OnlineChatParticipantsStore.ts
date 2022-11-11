@@ -1,4 +1,4 @@
-import {observable, action, computed} from "mobx";
+import {action, computed, observable, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatStore} from "./ChatStore";
 import {FetchingState, FetchOptions} from "../../utils/types";
@@ -71,10 +71,10 @@ export class OnlineChatParticipantsStore {
 
             ChatApi.getOnlineChatParticipants(chatId)
                 .then(({data}) => {
-                    this.entities.insertChatParticipations(data);
+                    this.entities.chatParticipations.insertAll(data);
                     this.fetchingStateMap[chatId].initiallyFetched = true;
                 })
-                .finally(() => this.fetchingStateMap[chatId].pending = false);
+                .finally(() => runInAction(() => this.fetchingStateMap[chatId].pending = false));
         }
     }
 }

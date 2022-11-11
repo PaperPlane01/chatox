@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import PhotoAlbum, {Photo} from "react-photo-album";
 import {Lightbox} from "yet-another-react-lightbox";
 import {useStore} from "../../store";
+import {toJS} from "mobx";
 
 interface MessageImagesGridProps {
     imagesIds: string[],

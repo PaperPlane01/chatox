@@ -124,7 +124,7 @@ export class BanUserStore {
 
         GlobalBanApi.banUser(this.bannedUserId, banUserRequest)
             .then(({data}) => {
-                this.entities.insertGlobalBan(data);
+                this.entities.globalBans.insert(data);
                 this.setBanUserDialogOpen(false);
                 this.setShowSnackbar(true);
                 this.resetForm();

@@ -1,9 +1,8 @@
-import {action, computed, observable, reaction} from "mobx";
+import {action, computed, observable, reaction, runInAction} from "mobx";
 import {ChatStore} from "../../Chat/stores";
 import {EntitiesStore} from "../../entities-store";
 import {ChatOfCurrentUserEntity} from "../../Chat/types";
 import {MessageApi} from "../../api/clients";
-import {MessageEntity} from "../types";
 import {ClosedPinnedMessagesStore} from "./ClosedPinnedMessagesStore";
 
 interface PinnedMessagesStateMap {
@@ -46,7 +45,7 @@ export class PinnedMessagesStore {
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
-                protected readonly closedPinnedMessagesStore: ClosedPinnedMessagesStore) {
+                private readonly closedPinnedMessagesStore: ClosedPinnedMessagesStore) {
         reaction(
             () => this.selectedChat,
             selectedChat => {
@@ -69,27 +68,21 @@ export class PinnedMessagesStore {
         };
 
         MessageApi.getPinnedMessageByChat(chatId)
-            .then(({data}) => {
-                this.entities.insertMessage(data);
-                const chat = this.entities.chats.findByIdOptional(chatId);
-
-                if (chat) {
-                    chat.pinnedMessageId = data.id;
-                    this.entities.chats.insertEntity(chat);
-                }
+            .then(({data}) => runInAction(() => {
+                this.entities.messages.insert(data, {skipSettingLastMessage: true, pinnedMessageId: data.id});
 
                 this.pinnedMessagesStateMap[chatId] = {
                     initiallyFetched: true,
                     pending: false
                 };
-            })
-            .catch(error => {
+            }))
+            .catch(error => runInAction(() => {
                 if (error.response && error.response === 404) {
                     this.pinnedMessagesStateMap[chatId] = {
                         initiallyFetched: true,
                         pending: false
                     };
                 }
-            });
+            }));
     }
 }

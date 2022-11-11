@@ -1,4 +1,4 @@
-import {observable, action, computed} from "mobx";
+import {action, computed, observable, runInAction} from "mobx";
 import {CurrentReportsListStore} from "./CurrentReportsListStore";
 import {EntitiesStore} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse, ReportsApi} from "../../api";
@@ -41,13 +41,13 @@ export class UpdateSelectedReportsStore {
 
         ReportsApi.updateMultipleReports({updates})
             .then(({data}) => {
-                this.entities.insertReports(data);
+                this.entities.reports.insertAll(data);
 
                 if (successCallback) {
                     successCallback();
                 }
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false);
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.pending = false));
     }
 }

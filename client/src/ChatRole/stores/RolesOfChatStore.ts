@@ -1,10 +1,8 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
-import {createTransformer} from "mobx-utils";
 import {ChatStore} from "../../Chat";
 import {FetchingState} from "../../utils/types";
 import {ChatRoleApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
-import {ChatRoleEntity} from "../types";
 
 export class RolesOfChatStore {
     @observable
@@ -71,7 +69,7 @@ export class RolesOfChatStore {
 
         ChatRoleApi.getRolesOfChat(this.selectedChatId)
             .then(({data}) => runInAction(() => {
-                this.entities.insertChatRoles(data);
+                this.entities.chatRoles.insertAll(data);
 
                 this.pendingRolesMap[chatId].initiallyFetched = true;
             }))

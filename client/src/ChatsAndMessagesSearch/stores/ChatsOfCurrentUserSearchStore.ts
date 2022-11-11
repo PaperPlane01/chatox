@@ -61,7 +61,7 @@ export class ChatsOfCurrentUserSearchStore {
 
         ChatApi.searchChatsOfCurrentUser(this.query)
             .then(({data}) => runInAction(() => {
-                this.entities.insertChats(data);
+                this.entities.chats.insertAll(data);
                 this.foundChats = data.map(chat => chat.id);
             }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))

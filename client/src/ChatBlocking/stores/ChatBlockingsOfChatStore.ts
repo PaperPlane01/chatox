@@ -163,6 +163,6 @@ export class ChatBlockingsOfChatStore {
             }
         }
 
-        this.entities.insertChatBlockings(chatBlockings);
+        this.entities.chatBlockings.insertAll(chatBlockings);
     }
 }
