@@ -1,6 +1,6 @@
 import {action, computed} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {BaseEntity, EntityStoreV2} from "./EntityStoreV2";
+import {BaseEntity, EntityStore} from "./EntityStore";
 import {
     Entities,
     EntitiesPatch,
@@ -17,7 +17,7 @@ export abstract class AbstractEntityStore<
     InsertOptions extends object = {},
     DeleteOptions extends object = {}
     >
-    implements EntityStoreV2<EntityName, Entity, DenormalizedEntity, InsertOptions, DeleteOptions> {
+    implements EntityStore<EntityName, Entity, DenormalizedEntity, InsertOptions, DeleteOptions> {
 
     @computed
     get ids(): string[] {

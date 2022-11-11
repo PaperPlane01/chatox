@@ -1,5 +1,5 @@
 import {action} from "mobx";
-import {BaseEntity} from "./EntityStoreV2";
+import {BaseEntity} from "./EntityStore";
 import {AbstractEntityStore} from "./AbstractEntityStore";
 import {Entities, GetEntityType} from "../entities-store";
 
