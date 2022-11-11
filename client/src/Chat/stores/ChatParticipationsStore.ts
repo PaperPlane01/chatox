@@ -2,7 +2,7 @@ import {action, computed} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {mergeWith} from "lodash";
 import {ChatParticipationEntity} from "../types";
-import {AbstractEntityStoreV2} from "../../entity-store";
+import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {ChatParticipation, CurrentUser} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
@@ -23,7 +23,7 @@ export interface FindChatParticipationByUserAndChatOptions {
     chatId: string
 }
 
-export class ChatParticipationsStore extends AbstractEntityStoreV2<
+export class ChatParticipationsStore extends AbstractEntityStore<
     "chatParticipations",
     ChatParticipationEntity,
     ChatParticipation,

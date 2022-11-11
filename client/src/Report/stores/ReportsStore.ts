@@ -1,12 +1,12 @@
+import {createTransformer} from "mobx-utils";
 import {mergeWith} from "lodash";
 import {ReportEntity} from "../types";
-import {AbstractEntityStoreV2} from "../../entity-store";
+import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch} from "../../entities-store";
 import {ChatWithCreatorId, Message, Report, ReportType, User} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
-import {createTransformer} from "mobx-utils";
 
-export class ReportsStore extends AbstractEntityStoreV2<"reports", ReportEntity, Report> {
+export class ReportsStore extends AbstractEntityStore<"reports", ReportEntity, Report> {
     findIdsByType = createTransformer((targetType: ReportType) => this
         .findAll()
         .filter(({type}) => type === targetType)

@@ -1,6 +1,6 @@
 import {mergeWith} from "lodash";
 import {ChatBlockingEntity, ChatBlockingSortableProperties} from "../types";
-import {AbstractEntityStoreV2} from "../../entity-store";
+import {AbstractEntityStore} from "../../entity-store";
 import {ChatBlocking, CurrentUser} from "../../api/types/response";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {mergeCustomizer} from "../../utils/object-utils";
@@ -16,7 +16,7 @@ export interface FindChatBlockingsByChatOptions {
     filter?: (chatBlocking: ChatBlockingEntity) => boolean
 }
 
-export class ChatBlockingsStore extends AbstractEntityStoreV2<"chatBlockings", ChatBlockingEntity, ChatBlocking> {
+export class ChatBlockingsStore extends AbstractEntityStore<"chatBlockings", ChatBlockingEntity, ChatBlocking> {
     @computed
     private get currentUser(): CurrentUser | undefined {
         return this.authorization.currentUser;

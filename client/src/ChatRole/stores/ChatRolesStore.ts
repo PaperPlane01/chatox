@@ -1,12 +1,12 @@
+import {createTransformer} from "mobx-utils";
 import {mergeWith} from "lodash";
 import {ChatRoleEntity} from "../types";
-import {AbstractEntityStoreV2} from "../../entity-store";
+import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch} from "../../entities-store";
 import {ChatRole} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
-import {createTransformer} from "mobx-utils";
 
-export class ChatRolesStore extends AbstractEntityStoreV2<"chatRoles", ChatRoleEntity, ChatRole> {
+export class ChatRolesStore extends AbstractEntityStore<"chatRoles", ChatRoleEntity, ChatRole> {
 
     findAllByChat = createTransformer((chatId: string): ChatRoleEntity[] => {
         return this.findAll().filter(chatRole => chatRole.chatId === chatId);

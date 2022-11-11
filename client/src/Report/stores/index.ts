@@ -8,4 +8,4 @@ export * from "./CurrentReportsListStore";
 export * from "./ReportedChatsStore";
 export * from "./BanUsersRelatedToSelectedReportsStore";
 export * from "./ReportedMessagesStore";
-
+export * from "./DeleteSelectedReportedMessagesStore";

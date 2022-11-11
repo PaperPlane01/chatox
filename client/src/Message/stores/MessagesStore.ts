@@ -1,14 +1,14 @@
 import {mergeWith, uniq} from "lodash";
 import {MessageInsertOptions} from "../types";
 import {convertMessageToNormalizedForm} from "../utils";
-import {SoftDeletableEntityStoreV2} from "../../entity-store";
+import {SoftDeletableEntityStore} from "../../entity-store";
 import {EntitiesPatch, GetEntityType} from "../../entities-store";
 import {Message} from "../../api/types/response";
 import {ChatOfCurrentUserEntity} from "../../Chat";
 import {mergeCustomizer} from "../../utils/object-utils";
 
 export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
-    extends SoftDeletableEntityStoreV2<MessageType, GetEntityType<MessageType>, Message, MessageInsertOptions> {
+    extends SoftDeletableEntityStore<MessageType, GetEntityType<MessageType>, Message, MessageInsertOptions> {
 
     protected convertToNormalizedForm(denormalizedEntity: Message): GetEntityType<MessageType> {
         return convertMessageToNormalizedForm(denormalizedEntity) as GetEntityType<MessageType>;

@@ -1,8 +1,8 @@
 import {action, computed, observable} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {mergeWith, uniq} from "lodash";
+import {mergeWith} from "lodash";
 import {ChatOfCurrentUserEntity} from "../types";
-import {SoftDeletableEntityStoreV2} from "../../entity-store";
+import {SoftDeletableEntityStore} from "../../entity-store";
 import {
     ChatDeletionReason,
     ChatOfCurrentUser,
@@ -21,7 +21,7 @@ interface DeleteChatOptions {
     deletionComment?: string
 }
 
-export class ChatsStore extends SoftDeletableEntityStoreV2<
+export class ChatsStore extends SoftDeletableEntityStore<
     "chats",
     ChatOfCurrentUserEntity,
     PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted">,

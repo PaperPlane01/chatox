@@ -1,11 +1,11 @@
 import {mergeWith} from "lodash";
 import {StickerPackEntity} from "../types";
-import {AbstractEntityStoreV2} from "../../entity-store";
+import {AbstractEntityStore} from "../../entity-store";
 import {StickerPack} from "../../api/types/response";
 import {EntitiesPatch} from "../../entities-store";
 import {mergeCustomizer} from "../../utils/object-utils";
 
-export class StickerPacksStore extends AbstractEntityStoreV2<"stickerPacks", StickerPackEntity, StickerPack> {
+export class StickerPacksStore extends AbstractEntityStore<"stickerPacks", StickerPackEntity, StickerPack> {
     protected convertToNormalizedForm(denormalizedEntity: StickerPack): StickerPackEntity {
         return {
             id: denormalizedEntity.id,
@@ -22,8 +22,7 @@ export class StickerPacksStore extends AbstractEntityStoreV2<"stickerPacks", Sti
         const patch = this.createEmptyEntitiesPatch("stickerPacks");
 
         denormalizedEntities.forEach(stickerPack => {
-            const entity = this.convertToNormalizedForm(stickerPack);
-            patch.entities.stickerPacks[stickerPack.id] = entity;
+            patch.entities.stickerPacks[stickerPack.id] = this.convertToNormalizedForm(stickerPack);
             patch.ids.stickerPacks.push(stickerPack.id);
             patches.push(this.entities.stickers.createPatchForArray(stickerPack.stickers));
         });

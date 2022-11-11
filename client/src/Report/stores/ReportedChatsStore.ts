@@ -1,11 +1,11 @@
 import {mergeWith} from "lodash";
 import {ChatWithCreatorIdEntity} from "../types";
-import {AbstractEntityStoreV2} from "../../entity-store";
+import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch} from "../../entities-store";
 import {ChatWithCreatorId} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
 
-export class ReportedChatsStore extends AbstractEntityStoreV2<"reportedChats", ChatWithCreatorIdEntity, ChatWithCreatorId> {
+export class ReportedChatsStore extends AbstractEntityStore<"reportedChats", ChatWithCreatorIdEntity, ChatWithCreatorId> {
     protected convertToNormalizedForm(denormalizedEntity: ChatWithCreatorId): ChatWithCreatorIdEntity {
         return {
             id: denormalizedEntity.id,

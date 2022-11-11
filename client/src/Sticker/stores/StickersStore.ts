@@ -1,11 +1,11 @@
 import {mergeWith} from "lodash";
 import {StickerEntity} from "../types";
-import {AbstractEntityStoreV2} from "../../entity-store";
+import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch} from "../../entities-store";
 import {Sticker} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
 
-export class StickersStore extends AbstractEntityStoreV2<"stickers", StickerEntity, Sticker> {
+export class StickersStore extends AbstractEntityStore<"stickers", StickerEntity, Sticker> {
     protected convertToNormalizedForm(denormalizedEntity: Sticker): StickerEntity {
         return {
             id: denormalizedEntity.id,

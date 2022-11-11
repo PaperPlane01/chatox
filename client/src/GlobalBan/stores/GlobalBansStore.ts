@@ -1,11 +1,11 @@
 import {mergeWith} from "lodash";
 import {GlobalBanEntity} from "../types";
-import {AbstractEntityStoreV2} from "../../entity-store";
+import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch} from "../../entities-store";
 import {GlobalBan, User} from "../../api/types/response";
 import {isDefined, mergeCustomizer} from "../../utils/object-utils";
 
-export class GlobalBansStore extends AbstractEntityStoreV2<"globalBans", GlobalBanEntity, GlobalBan> {
+export class GlobalBansStore extends AbstractEntityStore<"globalBans", GlobalBanEntity, GlobalBan> {
     protected convertToNormalizedForm(denormalizedEntity: GlobalBan): GlobalBanEntity {
         return {
             id: denormalizedEntity.id,

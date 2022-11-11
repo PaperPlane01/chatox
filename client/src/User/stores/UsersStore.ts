@@ -1,7 +1,7 @@
 import {mergeWith} from "lodash";
 import {createTransformer} from "mobx-utils";
 import {UserEntity} from "../types";
-import {AbstractEntityStoreV2, EntityMap} from "../../entity-store";
+import {AbstractEntityStore, EntityMap} from "../../entity-store";
 import {EntitiesPatch, GetEntityType} from "../../entities-store";
 import {User} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
@@ -10,7 +10,7 @@ interface UserInsertOptions {
     retrieveOnlineStatusFromExistingUser: boolean
 }
 
-export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "reportedUsers"> extends AbstractEntityStoreV2<
+export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "reportedUsers"> extends AbstractEntityStore<
     UserType,
     GetEntityType<UserType>,
     User,

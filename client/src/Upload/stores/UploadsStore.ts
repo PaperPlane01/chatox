@@ -1,5 +1,5 @@
 import {createTransformer} from "mobx-utils";
-import {AbstractEntityStoreV2} from "../../entity-store";
+import {AbstractEntityStore} from "../../entity-store";
 import {
     AudioUploadMetadata,
     GifUploadMetadata,
@@ -9,7 +9,7 @@ import {
 } from "../../api/types/response";
 import {EntitiesPatch} from "../../entities-store";
 
-export class UploadsStore extends AbstractEntityStoreV2<"uploads", Upload<any>, Upload<any>> {
+export class UploadsStore extends AbstractEntityStore<"uploads", Upload<any>, Upload<any>> {
     findImage = createTransformer((id: string) => this.findById(id) as Upload<ImageUploadMetadata>);
 
     findGif = createTransformer((id: string) => this.findById(id) as Upload<GifUploadMetadata>);

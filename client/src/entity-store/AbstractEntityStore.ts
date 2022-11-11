@@ -1,93 +1,122 @@
-import {action, observable} from "mobx";
+import {action, computed} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {merge} from "lodash";
-import {EntityMap, EntityStore} from "./EntityStore";
+import {BaseEntity, EntityStoreV2} from "./EntityStoreV2";
+import {
+    Entities,
+    EntitiesPatch,
+    EntitiesStore,
+    GetEntityType,
+    PopulatedEntitiesPatch,
+    RawEntitiesStore
+} from "../entities-store";
 
-export abstract class AbstractEntityStore<Entity extends {id: string}, DenormalizedEntity extends {id: string}>
-    implements EntityStore<Entity, DenormalizedEntity> {
-    @observable
-    ids: string[] = [];
+export abstract class AbstractEntityStore<
+    EntityName extends Entities,
+    Entity extends GetEntityType<EntityName>,
+    DenormalizedEntity extends BaseEntity,
+    InsertOptions extends object = {},
+    DeleteOptions extends object = {}
+    >
+    implements EntityStoreV2<EntityName, Entity, DenormalizedEntity, InsertOptions, DeleteOptions> {
 
-    @observable
-    entities: EntityMap<Entity> = {};
-
-    constructor() {
-        this.deleteAllById = this.deleteAllById.bind(this);
-        this.deleteById = this.deleteById.bind(this);
-        this.insert = this.insert.bind(this);
-        this.insertAll = this.insertAll.bind(this);
-        this.insertEntity = this.insertEntity.bind(this);
-        this.insertAllEntities = this.insertAllEntities.bind(this);
-        this.findByIdOptional = this.findByIdOptional.bind(this);
-        this.findAllById = this.findAllById.bind(this);
-        this.findAll = this.findAll.bind(this);
+    @computed
+    get ids(): string[] {
+        return this.rawEntities.ids[this.entityName];
     }
 
-    @action
-    public deleteAllById(ids: string[]): void {
-        this.ids = this.ids.filter(id => !ids.includes(id));
-        ids.forEach(id => {
-            if (this.entities[id]) {
-                delete this.entities[id];
-            }
-        });
+    public constructor(protected readonly rawEntities: RawEntitiesStore,
+                       protected readonly entityName: EntityName,
+                       protected readonly entities: EntitiesStore) {
     }
 
-    @action
-    public deleteAll(): void {
-        this.ids = [];
-        this.entities = {};
+    @action.bound
+    deleteAll(): void {
+        this.deleteAllById(this.ids);
     }
 
-    @action
-    public deleteById(idToDelete: string): void {
-        if (this.entities[idToDelete]) {
-            this.ids = this.ids.filter(id => id !== idToDelete);
-            delete this.entities[idToDelete];
-        }
+    @action.bound
+    deleteAllById(ids: string[]): void {
+        ids.forEach(id => this.rawEntities.deleteEntity(this.entityName, id));
     }
 
-    public findById = createTransformer((id: string) => this.entities[id]);
-
-    public findByIdOptional(id: string): Entity | undefined {
-        return this.entities[id];
+    @action.bound
+    deleteById(id: string): void {
+        this.rawEntities.deleteEntity(this.entityName, id);
     }
 
-    @action
-    public insert(denormalizedEntity: DenormalizedEntity): Entity {
-        let entity = this.convertToNormalizedForm(denormalizedEntity);
-        entity = this.insertEntity(entity);
-        return entity;
-    }
-
-    @action
-    public insertAll(entities: DenormalizedEntity[]): void {
-        entities.forEach(entity => this.insert(entity));
-    }
-
-    @action
-    public insertAllEntities(entities: Entity[]): void {
-        entities.forEach(entity => this.insertEntity(entity))
-    }
-
-    @action
-    public insertEntity(entity: Entity): Entity {
-        if (this.entities[entity.id]) {
-            this.entities[entity.id] = merge(this.entities[entity.id], entity);
-        } else {
-            this.entities[entity.id] = entity;
-            this.ids = Array.from(new Set([...this.ids, entity.id]));
-        }
-        return entity;
-    }
-
-    public findAllById = createTransformer((ids: string[]) => {
-        return ids.map(id => this.findById(id));
-    })
-
-    public findAll() {
+    findAll(): Entity[] {
         return this.findAllById(this.ids);
     }
+
+    findAllById = createTransformer((ids: Iterable<string>): Entity[] => {
+        const entities: Entity[] = [];
+        for (const id of ids) {
+            entities.push(this.findById(id));
+        }
+        return entities;
+    });
+
+    findById = createTransformer((id: string): Entity => {
+        return this.findByIdOptional(id)!
+    });
+
+    findByIdOptional = createTransformer((id: string): Entity | undefined => {
+        return this.rawEntities.entities[this.entityName][id] as Entity | undefined;
+    });
+
+    @action.bound
+    insert(entity: DenormalizedEntity, options?: InsertOptions): Entity {
+        this.rawEntities.applyPatch(this.createPatch(entity, options));
+        return this.findById(entity.id);
+    }
+
+    @action.bound
+    insertAll(entities: DenormalizedEntity[], options?: InsertOptions): void {
+        this.rawEntities.applyPatch(this.createPatchForArray(entities, options));
+    }
+
+    @action.bound
+    insertAllEntities(entities: Entity[]): void {
+        const patch = this.createEmptyPatch();
+        entities.forEach(entity => {
+            patch.entities[this.entityName][entity.id] = entity;
+            patch.ids[this.entityName].push(entity.id);
+        });
+        this.rawEntities.applyPatch(patch);
+    }
+
+    @action.bound
+    insertEntity(entity: Entity): Entity {
+        const patch = this.createEmptyPatch();
+        patch.entities[this.entityName][entity.id] = entity;
+        patch.ids[this.entityName].push(entity.id);
+        this.rawEntities.applyPatch(patch);
+        return entity;
+    }
+
+    protected createEmptyPatch() {
+        return this.createEmptyEntitiesPatch(this.entityName as Entities);
+    }
+
+    protected createEmptyEntitiesPatch<T extends Entities>(...entities: T[]): PopulatedEntitiesPatch<T> {
+        const patch = {
+            entities: {},
+            ids: {}
+        };
+
+        entities.forEach(entityType => {
+            (patch.entities as any)[entityType] = {};
+            (patch.ids as any)[entityType] = [];
+        });
+
+        return patch as unknown as PopulatedEntitiesPatch<T>;
+    }
+
+    public createPatch(denormalizedEntity: DenormalizedEntity, options?: InsertOptions): EntitiesPatch {
+        return this.createPatchForArray([denormalizedEntity], options);
+    }
+
+    public abstract createPatchForArray(denormalizedEntities: DenormalizedEntity[], options?: InsertOptions): EntitiesPatch;
 
     protected abstract convertToNormalizedForm(denormalizedEntity: DenormalizedEntity): Entity;
 }

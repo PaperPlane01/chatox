@@ -1,12 +1,12 @@
 import {mergeWith} from "lodash";
-import {SoftDeletableEntityStoreV2} from "../../entity-store";
+import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch} from "../../entities-store";
 import {MessageEntity} from "../../Message/types";
 import {convertMessageToNormalizedForm} from "../../Message/utils";
 import {Message} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
 
-export class ReportedMessagesStore extends SoftDeletableEntityStoreV2<"reportedMessages", MessageEntity, Message> {
+export class ReportedMessagesStore extends AbstractEntityStore<"reportedMessages", MessageEntity, Message> {
     protected convertToNormalizedForm(denormalizedEntity: Message): MessageEntity {
         return convertMessageToNormalizedForm(denormalizedEntity);
     }
