@@ -11,7 +11,7 @@ import {Routes} from "../../router";
 
 interface EmojiPickerContainerProps {
     onEmojiSelected: (emoji: EmojiData) => void,
-    iconButtonClassName: string
+    iconButtonClassName?: string
 }
 
 export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> = observer(({
@@ -93,7 +93,8 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
                 <IconButton
                     className={iconButtonClassName}
                     {...bindToggle(emojiPickerPopupState)}
-                    size="large">
+                    size="large"
+                >
                     <InsertEmoticon/>
                 </IconButton>
                 <Menu {...bindMenu(emojiPickerPopupState)}>

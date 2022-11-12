@@ -521,5 +521,10 @@ export interface Labels {
     "chat.role.create.with-chat-name": string,
     "chat.role.create.success": string,
     "chat.role.create.error.unknown": string,
-    "common.create": string
+    "common.create": string,
+    "common.messages": string,
+    "settings.chat.messages.send-message-button.ENTER": string,
+    "settings.chat.messages.send-message-button.CTRL_ENTER": string,
+    "settings.chat.virtual-scroll": string,
+    "settings.chat.virtual-scroll.enable-images-caching": string
 }

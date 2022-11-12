@@ -13,3 +13,4 @@ export * from "./ChatLinkPropsGenerationStrategy";
 export * from "./ChatsOfCurrentUserListProps";
 export * from "./VirtualScrollElement";
 export * from "./ChatParticipantInfo";
+export * from "./SendMessageButton";

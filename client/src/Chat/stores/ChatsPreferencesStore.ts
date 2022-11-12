@@ -1,8 +1,10 @@
 import {action, observable, reaction} from "mobx";
 import {
     parseReverseScrollingDirectionOptionFromString,
+    parseSendMessageButton,
     parseVirtualScrollElementFromString,
     ReverseScrollDirectionOption,
+    SendMessageButton,
     VirtualScrollElement
 } from "../types";
 
@@ -24,6 +26,9 @@ export class ChatsPreferencesStore {
 
     @observable
     virtualScrollElement: VirtualScrollElement = VirtualScrollElement.MESSAGES_LIST;
+
+    @observable
+    sendMessageButton: SendMessageButton = SendMessageButton.CTRL_ENTER;
 
     constructor() {
         if (localStorage.getItem("enableVirtualScroll")) {
@@ -58,6 +63,10 @@ export class ChatsPreferencesStore {
 
         if (localStorage.getItem("virtualScrollElement")) {
             this.virtualScrollElement = parseVirtualScrollElementFromString(localStorage.getItem("virtualScrollElement"));
+        }
+
+        if (localStorage.getItem("sendMessageButton")) {
+            this.sendMessageButton = parseSendMessageButton(localStorage.getItem("sendMessageButton"));
         }
 
         reaction(
@@ -106,5 +115,11 @@ export class ChatsPreferencesStore {
     setVirtualScrollElement = (virtualScrollElement: VirtualScrollElement): void => {
         this.virtualScrollElement = virtualScrollElement;
         localStorage.setItem("virtualScrollElement", virtualScrollElement);
+    }
+
+    @action
+    setSendMessageButton = (sendMessageButton: SendMessageButton): void => {
+        this.sendMessageButton = sendMessageButton;
+        localStorage.setItem("sendMessageButton", sendMessageButton);
     }
 }

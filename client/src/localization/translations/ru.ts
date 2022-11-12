@@ -523,5 +523,10 @@ export const ru: Labels = {
     "chat.role.create.with-chat-name": "Создать новую роль в чате {chatName}",
     "chat.role.create.success": "Роль создана",
     "chat.role.create.error.unknown": "При попытке создать роль произошла ошибка, сервер ответил со статусом {errorStatus}",
-    "common.create": "Создать"
+    "common.create": "Создать",
+    "common.messages": "Сообщения",
+    "settings.chat.messages.send-message-button.ENTER": "Отправлять сообщение по нажатию Enter",
+    "settings.chat.messages.send-message-button.CTRL_ENTER": "Отправлять сообщение по нажатию CTRL + Enter",
+    "settings.chat.virtual-scroll": "Виртуальный скролл",
+    "settings.chat.virtual-scroll.enable-images-caching": "Кэшировать изображения"
 };
