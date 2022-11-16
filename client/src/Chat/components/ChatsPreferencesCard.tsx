@@ -4,6 +4,7 @@ import {
     Card,
     CardContent,
     CardHeader,
+    Divider,
     FormControlLabel,
     Radio,
     RadioGroup,
@@ -13,8 +14,10 @@ import {
 } from "@mui/material";
 import {
     parseReverseScrollingDirectionOptionFromString,
+    parseSendMessageButton,
     parseVirtualScrollElementFromString,
     ReverseScrollDirectionOption,
+    SendMessageButton,
     VirtualScrollElement
 } from "../types";
 import {useLocalization, useStore} from "../../store";
@@ -37,7 +40,9 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
             enableImagesCaching,
             setEnableImagesCaching,
             virtualScrollElement,
-            setVirtualScrollElement
+            setVirtualScrollElement,
+            sendMessageButton,
+            setSendMessageButton
         }
     } = useStore();
     const {l} = useLocalization();
@@ -46,6 +51,27 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
         <Card>
             {!hideHeader && <CardHeader title={l("settings.chats")}/>}
             <CardContent>
+                <Fragment>
+                    <Typography variant="h6">
+                        {l("common.messages")}
+                    </Typography>
+                    <RadioGroup value={sendMessageButton}
+                                onChange={event => setSendMessageButton(parseSendMessageButton(event.target.value))}
+                    >
+                        <FormControlLabel control={<Radio/>}
+                                          label={l("settings.chat.messages.send-message-button.CTRL_ENTER")}
+                                          value={SendMessageButton.CTRL_ENTER}
+                        />
+                        <FormControlLabel control={<Radio/>}
+                                          label={l("settings.chat.messages.send-message-button.ENTER")}
+                                          value={SendMessageButton.ENTER}
+                        />
+                    </RadioGroup>
+                </Fragment>
+                <Divider/>
+                <Typography variant="h6">
+                    {l("settings.chat.virtual-scroll")}
+                </Typography>
                 <FormControlLabel control={
                     <Switch checked={enableVirtualScroll} onChange={() => setEnableVirtualScroll(!enableVirtualScroll)}/>
                 }
@@ -116,7 +142,7 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                                 <FormControlLabel control={
                                     <Switch checked={enableImagesCaching} onChange={() => setEnableImagesCaching(!enableImagesCaching)}/>
                                 }
-                                                  label={"Enable images caching"}
+                                                  label={l("settings.chat.virtual-scroll.enable-images-caching")}
                                 />
                             </Fragment>
                         )}

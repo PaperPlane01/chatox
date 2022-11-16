@@ -1,6 +1,6 @@
-import React, {Fragment, FunctionComponent, useEffect, useRef} from "react";
+import React, {Fragment, FunctionComponent, KeyboardEvent, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
-import { Divider, Hidden, IconButton, InputAdornment, TextField, Theme, Tooltip } from "@mui/material";
+import {Divider, Hidden, IconButton, InputAdornment, TextField, Theme, Tooltip} from "@mui/material";
 import createStyles from '@mui/styles/createStyles';
 import makeStyles from '@mui/styles/makeStyles';
 import {KeyboardVoice, Send} from "@mui/icons-material";
@@ -10,18 +10,19 @@ import {AttachFilesButton} from "./AttachFilesButton";
 import {ReferredMessageCard} from "./ReferredMessageCard";
 import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
 import {EmojiAndStickerPicker} from "./EmojiAndStickerPicker";
-import {useLocalization, useStore} from "../../store";
 import {EmojiPickerContainer} from "./EmojiPickerContainer";
+import {useLocalization, useStore} from "../../store";
+import {SendMessageButton} from "../../Chat";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     textField: {
-        [theme.breakpoints.down('lg')]: {
+        [theme.breakpoints.down("lg")]: {
             backgroundColor: theme.palette.background
         }
     },
-    inputIconButton: {
+    inputAdornment: {
         [theme.breakpoints.up("lg")]: {
-            marginTop: theme.spacing(2)
+            paddingTop: theme.spacing(2)
         }
     }
 }));
@@ -30,9 +31,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
     const {
         messageCreation: {
             createMessageForm: formValues,
-            formErrors,
             pending,
-            submissionError,
             emojiPickerExpanded,
             referredMessageId,
             attachmentsIds,
@@ -40,16 +39,11 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             createMessage,
             setEmojiPickerExpanded
         },
-        entities: {
-            chats: {
-                findById: findChat
-            }
-        },
-        chat: {
-            selectedChatId
-        },
         emoji: {
             useEmojiCodes
+        },
+        chatsPreferences: {
+            sendMessageButton
         }
     } = useStore();
     const {l} = useLocalization();
@@ -85,9 +79,49 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                     inputRef.current.value = `${emoji.colons}`;
                 }
             }
+
             updateText();
         }
-    }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
+        if (event.key !== "Enter") {
+            return;
+        }
+
+        if (event.ctrlKey) {
+            if (sendMessageButton === SendMessageButton.CTRL_ENTER) {
+                createMessage();
+            } else {
+                insertNewLineOnCursorPosition();
+            }
+        } else if (sendMessageButton === SendMessageButton.ENTER) {
+            createMessage();
+        } else {
+            insertNewLineOnCursorPosition();
+        }
+    };
+
+    const insertNewLineOnCursorPosition = (): void => {
+        if (!inputRef || !inputRef.current) {
+            return;
+        }
+
+        let [start, end] = [inputRef.current.selectionStart, inputRef.current.selectionEnd];
+
+        if (start === null || end === null) {
+           start = 0;
+           end = 1;
+        }
+
+        if (end === formValues.text.length) {
+            inputRef.current.value = `${inputRef.current.value}\r\n`;
+        } else {
+            inputRef.current.setRangeText("\r\n", start, end, "preserve");
+        }
+
+        updateText();
+    };
 
     return (
         <div>
@@ -98,26 +132,29 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                        placeholder={l("message.type-something")}
                        onChange={updateText}
                        onPaste={updateText}
+                       onKeyDown={handleKeyDown}
                        inputRef={inputRef}
                        multiline
-                       minRows={2}
                        maxRows={8}
                        variant="standard"
+                       className={classes.textField}
                        InputProps={{
                            disableUnderline: true,
                            startAdornment: (
-                               <InputAdornment position="start">
-                                   <AttachFilesButton className={classes.inputIconButton}/>
+                               <InputAdornment position="start"
+                                               className={classes.inputAdornment}
+                               >
+                                   <AttachFilesButton/>
                                </InputAdornment>
                            ),
                            endAdornment: (
-                               <InputAdornment position="end">
+                               <InputAdornment position="end"
+                                               className={classes.inputAdornment}
+                               >
                                    <div style={{display: "flex"}}>
                                        <Fragment>
-                                           {formValues.scheduledAt && (<OpenScheduleMessageDialogButton className={classes.inputIconButton}/>)}
-                                           <EmojiPickerContainer onEmojiSelected={handleEmojiSelect}
-                                                                 iconButtonClassName={classes.inputIconButton}
-                                           />
+                                           {formValues.scheduledAt && <OpenScheduleMessageDialogButton/>}
+                                           <EmojiPickerContainer onEmojiSelected={handleEmojiSelect}/>
                                        </Fragment>
                                        {formValues.text.length !== 0 || attachmentsIds.length !== 0
                                            ? (
@@ -125,7 +162,6 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                                    onClick={createMessage}
                                                    color="primary"
                                                    disabled={pending}
-                                                   className={classes.inputIconButton}
                                                    size="large">
                                                    <Send/>
                                                </IconButton>
@@ -133,7 +169,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                            : (
                                                <Tooltip title={l("feature.not-available")}>
                                                   <div>
-                                                      <IconButton disabled className={classes.inputIconButton} size="large">
+                                                      <IconButton disabled size="large">
                                                           <KeyboardVoice/>
                                                       </IconButton>
                                                   </div>
@@ -144,7 +180,6 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                </InputAdornment>
                            )
                        }}
-                       className={classes.textField}
             />
             <Hidden lgUp>
                 {emojiPickerExpanded && (

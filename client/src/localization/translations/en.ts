@@ -523,5 +523,10 @@ export const en: Labels = {
     "chat.role.create.with-chat-name": "Create new role in chat {chatName}",
     "chat.role.create.success": "Role has been created",
     "chat.role.create.error.unknown": "Unknown error occurred when tried to create chat role, server responded with {errorStatus} status",
-    "common.create": "Create"
+    "common.create": "Create",
+    "common.messages": "Messages",
+    "settings.chat.messages.send-message-button.ENTER": "Send message on Enter",
+    "settings.chat.messages.send-message-button.CTRL_ENTER": "Send message on CTRL + Enter",
+    "settings.chat.virtual-scroll": "Virtual scroll",
+    "settings.chat.virtual-scroll.enable-images-caching": "Enable images caching"
 };
