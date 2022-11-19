@@ -120,17 +120,12 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
             val message = messageService.findMessageById(messageId).awaitFirst()
 
             if (message.pinned || message.chatId != chatId) {
-                println(message.chatId == chatId)
                 return@mono false
             }
 
             val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
             val userRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
-
-            if (userRole == null) {
-                println("user role is null")
-                return@mono false
-            }
+                    ?: return@mono false
 
             return@mono userRole.features.pinMessages.enabled
         }
