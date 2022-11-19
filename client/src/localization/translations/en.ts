@@ -363,7 +363,7 @@ export const en: Labels = {
     "password.too-short": "Password is too short",
     "register": "Register",
     "registration.continue": "Continue",
-    "registration.continue-anyway": "Continue away",
+    "registration.continue-anyway": "Continue anyway",
     "registration.error.unknown": "Error occurred when tried to register. Server responded with {errorStatus} status",
     "registration.provide-your-email": "Provide your e-mail",
     "registration.send-verification-email": "Send verification e-mail",
