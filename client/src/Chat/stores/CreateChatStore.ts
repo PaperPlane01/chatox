@@ -10,7 +10,7 @@ import {
 } from "../validation";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {FormErrors} from "../../utils/types";
-import {countMotUndefinedValues} from "../../utils/object-utils";
+import {containsNotUndefinedValues} from "../../utils/object-utils";
 import {ChatOfCurrentUser} from "../../api/types/response";
 import {EntitiesStore} from "../../entities-store";
 
@@ -152,7 +152,7 @@ export class CreateChatStore {
                 name ||
                 slug ||
                 tags ||
-                countMotUndefinedValues(tagErrorsMap) !== 0
+                containsNotUndefinedValues(tagErrorsMap)
             ))
         })
     };

@@ -1,11 +1,15 @@
 import {union} from "lodash";
 
-export const countMotUndefinedValues = <T extends object>(object: T): number => {
+export const countNotUndefinedValues = <T extends object>(object: T, stopAfterFirst: boolean = false): number => {
     let notUndefinedValues = 0;
 
     for (const key in object) {
         if (object[key] !== undefined) {
             notUndefinedValues += 1;
+
+            if (stopAfterFirst) {
+                break;
+            }
         }
     }
 
@@ -13,7 +17,7 @@ export const countMotUndefinedValues = <T extends object>(object: T): number => 
 };
 
 export const containsNotUndefinedValues = <T extends object>(object: T): boolean => {
-    return countMotUndefinedValues(object) !== 0;
+    return countNotUndefinedValues(object, true) !== 0;
 };
 
 export const isDefined = <T>(value: T | undefined | null): value is T => value !== null && value !== undefined;

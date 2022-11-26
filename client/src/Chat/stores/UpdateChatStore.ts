@@ -16,7 +16,7 @@ import {
     validateChatTags
 } from "../validation";
 import {ChatApi} from "../../api/clients";
-import {countMotUndefinedValues} from "../../utils/object-utils";
+import {containsNotUndefinedValues} from "../../utils/object-utils";
 import {ApiError, getInitialApiErrorFromResponse} from "../../api";
 
 export class UpdateChatStore {
@@ -218,7 +218,7 @@ export class UpdateChatStore {
             name ||
             slug ||
             tags ||
-            countMotUndefinedValues(tagErrorsMap) !== 0 ||
+            containsNotUndefinedValues(tagErrorsMap) ||
             this.avatarValidationError
         )
     }
