@@ -1,5 +1,5 @@
 import {action, computed, observable, runInAction} from "mobx";
-import {ChatStore} from "./ChatStore";
+import {ChatStore} from "../../Chat";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 

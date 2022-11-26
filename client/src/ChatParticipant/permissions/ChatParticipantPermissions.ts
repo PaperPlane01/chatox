@@ -102,7 +102,6 @@ export class ChatParticipantPermissions {
         return this.userChatRoles.getRoleOfUserInChat({
             chatId,
             userId: this.currentUser!.id
-        })?.features.assignChatRole.additional
-            || {fromLevel: undefined, upToLevel: undefined}
+        })?.features.assignChatRole.additional || {fromLevel: undefined, upToLevel: undefined}
     });
 }

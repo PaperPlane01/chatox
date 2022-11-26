@@ -13,10 +13,10 @@ import {
 import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {ChatDescription} from "./ChatDescription";
-import {AllChatParticipantsList} from "./AllChatParticipantsList";
 import {ChatMenu} from "./ChatMenu";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
+import {AllChatParticipantsList} from "../../ChatParticipant";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {ChatType} from "../../api/types/response";

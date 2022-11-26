@@ -10,20 +10,22 @@ import {
 } from "../Registration";
 import {
     ChatInfoDialogStore,
-    ChatParticipantsStore,
     ChatsOfCurrentUserStore,
     ChatsPreferencesStore,
     ChatStore,
     CreateChatStore,
     DeleteChatStore,
-    JoinChatStore,
-    KickChatParticipantStore,
     LeaveChatStore,
-    OnlineChatParticipantsStore,
     PopularChatsStore,
-    UpdateChatParticipantStore,
     UpdateChatStore
 } from "../Chat";
+import {
+    ChatParticipantsStore,
+    JoinChatStore,
+    KickChatParticipantStore,
+    OnlineChatParticipantsStore,
+    UpdateChatParticipantStore,
+} from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {
     ClosedPinnedMessagesStore,

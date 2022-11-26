@@ -1,7 +1,8 @@
 import {createContext} from "react";
 import {store} from "../store";
 import {MessagePermissions} from "../../Message/permissions";
-import {ChatParticipantPermissions, ChatPermissions} from "../../Chat/permissions";
+import {ChatPermissions} from "../../Chat/permissions";
+import {ChatParticipantPermissions} from "../../ChatParticipant/permissions";
 import {ChatBlockingPermissions} from "../../ChatBlocking";
 import {GlobalBanPermissions} from "../../GlobalBan";
 import {ChatRolePermissions} from "../../ChatRole/permissions";

@@ -1,8 +1,8 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {ChatStore} from "./ChatStore";
+import {ChatStore} from "../../Chat";
 import {PaginationState} from "../../utils/types";
-import {ChatApi} from "../../api/clients";
+import {ChatApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 
 interface ChatParticipantsPaginationStateMap {

@@ -5,7 +5,7 @@ import {UploadsStore} from "../Upload";
 import {UsersStore} from "../User";
 import {ChatRolesStore} from "../ChatRole";
 import {ChatBlockingsStore} from "../ChatBlocking";
-import {ChatParticipationsStore} from "../Chat";
+import {ChatParticipationsStore} from "../ChatParticipant";
 import {AuthorizationStore} from "../Authorization";
 import {StickersStore, StickerPacksStore} from "../Sticker";
 import {ReportedChatsStore, ReportedMessagesStore, ReportsStore} from "../Report";

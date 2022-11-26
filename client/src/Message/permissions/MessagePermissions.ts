@@ -5,7 +5,7 @@ import {MessageEntity} from "../types";
 import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
 import {UserChatRolesStore} from "../../ChatRole";
-import {ChatParticipationEntity} from "../../Chat";
+import {ChatParticipationEntity} from "../../ChatParticipant";
 import {CurrentUser} from "../../api/types/response";
 import {ChatRoleEntity} from "../../ChatRole/types";
 import {isBetween} from "../../utils/number-utils";

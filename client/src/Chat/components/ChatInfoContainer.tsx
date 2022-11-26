@@ -3,8 +3,8 @@ import {observer} from "mobx-react";
 import {Theme, useMediaQuery} from "@mui/material";
 import {createStyles, makeStyles, useTheme} from "@mui/styles";
 import {ChatDescription} from "./ChatDescription";
-import {OnlineChatParticipantsList} from "./OnlineChatParticipantsList";
 import {VirtualScrollElement} from "../types";
+import {OnlineChatParticipantsList} from "../../ChatParticipant";
 import {useStore} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({

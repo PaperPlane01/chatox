@@ -1,11 +1,11 @@
 import {action, computed, observable, reaction, runInAction} from "mobx";
 import {ChatParticipationEntity, UpdateChatParticipantFormData} from "../types";
+import {ChatParticipantPermissions} from "../permissions";
 import {EntitiesStore} from "../../entities-store";
 import {ApiError, ChatApi, ChatRoleApi, getInitialApiErrorFromResponse} from "../../api";
 import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
 import {UserChatRolesStore} from "../../ChatRole";
-import {ChatParticipantPermissions} from "../permissions";
 import {AuthorizationStore} from "../../Authorization";
 import {isBetween} from "../../utils/number-utils";
 
@@ -16,7 +16,7 @@ const INITIAL_FORM_ERRORS: FormErrors<UpdateChatParticipantFormData> = {
     roleId: undefined
 };
 
-export class UpdateChatParticipantStore extends AbstractFormStore<UpdateChatParticipantFormData>{
+export class UpdateChatParticipantStore extends AbstractFormStore<UpdateChatParticipantFormData> {
     @observable
     updatedParticipantId?: string = undefined;
 

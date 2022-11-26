@@ -7,9 +7,9 @@ import {
     ChatsOfCurrentUserListWrapper,
     ConfirmChatDeletionDialog,
     SpecifyChatDeletionReasonDialog,
-    UpdateChatDialog,
-    UpdateChatParticipantDialog
+    UpdateChatDialog
 } from "../Chat";
+import {UpdateChatParticipantDialog} from "../ChatParticipant";
 import {ChatAppBar} from "../ChatAppBar";
 import {
     AttachedFilesDialog,
@@ -30,7 +30,7 @@ import {
 import {BanUserGloballyDialog} from "../GlobalBan";
 import {ReportChatDialog, ReportMessageDialog} from "../Report";
 import {StickerPackDialog} from "../Sticker";
-import {ChatRolesDialog, ChatRoleInfoDialog, CreateChatRoleDialog} from "../ChatRole";
+import {ChatRoleInfoDialog, ChatRolesDialog, CreateChatRoleDialog} from "../ChatRole";
 import {useStore} from "../store";
 import {ChatType} from "../api/types/response";
 

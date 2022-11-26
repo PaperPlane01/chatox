@@ -1,10 +1,10 @@
 import React, {FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
 import {DialogTitle, Dialog, DialogContent, DialogActions, Button, CircularProgress, Typography} from "@mui/material";
+import {useSnackbar} from "notistack";
 import {ChatRoleSelect} from "../../ChatRole";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
-import {useSnackbar} from "notistack";
 import {getUserDisplayedName} from "../../User/utils/labels";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";

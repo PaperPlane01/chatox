@@ -1,9 +1,9 @@
 import {action, computed, observable, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {ChatStore} from "./ChatStore";
+import {ChatStore} from "../../Chat";
 import {FetchingState, FetchOptions} from "../../utils/types";
 import {EntitiesStore} from "../../entities-store";
-import {ChatApi} from "../../api/clients";
+import {ChatApi} from "../../api";
 
 interface OnlineChatParticipantsFetchingStateMap {
     [chatId: string]: FetchingState

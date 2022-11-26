@@ -32,5 +32,5 @@ export const OnlineChatParticipantsList: FunctionComponent = observer(() => {
                                   )
                               }
         />
-    )
+    );
 });

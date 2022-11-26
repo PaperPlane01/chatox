@@ -1,5 +1,6 @@
 import {MessageEntity} from "../../Message/types";
-import {ChatOfCurrentUserEntity, ChatParticipationEntity, ChatUploadEntity} from "../../Chat";
+import {ChatOfCurrentUserEntity, ChatUploadEntity} from "../../Chat";
+import {ChatParticipationEntity} from "../../ChatParticipant";
 import {UserEntity} from "../../User";
 import {ChatBlockingEntity} from "../../ChatBlocking";
 import {Upload} from "../../api/types/response";
@@ -71,4 +72,4 @@ export type EntitiesPatch = {
 export type PopulatedEntitiesPatch<T extends Entities> = {
     entities: RequiredField<Partial<RawEntities>, T>,
     ids: RequiredField<Partial<EntitiesIds>, T>
-}
+};
