@@ -528,5 +528,6 @@ export const ru: Labels = {
     "username.empty": "Имя пользователя не должно быть пустым",
     "username.has-already-been-taken": "Имя пользователя уже используется",
     "username.too-long": "Имя пользователя слишком длинное",
-    "username.too-short": "Имя пользователя слишком короткое"
+    "username.too-short": "Имя пользователя слишком короткое",
+    "chat.participants.search": "Поиск участников чата"
 };

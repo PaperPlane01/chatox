@@ -118,6 +118,7 @@ import {
     RolesOfChatStore,
     UserChatRolesStore
 } from "../ChatRole";
+import {ChatParticipantsSearchStore} from "../ChatParticipant";
 
 export interface IAppState {
     language: LocaleStore,
@@ -230,5 +231,6 @@ export interface IAppState {
     chatRoleInfo: ChatRoleInfoDialogStore,
     editChatRole: EditChatRoleStore,
     createChatRole: CreateChatRoleStore,
+    chatParticipantsSearch: ChatParticipantsSearchStore,
     store?: any
 }

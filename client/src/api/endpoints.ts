@@ -47,3 +47,4 @@ export const PRIVATE = "private";
 export const BLACKLIST = "blacklist";
 export const STATUS = "status";
 export const ROLES = "roles";
+export const SEARCH = "search";

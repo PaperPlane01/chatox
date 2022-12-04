@@ -16,7 +16,7 @@ import {ChatDescription} from "./ChatDescription";
 import {ChatMenu} from "./ChatMenu";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
-import {AllChatParticipantsList} from "../../ChatParticipant";
+import {ChatParticipantsCard} from "../../ChatParticipant";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {ChatType} from "../../api/types/response";
@@ -102,7 +102,7 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
                         <ChatDescription/>
                     </div>
                     <div className={classes.chatInfoCard}>
-                        <AllChatParticipantsList/>
+                        <ChatParticipantsCard defaultMode="all"/>
                     </div>
                 </div>
             </DialogContent>

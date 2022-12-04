@@ -9,3 +9,4 @@ export * from "./ReportsApi";
 export * from "./StickerApi";
 export * from "./BlacklistApi";
 export * from "./ChatRoleApi";
+export * from "./ChatParticipantApi";

@@ -4,7 +4,7 @@ import {Theme, useMediaQuery} from "@mui/material";
 import {createStyles, makeStyles, useTheme} from "@mui/styles";
 import {ChatDescription} from "./ChatDescription";
 import {VirtualScrollElement} from "../types";
-import {OnlineChatParticipantsList} from "../../ChatParticipant";
+import {ChatParticipantsCard} from "../../ChatParticipant";
 import {useStore} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -44,7 +44,7 @@ export const ChatInfoContainer: FunctionComponent = observer(() => {
         >
             <ChatDescription/>
             <div className={classes.withPadding}>
-                <OnlineChatParticipantsList/>
+                <ChatParticipantsCard defaultMode="online"/>
             </div>
         </div>
     );
