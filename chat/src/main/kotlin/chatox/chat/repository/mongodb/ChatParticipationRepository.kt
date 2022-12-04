@@ -4,9 +4,7 @@ import chatox.chat.model.ChatParticipation
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.custom.ChatParticipationCustomRepository
 import org.springframework.data.domain.Pageable
-import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
-import org.springframework.data.repository.query.Param
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
@@ -27,7 +25,4 @@ interface ChatParticipationRepository : ReactiveMongoRepository<ChatParticipatio
     fun findByChatIdAndUserOnlineTrue(chatId: String): Flux<ChatParticipation>
     fun findByIdAndChatId(id: String, chatId: String): Mono<ChatParticipation>
     fun findByChatIdAndRoleIdAndDeletedFalse(chatId: String, roleId: String, pageable: Pageable): Flux<ChatParticipation>
-
-    @Query("{'chatId' : :#{#chatId}, 'userDisplayedName': {'\$regex': :#{#query}, '\$options' : 'i' }, 'deleted': false }")
-    fun searchChatParticipants(@Param("chatId") chatId: String, @Param("query") query: String, pageable: Pageable): Flux<ChatParticipation>
 }

@@ -201,7 +201,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
 
             return@mono mapChatParticipations(chatParticipationRepository.searchChatParticipants(
                     chatId = chat.id,
-                    query = query,
+                    searchQuery = query,
                     pageable = paginationRequest.toPageRequest()
             ))
         }
