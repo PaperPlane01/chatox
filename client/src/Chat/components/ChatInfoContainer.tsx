@@ -1,11 +1,10 @@
 import React, {CSSProperties, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Theme, useMediaQuery} from "@mui/material";
+import {Theme} from "@mui/material";
 import {createStyles, makeStyles, useTheme} from "@mui/styles";
 import {ChatDescription} from "./ChatDescription";
 import {VirtualScrollElement} from "../types";
-import {ChatParticipantsCard} from "../../ChatParticipant";
-import {useStore} from "../../store";
+import {ChatParticipantsCard, useChatParticipantsListScroll} from "../../ChatParticipant";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatInfoContainer: {
@@ -20,27 +19,29 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 export const ChatInfoContainer: FunctionComponent = observer(() => {
     const classes = useStyles();
-    const {
-        chatsPreferences: {
-            enableVirtualScroll,
-            virtualScrollElement
-        }
-    } = useStore();
     const theme = useTheme<Theme>()
-    const onLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
-    const style: CSSProperties | undefined = onLargeScreen && enableVirtualScroll && virtualScrollElement === VirtualScrollElement.WINDOW
+    const {
+        onLargeScreen,
+        enableVirtualScroll,
+        scrollHandler,
+        virtualScrollElement
+    } = useChatParticipantsListScroll("online");
+    const shouldHandleScroll = onLargeScreen && enableVirtualScroll
+        && virtualScrollElement === VirtualScrollElement.MESSAGES_LIST;
+    const style: CSSProperties | undefined = shouldHandleScroll
         ? ({
-            position: "fixed",
             overflowY: "auto",
             top: theme.spacing(8),
-            height: "100vh"
         })
-        : undefined;
-
+        : ({
+            position: "fixed",
+            width: "21%"
+        });
 
     return (
         <div className={classes.chatInfoContainer}
              style={style}
+             onScroll={shouldHandleScroll ? scrollHandler : undefined}
         >
             <ChatDescription/>
             <div className={classes.withPadding}>

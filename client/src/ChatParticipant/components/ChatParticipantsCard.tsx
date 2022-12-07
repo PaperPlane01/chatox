@@ -1,28 +1,29 @@
-import React, {FunctionComponent, ReactNode} from "react";
+import React, {CSSProperties, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
-import {TranslationFunction} from "../../localization";
-import {commonStyles} from "../../style";
-import {useLocalization, useStore} from "../../store";
-import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
+import {GroupOutlined} from "@mui/icons-material";
 import {ChatParticipantSearchButton} from "./ChatParticipantSearchButton";
 import {ChatParticipantSearchTextField} from "./ChatParticipantSearchTextField";
 import {AllChatParticipantsList} from "./AllChatParticipantsList";
 import {OnlineChatParticipantsList} from "./OnlineChatParticipantsList";
 import {SearchChatParticipantsList} from "./SearchChatParticipantsList";
-import {ChatOfCurrentUserEntity} from "../../Chat";
-
-type ChatParticipantsListMode = "all" | "online" | "search";
+import {ChatParticipantsListMode} from "../types";
+import {useChatParticipantsListScroll} from "../hooks";
+import {ChatOfCurrentUserEntity, VirtualScrollElement} from "../../Chat";
+import {TranslationFunction} from "../../localization";
+import {commonStyles} from "../../style";
+import {useLocalization, useStore} from "../../store";
 
 const ChatParticipantsLists: Record<ChatParticipantsListMode, ReactNode> = {
     all: <AllChatParticipantsList/>,
     online: <OnlineChatParticipantsList/>,
     search: <SearchChatParticipantsList/>
-}
+};
 
 interface ChatParticipantsCardProps {
-    defaultMode: ChatParticipantsListMode
+    defaultMode: ChatParticipantsListMode,
+    preventScroll?: boolean
 }
 
 const useStyles = makeStyles(() => createStyles({
@@ -67,10 +68,11 @@ const getLabel = (parameters: GetLabelParameters): string => {
         case "search":
             return l("chat.participants.search");
     }
-}
+};
 
 export const ChatParticipantsCard: FunctionComponent<ChatParticipantsCardProps> = observer(({
-    defaultMode
+    defaultMode,
+    preventScroll = false
 }) => {
     const {
         chat: {
@@ -85,10 +87,22 @@ export const ChatParticipantsCard: FunctionComponent<ChatParticipantsCardProps> 
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
+    const {
+        onLargeScreen,
+        enableVirtualScroll,
+        scrollHandler,
+        virtualScrollElement
+    } = useChatParticipantsListScroll(defaultMode);
 
     if (!selectedChat) {
         return null;
     }
+
+    const shouldHandleScroll = !preventScroll && onLargeScreen
+        && (!enableVirtualScroll || virtualScrollElement === VirtualScrollElement.WINDOW);
+    const style: CSSProperties | undefined = shouldHandleScroll ? ({
+        overflowY: "auto"
+    }) : undefined;
 
     const mode: ChatParticipantsListMode = isInSearchMode ? "search" : defaultMode;
     const label = getLabel({
@@ -96,15 +110,18 @@ export const ChatParticipantsCard: FunctionComponent<ChatParticipantsCardProps> 
         mode,
         onlineParticipantsCount,
         l
-    })
+    });
 
     return (
         <Card classes={{
             root: classes.root
-        }}>
+        }}
+              style={style}
+              onScroll={shouldHandleScroll ? scrollHandler : undefined}
+        >
             <CardHeader title={(
                 <div className={classes.titleWrapper}>
-                    <GroupOutlinedIcon/>
+                    <GroupOutlined/>
                     <Typography variant="body1">
                         <strong>
                             {label}
@@ -121,4 +138,4 @@ export const ChatParticipantsCard: FunctionComponent<ChatParticipantsCardProps> 
             </CardContent>
         </Card>
     );
-})
+});

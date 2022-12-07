@@ -1,8 +1,6 @@
 import {CSSProperties} from "@mui/styles";
 
-interface CommonStyles {
-    [key: string]: CSSProperties
-}
+type CommonStyles = Record<string, CSSProperties>;
 
 export const commonStyles: CommonStyles = {
     centered: {

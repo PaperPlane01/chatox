@@ -16,7 +16,7 @@ import {ChatDescription} from "./ChatDescription";
 import {ChatMenu} from "./ChatMenu";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
-import {ChatParticipantsCard} from "../../ChatParticipant";
+import {ChatParticipantsCard, useChatParticipantsListScroll} from "../../ChatParticipant";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {ChatType} from "../../api/types/response";
@@ -56,6 +56,7 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
     const {l} = useLocalization();
     const {fullScreen} = useMobileDialog();
     const classes = useStyles();
+    const {scrollHandler} = useChatParticipantsListScroll("all");
 
     if (!selectedChatId) {
         return null;
@@ -76,6 +77,8 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
                 fullScreen={fullScreen}
                 fullWidth
                 maxWidth="xs"
+                scroll="paper"
+                onScroll={scrollHandler}
         >
             <DialogTitle>
                 <CardHeader title={l("chat.info")}
@@ -102,7 +105,7 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
                         <ChatDescription/>
                     </div>
                     <div className={classes.chatInfoCard}>
-                        <ChatParticipantsCard defaultMode="all"/>
+                        <ChatParticipantsCard defaultMode="all" preventScroll/>
                     </div>
                 </div>
             </DialogContent>
