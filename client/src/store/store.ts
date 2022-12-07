@@ -127,6 +127,7 @@ import {
     UserChatRolesStore
 } from "../ChatRole";
 import {SnackbarService} from "../Snackbar";
+import {ChatParticipantsSearchStore} from "../ChatParticipant";
 
 const rawEntities = new RawEntitiesStore();
 const authorization = new AuthorizationStore();
@@ -283,6 +284,7 @@ const chatRoleInfo = new ChatRoleInfoDialogStore();
 const snackbarService = new SnackbarService();
 const editChatRole = new EditChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chatRoleInfo);
 const createChatRole = new CreateChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chat, rolesOfChats);
+const chatParticipantsSearch = new ChatParticipantsSearchStore(entities, chat);
 
 export const store: IAppState = {
     authorization,
@@ -394,5 +396,6 @@ export const store: IAppState = {
     chatRoleInfo,
     editChatRole,
     createChatRole,
-    rawEntities
+    rawEntities,
+    chatParticipantsSearch
 };

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ChatParticipantsList} from "./ChatParticipantsList";
-import {useLocalization, useStore} from "../../store";
+import {useStore} from "../../store";
 
 export const OnlineChatParticipantsList: FunctionComponent = observer(() => {
     const {
@@ -10,11 +10,9 @@ export const OnlineChatParticipantsList: FunctionComponent = observer(() => {
         },
         onlineChatParticipants: {
             onlineParticipants,
-            onlineParticipantsCount,
             getFetchingState
         }
     } = useStore();
-    const {l} = useLocalization();
 
     if (!selectedChatId) {
         return null;
@@ -25,12 +23,6 @@ export const OnlineChatParticipantsList: FunctionComponent = observer(() => {
     return (
         <ChatParticipantsList participantsIds={onlineParticipants}
                               fetchingState={fetchingState}
-                              label={
-                                  l(
-                                      "chat.online-participants-count",
-                                      {onlineParticipantsCount: `${onlineParticipantsCount}`}
-                                  )
-                              }
         />
     );
 });

@@ -526,5 +526,6 @@ export interface Labels {
     "username.empty": string,
     "username.has-already-been-taken": string
     "username.too-long": string,
-    "username.too-short": string
+    "username.too-short": string,
+    "chat.participants.search": string
 }

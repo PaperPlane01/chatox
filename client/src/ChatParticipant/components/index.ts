@@ -8,3 +8,5 @@ export * from "./KickChatParticipantMenuItem";
 export * from "./OnlineChatParticipantsList";
 export * from "./UpdateChatParticipantDialog";
 export * from "./UpdateChatParticipantMenuItem";
+export * from "./ChatParticipantSearchTextField";
+export * from "./ChatParticipantsCard";
