@@ -3,6 +3,7 @@ package chatox.oauth2.service;
 import chatox.oauth2.api.request.CreateAccountRequest;
 import chatox.oauth2.api.request.CreateAnonymousAccountRequest;
 import chatox.oauth2.api.request.RecoverPasswordRequest;
+import chatox.oauth2.api.request.UpdateEmailRequest;
 import chatox.oauth2.api.request.UpdatePasswordRequest;
 import chatox.oauth2.api.response.AccountResponse;
 import chatox.oauth2.api.response.CreateAccountResponse;
@@ -20,4 +21,5 @@ public interface AccountService extends UserDetailsService {
     void addUserToAccount(String accountId, String userId);
     void removeUserFromAccount(String accountId, String userId);
     void recoverPassword(RecoverPasswordRequest recoverPasswordRequest);
+    AccountResponse updateAccountEmail(UpdateEmailRequest updateEmailRequest);
 }

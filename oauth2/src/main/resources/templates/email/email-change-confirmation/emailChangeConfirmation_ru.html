@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<p>
+    Используйте этот код для подтверждения изменения e-mail:
+</p>
+<p th:text="${emailConfirmationCode}" style="font-size: 16px; font-weight: bold"></p>
+<p>
+    Этот код действителен до <span th:text="${#dates.format(emailConfirmationCodeExpirationDate, 'dd-MM-yyyy HH:mm:ss')}"></span> UTC
+</p>
+</body>
+</html>

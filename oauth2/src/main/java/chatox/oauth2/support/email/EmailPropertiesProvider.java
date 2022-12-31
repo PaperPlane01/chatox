@@ -97,5 +97,21 @@ public class  EmailPropertiesProvider {
                         .requiresCheckingAccountExistence(true)
                         .build()
         );
+        propertiesMap.put(
+                EmailConfirmationCodeType.CONFIRM_EMAIL_CHANGE,
+                EmailProperties.builder()
+                        .subjectsMap(
+                                Map.of(
+                                        Language.EN, "Confirm email change",
+                                        Language.RU, "Подтверждение смены e-mail"
+                                )
+                        )
+                        .emailSourceStrategy(EmailSourceStrategy.USE_CURRENT_USER_EMAIL)
+                        .templateBaseName("email/email-change-confirmation/emailChangeConfirmation")
+                        .expirationAmount(1L)
+                        .expirationChronoUnit(ChronoUnit.HOURS)
+                        .requiresCheckingAccountExistence(false)
+                        .build()
+        );
     }
 }

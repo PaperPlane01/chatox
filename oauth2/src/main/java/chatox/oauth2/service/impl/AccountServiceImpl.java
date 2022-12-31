@@ -3,35 +3,35 @@ package chatox.oauth2.service.impl;
 import chatox.oauth2.api.request.CreateAccountRequest;
 import chatox.oauth2.api.request.CreateAnonymousAccountRequest;
 import chatox.oauth2.api.request.RecoverPasswordRequest;
+import chatox.oauth2.api.request.UpdateEmailRequest;
 import chatox.oauth2.api.request.UpdatePasswordRequest;
 import chatox.oauth2.api.response.AccountResponse;
 import chatox.oauth2.api.response.CreateAccountResponse;
 import chatox.oauth2.api.response.UsernameAvailabilityResponse;
 import chatox.oauth2.domain.Account;
 import chatox.oauth2.domain.Client;
+import chatox.oauth2.domain.EmailConfirmationCode;
 import chatox.oauth2.domain.Role;
 import chatox.oauth2.exception.AccountNotFoundException;
 import chatox.oauth2.exception.ClientNotFoundException;
-import chatox.oauth2.exception.EmailConfirmationCodeNotFoundException;
 import chatox.oauth2.exception.EmailConfirmationCodeRequiredException;
 import chatox.oauth2.exception.EmailConfirmationIdRequiredException;
 import chatox.oauth2.exception.EmailHasAlreadyBeenTakenException;
-import chatox.oauth2.exception.metadata.EmailConfirmationCodeExpiredException;
-import chatox.oauth2.exception.metadata.EmailConfirmationCodeHasAlreadyBeenUsedException;
-import chatox.oauth2.exception.metadata.EmailMismatchException;
-import chatox.oauth2.exception.metadata.InvalidEmailConfirmationCodeCodeException;
+import chatox.oauth2.exception.OldEmailMissingException;
 import chatox.oauth2.exception.metadata.InvalidPasswordException;
 import chatox.oauth2.mapper.AccountMapper;
+import chatox.oauth2.messaging.rabbitmq.event.EmailUpdated;
+import chatox.oauth2.messaging.rabbitmq.event.publisher.AccountEventsPublisher;
 import chatox.oauth2.respository.AccountRepository;
 import chatox.oauth2.respository.ClientRepository;
 import chatox.oauth2.respository.EmailConfirmationCodeRepository;
-import chatox.oauth2.respository.GlobalBanRepository;
 import chatox.oauth2.respository.UserRoleRepository;
 import chatox.oauth2.security.AuthenticationFacade;
 import chatox.oauth2.security.CustomClientDetails;
 import chatox.oauth2.security.CustomUserDetails;
 import chatox.oauth2.security.token.TokenGeneratorHelper;
 import chatox.oauth2.service.AccountService;
+import chatox.oauth2.service.EmailConfirmationCodeService;
 import chatox.platform.time.TimeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
@@ -57,11 +56,12 @@ public class AccountServiceImpl implements AccountService {
     private final ClientRepository clientRepository;
     private final UserRoleRepository userRoleRepository;
     private final EmailConfirmationCodeRepository emailConfirmationCodeRepository;
+    private final EmailConfirmationCodeService emailConfirmationCodeService;
     private final AccountMapper accountMapper;
-    private final GlobalBanRepository globalBanRepository;
     private final AuthenticationFacade authenticationFacade;
     private final TimeService timeService;
     private final TokenGeneratorHelper tokenGeneratorHelper;
+    private final AccountEventsPublisher accountEventsPublisher;
 
     private PasswordEncoder passwordEncoder;
 
@@ -80,6 +80,7 @@ public class AccountServiceImpl implements AccountService {
                 createAccountRequest.getEmailConfirmationCodeId()
         )
                 .allMatch(Objects::nonNull);
+        EmailConfirmationCode emailConfirmationCode = null;
 
         if (emailInfoPresent) {
             if (accountRepository.existsByEmail(createAccountRequest.getEmail())) {
@@ -88,29 +89,11 @@ public class AccountServiceImpl implements AccountService {
                 ));
             }
 
-            var emailConfirmationCode = emailConfirmationCodeRepository.findById(createAccountRequest.getEmailConfirmationCodeId())
-                    .orElseThrow(() -> new EmailConfirmationCodeNotFoundException(
-                            String.format(
-                                    "Could not find email confirmation code with id %s",
-                                    createAccountRequest.getEmailConfirmationCodeId()
-                            )
-                    ));
-
-            if (!emailConfirmationCode.getEmail().equals(createAccountRequest.getEmail())) {
-                throw new EmailMismatchException(
-                        "Email provided in request does not match with email in email verification with the specified id"
-                );
-            }
-
-            if (!passwordEncoder.matches(
+            emailConfirmationCode = emailConfirmationCodeService.requireEmailConfirmationCode(
+                    createAccountRequest.getEmailConfirmationCodeId(),
                     createAccountRequest.getEmailConfirmationCode(),
-                    emailConfirmationCode.getConfirmationCodeHash())) {
-                throw new InvalidEmailConfirmationCodeCodeException("Provided email confirmation code is invalid");
-            }
-
-            if (ZonedDateTime.now().isAfter(emailConfirmationCode.getExpiresAt())) {
-                throw new EmailConfirmationCodeExpiredException("This email confirmation code has expired");
-            }
+                    createAccountRequest.getEmail()
+            );
         }
 
         var account = Account.builder()
@@ -125,6 +108,11 @@ public class AccountServiceImpl implements AccountService {
                 .build();
 
         accountRepository.save(account);
+
+        if (emailConfirmationCode != null) {
+            emailConfirmationCode.setCompletedAt(timeService.now());
+            emailConfirmationCodeRepository.save(emailConfirmationCode);
+        }
 
         var tokenPair = tokenGeneratorHelper.generateTokenPair(new CustomUserDetails(account), new CustomClientDetails(client));
         var accessToken = tokenPair.getAccessToken();
@@ -147,7 +135,7 @@ public class AccountServiceImpl implements AccountService {
                 .locked(false)
                 .roles(new ArrayList<>(Arrays.asList(userRoleRepository.findByRole(Role.ROLE_ANONYMOUS_USER))))
                 .passwordHash(null)
-                .username("account-" + UUID.randomUUID().toString())
+                .username("account-" + UUID.randomUUID())
                 .userIds(new ArrayList<>(Arrays.asList(createAnonymousAccountRequest.getUserId())))
                 .build();
 
@@ -212,29 +200,14 @@ public class AccountServiceImpl implements AccountService {
                 );
             }
 
-            var emailVerification = emailConfirmationCodeRepository.findById(updatePasswordRequest.getEmailConfirmationCodeId())
-                    .orElseThrow(() -> new EmailConfirmationCodeNotFoundException(
-                            "Could not find email confirmation with provided id"
-                    ));
+            var emailConfirmationCode = emailConfirmationCodeService.requireEmailConfirmationCode(
+                    updatePasswordRequest.getEmailConfirmationCodeId(),
+                    updatePasswordRequest.getEmailConfirmationCode(),
+                    currentAccount.getEmail()
+            );
 
-            if (emailVerification.getCompletedAt() != null) {
-                throw new EmailConfirmationCodeHasAlreadyBeenUsedException("This email confirmation code has already been used");
-            }
-
-            if (timeService.now().isAfter(emailVerification.getExpiresAt())) {
-                throw new EmailConfirmationCodeExpiredException("This email confirmation has expired");
-            }
-
-            if (!emailVerification.getEmail().equals(currentAccount.getEmail())) {
-                throw new EmailMismatchException();
-            }
-
-            if (!passwordEncoder.matches(updatePasswordRequest.getEmailConfirmationCode(), emailVerification.getConfirmationCodeHash())) {
-                throw new InvalidEmailConfirmationCodeCodeException("Provided email verification code is invalid");
-            }
-
-            emailVerification.setCompletedAt(timeService.now());
-            emailConfirmationCodeRepository.save(emailVerification);
+            emailConfirmationCode.setCompletedAt(timeService.now());
+            emailConfirmationCodeRepository.save(emailConfirmationCode);
         }
 
         currentAccount.setPasswordHash(passwordEncoder.encode(updatePasswordRequest.getPassword()));
@@ -257,25 +230,10 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void recoverPassword(RecoverPasswordRequest recoverPasswordRequest) {
-        var emailConfirmationCode = emailConfirmationCodeRepository.findById(recoverPasswordRequest.getEmailConfirmationCodeId())
-                .orElseThrow(() -> new EmailConfirmationCodeNotFoundException("Could not find email confirmation code with id " + recoverPasswordRequest.getEmailConfirmationCodeId()));
-
-        var now = timeService.now();
-
-        if (emailConfirmationCode.getCompletedAt() != null) {
-            throw new EmailConfirmationCodeHasAlreadyBeenUsedException("This email confirmation code has already been used");
-        }
-
-        if (emailConfirmationCode.getExpiresAt().isBefore(now)) {
-            throw new EmailConfirmationCodeExpiredException(
-                    "This email confirmation code has expired"
-            );
-        }
-
-        if (!passwordEncoder.matches(recoverPasswordRequest.getEmailConfirmationCode(), emailConfirmationCode.getConfirmationCodeHash())) {
-            throw new InvalidEmailConfirmationCodeCodeException();
-        }
-
+        var emailConfirmationCode = emailConfirmationCodeService.requireEmailConfirmationCode(
+                recoverPasswordRequest.getEmailConfirmationCodeId(),
+                recoverPasswordRequest.getEmailConfirmationCode()
+        );
         var email = emailConfirmationCode.getEmail();
         var account = accountRepository.findByEmail(email)
                 .orElseThrow(AccountNotFoundException::new); // Should never happen
@@ -283,6 +241,50 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
         emailConfirmationCode.setCompletedAt(timeService.now());
         emailConfirmationCodeRepository.save(emailConfirmationCode);
+    }
+
+    @Override
+    public AccountResponse updateAccountEmail(UpdateEmailRequest updateEmailRequest) {
+        var accountId = authenticationFacade.getCurrentUserDetails().getAccountId();
+        var account = findById(accountId);
+        EmailConfirmationCode changeEmailConfirmationCode = null;
+
+        if (updateEmailRequest.getOldEmail() != null) {
+            if (account.getEmail() != null) {
+                throw new OldEmailMissingException();
+            }
+
+            changeEmailConfirmationCode = emailConfirmationCodeService.requireEmailConfirmationCode(
+                    updateEmailRequest.getChangeEmailConfirmationCodeId(),
+                    updateEmailRequest.getChangeEmailConfirmationCode(),
+                    account.getEmail()
+            );
+        }
+
+        var newEmailConfirmationCode = emailConfirmationCodeService.requireEmailConfirmationCode(
+                updateEmailRequest.getNewEmailConfirmationCodeId(),
+                updateEmailRequest.getNewEmailConfirmationCode(),
+                updateEmailRequest.getNewEmail()
+        );
+
+        if (changeEmailConfirmationCode != null) {
+            changeEmailConfirmationCode.setCompletedAt(timeService.now());
+        }
+
+        newEmailConfirmationCode.setCompletedAt(timeService.now());
+
+        emailConfirmationCodeRepository.saveAll(
+                Stream.of(changeEmailConfirmationCode, newEmailConfirmationCode)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())
+        );
+
+        account.setEmail(updateEmailRequest.getNewEmail());
+        accountRepository.save(account);
+
+        accountEventsPublisher.emailUpdated(new EmailUpdated(account.getId(), account.getEmail()));
+
+        return accountMapper.toAccountResponse(account);
     }
 
     @Override
