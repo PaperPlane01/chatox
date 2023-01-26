@@ -23,6 +23,9 @@ spring:
     default-encoding: UTF-8
     protocol: ${OAUTH2_SERVICE_SPRING_MAIL_PROTOCOL}
     full-email: ${OAUTH2_SERVICE_FULL_EMAIL}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.tls.enable: true
   jpa:
     hibernate:
       ddl-auto: update
