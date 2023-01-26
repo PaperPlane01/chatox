@@ -99,7 +99,8 @@ class UserEventsListener(private val userRepository: UserRepository,
                         bio = userUpdated.bio,
                         dateOfBirth = userUpdated.dateOfBirth,
                         createdAt = userUpdated.createdAt,
-                        avatar = avatar
+                        avatar = avatar,
+                        email = userUpdated.email
                 ))
                         .awaitFirst()
                 chatParticipationRepository
