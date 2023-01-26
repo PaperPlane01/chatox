@@ -14,6 +14,8 @@ import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {InstalledStickerPacksList} from "../../Sticker";
 import {BlacklistedUsersList} from "../../Blacklist";
+import {EditEmailContainer} from "../../EmailUpdate";
+import {SecurityTabWrapper} from "./SecurityTabWrapper";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     undecoratedLink: {
@@ -178,7 +180,7 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                                  </Typography>
                              }
                     >
-                        <ChangePasswordContainer/>
+                        <SecurityTabWrapper/>
                     </HasRole>
                 </TabPanel>
                 <TabPanel value={SettingsTab.CHATS}

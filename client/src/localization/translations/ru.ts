@@ -529,5 +529,19 @@ export const ru: Labels = {
     "username.has-already-been-taken": "Имя пользователя уже используется",
     "username.too-long": "Имя пользователя слишком длинное",
     "username.too-short": "Имя пользователя слишком короткое",
-    "chat.participants.search": "Поиск участников чата"
+    "chat.participants.search": "Поиск участников чата",
+    "email.no-email": "Ваш аккаунт не привязан к email, что делает его менее безопасным.",
+    "email.link": "Указать email",
+    "email.update": "Обновить email",
+    "email.update.success": "Email обновлён",
+    "email.update.error": "Во время обновления email произошла ошибка",
+    "email.update.error.confirmation-code-expired": "Код подтверждения истёк",
+    "email.update.error.confirmation-code-has-been-used": "Код подтверждения был использован",
+    "email.update.error.confirmation-code-invalid": "Неправильный код подтверждения",
+    "email.update.error.email-mismatch": "Данный код подтверждения был создан для другого email",
+    "email.update.error.unknown": "Во время попытки обновить email произошла неизвестная ошибка, сервер ответил со статусом {errorStatus}",
+    "email.change.confirm": "Подвердите смену email",
+    "email.change.confirm.code-will-be-sent": "Мы отправим под подтверждения на ваш текущий адрес {email}",
+    "email.update.in-progress": "Обновление email в процессе. Пожалуйста, подождите",
+    "email.update.enter-new-email": "Введите новый email"
 };

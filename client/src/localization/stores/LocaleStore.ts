@@ -1,4 +1,5 @@
 import {observable, action, computed} from "mobx";
+import {computedFn} from "mobx-utils";
 import {Locale} from "date-fns";
 import enDateFnsLocale from "date-fns/locale/en-US";
 import ruDateFnsLocale from "date-fns/locale/ru";
@@ -7,8 +8,7 @@ import {Labels, Language} from "../types";
 
 export class LocaleStore {
     @observable
-    selectedLanguage: Language = localStorage.getItem("language") !== null
-        && (localStorage.getItem("language") === "en" || localStorage.getItem("language") === "ru")
+    selectedLanguage: Language = localStorage && ["en", "ru"].includes(localStorage.getItem("language") || "")
         ? localStorage.getItem("language") as Language
         : "en";
 
@@ -36,4 +36,8 @@ export class LocaleStore {
         localStorage.setItem("language", language);
         this.selectedLanguage = language;
     }
+
+    getCurrentLanguageLabel = computedFn((label: keyof Labels): string => {
+        return this.currentLanguageLabels[label];
+    });
 }

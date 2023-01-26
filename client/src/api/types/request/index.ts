@@ -32,3 +32,4 @@ export * from "./CreateStickerRequest";
 export * from "./StartPrivateChatRequest";
 export * from "./CreateChatRoleRequest";
 export * from "./UpdateChatRoleRequest";
+export * from "./UpdateEmailRequest";

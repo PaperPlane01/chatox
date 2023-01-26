@@ -20,6 +20,7 @@ import {
     UpdateChatStore
 } from "../Chat";
 import {
+    ChatParticipantsSearchStore,
     ChatParticipantsStore,
     JoinChatStore,
     KickChatParticipantStore,
@@ -118,7 +119,12 @@ import {
     RolesOfChatStore,
     UserChatRolesStore
 } from "../ChatRole";
-import {ChatParticipantsSearchStore} from "../ChatParticipant";
+import {
+    SendEmailChangeConfirmationCodeStore,
+    SendNewEmailConfirmationCodeStore,
+    UpdateEmailDialogStore,
+    UpdateEmailStore
+} from "../EmailUpdate";
 
 export interface IAppState {
     language: LocaleStore,
@@ -232,5 +238,11 @@ export interface IAppState {
     editChatRole: EditChatRoleStore,
     createChatRole: CreateChatRoleStore,
     chatParticipantsSearch: ChatParticipantsSearchStore,
+    updateEmailDialog: UpdateEmailDialogStore,
+    emailChangeConfirmationCode: SendEmailChangeConfirmationCodeStore,
+    emailChangeConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
+    newEmailConfirmationCode: SendNewEmailConfirmationCodeStore,
+    newEmailConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
+    emailUpdate: UpdateEmailStore,
     store?: any
 }
