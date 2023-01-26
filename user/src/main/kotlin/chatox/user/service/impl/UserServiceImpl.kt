@@ -141,6 +141,30 @@ class UserServiceImpl(private val userRepository: UserRepository,
                 .switchIfEmpty(Mono.just(SlugAvailabilityResponse(available = true)))
     }
 
+    override fun updateEmail(accountId: String, email: String): Mono<Void> {
+        return mono {
+            val users = userRepository
+                    .findByAccountId(accountId)
+                    .map { user -> user.copy(email = email) }
+                    .collectList()
+                    .awaitFirst()
+            userRepository.saveAll(users).awaitFirst()
+
+            Mono.fromRunnable<Void> {
+                users.forEach { user ->
+                    userEventsProducer.userUpdated(userMapper.toUserResponse(
+                            user = user,
+                            mapEmail = true
+                    ))
+                }
+            }
+                    .subscribe()
+
+            return@mono Mono.empty<Void>()
+        }
+                .flatMap { it }
+    }
+
     private fun findById(id: String) = userRepository.findById(id)
             .switchIfEmpty(Mono.error(UserNotFoundException("Could not find user with id $id")))
 

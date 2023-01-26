@@ -18,5 +18,5 @@ data class CurrentUser(
         val dateOfBirth: ZonedDateTime?,
         val email: String?,
         val globalBan: GlobalBanResponse?,
-        val externalAvatarUri: String?
+        val externalAvatarUri: String?,
 )

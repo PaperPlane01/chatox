@@ -59,6 +59,18 @@ class RabbitMqConfig {
             .to(websocketEvents())
             .with("user.disconnected.#")
 
+    @Bean
+    fun emailUpdatedQueue() = Queue("user_service_email_updated")
+
+    @Bean
+    fun accountEvents() = TopicExchange("account.events")
+
+    @Bean
+    fun emailUpdatedBinding(): Binding = BindingBuilder
+            .bind(emailUpdatedQueue())
+            .to(accountEvents())
+            .with("account.email.updated.#")
+
     @Autowired
     @Bean
     fun rabbitTemplate(connectionFactory: ConnectionFactory,
