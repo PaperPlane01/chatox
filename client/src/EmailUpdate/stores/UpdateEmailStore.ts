@@ -96,9 +96,9 @@ export class UpdateEmailStore {
         if (currentUserEmail) {
             updateEmailRequest.oldEmail = currentUserEmail;
             updateEmailRequest.changeEmailConfirmationCodeId
-                = this.sendNewEmailConfirmationCodeStore.emailConfirmationCode!.id
-            updateEmailRequest.newEmailConfirmationCode
-                = this.checkNewEmailConfirmationCodeStore.formValues.confirmationCode;
+                = this.sendEmailChangeConfirmationCodeStore.emailConfirmationCode!.id
+            updateEmailRequest.changeEmailConfirmationCode
+                = this.checkEmailChangeConfirmationCodeStore.formValues.confirmationCode;
         }
 
         const currentUserId = this.authorizationStore.currentUser.id;
