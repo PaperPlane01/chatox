@@ -249,8 +249,8 @@ public class AccountServiceImpl implements AccountService {
         var account = findById(accountId);
         EmailConfirmationCode changeEmailConfirmationCode = null;
 
-        if (updateEmailRequest.getOldEmail() != null) {
-            if (account.getEmail() != null) {
+        if (account.getEmail() != null) {
+            if (updateEmailRequest.getOldEmail() == null) {
                 throw new OldEmailMissingException();
             }
 
