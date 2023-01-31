@@ -1,4 +1,4 @@
-import {action, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 import {AxiosError} from "axios";
 import {AuthorizationStore} from "./AuthorizationStore";
 import {LoginFormData} from "../types";
@@ -7,52 +7,44 @@ import {FormErrors} from "../../utils/types";
 import {validatePassword, validateUsername} from "../../Registration/validation";
 
 export class LoginStore {
-    @observable
     loginForm: LoginFormData = {
         username: "",
         password: ""
     };
 
-    @observable
     loginFormErrors: FormErrors<LoginFormData> = {
         username: undefined,
         password: undefined
     };
 
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @observable
     loginDialogOpen: boolean = false;
 
-    @observable
     displayPassword: boolean = false;
 
     private readonly authorizationStore: AuthorizationStore;
 
     constructor(authorizationStore: AuthorizationStore) {
+        makeAutoObservable(this);
+
         this.authorizationStore = authorizationStore;
     }
 
-    @action
     setLoginDialogOpen = (loginDialogOpen: boolean): void => {
         this.loginDialogOpen = loginDialogOpen;
     };
 
-    @action
     setDisplayPassword = (displayPassword: boolean): void => {
         this.displayPassword = displayPassword;
     };
 
-    @action
     updateLoginFormValue = (key: keyof LoginFormData, value: string): void => {
         this.loginForm[key] = value;
     };
 
-    @action
     doLogin = (): void => {
         this.validateForm().then(formValid => {
             if (formValid) {
@@ -84,7 +76,6 @@ export class LoginStore {
         })
     };
 
-    @action
     validateForm = (): Promise<boolean> => {
         return new Promise<boolean>(resolve => {
             this.loginFormErrors = {
@@ -99,7 +90,6 @@ export class LoginStore {
         })
     };
 
-    @action
     reset = (): void => {
         this.loginForm =  {
             username: "",
@@ -113,5 +103,5 @@ export class LoginStore {
                 password: undefined
             };
         });
-    }
+    };
 }

@@ -1,4 +1,4 @@
-import {action, reaction} from "mobx";
+import {action, makeObservable, reaction} from "mobx";
 import {ChatFeaturesFormStore} from "./ChatFeaturesFormStore";
 import {ChatRoleFormData} from "../types";
 import {validateRoleLevel, validateRoleName} from "../validation";
@@ -27,6 +27,10 @@ export abstract class AbstractChatRoleFormStore extends AbstractFormStore<ChatRo
                           private readonly snackbarService: SnackbarService) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
 
+        makeObservable<AbstractChatRoleFormStore, "validateForm">(this, {
+            validateForm: action
+        });
+
         reaction(
             () => this.formValues.name,
             name => this.setFormError("name", validateRoleName(name))
@@ -37,7 +41,6 @@ export abstract class AbstractChatRoleFormStore extends AbstractFormStore<ChatRo
         );
     }
 
-    @action.bound
     protected validateForm(): boolean {
         this.setFormErrors({
             name: validateRoleName(this.formValues.name),

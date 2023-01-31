@@ -1,11 +1,14 @@
-import {observable, action} from "mobx";
+import {makeAutoObservable} from "mobx";
 
 export class MarkdownPreviewDialogStore {
-    @observable
     markdownPreviewDialogOpen: boolean = false;
 
-    @action
+
+    constructor() {
+        makeAutoObservable(this);
+    }
+
     setMarkdownPreviewDialogOpen = (markdownPreviewDialogOpen: boolean): void => {
         this.markdownPreviewDialogOpen = markdownPreviewDialogOpen;
-    }
+    };
 }

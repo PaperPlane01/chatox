@@ -3,10 +3,9 @@ import {observer} from "mobx-react";
 import {Dialog, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {ArrowBack} from "@mui/icons-material";
+import {Link} from "mobx-router";
 import {Routes} from "../../router";
 import {useRouter} from "../../store";
-
-const {Link} = require("mobx-router");
 
 interface SettingsFullScreenDialogProps {
     title: ReactNode,
@@ -34,8 +33,8 @@ export const SettingsFullScreenDialog: FunctionComponent<PropsWithChildren<Setti
         >
             <DialogTitle>
                 <Link className={classes.undecoratedLink}
-                      view={Routes.settingsPage}
-                      store={routerStore}
+                      route={Routes.settingsPage}
+                      router={routerStore}
                 >
                     <IconButton size="large">
                         <ArrowBack/>

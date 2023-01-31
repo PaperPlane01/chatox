@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {ChatStore} from "../../Chat/stores";
 import {EntitiesStore} from "../../entities-store";
 import {ChatOfCurrentUserEntity} from "../../Chat/types";
@@ -13,10 +13,8 @@ interface PinnedMessagesStateMap {
 }
 
 export class PinnedMessagesStore {
-    @observable
     pinnedMessagesStateMap: PinnedMessagesStateMap = {};
 
-    @computed
     get selectedChat(): ChatOfCurrentUserEntity | undefined {
         if (this.chatStore.selectedChatId) {
             return this.entities.chats.findById(this.chatStore.selectedChatId);
@@ -25,7 +23,6 @@ export class PinnedMessagesStore {
         return undefined;
     }
 
-    @computed
     get currentPinnedMessageId(): string | undefined {
         if (this.selectedChat) {
             return this.selectedChat.pinnedMessageId;
@@ -34,7 +31,6 @@ export class PinnedMessagesStore {
         return undefined;
     }
 
-    @computed
     get currentPinnedMessageIsClosed(): boolean {
         if (!this.currentPinnedMessageId) {
             return false;
@@ -46,6 +42,8 @@ export class PinnedMessagesStore {
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
                 private readonly closedPinnedMessagesStore: ClosedPinnedMessagesStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.selectedChat,
             selectedChat => {
@@ -56,7 +54,6 @@ export class PinnedMessagesStore {
         );
     }
 
-    @action
     fetchPinnedMessageByChat = (chatId: string): void => {
         if (this.pinnedMessagesStateMap[chatId] && (this.pinnedMessagesStateMap[chatId].pending || this.pinnedMessagesStateMap[chatId].initiallyFetched)) {
             return;
@@ -84,5 +81,5 @@ export class PinnedMessagesStore {
                     };
                 }
             }));
-    }
+    };
 }

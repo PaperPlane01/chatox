@@ -5,7 +5,7 @@ import {ChatBlocking, CurrentUser} from "../../api/types/response";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {mergeCustomizer} from "../../utils/object-utils";
 import {AuthorizationStore} from "../../Authorization";
-import {action, computed} from "mobx";
+import { action, computed, makeObservable } from "mobx";
 import {createTransformer} from "mobx-utils";
 import {SortingDirection} from "../../utils/types";
 
@@ -17,7 +17,6 @@ export interface FindChatBlockingsByChatOptions {
 }
 
 export class ChatBlockingsStore extends AbstractEntityStore<"chatBlockings", ChatBlockingEntity, ChatBlocking> {
-    @computed
     private get currentUser(): CurrentUser | undefined {
         return this.authorization.currentUser;
     }
@@ -26,6 +25,11 @@ export class ChatBlockingsStore extends AbstractEntityStore<"chatBlockings", Cha
                 entities: EntitiesStore,
                 private readonly authorization: AuthorizationStore) {
         super(rawEntities, "chatBlockings", entities);
+
+        makeObservable<ChatBlockingsStore, "currentUser">(this, {
+            currentUser: computed,
+            hideByChat: action
+        });
     }
 
     findByChat = createTransformer((options: FindChatBlockingsByChatOptions) => {
@@ -66,7 +70,6 @@ export class ChatBlockingsStore extends AbstractEntityStore<"chatBlockings", Cha
         }
     });
 
-    @action
     hideByChat = (chatId: string): void => {
         const chatBlockingsIds = this.findByChat({chatId});
         const chatBlockings = chatBlockingsIds.map(id => this.findById(id));

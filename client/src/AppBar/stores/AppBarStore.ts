@@ -1,11 +1,13 @@
-import {observable, action} from "mobx";
+import {makeAutoObservable} from "mobx";
 
 export class AppBarStore {
-    @observable
     drawerExpanded: boolean = false;
 
-    @action
+    constructor() {
+        makeAutoObservable(this);
+    }
+
     setDrawerExpanded = (drawerExpanded: boolean): void => {
         this.drawerExpanded = drawerExpanded;
-    }
+    };
 }

@@ -1,4 +1,4 @@
-import {action, computed, reaction} from "mobx";
+import {action, computed, makeObservable, override, reaction} from "mobx";
 import {UpdateEmailDialogStore} from "./UpdateEmailDialogStore";
 import {UpdateEmailStep} from "../types";
 import {EmailConfirmationCodeType} from "../../api/types/request";
@@ -7,7 +7,6 @@ import {AuthorizationStore} from "../../Authorization";
 import {LocaleStore} from "../../localization";
 
 export class SendEmailChangeConfirmationCodeStore extends AbstractCreateEmailConfirmationCodeStore {
-    @computed
     get currentUserEmail(): string {
         return this.authorizationStore.currentUser
             ? this.authorizationStore.currentUser.email || ""
@@ -19,6 +18,11 @@ export class SendEmailChangeConfirmationCodeStore extends AbstractCreateEmailCon
                 localeStore: LocaleStore) {
         super(localeStore);
 
+        makeObservable<SendEmailChangeConfirmationCodeStore, "currentUserEmail">(this, {
+            submitForm: action,
+            currentUserEmail: computed
+        });
+
         reaction(
             () => this.emailConfirmationCode,
             emailConfirmationCode => {
@@ -29,7 +33,6 @@ export class SendEmailChangeConfirmationCodeStore extends AbstractCreateEmailCon
         )
     }
 
-    @action.bound
     submitForm(): void {
         this.setForm({
             email: this.currentUserEmail

@@ -51,11 +51,9 @@ export const CreateChatDialog: FunctionComponent = observer(() => {
     if (createdChat) {
         setCreateChatDialogOpen(false);
         reset();
-        routerStore.router.goTo(
+        routerStore.goTo(
             Routes.chatPage,
             {slug: createdChat.slug || createdChat.id},
-            routerStore,
-            {}
         );
     }
 

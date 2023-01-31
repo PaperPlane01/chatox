@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction} from "mobx";
+import {action, computed, makeAutoObservable, makeObservable, observable, reaction} from "mobx";
 import {addMinutes} from "date-fns";
 import {MessageEntity, UpdateScheduledMessageFormData} from "../types";
 import {validateMessageScheduledDate, validateMessageText} from "../validation";
@@ -7,16 +7,12 @@ import {getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 
 export class UpdateScheduledMessageStore extends AbstractFormStore<UpdateScheduledMessageFormData> {
-    @observable
     messageId?: string;
 
-    @observable
     updateScheduledMessageDialogOpen: boolean = false;
 
-    @observable
     showSnackbar: boolean = false;
 
-    @computed
     get message(): MessageEntity | undefined {
         if (this.messageId) {
             return this.entities.scheduledMessages.findByIdOptional(this.messageId);
@@ -30,6 +26,18 @@ export class UpdateScheduledMessageStore extends AbstractFormStore<UpdateSchedul
             {text: "", scheduledAt: addMinutes(new Date(), 10)},
             {text: undefined, scheduledAt: undefined}
         );
+
+        makeObservable<UpdateScheduledMessageStore, "validateForm">(this, {
+            messageId: observable,
+            updateScheduledMessageDialogOpen: observable,
+            showSnackbar: observable,
+            message: computed,
+            setMessageId: action,
+            setUpdateMessageDialogOpen: action,
+            setShowSnackbar: action,
+            submitForm: action.bound,
+            validateForm: action.bound
+        });
 
         reaction(
             () => this.message,
@@ -56,22 +64,18 @@ export class UpdateScheduledMessageStore extends AbstractFormStore<UpdateSchedul
         );
     }
 
-    @action
     setMessageId = (messageId?: string): void => {
         this.messageId = messageId;
-    }
+    };
 
-    @action
     setUpdateMessageDialogOpen = (updateMessageDialogOpen: boolean): void => {
         this.updateScheduledMessageDialogOpen = updateMessageDialogOpen;
-    }
+    };
 
-    @action
     setShowSnackbar = (showSnackbar: boolean): void => {
         this.showSnackbar = showSnackbar;
-    }
+    };
 
-    @action.bound
     public submitForm(): void {
         if (!this.message) {
             this.error = {
@@ -100,7 +104,6 @@ export class UpdateScheduledMessageStore extends AbstractFormStore<UpdateSchedul
             .finally(() => this.setPending(false));
     }
 
-    @action.bound
     protected validateForm(): boolean {
         this.formErrors = {
             text: validateMessageText(this.formValues.text, {acceptEmpty: this.message!.uploads.length !== 0}),

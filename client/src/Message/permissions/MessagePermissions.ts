@@ -1,4 +1,4 @@
-import {computed} from "mobx";
+import { computed, makeObservable } from "mobx";
 import {createTransformer} from "mobx-utils";
 import {differenceInDays, isBefore} from "date-fns";
 import {MessageEntity} from "../types";
@@ -17,9 +17,11 @@ export class MessagePermissions {
     constructor(private readonly entities: EntitiesStore,
                 private readonly authorization: AuthorizationStore,
                 private readonly userChatRoles: UserChatRolesStore) {
+        makeObservable(this, {
+            currentUser: computed
+        });
     }
 
-    @computed
     get currentUser(): CurrentUser | undefined {
         return this.authorization.currentUser;
     }

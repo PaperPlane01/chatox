@@ -1,4 +1,4 @@
-import {action, computed, reaction} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {connect, Socket} from "socket.io-client"
 import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
@@ -21,7 +21,6 @@ import {MarkMessageReadStore, MessagesListScrollPositionsStore} from "../../Mess
 export class WebsocketStore {
     socketIoClient?: Socket;
 
-    @computed
     get refreshingToken(): boolean {
         return this.authorization.refreshingToken;
     }
@@ -31,6 +30,8 @@ export class WebsocketStore {
                 private readonly chatStore: ChatStore,
                 private readonly scrollPositionStore: MessagesListScrollPositionsStore,
                 private readonly markMessageReadStore: MarkMessageReadStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => authorization.currentUser,
             () => this.startListening()
@@ -215,7 +216,6 @@ export class WebsocketStore {
         );
     }
 
-    @action.bound
     private processGlobalBan(globalBan: GlobalBan): void {
         this.entities.globalBans.insert(globalBan);
 
@@ -227,17 +227,15 @@ export class WebsocketStore {
         }
     }
 
-    @action
     subscribeToChat = (chatId: string) => {
         if (this.socketIoClient) {
             this.socketIoClient.emit(WebsocketEventType.CHAT_SUBSCRIPTION, {chatId});
         }
-    }
+    };
 
-    @action
     unsubscribeFromChat = (chatId: string) => {
         if (this.socketIoClient) {
             this.socketIoClient.emit(WebsocketEventType.CHAT_UNSUBSCRIPTION, {chatId});
         }
-    }
+    };
 }

@@ -1,4 +1,4 @@
-import {action, computed, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatBlockingEntity, ChatBlockingSortableProperties} from "../types";
 import {isChatBlockingActive} from "../utils";
@@ -23,19 +23,18 @@ export interface ChatBlockingsOfChatStateMap {
 const activeOnlyFilter = (chatBlocking: ChatBlockingEntity) => isChatBlockingActive(chatBlocking);
 
 export class ChatBlockingsOfChatStore {
-    @observable
     chatBlockingsOfChatStateMap: ChatBlockingsOfChatStateMap = {};
 
-    @computed
     get selectedChatId(): string | undefined {
         return this.chat.selectedChatId;
     }
 
-    constructor(private readonly entities: EntitiesStore, private readonly chat: ChatStore) {}
+    constructor(private readonly entities: EntitiesStore, private readonly chat: ChatStore) {
+        makeAutoObservable(this);
+    }
 
     getChatBlockingsOfChatState = createTransformer((chatId: string) => this.chatBlockingsOfChatStateMap[chatId]);
 
-    @action
     setShowActiveOnly = (showActiveOnly: boolean, chatId: string | undefined = this.selectedChatId): void => {
         if (chatId) {
             const chatBlockingsOfChatState = this.getChatBlockingsOfChatState(chatId);
@@ -66,7 +65,6 @@ export class ChatBlockingsOfChatStore {
         }
     };
 
-    @action
     setSortingDirectionAndProperty = (sortingDirection: SortingDirection,
                                       sortBy: ChatBlockingSortableProperties,
                                       chatId: string | undefined = this.selectedChatId
@@ -90,7 +88,6 @@ export class ChatBlockingsOfChatStore {
         }
     };
 
-    @action
     fetchChatBlockings = (fetchOptions: FetchOptions | undefined = {abortIfInitiallyFetched: true},
                           chatId: string | undefined = this.selectedChatId,
                           activeOnly: boolean | undefined = true): void => {
@@ -147,7 +144,6 @@ export class ChatBlockingsOfChatStore {
         }
     };
 
-    @action
     insertChatBlockings = (chatBlockings: ChatBlocking[], chatId: string): void => {
         if (chatBlockings.length === PAGE_SIZE) {
             this.chatBlockingsOfChatStateMap[chatId].pagination = {
@@ -164,5 +160,5 @@ export class ChatBlockingsOfChatStore {
         }
 
         this.entities.chatBlockings.insertAll(chatBlockings);
-    }
+    };
 }

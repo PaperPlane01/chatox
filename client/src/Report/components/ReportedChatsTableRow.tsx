@@ -5,11 +5,10 @@ import { Checkbox, TableCell, TableRow, Typography } from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Remove} from "@mui/icons-material";
 import randomColor from "randomcolor";
+import {Link} from "mobx-router";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Labels} from "../../localization";
 import {Routes} from "../../router";
-
-const {Link} = require("mobx-router");
 
 interface ReportedChatsTableRowProps {
     reportId: string
@@ -74,9 +73,9 @@ export const ReportedChatsTableRow: FunctionComponent<ReportedChatsTableRowProps
             </TableCell>
             <TableCell>
                 <Link className={classes.undecoratedLink}
-                      view={Routes.chatPage}
+                      route={Routes.chatPage}
                       params={{slug: chat.id}}
-                      store={routerStore}
+                      router={routerStore}
                 >
                     <Typography style={{color: chatColor}}>
                         <strong>{chat.name}</strong>

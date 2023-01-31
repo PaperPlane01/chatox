@@ -1,4 +1,4 @@
-import {computed} from "mobx";
+import { computed, makeObservable } from "mobx";
 import {createTransformer} from "mobx-utils";
 import {UserChatRolesStore} from "../stores";
 import {EntitiesStore} from "../../entities-store";
@@ -11,7 +11,6 @@ interface CanEnableFeature {
 }
 
 export class ChatRolePermissions {
-    @computed
     get currentUser(): CurrentUser | undefined {
         return this.authorization.currentUser;
     }
@@ -19,6 +18,9 @@ export class ChatRolePermissions {
     constructor(private readonly entities: EntitiesStore,
                 private readonly authorization: AuthorizationStore,
                 private readonly userChatRoles: UserChatRolesStore) {
+        makeObservable(this, {
+            currentUser: computed
+        });
     }
 
     canCreateChatRole = createTransformer((chatId: string): boolean => {

@@ -3,9 +3,11 @@ import {observer} from "mobx-react";
 import {List, ListItemIcon, ListItemText, MenuItem, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {ChatBubble, Image, Language, Palette, Person, Security} from "@mui/icons-material";
+import {Link} from "mobx-router";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
+import {SecurityTabWrapper} from "./SecurityTabWrapper";
 import {SettingsTab} from "../types";
-import {ChangePasswordContainer, EditProfileForm} from "../../User";
+import {EditProfileForm} from "../../User";
 import {EmojiSetPicker} from "../../Emoji";
 import {LanguagePicker} from "../../localization";
 import {Routes} from "../../router";
@@ -13,10 +15,6 @@ import {useLocalization, useRouter, useStore} from "../../store";
 import {ChatsPreferencesCard} from "../../Chat";
 import {HasAnyRole} from "../../Authorization";
 import {InstalledStickerPacksList} from "../../Sticker";
-import {EditEmailContainer} from "../../EmailUpdate";
-import {SecurityTabWrapper} from "./SecurityTabWrapper";
-
-const {Link} = require("mobx-router");
 
 const useStyles = makeStyles(() => createStyles({
     undecoratedLink: {
@@ -39,9 +37,9 @@ export const SettingsMenu: FunctionComponent = observer(() => {
         <Fragment>
             <List>
                 <Link className={classes.undecoratedLink}
-                      view={Routes.settingsTabPage}
+                      route={Routes.settingsTabPage}
                       params={{tab: SettingsTab.PROFILE}}
-                      store={routerStore}
+                      router={routerStore}
                 >
                     <MenuItem>
                         <ListItemIcon>
@@ -53,9 +51,9 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                     </MenuItem>
                 </Link>
                 <Link className={classes.undecoratedLink}
-                      view={Routes.settingsTabPage}
+                      route={Routes.settingsTabPage}
                       params={{tab: SettingsTab.LANGUAGE}}
-                      store={routerStore}
+                      router={routerStore}
                 >
                     <MenuItem>
                         <ListItemIcon>
@@ -67,9 +65,9 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                     </MenuItem>
                 </Link>
                 <Link className={classes.undecoratedLink}
-                      view={Routes.settingsTabPage}
+                      route={Routes.settingsTabPage}
                       params={{tab: SettingsTab.APPEARANCE}}
-                      store={routerStore}
+                      router={routerStore}
                 >
                     <MenuItem>
                         <ListItemIcon>
@@ -81,9 +79,9 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                     </MenuItem>
                 </Link>
                 <Link className={classes.undecoratedLink}
-                      view={Routes.settingsTabPage}
+                      route={Routes.settingsTabPage}
                       params={{tab: SettingsTab.SECURITY}}
-                      store={routerStore}
+                      router={routerStore}
                 >
                     <MenuItem>
                         <ListItemIcon>
@@ -95,9 +93,9 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                     </MenuItem>
                 </Link>
                 <Link className={classes.undecoratedLink}
-                      view={Routes.settingsTabPage}
+                      route={Routes.settingsTabPage}
                       params={{tab: SettingsTab.CHATS}}
-                      store={routerStore}
+                      router={routerStore}
                 >
                     <MenuItem>
                         <ListItemIcon>
@@ -109,9 +107,9 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                     </MenuItem>
                 </Link>
                 <Link className={classes.undecoratedLink}
-                      view={Routes.settingsTabPage}
+                      route={Routes.settingsTabPage}
                       params={{tab: SettingsTab.STICKERS}}
-                      store={routerStore}
+                      router={routerStore}
                 >
                     <MenuItem>
                         <ListItemIcon>

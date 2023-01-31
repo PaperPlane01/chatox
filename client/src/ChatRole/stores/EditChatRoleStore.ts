@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction} from "mobx";
+import {action, computed, makeObservable, observable, override, reaction} from "mobx";
 import {ChatFeaturesFormStore} from "./ChatFeaturesFormStore";
 import {ChatRoleInfoDialogStore} from "./ChatRoleInfoDialogStore";
 import {AbstractChatRoleFormStore} from "./AbstractChatRoleFormStore";
@@ -10,16 +10,12 @@ import {UpdateChatRoleRequest} from "../../api/types/request";
 import {SnackbarService} from "../../Snackbar";
 
 export class EditChatRoleStore extends AbstractChatRoleFormStore {
-    @observable
     roleId?: string = undefined;
 
-    @observable
     defaultRoleId?: string = undefined;
 
-    @observable
     defaultRoleError?: keyof  Labels = undefined;
 
-    @computed
     get requireDefaultRole(): boolean {
         if (!this.roleId) {
             return false;
@@ -34,8 +30,21 @@ export class EditChatRoleStore extends AbstractChatRoleFormStore {
                 entities: EntitiesStore,
                 localeStore: LocaleStore,
                 snackbarService: SnackbarService,
-                private readonly chatRoleInfoDialog: ChatRoleInfoDialogStore,) {
+                private readonly chatRoleInfoDialog: ChatRoleInfoDialogStore) {
         super(chatFeaturesForm, entities, localeStore, snackbarService);
+
+        makeObservable<EditChatRoleStore, "validateForm" | "resetForm">(this, {
+            roleId: observable,
+            defaultRoleId: observable,
+            defaultRoleError: observable,
+            requireDefaultRole: computed,
+            setRoleId: action,
+            setDefaultRoleId: action,
+            populateFromRole: action,
+            submitForm: action,
+            validateForm: override,
+            resetForm: override
+        });
 
         reaction(
             () => this.roleId,
@@ -50,27 +59,23 @@ export class EditChatRoleStore extends AbstractChatRoleFormStore {
         );
     }
 
-    @action
     setRoleId = (roleId: string | undefined): void => {
         this.roleId = roleId;
         this.chatFeaturesForm.setRoleId(roleId);
-    }
+    };
 
-    @action
     setDefaultRoleId = (defaultRoleId?: string): void => {
         this.defaultRoleId = defaultRoleId;
-    }
+    };
 
-    @action
     populateFromRole = (role: ChatRoleEntity): void => {
         this.setForm({
             name: role.name,
             level:`${role.level}`,
             default: role.default
         });
-    }
+    };
 
-    @action
     submitForm = (): void => {
         if (!this.roleId) {
             return;
@@ -99,10 +104,9 @@ export class EditChatRoleStore extends AbstractChatRoleFormStore {
             })
             .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
             .finally(() => this.setPending(false));
-    }
+    };
 
 
-    @action.bound
     protected validateForm(): boolean {
         const formValidationResult = super.validateForm();
 
@@ -120,7 +124,6 @@ export class EditChatRoleStore extends AbstractChatRoleFormStore {
         };
     }
 
-    @action.bound
     protected resetForm() {
         super.resetForm();
         this.defaultRoleId = undefined;

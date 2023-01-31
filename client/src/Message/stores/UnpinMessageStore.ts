@@ -1,20 +1,16 @@
-import {action, computed, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {ChatStore} from "../../Chat/stores";
 import {EntitiesStore} from "../../entities-store";
 import {ChatOfCurrentUserEntity} from "../../Chat/types";
 
 export class UnpinMessageStore {
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @observable
     showSnackbar: boolean = false;
 
-    @computed
     get selectedChat(): ChatOfCurrentUserEntity | undefined {
         if (this.chatStore.selectedChatId) {
             return this.entities.chats.findById(this.chatStore.selectedChatId);
@@ -25,9 +21,9 @@ export class UnpinMessageStore {
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore) {
+        makeAutoObservable(this);
     }
 
-    @action
     unpinMessage = (): void => {
         if (!this.selectedChat) {
             return;
@@ -51,10 +47,9 @@ export class UnpinMessageStore {
             })
             .catch(error => this.error = getInitialApiErrorFromResponse(error))
             .finally(() => this.pending = false);
-    }
+    };
 
-    @action
     setShowSnackbar = (showSnackbar: boolean): void => {
         this.showSnackbar = showSnackbar;
-    }
+    };
 }

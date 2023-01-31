@@ -1,24 +1,20 @@
-import {action, computed, observable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {ChatStore} from "../../Chat";
 import {FetchingState} from "../../utils/types";
 import {ChatRoleApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 
 export class RolesOfChatStore {
-    @observable
     pendingRolesMap: {
         [chatId: string]: FetchingState
     } = {};
 
-    @observable
     chatRolesDialogOpen: boolean = false;
 
-    @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
     }
 
-    @computed
     get rolesIdsOfCurrentChat(): string[] {
         if (!this.selectedChatId) {
             return [];
@@ -30,7 +26,6 @@ export class RolesOfChatStore {
             .map(role => role.id);
     }
 
-    @computed
     get pending(): boolean {
         if (!this.selectedChatId) {
             return this.chatStore.pending
@@ -41,6 +36,8 @@ export class RolesOfChatStore {
 
     constructor(private readonly chatStore: ChatStore,
                 private readonly entities: EntitiesStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.chatRolesDialogOpen,
             dialogOpen => {
@@ -51,7 +48,6 @@ export class RolesOfChatStore {
         )
     }
 
-    @action
     fetchRolesOfChat = (): void => {
         if (!this.selectedChatId) {
             return;
@@ -74,16 +70,13 @@ export class RolesOfChatStore {
                 this.pendingRolesMap[chatId].initiallyFetched = true;
             }))
             .finally(() => runInAction(() => this.pendingRolesMap[chatId].pending = false));
-    }
+    };
 
-    @action
     setChatRolesDialogOpen = (chatRolesDialogOpen: boolean): void => {
         this.chatRolesDialogOpen = chatRolesDialogOpen;
-    }
+    };
 
-    @action
     openRolesList = (): void => this.setChatRolesDialogOpen(true);
 
-    @action
     closeRolesList = (): void => this.setChatRolesDialogOpen(false);
 }

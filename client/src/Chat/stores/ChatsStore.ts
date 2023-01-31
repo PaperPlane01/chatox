@@ -1,4 +1,4 @@
-import {action, computed, observable} from "mobx";
+import { action, computed, observable, makeObservable } from "mobx";
 import {createTransformer} from "mobx-utils";
 import {mergeWith} from "lodash";
 import {ChatOfCurrentUserEntity} from "../types";
@@ -28,10 +28,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
     {},
     {deletionReason: ChatDeletionReason, deletionComment: string}
     > {
-    @observable
     privateChats: {[userId: string]: string} = {};
 
-    @computed
     private get currentUser(): CurrentUser | undefined {
         return this.authorization.currentUser;
     }
@@ -40,6 +38,24 @@ export class ChatsStore extends SoftDeletableEntityStore<
                 entities: EntitiesStore,
                 private readonly authorization: AuthorizationStore) {
         super(rawEntities, "chats", entities);
+
+        makeObservable<ChatsStore, "currentUser">(this, {
+            privateChats: observable,
+            currentUser: computed,
+            onChatUpdated: action,
+            onPrivateChatCreated: action,
+            setLastMessageOfChat: action,
+            setLastReadMessageOfChat: action,
+            increaseUnreadMessagesCountOfChat: action,
+            decreaseUnreadMessagesCountOfChat: action,
+            setUnreadMessagesCountOfChat: action,
+            addMessageToChat: action,
+            addScheduledMessageToChat: action,
+            addScheduledMessagesToChat: action,
+            removeScheduledMessageFromChat: action,
+            increaseChatParticipantsCount: action,
+            decreaseChatParticipantsCount: action,
+        });
     }
 
     findBySlug = createTransformer((slug: string) => {
@@ -47,7 +63,6 @@ export class ChatsStore extends SoftDeletableEntityStore<
         return chats.find(chat => chat.slug === slug);
     });
 
-    @action
     onChatUpdated = (chatUpdated: ChatUpdated): void => {
         const chat = this.findByIdOptional(chatUpdated.id);
 
@@ -61,9 +76,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
         chat.description = chatUpdated.description;
 
         this.insertEntity(chat);
-    }
+    };
 
-    @action
     onPrivateChatCreated = (privateChatCreated: PrivateChatCreated): void => {
         if (!this.currentUser) {
             return;
@@ -114,23 +128,20 @@ export class ChatsStore extends SoftDeletableEntityStore<
             ...patches,
             mergeCustomizer
         ));
-    }
+    };
 
-    @action
     setLastMessageOfChat = (chatId: string, messageId: string): void => {
         const chat = this.findById(chatId);
         chat.lastMessage = messageId;
         this.insertEntity(chat);
-    }
+    };
 
-    @action
     setLastReadMessageOfChat = (chatId: string, messageId: string): void => {
         const chat = this.findById(chatId);
         chat.lastReadMessage = messageId;
         this.insertEntity(chat);
-    }
+    };
 
-    @action
     increaseUnreadMessagesCountOfChat = (chatId: string): void => {
         const chat = this.findByIdOptional(chatId);
 
@@ -140,9 +151,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
 
         chat.unreadMessagesCount = chat.unreadMessagesCount + 1;
         this.insertEntity(chat);
-    }
+    };
 
-    @action
     decreaseUnreadMessagesCountOfChat = (chatId: string): void => {
         const chat = this.findByIdOptional(chatId);
 
@@ -154,16 +164,14 @@ export class ChatsStore extends SoftDeletableEntityStore<
             chat.unreadMessagesCount = chat.unreadMessagesCount - 1;
             this.insertEntity(chat);
         }
-    }
+    };
 
-    @action
     setUnreadMessagesCountOfChat = (chatId: string, unreadMessagesCount: number): void => {
         const chat = this.findById(chatId);
         chat.unreadMessagesCount = unreadMessagesCount;
         this.insertEntity(chat);
-    }
+    };
 
-    @action
     addMessageToChat = (chatId: string, messageId: string, messageIndex: number, skipSettingLastMessage: boolean = false): void => {
         const chat = this.findByIdOptional(chatId);
 
@@ -179,9 +187,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
         }
 
         this.insertEntity(chat);
-    }
+    };
 
-    @action
     addScheduledMessageToChat = (chatId: string, messageId: string): void => {
         const chat = this.findByIdOptional(chatId);
 
@@ -191,21 +198,18 @@ export class ChatsStore extends SoftDeletableEntityStore<
 
         chat.scheduledMessages = Array.from(new Set([...chat.scheduledMessages, messageId]));
         this.insertEntity(chat);
-    }
+    };
 
-    @action
     addScheduledMessagesToChat = (chatId: string, messageIds: string[]): void => {
         messageIds.forEach(messageId => this.addScheduledMessageToChat(chatId, messageId));
-    }
+    };
 
-    @action
     removeScheduledMessageFromChat = (chatId: string, messageIdToDelete: string): void => {
         const chat = this.findById(chatId);
         chat.scheduledMessages = chat.scheduledMessages.filter(messageId => messageId !== messageIdToDelete);
         this.insertEntity(chat);
-    }
+    };
 
-    @action
     increaseChatParticipantsCount = (chatId: string): void => {
         const chat = this.findByIdOptional(chatId);
 
@@ -213,9 +217,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
             chat.participantsCount++;
             this.insertEntity(chat);
         }
-    }
+    };
 
-    @action
     decreaseChatParticipantsCount = (chatId: string): void => {
         const chat = this.findByIdOptional(chatId);
 
@@ -223,9 +226,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
             chat.participantsCount--;
             this.insertEntity(chat);
         }
-    }
+    };
 
-    @action.bound
     deleteById(id: string, options?: DeleteChatOptions): void {
         if (!options) {
             super.deleteById(id);
@@ -245,7 +247,6 @@ export class ChatsStore extends SoftDeletableEntityStore<
         this.insertEntity(chat);
     }
 
-    @action.bound
     public insert(denormalizedEntity: ChatOfCurrentUser): ChatOfCurrentUserEntity {
         if (denormalizedEntity.type === ChatType.DIALOG && denormalizedEntity.user) {
             this.privateChats = {
@@ -257,7 +258,6 @@ export class ChatsStore extends SoftDeletableEntityStore<
         return super.insert(denormalizedEntity);
     }
 
-    @action.bound
     public insertEntity(entity: ChatOfCurrentUserEntity): ChatOfCurrentUserEntity {
         if (entity.type === ChatType.DIALOG && entity.userId) {
             this.privateChats = {

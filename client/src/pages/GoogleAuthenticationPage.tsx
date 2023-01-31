@@ -23,7 +23,7 @@ export const GoogleAuthenticationPage: FunctionComponent = observer(() => {
 
     useEffect(() => {
         if (currentUser && path) {
-            router.router.goTo(getRouteByPath(path), getOriginalParams(), getOriginalQueryParams());
+            router.goTo(getRouteByPath(path), getOriginalParams(), getOriginalQueryParams());
         }
     });
 

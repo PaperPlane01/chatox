@@ -1,19 +1,19 @@
-import {observable, action} from "mobx";
+import {makeAutoObservable} from "mobx";
 
 export class GlobalBanDetailsDialogStore {
-    @observable
     globalBanId?: string = undefined;
 
-    @observable
     globalBanDetailsDialogOpen: boolean = false;
 
-    @action
-    setGlobalBanId = (globalBanId?: string): void => {
-        this.globalBanId = globalBanId;
+    constructor() {
+        makeAutoObservable(this);
     }
 
-    @action
+    setGlobalBanId = (globalBanId?: string): void => {
+        this.globalBanId = globalBanId;
+    };
+
     setGlobalBanDetailsDialogOpen = (globalBanDetailsDialogOpen: boolean): void => {
         this.globalBanDetailsDialogOpen = globalBanDetailsDialogOpen;
-    }
+    };
 }

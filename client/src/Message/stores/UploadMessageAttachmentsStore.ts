@@ -1,4 +1,4 @@
-import {action, computed, observable} from "mobx";
+import {action, computed, observable, makeObservable, makeAutoObservable} from "mobx";
 import {AxiosPromise} from "axios";
 import {getInitialApiErrorFromResponse, ProgressCallback} from "../../api";
 import {UploadApi} from "../../api/clients";
@@ -23,61 +23,52 @@ interface ValidationError {
 }
 
 export class UploadMessageAttachmentsStore {
-    @observable
     messageAttachmentsFiles: UploadedFileContainer[] = [];
 
-    @observable
     fileValidationErrors: ValidationError[] = [];
 
-    @observable
     attachedFilesDialogOpen: boolean = false;
 
-    @observable
     uploadPercentageMap: UploadPercentageMap = {};
 
-    @computed
+    constructor() {
+        makeAutoObservable(this);
+    }
+
     get uploadPending(): boolean {
         return this.messageAttachmentsFiles.filter(fileContainer => fileContainer.pending).length !== 0;
-    };
+    }
 
-    @computed
     get uploadedAttachmentsCount(): number {
         return this.messageAttachmentsFiles
             .filter(fileContainer => Boolean(fileContainer.uploadedFile))
             .length
     }
 
-    @action
     removeAttachment = (localId: string): void => {
         this.messageAttachmentsFiles = this.messageAttachmentsFiles.filter(attachment => attachment.localId !== localId);
-    }
+    };
 
-    @action
     setAttachedFilesDialogOpen = (attachedFilesDialogOpen: boolean): void => {
         this.attachedFilesDialogOpen = attachedFilesDialogOpen;
     };
 
-    @action
     attachImages = (images: FileList): void => {
         this.attachFiles(this.sliceFileList(images), IMAGE_MAX_SIZE, UploadApi.uploadImage, UploadType.IMAGE);
     };
 
-    @action
     attachVideos = (videos: FileList): void => {
         this.attachFiles(this.sliceFileList(videos), VIDEO_MAX_SIZE, UploadApi.uploadVideo, UploadType.VIDEO);
     };
 
-    @action
     attachAudios = (audios: FileList): void => {
         this.attachFiles(this.sliceFileList(audios), AUDIO_MAX_SIZE, UploadApi.uploadAudio, UploadType.AUDIO);
     };
 
-    @action
     attachAnyFiles = (files: FileList): void => {
         this.attachFiles(this.sliceFileList(files), FILE_MAX_SIZE, UploadApi.uploadFile, UploadType.FILE);
     };
 
-    @action
     attachFiles = (files: FileList, fileMaxSize: number, uploadFile: UploadFileFunction, expectedUploadType: UploadType): void => {
         let validationErrors: ValidationError[] = [];
 
@@ -109,7 +100,6 @@ export class UploadMessageAttachmentsStore {
         }
     };
 
-    @action
     uploadFile = (file: File, localFileId: string, uploadFile: UploadFileFunction): void => {
         const formData = new FormData();
         formData.append("file", file);
@@ -147,16 +137,14 @@ export class UploadMessageAttachmentsStore {
             })
     };
 
-    @action
     setFileValidationErrors = (validationErrors: ValidationError[]): void => {
         this.fileValidationErrors = validationErrors;
     };
 
-    @action
     reset = (): void => {
         this.messageAttachmentsFiles = [];
         this.uploadPercentageMap = {};
-    }
+    };
 
     private sliceFileList(files: FileList): FileList {
         const fileAttachmentsRemaining = 10 - this.messageAttachmentsFiles.length;
@@ -166,5 +154,5 @@ export class UploadMessageAttachmentsStore {
         }
 
         return files;
-    };
+    }
 }

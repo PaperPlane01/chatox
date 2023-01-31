@@ -1,20 +1,16 @@
-import {action, computed, observable, runInAction} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {ChatStore} from "../../Chat/stores";
 import {ChatOfCurrentUserEntity} from "../../Chat/types";
 
 export class PinMessageStore {
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
     
-    @observable
     showSnackbar: boolean = false;
 
-    @computed
     get selectedChat(): ChatOfCurrentUserEntity | undefined {
         if (this.chatStore.selectedChatId) {
             return this.entities.chats.findById(this.chatStore.selectedChatId);
@@ -25,9 +21,9 @@ export class PinMessageStore {
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore) {
+        makeAutoObservable(this);
     }
 
-    @action
     pinMessage = (messageId: string): void => {
         if (!this.selectedChat) {
             return;
@@ -49,10 +45,9 @@ export class PinMessageStore {
             })
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.pending = false));
-    }
+    };
 
-    @action
     setShowSnackbar = (showSnackbar: boolean): void => {
         this.showSnackbar = showSnackbar;
-    }
+    };
 }

@@ -1,4 +1,4 @@
-import {action} from "mobx";
+import {action, makeObservable} from "mobx";
 import {EntitiesStore} from "../../entities-store";
 import {ChatFeatures} from "../../api/types/response";
 import {AbstractChatFeatureFormStore} from "./AbstractChatFeatureFormStore";
@@ -16,9 +16,12 @@ export class DefaultChatFeatureFormStore
             initialValues,
             {enabled: undefined}
         );
+
+        makeObservable(this, {
+            populateFromRole: action
+        });
     }
 
-    @action
     populateFromRole = (roleId: string): void => {
         const role = this.entitiesStore.chatRoles.findByIdOptional(roleId);
 

@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {AxiosPromise} from "axios";
 import {SearchMessagesStore} from "./SearchMessagesStore";
@@ -11,24 +11,19 @@ import {MessageApi} from "../../api";
 import {Message} from "../../api/types/response";
 
 export class MessagesOfChatStore {
-    @observable
     chatMessagesFetchingStateMap: ChatMessagesFetchingStateMap = {};
 
-    @observable
     initialMessagesMap: {[chatId: string]: number} = {};
 
-    @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
     }
 
-    @computed
     get messagesListReverted(): boolean {
         return this.chatPreferencesStore.enableVirtualScroll
             && this.chatPreferencesStore.reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE
     }
 
-    @computed
     get messagesOfChat(): string[] {
         if (this.selectedChatId) {
             const messages = this.isInSearchMode
@@ -43,7 +38,6 @@ export class MessagesOfChatStore {
         }
     }
 
-    @computed
     get firstMessage(): MessageEntity | undefined {
         if (!this.selectedChatId) {
             return undefined;
@@ -64,7 +58,6 @@ export class MessagesOfChatStore {
         return undefined;
     }
 
-    @computed
     get lastMessage(): MessageEntity | undefined {
         if (!this.selectedChatId) {
             return undefined;
@@ -85,7 +78,6 @@ export class MessagesOfChatStore {
         return undefined;
     }
 
-    @computed
     get isInSearchMode(): boolean {
         return this.searchMessagesStore.query.trim().length !== 0;
     }
@@ -94,6 +86,8 @@ export class MessagesOfChatStore {
                 private readonly chatStore: ChatStore,
                 private readonly chatPreferencesStore: ChatsPreferencesStore,
                 private readonly searchMessagesStore: SearchMessagesStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.selectedChatId,
             () => this.fetchMessages({abortIfInitiallyFetched: true})
@@ -111,7 +105,6 @@ export class MessagesOfChatStore {
         }
     });
 
-    @action
     fetchMessages = async (options: FetchOptions = {abortIfInitiallyFetched: false}): Promise<void> => {
         if (!this.selectedChatId || this.isInSearchMode) {
             return;
@@ -162,5 +155,5 @@ export class MessagesOfChatStore {
                 })
             })
             .finally(() => runInAction(() => this.chatMessagesFetchingStateMap[chatId].pending = false));
-    }
+    };
 }

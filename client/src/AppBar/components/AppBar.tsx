@@ -2,6 +2,7 @@ import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
 import { AppBar as MuiAppBar, Toolbar, Typography } from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
+import {Link} from "mobx-router";
 import {NavigationalDrawer} from "./NavigationalDrawer";
 import {OpenDrawerButton} from "./OpenDrawerButton";
 import {AppBarMenu} from "./AppBarMenu";
@@ -9,8 +10,6 @@ import {UserAppBarMenu} from "./UserAppBarMenu";
 import {useLocalization, useRouter} from "../../store";
 import {Routes} from "../../router";
 import {Labels} from "../../localization";
-
-const {Link} = require("mobx-router");
 
 interface AppBarProps {
     title?: keyof Labels,
@@ -55,8 +54,8 @@ export const AppBar: FunctionComponent<AppBarProps> = observer(({
                     <OpenDrawerButton/>
                     {!hideTitle && (
                         <div className={classes.appBarTitle}>
-                            <Link view={Routes.home}
-                                  store={routerStore}
+                            <Link route={Routes.home}
+                                  router={routerStore}
                                   className={classes.appBarLink}
                             >
                                 <Typography variant="h6">

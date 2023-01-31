@@ -1,4 +1,4 @@
-import {action} from "mobx";
+import {action, makeObservable} from "mobx";
 import {AbstractChatFeatureFormStore} from "./AbstractChatFeatureFormStore";
 import {ConvertableChatFeatureFormStore} from "./ConvertableChatFeatureFormStore";
 import {SendMessagesFeatureFormData} from "../types";
@@ -28,6 +28,10 @@ const INITIAL_FORM_ERRORS: FormErrors<SendMessagesFeatureFormData> = {
 export class SendMessagesFeatureFormStore extends AbstractChatFeatureFormStore<SendMessagesFeatureFormData> implements ConvertableChatFeatureFormStore<"sendMessages"> {
     constructor(private entities: EntitiesStore, initialValues: SendMessagesFeatureFormData = INITIAL_FORM_VALUES) {
         super(initialValues, INITIAL_FORM_ERRORS);
+
+        makeObservable(this, {
+            populateFromRole: action
+        });
     }
 
     convertToApiRequest(): ChatFeatures["sendMessages"] {
@@ -44,7 +48,6 @@ export class SendMessagesFeatureFormStore extends AbstractChatFeatureFormStore<S
         }
     }
 
-    @action
     populateFromRole = (roleId: string): void => {
         const role = this.entities.chatRoles.findByIdOptional(roleId);
 
@@ -54,5 +57,5 @@ export class SendMessagesFeatureFormStore extends AbstractChatFeatureFormStore<S
                 ...role.features.sendMessages.additional
             });
         }
-    }
+    };
 }

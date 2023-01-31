@@ -1,35 +1,31 @@
-import {action, computed, observable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {ChatStore} from "../../Chat";
 import {EntitiesStore} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 
 export class MessageDialogStore {
-    @observable
     messageId?: string = undefined;
 
-    @observable
     messagePending = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @computed
     get chatPending(): boolean {
         return this.chatStore.pending;
     }
 
-    @computed
     get pending(): boolean {
         return this.messagePending || this.chatPending;
     }
 
-    @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
     }
 
     constructor(private readonly chatStore: ChatStore,
                 private readonly entities: EntitiesStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.messageId,
             (messageId) => {
@@ -49,12 +45,10 @@ export class MessageDialogStore {
         )
     }
 
-    @action
     setMessageId = (messageId?: string): void => {
         this.messageId = messageId;
-    }
+    };
 
-    @action
     fetchMessage = (): void => {
         if (!this.messageId || !this.selectedChatId) {
             return;
@@ -70,5 +64,5 @@ export class MessageDialogStore {
             .then(({data}) => this.entities.messages.insert(data, {skipSettingLastMessage: true}))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.messagePending = false));
-    }
+    };
 }

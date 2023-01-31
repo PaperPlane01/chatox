@@ -1,4 +1,4 @@
-import {observable, action, reaction, runInAction} from "mobx";
+import {action, makeObservable, reaction, runInAction} from "mobx";
 import {CreateEmailConfirmationCodeFormData} from "../types";
 import {EmailConfirmationCodeApi, getInitialApiErrorFromResponse} from "../../api";
 import {EmailConfirmationCodeType} from "../../api/types/request";
@@ -17,11 +17,14 @@ const INITIAL_FORM_ERRORS: FormErrors<CreateEmailConfirmationCodeFormData> = {
 };
 
 export abstract class AbstractCreateEmailConfirmationCodeStore extends AbstractFormStore<CreateEmailConfirmationCodeFormData> {
-    @observable
     emailConfirmationCode?: EmailConfirmationCodeResponse = undefined;
 
     protected constructor(private readonly localeStore: LocaleStore) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
+
+        makeObservable(this, {
+            reset: action
+        });
 
         reaction(
             () => this.formValues.email,
@@ -29,8 +32,7 @@ export abstract class AbstractCreateEmailConfirmationCodeStore extends AbstractF
         );
     }
 
-    @action.bound
-    submitForm (): void {
+    submitForm(): void {
         if (!this.validateForm()) {
             return;
         }
@@ -48,20 +50,18 @@ export abstract class AbstractCreateEmailConfirmationCodeStore extends AbstractF
             .finally(() => this.setPending(false))
     }
 
-    @action
     protected validateForm = (): boolean => {
         this.setFormErrors({
             email: validateEmail(this.formValues.email)
         });
 
         return !containsNotUndefinedValues(this.formErrors);
-    }
+    };
 
     protected abstract getType(): EmailConfirmationCodeType;
 
-    @action
     reset = (): void => {
         this.resetForm();
         this.emailConfirmationCode = undefined;
-    }
+    };
 }

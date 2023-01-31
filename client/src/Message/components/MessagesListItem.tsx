@@ -7,6 +7,7 @@ import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactVisibilitySensor from "react-visibility-sensor";
 import clsx from "clsx";
+import {Link} from "mobx-router";
 import {MessageMenu, MessageMenuItemType} from "./MessageMenu";
 import {ScheduledMessageMenu, ScheduledMessageMenuItemType} from "./ScheduledMessageMenu";
 import {MessageImagesGrid} from "./MessageImagesGrid";
@@ -23,8 +24,6 @@ import {MessageEntity} from "../types";
 import {UserEntity} from "../../User";
 import {getChatRoleTranslation} from "../../ChatRole/utils";
 import {toJS} from "mobx";
-
-const {Link} = require("mobx-router");
 
 interface MessagesListItemProps {
     messageId: string,
@@ -290,9 +289,9 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
             <div className={wrapperClasses}
                  id={`message-${messageId}`}
             >
-                <Link store={routerStore}
+                <Link router={routerStore}
                       className={userAvatarLinkClasses}
-                      view={Routes.userPage}
+                      route={Routes.userPage}
                       params={{slug: sender.slug || sender.id}}
                 >
                     <Avatar avatarLetter={avatarLetter}
@@ -304,9 +303,9 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
                 <Card className={cardClasses}>
                     <CardHeader title={
                        <div className={classes.messageSender}>
-                           <Link store={routerStore}
+                           <Link router={routerStore}
                                  className={classes.undecoratedLink}
-                                 view={Routes.userPage}
+                                 route={Routes.userPage}
                                  params={{slug: sender.slug || sender.id}}
                            >
                                <Typography variant="body1" style={{color}}>

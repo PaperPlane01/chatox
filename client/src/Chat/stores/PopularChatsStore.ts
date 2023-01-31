@@ -1,4 +1,4 @@
-import {action, observable, runInAction} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {PaginationState} from "../../utils/types";
@@ -13,10 +13,8 @@ const INITIAL_PAGINATION_STATE: PaginationState = {
 }
 
 export class PopularChatsStore {
-    @observable
     popularChats: string[] = [];
 
-    @observable
     paginationState: PaginationState = {
         initiallyFetched: false,
         noMoreItems: false,
@@ -24,13 +22,12 @@ export class PopularChatsStore {
         pending: false
     };
 
-    @observable
     error?: ApiError = undefined;
 
     constructor(private readonly entities: EntitiesStore) {
+        makeAutoObservable(this);
     }
 
-    @action
     fetchPopularChats = (): void => {
         this.paginationState.pending = true;
 
@@ -52,7 +49,6 @@ export class PopularChatsStore {
             .finally(() => runInAction(() => this.paginationState.pending = false));
     };
 
-    @action
     reset = (): void => {
         this.popularChats = [];
         this.paginationState = INITIAL_PAGINATION_STATE;

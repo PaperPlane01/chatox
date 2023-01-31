@@ -1,4 +1,4 @@
-import {action, computed, observable, runInAction} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatStore} from "../../Chat";
 import {FetchingState, FetchOptions} from "../../utils/types";
@@ -10,15 +10,12 @@ interface OnlineChatParticipantsFetchingStateMap {
 }
 
 export class OnlineChatParticipantsStore {
-    @observable
     fetchingStateMap: OnlineChatParticipantsFetchingStateMap = {};
 
-    @computed
     get selectedChat(): string | undefined {
         return this.chatStore.selectedChatId;
     }
 
-    @computed
     get onlineParticipants(): string[] {
         if (this.selectedChat) {
             const participants = this.entities.chatParticipations.findByChat(this.selectedChat);
@@ -33,15 +30,14 @@ export class OnlineChatParticipantsStore {
         }
     }
 
-    @computed
     get onlineParticipantsCount(): number {
         return this.onlineParticipants.length;
     }
 
-    constructor(
-        private readonly entities: EntitiesStore,
-        private readonly chatStore: ChatStore
-    ) {}
+    constructor(private readonly entities: EntitiesStore,
+                private readonly chatStore: ChatStore) {
+        makeAutoObservable(this);
+    }
 
     getFetchingState = createTransformer((chatId: string) => {
         if (this.fetchingStateMap[chatId]) {
@@ -54,7 +50,6 @@ export class OnlineChatParticipantsStore {
         }
     });
 
-    @action
     fetchChatParticipants = (fetchOptions: FetchOptions = {abortIfInitiallyFetched: true}) => {
         if (this.selectedChat) {
             const chatId = this.selectedChat;
@@ -76,5 +71,5 @@ export class OnlineChatParticipantsStore {
                 })
                 .finally(() => runInAction(() => this.fetchingStateMap[chatId].pending = false));
         }
-    }
+    };
 }

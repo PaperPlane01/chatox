@@ -1,4 +1,4 @@
-import {action, observable, reaction} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {throttle} from "lodash";
 import {RegistrationDialogStore} from "./RegistrationDialogStore";
 import {validateEmail} from "../validation";
@@ -10,33 +10,28 @@ import {ApiError, EmailConfirmationCodeApi, getInitialApiErrorFromResponse} from
 import {LocaleStore} from "../../localization/stores";
 
 export class SendConfirmationCodeStore {
-    @observable
     sendVerificationEmailForm: SendVerificationEmailFormData = {
         email: ""
     };
 
-    @observable
     formErrors: FormErrors<SendVerificationEmailFormData> = {
         email: undefined
     };
 
-    @observable
     pending: boolean = false;
 
-    @observable
     checkingEmailAvailability: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @observable
     emailConfirmationCodeResponse?: EmailConfirmationCodeResponse = undefined;
 
-    @observable
     sendVerificationEmailDialogOpen: boolean = false;
 
     constructor(private readonly registrationDialogStore: RegistrationDialogStore,
                 private readonly localeStore: LocaleStore) {
+        makeAutoObservable(this);
+
         this.checkEmailAvailability = throttle(this.checkEmailAvailability, 300) as () => Promise<void>;
 
         reaction(
@@ -51,7 +46,6 @@ export class SendConfirmationCodeStore {
         )
     }
 
-    @action
     sendVerificationEmail = (): void => {
         this.validateForm()
             .then(formValid => {
@@ -75,12 +69,10 @@ export class SendConfirmationCodeStore {
             })
     };
 
-    @action
     setFormValue = <Key extends keyof SendVerificationEmailFormData>(key: Key, value: SendVerificationEmailFormData[Key]): void => {
         this.sendVerificationEmailForm[key] = value;
     };
 
-    @action
     checkEmailAvailability = (): Promise<void> => {
        return new Promise(resolve => {
            this.checkingEmailAvailability = true;
@@ -100,7 +92,6 @@ export class SendConfirmationCodeStore {
        })
     };
 
-    @action
     validateForm = (): Promise<boolean> => {
         return new Promise(resolve => {
             this.formErrors = {
@@ -117,7 +108,6 @@ export class SendConfirmationCodeStore {
         })
     };
 
-    @action
     reset = () => {
         this.emailConfirmationCodeResponse = undefined;
         this.sendVerificationEmailForm = {
@@ -127,5 +117,5 @@ export class SendConfirmationCodeStore {
             email: undefined
         });
         this.error = undefined;
-    }
+    };
 }

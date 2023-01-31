@@ -1,41 +1,36 @@
-import {action, observable, reaction} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {CreateChatBlockingStore} from "./CreateChatBlockingStore";
 import {EntitiesStore} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {isStringEmpty} from "../../utils/string-utils";
 
 export class BlockUserInChatByIdOrSlugStore {
-    @observable
     userIdOrSlug: string = "";
 
-    @observable
     blockUserInChatByIdOrSlugDialogOpen: boolean = false;
 
-    @observable
     checkingUser: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly createChatBlockingStore: CreateChatBlockingStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.userIdOrSlug,
             () => this.checkUser()
         )
     }
 
-    @action
     setBlockUserInChatByIdOrSlugDialogOpen = (blockUserInChatByIdOrSlugDialogOpen: boolean): void => {
         this.blockUserInChatByIdOrSlugDialogOpen = blockUserInChatByIdOrSlugDialogOpen;
     };
 
-    @action
     setUserIdOrSlug = (userIdOrSlug: string): void => {
         this.userIdOrSlug = userIdOrSlug;
     };
 
-    @action
     checkUser = (): void => {
         if (!isStringEmpty(this.userIdOrSlug)) {
             let user = this.entities.users.findByIdOrSlug(this.userIdOrSlug);
@@ -59,5 +54,5 @@ export class BlockUserInChatByIdOrSlugStore {
                     .finally(() => this.checkingUser = false);
             }
         }
-    }
+    };
 }

@@ -1,20 +1,25 @@
-import {action, observable} from "mobx";
+import {action, makeAutoObservable, observable} from "mobx";
 
 interface ClosedPinnedMessagesMap {
     [messageId: string]: boolean
 }
 
 export class ClosedPinnedMessagesStore {
-    @observable
     closePinnedMessagesMap: ClosedPinnedMessagesMap = {};
 
-    @action
-    closePinnedMessage = (messageId: string): void => {
-        this.closePinnedMessagesMap[messageId] = true;
+    constructor() {
+        makeAutoObservable(this, {
+            closePinnedMessagesMap: observable,
+            closePinnedMessage: action,
+            showPinnedMessage: action
+        });
     }
 
-    @action
+    closePinnedMessage = (messageId: string): void => {
+        this.closePinnedMessagesMap[messageId] = true;
+    };
+
     showPinnedMessage = (messageId: string): void => {
         this.closePinnedMessagesMap[messageId] = false;
-    }
+    };
 }

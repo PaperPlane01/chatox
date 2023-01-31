@@ -1,7 +1,6 @@
-import {action} from "mobx";
 import {BaseEntity} from "./EntityStore";
 import {AbstractEntityStore} from "./AbstractEntityStore";
-import {Entities, GetEntityType} from "../entities-store";
+import {Entities, EntitiesStore, GetEntityType, RawEntitiesStore} from "../entities-store";
 
 type SoftDeletableEntity<EntityName extends Entities> = GetEntityType<EntityName> & {
     id: string,
@@ -17,14 +16,16 @@ export abstract class SoftDeletableEntityStore<
     >
     extends AbstractEntityStore<EntityName, Entity, DenormalizedEntity, InsertOptions> {
 
-    @action.bound
+    constructor(rawEntities: RawEntitiesStore, entityName: EntityName, entities: EntitiesStore) {
+        super(rawEntities, entityName, entities);
+    }
+
     deleteAllById(ids: string[]): void {
         const entities = this.findAllById(ids);
         entities.forEach(entity => entity.deleted = true);
         this.insertAllEntities(entities);
     }
 
-    @action.bound
     deleteById(id: string): void {
         const entity = this.findById(id);
         entity.deleted = true;

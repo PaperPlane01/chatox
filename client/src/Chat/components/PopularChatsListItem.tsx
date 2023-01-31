@@ -1,17 +1,16 @@
-import React, {FunctionComponent, Fragment} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Card, CardHeader, CardContent, CardActions, Typography} from "@mui/material";
+import {Card, CardActions, CardContent, CardHeader, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import randomColor from "randomcolor";
-import {useStore, useLocalization, useRouter} from "../../store";
+import {Link} from "mobx-router";
+import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {Avatar} from "../../Avatar";
 import {getAvatarLabel} from "../utils";
 import {useLuminosity} from "../../utils/hooks";
-
-const {Link} = require("mobx-router");
 
 interface PopularChatsListItemProps {
     chatId: string
@@ -48,9 +47,9 @@ export const PopularChatsListItem: FunctionComponent<PopularChatsListItemProps> 
         <Card>
             <CardHeader title={
                 <Link className={classes.undecoratedLink}
-                      view={Routes.chatPage}
+                      route={Routes.chatPage}
                       params={{slug: chat.slug || chat.id}}
-                      store={routerStore}
+                      router={routerStore}
                 >
                     <Typography style={{color: chatColor}}>
                         <strong>{chat.name}</strong>

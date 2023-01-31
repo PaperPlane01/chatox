@@ -1,11 +1,13 @@
-import {action, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 
 export class ReportedMessageDialogStore {
-    @observable
     reportId?: string = undefined;
 
-    @action
+    constructor() {
+        makeAutoObservable(this);
+    }
+
     setReportId = (reportId?: string): void => {
         this.reportId = reportId;
-    }
+    };
 }

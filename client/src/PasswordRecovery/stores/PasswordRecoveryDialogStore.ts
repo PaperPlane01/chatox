@@ -1,14 +1,14 @@
-import {action, observable, reaction} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {PasswordRecoveryStep} from "../types";
 
 export class PasswordRecoveryDialogStore {
-    @observable
     passwordRecoveryDialogOpen: boolean = false;
 
-    @observable
     currentStep: PasswordRecoveryStep = PasswordRecoveryStep.NONE;
 
     constructor() {
+       makeAutoObservable(this);
+
         reaction(
             () => this.passwordRecoveryDialogOpen,
             open => {
@@ -19,12 +19,10 @@ export class PasswordRecoveryDialogStore {
         )
     }
 
-    @action
     setPasswordRecoveryDialogOpen = (passwordRecoveryDialogOpen: boolean): void => {
         this.passwordRecoveryDialogOpen = passwordRecoveryDialogOpen;
     };
 
-    @action
     setCurrentStep = (currentStep: PasswordRecoveryStep): void => {
         this.currentStep = currentStep;
     };

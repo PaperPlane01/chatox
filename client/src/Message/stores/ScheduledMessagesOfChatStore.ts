@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatMessagesFetchingStateMap} from "../types";
 import {createSortMessages} from "../utils";
@@ -8,15 +8,12 @@ import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api/clients";
 
 export class ScheduledMessagesOfChatStore {
-    @observable
     fetchingStateMap: ChatMessagesFetchingStateMap = {};
 
-    @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
     }
 
-    @computed
     get scheduledMessagesOfChat(): string[] {
         if (this.selectedChatId) {
             const messages = this.entities.chats.findById(this.selectedChatId).scheduledMessages;
@@ -34,6 +31,8 @@ export class ScheduledMessagesOfChatStore {
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.selectedChatId,
             chatId => {
@@ -55,7 +54,6 @@ export class ScheduledMessagesOfChatStore {
         }
     });
 
-    @action
     fetchScheduledMessages = (options: FetchOptions = {abortIfInitiallyFetched: false}): void => {
         if (!this.selectedChatId) {
             return;
@@ -81,10 +79,9 @@ export class ScheduledMessagesOfChatStore {
                 this.fetchingStateMap[chatId].initiallyFetched = true;
             }))
             .finally(() => runInAction(() => this.fetchingStateMap[chatId].pending = false));
-    }
+    };
 
-    @action
     setReactToChatIdChange = (reactToChatIdChange: boolean): void => {
         this.reactToChatIdChange = reactToChatIdChange;
-    }
+    };
 }

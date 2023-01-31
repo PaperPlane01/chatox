@@ -1,4 +1,4 @@
-import {action} from "mobx";
+import {action, makeObservable} from "mobx";
 import {AbstractChatFeatureFormStore} from "./AbstractChatFeatureFormStore";
 import {ConvertableChatFeatureFormStore} from "./ConvertableChatFeatureFormStore";
 import {BlockUsersFeatureFormData} from "../types";
@@ -18,9 +18,12 @@ const INITIAL_FORM_ERRORS: FormErrors<BlockUsersFeatureFormData> = {
 export class BlockUsersFeatureFormStore extends AbstractChatFeatureFormStore<BlockUsersFeatureFormData> implements ConvertableChatFeatureFormStore<"blockUsers"> {
     constructor(private readonly entities: EntitiesStore, initialValues: BlockUsersFeatureFormData = INITIAL_FORM_VALUES) {
         super(initialValues, INITIAL_FORM_ERRORS);
+
+        makeObservable(this, {
+            populateFromRole: action
+        });
     }
 
-    @action
     populateFromRole = (roleId: string): void => {
         const role = this.entities.chatRoles.findByIdOptional(roleId);
 
@@ -32,7 +35,7 @@ export class BlockUsersFeatureFormStore extends AbstractChatFeatureFormStore<Blo
             enabled: role.features.blockUsers.enabled,
             allowPermanent: role.features.blockUsers.additional.allowPermanent
         });
-    }
+    };
 
     convertToApiRequest(): ChatFeatures["blockUsers"] {
         return {

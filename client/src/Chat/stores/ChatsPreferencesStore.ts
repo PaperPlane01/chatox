@@ -1,4 +1,4 @@
-import {action, observable, reaction} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {
     parseReverseScrollingDirectionOptionFromString,
     parseSendMessageButton,
@@ -9,28 +9,23 @@ import {
 } from "../types";
 
 export class ChatsPreferencesStore {
-    @observable
     enableVirtualScroll: boolean = false;
 
-    @observable
     reverseScrollingDirectionOption: ReverseScrollDirectionOption = ReverseScrollDirectionOption.DO_NOT_REVERSE;
 
-    @observable
     restoredScrollingSpeedCoefficient = 1;
 
-    @observable
     virtualScrollOverscan: number = 120;
 
-    @observable
     enableImagesCaching = false;
 
-    @observable
     virtualScrollElement: VirtualScrollElement = VirtualScrollElement.MESSAGES_LIST;
 
-    @observable
     sendMessageButton: SendMessageButton = SendMessageButton.CTRL_ENTER;
 
     constructor() {
+        makeAutoObservable(this);
+
         if (localStorage.getItem("enableVirtualScroll")) {
             this.enableVirtualScroll = localStorage.getItem("enableVirtualScroll") === "true";
         }
@@ -79,13 +74,11 @@ export class ChatsPreferencesStore {
         )
     }
 
-    @action
     setEnableVirtualScroll = (enableVirtualScroll: boolean): void => {
         this.enableVirtualScroll = enableVirtualScroll;
         localStorage.setItem("enableVirtualScroll", `${enableVirtualScroll}`);
     };
 
-    @action
     setVirtualScrollOverscan = (virtualScrollOverscan: number): void => {
         if (virtualScrollOverscan >= 0) {
             this.virtualScrollOverscan = virtualScrollOverscan;
@@ -93,33 +86,28 @@ export class ChatsPreferencesStore {
         }
     };
 
-    @action
     setReversedScrollSpeedCoefficient = (reversedScrollSpeedCoefficient: number): void => {
         this.restoredScrollingSpeedCoefficient = reversedScrollSpeedCoefficient;
         localStorage.setItem("reversedScrollSpeedCoefficient", `${reversedScrollSpeedCoefficient}`);
     };
 
-    @action
     setReverseScrollDirectionOption = (reverseScrollOption: ReverseScrollDirectionOption): void => {
         this.reverseScrollingDirectionOption = reverseScrollOption;
         localStorage.setItem("reverseScrollDirectionOption", reverseScrollOption);
     };
 
-    @action
     setEnableImagesCaching = (enableImagesCaching: boolean): void => {
         this.enableImagesCaching = enableImagesCaching;
         localStorage.setItem("enableImagesCaching", `${enableImagesCaching}`);
     };
 
-    @action
     setVirtualScrollElement = (virtualScrollElement: VirtualScrollElement): void => {
         this.virtualScrollElement = virtualScrollElement;
         localStorage.setItem("virtualScrollElement", virtualScrollElement);
-    }
+    };
 
-    @action
     setSendMessageButton = (sendMessageButton: SendMessageButton): void => {
         this.sendMessageButton = sendMessageButton;
         localStorage.setItem("sendMessageButton", sendMessageButton);
-    }
+    };
 }

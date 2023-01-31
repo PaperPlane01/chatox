@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {EmailConfirmationArguments, PasswordChangeFormSubmissionStore} from "./PasswordChangeFormSubmissionStore";
 import {SendPasswordChangeEmailConfirmationCodeStore} from "./SendPasswordChangeEmailConfirmationCodeStore";
 import {ChangePasswordStep} from "../types";
@@ -8,20 +8,16 @@ import {PasswordChangeStepStore} from "./PasswordChangeStepStore";
 import {CheckEmailConfirmationCodeStore} from "../../EmailConfirmation";
 
 export class PasswordChangeStore {
-    @observable
     showSuccessSnackbar: boolean = false;
 
-    @computed
     get currentStep(): ChangePasswordStep {
         return this.passwordChangeStepStore.currentStep;
     }
 
-    @computed
     get currentUser(): CurrentUser | undefined {
         return this.authorizationStore.currentUser;
     }
 
-    @computed
     get currentUserId(): string | undefined {
         if (this.currentUser) {
             return this.currentUser.id;
@@ -30,7 +26,6 @@ export class PasswordChangeStore {
         return undefined;
     }
 
-    @computed
     get currentUserHasEmail(): boolean {
         return Boolean(this.currentUser && this.currentUser.email);
     }
@@ -40,6 +35,8 @@ export class PasswordChangeStore {
                 private readonly checkEmailConfirmationCodeStore: CheckEmailConfirmationCodeStore,
                 private readonly passwordChangeStepStore: PasswordChangeStepStore,
                 private readonly authorizationStore: AuthorizationStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.currentStep,
             currentStep => this.processPasswordChangeStep(currentStep)
@@ -51,7 +48,6 @@ export class PasswordChangeStore {
         );
     };
 
-    @action
     processPasswordChangeStep = (changePasswordStep: ChangePasswordStep): void => {
         switch (changePasswordStep) {
             case ChangePasswordStep.VALIDATE_FORM_AND_CHECK_IF_CONFIRMATION_CODE_SHOULD_BE_SENT:
@@ -72,7 +68,6 @@ export class PasswordChangeStore {
         }
     };
 
-    @action
     validateFormAndCheckIfEmailConfirmationCodeShouldBeSent = (): void => {
         if (this.passwordChangeFormSubmissionStore.validateForm()) {
             if (this.currentUserHasEmail) {
@@ -83,7 +78,6 @@ export class PasswordChangeStore {
         }
     };
 
-    @action
     changePassword = (): void => {
         const emailConfirmationId = this.sendPasswordChangeEmailConfirmationCodeStore.emailConfirmationCodeResponse
             && this.sendPasswordChangeEmailConfirmationCodeStore.emailConfirmationCodeResponse.id;
@@ -98,21 +92,18 @@ export class PasswordChangeStore {
         this.passwordChangeFormSubmissionStore.submitForm(emailConfirmationArguments);
     };
 
-    @action
     showSuccessSnackbarAndResetEverything = (): void => {
         this.setShowSuccessSnackbar(true);
         this.reset();
     };
 
-    @action
     reset = (): void => {
         this.passwordChangeFormSubmissionStore.reset();
         this.sendPasswordChangeEmailConfirmationCodeStore.reset();
         this.checkEmailConfirmationCodeStore.reset();
         this.passwordChangeStepStore.setCurrentStep(ChangePasswordStep.NONE);
-    }
+    };
 
-    @action
     setShowSuccessSnackbar = (showSuccessSnackbar: boolean): void => {
         this.showSuccessSnackbar = showSuccessSnackbar;
     };

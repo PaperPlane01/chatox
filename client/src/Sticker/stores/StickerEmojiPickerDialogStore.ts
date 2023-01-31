@@ -1,11 +1,13 @@
-import {action, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 
 export class StickerEmojiPickerDialogStore {
-    @observable
     stickerEmojiPickerDialogOpen = false;
 
-    @action
+    constructor() {
+       makeAutoObservable(this);
+    }
+
     setStickerEmojiPickerDialogOpen = (stickerEmojiPickerDialogOpen: boolean): void => {
         this.stickerEmojiPickerDialogOpen = stickerEmojiPickerDialogOpen;
-    }
+    };
 }

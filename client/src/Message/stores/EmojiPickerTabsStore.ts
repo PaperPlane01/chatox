@@ -1,11 +1,13 @@
-import {action, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 
 export class EmojiPickerTabsStore {
-    @observable
     selectedTab: "emoji" | "stickers" = "emoji";
 
-    @action
+    constructor() {
+        makeAutoObservable(this);
+    }
+
     setSelectedTab = (selectedTab: "emoji" | "stickers"): void => {
         this.selectedTab = selectedTab;
-    }
+    };
 }

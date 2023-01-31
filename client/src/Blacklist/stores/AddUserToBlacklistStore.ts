@@ -1,9 +1,8 @@
-import {action, observable, runInAction} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {BlacklistedUsersStore} from "./BlacklistedUsersStore";
 import {ApiError, BlacklistApi, getInitialApiErrorFromResponse} from "../../api";
 
 export class AddUserToBlacklistStore {
-    @observable
     pendingUsersMap: {
         [userId: string]: {
             pending: boolean,
@@ -13,18 +12,17 @@ export class AddUserToBlacklistStore {
     } = {};
 
     constructor(private readonly blacklistedUsersStore: BlacklistedUsersStore) {
+        makeAutoObservable(this);
     }
 
-    @action
     setShowSnackbar = (userId: string, showSnackbar: boolean): void => {
         if (!this.pendingUsersMap[userId]) {
             return;
         }
 
         this.pendingUsersMap[userId].showSnackbar = showSnackbar;
-    }
+    };
 
-    @action
     addUserToBlacklist = (userId: string): void => {
         this.pendingUsersMap[userId] = {
             pending: true,
@@ -39,5 +37,5 @@ export class AddUserToBlacklistStore {
                 this.pendingUsersMap[userId].pending = false;
                 this.pendingUsersMap[userId].showSnackbar = true;
             }));
-    }
+    };
 }

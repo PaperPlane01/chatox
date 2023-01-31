@@ -7,15 +7,14 @@ import {Helmet, HelmetProvider} from "react-helmet-async";
 import rgbToHex from "rgb-hex";
 import "yet-another-react-lightbox/dist/styles.css";
 import {SnackbarProvider} from "notistack";
+import {MobxRouter} from "mobx-router";
 import {cyan} from "./themes";
 import {LoadingCurrentUserProgressIndicator} from "./Authorization";
-import {useLocalization} from "./store";
+import {useLocalization, rootStore} from "./store";
 import {AudioPlayerContainer} from "./AudioPlayer";
 import {ErrorBoundary} from "./ErrorBoundary";
 import {AnonymousRegistrationDialog} from "./Registration";
 import {SnackbarManager} from "./Snackbar";
-
-const {MobxRouter} = require("mobx-router");
 
 export const App: FunctionComponent = observer(() => {
     const {dateFnsLocale} = useLocalization();
@@ -34,7 +33,7 @@ export const App: FunctionComponent = observer(() => {
                            <ThemeProvider theme={cyan}>
                                <LoadingCurrentUserProgressIndicator/>
                                <CssBaseline/>
-                               <MobxRouter/>
+                               <MobxRouter store={rootStore}/>
                                <AudioPlayerContainer/>
                                <AnonymousRegistrationDialog/>
                                <SnackbarManager/>

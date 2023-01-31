@@ -36,7 +36,7 @@ export const ShowScheduledMessagesMenuItem: FunctionComponent<ShowScheduledMessa
             onClick();
         }
 
-        routerStore.router.goTo(Routes.scheduledMessagesPage, {slug: chat.slug || chat.id});
+        routerStore.goTo(Routes.scheduledMessagesPage, {slug: chat.slug || chat.id});
     };
 
     return  (

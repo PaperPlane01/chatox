@@ -1,15 +1,20 @@
-import {observable, action} from "mobx";
+import { observable, action, makeObservable } from "mobx";
 import {ExtendedEmojiSet} from "../types";
 import {ALLOWED_EMOJI_SETS} from "../internal/constants";
 
 export class EmojiSettingsStore {
-    @observable
     selectedEmojiSet: ExtendedEmojiSet = "apple";
 
-    @observable
     useEmojiCodes: boolean = false;
 
     constructor() {
+        makeObservable(this, {
+            selectedEmojiSet: observable,
+            useEmojiCodes: observable,
+            setSelectedEmojiSet: action,
+            setUseEmojiCodes: action
+        });
+
         const emojiSet = localStorage.getItem("emojiSet");
 
         if (emojiSet && (ALLOWED_EMOJI_SETS as string[]).includes(emojiSet)) {
@@ -27,7 +32,6 @@ export class EmojiSettingsStore {
         }
     };
 
-    @action
     setSelectedEmojiSet = (emojiSet: ExtendedEmojiSet, skipSettingToLocalstorage: boolean = false): void => {
         if (!skipSettingToLocalstorage) {
             localStorage.setItem("emojiSet", emojiSet);
@@ -35,7 +39,6 @@ export class EmojiSettingsStore {
         this.selectedEmojiSet = emojiSet;
     };
 
-    @action
     setUseEmojiCodes = (useEmojiCodes: boolean, skippSettingToLocalStorage: boolean = false): void => {
         if (!skippSettingToLocalStorage) {
             localStorage.setItem("useEmojiCodes", `${useEmojiCodes}`);

@@ -30,11 +30,11 @@ export const LoginWithGoogleButton: FunctionComponent = observer(() => {
     const classes = useStyles();
 
     const handleClick = (): void => {
-        const currentPath = router.router.currentView.path;
-        const currentParams = router.router.params;
-        const queryParams = router.router.queryParams;
+        const currentPath = router.currentRoute?.path;
+        const currentParams = router.params;
+        const queryParams = router.queryParams;
 
-        setOriginalPath(currentPath);
+        setOriginalPath(currentPath ? currentPath : "");
         currentParams && setOriginalParams(currentParams);
         queryParams && setOriginalQueryParams(queryParams);
 

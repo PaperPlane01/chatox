@@ -1,4 +1,4 @@
-import {action, computed, observable, runInAction} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {CurrentReportsListStore} from "./CurrentReportsListStore";
 import {EntitiesStore} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse, ReportsApi} from "../../api";
@@ -6,13 +6,10 @@ import {ReportStatus, ReportTakenAction} from "../../api/types/response";
 import {UpdateReportRequest} from "../../api/types/request";
 
 export class UpdateSelectedReportsStore {
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @computed
     get selectedReportsIds(): string[] {
         return this.currentReportsListStore.currentReportsList
             ? this.currentReportsListStore.currentReportsList.selectedReportsIds
@@ -21,9 +18,9 @@ export class UpdateSelectedReportsStore {
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly currentReportsListStore: CurrentReportsListStore) {
+       makeAutoObservable(this);
     }
 
-    @action
     updateSelectedReports = (takenActions: ReportTakenAction[], status: ReportStatus, successCallback?: () => void): void => {
         if (this.selectedReportsIds.length === 0) {
             return;
@@ -49,5 +46,5 @@ export class UpdateSelectedReportsStore {
             })
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.pending = false));
-    }
+    };
 }
