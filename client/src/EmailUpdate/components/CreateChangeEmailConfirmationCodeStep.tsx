@@ -40,20 +40,20 @@ export const CreateChangeEmailConfirmationCodeStep: FunctionComponent = observer
                 }
             </DialogContent>
             <DialogActions>
-                <Button variant="contained"
-                        color="primary"
-                        disabled={pending}
-                        onClick={submitForm}
-                >
-                    {pending && <CircularProgress size={15} color="primary"/>}
-                    {l("ok")}
-                </Button>
                 <Button variant="outlined"
                         color="secondary"
                         disabled={pending}
                         onClick={reset}
                 >
                     {l("cancel")}
+                </Button>
+                <Button variant="contained"
+                        color="primary"
+                        disabled={pending}
+                        onClick={submitForm}
+                >
+                    {pending && <CircularProgress size={15} color="primary"/>}
+                    {l("registration.continue")}
                 </Button>
             </DialogActions>
         </Fragment>

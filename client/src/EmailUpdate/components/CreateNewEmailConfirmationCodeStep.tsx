@@ -54,7 +54,7 @@ export const CreateNewEmailConfirmationCodeStep: FunctionComponent = observer(()
                         disabled={pending || checkingEmailAvailability}
                 >
                     {(pending || checkingEmailAvailability) && <CircularProgress size={15} color="primary"/>}
-                    {l("ok")}
+                    {l("registration.continue")}
                 </Button>
             </DialogActions>
         </Fragment>
