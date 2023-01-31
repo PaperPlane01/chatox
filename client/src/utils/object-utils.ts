@@ -27,3 +27,17 @@ export const mergeCustomizer = (object: unknown, source: unknown): unknown => {
         return union(object, source as Array<any>);
     }
 }
+
+type OptionalFields<T> = {
+    [Key in keyof T]: T[Key] | undefined
+}
+
+type SameKeys<T> = {
+    [Key in keyof T]: any
+}
+
+export const createWithUndefinedValues = <Target, Source extends SameKeys<Target>>(source: Source): OptionalFields<Target> => {
+    const result = {} as OptionalFields<Target>;
+    Object.keys(source).forEach(key => result[key as keyof Target] = undefined);
+    return result;
+}

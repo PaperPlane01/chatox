@@ -26,6 +26,7 @@ import {
     UpdateChatStore
 } from "../Chat";
 import {
+    ChatParticipantsSearchStore,
     ChatParticipantsStore,
     JoinChatStore,
     KickChatParticipantStore,
@@ -127,7 +128,14 @@ import {
     UserChatRolesStore
 } from "../ChatRole";
 import {SnackbarService} from "../Snackbar";
-import {ChatParticipantsSearchStore} from "../ChatParticipant";
+import {
+    createSetCreateNewEmailConfirmationCodeCallback,
+    createSetUpdateEmailStepCallback,
+    SendEmailChangeConfirmationCodeStore,
+    SendNewEmailConfirmationCodeStore,
+    UpdateEmailDialogStore,
+    UpdateEmailStore
+} from "../EmailUpdate";
 
 const rawEntities = new RawEntitiesStore();
 const authorization = new AuthorizationStore();
@@ -285,6 +293,25 @@ const snackbarService = new SnackbarService();
 const editChatRole = new EditChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chatRoleInfo);
 const createChatRole = new CreateChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chat, rolesOfChats);
 const chatParticipantsSearch = new ChatParticipantsSearchStore(entities, chat);
+const updateEmailDialog = new UpdateEmailDialogStore();
+const emailChangeConfirmationCode = new SendEmailChangeConfirmationCodeStore(updateEmailDialog, authorization, language);
+const emailChangeConfirmationCodeCheck = new CheckEmailConfirmationCodeStore(
+    createSetCreateNewEmailConfirmationCodeCallback(updateEmailDialog)
+);
+const newEmailConfirmationCode = new SendNewEmailConfirmationCodeStore(updateEmailDialog, language);
+const newEmailConfirmationCodeCheck = new CheckEmailConfirmationCodeStore(
+    createSetUpdateEmailStepCallback(updateEmailDialog)
+);
+const emailUpdate = new UpdateEmailStore(
+    updateEmailDialog,
+    emailChangeConfirmationCode,
+    emailChangeConfirmationCodeCheck,
+    newEmailConfirmationCode,
+    newEmailConfirmationCodeCheck,
+    authorization,
+    language,
+    snackbarService
+);
 
 export const store: IAppState = {
     authorization,
@@ -397,5 +424,11 @@ export const store: IAppState = {
     editChatRole,
     createChatRole,
     rawEntities,
-    chatParticipantsSearch
+    chatParticipantsSearch,
+    updateEmailDialog,
+    emailChangeConfirmationCode,
+    emailChangeConfirmationCodeCheck,
+    newEmailConfirmationCode,
+    newEmailConfirmationCodeCheck,
+    emailUpdate
 };

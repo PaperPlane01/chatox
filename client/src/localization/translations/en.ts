@@ -529,5 +529,19 @@ export const en: Labels = {
     "username.has-already-been-taken": "This username is already taken",
     "username.too-long": "Username is too long",
     "username.too-short": "Username is too short",
-    "chat.participants.search": "Chat participants search"
+    "chat.participants.search": "Chat participants search",
+    "email.no-email": "You don't have a linked email which makes your account less secure.",
+    "email.link": "Link email",
+    "email.update": "Update email",
+    "email.update.success": "Email has been updated",
+    "email.update.error": "Error occurred when tried to update email",
+    "email.update.error.confirmation-code-expired": "Confirmation code has expired",
+    "email.update.error.confirmation-code-has-been-used": "Confirmation code has already been used",
+    "email.update.error.confirmation-code-invalid": "Confirmation code is invalid",
+    "email.update.error.email-mismatch": "This confirmation code was created for other email",
+    "email.update.error.unknown": "Unknown error occurred when tried to update email, server responded with {errorStatus} status",
+    "email.change.confirm": "Confirm email change",
+    "email.change.confirm.code-will-be-sent": "We well send an email with a confirmation code to your current email address {email}",
+    "email.update.in-progress": "We are updating your email. Please wait",
+    "email.update.enter-new-email": "Enter new email"
 };

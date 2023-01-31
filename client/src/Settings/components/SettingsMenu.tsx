@@ -4,15 +4,17 @@ import {List, ListItemIcon, ListItemText, MenuItem, Typography} from "@mui/mater
 import {createStyles, makeStyles} from "@mui/styles";
 import {ChatBubble, Image, Language, Palette, Person, Security} from "@mui/icons-material";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
+import {SettingsTab} from "../types";
 import {ChangePasswordContainer, EditProfileForm} from "../../User";
 import {EmojiSetPicker} from "../../Emoji";
 import {LanguagePicker} from "../../localization";
-import {SettingsTab} from "../types";
 import {Routes} from "../../router";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {ChatsPreferencesCard} from "../../Chat";
 import {HasAnyRole} from "../../Authorization";
 import {InstalledStickerPacksList} from "../../Sticker";
+import {EditEmailContainer} from "../../EmailUpdate";
+import {SecurityTabWrapper} from "./SecurityTabWrapper";
 
 const {Link} = require("mobx-router");
 
@@ -134,7 +136,7 @@ export const SettingsMenu: FunctionComponent = observer(() => {
             <SettingsFullScreenDialog title={l("settings.security")}
                                       open={activeTab === SettingsTab.SECURITY}
             >
-                <ChangePasswordContainer/>
+                <SecurityTabWrapper/>
             </SettingsFullScreenDialog>
             <SettingsFullScreenDialog title={l("settings.appearance")}
                                       open={activeTab === SettingsTab.APPEARANCE}

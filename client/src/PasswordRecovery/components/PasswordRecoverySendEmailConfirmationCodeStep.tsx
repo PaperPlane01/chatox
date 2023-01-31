@@ -1,6 +1,14 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, CircularProgress, DialogActions, DialogContent, DialogTitle, TextField, Typography} from "@mui/material";
+import {
+    Button,
+    CircularProgress,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+    Typography
+} from "@mui/material";
 import {useLocalization, useStore} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
@@ -19,10 +27,10 @@ export const PasswordRecoverySendEmailConfirmationCodeStep: FunctionComponent = 
     const {
         passwordRecoveryEmailConfirmationCodeSending: {
             formErrors,
-            sendPasswordRecoveryEmailConfirmationCodeForm,
+            formValues,
             setFormValue,
             pending,
-            sendPasswordRecoveryEmailConfirmationCode,
+            submitForm,
             error
         },
         passwordRecoveryDialog: {
@@ -38,7 +46,7 @@ export const PasswordRecoverySendEmailConfirmationCodeStep: FunctionComponent = 
             </DialogTitle>
             <DialogContent>
                 <TextField label={l("email")}
-                           value={sendPasswordRecoveryEmailConfirmationCodeForm.email}
+                           value={formValues.email}
                            onChange={event => setFormValue("email", event.target.value)}
                            fullWidth
                            margin="dense"
@@ -59,7 +67,7 @@ export const PasswordRecoverySendEmailConfirmationCodeStep: FunctionComponent = 
                     {l("close")}
                 </Button>
                 <Button variant="contained"
-                        onClick={sendPasswordRecoveryEmailConfirmationCode}
+                        onClick={submitForm}
                         color="primary"
                         disabled={pending}
                 >

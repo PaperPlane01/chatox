@@ -3,6 +3,9 @@ import {stringify} from "query-string";
 import {axiosInstance} from "../axios-instance";
 import {
     ACCOUNTS,
+    ANONYMOUS,
+    EMAIL,
+    GOOGLE,
     IS_AVAILABLE,
     ME,
     OAUTH,
@@ -12,16 +15,16 @@ import {
     REVOKE,
     SLUG,
     TOKEN,
-    USERS,
     USERNAME,
-    ANONYMOUS,
-    GOOGLE
+    USERS
 } from "../endpoints";
 import {
-    AnonymousUserRegistrationRequest, GoogleRegistrationRequest,
+    AnonymousUserRegistrationRequest,
+    GoogleRegistrationRequest,
     RecoverPasswordRequest,
     RegistrationRequest,
     RevokeTokenRequest,
+    UpdateEmailRequest,
     UpdatePasswordRequest,
     UpdateUserRequest
 } from "../types/request";
@@ -108,6 +111,33 @@ export class UserApi {
             },
             data: {
                 ...updatePasswordRequest
+            }
+        });
+    }
+
+    public static updateEmail(updateEmailRequest: UpdateEmailRequest): AxiosPromise<void> {
+        return axiosInstance({
+            method: "PUT",
+            baseURL: process.env.REACT_APP_API_BASE_URL,
+            url: `/${OAUTH}/${ACCOUNTS}/${EMAIL}`,
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            data: {
+                ...updateEmailRequest
+            }
+        });
+    }
+
+    public static checkEmailAvailability(email: string): AxiosPromise<AvailabilityResponse> {
+        return axiosInstance({
+            method: "GET",
+            baseURL: process.env.REACT_APP_API_BASE_URL,
+            url: `/${OAUTH}/${ACCOUNTS}/${EMAIL}/${email}/${IS_AVAILABLE}`,
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
             }
         });
     }

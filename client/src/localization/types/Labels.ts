@@ -527,5 +527,19 @@ export interface Labels {
     "username.has-already-been-taken": string
     "username.too-long": string,
     "username.too-short": string,
-    "chat.participants.search": string
+    "chat.participants.search": string,
+    "email.no-email": string,
+    "email.link": string,
+    "email.update": string,
+    "email.update.success": string,
+    "email.update.error": string,
+    "email.update.error.confirmation-code-expired": string,
+    "email.update.error.confirmation-code-has-been-used": string,
+    "email.update.error.confirmation-code-invalid": string,
+    "email.update.error.email-mismatch": string,
+    "email.update.error.unknown": string,
+    "email.change.confirm": string,
+    "email.change.confirm.code-will-be-sent": string,
+    "email.update.in-progress": string,
+    "email.update.enter-new-email": string,
 }

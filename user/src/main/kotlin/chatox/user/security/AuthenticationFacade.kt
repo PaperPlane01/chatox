@@ -75,7 +75,7 @@ class AuthenticationFacade(private val userRepository: UserRepository,
                     bio = user.bio,
                     createdAt = user.createdAt,
                     dateOfBirth = user.dateOfBirth,
-                    email = authentication.customUserDetails.email,
+                    email = user.email,
                     globalBan = if (lastActiveBan != null) globalBanMapper.toGlobalBanResponse(
                             globalBan = lastActiveBan,
                             bannedUser = user,

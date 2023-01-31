@@ -11,6 +11,9 @@ import chatox.oauth2.exception.AccountNotFoundException;
 import chatox.oauth2.exception.EmailHasAlreadyBeenTakenException;
 import chatox.oauth2.exception.metadata.EmailConfirmationCodeExpiredException;
 import chatox.oauth2.exception.EmailConfirmationCodeNotFoundException;
+import chatox.oauth2.exception.metadata.EmailConfirmationCodeHasAlreadyBeenUsedException;
+import chatox.oauth2.exception.metadata.EmailMismatchException;
+import chatox.oauth2.exception.metadata.InvalidEmailConfirmationCodeCodeException;
 import chatox.oauth2.mapper.EmailConfirmationCodeMapper;
 import chatox.oauth2.respository.AccountRepository;
 import chatox.oauth2.respository.EmailConfirmationCodeRepository;
@@ -30,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import javax.annotation.Nullable;
 import java.sql.Date;
 import java.time.ZonedDateTime;
 
@@ -138,21 +142,78 @@ public class EmailConfirmationCodeServiceImpl implements EmailConfirmationCodeSe
     }
 
     @Override
-    public EmailConfirmationCodeValidityResponse checkEmailConfirmationCode(String emailConfirmationCodeId, CheckEmailConfirmationCodeValidityRequest checkEmailVerificationCodeValidityRequest) {
-        EmailConfirmationCode emailConfirmationCode = emailConfirmationCodeRepository.findById(emailConfirmationCodeId)
-                .orElseThrow(() -> new EmailConfirmationCodeNotFoundException(
-                        String.format("Could not find email verification with id %s", emailConfirmationCodeId)
-                ));
+    public EmailConfirmationCodeValidityResponse checkEmailConfirmationCode(
+            String emailConfirmationCodeId,
+            CheckEmailConfirmationCodeValidityRequest checkEmailConfirmationCodeValidityRequest) {
+       return checkEmailConfirmationCode(emailConfirmationCodeId, checkEmailConfirmationCodeValidityRequest, null);
+    }
+
+    @Override
+    public EmailConfirmationCodeValidityResponse checkEmailConfirmationCode(
+            String emailConfirmationCodeId,
+            CheckEmailConfirmationCodeValidityRequest checkEmailConfirmationCodeValidityRequest,
+            @Nullable String email) {
+        return EmailConfirmationCodeValidityResponse.builder()
+                .valid(checkEmailConfirmationCodeValidity(
+                        findById(emailConfirmationCodeId),
+                        checkEmailConfirmationCodeValidityRequest.getConfirmationCode(),
+                        email
+                ))
+                .build();
+    }
+
+    @Override
+    public void assertEmailConfirmationCodeValid(String emailConfirmationCodeId, String emailConfirmationCode) {
+       assertEmailConfirmationCodeValid(emailConfirmationCodeId, emailConfirmationCode, null);
+    }
+
+    @Override
+    public void assertEmailConfirmationCodeValid(String emailConfirmationCodeId, String emailConfirmationCode, @Nullable String email) {
+        if (!checkEmailConfirmationCodeValidity(findById(emailConfirmationCodeId), emailConfirmationCode, email)) {
+            throw new InvalidEmailConfirmationCodeCodeException();
+        }
+    }
+
+    @Override
+    public EmailConfirmationCode requireEmailConfirmationCode(String emailConfirmationCodeId, String emailConfirmationCodeValue) {
+        return requireEmailConfirmationCode(emailConfirmationCodeId, emailConfirmationCodeValue, null);
+    }
+
+    @Override
+    public EmailConfirmationCode requireEmailConfirmationCode(String emailConfirmationCodeId, String emailConfirmationCodeValue, @Nullable String email) {
+        var emailConfirmationCode = findById(emailConfirmationCodeId);
+        checkEmailConfirmationCodeValidity(emailConfirmationCode, emailConfirmationCodeValue, email);
+        return emailConfirmationCode;
+    }
+
+    private boolean checkEmailConfirmationCodeValidity(EmailConfirmationCode emailConfirmationCode,
+                                                       String emailConfirmationCodeValue,
+                                                       @Nullable String email) {
+        if (email != null) {
+            if (!emailConfirmationCode.getEmail().equals(email)) {
+                throw new EmailMismatchException();
+            }
+        }
 
         if (emailConfirmationCode.getExpiresAt().isBefore(ZonedDateTime.now())) {
             throw new EmailConfirmationCodeExpiredException("This email confirmation code has expired");
         }
 
-        boolean valid = passwordEncoder.matches(
-                checkEmailVerificationCodeValidityRequest.getConfirmationCode(),
+        if (emailConfirmationCode.getCompletedAt() != null) {
+            throw new EmailConfirmationCodeHasAlreadyBeenUsedException("This email confirmation code has already been used");
+        }
+
+        return  passwordEncoder.matches(
+                emailConfirmationCodeValue,
                 emailConfirmationCode.getConfirmationCodeHash()
         );
-
-        return EmailConfirmationCodeValidityResponse.builder().valid(valid).build();
     }
+
+    private EmailConfirmationCode findById(String id) {
+        return emailConfirmationCodeRepository.findById(id)
+                .orElseThrow(() -> new EmailConfirmationCodeNotFoundException(
+                        String.format("Could not find email verification with id %s", id)
+                ));
+    }
+
 }

@@ -15,4 +15,5 @@ interface UserService {
     fun findUserByIdOrSlug(idOrSlug: String): Mono<UserResponse>
     fun findUsersByAccount(accountId: String): Flux<UserResponse>
     fun isSlugAvailable(slug: String): Mono<SlugAvailabilityResponse>
+    fun updateEmail(accountId: String, email: String): Mono<Void>
 }
