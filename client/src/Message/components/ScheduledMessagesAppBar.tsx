@@ -2,10 +2,17 @@ import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
 import {IconButton, AppBar, Typography, Toolbar} from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Link} from "mobx-router";
 import {useRouter, useStore, useLocalization} from "../../store";
 import {Routes} from "../../router";
 
-const {Link} = require("mobx-router");
+const useStyles = makeStyles(() => createStyles({
+    undecoratedLink: {
+        textDecoration: "none",
+        color: "inherit"
+    }
+}));
 
 export const ScheduledMessagesAppBar: FunctionComponent = observer(() => {
     const {
@@ -20,6 +27,7 @@ export const ScheduledMessagesAppBar: FunctionComponent = observer(() => {
     } = useStore();
     const router = useRouter();
     const {l} = useLocalization();
+    const classes = useStyles();
 
     if (!selectedChatId) {
         return null;
@@ -32,13 +40,10 @@ export const ScheduledMessagesAppBar: FunctionComponent = observer(() => {
             <AppBar position="fixed">
                 <Toolbar>
                     <div style={{display: "flex", alignItems: "center"}}>
-                        <Link view={Routes.chatPage}
+                        <Link route={Routes.chatPage}
                               params={{slug: chat.slug}}
-                              store={router}
-                              style={{
-                                  textDecoration: "none",
-                                  color: "inherit",
-                              }}
+                              router={router}
+                              className={classes.undecoratedLink}
                         >
                             <IconButton color="inherit"
                                         size="medium"

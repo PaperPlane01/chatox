@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatStore} from "../../Chat";
 import {PaginationState} from "../../utils/types";
@@ -14,15 +14,12 @@ interface FetchChatParticipantsOptions {
 }
 
 export class ChatParticipantsStore {
-    @observable
     paginationStateMap: ChatParticipantsPaginationStateMap = {};
 
-    @computed
     get selectedChat(): string | undefined {
         return this.chatStore.selectedChatId;
     }
 
-    @computed
     get chatParticipants(): string[] {
         if (this.selectedChat) {
             return this.entities.chatParticipations.findByChat(this.selectedChat);
@@ -31,9 +28,10 @@ export class ChatParticipantsStore {
         }
     }
 
-    constructor(
-        private readonly entities: EntitiesStore,
-        private readonly chatStore: ChatStore) {
+    constructor(private readonly entities: EntitiesStore,
+                private readonly chatStore: ChatStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.selectedChat,
             () => this.fetchChatParticipants({abortIfInitiallyFetched: true})
@@ -53,7 +51,6 @@ export class ChatParticipantsStore {
         }
     });
 
-    @action
     fetchChatParticipants = (options: FetchChatParticipantsOptions = {abortIfInitiallyFetched: false}): void => {
         if (this.selectedChat) {
             const chatId = this.selectedChat;
@@ -86,5 +83,5 @@ export class ChatParticipantsStore {
                     .finally(() => runInAction(() => this.paginationStateMap[chatId].pending = false));
             }
         }
-    }
+    };
 }

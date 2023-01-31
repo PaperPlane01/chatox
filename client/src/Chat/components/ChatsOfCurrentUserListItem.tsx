@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import {Badge, CardHeader, Divider, ListItem, Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
+import {Link} from "mobx-router";
 import {ChatListMessagePreview} from "./ChatListMessagePreview";
 import {getAvatarLabel, getChatLinkProps} from "../utils";
 import {ChatLinkPropsGenerationStrategy} from "../types";
@@ -10,8 +11,6 @@ import {Avatar} from "../../Avatar";
 import {useRouter, useStore} from "../../store";
 import {ChatType} from "../../api/types/response";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-
-const {Link} = require("mobx-router");
 
 interface ChatsOfCurrentUserListItemProps {
     chatId: string,
@@ -112,7 +111,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
         );
 
     return (
-        <Link store={routerStore}
+        <Link router={routerStore}
               className={classes.undecoratedLink}
               {...linkProps}
         >

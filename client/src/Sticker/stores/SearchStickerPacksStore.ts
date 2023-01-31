@@ -1,27 +1,23 @@
-import {action, observable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, StickerApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 
 export class SearchStickerPacksStore {
-    @observable
     name = "";
 
-    @observable
     pending = false;
 
-    @observable
     currentPage = 0;
 
-    @observable
     error?: ApiError = undefined;
 
-    @observable
     searchResults: string[] = [];
 
-    @observable
     reactToNameChange = false;
 
     constructor(private readonly entities: EntitiesStore) {
+       makeAutoObservable(this);
+
         reaction(
             () => this.name,
             () => runInAction(() => {
@@ -37,17 +33,14 @@ export class SearchStickerPacksStore {
         );
     }
 
-    @action
     setReactToNameChange = (reactToNameChange: boolean): void => {
         this.reactToNameChange = reactToNameChange;
-    }
+    };
 
-    @action
     setName = (name: string): void => {
         this.name = name;
-    }
+    };
 
-    @action
     searchStickerPacks = (): void => {
         this.pending = true;
         this.error = undefined;
@@ -65,9 +58,8 @@ export class SearchStickerPacksStore {
             }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.pending = false))
-    }
+    };
 
-    @action
     reset = (): void => {
         this.currentPage = 0;
         this.reactToNameChange = false;
@@ -75,5 +67,5 @@ export class SearchStickerPacksStore {
         this.searchResults = [];
         this.error = undefined;
         this.pending = false;
-    }
+    };
 }

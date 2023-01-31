@@ -1,18 +1,16 @@
-import {action, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 import {AuthorizationStore} from "./AuthorizationStore";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 
 export class LoginWithGoogleStore {
-    @observable
     googleAccessToken?: string = undefined;
 
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
     constructor(private readonly authorizationStore: AuthorizationStore) {
+        makeAutoObservable(this);
     }
 
     getOriginalPath = () => localStorage.getItem("originalPath")
@@ -35,12 +33,10 @@ export class LoginWithGoogleStore {
 
     setOriginalQueryParams = (originalQueryParams: any) => localStorage.setItem("originalQueryParams", JSON.stringify(originalQueryParams));
 
-    @action
     setGoogleAccessToken = (googleAccessToken: string): void => {
         this.googleAccessToken = googleAccessToken;
-    }
+    };
 
-    @action
     loginWithGoogle = (): void => {
         if (!this.googleAccessToken) {
             return;
@@ -69,5 +65,5 @@ export class LoginWithGoogleStore {
             })
             .catch(error => this.error = getInitialApiErrorFromResponse(error))
             .finally(() => this.pending = false);
-    }
+    };
 }

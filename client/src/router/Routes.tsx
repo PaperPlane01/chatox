@@ -102,7 +102,7 @@ export const Routes = {
         ),
         onEnter: (view: any, params: any, _: any, queryParams: any) => {
             store.chat.setSelectedChat(params.slug);
-            store.messageCreation.setEmojiPickerExpanded(`${queryParams.emojiPickerExpanded}` === "true");
+            store.messageCreation.setEmojiPickerExpanded(`${queryParams && queryParams.emojiPickerExpanded}` === "true");
         },
         onParamsChange: (view: any, params: any, _: any, queryParams: any) => {
             store.chat.setSelectedChat(params.slug);
@@ -324,6 +324,10 @@ export const getRouteByPath = (path: string) => {
             resultRoute = Routes[route as keyof typeof Routes];
         }
     });
+
+    if (!resultRoute) {
+        resultRoute = Routes.home;
+    }
 
     return resultRoute;
 };

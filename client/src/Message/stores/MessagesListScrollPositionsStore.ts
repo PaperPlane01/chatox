@@ -1,15 +1,15 @@
-import {observable, action, reaction} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatStore} from "../../Chat";
 
 export class MessagesListScrollPositionsStore {
-    @observable
     scrollPositionsMap: {[chatId: string]: number} = {};
 
-    @observable
     reachedBottomMap: {[chatId: string]: boolean} = {};
 
     constructor(private readonly chatStore: ChatStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.chatStore.selectedChatId,
             selectedChatId => {
@@ -25,15 +25,13 @@ export class MessagesListScrollPositionsStore {
     }
 
 
-    @action
     setScrollPosition = (chatId: string, scrollPosition: number): void => {
         this.scrollPositionsMap[chatId] = scrollPosition;
-    }
+    };
 
-    @action
     setReachedBottom = (chatId: string, reachedBottom: boolean): void => {
         this.reachedBottomMap[chatId] = reachedBottom;
-    }
+    };
 
     getScrollPosition = createTransformer((chatId: string) => this.scrollPositionsMap[chatId]);
 

@@ -1,13 +1,14 @@
-import {observable, action, reaction} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {InstalledStickerPacksStore} from "./InstalledStickerPacksStore";
 import {AuthorizationStore} from "../../Authorization";
 
 export class StickerPickerStore {
-    @observable
     selectedStickerPackId?: string = undefined;
 
     constructor(private readonly installedStickerPacksStore: InstalledStickerPacksStore,
                 private readonly authorizationStore: AuthorizationStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => installedStickerPacksStore.installedStickerPacksIds,
             installedStickerPacks => {
@@ -27,8 +28,7 @@ export class StickerPickerStore {
         );
     }
 
-    @action
     setSelectedStickerPackId = (id?: string): void => {
         this.selectedStickerPackId = id;
-    }
+    };
 }

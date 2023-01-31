@@ -1,4 +1,4 @@
-import {action, observable, reaction} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {ChangePasswordFormData, ChangePasswordStep} from "../types";
 import {FormErrors} from "../../utils/types";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
@@ -23,22 +23,19 @@ const FORM_ERRORS_INITIAL_STATE: FormErrors<ChangePasswordFormData> = {
 };
 
 export class PasswordChangeFormSubmissionStore {
-    @observable
     passwordChangeForm: ChangePasswordFormData = CHANGE_PASSWORD_FORM_INITIAL_STATE;
 
-    @observable
     formErrors: FormErrors<ChangePasswordFormData> = FORM_ERRORS_INITIAL_STATE;
 
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @observable
     displayPassword: boolean = false;
 
     constructor(private readonly passwordChangeStepStore: PasswordChangeStepStore) {
+       makeAutoObservable(this);
+
         reaction(
             () => this.passwordChangeForm.currentPassword,
             currentPassword => this.formErrors.currentPassword = validatePassword(currentPassword)
@@ -58,12 +55,10 @@ export class PasswordChangeFormSubmissionStore {
         );
     };
 
-    @action
     setFormValue = <Key extends keyof ChangePasswordFormData>(key: Key, value: ChangePasswordFormData[Key]): void => {
         this.passwordChangeForm[key] = value;
     };
 
-    @action
     submitForm = (emailConfirmationArguments?: EmailConfirmationArguments): void => {
         if (!this.validateForm()) {
             return;
@@ -87,7 +82,6 @@ export class PasswordChangeFormSubmissionStore {
             .finally(() => this.pending = false);
     };
 
-    @action
     validateForm = (): boolean => {
         this.formErrors = {
             currentPassword: validatePassword(this.passwordChangeForm.currentPassword),
@@ -103,14 +97,12 @@ export class PasswordChangeFormSubmissionStore {
         return !Boolean(currentPassword || password || repeatedPassword);
     };
 
-    @action
     setDisplayPassword = (displayPassword: boolean): void => {
         this.displayPassword = displayPassword;
     };
 
-    @action
     reset = (): void => {
         this.passwordChangeForm = CHANGE_PASSWORD_FORM_INITIAL_STATE;
         setTimeout(() => this.formErrors = FORM_ERRORS_INITIAL_STATE);
-    }
+    };
 }

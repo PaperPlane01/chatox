@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction, runInAction} from "mobx";
+import {action, computed, observable, reaction, runInAction, makeObservable, makeAutoObservable} from "mobx";
 import {UpdateEmailDialogStore} from "./UpdateEmailDialogStore";
 import {SendEmailChangeConfirmationCodeStore} from "./SendEmailChangeConfirmationCodeStore";
 import {SendNewEmailConfirmationCodeStore} from "./SendNewEmailConfirmationCodeStore";
@@ -12,13 +12,10 @@ import {SnackbarService} from "../../Snackbar";
 import {LocaleStore} from "../../localization";
 
 export class UpdateEmailStore {
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @computed
     get currentUser(): CurrentUser | undefined {
         return this.authorizationStore.currentUser;
     }
@@ -31,6 +28,8 @@ export class UpdateEmailStore {
                 private readonly authorizationStore: AuthorizationStore,
                 private readonly localeStore: LocaleStore,
                 private readonly snackbarService: SnackbarService) {
+        makeAutoObservable(this);
+
         reaction(
             () => updateEmailDialogStore.currentStep,
             step => {
@@ -41,7 +40,6 @@ export class UpdateEmailStore {
         )
     }
 
-    @action
     initialize = (): void => {
         if (!this.currentUser) {
             return;
@@ -54,9 +52,8 @@ export class UpdateEmailStore {
         }
 
         this.updateEmailDialogStore.setUpdateEmailDialogOpen(true);
-    }
+    };
 
-    @action
     reset = (): void => {
         this.updateEmailDialogStore.setUpdateEmailDialogOpen(false);
         this.updateEmailDialogStore.setCurrentStep(UpdateEmailStep.NONE);
@@ -66,9 +63,8 @@ export class UpdateEmailStore {
         this.checkNewEmailConfirmationCodeStore.reset();
         this.error = undefined;
         this.pending = false;
-    }
+    };
 
-    @action
     updateEmail = (): void => {
         this.pending = false;
         this.error = undefined;
@@ -119,5 +115,5 @@ export class UpdateEmailStore {
                 this.updateEmailDialogStore.setCurrentStep(UpdateEmailStep.ERROR);
             }))
             .finally(() => runInAction(() => this.pending = false));
-    }
+    };
 }

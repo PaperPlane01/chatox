@@ -1,4 +1,4 @@
-import {action, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {EntitiesStore} from "../../entities-store";
 
@@ -12,21 +12,20 @@ interface InsertInCacheParameters extends GetRoleOfUserInChatOptions {
 }
 
 export class UserChatRolesStore {
-    @observable
     rolesCache: {
         [cacheKey: string]: string
     } = {};
 
     constructor(private readonly entitiesStore: EntitiesStore) {
+        makeAutoObservable(this);
     }
 
-    @action
     insertInCache = (parameters: InsertInCacheParameters): void => {
         const {userId, chatId, roleId} = parameters;
         const cacheKey = this.generateCacheKey(chatId, userId);
 
         this.rolesCache[cacheKey] = roleId;
-    }
+    };
 
     getRoleOfUserInChat = createTransformer((options: GetRoleOfUserInChatOptions) => {
         let roleId: string | undefined = undefined;

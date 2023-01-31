@@ -1,4 +1,4 @@
-import {action, observable, reaction, runInAction} from "mobx";
+import {action, makeObservable, observable, reaction, runInAction} from "mobx";
 import {UpdateEmailDialogStore} from "./UpdateEmailDialogStore";
 import {UpdateEmailStep} from "../types";
 import {AbstractCreateEmailConfirmationCodeStore} from "../../EmailConfirmation";
@@ -8,12 +8,16 @@ import {LocaleStore} from "../../localization";
 import {validateEmail} from "../../Registration/validation";
 
 export class SendNewEmailConfirmationCodeStore extends AbstractCreateEmailConfirmationCodeStore {
-    @observable
     checkingEmailAvailability: boolean = false;
 
     constructor(private readonly updateEmailDialogStore: UpdateEmailDialogStore,
                 localeStore: LocaleStore) {
         super(localeStore);
+
+        makeObservable(this, {
+            checkingEmailAvailability: observable,
+            checkEmailAvailability: action
+        });
 
         reaction(
             () => this.emailConfirmationCode,
@@ -33,7 +37,6 @@ export class SendNewEmailConfirmationCodeStore extends AbstractCreateEmailConfir
         )
     }
 
-    @action
     checkEmailAvailability = (): void => {
         if (this.formErrors.email) {
             return;
@@ -49,7 +52,7 @@ export class SendNewEmailConfirmationCodeStore extends AbstractCreateEmailConfir
                 }
             })
             .finally(() => runInAction(() => this.checkingEmailAvailability = false));
-    }
+    };
 
     protected getType(): EmailConfirmationCodeType {
         return EmailConfirmationCodeType.CONFIRM_EMAIL;

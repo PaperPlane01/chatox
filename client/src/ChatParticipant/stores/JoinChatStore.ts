@@ -1,25 +1,22 @@
-import {action, observable, runInAction} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
 
 export class JoinChatStore {
-    @observable
     chatId?: string = undefined;
 
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @observable
     showSnackbar: boolean = false;
 
     constructor(private readonly entities: EntitiesStore,
-                private readonly authorization: AuthorizationStore) {}
+                private readonly authorization: AuthorizationStore) {
+        makeAutoObservable(this);
+    }
 
-    @action
     joinChat = (chatId: string): void => {
         this.chatId = chatId;
         this.pending = true;
@@ -46,8 +43,7 @@ export class JoinChatStore {
             .finally(() => runInAction(() => this.pending = false));
     };
 
-    @action
     setShowSnackbar = (showSnackbar: boolean): void => {
         this.showSnackbar = showSnackbar;
-    }
+    };
 }

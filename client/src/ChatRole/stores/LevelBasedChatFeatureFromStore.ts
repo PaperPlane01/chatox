@@ -1,4 +1,4 @@
-import {action, reaction} from "mobx";
+import {action, makeObservable, reaction} from "mobx";
 import {AbstractChatFeatureFormStore} from "./AbstractChatFeatureFormStore";
 import {validateFromLevel, validateUpToLevel} from "../validation";
 import {ChatFeatures, LevelBasedChatFeatureData} from "../../api/types/response";
@@ -28,6 +28,10 @@ export class LevelBasedChatFeatureFromStore
                 initialValues: LevelBasedFeatureFromData = INITIAL_FORM_VALUES) {
         super(initialValues, INITIAL_FORM_ERRORS);
 
+        makeObservable(this, {
+            populateFromRole: action
+        });
+
         reaction(
             () => this.formValues.fromLevel,
             fromLevel => this.setFormError("fromLevel", validateFromLevel(fromLevel))
@@ -39,7 +43,6 @@ export class LevelBasedChatFeatureFromStore
         );
     }
 
-    @action
     populateFromRole = (roleId: string): void => {
         const role = this.entities.chatRoles.findByIdOptional(roleId);
 
@@ -66,7 +69,6 @@ export class LevelBasedChatFeatureFromStore
         };
     }
 
-    @action
     validateForm = (): boolean => {
         this.setFormErrors({
             enabled: undefined,

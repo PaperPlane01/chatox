@@ -2,12 +2,11 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Hidden, Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
+import {Link} from "mobx-router";
 import {ChatBubble} from "@mui/icons-material";
 import {HasAnyRole} from "../../Authorization";
 import {Routes} from "../../router";
 import {useLocalization, useRouter} from "../../store";
-
-const {Link} = require("mobx-router");
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     appBarLinks: {
@@ -37,8 +36,8 @@ export const AppBarMenu: FunctionComponent = observer(() => {
         <div className={classes.appBarLinks}>
             <Hidden mdDown>
                 <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
-                    <Link view={Routes.myChats}
-                          store={routerStore}
+                    <Link route={Routes.myChats}
+                          router={routerStore}
                           className={classes.appBarLink}
                     >
                         <div className={classes.appBarLinkTextContainer}>

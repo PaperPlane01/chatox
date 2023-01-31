@@ -13,6 +13,7 @@ import {
 import {createStyles, makeStyles} from "@mui/styles";
 import {ArrowBack} from "@mui/icons-material";
 import randomColor from "randomcolor";
+import {Link} from "mobx-router";
 import {useStore, useLocalization, useRouter} from "../../store";
 import {trimString} from "../../utils/string-utils";
 import {getOnlineOrLastSeenLabel, getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
@@ -20,11 +21,13 @@ import {Avatar} from "../../Avatar";
 import {NavigationalDrawer, OpenDrawerButton} from "../../AppBar";
 import {Routes} from "../../router";
 
-const {Link} = require("mobx-router")
-
 const useStyles = makeStyles(() => createStyles({
     cardHeaderRoot: {
         padding: 0
+    },
+    undecoratedLink: {
+        textDecoration: "none",
+        color: "inherit"
     }
 }));
 
@@ -101,12 +104,9 @@ export const NewPrivateChatAppBar: FunctionComponent = observer(() => {
                         <OpenDrawerButton/>
                     </Hidden>
                     <Hidden lgUp>
-                        <Link view={Routes.myChats}
-                              store={routerStore}
-                              style={{
-                                  textDecoration: "none",
-                                  color: "inherit"
-                              }}
+                        <Link route={Routes.myChats}
+                              router={routerStore}
+                              className={classes.undecoratedLink}
                         >
                             <IconButton color="inherit"
                                         size="medium"

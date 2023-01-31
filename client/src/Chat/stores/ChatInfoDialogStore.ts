@@ -1,10 +1,12 @@
-import {action, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 
 export class ChatInfoDialogStore {
-    @observable
     chatInfoDialogOpen: boolean = false;
 
-    @action
+    constructor() {
+        makeAutoObservable(this);
+    }
+
     setChatInfoDialogOpen = (chatInfoDialogOpen: boolean): void => {
         this.chatInfoDialogOpen = chatInfoDialogOpen;
     };

@@ -1,4 +1,4 @@
-import {action, computed} from "mobx";
+import { action, computed, makeObservable } from "mobx";
 import {createTransformer} from "mobx-utils";
 import {BaseEntity, EntityStore} from "./EntityStore";
 import {
@@ -19,7 +19,6 @@ export abstract class AbstractEntityStore<
     >
     implements EntityStore<EntityName, Entity, DenormalizedEntity, InsertOptions, DeleteOptions> {
 
-    @computed
     get ids(): string[] {
         return this.rawEntities.ids[this.entityName];
     }
@@ -27,19 +26,26 @@ export abstract class AbstractEntityStore<
     public constructor(protected readonly rawEntities: RawEntitiesStore,
                        protected readonly entityName: EntityName,
                        protected readonly entities: EntitiesStore) {
+        makeObservable(this, {
+            ids: computed,
+            deleteAll: action.bound,
+            deleteAllById: action.bound,
+            deleteById: action.bound,
+            insert: action.bound,
+            insertAll: action.bound,
+            insertAllEntities: action.bound,
+            insertEntity: action.bound
+        });
     }
 
-    @action.bound
     deleteAll(): void {
         this.deleteAllById(this.ids);
     }
 
-    @action.bound
     deleteAllById(ids: string[]): void {
         ids.forEach(id => this.rawEntities.deleteEntity(this.entityName, id));
     }
 
-    @action.bound
     deleteById(id: string): void {
         this.rawEntities.deleteEntity(this.entityName, id);
     }
@@ -64,18 +70,15 @@ export abstract class AbstractEntityStore<
         return this.rawEntities.entities[this.entityName][id] as Entity | undefined;
     });
 
-    @action.bound
     insert(entity: DenormalizedEntity, options?: InsertOptions): Entity {
         this.rawEntities.applyPatch(this.createPatch(entity, options));
         return this.findById(entity.id);
     }
 
-    @action.bound
     insertAll(entities: DenormalizedEntity[], options?: InsertOptions): void {
         this.rawEntities.applyPatch(this.createPatchForArray(entities, options));
     }
 
-    @action.bound
     insertAllEntities(entities: Entity[]): void {
         const patch = this.createEmptyPatch();
         entities.forEach(entity => {
@@ -85,7 +88,6 @@ export abstract class AbstractEntityStore<
         this.rawEntities.applyPatch(patch);
     }
 
-    @action.bound
     insertEntity(entity: Entity): Entity {
         const patch = this.createEmptyPatch();
         patch.entities[this.entityName][entity.id] = entity;

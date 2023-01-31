@@ -3,10 +3,9 @@ import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {ArrowDownward, ArrowUpward, ChatBubble, Message, Person, Report} from "@mui/icons-material";
+import {Link} from "mobx-router";
 import {useLocalization, useRouter} from "../../store";
 import {Routes} from "../../router";
-
-const {Link} = require("mobx-router");
 
 interface ReportsMenuItemProps {
     onClick: () => void
@@ -45,9 +44,9 @@ export const ReportsMenuItem: FunctionComponent<ReportsMenuItemProps> = observer
             </MenuItem>
             {expanded && (
                 <div className={classes.nestedMenu}>
-                    <Link store={routerStore}
+                    <Link router={routerStore}
                           className={classes.undecoratedLink}
-                          view={Routes.reportedMessages}
+                          route={Routes.reportedMessages}
                     >
                         <MenuItem onClick={handleClick}>
                             <ListItemIcon>
@@ -58,9 +57,9 @@ export const ReportsMenuItem: FunctionComponent<ReportsMenuItemProps> = observer
                             </ListItemText>
                         </MenuItem>
                     </Link>
-                    <Link store={routerStore}
+                    <Link router={routerStore}
                           className={classes.undecoratedLink}
-                          view={Routes.reportedUsers}
+                          route={Routes.reportedMessages}
                     >
                         <MenuItem onClick={handleClick}>
                             <ListItemIcon>
@@ -71,9 +70,9 @@ export const ReportsMenuItem: FunctionComponent<ReportsMenuItemProps> = observer
                             </ListItemText>
                         </MenuItem>
                     </Link>
-                    <Link store={routerStore}
+                    <Link router={routerStore}
                           className={classes.undecoratedLink}
-                          view={Routes.reportedChats}
+                          route={Routes.reportedMessages}
                     >
                         <MenuItem onClick={handleClick}>
                             <ListItemIcon>

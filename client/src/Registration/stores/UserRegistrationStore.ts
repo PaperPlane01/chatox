@@ -1,4 +1,4 @@
-import {action, observable, reaction, computed} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {throttle} from "lodash";
 import {SendConfirmationCodeStore} from "./SendConfirmationCodeStore";
 import {RegistrationDialogStore} from "./RegistrationDialogStore";
@@ -19,7 +19,6 @@ import {isStringEmpty} from "../../utils/string-utils";
 import {CheckEmailConfirmationCodeStore} from "../../EmailConfirmation/stores";
 
 export class UserRegistrationStore {
-    @observable
     registrationForm: RegisterUserFormData = {
         username: "",
         password: "",
@@ -29,7 +28,6 @@ export class UserRegistrationStore {
         slug: undefined
     };
 
-    @observable
     registrationFormErrors: FormErrors<RegisterUserFormData> = {
         username: undefined,
         password: undefined,
@@ -39,30 +37,22 @@ export class UserRegistrationStore {
         lastName: undefined
     };
 
-    @observable
     checkingUsernameAvailability: boolean = false;
 
-    @observable
     checkingSlugAvailability: boolean = false;
 
-    @observable
     pending: boolean = false;
 
-    @observable
     submissionError?: ApiError = undefined;
 
-    @observable
     registrationResponse?: RegistrationResponse = undefined;
 
-    @observable
     displayPassword: boolean = false;
 
-    @computed
     get emailConfirmation(): EmailConfirmationCodeResponse | undefined {
         return this.sendEmailConfirmationCodeStore.emailConfirmationCodeResponse;
     }
 
-    @computed
     get emailVerificationCode(): string | undefined {
         return isStringEmpty(this.checkEmailConfirmationCodeStore.checkEmailConfirmationCodeForm.confirmationCode)
             ? undefined
@@ -73,6 +63,8 @@ export class UserRegistrationStore {
                 private readonly sendEmailConfirmationCodeStore: SendConfirmationCodeStore,
                 private readonly checkEmailConfirmationCodeStore: CheckEmailConfirmationCodeStore,
                 private readonly registrationDialogStore: RegistrationDialogStore) {
+        makeAutoObservable(this);
+
         this.checkUsernameAvailability = throttle(this.checkUsernameAvailability, 1000);
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 1000);
 
@@ -120,17 +112,14 @@ export class UserRegistrationStore {
         )
     }
 
-    @action
     setDisplayPassword = (displayPassword: boolean): void => {
         this.displayPassword = displayPassword;
     };
 
-    @action
     updateFormValue = <Key extends keyof RegisterUserFormData>(key: Key, value: RegisterUserFormData[Key]): void => {
         this.registrationForm[key] = value;
     };
 
-    @action
     registerUser = (): void => {
         this.validateForm().then(formValid => {
             if (formValid) {
@@ -175,7 +164,6 @@ export class UserRegistrationStore {
         })
     };
 
-    @action
     checkUsernameAvailability = (username: string): void => {
         this.checkingUsernameAvailability = true;
 
@@ -188,7 +176,6 @@ export class UserRegistrationStore {
             .finally(() => this.checkingUsernameAvailability = false);
     };
 
-    @action
     checkSlugAvailability = (slug: string): void => {
         this.checkingSlugAvailability = true;
 
@@ -204,7 +191,6 @@ export class UserRegistrationStore {
             .finally(() => this.checkingSlugAvailability = false)
     };
 
-    @action
     validateForm = (): Promise<boolean> => {
         return new Promise(resolve => {
             this.registrationFormErrors = {
@@ -223,7 +209,6 @@ export class UserRegistrationStore {
         });
     };
 
-    @action
     reset = (): void => {
         this.registrationForm =  {
             username: "",
@@ -246,5 +231,5 @@ export class UserRegistrationStore {
                 lastName: undefined
             }
         })
-    }
+    };
 }

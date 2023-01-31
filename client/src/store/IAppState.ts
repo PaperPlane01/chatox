@@ -243,6 +243,5 @@ export interface IAppState {
     emailChangeConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
     newEmailConfirmationCode: SendNewEmailConfirmationCodeStore,
     newEmailConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
-    emailUpdate: UpdateEmailStore,
-    store?: any
+    emailUpdate: UpdateEmailStore
 }

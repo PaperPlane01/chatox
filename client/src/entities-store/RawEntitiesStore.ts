@@ -1,9 +1,8 @@
-import {action, observable} from "mobx";
+import { action, observable, makeObservable } from "mobx";
 import {merge, union} from "lodash";
 import {Entities, EntitiesIds, EntitiesPatch, RawEntities} from "./types";
 
 export class RawEntitiesStore {
-    @observable
     entities: RawEntities = {
         messages: {},
         chats: {},
@@ -24,7 +23,6 @@ export class RawEntitiesStore {
         chatRoles: {}
     };
 
-    @observable
     ids: EntitiesIds = {
         messages: [],
         chats: [],
@@ -45,7 +43,6 @@ export class RawEntitiesStore {
         chatRoles: []
     };
 
-    @action
     applyPatch = (patch: EntitiesPatch): void => {
         merge(this.entities, patch.entities);
 
@@ -53,11 +50,19 @@ export class RawEntitiesStore {
             const entity = key as Entities;
             this.ids[entity] = union(this.ids[entity], patch.ids[entity]);
         });
-    }
+    };
 
-    @action
     deleteEntity = (entityName: Entities, id: string): void => {
         this.ids[entityName] = this.ids[entityName].filter(entityId => entityId !== id);
         delete this.entities[entityName][id];
+    };
+
+    constructor() {
+        makeObservable(this, {
+            entities: observable,
+            ids: observable,
+            applyPatch: action,
+            deleteEntity: action
+        });
     }
 }

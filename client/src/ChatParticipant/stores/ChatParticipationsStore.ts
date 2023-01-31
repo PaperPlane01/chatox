@@ -1,4 +1,4 @@
-import {action, computed} from "mobx";
+import {computed, makeObservable} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {mergeWith} from "lodash";
 import {ChatParticipationEntity} from "../types";
@@ -30,7 +30,6 @@ export class ChatParticipationsStore extends AbstractEntityStore<
     InsertChatParticipantOptions,
     DeleteChatParticipantOptions
     > {
-    @computed
     private get currentUser(): CurrentUser | undefined {
         return this.authorization.currentUser;
     }
@@ -39,6 +38,10 @@ export class ChatParticipationsStore extends AbstractEntityStore<
                 entities: EntitiesStore,
                 private readonly authorization: AuthorizationStore) {
         super(rawEntities, "chatParticipations", entities);
+
+        makeObservable<ChatParticipationsStore, "currentUser">(this, {
+            currentUser: computed
+        });
     }
 
     findByChat = createTransformer((chatId: string) => {
@@ -56,7 +59,6 @@ export class ChatParticipationsStore extends AbstractEntityStore<
         this.findByUserAndChat(options)
     ));
 
-    @action.bound
     deleteById(id: string, options?: DeleteChatParticipantOptions) {
         const chatParticipation = this.findByIdOptional(id);
 

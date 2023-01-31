@@ -1,9 +1,10 @@
 import {ChatLinkPropsGenerationStrategy, ChatOfCurrentUserEntity} from "../types";
 import {Routes} from "../../router";
+import {Route, RouteParams} from "mobx-router";
 
 interface ChatLinkProps {
-    view: any,
-    params: any
+    route: Route<any>,
+    params: RouteParams
 }
 
 interface ChatLinkPropsGeneratorParameters {
@@ -19,13 +20,13 @@ type ChatLinkPropsGenerators = {
 
 const chatLinkPropsGenerators: ChatLinkPropsGenerators = {
     chat: ({chat}) => ({
-        view: Routes.chatPage,
+        route: Routes.chatPage,
         params: {
             slug: chat.slug || chat.id
         }
     }),
     chatMessage: ({chat, messageId}) => ({
-        view: Routes.chatMessagePage,
+        route: Routes.chatMessagePage,
         params: {
             slug: chat.slug || chat.id,
             messageId

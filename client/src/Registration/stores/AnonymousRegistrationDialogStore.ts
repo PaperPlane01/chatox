@@ -1,4 +1,4 @@
-import {action, observable, reaction} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {RegisterAnonymousUserFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
@@ -6,28 +6,25 @@ import {AuthorizationStore} from "../../Authorization/stores";
 import {validateFirstName, validateLastName} from "../validation";
 
 export class AnonymousRegistrationDialogStore {
-    @observable
     anonymousRegistrationForm: RegisterAnonymousUserFormData = {
         firstName: "",
         lastName: undefined
-    }
+    };
 
-    @observable
     formErrors: FormErrors<RegisterAnonymousUserFormData> = {
         firstName: undefined,
         lastName: undefined
     };
 
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @observable
     anonymousRegistrationDialogOpen: boolean = false;
 
     constructor(private readonly authorizationStore: AuthorizationStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.anonymousRegistrationForm.firstName,
             firstName => this.formErrors.firstName = validateFirstName(firstName)
@@ -39,17 +36,14 @@ export class AnonymousRegistrationDialogStore {
         );
     }
 
-    @action
     setFormValue = <Key extends keyof RegisterAnonymousUserFormData>(key: Key, value: RegisterAnonymousUserFormData[Key]): void => {
         this.anonymousRegistrationForm[key] = value;
     };
 
-    @action
     setAnonymousRegistrationDialogOpen = (anonymousRegistrationDialogOpen: boolean): void => {
         this.anonymousRegistrationDialogOpen = anonymousRegistrationDialogOpen;
     };
 
-    @action
     registerAnonymousUser = (): void => {
         if (!this.validateForm()) {
             return;
@@ -78,7 +72,6 @@ export class AnonymousRegistrationDialogStore {
             .finally(() => this.pending = false);
     };
 
-    @action
     validateForm = (): boolean => {
         this.formErrors = {
             ...this.formErrors,
@@ -91,7 +84,6 @@ export class AnonymousRegistrationDialogStore {
         return !Boolean(firstName || lastName);
     };
 
-    @action
     reset = (): void => {
         this.setAnonymousRegistrationDialogOpen(false);
         this.anonymousRegistrationForm = {
@@ -102,5 +94,5 @@ export class AnonymousRegistrationDialogStore {
             () => this.formErrors = {firstName: undefined, lastName: undefined}
         );
         this.error = undefined;
-    }
+    };
 }

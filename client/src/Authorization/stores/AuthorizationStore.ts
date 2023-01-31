@@ -1,4 +1,4 @@
-import {action, computed, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 import {UserApi} from "../../api";
 import {CurrentUser, UserRole} from "../../api/types/response";
 import {EntitiesStore} from "../../entities-store";
@@ -6,16 +6,16 @@ import {tokenRefreshState} from "../../api/axios-instance";
 import {isGlobalBanActive} from "../../GlobalBan/utils";
 
 export class AuthorizationStore {
-    @observable
     currentUser?: CurrentUser = undefined;
 
-    @observable
     fetchingCurrentUser: boolean = false;
 
-    @observable
     loggingOut: boolean = false;
 
-    @computed
+    constructor() {
+       makeAutoObservable(this);
+    }
+
     get refreshingToken(): boolean {
         return tokenRefreshState.refreshingToken;
     }
@@ -26,7 +26,6 @@ export class AuthorizationStore {
         this.entities = entities;
     }
 
-    @action
     setCurrentUser = (currentUser: CurrentUser): void => {
         if (currentUser.globalBan) {
             this.entities.globalBans.insert(currentUser.globalBan);
@@ -43,13 +42,11 @@ export class AuthorizationStore {
         });
     };
 
-    @action
     setTokens = (accessToken: string, refreshToken: string): void => {
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
     };
 
-    @action
     fetchCurrentUser = (): Promise<void> => {
         this.fetchingCurrentUser = true;
 
@@ -58,7 +55,6 @@ export class AuthorizationStore {
             .finally(() => this.fetchingCurrentUser = false);
     };
 
-    @action
     logOut = (): void =>  {
         const accessToken = localStorage.getItem("accessToken");
         const refreshToken = localStorage.getItem("refreshToken");
@@ -79,9 +75,8 @@ export class AuthorizationStore {
         } else {
             this.currentUser = undefined;
         }
-    }
+    };
 
-    @computed
     get currentUserIsAdmin(): boolean {
         if (!this.currentUser) {
             return false;

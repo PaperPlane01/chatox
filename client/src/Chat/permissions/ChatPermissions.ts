@@ -1,4 +1,4 @@
-import {computed} from "mobx";
+import { computed, makeObservable } from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatOfCurrentUserEntity} from "../types";
 import {EntitiesStore} from "../../entities-store";
@@ -7,12 +7,10 @@ import {UserChatRolesStore} from "../../ChatRole";
 import {CurrentUser, UserRole} from "../../api/types/response";
 
 export class ChatPermissions {
-    @computed
     get currentUser(): CurrentUser | undefined {
         return this.authorization.currentUser;
     }
 
-    @computed
     get canCreateChat(): boolean {
         if (!this.currentUser) {
             return false;
@@ -24,6 +22,10 @@ export class ChatPermissions {
     constructor(private readonly entities: EntitiesStore,
                 private readonly authorization: AuthorizationStore,
                 private readonly userChatRoles: UserChatRolesStore) {
+        makeObservable(this, {
+            currentUser: computed,
+            canCreateChat: computed
+        });
     }
 
     canUpdateChat = createTransformer((chatId: string): boolean => {

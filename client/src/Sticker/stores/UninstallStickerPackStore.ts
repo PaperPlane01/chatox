@@ -1,18 +1,16 @@
-import {action, observable, runInAction} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {InstalledStickerPacksStore} from "./InstalledStickerPacksStore";
 import {StickerApi} from "../../api";
 
 export class UninstallStickerPackStore {
-    @observable
     pendingUninstallationsMap: {[stickerPackId: string]: boolean} = {};
 
-    @observable
     showSnackbar = false;
 
     constructor(private readonly installedStickerPacksStore: InstalledStickerPacksStore) {
+        makeAutoObservable(this);
     }
 
-    @action
     uninstallStickerPack = (stickerPackId: string): void => {
         this.pendingUninstallationsMap[stickerPackId] = true;
 
@@ -22,10 +20,9 @@ export class UninstallStickerPackStore {
                 this.setShowSnackbar(true);
             })
             .finally(() => runInAction(() => this.pendingUninstallationsMap[stickerPackId] = false));
-    }
+    };
 
-    @action
     setShowSnackbar = (showSnackbar: boolean): void => {
         this.showSnackbar = showSnackbar;
-    }
+    };
 }

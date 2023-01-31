@@ -1,12 +1,14 @@
-import {action, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 import {SettingsTab} from "../types";
 
 export class SettingsTabsStore {
-    @observable
     activeTab?: SettingsTab = undefined;
 
-    @action
+    constructor() {
+       makeAutoObservable(this);
+    }
+
     setActiveTab = (activeTab?: SettingsTab) => {
         this.activeTab = activeTab;
-    }
+    };
 }

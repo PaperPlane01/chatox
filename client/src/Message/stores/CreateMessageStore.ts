@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
 import {CreateMessageFormData} from "../types";
 import {validateMessageText} from "../validation";
@@ -7,48 +7,39 @@ import {FormErrors} from "../../utils/types";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {Routes} from "../../router";
+import {RouterStore} from "mobx-router";
 
 export class CreateMessageStore {
-    @observable
     createMessageForm: CreateMessageFormData = {
         text: "",
         scheduledAt: undefined
     };
 
-    @observable
     formErrors: FormErrors<CreateMessageFormData> = {
         text: undefined,
         scheduledAt: undefined
     };
 
-    @observable
     pending: boolean = false;
 
-    @observable
     submissionError?: ApiError = undefined;
 
-    @observable
     referredMessageId?: string = undefined;
 
-    @observable
     emojiPickerExpanded: boolean = false;
 
-    @observable
     userId?: string = undefined;
 
-    @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
     };
 
-    @computed
     get attachmentsIds(): string[] {
         return this.messageUploads.messageAttachmentsFiles
             .filter(fileContainer => fileContainer.uploadedFile !== undefined && fileContainer.uploadedFile !== null)
             .map(fileContainer => fileContainer.uploadedFile!.id!)
     };
 
-    @computed
     get shouldSendReferredMessageId(): boolean {
         if (this.referredMessageId && this.selectedChatId) {
             const referredMessage = this.entities.messages.findById(this.referredMessageId);
@@ -59,12 +50,13 @@ export class CreateMessageStore {
         return false;
     };
 
-    private routerStore: any;
+    private routerStore: RouterStore<any>;
 
-    constructor(
-        private readonly chatStore: ChatStore,
-        private readonly entities: EntitiesStore,
-        private readonly messageUploads: UploadMessageAttachmentsStore) {
+    constructor(private readonly chatStore: ChatStore,
+                private readonly entities: EntitiesStore,
+                private readonly messageUploads: UploadMessageAttachmentsStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.createMessageForm.text,
             text => runInAction(() => {
@@ -73,26 +65,22 @@ export class CreateMessageStore {
         );
     };
 
-    setRouterStore = (routerStore: any): void => {
+    setRouterStore = (routerStore: RouterStore<any>): void => {
         this.routerStore = routerStore;
     }
 
-    @action
     setUserId = (userId?: string): void => {
         this.userId = userId;
-    }
+    };
 
-    @action
     setReferredMessageId = (referredMessageId?: string): void => {
         this.referredMessageId = referredMessageId;
-    }
+    };
 
-    @action
     setFormValue = <Key extends keyof CreateMessageFormData>(key: Key, value: CreateMessageFormData[Key]): void => {
         this.createMessageForm[key] = value;
-    }
+    };
 
-    @action
     sendSticker = (stickerId: string): void => {
         if (!this.selectedChatId || this.pending) {
             return;
@@ -110,9 +98,8 @@ export class CreateMessageStore {
             .then(({data}) => this.entities.messages.insert(data))
             .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.pending = false));
-    }
+    };
 
-    @action
     createMessage = (): void => {
         if (!this.selectedChatId ) {
             if (!this.userId) {
@@ -139,9 +126,9 @@ export class CreateMessageStore {
                     if (!this.createMessageForm.scheduledAt) {
                         this.entities.messages.insert(data);
                     } else {
-                        if (this.routerStore && this.routerStore.router && this.routerStore.router.goTo) {
+                        if (this.routerStore) {
                             const chat = this.entities.chats.findById(chatId);
-                            this.routerStore.router.goTo(Routes.scheduledMessagesPage, {
+                            this.routerStore.goTo(Routes.scheduledMessagesPage, {
                                 slug: chat.slug ? chat.slug : chatId
                             });
                         }
@@ -165,18 +152,17 @@ export class CreateMessageStore {
                 .then(({data}) => {
                     this.entities.chats.insert(data);
 
-                    if (this.routerStore && this.routerStore.router.goTo) {
-                        this.routerStore.router.goTo(Routes.chatPage, {
+                    if (this.routerStore) {
+                        this.routerStore.goTo(Routes.chatPage, {
                             slug: data.id
-                        }, {}, {});
+                        }, {});
                     }
                 })
                 .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
                 .finally(() => runInAction(() => this.pending = false))
         }
-    }
+    };
 
-    @action
     validateForm = (): boolean => {
         this.formErrors = {
             ...this.formErrors,
@@ -186,9 +172,8 @@ export class CreateMessageStore {
         };
 
         return !this.formErrors.text;
-    }
+    };
 
-    @action
     resetForm = (): void => {
         this.createMessageForm = {
             text: ""
@@ -202,8 +187,7 @@ export class CreateMessageStore {
         })
     };
 
-    @action
     setEmojiPickerExpanded = (emojiPickerExpanded: boolean): void => {
         this.emojiPickerExpanded = emojiPickerExpanded;
-    }
+    };
 }

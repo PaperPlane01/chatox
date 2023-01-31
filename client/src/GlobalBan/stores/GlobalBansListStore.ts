@@ -1,4 +1,4 @@
-import {action, observable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, GlobalBanApi} from "../../api";
 import {GlobalBanFilters} from "../../api/types/request";
 import {PaginationWithSortingState} from "../../utils/types";
@@ -16,22 +16,20 @@ const INITIAL_PAGINATION_STATE: PaginationWithSortingState = {
 };
 
 export class GlobalBansListStore {
-    @observable
     globalBanIds: string[] = [];
 
-    @observable
     error?: ApiError = undefined;
 
-    @observable
     filters: GlobalBanFilters = {
         excludeExpired: true,
         excludeCanceled: true
     };
 
-    @observable
     paginationState: PaginationWithSortingState = INITIAL_PAGINATION_STATE;
 
     constructor(private readonly entities: EntitiesStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.filters.excludeCanceled,
             () => this.resetAndFetch()
@@ -43,7 +41,6 @@ export class GlobalBansListStore {
         );
     }
 
-    @action
     fetchGlobalBans = (): void => {
         this.paginationState.pending = true;
         this.error = undefined;
@@ -77,22 +74,19 @@ export class GlobalBansListStore {
             }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.paginationState.pending = false));
-    }
+    };
 
-    @action
     setFilterValue = <Key extends keyof GlobalBanFilters>(key: Key, value: GlobalBanFilters[Key]): void => {
         this.filters[key] = value;
-    }
+    };
 
-    @action
     resetAndFetch = (): void => {
         this.reset();
         this.fetchGlobalBans();
-    }
+    };
 
-    @action
     reset = (): void => {
         this.globalBanIds = [];
         this.paginationState = INITIAL_PAGINATION_STATE;
-    }
+    };
 }

@@ -1,4 +1,4 @@
-import {action, observable, reaction} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {BlockUsersFeatureFormStore} from "./BlockUsersFeatureFormStore";
 import {SendMessagesFeatureFormStore} from "./SendMessagesFeatureFormStore";
 import {DefaultChatFeatureFormStore} from "./DefaultChatFeatureFormStore";
@@ -27,10 +27,11 @@ interface FeaturesForms {
 export class ChatFeaturesFormStore {
     featuresForms: FeaturesForms;
 
-    @observable
     roleId?: string = undefined;
 
     private constructor(featuresForms: FeaturesForms) {
+        makeAutoObservable(this);
+
         this.featuresForms = featuresForms;
 
         reaction(
@@ -47,22 +48,19 @@ export class ChatFeaturesFormStore {
         );
     }
 
-    @action
     setRoleId = (roleId?: string): void => {
         this.roleId = roleId;
-    }
+    };
 
-    @action
     clearRoleId = (): void => this.setRoleId(undefined);
 
-    @action
     validateForms = (): boolean => {
         return this
             .getFeatureFormsArray()
             .map(form => form.validateForm())
             .filter(formValid => !formValid)
             .length === 0;
-    }
+    };
 
     convertToApiRequest = (): ChatFeatures => {
         const chatFeatures: any = {};

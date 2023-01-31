@@ -1,4 +1,4 @@
-import {action, observable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {throttle} from "lodash";
 import {CreateChatFormData, TagErrorsMapContainer} from "../types";
 import {
@@ -15,7 +15,6 @@ import {ChatOfCurrentUser} from "../../api/types/response";
 import {EntitiesStore} from "../../entities-store";
 
 export class CreateChatStore {
-    @observable
     createChatForm: CreateChatFormData = {
         description: "",
         name: "",
@@ -23,10 +22,8 @@ export class CreateChatStore {
         tags: []
     };
 
-    @observable
     currentTag: string = "";
 
-    @observable
     formErrors: FormErrors<CreateChatFormData> & TagErrorsMapContainer = {
         description: undefined,
         name: undefined,
@@ -35,22 +32,19 @@ export class CreateChatStore {
         tagErrorsMap: {}
     };
 
-    @observable
     createdChat?: ChatOfCurrentUser = undefined;
 
-    @observable
     submissionError?: ApiError = undefined;
 
-    @observable
     pending: boolean = false;
 
-    @observable
     checkingSlugAvailability: boolean = false;
 
-    @observable
     createChatDialogOpen: boolean = false;
 
     constructor(private readonly entities: EntitiesStore) {
+       makeAutoObservable(this);
+
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300);
 
         reaction(
@@ -75,22 +69,18 @@ export class CreateChatStore {
         )
     }
 
-    @action
     setFormValue = <Key extends keyof CreateChatFormData>(key: Key, value: CreateChatFormData[Key]): void => {
         this.createChatForm[key] = value;
     };
 
-    @action
     setCreateChatDialogOpen = (createChatDialogOpen: boolean) => {
         this.createChatDialogOpen = createChatDialogOpen;
     };
 
-    @action
     setCurrentTag = (currentTag: string): void => {
         this.currentTag = currentTag;
     };
 
-    @action
     addTag = (tag: string) => {
         if (tag.trim().length !== 0) {
             if (this.createChatForm.tags.includes(tag)) {
@@ -103,12 +93,10 @@ export class CreateChatStore {
         }
     };
 
-    @action
     removeTagByIndex = (index: number) => {
         this.createChatForm.tags = this.createChatForm.tags.filter((tag, tagIndex) => tagIndex !== index);
     };
 
-    @action
     createChat = (): void => {
         this.validateForm().then(formValid => {
             if (formValid) {
@@ -131,7 +119,6 @@ export class CreateChatStore {
         })
     };
 
-    @action
     validateForm = (): Promise<boolean> => {
         return new Promise<boolean>(resolve => {
             this.formErrors = {
@@ -157,7 +144,6 @@ export class CreateChatStore {
         })
     };
 
-    @action
     checkSlugAvailability = (slug: string): void => {
         this.checkingSlugAvailability = true;
 
@@ -170,7 +156,6 @@ export class CreateChatStore {
             .finally(() => this.checkingSlugAvailability = false);
     };
 
-    @action
     reset = (): void => {
         this.createdChat = undefined;
         this.createChatForm = {
@@ -191,5 +176,5 @@ export class CreateChatStore {
                 tagErrorsMap: {}
             };
         })
-    }
+    };
 }

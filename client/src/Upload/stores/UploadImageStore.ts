@@ -1,4 +1,4 @@
-import {action, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ApiError, getInitialApiErrorFromResponse, UploadApi} from "../../api";
 import {ImageUploadMetadata, UploadType} from "../../api/types/response";
@@ -8,21 +8,18 @@ import {Labels} from "../../localization";
 const IMAGE_MAX_SIZE = Number(process.env.REACT_APP_IMAGE_MAX_SIZE);
 
 export class UploadImageStore {
-    @observable
     imageContainer?: UploadedFileContainer<ImageUploadMetadata> = undefined;
 
-    @observable
     validationError?: keyof Labels = undefined;
 
-    @observable
     submissionError?: ApiError = undefined;
 
-    @observable
     pending: boolean = false;
 
-    constructor(private readonly entities: EntitiesStore) {}
+    constructor(private readonly entities: EntitiesStore) {
+        makeAutoObservable(this);
+    }
 
-    @action
     uploadFile = (file: File): void => {
         this.imageContainer = new UploadedFileContainer<ImageUploadMetadata>(file, UploadType.IMAGE);
 
@@ -49,7 +46,6 @@ export class UploadImageStore {
             });
     };
 
-    @action
     validateFile = (): boolean => {
         this.validationError = undefined;
 
@@ -61,5 +57,5 @@ export class UploadImageStore {
         }
 
         return true;
-    }
+    };
 }

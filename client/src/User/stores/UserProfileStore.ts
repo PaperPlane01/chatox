@@ -1,20 +1,18 @@
-import {action, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 
 export class UserProfileStore {
-    @observable
     selectedUserId?: string = undefined;
 
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    constructor(private readonly entities: EntitiesStore) {}
+    constructor(private readonly entities: EntitiesStore) {
+       makeAutoObservable(this);
+    }
 
-    @action
     setSelectedUser = (slug: string): void => {
         const user = this.entities.users.findByIdOrSlug(slug);
 
@@ -33,5 +31,5 @@ export class UserProfileStore {
                 .catch(error => this.error = getInitialApiErrorFromResponse(error))
                 .finally(() => this.pending = false);
         }
-    }
+    };
 }

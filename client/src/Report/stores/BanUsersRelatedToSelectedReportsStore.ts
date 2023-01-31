@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction} from "mobx";
+import {action, computed, makeAutoObservable, makeObservable, observable, reaction} from "mobx";
 import {UpdateSelectedReportsStore} from "./UpdateSelectedReportsStore";
 import {ReportsListStore} from "./ReportsListStore";
 import {CalculateUsersIdsToBanFunction} from "../types";
@@ -27,13 +27,10 @@ const INITIAL_FORM_ERRORS: FormErrors<BanUserFormData> = {
 };
 
 export class BanUsersRelatedToSelectedReportsStore extends AbstractFormStore<BanUserFormData> {
-    @observable
     banUsersDialogOpen: boolean = false;
 
-    @observable
     showSnackbar: boolean = false;
 
-    @computed
     get usersIdsToBan(): string[] {
         return this.bannedUsersSelector(this.reportsListStore.selectedReportsIds, this.entities);
     }
@@ -43,6 +40,16 @@ export class BanUsersRelatedToSelectedReportsStore extends AbstractFormStore<Ban
                 private readonly updateSelectedReportsStore: UpdateSelectedReportsStore,
                 private readonly bannedUsersSelector: CalculateUsersIdsToBanFunction) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
+
+        makeObservable<BanUsersRelatedToSelectedReportsStore, "usersIdsToBan" | "validateForm">(this, {
+            banUsersDialogOpen: observable,
+            showSnackbar: observable,
+            usersIdsToBan: computed,
+            setBanUsersDialogOpen: action,
+            setShowSnackbar: action,
+            submitForm: action.bound,
+            validateForm: action.bound
+        });
 
         reaction(
             () => this.formValues.expiresAt,
@@ -55,17 +62,14 @@ export class BanUsersRelatedToSelectedReportsStore extends AbstractFormStore<Ban
         );
     }
 
-    @action
     setBanUsersDialogOpen = (banUsersDialogOpen: boolean): void => {
         this.banUsersDialogOpen = banUsersDialogOpen;
-    }
+    };
 
-    @action
     setShowSnackbar = (showSnackbar: boolean): void => {
         this.showSnackbar = showSnackbar;
-    }
+    };
 
-    @action.bound
     public submitForm(): void {
         if (!this.validateForm()) {
             return;
@@ -95,7 +99,6 @@ export class BanUsersRelatedToSelectedReportsStore extends AbstractFormStore<Ban
             .finally(() => this.pending = false);
     }
 
-    @action.bound
     protected validateForm(): boolean {
         this.formErrors = {
             reason: undefined,

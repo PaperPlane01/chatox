@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction} from "mobx";
+import {action, computed, makeAutoObservable, makeObservable, observable, reaction} from "mobx";
 import {StickerContainer} from "./StickerContainer";
 import {CreateStickerPackFormData} from "../types";
 import {validateStickerPackDescription, validateStickerPackName} from "../validation";
@@ -23,22 +23,33 @@ const INITIAL_FORM_ERRORS: FormErrors<CreateStickerPackFormData> = {
 };
 
 export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackFormData> {
-    @observable
     stickerDialogOpen = false;
 
-    @observable
     editedStickerId?: string = undefined;
 
-    @observable
     stickerUnderCreation?: StickerContainer = undefined;
 
-    @computed
     get stickerContainers(): StickerContainer[] {
         return Object.keys(this.formValues.stickers).map(stickerLocalId => this.formValues.stickers[stickerLocalId])
     }
 
     constructor(private readonly entities: EntitiesStore) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
+
+        makeObservable<CreateStickerPackStore, "validateForm">(this, {
+            stickerDialogOpen: observable,
+            editedStickerId: observable,
+            stickerUnderCreation: observable,
+            stickerContainers: computed,
+            initiateStickerCreation: action,
+            clearStickerUnderCreation: action,
+            addSticker: action,
+            removeSticker: action,
+            setStickerDialogOpen: action,
+            setEditedStickerId: action,
+            submitForm: action.bound,
+            validateForm: action.bound
+        });
 
         reaction(
             () => this.formValues.name,
@@ -51,38 +62,31 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
         );
     }
 
-    @action
     initiateStickerCreation = (): void => {
         this.stickerUnderCreation = new StickerContainer(new UploadImageStore(this.entities));
         this.setStickerDialogOpen(true);
-    }
+    };
 
-    @action
     clearStickerUnderCreation = (): void => {
         this.stickerUnderCreation = undefined;
-    }
+    };
 
-    @action
     addSticker = (sticker: StickerContainer): void => {
         this.formValues.stickers[sticker.localId] = sticker;
-    }
+    };
 
-    @action
     removeSticker = (stickerId: string): void => {
         delete this.formValues.stickers[stickerId];
-    }
+    };
 
-    @action
     setStickerDialogOpen = (stickerDialogOpen: boolean): void => {
         this.stickerDialogOpen = stickerDialogOpen;
-    }
+    };
 
-    @action
     setEditedStickerId = (id?: string): void => {
         this.editedStickerId = id;
-    }
+    };
 
-    @action.bound
     public submitForm(): void {
         if (!this.validateForm()) {
             return;
@@ -111,7 +115,6 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
             .finally(() => this.setPending(false));
     }
 
-    @action.bound
     protected validateForm(): boolean {
         this.formErrors = {
             description: validateStickerPackDescription(this.formValues.description),

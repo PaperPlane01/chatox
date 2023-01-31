@@ -71,16 +71,14 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
             : {emojiPickerExpanded: true};
 
         if (chat) {
-            routerStore.router.goTo(
+            routerStore.goTo(
                 Routes.chatPage,
                 {slug: chat!.slug || chat!.id},
-                {},
                 queryParameters
             )
         } else if (userId) {
-            routerStore.router.goTo(
+            routerStore.goTo(
                 Routes.newPrivateChat,
-                {},
                 {},
                 queryParameters
             );
