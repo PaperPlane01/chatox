@@ -1,4 +1,4 @@
-import { action, computed, observable, makeObservable } from "mobx";
+import {action, computed, observable, makeObservable, override} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {mergeWith} from "lodash";
 import {ChatOfCurrentUserEntity} from "../types";
@@ -55,6 +55,9 @@ export class ChatsStore extends SoftDeletableEntityStore<
             removeScheduledMessageFromChat: action,
             increaseChatParticipantsCount: action,
             decreaseChatParticipantsCount: action,
+            deleteById: override,
+            insert: override,
+            insertEntity: override
         });
     }
 
