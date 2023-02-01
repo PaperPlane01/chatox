@@ -136,6 +136,7 @@ import {
     UpdateEmailDialogStore,
     UpdateEmailStore
 } from "../EmailUpdate";
+import {ThemeStore} from "../Theme";
 
 const rawEntities = new RawEntitiesStore();
 const authorization = new AuthorizationStore();
@@ -312,6 +313,7 @@ const emailUpdate = new UpdateEmailStore(
     language,
     snackbarService
 );
+const theme = new ThemeStore();
 
 export const store: IAppState = {
     authorization,
@@ -430,5 +432,6 @@ export const store: IAppState = {
     emailChangeConfirmationCodeCheck,
     newEmailConfirmationCode,
     newEmailConfirmationCodeCheck,
-    emailUpdate
+    emailUpdate,
+    theme
 };

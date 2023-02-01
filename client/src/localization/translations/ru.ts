@@ -543,5 +543,11 @@ export const ru: Labels = {
     "email.change.confirm": "Подвердите смену email",
     "email.change.confirm.code-will-be-sent": "Мы отправим под подтверждения на ваш текущий адрес {email}",
     "email.update.in-progress": "Обновление email в процессе. Пожалуйста, подождите",
-    "email.update.enter-new-email": "Введите новый email"
+    "email.update.enter-new-email": "Введите новый email",
+    "theme": "Цветовая тема",
+    "theme.cyan": "Циан",
+    "theme.purple": "Пурпурный",
+    "theme.red": "Красный",
+    "theme.darkBlue": "Тёмно-синий",
+    "theme.lightBlue": "Голубой"
 };

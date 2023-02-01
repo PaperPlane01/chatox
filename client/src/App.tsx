@@ -8,9 +8,9 @@ import rgbToHex from "rgb-hex";
 import "yet-another-react-lightbox/dist/styles.css";
 import {SnackbarProvider} from "notistack";
 import {MobxRouter} from "mobx-router";
-import {cyan} from "./themes";
+import {themes} from "./themes";
 import {LoadingCurrentUserProgressIndicator} from "./Authorization";
-import {useLocalization, rootStore} from "./store";
+import {useLocalization, rootStore, useStore} from "./store";
 import {AudioPlayerContainer} from "./AudioPlayer";
 import {ErrorBoundary} from "./ErrorBoundary";
 import {AnonymousRegistrationDialog} from "./Registration";
@@ -18,6 +18,15 @@ import {SnackbarManager} from "./Snackbar";
 
 export const App: FunctionComponent = observer(() => {
     const {dateFnsLocale} = useLocalization();
+    const {
+        theme: {
+            currentTheme
+        }
+    } = useStore();
+    const theme = themes[currentTheme];
+    const headerColor = theme.palette.primary.main.startsWith("#")
+        ? theme.palette.primary.main
+        : `#${rgbToHex(theme.palette.primary.main)}`;
 
     return (
         <ErrorBoundary>
@@ -26,11 +35,11 @@ export const App: FunctionComponent = observer(() => {
                                      adapterLocale={dateFnsLocale}
                >
                    <Helmet>
-                       <meta name="theme-color" content={`#${rgbToHex(cyan.palette.primary.main)}`}/>
+                       <meta name="theme-color" content={headerColor}/>
                    </Helmet>
                    <SnackbarProvider maxSnack={3}>
                        <StyledEngineProvider injectFirst>
-                           <ThemeProvider theme={cyan}>
+                           <ThemeProvider theme={theme}>
                                <LoadingCurrentUserProgressIndicator/>
                                <CssBaseline/>
                                <MobxRouter store={rootStore}/>

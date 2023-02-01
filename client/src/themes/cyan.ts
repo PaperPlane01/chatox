@@ -1,4 +1,5 @@
 import {createTheme} from "@mui/material";
+import {createStyleOverride} from "./common";
 
 const PRIMARY_MAIN = "rgba(0, 131, 143, 1)";
 
@@ -36,24 +37,5 @@ export const cyan = createTheme({
             disabled: "rgba(0, 0, 0, 0.38)"
         }
     },
-    components: {
-        MuiCssBaseline: {
-            styleOverrides: {
-                ".emoji-mart-anchor-bar": {
-                    backgroundColor: `${PRIMARY_MAIN} !important`
-                },
-                ".emoji-mart-anchor-selected": {
-                    color: `${PRIMARY_MAIN} !important`
-                },
-                ".yarl__portal": {
-                    zIndex: "1500 !important"
-                }
-            }
-        },
-        MuiUseMediaQuery: {
-            defaultProps: {
-                noSsr: true
-            }
-        }
-    }
+    components: createStyleOverride(PRIMARY_MAIN)
 });

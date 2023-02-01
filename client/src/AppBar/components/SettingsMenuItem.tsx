@@ -32,7 +32,7 @@ export const SettingsMenuItem: FunctionComponent<SettingsMenuItemProps> = observ
     return (
         <Link className={classes.undecoratedLink}
               router={routerStore}
-              route={Routes.reportedMessages}
+              route={Routes.settingsPage}
         >
             <MenuItem onClick={handleClick}>
                 <ListItemIcon>
