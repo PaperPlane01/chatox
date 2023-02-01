@@ -542,4 +542,10 @@ export interface Labels {
     "email.change.confirm.code-will-be-sent": string,
     "email.update.in-progress": string,
     "email.update.enter-new-email": string,
+    "theme": string,
+    "theme.cyan": string,
+    "theme.purple": string,
+    "theme.red": string,
+    "theme.darkBlue": string,
+    "theme.lightBlue": string
 }

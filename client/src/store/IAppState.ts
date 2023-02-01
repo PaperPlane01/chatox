@@ -125,6 +125,7 @@ import {
     UpdateEmailDialogStore,
     UpdateEmailStore
 } from "../EmailUpdate";
+import {ThemeStore} from "../Theme";
 
 export interface IAppState {
     language: LocaleStore,
@@ -243,5 +244,6 @@ export interface IAppState {
     emailChangeConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
     newEmailConfirmationCode: SendNewEmailConfirmationCodeStore,
     newEmailConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
-    emailUpdate: UpdateEmailStore
+    emailUpdate: UpdateEmailStore,
+    theme: ThemeStore
 }

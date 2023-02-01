@@ -6,9 +6,9 @@ import {ChatBubble, Image, Language, Palette, Person, Security} from "@mui/icons
 import {Link} from "mobx-router";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
 import {SecurityTabWrapper} from "./SecurityTabWrapper";
+import {AppearanceTabWrapper} from "./AppearanceTabWrapper";
 import {SettingsTab} from "../types";
 import {EditProfileForm} from "../../User";
-import {EmojiSetPicker} from "../../Emoji";
 import {LanguagePicker} from "../../localization";
 import {Routes} from "../../router";
 import {useLocalization, useRouter, useStore} from "../../store";
@@ -139,7 +139,7 @@ export const SettingsMenu: FunctionComponent = observer(() => {
             <SettingsFullScreenDialog title={l("settings.appearance")}
                                       open={activeTab === SettingsTab.APPEARANCE}
             >
-                <EmojiSetPicker/>
+                <AppearanceTabWrapper/>
             </SettingsFullScreenDialog>
             <SettingsFullScreenDialog title={l("settings.chats")}
                                       open={activeTab === SettingsTab.CHATS}

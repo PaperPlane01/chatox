@@ -3,19 +3,18 @@ import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem, Tab, Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
-import {Language, Palette, Person, Security, ChatBubble, Image, Block} from "@mui/icons-material";
+import {Block, ChatBubble, Image, Language, Palette, Person, Security} from "@mui/icons-material";
+import {SecurityTabWrapper} from "./SecurityTabWrapper";
+import {AppearanceTabWrapper} from "./AppearanceTabWrapper";
 import {SettingsTab} from "../types";
 import {HasAnyRole, HasRole} from "../../Authorization";
-import {EditProfileForm, ChangePasswordContainer} from "../../User";
-import {EmojiSetPicker} from "../../Emoji";
+import {EditProfileForm} from "../../User";
 import {ChatsPreferencesCard} from "../../Chat";
 import {LanguagePicker} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {InstalledStickerPacksList} from "../../Sticker";
 import {BlacklistedUsersList} from "../../Blacklist";
-import {EditEmailContainer} from "../../EmailUpdate";
-import {SecurityTabWrapper} from "./SecurityTabWrapper";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     undecoratedLink: {
@@ -168,7 +167,7 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                 <TabPanel value={SettingsTab.APPEARANCE}
                           className={classes.fullWidth}
                 >
-                    <EmojiSetPicker/>
+                    <AppearanceTabWrapper/>
                 </TabPanel>
                 <TabPanel value={SettingsTab.SECURITY}
                           className={classes.fullWidth}

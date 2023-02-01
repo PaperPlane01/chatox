@@ -543,5 +543,11 @@ export const en: Labels = {
     "email.change.confirm": "Confirm email change",
     "email.change.confirm.code-will-be-sent": "We well send an email with a confirmation code to your current email address {email}",
     "email.update.in-progress": "We are updating your email. Please wait",
-    "email.update.enter-new-email": "Enter new email"
+    "email.update.enter-new-email": "Enter new email",
+    "theme": "Color theme",
+    "theme.cyan": "Cyan",
+    "theme.purple": "Purple",
+    "theme.red": "Red",
+    "theme.darkBlue": "Dark blue",
+    "theme.lightBlue": "Light blue"
 };

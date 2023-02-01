@@ -106,7 +106,7 @@ export const Routes = {
         },
         onParamsChange: (view: any, params: any, _: any, queryParams: any) => {
             store.chat.setSelectedChat(params.slug);
-            store.messageCreation.setEmojiPickerExpanded(`${queryParams.emojiPickerExpanded}` === "true");
+            store.messageCreation.setEmojiPickerExpanded(`${queryParams && queryParams.emojiPickerExpanded}` === "true");
             store.messagesSearch.reset();
         },
         onExit: () => {
