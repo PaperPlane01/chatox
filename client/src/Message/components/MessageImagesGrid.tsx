@@ -1,9 +1,8 @@
-import React, {FunctionComponent, memo, useCallback, useEffect, useRef, useState} from "react";
+import React, {FunctionComponent, useCallback, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import PhotoAlbum, {Photo} from "react-photo-album";
 import {Lightbox} from "yet-another-react-lightbox";
 import {useStore} from "../../store";
-import {toJS} from "mobx";
 
 interface MessageImagesGridProps {
     imagesIds: string[],
@@ -17,7 +16,7 @@ let imagesCache: {[id: string]: string} = {};
 
 window.addEventListener("resize", () => heightCache = {});
 
-const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer(({
+export const MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer(({
     imagesIds,
     messageId,
     onImagesLoaded
@@ -94,7 +93,7 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
         >
             <PhotoAlbum photos={images}
                         layout="rows"
-                        onClick={(event, photo, index) => openLightbox(index)}
+                        onClick={({index}) => openLightbox(index)}
                         rowConstraints={{
                             maxPhotos: 2
                         }}
@@ -121,5 +120,3 @@ const _MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = observer((
         </div>
     );
 });
-
-export const MessageImagesGrid = memo(_MessageImagesGrid);

@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent, memo, ReactNode, useEffect, useRef, useState} from "react";
+import React, {Fragment, FunctionComponent, ReactNode, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {Card, CardActions, CardContent, CardHeader, Theme, Tooltip, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -23,7 +23,6 @@ import {TranslationFunction} from "../../localization";
 import {MessageEntity} from "../types";
 import {UserEntity} from "../../User";
 import {getChatRoleTranslation} from "../../ChatRole/utils";
-import {toJS} from "mobx";
 
 interface MessagesListItemProps {
     messageId: string,
@@ -84,7 +83,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         [theme.breakpoints.down("md")]: {
             maxWidth: "80%"
         },
-        overflowX: "auto"
+        overflowX: "auto",
+        transition: "none"
     },
     messageCardFullWidth: {
         borderRadius: 8,
@@ -157,6 +157,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     senderChatRole: {
         paddingLeft: theme.spacing(1),
         paddingTop: theme.spacing(0.5)
+    },
+    hack: {
+        contentVisibility: "auto",
+        containIntrinsicSize: "auto 160px"
     }
 }));
 
@@ -164,7 +168,7 @@ let messageCardDimensionsCache: {[messageId: string]: {width: number, height: nu
 
 window.addEventListener("resize", () => messageCardDimensionsCache = {});
 
-const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
+export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     messageId,
     fullWidth = false,
     onMenuItemClick,
@@ -180,6 +184,9 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     const {
         markMessageRead: {
             addMessageToQueue
+        },
+        chatsPreferences: {
+            enableVirtualScroll
         }
     } = useStore();
     const {
@@ -213,17 +220,19 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
 
     useEffect(
         () => {
-            if (messagesListItemRef.current && allImagesLoaded && stickerLoaded) {
-                setWidth(messagesListItemRef.current.getBoundingClientRect().width);
-                setHeight(messagesListItemRef.current.getBoundingClientRect().height);
+            setTimeout(() => {
+                if (messagesListItemRef.current && allImagesLoaded && stickerLoaded) {
+                    setWidth(messagesListItemRef.current.getBoundingClientRect().width);
+                    setHeight(messagesListItemRef.current.getBoundingClientRect().height);
 
-                if (!messageCardDimensionsCache[messageId]) {
-                    messageCardDimensionsCache[messageId] = {
-                        width: width!,
-                        height: height!
+                    if (!messageCardDimensionsCache[messageId]) {
+                        messageCardDimensionsCache[messageId] = {
+                            width: width!,
+                            height: height!
+                        }
                     }
                 }
-            }
+            }, 300);
         }, [allImagesLoaded, stickerLoaded, messageId, width, height]
     );
 
@@ -253,12 +262,13 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         [classes.messageCard]: !fullWidth,
         [classes.messageOfCurrentUserCard]: sentByCurrentUser,
         [classes.withCode]: containsCode,
-        [classes.withOneImage]: withAudio,
+        [classes.withOneImage]: withAudio
     });
     const wrapperClasses = clsx({
         [classes.messageListItemWrapper]: true,
         [classes.messageOfCurrentUserListItemWrapper]: sentByCurrentUser && !fullWidth,
-        [classes.inverted]: inverted
+        [classes.inverted]: inverted,
+        [classes.hack]: !enableVirtualScroll
     });
     const userAvatarLinkClasses = clsx({
         [classes.undecoratedLink]: true,
@@ -398,5 +408,3 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         </ReactVisibilitySensor>
     );
 });
-
-export const MessagesListItem = memo(_MessagesListItem);
