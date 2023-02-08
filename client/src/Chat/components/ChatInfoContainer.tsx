@@ -3,7 +3,6 @@ import {observer} from "mobx-react";
 import {Theme} from "@mui/material";
 import {createStyles, makeStyles, useTheme} from "@mui/styles";
 import {ChatDescription} from "./ChatDescription";
-import {VirtualScrollElement} from "../types";
 import {ChatParticipantsCard, useChatParticipantsListScroll} from "../../ChatParticipant";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -24,10 +23,8 @@ export const ChatInfoContainer: FunctionComponent = observer(() => {
         onLargeScreen,
         enableVirtualScroll,
         scrollHandler,
-        virtualScrollElement
     } = useChatParticipantsListScroll("online");
-    const shouldHandleScroll = onLargeScreen && enableVirtualScroll
-        && virtualScrollElement === VirtualScrollElement.MESSAGES_LIST;
+    const shouldHandleScroll = onLargeScreen && enableVirtualScroll;
     const style: CSSProperties | undefined = shouldHandleScroll
         ? ({
             overflowY: "auto",

@@ -5,7 +5,7 @@ import {SearchMessagesStore} from "./SearchMessagesStore";
 import {createSortMessages} from "../utils";
 import {ChatMessagesFetchingStateMap, MessageEntity} from "../types";
 import {EntitiesStore} from "../../entities-store";
-import {ChatsPreferencesStore, ChatStore, ReverseScrollDirectionOption} from "../../Chat";
+import {ChatsPreferencesStore, ChatStore} from "../../Chat";
 import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api";
 import {Message} from "../../api/types/response";
@@ -19,43 +19,17 @@ export class MessagesOfChatStore {
         return this.chatStore.selectedChatId;
     }
 
-    get messagesListReverted(): boolean {
-        return this.chatPreferencesStore.enableVirtualScroll
-            && this.chatPreferencesStore.reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE
-    }
-
     get messagesOfChat(): string[] {
         if (this.selectedChatId) {
             const messages = this.isInSearchMode
                 ? this.searchMessagesStore.foundMessagesIds
                 : this.entities.chats.findById(this.selectedChatId).messages;
             return messages.slice().sort(createSortMessages(
-                this.entities.messages.findById,
-                this.messagesListReverted
+                this.entities.messages.findById
             ));
         } else {
             return [];
         }
-    }
-
-    get firstMessage(): MessageEntity | undefined {
-        if (!this.selectedChatId) {
-            return undefined;
-        }
-
-        const messages = this.isInSearchMode
-            ? this.entities.chats.findById(this.selectedChatId).messages
-            : this.messagesOfChat;
-
-        if (messages.length !== 0) {
-            if (this.messagesListReverted) {
-                return this.entities.messages.findById(messages[messages.length - 1]);
-            } else {
-                return this.entities.messages.findById(messages[0]);
-            }
-        }
-
-        return undefined;
     }
 
     get lastMessage(): MessageEntity | undefined {
@@ -68,11 +42,7 @@ export class MessagesOfChatStore {
             : this.messagesOfChat;
 
         if (messages.length !== 0) {
-            if (this.messagesListReverted) {
-                return this.entities.messages.findById(messages[0]);
-            } else {
-                return this.entities.messages.findById(messages[messages.length - 1]);
-            }
+            return this.entities.messages.findById(messages[messages.length - 1]);
         }
 
         return undefined;
@@ -129,9 +99,7 @@ export class MessagesOfChatStore {
 
         if (this.getFetchingState(chatId).initiallyFetched && this.messagesOfChat.length !== 0) {
             fetchMessageFunction = MessageApi.getMessagesByChatBeforeMessage;
-            beforeMessage = this.messagesListReverted
-                ? this.messagesOfChat[this.messagesOfChat.length - 1]
-                : this.messagesOfChat[0];
+            beforeMessage = this.messagesOfChat[0];
         } else {
             fetchMessageFunction = MessageApi.getMessagesByChat;
         }

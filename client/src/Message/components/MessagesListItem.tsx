@@ -30,7 +30,6 @@ interface MessagesListItemProps {
     onMenuItemClick?: (menuItemType: MessageMenuItemType | ScheduledMessageMenuItemType) => void,
     onVisibilityChange?: (visible: boolean) => void,
     hideAttachments?: boolean,
-    inverted?: boolean,
     messagesListHeight?: number,
     scheduledMessage?: boolean,
     findMessageFunction?: (id: string) => MessageEntity,
@@ -148,9 +147,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             width: "80% !important"
         },
     },
-    inverted: {
-        transform: "scaleY(-1)"
-    },
     messageSender: {
         display: "flex"
     },
@@ -174,7 +170,6 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     onMenuItemClick,
     onVisibilityChange,
     hideAttachments = false,
-    inverted = false,
     messagesListHeight,
     scheduledMessage = false,
     findMessageFunction,
@@ -267,7 +262,6 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const wrapperClasses = clsx({
         [classes.messageListItemWrapper]: true,
         [classes.messageOfCurrentUserListItemWrapper]: sentByCurrentUser && !fullWidth,
-        [classes.inverted]: inverted,
         [classes.hack]: !enableVirtualScroll
     });
     const userAvatarLinkClasses = clsx({

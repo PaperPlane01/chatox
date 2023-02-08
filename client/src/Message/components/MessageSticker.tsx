@@ -47,9 +47,6 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
         },
         stickerPackDialog: {
             setStickerPackId
-        },
-        chatsPreferences: {
-            enableImagesCaching
         }
     } = useStore();
     const classes = useStyles();
@@ -62,19 +59,6 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
 
             if (onImageLoaded) {
                 onImageLoaded();
-            }
-
-            if (enableImagesCaching) {
-                (async () => {
-                    const image = findImage(sticker.imageId);
-                    const blob = await (await fetch(`${image.uri}?size=512`)).blob();
-
-                    const fileReader = new FileReader();
-                    fileReader.onloadend = () => {
-                        stickersCache[stickerId] = `${fileReader.result}`;
-                    }
-                    fileReader.readAsDataURL(blob);
-                })();
             }
         }
     });
@@ -95,7 +79,7 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
                      }}
                      ref={imageContainerRef}
                 >
-                    <img src={(enableImagesCaching && stickersCache[stickerId]) ? stickersCache[stickerId] : `${image.uri}?size=${targetSize}`}
+                    <img src={`${image.uri}?size=${targetSize}`}
                          className={classes.image}
                          onClick={() => setStickerPackId(sticker.stickerPackId)}
                          onLoad={() => setLoaded(true)}

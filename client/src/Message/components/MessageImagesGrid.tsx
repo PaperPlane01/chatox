@@ -12,7 +12,6 @@ interface MessageImagesGridProps {
 }
 
 let heightCache: {[messageId: string]: number} = {};
-let imagesCache: {[id: string]: string} = {};
 
 window.addEventListener("resize", () => heightCache = {});
 
@@ -26,9 +25,6 @@ export const MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = obse
             uploads: {
                 findImage
             }
-        },
-        chatsPreferences: {
-            enableImagesCaching
         }
     } = useStore();
 
@@ -43,21 +39,6 @@ export const MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = obse
 
             if (onImagesLoaded) {
                 onImagesLoaded();
-            }
-
-            if (enableImagesCaching) {
-                imagesIds.forEach(async imageId => {
-                    if (!imagesCache[imageId]) {
-                        const image = findImage(imageId);
-                        const blob = await (await fetch(`${image.uri}?size=512`)).blob();
-
-                        const fileReader = new FileReader();
-                        fileReader.onloadend = () => {
-                            imagesCache[image.id] = `${fileReader.result}`;
-                        }
-                        fileReader.readAsDataURL(blob);
-                    }
-                });
             }
         }
     });
@@ -76,7 +57,7 @@ export const MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = obse
         .map(id => findImage(id))
         .map(image => ({
             id: image.id,
-            src: (enableImagesCaching && imagesCache[image.id]) ? imagesCache[image.id] : `${image.uri}?size=512`,
+            src: `${image.uri}?size=512`,
             actualUrl: image.uri,
             height: image.meta!.height,
             width: image.meta!.width,
@@ -99,11 +80,6 @@ export const MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = obse
                         }}
                         renderPhoto={props => (
                             <img {...props.imageProps}
-                                src={
-                                    (enableImagesCaching && imagesCache[(props.photo as any).id])
-                                        ? imagesCache[(props.photo as any).id]
-                                        : props.photo.src
-                                }
                                 onLoad={async () => {
                                     setLoadedImages([...loadedImages, props.photo.src]);
                                 }}
