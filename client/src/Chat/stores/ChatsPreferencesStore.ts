@@ -8,6 +8,8 @@ export class ChatsPreferencesStore {
 
     sendMessageButton: SendMessageButton = SendMessageButton.CTRL_ENTER;
 
+    enablePartialVirtualization: boolean = false;
+
     constructor() {
         makeAutoObservable(this);
 
@@ -26,6 +28,10 @@ export class ChatsPreferencesStore {
         if (localStorage.getItem("sendMessageButton")) {
             this.sendMessageButton = parseSendMessageButton(localStorage.getItem("sendMessageButton"));
         }
+
+        if (localStorage.getItem("enablePartialVirtualization")) {
+            this.enablePartialVirtualization = localStorage.getItem("enablePartialVirtualization") === "true";
+        }
     }
 
     setEnableVirtualScroll = (enableVirtualScroll: boolean): void => {
@@ -43,5 +49,10 @@ export class ChatsPreferencesStore {
     setSendMessageButton = (sendMessageButton: SendMessageButton): void => {
         this.sendMessageButton = sendMessageButton;
         localStorage.setItem("sendMessageButton", sendMessageButton);
+    };
+
+    setEnablePartialVirtualization = (enablePartialVirtualization: boolean): void => {
+        this.enablePartialVirtualization = enablePartialVirtualization;
+        localStorage.setItem("enablePartialVirtualization", `${enablePartialVirtualization}`);
     };
 }

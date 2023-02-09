@@ -27,7 +27,9 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
             setVirtualScrollOverscan,
             virtualScrollOverscan,
             sendMessageButton,
-            setSendMessageButton
+            setSendMessageButton,
+            enablePartialVirtualization,
+            setEnablePartialVirtualization
         }
     } = useStore();
     const {l} = useLocalization();
@@ -72,6 +74,15 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                                inputProps={{
                                    min: 0
                                }}
+                    />
+                )}
+                {!enableVirtualScroll && (
+                    <FormControlLabel control={
+                        <Switch checked={enablePartialVirtualization}
+                                onChange={() => setEnablePartialVirtualization(!enablePartialVirtualization)}
+                        />
+                    }
+                                      label={l("settings.chat.virtual-scroll.enable-partial-virtualization")}
                     />
                 )}
             </CardContent>

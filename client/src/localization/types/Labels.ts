@@ -547,5 +547,6 @@ export interface Labels {
     "theme.purple": string,
     "theme.red": string,
     "theme.darkBlue": string,
-    "theme.lightBlue": string
+    "theme.lightBlue": string,
+    "settings.chat.virtual-scroll.enable-partial-virtualization": string
 }

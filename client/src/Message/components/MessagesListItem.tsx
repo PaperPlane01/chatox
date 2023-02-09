@@ -15,12 +15,12 @@ import {ReferredMessageContent} from "./ReferredMessageContent";
 import {MessageAudios} from "./MessageAudios";
 import {MessageFiles} from "./MessageFiles";
 import {MessageSticker} from "./MessageSticker";
+import {MessageEntity} from "../types";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useEntities, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {MarkdownTextWithEmoji} from "../../Emoji";
 import {TranslationFunction} from "../../localization";
-import {MessageEntity} from "../types";
 import {UserEntity} from "../../User";
 import {getChatRoleTranslation} from "../../ChatRole/utils";
 
@@ -154,7 +154,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         paddingLeft: theme.spacing(1),
         paddingTop: theme.spacing(0.5)
     },
-    hack: {
+    partiallyVirtualized: {
         contentVisibility: "auto",
         containIntrinsicSize: "auto 160px"
     }
@@ -181,7 +181,8 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
             addMessageToQueue
         },
         chatsPreferences: {
-            enableVirtualScroll
+            enableVirtualScroll,
+            enablePartialVirtualization
         }
     } = useStore();
     const {
@@ -262,7 +263,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const wrapperClasses = clsx({
         [classes.messageListItemWrapper]: true,
         [classes.messageOfCurrentUserListItemWrapper]: sentByCurrentUser && !fullWidth,
-        [classes.hack]: !enableVirtualScroll
+        [classes.partiallyVirtualized]: !enableVirtualScroll && enablePartialVirtualization
     });
     const userAvatarLinkClasses = clsx({
         [classes.undecoratedLink]: true,
@@ -284,7 +285,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
         if (onVisibilityChange) {
             onVisibilityChange(visible);
         }
-    }
+    };
 
     return (
         <ReactVisibilitySensor onChange={handleVisibilityChange}
