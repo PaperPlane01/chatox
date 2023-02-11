@@ -1,6 +1,6 @@
-import {MessagesListRefs} from "../types";
-import {Theme} from "@mui/material";
 import {CSSProperties, RefObject} from "react";
+import {Theme} from "@mui/material";
+import {MessagesListRefs} from "../types";
 
 interface CalculateStylesOptions {
     refs: MessagesListRefs,
