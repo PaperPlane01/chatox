@@ -2,21 +2,19 @@ import {UIEvent} from "react";
 import {Theme, useMediaQuery} from "@mui/material";
 import {useTheme} from "@mui/styles";
 import {ChatParticipantsListMode} from "../types";
-import {VirtualScrollElement} from "../../Chat/types";
 import {useStore} from "../../store";
+import {isScrolledToBottom} from "../../utils/event-utils";
 
 interface UseChatParticipantsListScroll {
     onLargeScreen: boolean,
     enableVirtualScroll: boolean,
-    virtualScrollElement: VirtualScrollElement,
     scrollHandler: (event: UIEvent<HTMLDivElement>) => void
 }
 
 export const useChatParticipantsListScroll = (defaultMode: ChatParticipantsListMode): UseChatParticipantsListScroll => {
     const {
         chatsPreferences: {
-            enableVirtualScroll,
-            virtualScrollElement
+            enableVirtualScroll
         },
         chatParticipantsSearch: {
             isInSearchMode,
@@ -42,8 +40,7 @@ export const useChatParticipantsListScroll = (defaultMode: ChatParticipantsListM
             return;
         }
 
-        const {scrollHeight, scrollTop, clientHeight} = event.currentTarget;
-        const reachedBottom = Math.abs(scrollHeight - (scrollTop + clientHeight)) <= 1
+        const reachedBottom = isScrolledToBottom(event);
 
         if (mode === "search") {
             if (reachedBottom && !paginationState.pending && !paginationState.noMoreItems) {
@@ -65,7 +62,6 @@ export const useChatParticipantsListScroll = (defaultMode: ChatParticipantsListM
 
     return {
         enableVirtualScroll,
-        virtualScrollElement,
         onLargeScreen,
         scrollHandler
     };

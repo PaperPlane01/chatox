@@ -12,7 +12,7 @@ export const sortMessages = (leftMessageId: string, rightMessageId: string, find
     }
 }
 
-export const createSortMessages = (findMessage: (id: string) => MessageEntity, reverse: boolean) => (leftMessageId: string, rightMessageId: string) => sortMessages(leftMessageId, rightMessageId, findMessage, reverse);
+export const createSortMessages = (findMessage: (id: string) => MessageEntity, reverse: boolean = false) => (leftMessageId: string, rightMessageId: string) => sortMessages(leftMessageId, rightMessageId, findMessage, reverse);
 
 export const convertMessageToNormalizedForm = (message: Message): MessageEntity => {
     const uploadStats: MessageUploadsStats = {

@@ -8,5 +8,9 @@ export const commonStyles: CommonStyles = {
         alignItems: "center",
         justifyContent: "center",
         height: "100%"
+    },
+    undecoratedLink: {
+        textDecoration: "none",
+        color: "inherit"
     }
 }

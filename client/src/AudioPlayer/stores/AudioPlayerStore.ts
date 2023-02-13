@@ -16,7 +16,7 @@ export class AudioPlayerStore {
 
         reaction(
             () => this.currentTrackId,
-            () => this.currentPosition = 0
+            () => this.setCurrentPosition(0)
         );
     }
 
@@ -33,11 +33,12 @@ export class AudioPlayerStore {
     };
 
     setCurrentPosition = (currentPosition: number): void => {
-        this.currentPosition = currentPosition;
+        if (currentPosition !== 1) {
+            this.currentPosition = currentPosition;
+        }
     };
 
     setSeekTo = (seekTo: number): void => {
-        console.log(seekTo);
         this.seekTo = seekTo;
     };
 }

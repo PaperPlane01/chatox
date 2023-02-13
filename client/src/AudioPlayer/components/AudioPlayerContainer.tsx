@@ -24,7 +24,7 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
 
     useEffect(
         () => {
-            if (playerRef.current && seekTo !== undefined) {
+            if (playerRef.current && seekTo !== undefined && playing) {
                 playerRef.current.seekTo(seekTo, "fraction");
             }
         },

@@ -1,6 +1,7 @@
 import React from "react";
 import {observer} from "mobx-react";
 import {createStyles, makeStyles} from "@mui/styles";
+import {VirtualMessagesList} from "./VirtualMessagesList";
 import {MessagesList} from "./MessagesList";
 import {ChatDeletionLabel} from "../../Chat";
 import {useStore} from "../../store";
@@ -25,6 +26,9 @@ export const MessagesListWrapper = observer(() => {
             chats: {
                 findById: findChat
             }
+        },
+        chatsPreferences: {
+            enableVirtualScroll
         }
     } = useStore();
     const classes = useStyles();
@@ -45,7 +49,6 @@ export const MessagesListWrapper = observer(() => {
     }
 
     if (!selectedChatId) {
-        console.log("No selected chat id")
         return null;
     }
 
@@ -61,5 +64,9 @@ export const MessagesListWrapper = observer(() => {
         );
     }
 
-    return <MessagesList/>;
+    if (enableVirtualScroll) {
+        return <VirtualMessagesList/>;
+    } else {
+        return <MessagesList/>;
+    }
 });

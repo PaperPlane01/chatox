@@ -5,7 +5,7 @@ import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {Helmet, HelmetProvider} from "react-helmet-async";
 import rgbToHex from "rgb-hex";
-import "yet-another-react-lightbox/dist/styles.css";
+import "yet-another-react-lightbox/styles.css";
 import {SnackbarProvider} from "notistack";
 import {MobxRouter} from "mobx-router";
 import {themes} from "./themes";

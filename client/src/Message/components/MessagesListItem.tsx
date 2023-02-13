@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent, memo, ReactNode, useEffect, useRef, useState} from "react";
+import React, {Fragment, FunctionComponent, ReactNode, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {Card, CardActions, CardContent, CardHeader, Theme, Tooltip, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -15,15 +15,14 @@ import {ReferredMessageContent} from "./ReferredMessageContent";
 import {MessageAudios} from "./MessageAudios";
 import {MessageFiles} from "./MessageFiles";
 import {MessageSticker} from "./MessageSticker";
+import {MessageEntity} from "../types";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useEntities, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {MarkdownTextWithEmoji} from "../../Emoji";
 import {TranslationFunction} from "../../localization";
-import {MessageEntity} from "../types";
 import {UserEntity} from "../../User";
 import {getChatRoleTranslation} from "../../ChatRole/utils";
-import {toJS} from "mobx";
 
 interface MessagesListItemProps {
     messageId: string,
@@ -31,7 +30,6 @@ interface MessagesListItemProps {
     onMenuItemClick?: (menuItemType: MessageMenuItemType | ScheduledMessageMenuItemType) => void,
     onVisibilityChange?: (visible: boolean) => void,
     hideAttachments?: boolean,
-    inverted?: boolean,
     messagesListHeight?: number,
     scheduledMessage?: boolean,
     findMessageFunction?: (id: string) => MessageEntity,
@@ -84,7 +82,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         [theme.breakpoints.down("md")]: {
             maxWidth: "80%"
         },
-        overflowX: "auto"
+        overflowX: "auto",
+        transition: "none"
     },
     messageCardFullWidth: {
         borderRadius: 8,
@@ -148,15 +147,16 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             width: "80% !important"
         },
     },
-    inverted: {
-        transform: "scaleY(-1)"
-    },
     messageSender: {
         display: "flex"
     },
     senderChatRole: {
         paddingLeft: theme.spacing(1),
         paddingTop: theme.spacing(0.5)
+    },
+    partiallyVirtualized: {
+        contentVisibility: "auto",
+        containIntrinsicSize: "auto 160px"
     }
 }));
 
@@ -164,13 +164,12 @@ let messageCardDimensionsCache: {[messageId: string]: {width: number, height: nu
 
 window.addEventListener("resize", () => messageCardDimensionsCache = {});
 
-const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
+export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     messageId,
     fullWidth = false,
     onMenuItemClick,
     onVisibilityChange,
     hideAttachments = false,
-    inverted = false,
     messagesListHeight,
     scheduledMessage = false,
     findMessageFunction,
@@ -180,6 +179,10 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     const {
         markMessageRead: {
             addMessageToQueue
+        },
+        chatsPreferences: {
+            enableVirtualScroll,
+            enablePartialVirtualization
         }
     } = useStore();
     const {
@@ -213,17 +216,19 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
 
     useEffect(
         () => {
-            if (messagesListItemRef.current && allImagesLoaded && stickerLoaded) {
-                setWidth(messagesListItemRef.current.getBoundingClientRect().width);
-                setHeight(messagesListItemRef.current.getBoundingClientRect().height);
+            setTimeout(() => {
+                if (messagesListItemRef.current && allImagesLoaded && stickerLoaded) {
+                    setWidth(messagesListItemRef.current.getBoundingClientRect().width);
+                    setHeight(messagesListItemRef.current.getBoundingClientRect().height);
 
-                if (!messageCardDimensionsCache[messageId]) {
-                    messageCardDimensionsCache[messageId] = {
-                        width: width!,
-                        height: height!
+                    if (!messageCardDimensionsCache[messageId]) {
+                        messageCardDimensionsCache[messageId] = {
+                            width: width!,
+                            height: height!
+                        }
                     }
                 }
-            }
+            }, 300);
         }, [allImagesLoaded, stickerLoaded, messageId, width, height]
     );
 
@@ -253,12 +258,12 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         [classes.messageCard]: !fullWidth,
         [classes.messageOfCurrentUserCard]: sentByCurrentUser,
         [classes.withCode]: containsCode,
-        [classes.withOneImage]: withAudio,
+        [classes.withOneImage]: withAudio
     });
     const wrapperClasses = clsx({
         [classes.messageListItemWrapper]: true,
         [classes.messageOfCurrentUserListItemWrapper]: sentByCurrentUser && !fullWidth,
-        [classes.inverted]: inverted
+        [classes.partiallyVirtualized]: !enableVirtualScroll && enablePartialVirtualization
     });
     const userAvatarLinkClasses = clsx({
         [classes.undecoratedLink]: true,
@@ -280,7 +285,7 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         if (onVisibilityChange) {
             onVisibilityChange(visible);
         }
-    }
+    };
 
     return (
         <ReactVisibilitySensor onChange={handleVisibilityChange}
@@ -398,5 +403,3 @@ const _MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
         </ReactVisibilitySensor>
     );
 });
-
-export const MessagesListItem = memo(_MessagesListItem);

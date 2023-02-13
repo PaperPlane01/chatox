@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     audioTrackTypography: {
         paddingBottom: "0px !important"
     }
-}))
+}));
 
 export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = observer(({
     audioId
@@ -109,81 +109,80 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
     ];
 
     return (
-        <div>
-            <div className={classes.playerControlsWrapper}>
-                {playing && currentTrackId === audioId && (
-                    <IconButton onClick={() => setPlaying(false)} size="large">
-                        <Pause/>
-                    </IconButton>
-                )}
-                {(!playing || (currentTrackId !== audioId)) && (
-                    <IconButton
-                        onClick={() => {
-                            setCurrentTrackId(audioId);
-                            setPlaying(true);
+        <div className={classes.playerControlsWrapper}>
+            {playing && currentTrackId === audioId && (
+                <IconButton onClick={() => setPlaying(false)} size="large">
+                    <Pause/>
+                </IconButton>
+            )}
+            {(!playing || (currentTrackId !== audioId)) && (
+                <IconButton
+                    onClick={() => {
+                        setCurrentTrackId(audioId);
+                        setPlaying(true);
+                    }}
+                    size="large"
+                >
+                    <PlayArrow/>
+                </IconButton>
+            )}
+            <div className={classes.playerSliderContainer}>
+                <Typography variant="body2" className={classes.audioTrackTypography}>
+                    {audio.originalName.substring(0, audio.originalName.length - audio.extension.length - 1)}
+                </Typography>
+                <Slider value={currentTrackId === audioId ? currentPosition : 0}
+                        max={1}
+                        marks={sliderMarks}
+                        classes={{
+                            root: classes.trackSliderRoot,
+                            mark: classes.trackSliderMark,
+                            marked: classes.trackSliderMarked,
+                            markLabel: classes.trackMarkLabel,
+                            thumb: classes.sliderThumb
                         }}
-                        size="large">
-                        <PlayArrow/>
-                    </IconButton>
-                )}
-                <div className={classes.playerSliderContainer}>
-                    <Typography variant="body2" className={classes.audioTrackTypography}>
-                        {audio.originalName.substring(0, audio.originalName.length - audio.extension.length - 1)}
-                    </Typography>
-                    <Slider value={currentTrackId === audioId ? currentPosition : 0}
-                            max={1}
-                            marks={sliderMarks}
-                            classes={{
-                                root: classes.trackSliderRoot,
-                                mark: classes.trackSliderMark,
-                                marked: classes.trackSliderMarked,
-                                markLabel: classes.trackMarkLabel,
-                                thumb: classes.sliderThumb
-                            }}
-                            onChange={(_, value) => {
-                                if (currentTrackId === audioId) {
-                                    setSeekTo(value as number);
-                                }
-                            }}
-                            step={0.01}
-                    />
-                </div>
-                <Fragment>
-                    <IconButton {...bindToggle(volumePopupState)} size="large">
-                        {volume >= 0.6 && (
-                            <VolumeUp/>
-                        )}
-                        {volume < 0.6 && volume > 0 && (
-                            <VolumeDown/>
-                        )}
-                        {volume === 0 && (
-                            <VolumeOff/>
-                        )}
-                    </IconButton>
-                    <Menu {...bindMenu(volumePopupState)}
-                        anchorOrigin={{
-                            vertical: "center",
-                            horizontal: "right"
+                        onChange={(_, value) => {
+                            if (currentTrackId === audioId) {
+                                setSeekTo(value as number);
+                            }
                         }}
-                          classes={{
-                              paper: classes.volumeMenuPaper
-                          }}
-                    >
-                        <Slider value={volume}
-                                onChange={(_, value) => setVolume(value as number)}
-                                orientation="vertical"
-                                style={{
-                                    height: 100
-                                }}
-                                classes={{
-                                    thumb: classes.volumeSliderThumb
-                                }}
-                                max={1}
-                                step={0.000001}
-                        />
-                    </Menu>
-                </Fragment>
+                        step={0.01}
+                />
             </div>
+            <Fragment>
+                <IconButton {...bindToggle(volumePopupState)} size="large">
+                    {volume >= 0.6 && (
+                        <VolumeUp/>
+                    )}
+                    {volume < 0.6 && volume > 0 && (
+                        <VolumeDown/>
+                    )}
+                    {volume === 0 && (
+                        <VolumeOff/>
+                    )}
+                </IconButton>
+                <Menu {...bindMenu(volumePopupState)}
+                      anchorOrigin={{
+                          vertical: "center",
+                          horizontal: "right"
+                      }}
+                      classes={{
+                          paper: classes.volumeMenuPaper
+                      }}
+                >
+                    <Slider value={volume}
+                            onChange={(_, value) => setVolume(value as number)}
+                            orientation="vertical"
+                            style={{
+                                height: 100
+                            }}
+                            classes={{
+                                thumb: classes.volumeSliderThumb
+                            }}
+                            max={1}
+                            step={0.000001}
+                    />
+                </Menu>
+            </Fragment>
         </div>
     );
 });
