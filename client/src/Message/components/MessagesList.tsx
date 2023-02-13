@@ -1,4 +1,4 @@
-import React, {CSSProperties, Fragment, FunctionComponent, useLayoutEffect} from "react";
+import React, {CSSProperties, Fragment, FunctionComponent, UIEvent, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Theme, useMediaQuery, useTheme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -8,6 +8,7 @@ import {PinnedMessage} from "./PinnedMessage";
 import {calculateMessagesListStyles} from "../utils";
 import {useMessagesListRefs, useMessagesListStyles} from "../hooks";
 import {useStore} from "../../store";
+import {isScrolledToBottom} from "../../utils/event-utils";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messagesList: {
@@ -24,7 +25,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 export const MessagesList: FunctionComponent = observer(() => {
     const {
         messagesOfChat: {
-            messagesOfChat
+            messagesOfChat,
+            lastMessage
         },
         messageCreation: {
             referredMessageId,
@@ -42,6 +44,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
     const refs = useMessagesListRefs();
     const classes = useStyles();
+    const [reachedBottom, setReachedBottom] = useState(false);
 
     const calculateStyles = (): CSSProperties => calculateMessagesListStyles({
         refs,
@@ -64,17 +67,30 @@ export const MessagesList: FunctionComponent = observer(() => {
         ]
     );
 
+    const handleScroll = (event: UIEvent<HTMLDivElement>): void => {
+        const scrolledToBottom = isScrolledToBottom(event);
+        setReachedBottom(scrolledToBottom);
+    };
+
     const scrollToBottom = (): void => {
         setTimeout(() => {
             if (refs.phantomBottomRef && refs.phantomBottomRef.current) {
                 refs.phantomBottomRef.current.scrollIntoView();
             }
         }, 300);
-    }
+    };
 
     useLayoutEffect(
         () => scrollToBottom(),
         [selectedChatId]
+    );
+    useLayoutEffect(
+        () => {
+            if (reachedBottom) {
+                scrollToBottom();
+            }
+        },
+        [lastMessage]
     );
 
     return (
@@ -89,6 +105,7 @@ export const MessagesList: FunctionComponent = observer(() => {
                  style={style}
                  ref={refs.messagesListRef}
                  className={classes.messagesList}
+                 onScroll={handleScroll}
             >
                 {messagesOfChat.map(messageId => (
                     <MessagesListItem messageId={messageId}
