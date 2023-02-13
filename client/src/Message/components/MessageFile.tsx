@@ -13,7 +13,8 @@ interface MessageFileProps {
 const useStyles = makeStyles((theme: Theme) => createStyles({
     fileContainer: {
         display: "flex",
-        alignItems: "center"
+        alignItems: "center",
+        paddingRight: theme.spacing(2)
     },
     fileTypographyRoot: {
         paddingBottom: "0px !important"
@@ -21,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     fileSizeCaption: {
         paddingRight: theme.spacing(1)
     }
-}))
+}));
 
 export const MessageFile: FunctionComponent<MessageFileProps> = observer(({
     chatUploadId
@@ -77,4 +78,4 @@ export const MessageFile: FunctionComponent<MessageFileProps> = observer(({
             </Typography>
         </div>
     );
-})
+});
