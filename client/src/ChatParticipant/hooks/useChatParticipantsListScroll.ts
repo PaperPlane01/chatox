@@ -3,6 +3,7 @@ import {Theme, useMediaQuery} from "@mui/material";
 import {useTheme} from "@mui/styles";
 import {ChatParticipantsListMode} from "../types";
 import {useStore} from "../../store";
+import {isScrolledToBottom} from "../../utils/event-utils";
 
 interface UseChatParticipantsListScroll {
     onLargeScreen: boolean,
@@ -39,8 +40,7 @@ export const useChatParticipantsListScroll = (defaultMode: ChatParticipantsListM
             return;
         }
 
-        const {scrollHeight, scrollTop, clientHeight} = event.currentTarget;
-        const reachedBottom = Math.abs(scrollHeight - (scrollTop + clientHeight)) <= 1
+        const reachedBottom = isScrolledToBottom(event);
 
         if (mode === "search") {
             if (reachedBottom && !paginationState.pending && !paginationState.noMoreItems) {
