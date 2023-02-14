@@ -2,6 +2,7 @@ package chatox.platform.security.reactive.config;
 
 import chatox.platform.security.reactive.ChatoxReactiveAuthenticationManager;
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder;
+import chatox.platform.security.reactive.interceptor.ReactivePermissionEvaluator;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,11 @@ import java.util.Base64;
 public abstract class AbstractReactiveSecurityConfig<UserClass> {
     @Autowired
     protected JwtProperties jwtProperties;
+
+    @Bean
+    public ReactivePermissionEvaluator reactivePermissionEvaluator() {
+        return new ReactivePermissionEvaluator();
+    }
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http,
