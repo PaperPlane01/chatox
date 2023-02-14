@@ -42,7 +42,7 @@ export class MessageDialogStore {
                     this.fetchMessage();
                 }
             }
-        )
+        );
     }
 
     setMessageId = (messageId?: string): void => {

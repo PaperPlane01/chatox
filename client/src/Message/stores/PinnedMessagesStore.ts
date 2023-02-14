@@ -1,9 +1,8 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {ChatStore} from "../../Chat/stores";
-import {EntitiesStore} from "../../entities-store";
-import {ChatOfCurrentUserEntity} from "../../Chat/types";
-import {MessageApi} from "../../api/clients";
 import {ClosedPinnedMessagesStore} from "./ClosedPinnedMessagesStore";
+import {ChatStore, ChatOfCurrentUserEntity} from "../../Chat";
+import {EntitiesStore} from "../../entities-store";
+import {MessageApi} from "../../api";
 
 interface PinnedMessagesStateMap {
     [chatId: string]: {

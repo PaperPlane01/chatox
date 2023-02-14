@@ -1,6 +1,6 @@
 import {makeAutoObservable} from "mobx";
 import downloadFile from "js-file-download";
-import {UploadApi} from "../../api/clients";
+import {UploadApi} from "../../api";
 
 interface DownloadProgressMap {
     [fileId: string]: {

@@ -2,10 +2,10 @@ import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatMessagesFetchingStateMap} from "../types";
 import {createSortMessages} from "../utils";
-import {ChatStore} from "../../Chat/stores";
+import {ChatStore} from "../../Chat";
 import {EntitiesStore} from "../../entities-store";
 import {FetchOptions} from "../../utils/types";
-import {MessageApi} from "../../api/clients";
+import {MessageApi} from "../../api";
 
 export class ScheduledMessagesOfChatStore {
     fetchingStateMap: ChatMessagesFetchingStateMap = {};

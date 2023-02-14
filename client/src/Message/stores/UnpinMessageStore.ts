@@ -1,8 +1,7 @@
-import {makeAutoObservable} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {ChatStore} from "../../Chat/stores";
+import {ChatOfCurrentUserEntity, ChatStore} from "../../Chat";
 import {EntitiesStore} from "../../entities-store";
-import {ChatOfCurrentUserEntity} from "../../Chat/types";
 
 export class UnpinMessageStore {
     pending: boolean = false;
@@ -45,8 +44,8 @@ export class UnpinMessageStore {
                 this.entities.chats.insertEntity(chat);
                 this.setShowSnackbar(true);
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false);
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.pending = false));
     };
 
     setShowSnackbar = (showSnackbar: boolean): void => {

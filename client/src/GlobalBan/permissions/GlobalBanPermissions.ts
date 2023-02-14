@@ -1,4 +1,4 @@
-import { computed, makeObservable } from "mobx";
+import {makeAutoObservable} from "mobx";
 import {AuthorizationStore} from "../../Authorization";
 
 export class GlobalBanPermissions {
@@ -7,8 +7,6 @@ export class GlobalBanPermissions {
     }
 
     constructor(private readonly authorization: AuthorizationStore) {
-        makeObservable(this, {
-            canBanUsersGlobally: computed
-        });
+        makeAutoObservable(this);
     }
 }

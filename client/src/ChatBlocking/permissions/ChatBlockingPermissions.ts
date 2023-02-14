@@ -1,4 +1,4 @@
-import { computed, makeObservable } from "mobx";
+import {makeAutoObservable} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
@@ -14,9 +14,7 @@ export class ChatBlockingPermissions {
     constructor(private readonly entities: EntitiesStore,
                 private readonly authorization: AuthorizationStore,
                 private readonly userChatRoles: UserChatRolesStore) {
-        makeObservable(this, {
-            currentUser: computed
-        });
+        makeAutoObservable(this);
     }
 
     canBlockUsersInChat = createTransformer((chatId: string): boolean => {

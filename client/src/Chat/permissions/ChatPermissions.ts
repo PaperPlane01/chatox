@@ -1,4 +1,4 @@
-import { computed, makeObservable } from "mobx";
+import {makeAutoObservable} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {ChatOfCurrentUserEntity} from "../types";
 import {EntitiesStore} from "../../entities-store";
@@ -22,10 +22,7 @@ export class ChatPermissions {
     constructor(private readonly entities: EntitiesStore,
                 private readonly authorization: AuthorizationStore,
                 private readonly userChatRoles: UserChatRolesStore) {
-        makeObservable(this, {
-            currentUser: computed,
-            canCreateChat: computed
-        });
+        makeAutoObservable(this);
     }
 
     canUpdateChat = createTransformer((chatId: string): boolean => {

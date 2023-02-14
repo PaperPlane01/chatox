@@ -1,4 +1,4 @@
-import { computed, makeObservable } from "mobx";
+import {makeAutoObservable} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {UserChatRolesStore} from "../stores";
 import {EntitiesStore} from "../../entities-store";
@@ -18,9 +18,7 @@ export class ChatRolePermissions {
     constructor(private readonly entities: EntitiesStore,
                 private readonly authorization: AuthorizationStore,
                 private readonly userChatRoles: UserChatRolesStore) {
-        makeObservable(this, {
-            currentUser: computed
-        });
+        makeAutoObservable(this);
     }
 
     canCreateChatRole = createTransformer((chatId: string): boolean => {

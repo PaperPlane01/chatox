@@ -1,7 +1,7 @@
 import {makeAutoObservable} from "mobx";
 import {EntitiesStore} from "../../entities-store";
-import {ChatStore} from "../../Chat/stores";
-import {MessageApi} from "../../api/clients";
+import {ChatStore} from "../../Chat";
+import {MessageApi} from "../../api";
 
 export class DeleteMessageStore {
     get selectedChatId(): string | undefined {

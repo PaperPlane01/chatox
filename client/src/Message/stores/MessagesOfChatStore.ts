@@ -91,7 +91,7 @@ export class MessagesOfChatStore {
         reaction(
             () => this.selectedChatId,
             () => this.fetchMessages({abortIfInitiallyFetched: true})
-        )
+        );
     }
 
     getFetchingState = createTransformer((chatId: string) => {

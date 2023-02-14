@@ -1,10 +1,10 @@
-import {makeAutoObservable, reaction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {UpdateMessageFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {EntitiesStore} from "../../entities-store";
 import {validateMessageText} from "../validation";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {ChatStore} from "../../Chat/stores";
+import {ChatStore} from "../../Chat";
 
 export class UpdateMessageStore {
     updateMessageForm: UpdateMessageFormData = {
@@ -68,13 +68,13 @@ export class UpdateMessageStore {
             this.updatedMessageId,
             {text: this.updateMessageForm.text}
         )
-            .then(({data}) => {
+            .then(({data}) => runInAction(() => {
                 this.entities.messages.insert(data);
                 this.updatedMessageId = undefined;
                 this.reset();
-            })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false);
+            }))
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.pending = false));
     };
 
     validateForm = (): boolean => {
@@ -86,6 +86,6 @@ export class UpdateMessageStore {
     reset = () => {
         this.updatedMessageId = undefined;
         this.setFormValue("text", "");
-        setTimeout(() => this.formErrors = {text: undefined});
+        setTimeout(() => runInAction(() => this.formErrors = {text: undefined}));
     };
 }

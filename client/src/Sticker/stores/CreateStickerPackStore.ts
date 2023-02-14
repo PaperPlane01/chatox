@@ -1,4 +1,4 @@
-import {action, computed, makeAutoObservable, makeObservable, observable, reaction} from "mobx";
+import {action, computed, makeObservable, observable, reaction} from "mobx";
 import {StickerContainer} from "./StickerContainer";
 import {CreateStickerPackFormData} from "../types";
 import {validateStickerPackDescription, validateStickerPackName} from "../validation";

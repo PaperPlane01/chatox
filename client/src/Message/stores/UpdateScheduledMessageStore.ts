@@ -1,4 +1,4 @@
-import {action, computed, makeAutoObservable, makeObservable, observable, reaction} from "mobx";
+import {action, computed, makeObservable, observable, reaction} from "mobx";
 import {addMinutes} from "date-fns";
 import {MessageEntity, UpdateScheduledMessageFormData} from "../types";
 import {validateMessageScheduledDate, validateMessageText} from "../validation";

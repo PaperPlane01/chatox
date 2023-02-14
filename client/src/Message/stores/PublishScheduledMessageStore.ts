@@ -1,7 +1,7 @@
-import {makeAutoObservable} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
-import {ChatStore} from "../../Chat/stores";
+import {ChatStore} from "../../Chat";
 
 export class PublishScheduledMessageStore {
     pendingMessagesMap: {[messageId: string]: boolean} = {};
@@ -34,7 +34,7 @@ export class PublishScheduledMessageStore {
                 this.entities.scheduledMessages.deleteById(messageId);
                 this.entities.messages.insert(data);
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => {
                 this.pendingMessagesMap[messageId] = false;
                 this.setShowSnackbar(true);

@@ -1,7 +1,7 @@
 import {makeAutoObservable, reaction} from "mobx";
 import {addMinutes} from "date-fns";
 import {CreateMessageStore} from "./CreateMessageStore";
-import {Labels} from "../../localization/types";
+import {Labels} from "../../localization";
 import {ApiError} from "../../api";
 
 export class ScheduleMessageStore {

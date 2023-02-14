@@ -1,10 +1,9 @@
-import {action, computed, observable, makeObservable, makeAutoObservable} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {AxiosPromise} from "axios";
-import {getInitialApiErrorFromResponse, ProgressCallback} from "../../api";
-import {UploadApi} from "../../api/clients";
+import {getInitialApiErrorFromResponse, ProgressCallback, UploadApi} from "../../api";
 import {Upload, UploadType} from "../../api/types/response";
 import {UploadedFileContainer} from "../../utils/file-utils";
-import {Labels} from "../../localization/types";
+import {Labels} from "../../localization";
 
 const IMAGE_MAX_SIZE = Number(process.env.REACT_APP_IMAGE_MAX_SIZE);
 const VIDEO_MAX_SIZE = Number(process.env.REACT_APP_VIDEO_MAX_SIZE)
@@ -109,32 +108,35 @@ export class UploadMessageAttachmentsStore {
         }
 
         uploadFile(file, percentage => {
-            console.log(`Percentage: ${percentage}`);
             this.uploadPercentageMap = {
                 ...this.uploadPercentageMap,
                 [localFileId]: percentage
             };
         })
             .then(({data}) => {
-                this.messageAttachmentsFiles = this.messageAttachmentsFiles.map(fileContainer => {
-                    if (fileContainer.localId === localFileId) {
-                        fileContainer.pending = false;
-                        fileContainer.uploadedFile = data;
-                    }
+                runInAction(() => {
+                    this.messageAttachmentsFiles = this.messageAttachmentsFiles.map(fileContainer => {
+                        if (fileContainer.localId === localFileId) {
+                            fileContainer.pending = false;
+                            fileContainer.uploadedFile = data;
+                        }
 
-                return fileContainer;
+                        return fileContainer;
+                    });
+                });
             })
-        })
             .catch(error => {
-                this.messageAttachmentsFiles = this.messageAttachmentsFiles.map(fileContainer => {
-                    if (fileContainer.localId === localFileId) {
-                        fileContainer.pending = false;
-                        fileContainer.error = getInitialApiErrorFromResponse(error);
-                    }
+                runInAction(() => {
+                    this.messageAttachmentsFiles = this.messageAttachmentsFiles.map(fileContainer => {
+                        if (fileContainer.localId === localFileId) {
+                            fileContainer.pending = false;
+                            fileContainer.error = getInitialApiErrorFromResponse(error);
+                        }
 
-                    return fileContainer;
-                })
-            })
+                        return fileContainer;
+                    });
+                });
+            });
     };
 
     setFileValidationErrors = (validationErrors: ValidationError[]): void => {
