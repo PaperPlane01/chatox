@@ -1,5 +1,7 @@
 package chatox.sticker.service
 
+import chatox.platform.security.jwt.JwtPayload
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import chatox.sticker.api.response.StickerPackResponse
 import chatox.sticker.api.response.StickerResponse
 import chatox.sticker.api.response.UploadResponse
@@ -27,6 +29,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.User
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
@@ -54,6 +57,9 @@ class StickerPackServiceTests {
     lateinit var authenticationFacade: AuthenticationFacade
 
     @Mock
+    lateinit var authenticationHolder: ReactiveAuthenticationHolder<User>
+
+    @Mock
     lateinit var stickerPackMapper: StickerPackMapper
 
     @Mock
@@ -65,7 +71,7 @@ class StickerPackServiceTests {
         @Test
         @DisplayName("It creates sticker pack")
         fun `It creates sticker pack`() {
-            `when`(authenticationFacade.getCurrentUserDetails()).thenReturn(Mono.just(Constants.USER_DETAILS))
+            `when`(authenticationHolder.requireCurrentUserDetails()).thenReturn(Mono.just(Constants.USER_DETAILS))
             `when`(uploadRepository.findById(anyString())).thenReturn(Mono.just(Constants.UPLOAD))
             `when`(stickerRepository.saveAll(anyList())).thenReturn(Flux.fromIterable(listOf(Constants.STICKER)))
             `when`(stickerPackRepository.save(any()).thenReturn(Mono.just(Constants.STICKER_PACK)))
@@ -176,14 +182,12 @@ class StickerPackServiceTests {
                 stickers = listOf(STICKER_RESPONSE)
         )
 
-        val USER_DETAILS = CustomUserDetails(
-                id = "userId",
-                accountId = "accountId",
-                authorities = mutableListOf(SimpleGrantedAuthority("ROLE_USER")),
-                globalBanId = null,
-                globalBanExpirationDate = null,
-                bannedPermanently = false,
-                username = "test"
-        )
+        val USER_DETAILS: JwtPayload = JwtPayload.builder()
+                .id("userId")
+                .accountId("accountId")
+                .authorities(mutableListOf(SimpleGrantedAuthority("ROLE_USER")))
+                .globalBanInfo(null)
+                .username("test")
+                .build();
     }
 }

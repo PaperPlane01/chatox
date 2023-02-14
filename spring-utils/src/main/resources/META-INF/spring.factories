@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+chatox.platform.ChatoxConfig, \
+chatox.platform.pagination.config.PaginationParametersProcessingConfig, \
+chatox.platform.exception.config.ErrorAttributesConfig, \
+chatox.platform.log.config.MethodLoggingExecutionConfig

@@ -19,10 +19,10 @@ import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.ChatRoleRepository
-import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatParticipationService
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -42,7 +42,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                                    private val chatRepository: ChatRepository,
                                    private val chatParticipationMapper: ChatParticipationMapper,
                                    private val chatEventsPublisher: ChatEventsPublisher,
-                                   private val authenticationFacade: AuthenticationFacade): ChatParticipationService {
+                                   private val authenticationHolder: ReactiveAuthenticationHolder<User>): ChatParticipationService {
     private val log = LoggerFactory.getLogger(this::class.java)
 
     override fun joinChat(chatId: String): Mono<ChatParticipationMinifiedResponse> {
@@ -53,7 +53,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 throw ChatDeletedException(chat.chatDeletion)
             }
 
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
 
             var chatParticipation = chatParticipationRepository.findByChatIdAndUserAndDeletedTrue(
                     chatId = chat.id,
@@ -93,14 +93,14 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
             chatRepository.increaseNumberOfParticipants(chat.id).awaitFirst()
             chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst())
 
-            chatParticipationMapper.toMinifiedChatParticipationResponse(chatParticipation).awaitFirst()
+            return@mono chatParticipationMapper.toMinifiedChatParticipationResponse(chatParticipation).awaitFirst()
         }
     }
 
     override fun leaveChat(chatId: String): Mono<Void> {
         return mono {
             val chat = chatRepository.findById(chatId).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
             var chatParticipation = chatParticipationRepository
                     .findByChatIdAndUserIdAndDeletedFalse(
@@ -123,7 +123,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                     )
             )
 
-            Mono.empty<Void>()
+            return@mono Mono.empty<Void>()
         }
                 .flatMap { it }
     }
@@ -153,7 +153,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
 
     override fun deleteChatParticipation(id: String, chatId: String): Mono<Void> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
 
             var chatParticipation = chatParticipationRepository.findByIdAndDeletedFalse(id).awaitFirst()
 
@@ -182,7 +182,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                     )
             )
 
-            Mono.empty<Void>()
+            return@mono Mono.empty<Void>()
         }
                 .flatMap { it }
     }

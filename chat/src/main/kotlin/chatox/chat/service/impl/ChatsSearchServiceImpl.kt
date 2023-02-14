@@ -3,16 +3,15 @@ package chatox.chat.service.impl
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.mapper.ChatMapper
 import chatox.chat.mapper.ChatParticipationMapper
-import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatType
 import chatox.chat.model.DialogDisplay
-import chatox.chat.model.DialogParticipant
+import chatox.chat.model.User
 import chatox.chat.model.elasticsearch.ChatElasticsearch
 import chatox.chat.repository.elasticsearch.ChatElasticsearchRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
-import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatSearchService
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Value
@@ -26,7 +25,7 @@ import reactor.core.publisher.Mono
 class ChatsSearchServiceImpl(private val chatElasticsearchRepository: ChatElasticsearchRepository,
                              private val chatParticipationRepository: ChatParticipationRepository,
                              private val chatRepository: ChatRepository,
-                             private val authenticationFacade: AuthenticationFacade,
+                             private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                              private val chatMapper: ChatMapper,
                              private val chatParticipationMapper: ChatParticipationMapper) : ChatSearchService {
     @Value("\${chats.elasticsearch.sync-on-start}")
@@ -34,7 +33,7 @@ class ChatsSearchServiceImpl(private val chatElasticsearchRepository: ChatElasti
 
     override fun searchChatsOfCurrentUser(query: String): Flux<ChatResponse> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
             val currentUserChatsIds = chatParticipationRepository
                     .findAllByUserIdAndDeletedFalse(currentUser.id)
                     .map { chatParticipation -> chatParticipation.chatId }

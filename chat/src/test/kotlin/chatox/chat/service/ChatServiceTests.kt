@@ -25,10 +25,10 @@ import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.UploadRepository
-import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.impl.ChatServiceImpl
 import chatox.chat.support.UserDisplayedNameHelper
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import chatox.platform.time.TimeService
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -73,7 +73,7 @@ class ChatServiceTests {
     lateinit var chatParticipationMapper: ChatParticipationMapper
 
     @Mock
-    lateinit var authenticationFacade: AuthenticationFacade
+    lateinit var authenticationHolder: ReactiveAuthenticationHolder<User>
 
     @Mock
     lateinit var chatEventsPublisher: ChatEventsPublisher
@@ -459,7 +459,7 @@ class ChatServiceTests {
             val slug = "slug"
             val chatResponse = toChatResponse(chat)
             Mockito.`when`(chatRepository.findByIdEqualsOrSlugEquals(slug, slug)).thenReturn(Mono.just(chat))
-            Mockito.`when`(authenticationFacade.getCurrentUser()).thenReturn(Mono.just(user))
+            Mockito.`when`(authenticationHolder.currentUser).thenReturn(Mono.just(user))
             Mockito.`when`(chatMapper.toChatResponse(chat, user.id)).thenReturn(chatResponse)
 
             // Run test

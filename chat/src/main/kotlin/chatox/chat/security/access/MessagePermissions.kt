@@ -5,13 +5,14 @@ import chatox.chat.model.ChatType
 import chatox.chat.model.MessageUploadsCount
 import chatox.chat.model.SendMessagesFeatureAdditionalData
 import chatox.chat.model.UploadType
+import chatox.chat.model.User
 import chatox.chat.repository.mongodb.UploadRepository
-import chatox.chat.security.AuthenticationFacade
-import chatox.chat.security.CustomUserDetails
 import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatRoleService
 import chatox.chat.service.ChatService
 import chatox.chat.service.MessageService
+import chatox.platform.security.jwt.JwtPayload
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -22,7 +23,7 @@ import java.time.ZonedDateTime
 
 @Component
 class MessagePermissions(private val chatBlockingService: ChatBlockingService,
-                         private val authenticationFacade: AuthenticationFacade,
+                         private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                          private val chatRoleService: ChatRoleService,
                          private val uploadRepository: UploadRepository) {
     private lateinit var messageService: MessageService
@@ -40,7 +41,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
 
     fun canCreateMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<Boolean> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
             if (isUserBlocked(currentUser, chatId).awaitFirst()) {
                 return@mono false
@@ -65,7 +66,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
 
     fun canPublishScheduledMessage(chatId: String): Mono<Boolean> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
             if (isUserBlocked(currentUser, chatId).awaitFirst()) {
                 return@mono false
@@ -80,7 +81,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
 
     fun canUpdateMessage(messageId: String, chatId: String): Mono<Boolean> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val message = messageService.findMessageByIdAndChatId(messageId, chatId).awaitFirst()
 
             if (message.sender.id != currentUser.id || message.createdAt.isAfter(ZonedDateTime.now().plusDays(1L))) {
@@ -98,9 +99,9 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
     fun canDeleteMessage(messageId: String, chatId: String): Mono<Boolean> {
         return mono {
             val message = messageService.findMessageById(messageId).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
-            if (currentUser.isAdmin()) {
+            if (currentUser.isAdmin) {
                 return@mono true
             }
 
@@ -123,7 +124,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 return@mono false
             }
 
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val userRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
 
@@ -139,7 +140,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 return@mono false
             }
 
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val userRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
 
@@ -149,7 +150,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
 
     fun canSeeScheduledMessages(chatId: String): Mono<Boolean> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val userRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
 
@@ -159,12 +160,12 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
 
     fun canUpdateScheduledMessage(messageId: String, chatId: String): Mono<Boolean> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val userRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
             val message = messageService.findScheduledMessageById(messageId).awaitFirst()
 
-            return@mono !currentUser.isBannedGlobally()
+            return@mono !currentUser.isBannedGlobally
                     && message.chatId == chatId
                     && message.sender.id == currentUser.id
                     && userRole.features.scheduleMessages.enabled
@@ -173,7 +174,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
 
     fun canDeleteScheduledMessage(messageId: String, chatId: String): Mono<Boolean> {
         return mono {
-            val currenUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currenUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val userRole = chatRoleService.getRoleOfUserInChat(userId = currenUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
             val message = messageService.findScheduledMessageById(messageId).awaitFirst()
@@ -199,7 +200,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
             if (chat.type == ChatType.GROUP) {
                 return@mono true
             } else {
-                val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirstOrNull() ?: return@mono false
+                val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull() ?: return@mono false
 
                 return@mono chatRoleService.getRoleOfUserInChat(
                         userId = currentUser.id,
@@ -210,9 +211,9 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
         }
     }
 
-    private fun isUserBlocked(currentUser: CustomUserDetails, chatId: String): Mono<Boolean> {
+    private fun isUserBlocked(currentUser: JwtPayload, chatId: String): Mono<Boolean> {
         return mono {
-            if (currentUser.isBannedGlobally()) {
+            if (currentUser.isBannedGlobally) {
                 return@mono true
             }
 

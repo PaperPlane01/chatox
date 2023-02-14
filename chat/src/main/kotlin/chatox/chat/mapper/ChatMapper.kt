@@ -10,7 +10,6 @@ import chatox.chat.messaging.rabbitmq.event.ChatUpdated
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatInterface
 import chatox.chat.model.ChatParticipation
-import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatType
 import chatox.chat.model.Message
 import chatox.chat.model.User

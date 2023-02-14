@@ -1,8 +1,10 @@
 package chatox.user.service.impl
 
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import chatox.user.api.response.BlacklistStatusResponse
 import chatox.user.api.response.UserResponse
 import chatox.user.cache.UserReactiveRepositoryCacheWrapper
+import chatox.user.domain.User
 import chatox.user.domain.UserBlacklist
 import chatox.user.domain.UserBlacklistEntry
 import chatox.user.exception.UserHasAlreadyBeenBlacklistedException
@@ -13,26 +15,23 @@ import chatox.user.messaging.rabbitmq.event.UserRemovedFromBlacklist
 import chatox.user.messaging.rabbitmq.event.producer.BlacklistEventsProducer
 import chatox.user.repository.UserBlacklistRepository
 import chatox.user.repository.UserRepository
-import chatox.user.security.AuthenticationFacade
 import chatox.user.service.UserBlacklistService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 import java.util.UUID
 
 @Service
-@Transactional
 class UserBlacklistServiceImpl(private val userBlacklistRepository: UserBlacklistRepository,
                                private val userRepository: UserRepository,
                                private val userReactiveRepositoryCacheWrapper: UserReactiveRepositoryCacheWrapper,
                                private val blacklistEventsProducer: BlacklistEventsProducer,
                                private val userMapper: UserMapper,
-                               private val authenticationFacade: AuthenticationFacade) : UserBlacklistService {
+                               private val authenticationHolder: ReactiveAuthenticationHolder<User>) : UserBlacklistService {
 
     override fun blacklistUser(userId: String): Flux<UserResponse> {
         return mono {
@@ -56,7 +55,7 @@ class UserBlacklistServiceImpl(private val userBlacklistRepository: UserBlacklis
 
             val users = userRepository.findAllById(usersIds).collectList().awaitFirst()
 
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
             Mono.fromRunnable<Unit> { blacklistEventsProducer.userAddedToBlacklist(UserAddedToBlacklist(
                     userId = userId,
                     addedById = currentUser.id
@@ -77,7 +76,7 @@ class UserBlacklistServiceImpl(private val userBlacklistRepository: UserBlacklis
 
             val users = userRepository.findAllById(newEntries.map { entry -> entry.userId }.toMutableList()).collectList().awaitFirst()
 
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             Mono.fromRunnable<Unit> { blacklistEventsProducer.userRemovedFromBlacklist(UserRemovedFromBlacklist(
                     userId = userId,
                     removedById = currentUser.id
@@ -100,7 +99,7 @@ class UserBlacklistServiceImpl(private val userBlacklistRepository: UserBlacklis
 
     override fun getBlacklistStatus(userId: String): Mono<BlacklistStatusResponse> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val userBlacklist = getBlacklistOfUserOrCreate(userId).awaitFirst()
             val currentUserBlacklisted = userBlacklist.entries.any { entry -> entry.userId == currentUser.id }
 
@@ -110,7 +109,7 @@ class UserBlacklistServiceImpl(private val userBlacklistRepository: UserBlacklis
 
     private fun getBlacklistOfCurrentUserOrCreate(): Mono<UserBlacklist> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
             return@mono getBlacklistOfUserOrCreate(currentUser.id).awaitFirst()
         }

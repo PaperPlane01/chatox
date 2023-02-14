@@ -36,7 +36,6 @@ import chatox.chat.repository.mongodb.MessageReadRepository
 import chatox.chat.repository.mongodb.ScheduledMessageRepository
 import chatox.chat.repository.mongodb.StickerRepository
 import chatox.chat.repository.mongodb.UploadRepository
-import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.EmojiParserService
 import chatox.chat.service.MessageService
 import chatox.chat.util.NTuple7
@@ -45,6 +44,8 @@ import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
+import chatox.platform.security.jwt.JwtPayload
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -68,7 +69,7 @@ class MessageServiceImpl(
         private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
         private val scheduledMessageRepository: ScheduledMessageRepository,
         private val stickerRepository: StickerRepository,
-        private val authenticationFacade: AuthenticationFacade,
+        private val authenticationHolder: ReactiveAuthenticationHolder<User>,
         private val emojiParserService: EmojiParserService,
         private val messageCacheService: ReactiveCacheService<Message, String>,
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
@@ -82,7 +83,7 @@ class MessageServiceImpl(
 
     override fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
             if (createMessageRequest.scheduledAt == null) {
                 return@mono createNormalMessage(chatId, createMessageRequest, currentUser).awaitFirst()
@@ -92,7 +93,7 @@ class MessageServiceImpl(
         }
     }
 
-    private fun createNormalMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: User): Mono<MessageResponse> {
+    private fun createNormalMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: JwtPayload): Mono<MessageResponse> {
         return mono {
             val (
                     chat,
@@ -150,7 +151,7 @@ class MessageServiceImpl(
         }.flatMapMany { it }
     }
 
-    private fun createScheduledMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: User): Mono<MessageResponse> {
+    private fun createScheduledMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: JwtPayload): Mono<MessageResponse> {
         return mono {
             val chat = findChatById(chatId).awaitFirst()
             val numberOfScheduledMessagesInChat = scheduledMessageRepository.countByChatId(chat.id).awaitFirst()
@@ -207,7 +208,7 @@ class MessageServiceImpl(
 
     override fun createFirstMessageForPrivateChat(chatId: String, createMessageRequest: CreateMessageRequest, chatParticipation: ChatParticipation): Mono<MessageResponse> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val (
                     chat,
                     sticker,
@@ -241,7 +242,7 @@ class MessageServiceImpl(
         }
     }
 
-    private fun prepareDataForSavingMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: User): Mono<NTuple7<Chat, Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, ChatParticipation>> {
+    private fun prepareDataForSavingMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: JwtPayload): Mono<NTuple7<Chat, Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, ChatParticipation>> {
         return mono {
             val chat = findChatById(chatId).awaitFirst()
 
@@ -345,7 +346,7 @@ class MessageServiceImpl(
 
     override fun deleteMessage(id: String, chatId: String): Mono<Void> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val message = findMessageEntityById(id).awaitFirst()
 
             messageRepository.save(message.copy(
@@ -386,7 +387,7 @@ class MessageServiceImpl(
     override fun findMessagesByChat(chatId: String, paginationRequest: PaginationRequest): Flux<MessageResponse> {
         return mono {
             val chat = findChatById(chatId).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.currentUserDetails.awaitFirst()
             val messages = messageRepository.findByChatId(chat.id, paginationRequest.toPageRequest())
             val hasAnyReadMessages = messageReadRepository.existsByUserIdAndChatId(
                     userId = currentUser.id,
@@ -394,7 +395,12 @@ class MessageServiceImpl(
             )
                     .awaitFirst()
 
-            mapMessages(messages = messages, hasAnyReadMessages = hasAnyReadMessages, currentUser = currentUser, chat = chat)
+            return@mono mapMessages(
+                    messages = messages,
+                    hasAnyReadMessages = hasAnyReadMessages,
+                    currentUser = currentUser,
+                    chat = chat
+            )
         }
                 .flatMapMany { it }
     }
@@ -407,7 +413,7 @@ class MessageServiceImpl(
         return mono {
             val chat = findChatById(chatId).awaitFirst()
             val cursorMessage = findMessageEntityById(sinceMessageId).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.currentUserDetails.awaitFirst()
             val messages = messageRepository.findByChatIdAndCreatedAtGreaterThanEqual(
                     chatId = chat.id,
                     date = cursorMessage.createdAt,
@@ -437,7 +443,7 @@ class MessageServiceImpl(
         return mono {
             val chat = findChatById(chatId).awaitFirst()
             val cursorMessage = findMessageEntityById(beforeMessageId).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.currentUserDetails.awaitFirst()
             val messages = messageRepository.findByChatIdAndCreatedAtLessThanEqual(
                     chatId = chat.id,
                     date = cursorMessage.createdAt,
@@ -459,10 +465,10 @@ class MessageServiceImpl(
                 .flatMapMany { it }
     }
 
-    protected fun mapMessages(messages: Flux<Message>, hasAnyReadMessages: Boolean, currentUser: User, chat: Chat): Flux<MessageResponse> {
+    protected fun mapMessages(messages: Flux<Message>, hasAnyReadMessages: Boolean, currentUser: JwtPayload?, chat: Chat): Flux<MessageResponse> {
         return mono {
 
-            return@mono if (hasAnyReadMessages) {
+            return@mono if (hasAnyReadMessages && currentUser != null) {
                 val lastMessageRead = messageReadRepository.findTopByUserIdAndChatIdOrderByDateDesc(
                         userId = currentUser.id,
                         chatId = chat.id
@@ -480,7 +486,7 @@ class MessageServiceImpl(
         return mono {
             val message = findMessageEntityById(messageId = messageId, retrieveFromCache = true)
                     .awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val chatParticipation = chatParticipationRepository.findByChatIdAndUserId(
                     chatId = message.chatId,
                     userId = currentUser.id
@@ -529,7 +535,7 @@ class MessageServiceImpl(
             }
 
             var message = findMessageEntityById(id).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
             message = message.copy(pinnedAt = ZonedDateTime.now(), pinned = true, pinnedById = currentUser.id)
             messageRepository.save(message).awaitFirst()
@@ -758,7 +764,7 @@ class MessageServiceImpl(
 
     override fun deleteMultipleMessages(deleteMultipleMessagesRequest: DeleteMultipleMessagesRequest): Mono<Void> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             var messages = messageRepository.findAllById(deleteMultipleMessagesRequest.messagesIds)
                     .collectList()
                     .awaitFirst()

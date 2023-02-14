@@ -4,11 +4,12 @@ import chatox.chat.api.request.UpdateChatParticipationRequest
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.model.Chat
-import chatox.chat.security.AuthenticationFacade
+import chatox.chat.model.User
 import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.service.ChatRoleService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -20,7 +21,7 @@ class ChatParticipationPermissions(private val chatBlockingService: ChatBlocking
                                    private val chatRoleService: ChatRoleService,
                                    private val chatParticipationService: ChatParticipationService,
                                    private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
-                                   private val authenticationFacade: AuthenticationFacade) {
+                                   private val authenticationHolder: ReactiveAuthenticationHolder<User>) {
 
     fun canJoinChat(chatId: String): Mono<Boolean> {
         return mono {
@@ -31,7 +32,7 @@ class ChatParticipationPermissions(private val chatBlockingService: ChatBlocking
                 throw ChatDeletedException(chat.chatDeletion)
             }
 
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val chatRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId)
                     .awaitFirstOrNull()
             val userBlockedInChat = chatBlockingService
@@ -44,7 +45,7 @@ class ChatParticipationPermissions(private val chatBlockingService: ChatBlocking
 
     fun canLeaveChat(chatId: String): Mono<Boolean> {
         return mono {
-            val currentUserId = authenticationFacade.getCurrentUserDetails().awaitFirst().id
+            val currentUserId = authenticationHolder.requireCurrentUserDetails().awaitFirst().id
             val currentUserRole = chatRoleService.getRoleOfUserInChat(userId = currentUserId, chatId = chatId).awaitFirstOrNull()
 
             return@mono currentUserRole != null
@@ -59,7 +60,7 @@ class ChatParticipationPermissions(private val chatBlockingService: ChatBlocking
                 return@mono false
             }
 
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val currentUserRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
 
@@ -75,7 +76,7 @@ class ChatParticipationPermissions(private val chatBlockingService: ChatBlocking
 
     fun canUpdateChatParticipant(chatId: String, chatParticipationId: String, updateChatParticipantRequest: UpdateChatParticipationRequest): Mono<Boolean> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val (currentUserRole, currentUserChatParticipation) = chatRoleService.getRoleAndChatParticipationOfUserInChat(
                     userId = currentUser.id,
                     chatId = chatId

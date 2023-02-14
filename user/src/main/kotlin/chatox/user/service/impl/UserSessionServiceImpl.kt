@@ -1,7 +1,10 @@
 package chatox.user.service.impl
 
+import chatox.platform.pagination.PaginationRequest
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import chatox.user.api.response.SessionActivityStatusResponse
 import chatox.user.api.response.UserSessionResponse
+import chatox.user.domain.User
 import chatox.user.domain.UserSession
 import chatox.user.mapper.UserSessionMapper
 import chatox.user.messaging.rabbitmq.event.UserConnected
@@ -11,9 +14,7 @@ import chatox.user.messaging.rabbitmq.event.UserOnline
 import chatox.user.messaging.rabbitmq.event.producer.UserEventsProducer
 import chatox.user.repository.UserRepository
 import chatox.user.repository.UserSessionRepository
-import chatox.user.security.AuthenticationFacade
 import chatox.user.service.UserSessionService
-import chatox.platform.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -34,7 +35,7 @@ import java.util.UUID
 class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepository,
                              private val userRepository: UserRepository,
                              private val userSessionMapper: UserSessionMapper,
-                             private val authenticationFacade: AuthenticationFacade,
+                             private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                              private val userEventsProducer: UserEventsProducer,
                              private val discoveryClient: DiscoveryClient) : UserSessionService {
 
@@ -119,7 +120,7 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
 
     override fun findActiveSessionsOfCurrentUser(): Flux<UserSessionResponse> {
         return mono {
-            val user = authenticationFacade.getCurrentUser().awaitFirst()
+            val user = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
             userSessionRepository
                     .findByUserIdAndDisconnectedAtNull(user.id)
@@ -130,7 +131,7 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
 
     override fun findSessionsOfCurrentUser(paginationRequest: PaginationRequest): Flux<UserSessionResponse> {
         return mono {
-            val user = authenticationFacade.getCurrentUser().awaitFirst()
+            val user = authenticationHolder.requireCurrentUser().awaitFirst()
 
             userSessionRepository.findByUserId(user.id, paginationRequest.toPageRequest())
                     .map { userSessionMapper.toUserSessionResponse(it) }

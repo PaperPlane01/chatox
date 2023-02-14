@@ -18,11 +18,11 @@ import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRoleRepository
 import chatox.chat.repository.mongodb.ChatRoleTemplateRepository
-import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatRoleService
 import chatox.chat.util.NTuple2
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -47,7 +47,7 @@ class ChatRoleServiceImpl(
         private val chatRoleCacheService: ReactiveRepositoryCacheWrapper<ChatRole, String>,
         private val userCacheService: ReactiveRepositoryCacheWrapper<User, String>,
         private val chatRoleMapper: ChatRoleMapper,
-        private val authenticationFacade: AuthenticationFacade,
+        private val authenticationHolder: ReactiveAuthenticationHolder<User>,
         private val defaultChatRoleCache: DefaultRoleOfChatCacheWrapper,
         private val chatRoleEventsPublisher: ChatRoleEventsPublisher
 ) : ChatRoleService {
@@ -156,7 +156,7 @@ class ChatRoleServiceImpl(
 
     override fun createChatRole(chatId: String, createChatRoleRequest: CreateChatRoleRequest): Mono<ChatRoleResponse> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
             var formerDefaultRole: ChatRole? = null
 
             if (createChatRoleRequest.default) {
@@ -201,7 +201,7 @@ class ChatRoleServiceImpl(
             chatCacheWrapper.findById(chatId).awaitFirstOrNull()
                     ?: throw ChatNotFoundException("Could not find chat with id $chatId")
 
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
             var chatRole = chatRoleRepository.findById(roleId).awaitFirst()
 
             if (chatRole.chatId != chatId) {

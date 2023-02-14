@@ -1,6 +1,7 @@
 package chatox.user.service.impl
 
 import chatox.platform.pagination.PaginationRequest
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import chatox.user.api.request.BanMultipleUsersRequest
 import chatox.user.api.request.BanUserRequest
 import chatox.user.api.request.BanUserRequestWithUserId
@@ -17,7 +18,6 @@ import chatox.user.mapper.GlobalBanMapper
 import chatox.user.messaging.rabbitmq.event.producer.GlobalBanEventsProducer
 import chatox.user.repository.GlobalBanRepository
 import chatox.user.repository.UserRepository
-import chatox.user.security.AuthenticationFacade
 import chatox.user.service.GlobalBanService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
-import java.util.HashSet
 import java.util.UUID
 
 @Service
@@ -34,14 +33,14 @@ import java.util.UUID
 class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
                            private val userRepository: UserRepository,
                            private val globalBanMapper: GlobalBanMapper,
-                           private val authenticationFacade: AuthenticationFacade,
+                           private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                            private val globalBanEventsProducer: GlobalBanEventsProducer,
                            private val userReactiveRepositoryCacheWrapper: UserReactiveRepositoryCacheWrapper) : GlobalBanService {
 
     override fun banUser(userId: String, banUserRequest: BanUserRequest): Mono<GlobalBanResponse> {
         return mono {
             val user = findUserById(userId).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUserEntity().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
 
             var otherActiveBans = globalBanRepository.findActiveByBannedUser(currentUser)
                     .collectList()
@@ -92,14 +91,14 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
                 )) }
             }
 
-            globalBanResponse
+            return@mono globalBanResponse
         }
     }
 
     override fun updateBan(userId: String, banId: String, updateBanRequest: UpdateBanRequest): Mono<GlobalBanResponse> {
         return mono {
             val user = findUserById(userId).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUserEntity().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
             var ban = findBanByUserAndBanId(user, banId).awaitFirst()
 
             if (!isBanActive(ban)) {
@@ -124,14 +123,15 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
                     updatedBy = currentUser
             )
             globalBanEventsProducer.globalBanUpdated(globalBanResponse)
-            globalBanResponse
+            
+            return@mono globalBanResponse
         }
     }
 
     override fun cancelBan(userId: String, banId: String): Mono<GlobalBanResponse> {
         return mono {
             val user = findUserById(userId).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUserEntity().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
             var ban = findBanByUserAndBanId(user, banId).awaitFirst()
 
             if (!isBanActive(ban)) {
@@ -153,7 +153,8 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
                     createdBy = userReactiveRepositoryCacheWrapper.findById(ban.createdById).awaitFirst()
             )
             globalBanEventsProducer.globalBanUpdated(globalBanResponse)
-            globalBanResponse
+            
+            return@mono globalBanResponse
         }
     }
 
@@ -176,7 +177,7 @@ class GlobalBanServiceImpl(private val globalBanRepository: GlobalBanRepository,
 
     override fun banMultipleUsers(banMultipleUsersRequest: BanMultipleUsersRequest): Flux<GlobalBanResponse> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserEntity().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
             val banRequests = filterBanUserRequestsByDistinctUserId(banMultipleUsersRequest.bans)
             val usersIdsToBan = banRequests.map { banRequest -> banRequest.userId }
             val usersToBan = userRepository.findAllById(usersIdsToBan).collectList().awaitFirst()

@@ -3,9 +3,10 @@ package chatox.chat.security.access
 import chatox.chat.api.request.CreateChatRoleRequest
 import chatox.chat.api.request.UpdateChatRoleRequest
 import chatox.chat.model.ChatFeatures
-import chatox.chat.security.AuthenticationFacade
+import chatox.chat.model.User
 import chatox.chat.service.ChatRoleService
 import chatox.chat.service.ChatService
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -14,7 +15,7 @@ import reactor.core.publisher.Mono
 
 @Component
 class ChatRolePermissions(private val chatRoleService: ChatRoleService,
-                          private val authenticationFacade: AuthenticationFacade,
+                          private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                           private val chatService: ChatService) {
 
     fun canCreateChatRole(chatId: String, createChatRoleRequest: CreateChatRoleRequest) = canCreateOrUpdateRoleWithFeatures(
@@ -29,7 +30,7 @@ class ChatRolePermissions(private val chatRoleService: ChatRoleService,
 
     private fun canCreateOrUpdateRoleWithFeatures(chatId: String, features: ChatFeatures): Mono<Boolean> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val currentUserChatRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
             val chat = chatService.findChatById(chatId).awaitFirst()

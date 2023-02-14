@@ -1,6 +1,8 @@
 package chatox.sticker.service.impl
 
 import chatox.platform.pagination.PaginationRequest
+import chatox.platform.security.jwt.JwtPayload
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import chatox.sticker.api.request.CreateStickerPackRequest
 import chatox.sticker.api.request.CreateStickerRequest
 import chatox.sticker.api.response.StickerPackResponse
@@ -14,7 +16,6 @@ import chatox.sticker.repository.StickerPackInstallationRepository
 import chatox.sticker.repository.StickerPackRepository
 import chatox.sticker.repository.StickerRepository
 import chatox.sticker.repository.UploadRepository
-import chatox.sticker.security.AuthenticationFacade
 import chatox.sticker.service.StickerPackService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -33,13 +34,13 @@ class StickerPackServiceImpl(
         private val stickerPackInstallationRepository: StickerPackInstallationRepository,
         private val stickerPackRepository: StickerPackRepository,
         private val uploadRepository: UploadRepository,
-        private val authenticationFacade: AuthenticationFacade,
+        private val authenticationHolder: ReactiveAuthenticationHolder<JwtPayload>,
         private val stickerPackMapper: StickerPackMapper,
         private val stickerEventsProducer: StickerEventsProducer) : StickerPackService {
 
     override fun createStickerPack(createStickerPackRequest: CreateStickerPackRequest): Mono<StickerPackResponse<Any>> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val stickerPackId = ObjectId().toHexString()
             val stickers = createStickers(createStickerRequests = createStickerPackRequest.stickers, stickerPackId = stickerPackId)
                     .collectList()
@@ -103,7 +104,7 @@ class StickerPackServiceImpl(
     override fun installStickerPack(stickerPackId: String): Flux<StickerPackResponse<Any>> {
         return mono {
             val stickerPack = findStickerPackByIdInternal(stickerPackId).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val stickerPackInstallation = StickerPackInstallation(
                     id = ObjectId().toHexString(),
                     createdAt = ZonedDateTime.now(),
@@ -121,7 +122,7 @@ class StickerPackServiceImpl(
     override fun uninstallStickerPack(stickerPackId: String): Flux<StickerPackResponse<Any>> {
         return mono {
             val stickerPack = findStickerPackByIdInternal(stickerPackId).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             stickerPackInstallationRepository.deleteByUserIdAndStickerPackId(
                     userId = currentUser.id,
                     stickerPackId = stickerPack.id
@@ -135,7 +136,7 @@ class StickerPackServiceImpl(
 
     override fun findStickerPacksInstalledByCurrentUser(): Flux<StickerPackResponse<Any>> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
             return@mono findStickerPacksInstalledByUser(currentUser.id)
         }
@@ -157,7 +158,7 @@ class StickerPackServiceImpl(
 
     override fun findStickerPacksCreatedByCurrentUser(): Flux<StickerPackResponse<Any>> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val stickerPacks = stickerPackRepository.findAllByCreatedBy(currentUser.id).collectList().awaitFirst()
 
             return@mono mapStickerPacks(stickerPacks)

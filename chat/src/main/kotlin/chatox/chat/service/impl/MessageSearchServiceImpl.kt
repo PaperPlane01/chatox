@@ -2,12 +2,13 @@ package chatox.chat.service.impl
 
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.mapper.MessageMapper
+import chatox.chat.model.User
 import chatox.chat.repository.elasticsearch.MessageElasticsearchRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
-import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.MessageSearchService
 import chatox.platform.pagination.PaginationRequest
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
@@ -23,7 +24,7 @@ class MessageSearchServiceImpl(private val messageElasticsearchRepository: Messa
                                private val messageMongoRepository: MessageMongoRepository,
                                private val chatParticipationRepository: ChatParticipationRepository,
                                private val messageMapper: MessageMapper,
-                               private val authenticationFacade: AuthenticationFacade) : MessageSearchService {
+                               private val authenticationHolder: ReactiveAuthenticationHolder<User>) : MessageSearchService {
     @Value("\${messages.elasticsearch.sync-on-start}")
     private var runSyncOnStart: Boolean = false
     private val log = LoggerFactory.getLogger(this.javaClass)
@@ -40,7 +41,7 @@ class MessageSearchServiceImpl(private val messageElasticsearchRepository: Messa
 
     override fun searchMessagesInChatsOfCurrentUser(text: String, paginationRequest: PaginationRequest): Flux<MessageResponse> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val chatIds = chatParticipationRepository
                     .findAllByUserIdAndDeletedFalse(currentUser.id)
                     .collectList()

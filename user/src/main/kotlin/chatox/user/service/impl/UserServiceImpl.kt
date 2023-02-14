@@ -1,5 +1,6 @@
 package chatox.user.service.impl
 
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import chatox.user.api.request.CreateUserRequest
 import chatox.user.api.request.UpdateUserRequest
 import chatox.user.api.response.SlugAvailabilityResponse
@@ -7,6 +8,7 @@ import chatox.user.api.response.UserResponse
 import chatox.user.domain.ImageUploadMetadata
 import chatox.user.domain.Upload
 import chatox.user.domain.UploadType
+import chatox.user.domain.User
 import chatox.user.exception.UploadNotFoundException
 import chatox.user.exception.UserNotFoundException
 import chatox.user.exception.WrongUploadTypeException
@@ -15,7 +17,6 @@ import chatox.user.messaging.rabbitmq.event.producer.UserEventsProducer
 import chatox.user.repository.UploadRepository
 import chatox.user.repository.UserRepository
 import chatox.user.repository.UserSessionRepository
-import chatox.user.security.AuthenticationFacade
 import chatox.user.service.UserService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -33,7 +34,7 @@ class UserServiceImpl(private val userRepository: UserRepository,
                       private val uploadRepository: UploadRepository,
                       private val userMapper: UserMapper,
                       private val userEventsProducer: UserEventsProducer,
-                      private val authenticationFacade: AuthenticationFacade) : UserService {
+                      private val authenticationHolder: ReactiveAuthenticationHolder<User>) : UserService {
 
     override fun deleteUsersByAccount(accountId: String): Flux<Void> {
         return userRepository.findByAccountId(accountId)
@@ -65,7 +66,7 @@ class UserServiceImpl(private val userRepository: UserRepository,
 
     override fun updateUser(id: String, updateUserRequest: UpdateUserRequest): Mono<UserResponse> {
         return mono {
-            if (authenticationFacade.isCurrentUserBannedGlobally().awaitFirst()) {
+            if (authenticationHolder.requireCurrentUserDetails().awaitFirst().isBannedGlobally) {
                 throw AccessDeniedException("Current user is banned globally")
             }
 

@@ -16,10 +16,10 @@ import chatox.chat.model.MessageRead
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Sticker
 import chatox.chat.model.Upload
-import chatox.chat.model.User
 import chatox.chat.service.UserService
 import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
+import chatox.platform.security.jwt.JwtPayload
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Qualifier
@@ -178,7 +178,7 @@ class MessageMapper(private val userService: UserService,
 
     fun fromCreateMessageRequest(
             createMessageRequest: CreateMessageRequest,
-            sender: User,
+            sender: JwtPayload,
             chat: Chat,
             referredMessage: Message?,
             emoji: EmojiInfo = EmojiInfo(),
@@ -232,7 +232,7 @@ class MessageMapper(private val userService: UserService,
 
     fun scheduledMessageFromCreateMessageRequest(
             createMessageRequest: CreateMessageRequest,
-            sender: User,
+            sender: JwtPayload,
             chat: Chat,
             referredMessage: Message?,
             emoji: EmojiInfo = EmojiInfo(),

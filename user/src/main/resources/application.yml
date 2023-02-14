@@ -14,8 +14,10 @@ spring:
         acknowledge-mode: manual
       simple:
         acknowledge-mode: manual
+
 server:
   port: 8083
+
 eureka:
   client:
     enabled: true
@@ -27,24 +29,17 @@ eureka:
     prefer-ip-address: true
     appname: 'user-service'
     instance-id: 'user-service-${server.port}'
+
 ribbon:
   eureka:
     enabled: true
-jwt:
-  public:
-    key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuIwjG7bwqv6J+JsuF2A3BRmJS4yj/q5esXzNkGCJSAzrtsOYX3wbf8uZCvSHtfCl/igPeL+HUgD+RtGkCqzn8WBadJfqVh1tuF3X3sc8DRQu/Z5RodRTmWDNkF1CYlEo5OcrQ5Quv5raUGl8TnRPJhjYF7quvDwV6EJTamm0sILN2tRg79pXhkf1kkAc5uhJOs+SWUYmkFGim2ZwMN5IA0QOCb0mzvj7XYgqW18376qCThtYk9CYjx9kCvuufUm93/G4VHWb2mvyHgJ8duzNeAWaPfTqShIBmuxdf0xQnCydozzzq0IvI8bd/YwouqrKFp9ueIRX2zC7WdOhpROGUwIDAQAB
+
 uploads:
   images: ${API_HOST:http://localhost:8080}/api/v1/uploads/images
-logging:
-  level:
-    org:
-      springframework:
-        data:
-          mongodb:
-            core:
-              ReactiveMongoTemplate: DEBUG
-    chatox:
-      user:
-        service:
-          impl:
-            UserSessionServiceImpl: DEBUG
+
+chatox:
+  jwt:
+    public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuIwjG7bwqv6J+JsuF2A3BRmJS4yj/q5esXzNkGCJSAzrtsOYX3wbf8uZCvSHtfCl/igPeL+HUgD+RtGkCqzn8WBadJfqVh1tuF3X3sc8DRQu/Z5RodRTmWDNkF1CYlEo5OcrQ5Quv5raUGl8TnRPJhjYF7quvDwV6EJTamm0sILN2tRg79pXhkf1kkAc5uhJOs+SWUYmkFGim2ZwMN5IA0QOCb0mzvj7XYgqW18376qCThtYk9CYjx9kCvuufUm93/G4VHWb2mvyHgJ8duzNeAWaPfTqShIBmuxdf0xQnCydozzzq0IvI8bd/YwouqrKFp9ueIRX2zC7WdOhpROGUwIDAQAB
+  method:
+    logging:
+      enabled: true

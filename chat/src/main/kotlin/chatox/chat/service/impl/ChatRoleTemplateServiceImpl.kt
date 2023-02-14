@@ -15,9 +15,10 @@ import chatox.chat.model.DefaultChatFeatureData
 import chatox.chat.model.LevelBasedFeatureAdditionalData
 import chatox.chat.model.LevelBasedFeatureData
 import chatox.chat.model.StandardChatRole
+import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatRoleTemplateRepository
-import chatox.chat.security.AuthenticationFacade
 import chatox.chat.service.ChatRoleTemplateService
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -31,12 +32,12 @@ import java.time.ZonedDateTime
 
 @Service
 class ChatRoleTemplateServiceImpl(private val chatRoleTemplateRepository: ChatRoleTemplateRepository,
-                                  private val authenticationFacade: AuthenticationFacade,
+                                  private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                                   private val chatRoleTemplateMapper: ChatRoleTemplateMapper
 ) : ChatRoleTemplateService {
     override fun createChatRoleTemplate(createChatRoleTemplateRequest: CreateChatRoleTemplateRequest): Mono<ChatRoleTemplateResponse> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
             if (chatRoleTemplateRepository.existsByName(createChatRoleTemplateRequest.name).awaitFirst()) {
                 throw ChatRoleTemplateAlreadyExistsException("Chat role template with name ${createChatRoleTemplateRequest.name} already exists")
@@ -59,7 +60,7 @@ class ChatRoleTemplateServiceImpl(private val chatRoleTemplateRepository: ChatRo
 
     override fun updateChatRoleTemplate(id: String, updateChatRoleTemplateRequest: UpdateChatRoleTemplateRequest): Mono<ChatRoleTemplateResponse> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             var chatRoleTemplate = chatRoleTemplateRepository.findById(id).awaitFirstOrNull()
                     ?: throw ChatRoleTemplateNotFoundException("Could not find chat role template with id $id")
 
