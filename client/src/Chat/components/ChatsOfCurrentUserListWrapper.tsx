@@ -1,12 +1,12 @@
-import React, {CSSProperties, Fragment, FunctionComponent, useState} from "react";
+import React, {Fragment, FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
-import {Hidden, Theme, useMediaQuery} from "@mui/material";
+import {Hidden, Theme} from "@mui/material";
 import {createStyles, makeStyles, useTheme} from "@mui/styles";
 import clsx from "clsx";
 import {ChatsOfCurrentUserList} from "./ChatsOfCurrentUserList";
 import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
 import {CreateChatDialog} from "./CreateChatDialog";
-import {ChatsOfCurrentUserListProps, VirtualScrollElement} from "../types";
+import {ChatsOfCurrentUserListProps} from "../types";
 import {ChatsAndMessagesSearchInput, ChatsAndMessagesSearchResult} from "../../ChatsAndMessagesSearch";
 import {usePermissions, useStore} from "../../store";
 
@@ -46,11 +46,7 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
         chatsAndMessagesSearchQuery: {
             searchModeActive
         },
-        authorization,
-        chatsPreferences: {
-            enableVirtualScroll,
-            virtualScrollElement
-        }
+        authorization
     } = useStore();
     const {
         chats: {
@@ -60,7 +56,6 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
     const classes = useStyles();
     const [hovered, setHovered] = useState(false);
     const theme = useTheme<Theme>();
-    const onLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
 
     const listProps: ChatsOfCurrentUserListProps = {
         classes: {
@@ -74,21 +69,11 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
         }
     };
 
-    const wrapperStyle: CSSProperties | undefined = onLargeScreen && enableVirtualScroll && virtualScrollElement === VirtualScrollElement.WINDOW
-        ? ({
-            position: "sticky",
-            overflowY: "auto",
-            top: theme.spacing(8),
-            minHeight: "100%"
-        })
-        : undefined;
-
     return (
         <Fragment>
             <div className={classes.chatListWrapper}
                  onMouseEnter={() => setHovered(true)}
                  onMouseLeave={() => setHovered(false)}
-                 style={wrapperStyle}
             >
                 <Hidden lgDown>
                     <div style={{

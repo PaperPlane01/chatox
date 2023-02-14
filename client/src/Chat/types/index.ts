@@ -9,5 +9,4 @@ export * from "./DeleteChatFormData";
 export * from "./ChatListEntry";
 export * from "./ChatLinkPropsGenerationStrategy";
 export * from "./ChatsOfCurrentUserListProps";
-export * from "./VirtualScrollElement";
 export * from "./SendMessageButton";

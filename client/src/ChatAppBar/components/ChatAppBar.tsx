@@ -1,7 +1,9 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography, Skeleton} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {ArrowBack} from "@mui/icons-material";
+import {Link} from "mobx-router";
 import {DialogChatAppBarContent} from "./DialogChatAppBarContent";
 import {GroupChatAppBarContent} from "./GroupChatAppBarContent";
 import {NewPrivateChatAppBar} from "./NewPrivateChatAppBar";
@@ -11,8 +13,11 @@ import {Labels} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {ChatType} from "../../api/types/response";
+import {commonStyles} from "../../style";
 
-const {Link} = require("mobx-router");
+const useStyles = makeStyles(() => createStyles({
+    undecoratedLink: commonStyles.undecoratedLink
+}));
 
 const getLabelFromError = (error: ApiError): keyof Labels => {
     if (error.status === API_UNREACHABLE_STATUS) {
@@ -47,6 +52,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const routerStore = useRouter();
+    const classes = useStyles();
     let appBarContent: ReactNode;
 
     if (pending) {
@@ -89,12 +95,9 @@ export const ChatAppBar: FunctionComponent = observer(() => {
                         <OpenDrawerButton/>
                     </Hidden>
                     <Hidden lgUp>
-                        <Link view={Routes.myChats}
-                              store={routerStore}
-                              style={{
-                                  textDecoration: "none",
-                                  color: "inherit"
-                              }}
+                        <Link route={Routes.myChats}
+                              router={routerStore}
+                              className={classes.undecoratedLink}
                         >
                             <IconButton color="inherit"
                                         size="medium"

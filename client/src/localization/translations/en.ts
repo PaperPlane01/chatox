@@ -549,5 +549,6 @@ export const en: Labels = {
     "theme.purple": "Purple",
     "theme.red": "Red",
     "theme.darkBlue": "Dark blue",
-    "theme.lightBlue": "Light blue"
+    "theme.lightBlue": "Light blue",
+    "settings.chat.virtual-scroll.enable-partial-virtualization": "Enable partial virtualization"
 };

@@ -10,7 +10,7 @@ import {OnlineChatParticipantsList} from "./OnlineChatParticipantsList";
 import {SearchChatParticipantsList} from "./SearchChatParticipantsList";
 import {ChatParticipantsListMode} from "../types";
 import {useChatParticipantsListScroll} from "../hooks";
-import {ChatOfCurrentUserEntity, VirtualScrollElement} from "../../Chat";
+import {ChatOfCurrentUserEntity} from "../../Chat";
 import {TranslationFunction} from "../../localization";
 import {commonStyles} from "../../style";
 import {useLocalization, useStore} from "../../store";
@@ -91,15 +91,13 @@ export const ChatParticipantsCard: FunctionComponent<ChatParticipantsCardProps> 
         onLargeScreen,
         enableVirtualScroll,
         scrollHandler,
-        virtualScrollElement
     } = useChatParticipantsListScroll(defaultMode);
 
     if (!selectedChat) {
         return null;
     }
 
-    const shouldHandleScroll = !preventScroll && onLargeScreen
-        && (!enableVirtualScroll || virtualScrollElement === VirtualScrollElement.WINDOW);
+    const shouldHandleScroll = !preventScroll && onLargeScreen && !enableVirtualScroll;
     const style: CSSProperties | undefined = shouldHandleScroll ? ({
         overflowY: "auto"
     }) : undefined;
