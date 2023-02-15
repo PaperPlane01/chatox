@@ -12,5 +12,5 @@ interface UserSessionService {
     fun userDisconnected(userDisconnected: UserDisconnected): Mono<Void>
     fun findActiveSessionsOfCurrentUser(): Flux<UserSessionResponse>
     fun findSessionsOfCurrentUser(paginationRequest: PaginationRequest): Flux<UserSessionResponse>
-    fun lookForInactiveSessions()
+    fun checkOnlineStatusOfUsers()
 }
