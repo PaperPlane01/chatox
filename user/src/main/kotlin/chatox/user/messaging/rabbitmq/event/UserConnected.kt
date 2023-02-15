@@ -6,4 +6,8 @@ data class UserConnected(
         val ipAddress: String,
         val userAgent: String,
         val accessToken: String
-)
+) {
+    override fun toString(): String {
+        return "UserConnected(userId='$userId', socketIoId='$socketIoId', ipAddress='$ipAddress', userAgent='$userAgent')"
+    }
+}

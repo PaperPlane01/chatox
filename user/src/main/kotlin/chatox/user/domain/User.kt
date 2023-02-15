@@ -5,22 +5,22 @@ import java.time.ZonedDateTime
 
 @Document(collection = "user")
 data class User(
-        var id: String,
-        var slug: String?,
-        var firstName: String,
-        var lastName: String?,
-        var bio: String?,
-        var createdAt: ZonedDateTime,
-        var lastSeen: ZonedDateTime,
-        var accountId: String,
-        var deleted: Boolean,
-        var dateOfBirth: ZonedDateTime?,
-        var email: String?,
-        var activeSessionsCount: Int = 0,
-        var avatar: Upload<ImageUploadMetadata>?,
-        var anonymous: Boolean = false,
-        var externalAvatarUri: String? = null,
-        var accountRegistrationType: UserAccountRegistrationType = UserAccountRegistrationType.USERNAME_AND_PASSWORD
+        val id: String,
+        val slug: String?,
+        val firstName: String,
+        val lastName: String?,
+        val bio: String?,
+        val createdAt: ZonedDateTime,
+        val lastSeen: ZonedDateTime,
+        val accountId: String,
+        val deleted: Boolean,
+        val dateOfBirth: ZonedDateTime?,
+        val email: String?,
+        val avatar: Upload<ImageUploadMetadata>?,
+        val anonymous: Boolean = false,
+        val externalAvatarUri: String? = null,
+        val accountRegistrationType: UserAccountRegistrationType = UserAccountRegistrationType.USERNAME_AND_PASSWORD,
+        val online: Boolean = false
 ) {
         override fun toString(): String {
                 return "User(id='$id', slug=$slug, firstName='$firstName', lastName=$lastName, bio=$bio, createdAt=$createdAt, lastSeen=$lastSeen, accountId='$accountId', deleted=$deleted, dateOfBirth=$dateOfBirth, email=$email)"
