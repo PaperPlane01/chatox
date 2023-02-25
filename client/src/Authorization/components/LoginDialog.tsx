@@ -14,10 +14,10 @@ import {
 } from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
+import {LoginWithGoogleButton} from "./LoginWithGoogleButton";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {PasswordRecoveryStep} from "../../PasswordRecovery/types";
-import {LoginWithGoogleButton} from "./LoginWithGoogleButton";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     dialogActionButton: {
@@ -43,15 +43,15 @@ export const LoginDialog: FunctionComponent = observer(() => {
     const {
         login: {
             loginDialogOpen,
-            loginForm,
-            loginFormErrors,
+            formValues,
+            formErrors,
             displayPassword,
             error,
             pending,
-            updateLoginFormValue,
+            setFormValue,
             setDisplayPassword,
             setLoginDialogOpen,
-            doLogin
+            submitForm
         },
         passwordRecoveryDialog: {
             setPasswordRecoveryDialogOpen,
@@ -80,18 +80,18 @@ export const LoginDialog: FunctionComponent = observer(() => {
             </DialogTitle>
             <DialogContent>
                 <TextField label={l("username")}
-                           value={loginForm.username}
-                           onChange={event => updateLoginFormValue("username", event.target.value as string)}
-                           error={Boolean(loginFormErrors.username)}
-                           helperText={loginFormErrors.username && l(loginFormErrors.username)}
+                           value={formValues.username}
+                           onChange={event => setFormValue("username", event.target.value as string)}
+                           error={Boolean(formErrors.username)}
+                           helperText={formErrors.username && l(formErrors.username)}
                            fullWidth
                            margin="dense"
                 />
                 <TextField label={l("password")}
-                           value={loginForm.password}
-                           onChange={event => updateLoginFormValue("password", event.target.value as string)}
-                           error={Boolean(loginFormErrors.password)}
-                           helperText={loginFormErrors.password && l(loginFormErrors.password)}
+                           value={formValues.password}
+                           onChange={event => setFormValue("password", event.target.value as string)}
+                           error={Boolean(formErrors.password)}
+                           helperText={formErrors.password && l(formErrors.password)}
                            fullWidth
                            margin="dense"
                            type={displayPassword ? "text" : "password"}
@@ -124,12 +124,14 @@ export const LoginDialog: FunctionComponent = observer(() => {
                         color="primary"
                         className={classes.dialogActionButton}
                         disabled={pending}
-                        onClick={doLogin}
+                        onClick={submitForm}
                 >
-                    {pending && <CircularProgress size={15}
-                                                  color="primary"
-                                                  style={{marginRight: 5}}
-                    />}
+                    {pending && (
+                        <CircularProgress size={15}
+                                          color="primary"
+                                          style={{marginRight: 5}}
+                        />
+                    )}
                     {l("login")}
                 </Button>
                 <LoginWithGoogleButton/>
