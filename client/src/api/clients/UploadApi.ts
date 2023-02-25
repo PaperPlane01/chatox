@@ -30,7 +30,7 @@ export class UploadApi {
 
         if (onUploadProgress) {
             config.onUploadProgress = progressEvent => {
-                const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total!);
                 onUploadProgress(percentage);
             }
         }
@@ -45,7 +45,7 @@ export class UploadApi {
 
         if (onDownloadProgress) {
             config.onDownloadProgress = progressEvent => {
-                const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total!);
                 onDownloadProgress(percentage);
             }
         }
