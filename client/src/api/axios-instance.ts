@@ -79,9 +79,9 @@ const refreshAccessToken = (originalRequest: AxiosRequestConfig): Promise<any> =
         return new Promise(resolve => {
             addRefreshTokenSubscriber(token =>{
 
-                if (token) {
+                if (token && originalRequest.headers) {
                     originalRequest.headers.Authorization = `Bearer ${token}`;
-                } else {
+                } else if (originalRequest.headers) {
                     delete originalRequest.headers.Authorization;
                 }
 
@@ -89,7 +89,7 @@ const refreshAccessToken = (originalRequest: AxiosRequestConfig): Promise<any> =
             })
         });
     } else {
-        delete originalRequest.headers.Authorization;
+        originalRequest.headers && delete originalRequest.headers.Authorization;
         return Promise.resolve();
     }
 };

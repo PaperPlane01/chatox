@@ -1,5 +1,5 @@
-import {Labels} from "../localization/types";
 import {AxiosError} from "axios";
+import {Labels} from "../localization";
 
 export const API_UNREACHABLE_STATUS = 123456789;
 
@@ -17,7 +17,7 @@ export const getInitialApiErrorFromResponse = (errorResponse: AxiosError): ApiEr
         return {
             status: errorResponse.response.status,
             message: "error.unknown",
-            metadata: errorResponse.response.data.metadata
+            metadata: (errorResponse.response.data as any).metadata
         };
     } else {
         return {status: API_UNREACHABLE_STATUS, message: "server.unreachable"};
