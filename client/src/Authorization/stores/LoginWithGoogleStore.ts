@@ -1,4 +1,4 @@
-import {makeAutoObservable} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {AuthorizationStore} from "./AuthorizationStore";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 
@@ -51,19 +51,13 @@ export class LoginWithGoogleStore {
             clientSecret: `${process.env.REACT_APP_CLIENT_SECRET}`
         })
             .then(({data}) => {
-                this.authorizationStore.setCurrentUser({
-                    id: data.userId,
-                    accountId: data.accountId,
-                    firstName: data.firstName,
-                    lastName: data.lastName,
-                    roles: data.roles,
-                    slug: data.slug,
-                    createdAt: data.createdAt,
-                    externalAvatarUri: data.externalAvatarUri
-                });
                 this.authorizationStore.setTokens(data.accessToken, data.refreshToken);
+
+                if (window && window.location) {
+                    window.location.reload();
+                }
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false);
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.pending = false));
     };
 }

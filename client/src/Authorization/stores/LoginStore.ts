@@ -22,7 +22,7 @@ export class LoginStore extends AbstractFormStore<LoginFormData> {
     constructor(private  readonly authorizationStore: AuthorizationStore) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
 
-        makeObservable(this, {
+        makeObservable<LoginStore, "validateForm">(this, {
             loginDialogOpen: observable,
             displayPassword: observable,
             setLoginDialogOpen: action,
@@ -51,9 +51,10 @@ export class LoginStore extends AbstractFormStore<LoginFormData> {
         UserApi.doLogin(this.formValues.username, this.formValues.password)
             .then(({data}) => runInAction(() => {
                 this.authorizationStore.setTokens(data.access_token, data.refresh_token);
-                this.authorizationStore.fetchCurrentUser();
-                this.loginDialogOpen = false;
-                this.resetForm();
+
+                if (window && window.location) {
+                    window.location.reload();
+                }
             }))
             .catch((error: AxiosError) => {
                 const apiError = getInitialApiErrorFromResponse(error);
@@ -71,12 +72,12 @@ export class LoginStore extends AbstractFormStore<LoginFormData> {
             .finally(() => this.setPending(false));
     }
 
-    validateForm = (): boolean  => {
+    protected validateForm = (): boolean  => {
         this.formErrors = {
             username: validateUsername(this.formValues.username),
             password: validatePassword(this.formValues.password)
         };
 
-        return !containsNotUndefinedValues(this.formValues)
+        return !containsNotUndefinedValues(this.formErrors)
     }
 }
