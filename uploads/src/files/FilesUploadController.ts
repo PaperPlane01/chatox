@@ -8,6 +8,7 @@ import {UploadInfoResponse} from "../common/types/response";
 import {config} from "../config";
 import {RolesGuard} from "../auth";
 import {HasAnyRole} from "../common/security";
+import {RejectEmptyInterceptor} from "../common/interceptors";
 
 @Controller("api/v1/uploads/files")
 export class FilesUploadController {
@@ -15,14 +16,17 @@ export class FilesUploadController {
 
     @UseGuards(AuthGuard("jwt"), RolesGuard)
     @HasAnyRole("ROLE_USER", "ROLE_ANONYMOUS_USER")
-    @UseInterceptors(FileInterceptor(
-        "file",
-        {
-            limits: {
-                fileSize: config.FILE_MAX_SIZE_BYTES
+    @UseInterceptors(
+        RejectEmptyInterceptor,
+        FileInterceptor(
+            "file",
+            {
+                limits: {
+                    fileSize: config.FILE_MAX_SIZE_BYTES
+                }
             }
-        }
-    ))
+        )
+    )
     @Post()
     public uploadFile(@UploadedFile() file: MultipartFile,
                       @Body("originalName") originalName?: string): Promise<UploadInfoResponse<any>> {

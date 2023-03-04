@@ -1,4 +1,14 @@
-import {Controller, Get, Param, Post, Query, Res, UploadedFile, UseGuards, UseInterceptors} from "@nestjs/common";
+import {
+    Controller,
+    Get,
+    Param,
+    Post,
+    Query,
+    Res,
+    UploadedFile,
+    UseGuards,
+    UseInterceptors
+} from "@nestjs/common";
 import {FileInterceptor} from "@nestjs/platform-express";
 import {AuthGuard} from "@nestjs/passport";
 import {Response} from "express";
@@ -9,6 +19,7 @@ import {UploadInfoResponse} from "../common/types/response";
 import {GifUploadMetadata, ImageUploadMetadata} from "../mongoose/entities";
 import {config} from "../config";
 import {HasAnyRole} from "../common/security";
+import {RejectEmptyInterceptor} from "../common/interceptors";
 import {RolesGuard} from "../auth";
 
 @Controller("api/v1/uploads/images")
@@ -17,14 +28,17 @@ export class ImagesUploadController {
 
     @UseGuards(AuthGuard("jwt"), RolesGuard)
     @HasAnyRole("ROLE_USER", "ROLE_ANONYMOUS_USER")
-    @UseInterceptors(FileInterceptor(
-        "file",
-        {
-            limits: {
-                fileSize: config.IMAGE_MAX_SIZE_BYTES
+    @UseInterceptors(
+        RejectEmptyInterceptor,
+        FileInterceptor(
+            "file",
+            {
+                limits: {
+                    fileSize: config.IMAGE_MAX_SIZE_BYTES
+                }
             }
-        }
-    ))
+        )
+    )
     @Post()
     public async uploadImage(@UploadedFile() file: MultipartFile): Promise<UploadInfoResponse<ImageUploadMetadata | GifUploadMetadata>> {
         return this.imagesUploadService.uploadImage(file);

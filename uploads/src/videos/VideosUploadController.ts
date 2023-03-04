@@ -9,6 +9,7 @@ import {VideoUploadMetadata} from "../mongoose/entities";
 import {config} from "../config";
 import {RolesGuard} from "../auth";
 import {HasAnyRole} from "../common/security";
+import {RejectEmptyInterceptor} from "../common/interceptors";
 
 @Controller("api/v1/uploads/videos")
 export class VideosUploadController {
@@ -16,14 +17,17 @@ export class VideosUploadController {
 
     @UseGuards(AuthGuard("jwt"), RolesGuard)
     @HasAnyRole("ROLE_USER", "ROLE_ANONYMOUS_USER")
-    @UseInterceptors(FileInterceptor(
-        "file",
-        {
-            limits: {
-                fileSize: config.VIDEO_MAX_SIZE_BYTES
+    @UseInterceptors(
+        RejectEmptyInterceptor,
+        FileInterceptor(
+            "file",
+            {
+                limits: {
+                    fileSize: config.VIDEO_MAX_SIZE_BYTES
+                }
             }
-        }
-    ))
+        )
+    )
     @Post()
     public uploadVideo(@UploadedFile() multipartFile: MultipartFile): Promise<UploadInfoResponse<VideoUploadMetadata>> {
         return this.videosUploadService.uploadVideo(multipartFile);

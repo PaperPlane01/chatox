@@ -9,6 +9,7 @@ import {AudioUploadMetadata} from "../mongoose/entities";
 import {config} from "../config";
 import {RolesGuard} from "../auth";
 import {HasAnyRole} from "../common/security";
+import {RejectEmptyInterceptor} from "../common/interceptors";
 
 @Controller("api/v1/uploads/audios")
 export class AudiosUploadController {
@@ -16,13 +17,15 @@ export class AudiosUploadController {
 
     @UseGuards(AuthGuard("jwt"), RolesGuard)
     @HasAnyRole("ROLE_USER", "ROLE_ANONYMOUS_USER")
-    @UseInterceptors(FileInterceptor(
-        "file",
-        {
-            limits: {
-                fileSize: config.AUDIO_MAX_SIZE_BYTES
-            }
-        })
+    @UseInterceptors(
+        RejectEmptyInterceptor,
+        FileInterceptor(
+            "file",
+            {
+                limits: {
+                    fileSize: config.AUDIO_MAX_SIZE_BYTES
+                }
+            })
     )
     @Post()
     public uploadAudio(@UploadedFile() multipartFile: MultipartFile,
