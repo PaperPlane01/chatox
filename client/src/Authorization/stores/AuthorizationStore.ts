@@ -70,6 +70,10 @@ export class AuthorizationStore {
                     this.loggingOut = false;
                     localStorage.removeItem("accessToken");
                     localStorage.removeItem("refreshToken");
+
+                    if (window && window.location) {
+                        window.location.reload();
+                    }
                 })
 
         } else {

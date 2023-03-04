@@ -387,13 +387,17 @@ class MessageServiceImpl(
     override fun findMessagesByChat(chatId: String, paginationRequest: PaginationRequest): Flux<MessageResponse> {
         return mono {
             val chat = findChatById(chatId).awaitFirst()
-            val currentUser = authenticationHolder.currentUserDetails.awaitFirst()
+            val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull()
             val messages = messageRepository.findByChatId(chat.id, paginationRequest.toPageRequest())
-            val hasAnyReadMessages = messageReadRepository.existsByUserIdAndChatId(
-                    userId = currentUser.id,
-                    chatId = chat.id
-            )
-                    .awaitFirst()
+            val hasAnyReadMessages = if (currentUser == null) {
+                false
+            } else{
+                messageReadRepository.existsByUserIdAndChatId(
+                        userId = currentUser.id,
+                        chatId = chatId
+                )
+                        .awaitFirst()
+            }
 
             return@mono mapMessages(
                     messages = messages,
@@ -413,17 +417,21 @@ class MessageServiceImpl(
         return mono {
             val chat = findChatById(chatId).awaitFirst()
             val cursorMessage = findMessageEntityById(sinceMessageId).awaitFirst()
-            val currentUser = authenticationHolder.currentUserDetails.awaitFirst()
+            val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull()
             val messages = messageRepository.findByChatIdAndCreatedAtGreaterThanEqual(
                     chatId = chat.id,
                     date = cursorMessage.createdAt,
                     pageable = paginationRequest.toPageRequest()
             )
-            val hasAnyReadMessages = messageReadRepository.existsByUserIdAndChatId(
-                    userId = currentUser.id,
-                    chatId = chat.id
-            )
-                    .awaitFirst()
+            val hasAnyReadMessages = if (currentUser == null) {
+                false
+            } else {
+                messageReadRepository.existsByUserIdAndChatId(
+                        userId = currentUser.id,
+                        chatId = chat.id
+                )
+                        .awaitFirst()
+            }
 
             return@mono mapMessages(
                     messages = messages,
@@ -443,17 +451,21 @@ class MessageServiceImpl(
         return mono {
             val chat = findChatById(chatId).awaitFirst()
             val cursorMessage = findMessageEntityById(beforeMessageId).awaitFirst()
-            val currentUser = authenticationHolder.currentUserDetails.awaitFirst()
+            val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull()
             val messages = messageRepository.findByChatIdAndCreatedAtLessThanEqual(
                     chatId = chat.id,
                     date = cursorMessage.createdAt,
                     pageable = paginationRequest.toPageRequest()
             )
-            val hasAnyReadMessages = messageReadRepository.existsByUserIdAndChatId(
-                    userId = currentUser.id,
-                    chatId = chat.id
-            )
-                    .awaitFirst()
+            val hasAnyReadMessages = if (currentUser == null) {
+                false
+            } else {
+                messageReadRepository.existsByUserIdAndChatId(
+                        userId = currentUser.id,
+                        chatId = chat.id
+                )
+                        .awaitFirst()
+            }
 
             return@mono mapMessages(
                     messages = messages,
