@@ -1,8 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {TextFieldProps} from "@mui/material";
-import {useStore} from "../../store";
 import {SearchTextField} from "../../SearchTextField";
+import {HasRole} from "../../Authorization";
+import {useStore} from "../../store";
 
 type ChatsAndMessagesSearchInputProps = TextFieldProps &  {
     alwaysShowClearButton?: boolean
@@ -22,12 +23,14 @@ export const ChatsAndMessagesSearchInput: FunctionComponent<ChatsAndMessagesSear
     } = useStore();
 
     return (
-        <SearchTextField value={query as any}
-                         onQueryChange={setQuery}
-                         onClear={reset}
-                         hideClearButton={alwaysShowClearButton ? false : !searchModeActive}
-                         variant={props.variant ? props.variant as any : "outlined"}
-                         {...props}
-        />
+        <HasRole role="ROLE_ACCESS_TOKEN_PRESENT">
+            <SearchTextField value={query as any}
+                             onQueryChange={setQuery}
+                             onClear={reset}
+                             hideClearButton={alwaysShowClearButton ? false : !searchModeActive}
+                             variant={props.variant ? props.variant as any : "outlined"}
+                             {...props}
+            />
+        </HasRole>
     );
 })
