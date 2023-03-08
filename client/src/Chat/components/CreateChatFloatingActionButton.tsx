@@ -1,12 +1,13 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, Fab, makeStyles, Theme, Tooltip} from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
+import {Fab, Theme, Tooltip} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Add} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     createChatFloatingActionButton: {
-        position: "fixed",
+        position: "absolute",
         bottom: theme.spacing(2),
         right: theme.spacing(2)
     }
@@ -27,8 +28,8 @@ export const CreateChatFloatingActionButton: FunctionComponent = observer(() => 
                  className={classes.createChatFloatingActionButton}
                  color="primary"
             >
-                <AddIcon/>
+                <Add/>
             </Fab>
         </Tooltip>
-    )
+    );
 });

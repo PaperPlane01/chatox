@@ -1,11 +1,11 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
-import HomeIcon from "@material-ui/icons/Home";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Home} from "@mui/icons-material";
+import {Link} from "mobx-router";
 import {Routes} from "../../router";
 import {useLocalization, useRouter} from "../../store";
-
-const {Link} = require("mobx-router");
 
 interface HomeMenuItemProps {
     onClick?: () => void
@@ -30,13 +30,13 @@ export const HomeMenuItem: FunctionComponent<HomeMenuItemProps> = observer(({onC
     };
 
     return (
-        <Link view={Routes.home}
-              store={routerStore}
+        <Link route={Routes.home}
+              router={routerStore}
               className={classes.undecoratedLink}
         >
             <MenuItem onClick={handleClick}>
                 <ListItemIcon>
-                    <HomeIcon/>
+                    <Home/>
                 </ListItemIcon>
                 <ListItemText>
                     {l("home")}

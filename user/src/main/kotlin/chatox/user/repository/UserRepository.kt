@@ -12,4 +12,5 @@ interface UserRepository : ReactiveMongoRepository<User, String>, UserCustomRepo
     fun findByIdOrSlug(id: String, slug: String): Mono<User>
     fun findByAccountId(accountId: String): Flux<User>
     fun findBySlug(slug: String): Mono<User>
+    fun findByOnlineTrue(): Flux<User>
 }

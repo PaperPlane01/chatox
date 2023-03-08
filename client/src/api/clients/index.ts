@@ -6,3 +6,7 @@ export * from "./UploadApi";
 export * from "./EmailConfirmationCodeApi";
 export * from "./GlobalBanApi";
 export * from "./ReportsApi";
+export * from "./StickerApi";
+export * from "./BlacklistApi";
+export * from "./ChatRoleApi";
+export * from "./ChatParticipantApi";

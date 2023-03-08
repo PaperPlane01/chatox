@@ -1,11 +1,11 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {format} from "date-fns";
-import {TableRow, TableCell, Typography, Checkbox} from "@material-ui/core";
-import {Remove} from "@material-ui/icons";
-import {useStore, useLocalization} from "../../store/hooks";
-import {Labels} from "../../localization/types";
-import {UserLink} from "../../UserLink/components";
+import {Checkbox, TableCell, TableRow} from "@mui/material";
+import {Remove} from "@mui/icons-material";
+import {useLocalization, useStore} from "../../store";
+import {Labels} from "../../localization";
+import {UserLink} from "../../UserLink";
 
 interface ReportedUsersTableProps {
     reportId: string

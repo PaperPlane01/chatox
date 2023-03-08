@@ -1,11 +1,11 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
-import {PersonOutlined} from "@material-ui/icons";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {PersonOutlined} from "@mui/icons-material";
+import {Link} from "mobx-router";
 import {Routes} from "../../router";
 import {useAuthorization, useLocalization, useRouter} from "../../store";
-
-const {Link} = require("mobx-router");
 
 interface ProfileMenuItemProps {
     onClick?: () => void
@@ -32,9 +32,9 @@ export const ProfileMenuItem: FunctionComponent<ProfileMenuItemProps> = observer
 
     if (currentUser) {
         return (
-            <Link store={routerStore}
+            <Link router={routerStore}
                   className={classes.undecoratedLink}
-                  view={Routes.userPage}
+                  route={Routes.userPage}
                   params={{slug: currentUser.slug || currentUser.id}}
             >
                 <MenuItem onClick={handleClick}>

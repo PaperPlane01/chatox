@@ -1,10 +1,8 @@
-import {action, computed, observable, reaction} from "mobx";
-import {ChatStore} from "../../Chat/stores";
-import {EntitiesStore} from "../../entities-store";
-import {ChatOfCurrentUserEntity} from "../../Chat/types";
-import {MessageApi} from "../../api/clients";
-import {MessageEntity} from "../types";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {ClosedPinnedMessagesStore} from "./ClosedPinnedMessagesStore";
+import {ChatStore, ChatOfCurrentUserEntity} from "../../Chat";
+import {EntitiesStore} from "../../entities-store";
+import {MessageApi} from "../../api";
 
 interface PinnedMessagesStateMap {
     [chatId: string]: {
@@ -14,10 +12,8 @@ interface PinnedMessagesStateMap {
 }
 
 export class PinnedMessagesStore {
-    @observable
     pinnedMessagesStateMap: PinnedMessagesStateMap = {};
 
-    @computed
     get selectedChat(): ChatOfCurrentUserEntity | undefined {
         if (this.chatStore.selectedChatId) {
             return this.entities.chats.findById(this.chatStore.selectedChatId);
@@ -26,7 +22,6 @@ export class PinnedMessagesStore {
         return undefined;
     }
 
-    @computed
     get currentPinnedMessageId(): string | undefined {
         if (this.selectedChat) {
             return this.selectedChat.pinnedMessageId;
@@ -35,7 +30,6 @@ export class PinnedMessagesStore {
         return undefined;
     }
 
-    @computed
     get currentPinnedMessageIsClosed(): boolean {
         if (!this.currentPinnedMessageId) {
             return false;
@@ -46,7 +40,9 @@ export class PinnedMessagesStore {
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
-                protected readonly closedPinnedMessagesStore: ClosedPinnedMessagesStore) {
+                private readonly closedPinnedMessagesStore: ClosedPinnedMessagesStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.selectedChat,
             selectedChat => {
@@ -57,7 +53,6 @@ export class PinnedMessagesStore {
         );
     }
 
-    @action
     fetchPinnedMessageByChat = (chatId: string): void => {
         if (this.pinnedMessagesStateMap[chatId] && (this.pinnedMessagesStateMap[chatId].pending || this.pinnedMessagesStateMap[chatId].initiallyFetched)) {
             return;
@@ -69,27 +64,21 @@ export class PinnedMessagesStore {
         };
 
         MessageApi.getPinnedMessageByChat(chatId)
-            .then(({data}) => {
-                this.entities.insertMessage(data);
-                const chat = this.entities.chats.findByIdOptional(chatId);
-
-                if (chat) {
-                    chat.pinnedMessageId = data.id;
-                    this.entities.chats.insertEntity(chat);
-                }
+            .then(({data}) => runInAction(() => {
+                this.entities.messages.insert(data, {skipSettingLastMessage: true, pinnedMessageId: data.id});
 
                 this.pinnedMessagesStateMap[chatId] = {
                     initiallyFetched: true,
                     pending: false
                 };
-            })
-            .catch(error => {
+            }))
+            .catch(error => runInAction(() => {
                 if (error.response && error.response === 404) {
                     this.pinnedMessagesStateMap[chatId] = {
                         initiallyFetched: true,
                         pending: false
                     };
                 }
-            });
-    }
+            }));
+    };
 }

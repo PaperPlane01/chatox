@@ -1,6 +1,6 @@
-import React, {FunctionComponent} from "react";
+import React, {CSSProperties, FunctionComponent, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {Grid, Typography} from "@material-ui/core";
+import {Grid, Typography} from "@mui/material";
 import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
 import {HasRole} from "../Authorization";
@@ -12,19 +12,32 @@ import {
     DeleteMessagesSnackbarManager,
     BanMessageSendersDialog
 } from "../Report";
-import {useLocalization} from "../store/hooks";
-
-const StickyFooter = require("react-sticky-footer").default;
+import {useLocalization, useStore} from "../store";
 
 export const MessageReportsPage: FunctionComponent = observer(() => {
     const {l} = useLocalization();
+    const reportsActionsRef = useRef<HTMLDivElement>(null);
+    const [reportsStyles, setReportsStyles] = useState<CSSProperties | undefined>(undefined);
+    const {
+        messageReports: {
+            selectedReportsIds
+        }
+    } = useStore();
+
+    useEffect(() => {
+        if (reportsActionsRef && reportsActionsRef.current) {
+            setReportsStyles({
+                paddingBottom: reportsActionsRef.current.getBoundingClientRect().height
+            });
+        }
+    }, [reportsActionsRef, selectedReportsIds.length]);
 
     return (
         <Grid container>
             <Grid item xs={12}>
                 <AppBar title="report.list.messages"/>
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} style={reportsStyles}>
                 <Layout>
                     <HasRole role="ROLE_ADMIN"
                              alternative={
@@ -38,11 +51,7 @@ export const MessageReportsPage: FunctionComponent = observer(() => {
                 </Layout>
             </Grid>
             <ReportedMessageDialog/>
-            <div style={{width: "100%"}}>
-                <StickyFooter stickyStyles={{width: "100%"}} fixedStyles={{width: "100%"}}>
-                    <MessageReportsActions/>
-                </StickyFooter>
-            </div>
+            <MessageReportsActions ref={reportsActionsRef}/>
             <RejectReportsSnackbarManager/>
             <DeleteMessagesSnackbarManager/>
             <BanMessageSendersDialog/>

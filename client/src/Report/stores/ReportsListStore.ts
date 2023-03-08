@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, observable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {EntitiesStore} from "../../entities-store";
 import {CurrentUser, ReportStatus, ReportType} from "../../api/types/response";
@@ -6,37 +6,28 @@ import {ApiError, getInitialApiErrorFromResponse, ReportsApi} from "../../api";
 import {AuthorizationStore} from "../../Authorization/stores";
 
 export class ReportsListStore {
-    @observable
     pending: boolean = false;
 
-    @observable
     currentPage: number = 0;
 
-    @observable
     error?: ApiError = undefined;
 
-    @observable
     awaitingForUser: boolean = false;
 
-    @observable
     selectedReportsMap = observable.map<string, boolean>({});
 
-    @observable
     showNotViewedOnly: boolean = window && window.localStorage
         ? window.localStorage.getItem("showNotViewedReportsOnly") === "true"
         : false;
 
-    @computed
     get currentUser(): CurrentUser | undefined {
         return this.authorizationStore.currentUser;
     }
 
-    @computed
     get ids(): string[] {
         return this.entities.reports.findIdsByType(this.type);
     }
 
-    @computed
     get selectedReportsIds(): string[] {
         const ids = [];
 
@@ -49,12 +40,10 @@ export class ReportsListStore {
         return ids;
     }
 
-    @computed
     get selectedReportedObjectsIds(): string[] {
         return this.entities.reports.findAllById(this.selectedReportsIds).map(report => report.reportedObjectId);
     }
 
-    @computed
     get numberOfSelectedReports(): number {
         return this.selectedReportsIds.length;
     }
@@ -62,6 +51,8 @@ export class ReportsListStore {
     constructor(private readonly entities: EntitiesStore,
                 private readonly authorizationStore: AuthorizationStore,
                 private readonly type: ReportType) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.currentUser,
             currentUser => {
@@ -84,23 +75,19 @@ export class ReportsListStore {
         return Boolean(this.selectedReportsMap.get(reportId));
     });
 
-    @action
     setReportSelected = (reportId: string, selected: boolean): void => {
         this.selectedReportsMap.set(reportId, selected)
-    }
+    };
 
-    @action
     clearSelection = (): void => {
         this.selectedReportsMap.clear();
-    }
+    };
 
-    @action
     setShowNotViewedOnly = (showNotViewedOnly: boolean): void => {
         localStorage.setItem("showNotViewedReportsOnly", `${showNotViewedOnly}`);
         this.showNotViewedOnly = showNotViewedOnly;
-    }
+    };
 
-    @action
     fetchReports = (): void => {
         if (!this.currentUser) {
             this.awaitingForUser = true;
@@ -120,20 +107,36 @@ export class ReportsListStore {
         })
             .then(({data}) => runInAction(() => {
                 if (data.length !== 0) {
-                    this.entities.insertReports(data);
+                    this.entities.reports.insertAll(data);
                     this.currentPage = this.currentPage + 1;
                 }
             }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.pending = false));
-    }
+    };
 
-    @action
     reset = (): void => {
         this.currentPage = 0;
         this.error = undefined;
-
-        this.entities.deleteAllReports(this.type);
+        this.entities.reports.deleteAll();
+        this.cleanUpEntities();
         this.clearSelection();
+    };
+
+    private cleanUpEntities = (): void => {
+        switch (this.type) {
+            case ReportType.MESSAGE:
+                this.entities.reportedMessages.deleteAll();
+                this.entities.reportedMessageSenders.deleteAll();
+                return;
+            case ReportType.USER:
+                this.entities.reportedUsers.deleteAll();
+                return;
+            case ReportType.CHAT:
+                this.entities.reportedChats.deleteAll();
+                return;
+            default:
+                return;
+        }
     }
 }

@@ -1,28 +1,28 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Dialog, DialogContent, DialogActions, Button} from "@material-ui/core";
-import {useStore, useLocalization} from "../../store/hooks";
+import {Dialog, DialogContent, DialogActions, Button} from "@mui/material";
+import {useStore, useLocalization, useEntities} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
-import {MessagesListItem} from "../../Message/components";
+import {MessagesListItem} from "../../Message";
 
 export const ReportedMessageDialog: FunctionComponent = observer(() => {
     const {
         reportedMessageDialog: {
             reportId,
             setReportId
-        },
-        entities: {
-            reports: {
-                findById: findReport
-            },
-            reportedMessages: {
-                findById: findReportedMessage
-            },
-            reportedMessagesSenders: {
-                findById: findReportedMessageSender
-            }
         }
     } = useStore();
+    const {
+        reports: {
+            findById: findReport
+        },
+        reportedMessages: {
+            findById: findReportedMessage
+        },
+        reportedMessageSenders: {
+            findById: findReportedMessageSender
+        }
+    } = useEntities();
     const {l} = useLocalization();
     const {fullScreen} = useMobileDialog();
 

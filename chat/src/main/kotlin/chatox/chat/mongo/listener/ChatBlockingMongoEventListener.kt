@@ -1,7 +1,7 @@
 package chatox.chat.mongo.listener
 
 import chatox.chat.model.ChatBlocking
-import chatox.chat.repository.ChatParticipationRepository
+import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.platform.cache.ReactiveCacheService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener

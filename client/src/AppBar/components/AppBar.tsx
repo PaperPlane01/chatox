@@ -1,6 +1,8 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {AppBar as MuiAppBar, createStyles, makeStyles, Toolbar, Typography} from "@material-ui/core";
+import { AppBar as MuiAppBar, Toolbar, Typography } from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Link} from "mobx-router";
 import {NavigationalDrawer} from "./NavigationalDrawer";
 import {OpenDrawerButton} from "./OpenDrawerButton";
 import {AppBarMenu} from "./AppBarMenu";
@@ -9,10 +11,10 @@ import {useLocalization, useRouter} from "../../store";
 import {Routes} from "../../router";
 import {Labels} from "../../localization";
 
-const {Link} = require("mobx-router");
-
 interface AppBarProps {
-    title?: keyof Labels
+    title?: keyof Labels,
+    additionalLeftItem?: ReactNode,
+    hideTitle?: boolean
 }
 
 const useClasses = makeStyles(() => createStyles({
@@ -32,7 +34,11 @@ const useClasses = makeStyles(() => createStyles({
     }
 }));
 
-export const AppBar: FunctionComponent<AppBarProps> = observer(({title}) => {
+export const AppBar: FunctionComponent<AppBarProps> = observer(({
+    title,
+    additionalLeftItem,
+    hideTitle = false
+}) => {
     const classes = useClasses();
     const {l} = useLocalization();
     const routerStore = useRouter();
@@ -46,22 +52,25 @@ export const AppBar: FunctionComponent<AppBarProps> = observer(({title}) => {
             >
                 <Toolbar>
                     <OpenDrawerButton/>
-                    <div className={classes.appBarTitle}>
-                        <Link view={Routes.home}
-                              store={routerStore}
-                              className={classes.appBarLink}
-                        >
-                            <Typography variant="h6">
-                                {title ? l(title) : "Chatox"}
-                            </Typography>
-                        </Link>
-                        <AppBarMenu/>
-                    </div>
+                    {!hideTitle && (
+                        <div className={classes.appBarTitle}>
+                            <Link route={Routes.home}
+                                  router={routerStore}
+                                  className={classes.appBarLink}
+                            >
+                                <Typography variant="h6">
+                                    {title ? l(title) : "Chatox"}
+                                </Typography>
+                            </Link>
+                            <AppBarMenu/>
+                        </div>
+                    )}
+                    {additionalLeftItem && additionalLeftItem}
                     <UserAppBarMenu/>
                 </Toolbar>
             </MuiAppBar>
             <Toolbar/>
             <NavigationalDrawer/>
         </Fragment>
-    )
+    );
 });

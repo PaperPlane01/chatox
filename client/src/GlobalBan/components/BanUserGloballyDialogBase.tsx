@@ -11,14 +11,14 @@ import {
     FormControlLabel,
     TextField,
     Typography
-} from "@material-ui/core";
-import {DateTimePicker} from "@material-ui/pickers";
+} from "@mui/material";
+import {DateTimePicker} from "@mui/x-date-pickers";
 import {GlobalBanReasonSelect} from "./GlobalBanReasonSelect";
 import {BanUserFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {ApiError} from "../../api";
-import {TranslationFunction} from "../../localization/types";
-import {useLocalization} from "../../store/hooks";
+import {TranslationFunction} from "../../localization";
+import {useLocalization} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 
 interface BanUserGloballyDialogBaseProps {
@@ -63,18 +63,21 @@ export const BanUserGloballyDialogBase: FunctionComponent<BanUserGloballyDialogB
            </DialogTitle>
            <DialogContent>
                <DateTimePicker value={formValues.expiresAt || null}
-                               label={l("global.ban.expires-at")}
                                onChange={date => onFormValueChange("expiresAt", date || undefined)}
-                               error={Boolean(formErrors.expiresAt)}
-                               helperText={formErrors.expiresAt && l(formErrors.expiresAt)}
                                disabled={formValues.permanent}
-                               clearable
-                               autoOk
-                               format="dd MMMM yyyy HH:mm"
-                               margin="dense"
-                               fullWidth
+                               inputFormat="dd MMMM yyyy HH:mm"
                                disablePast
                                ampm={false}
+                               renderInput={props => (
+                                   <TextField {...props}
+                                              label={l("global.ban.expires-at")}
+                                              error={Boolean(formErrors.expiresAt)}
+                                              helperText={formErrors.expiresAt && l(formErrors.expiresAt)}
+                                              margin="dense"
+                                              fullWidth
+                                   />
+                               )}
+                               showToolbar
                />
                <GlobalBanReasonSelect onSelect={reason => onFormValueChange("reason", reason)}
                                       value={formValues.reason}
@@ -86,7 +89,7 @@ export const BanUserGloballyDialogBase: FunctionComponent<BanUserGloballyDialogB
                           helperText={formErrors.comment && l(formErrors.comment)}
                           multiline
                           rows={4}
-                          rowsMax={8}
+                          maxRows={8}
                           fullWidth
                           margin="dense"
                />

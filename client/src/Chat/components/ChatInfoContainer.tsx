@@ -1,7 +1,9 @@
-import React, {FunctionComponent} from "react";
-import {createStyles, makeStyles, Theme} from "@material-ui/core";
+import React, {CSSProperties, FunctionComponent} from "react";
+import {observer} from "mobx-react";
+import {Theme} from "@mui/material";
+import {createStyles, makeStyles, useTheme} from "@mui/styles";
 import {ChatDescription} from "./ChatDescription";
-import {OnlineChatParticipantsList} from "./OnlineChatParticipantsList";
+import {ChatParticipantsCard, useChatParticipantsListScroll} from "../../ChatParticipant";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatInfoContainer: {
@@ -14,15 +16,34 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-export const ChatInfoContainer: FunctionComponent = () => {
+export const ChatInfoContainer: FunctionComponent = observer(() => {
     const classes = useStyles();
+    const theme = useTheme<Theme>()
+    const {
+        onLargeScreen,
+        enableVirtualScroll,
+        scrollHandler,
+    } = useChatParticipantsListScroll("online");
+    const shouldHandleScroll = onLargeScreen && enableVirtualScroll;
+    const style: CSSProperties | undefined = shouldHandleScroll
+        ? ({
+            overflowY: "auto",
+            top: theme.spacing(8),
+        })
+        : ({
+            position: "fixed",
+            width: "21%"
+        });
 
     return (
-        <div className={classes.chatInfoContainer}>
+        <div className={classes.chatInfoContainer}
+             style={style}
+             onScroll={shouldHandleScroll ? scrollHandler : undefined}
+        >
             <ChatDescription/>
             <div className={classes.withPadding}>
-                <OnlineChatParticipantsList/>
+                <ChatParticipantsCard defaultMode="online"/>
             </div>
         </div>
     );
-};
+});

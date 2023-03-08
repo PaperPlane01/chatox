@@ -1,7 +1,7 @@
-import {observable, action, reaction, computed} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {throttle} from "lodash";
 import {ChatStore} from "./ChatStore";
-import {UpdateChatFormData, TagErrorsMapContainer} from "../types";
+import {TagErrorsMapContainer, UpdateChatFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {UploadImageStore} from "../../Upload";
 import {UploadedFileContainer} from "../../utils/file-utils";
@@ -16,11 +16,10 @@ import {
     validateChatTags
 } from "../validation";
 import {ChatApi} from "../../api/clients";
-import {countMotUndefinedValues} from "../../utils/object-utils";
+import {containsNotUndefinedValues} from "../../utils/object-utils";
 import {ApiError, getInitialApiErrorFromResponse} from "../../api";
 
 export class UpdateChatStore {
-    @observable
     updateChatForm: UpdateChatFormData = {
         description: undefined,
         name: "",
@@ -28,7 +27,6 @@ export class UpdateChatStore {
         tags: []
     };
 
-    @observable
     formErrors: FormErrors<UpdateChatFormData> & TagErrorsMapContainer = {
         description: undefined,
         tags: undefined,
@@ -37,42 +35,32 @@ export class UpdateChatStore {
         tagErrorsMap: {}
     };
 
-    @observable
     updateChatDialogOpen: boolean = false;
 
-    @observable
     checkingSlugAvailability: boolean = false;
 
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @observable
     showSnackbar: boolean = false;
 
-    @computed
     get avatarFileContainer(): UploadedFileContainer<ImageUploadMetadata> | undefined {
         return this.uploadChatAvatarStore.imageContainer
     }
 
-    @computed
     get avatarValidationError(): keyof Labels | undefined {
         return this.uploadChatAvatarStore.validationError;
     }
 
-    @computed
     get avatarUploadPending(): boolean {
         return this.uploadChatAvatarStore.pending;
     }
 
-    @computed
     get selectedChat(): string | undefined {
         return this.chatStore.selectedChatId;
     }
 
-    @computed
     get currentChatSlug(): string | undefined {
         if (this.selectedChat) {
             return this.entities.chats.findById(this.selectedChat).slug;
@@ -81,7 +69,6 @@ export class UpdateChatStore {
         }
     }
 
-    @computed
     get uploadedAvatarId(): string | undefined {
         return this.avatarFileContainer && this.avatarFileContainer.uploadedFile
             && this.avatarFileContainer.uploadedFile.id
@@ -90,6 +77,8 @@ export class UpdateChatStore {
     constructor(private readonly uploadChatAvatarStore: UploadImageStore,
                 private readonly chatStore: ChatStore,
                 private readonly entities: EntitiesStore) {
+        makeAutoObservable(this);
+
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300);
 
         reaction(
@@ -131,17 +120,14 @@ export class UpdateChatStore {
         );
     }
 
-    @action
     setFormValue = <Key extends keyof UpdateChatFormData>(key: Key, value: UpdateChatFormData[Key]) => {
         this.updateChatForm[key] = value;
     };
 
-    @action
     setUpdateChatDialogOpen = (updateChatDialogOpen: boolean): void => {
         this.updateChatDialogOpen = updateChatDialogOpen;
     };
 
-    @action
     checkSlugAvailability = (slug: string): void => {
         this.checkingSlugAvailability = true;
 
@@ -154,12 +140,10 @@ export class UpdateChatStore {
             .finally(() => this.checkingSlugAvailability = false);
     };
 
-    @action
     setShowSnackbar = (showSnackbar: boolean): void => {
         this.showSnackbar = showSnackbar;
     };
 
-    @action
     updateChat = (): void => {
         const chatId = this.selectedChat;
 
@@ -182,7 +166,7 @@ export class UpdateChatStore {
             tags: this.updateChatForm.tags
         })
             .then(({data}) => {
-                this.entities.insertChat(data);
+                this.entities.chats.insert(data);
                 this.setUpdateChatDialogOpen(false);
                 this.setShowSnackbar(true);
             })
@@ -190,7 +174,6 @@ export class UpdateChatStore {
             .finally(() => this.pending = false)
     };
 
-    @action
     validateForm = (): boolean => {
         let slugError = this.formErrors.slug;
 
@@ -218,8 +201,8 @@ export class UpdateChatStore {
             name ||
             slug ||
             tags ||
-            countMotUndefinedValues(tagErrorsMap) !== 0 ||
+            containsNotUndefinedValues(tagErrorsMap) ||
             this.avatarValidationError
         )
-    }
+    };
 }

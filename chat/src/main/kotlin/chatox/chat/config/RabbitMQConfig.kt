@@ -49,6 +49,12 @@ class RabbitMQConfig {
     fun userWentOfflineQueue() = Queue("chat_service_user_went_offline")
 
     @Bean
+    fun userAddedToBlacklist() = Queue("chat_service_user_added_to_blacklist")
+
+    @Bean
+    fun userRemovedFromBlacklist() = Queue("chat_service_user_removed_from_blacklist")
+
+    @Bean
     fun userCreatedBinding(): Binding = BindingBuilder
             .bind(userCreatedQueue())
             .to(userEvents())
@@ -77,6 +83,18 @@ class RabbitMQConfig {
             .bind(userWentOfflineQueue())
             .to(userEvents())
             .with("user.offline.#")
+
+    @Bean
+    fun userAddedToBlacklistBinding(): Binding = BindingBuilder
+            .bind(userAddedToBlacklist())
+            .to(userEvents())
+            .with("user.blacklist.added.#")
+
+    @Bean
+    fun userRemovedFromBlacklistBinding(): Binding = BindingBuilder
+            .bind(userRemovedFromBlacklist())
+            .to(userEvents())
+            .with("user.blacklist.removed.#")
 
     @Bean
     fun chatEvents() = TopicExchange("chat.events")
@@ -137,4 +155,16 @@ class RabbitMQConfig {
             .bind(fileCreated())
             .to(uploadEvents())
             .with("upload.file.created.#")
+
+    @Bean
+    fun stickerEvents() = TopicExchange("sticker.events")
+
+    @Bean
+    fun stickerPackCreated() = Queue("chat_service_sticker_pack_created")
+
+    @Bean
+    fun stickerPackCreatedBinding(): Binding = BindingBuilder
+            .bind(stickerPackCreated())
+            .to(stickerEvents())
+            .with("sticker.pack.created.#")
 }

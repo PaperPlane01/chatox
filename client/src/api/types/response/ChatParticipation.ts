@@ -1,6 +1,6 @@
-import {ChatRole} from "./ChatRole";
 import {User} from "./User";
 import {ChatBlocking} from "./ChatBlocking";
+import {ChatRole} from "./ChatRole";
 
 export interface ChatParticipation {
     id: string,

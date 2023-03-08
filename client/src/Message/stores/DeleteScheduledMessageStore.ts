@@ -1,26 +1,25 @@
-import {action, computed} from "mobx";
+import {makeAutoObservable} from "mobx";
 import {EntitiesStore} from "../../entities-store";
-import {ChatStore} from "../../Chat/stores";
-import {MessageApi} from "../../api/clients";
+import {ChatStore} from "../../Chat";
+import {MessageApi} from "../../api";
 
 export class DeleteScheduledMessageStore {
-    @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
     }
 
     constructor(private entities: EntitiesStore,
                 private chatStore: ChatStore) {
+        makeAutoObservable(this);
     }
 
-    @action
     deleteScheduledMessage = (messageId: string): void => {
         if (!this.selectedChatId) {
             return;
         }
 
-        this.entities.deleteScheduledMessage(this.selectedChatId, messageId);
+        this.entities.scheduledMessages.deleteById(messageId);
 
         MessageApi.deleteScheduledMessage(this.selectedChatId, messageId);
-    }
+    };
 }

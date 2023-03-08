@@ -52,7 +52,7 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
-    @ReactivePermissionCheck("@chatParticipationPermissions.canUpdateChatParticipant(#chatId, #participationId)")
+    @ReactivePermissionCheck("@chatParticipationPermissions.canUpdateChatParticipant(#chatId, #participationId, #updateChatParticipationRequest)")
     @PutMapping("/{chatId}/participants/{participationId}")
     fun updateChatParticipant(@PathVariable chatId: String,
                               @PathVariable participationId: String,
@@ -60,8 +60,8 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     ) = chatParticipationService.updateChatParticipation(participationId, chatId, updateChatParticipationRequest)
 
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["createdAt"], defaultValue = "createdAt"),
-            sortingDirection = SortDirection(defaultValue = "asc")
+            sortBy = SortBy(allowed = ["createdAt", "userOnline", "userDisplayedName"], defaultValue = "userOnline"),
+            sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping("/{chatId}/participants")
     fun getChatParticipants(@PathVariable chatId: String,
@@ -69,8 +69,18 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     ) = chatParticipationService.findParticipantsOfChat(chatId, paginationRequest)
 
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["userDisplayedName", "createdAt"], defaultValue = "userDisplayedName"),
-            sortingDirection = SortDirection(defaultValue = "asc")
+            sortBy = SortBy(allowed = ["createdAt", "userOnline", "userDisplayedName"], defaultValue = "userOnline"),
+            sortingDirection = SortDirection(defaultValue = "desc")
+    )
+    @GetMapping(value = ["/{chatId}/participants"], params = ["roleId"])
+    fun getChatParticipantsWithRole(@PathVariable("chatId") chatId: String,
+                                    @RequestParam(value = "roleId", required = true) roleId: String,
+                                    paginationRequest: PaginationRequest
+    ) = chatParticipationService.findParticipantsWithRole(chatId, roleId, paginationRequest)
+
+    @PaginationConfig(
+            sortBy = SortBy(allowed = ["createdAt", "userOnline", "userDisplayedName"], defaultValue = "userOnline"),
+            sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping("/{chatId}/participants/search")
     fun searchChatParticipants(@PathVariable chatId: String,

@@ -1,6 +1,7 @@
 package chatox.chat.service
 
 import chatox.chat.api.request.CreateChatRequest
+import chatox.chat.api.request.CreatePrivateChatRequest
 import chatox.chat.api.request.DeleteChatRequest
 import chatox.chat.api.request.DeleteMultipleChatsRequest
 import chatox.chat.api.request.UpdateChatRequest
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono
 
 interface ChatService {
     fun createChat(createChatRequest: CreateChatRequest): Mono<ChatOfCurrentUserResponse>
+    fun createPrivateChat(createPrivateChatRequest: CreatePrivateChatRequest): Mono<ChatOfCurrentUserResponse>
     fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse>
     fun deleteChat(id: String, deleteChatRequest: DeleteChatRequest?): Mono<Void>
     fun findChatBySlugOrId(slugOrId: String): Mono<ChatResponse>

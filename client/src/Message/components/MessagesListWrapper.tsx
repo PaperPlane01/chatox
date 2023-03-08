@@ -1,9 +1,10 @@
 import React from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles} from "@material-ui/core";
+import {createStyles, makeStyles} from "@mui/styles";
+import {VirtualMessagesList} from "./VirtualMessagesList";
 import {MessagesList} from "./MessagesList";
 import {ChatDeletionLabel} from "../../Chat";
-import {useStore} from "../../store/hooks";
+import {useStore} from "../../store";
 
 const useStyles = makeStyles(() => createStyles({
     centered: {
@@ -25,6 +26,9 @@ export const MessagesListWrapper = observer(() => {
             chats: {
                 findById: findChat
             }
+        },
+        chatsPreferences: {
+            enableVirtualScroll
         }
     } = useStore();
     const classes = useStyles();
@@ -41,7 +45,7 @@ export const MessagesListWrapper = observer(() => {
                                className={classes.centered}
                                color="textSecondary"
             />
-        )
+        );
     }
 
     if (!selectedChatId) {
@@ -57,8 +61,12 @@ export const MessagesListWrapper = observer(() => {
                                className={classes.centered}
                                color="textSecondary"
             />
-        )
+        );
     }
 
-    return <MessagesList/>
+    if (enableVirtualScroll) {
+        return <VirtualMessagesList/>;
+    } else {
+        return <MessagesList/>;
+    }
 });

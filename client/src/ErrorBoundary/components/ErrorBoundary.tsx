@@ -1,8 +1,8 @@
-import React, {Component, ComponentType, CSSProperties, ReactNode} from "react";
+import React, {Component, ComponentType, CSSProperties, PropsWithChildren, ReactNode} from "react";
 import {inject, observer} from "mobx-react";
-import {Grid, Typography} from "@material-ui/core";
+import {Grid, Typography} from "@mui/material";
 import {Layout} from "../../Layout";
-import {Language, TranslationFunction} from "../../localization/types";
+import {Language, TranslationFunction} from "../../localization";
 import {replacePlaceholder} from "../../localization/utils";
 import {IAppState} from "../../store";
 
@@ -162,7 +162,7 @@ const fatalErrorTranslations: ErrorBoundaryTranslations = {
     )
 }
 
-@inject((state: IAppState): ErrorBoundaryMobxProps => ({
+const _ErrorBoundary = inject((state: IAppState): ErrorBoundaryMobxProps => ({
     currentLanguage: state.language.selectedLanguage,
     l: (label, bindings) => {
         const currentLanguageLabels = state.language.currentLanguageLabels;
@@ -170,83 +170,83 @@ const fatalErrorTranslations: ErrorBoundaryTranslations = {
 
         return replacePlaceholder(targetLabel, bindings);
     }
-}))
-@observer
-class _ErrorBoundary extends Component<ErrorBoundaryMobxProps, ErrorBoundaryState> {
-    constructor(props: ErrorBoundaryMobxProps) {
-        super(props);
+}))(observer(
+    class _ErrorBoundary extends Component<PropsWithChildren<ErrorBoundaryMobxProps>, ErrorBoundaryState> {
+        constructor(props: ErrorBoundaryMobxProps) {
+            super(props);
 
-        this.state = {
-            error: undefined,
-            stackTraceExpanded: false
-        }
-    }
-
-    static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-        return {error, stackTraceExpanded: false};
-    }
-
-    render() {
-        const {currentLanguage, l, children} = this.props;
-        const {error, stackTraceExpanded} = this.state;
-
-        if (error) {
-            const centeredStyle: CSSProperties = {
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                height: "100vh",
-                width: "100%"
+            this.state = {
+                error: undefined,
+                stackTraceExpanded: false
             }
+        }
 
-            if (error.name === "ChunkLoadError") {
-                return (
-                    <div style={centeredStyle}>
-                        {chunkLoadErrorTranslation[currentLanguage]}
-                    </div>
-                )
-            } else {
-                return (
-                    <div style={{
-                        ...centeredStyle,
-                        flexDirection: "column"
-                    }}>
-                        {fatalErrorTranslations[currentLanguage]}
-                        <Grid container spacing={2}>
-                            <Layout>
-                                <Grid item xs={12}>
-                                    <Typography style={{
-                                        cursor: "pointer",
-                                        textDecoration: "underline"
-                                    }}
-                                                onClick={() => this.setState({
-                                                    stackTraceExpanded: !stackTraceExpanded
-                                                })}
-                                    >
-                                        {stackTraceExpanded
-                                            ? l("error-boundary.stacktrace.hide")
-                                            : l("error-boundary.stacktrace.show")
-                                        }
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    {stackTraceExpanded && (
-                                        <Typography>
-                                            <code>
-                                                {error.stack}
-                                            </code>
+        static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+            return {error, stackTraceExpanded: false};
+        }
+
+        render() {
+            const {currentLanguage, l, children} = this.props;
+            const {error, stackTraceExpanded} = this.state;
+
+            if (error) {
+                const centeredStyle: CSSProperties = {
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100vh",
+                    width: "100%"
+                }
+
+                if (error.name === "ChunkLoadError") {
+                    return (
+                        <div style={centeredStyle}>
+                            {chunkLoadErrorTranslation[currentLanguage]}
+                        </div>
+                    )
+                } else {
+                    return (
+                        <div style={{
+                            ...centeredStyle,
+                            flexDirection: "column"
+                        }}>
+                            {fatalErrorTranslations[currentLanguage]}
+                            <Grid container spacing={2}>
+                                <Layout>
+                                    <Grid item xs={12}>
+                                        <Typography style={{
+                                            cursor: "pointer",
+                                            textDecoration: "underline"
+                                        }}
+                                                    onClick={() => this.setState({
+                                                        stackTraceExpanded: !stackTraceExpanded
+                                                    })}
+                                        >
+                                            {stackTraceExpanded
+                                                ? l("error-boundary.stacktrace.hide")
+                                                : l("error-boundary.stacktrace.show")
+                                            }
                                         </Typography>
-                                    )}
-                                </Grid>
-                            </Layout>
-                        </Grid>
-                    </div>
-                )
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        {stackTraceExpanded && (
+                                            <Typography>
+                                                <code>
+                                                    {error.stack}
+                                                </code>
+                                            </Typography>
+                                        )}
+                                    </Grid>
+                                </Layout>
+                            </Grid>
+                        </div>
+                    )
+                }
+            } else {
+                return children;
             }
-        } else {
-            return children;
         }
     }
-}
+));
 
-export const ErrorBoundary = _ErrorBoundary as unknown as ComponentType;
+export const ErrorBoundary = _ErrorBoundary as unknown as ComponentType<PropsWithChildren<{}>>;

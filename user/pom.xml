@@ -5,19 +5,19 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.4.0</version>
+		<version>2.5.6</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>chatox</groupId>
 	<artifactId>user</artifactId>
-	<version>0.5</version>
-	<name>User</name>
+	<version>0.6</version>
+	<name>user</name>
 	<description>Chatox user service</description>
 
 	<properties>
-		<java.version>11</java.version>
-		<kotlin.version>1.3.70</kotlin.version>
-		<spring-cloud.version>2020.0.0-M6</spring-cloud.version>
+		<java.version>17</java.version>
+		<kotlin.version>1.6.0</kotlin.version>
+		<spring-cloud.version>2020.0.3-SNAPSHOT</spring-cloud.version>
 	</properties>
 
 	<dependencies>
@@ -74,9 +74,13 @@
 			<artifactId>spring-boot-starter-data-redis-reactive</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>chatox</groupId>
 			<artifactId>spring-utils</artifactId>
-			<version>0.0.5</version>
+			<version>0.0.9</version>
 		</dependency>
 
 		<dependency>
@@ -131,8 +135,8 @@
 	</dependencyManagement>
 
 	<build>
-		<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-		<testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+		<sourceDirectory>src/main/kotlin</sourceDirectory>
+		<testSourceDirectory>src/test/kotlin</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -141,6 +145,23 @@
 			<plugin>
 				<groupId>org.jetbrains.kotlin</groupId>
 				<artifactId>kotlin-maven-plugin</artifactId>
+				<version>${kotlin.version}</version>
+				<executions>
+					<execution>
+						<id>compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>test-compile</id>
+						<phase>test-compile</phase>
+						<goals>
+							<goal>test-compile</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<args>
 						<arg>-Xjsr305=strict</arg>
@@ -149,9 +170,7 @@
 						<plugin>spring</plugin>
 						<plugin>all-open</plugin>
 					</compilerPlugins>
-					<pluginOptions>
-						<option>all-open:annotation=org.springframework.data.mongodb.core.mapping.Document</option>
-					</pluginOptions>
+					<jvmTarget>1.8</jvmTarget>
 				</configuration>
 				<dependencies>
 					<dependency>
@@ -162,15 +181,15 @@
 				</dependencies>
 			</plugin>
 		</plugins>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-        </resources>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>**/*</include>
+				</includes>
+			</resource>
+		</resources>
 	</build>
 
 	<repositories>

@@ -9,12 +9,12 @@ import {
     DialogTitle,
     TextField,
     Typography
-} from "@material-ui/core";
+} from "@mui/material";
 import {useSnackbar} from "notistack";
 import {ChatDeletionReasonSelect} from "./ChatDeletionReasonSelect";
 import {ChatDeletionStep} from "../types";
 import {getChatDeletionErrorText} from "../utils";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 
 export const SpecifyChatDeletionReasonDialog: FunctionComponent = observer(() => {

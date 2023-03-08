@@ -1,6 +1,6 @@
-import React, {Fragment, FunctionComponent, ReactElement} from "react";
+import React, {Fragment, FunctionComponent, PropsWithChildren, ReactElement} from "react";
 import {observer} from "mobx-react";
-import {useAuthorization} from "../../store/hooks";
+import {useAuthorization} from "../../store";
 
 interface HasAnyRoleProps {
     roles: Array<"ROLE_ADMIN" | "ROLE_USER" | "ROLE_ANONYMOUS_USER" | "ROLE_ACCESS_TOKEN_PRESENT" | "ROLE_NOT_LOGGED_IN">,
@@ -8,7 +8,7 @@ interface HasAnyRoleProps {
     alternative?: ReactElement
 }
 
-export const HasAnyRole: FunctionComponent<HasAnyRoleProps> = observer(({
+export const HasAnyRole: FunctionComponent<PropsWithChildren<HasAnyRoleProps>> = observer(({
     roles,
     additionalCondition = true,
     alternative,

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
-import {Reply} from "@material-ui/icons";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {Reply} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
 
 interface ReplyToMessageMenuItemProps {
@@ -37,5 +37,5 @@ export const ReplyToMessageMenuItem: FunctionComponent<ReplyToMessageMenuItemPro
                 {l("message.reply")}
             </ListItemText>
         </MenuItem>
-    )
+    );
 });

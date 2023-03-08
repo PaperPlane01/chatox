@@ -1,10 +1,10 @@
 import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
-import {DialogTitle, DialogContent, DialogActions, Button, TextField, CircularProgress, Typography} from "@material-ui/core";
+import {DialogTitle, DialogContent, DialogActions, Button, TextField, CircularProgress, Typography} from "@mui/material";
 import {CheckEmailConfirmationCodeStore} from "../stores";
-import {useLocalization} from "../../store/hooks";
+import {useLocalization} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {TranslationFunction} from "../../localization/types";
+import {TranslationFunction} from "../../localization";
 
 interface CheckEmailConfirmationCodeDialogContentProps {
     confirmationCodeId?: string,
@@ -91,5 +91,5 @@ export const CheckEmailConfirmationCodeDialogContent: FunctionComponent<CheckEma
                     </Button>
                 </DialogActions>
             </Fragment>
-        )
+        );
 });

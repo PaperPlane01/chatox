@@ -1,9 +1,9 @@
-import {useTheme, useMediaQuery} from "@material-ui/core";
+import {useTheme, useMediaQuery} from "@mui/material";
 
 export const useMessageGalleryWidthMultiplier = (): number => {
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-    const onMediumScreen = useMediaQuery(theme.breakpoints.down("md"));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const onMediumScreen = useMediaQuery(theme.breakpoints.down('lg'));
 
     let multiplier;
 

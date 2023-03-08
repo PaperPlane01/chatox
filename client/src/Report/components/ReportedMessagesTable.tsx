@@ -9,10 +9,10 @@ import {
     CircularProgress,
     Table,
     TableBody
-} from "@material-ui/core";
+} from "@mui/material";
 import {ReportedMessagesTableHead} from "./ReportedMessagesTableHeader";
 import {ReportedMessagesTableRow} from "./ReportedMessagesTableRow";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 import {ShowNotViewedOnlySwitch} from "./ShowNotViewedOnlySwitch";
 
 export const ReportedMessagesTable: FunctionComponent = observer(() => {

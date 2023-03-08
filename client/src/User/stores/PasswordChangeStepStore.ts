@@ -1,12 +1,14 @@
-import {action, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 import {ChangePasswordStep} from "../types";
 
 export class PasswordChangeStepStore {
-    @observable
     currentStep: ChangePasswordStep = ChangePasswordStep.NONE;
 
-    @action
+    constructor() {
+       makeAutoObservable(this);
+    }
+
     setCurrentStep = (currentStep: ChangePasswordStep): void => {
         this.currentStep = currentStep;
-    }
+    };
 }

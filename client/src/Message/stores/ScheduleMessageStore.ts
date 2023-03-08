@@ -1,29 +1,27 @@
-import {action, computed, observable, reaction} from "mobx";
+import {makeAutoObservable, reaction} from "mobx";
 import {addMinutes} from "date-fns";
 import {CreateMessageStore} from "./CreateMessageStore";
-import {Labels} from "../../localization/types";
+import {Labels} from "../../localization";
 import {ApiError} from "../../api";
 
 export class ScheduleMessageStore {
-    @observable
     scheduleMessageDialogOpen: boolean = false;
 
-    @computed
     get scheduledAt(): Date | undefined {
         return this.createMessageStore.createMessageForm.scheduledAt;
     }
 
-    @computed
     get scheduledAtValidationError(): keyof Labels | undefined {
         return this.createMessageStore.formErrors.scheduledAt;
     }
 
-    @computed
     get submissionError(): ApiError | undefined {
         return this.createMessageStore.submissionError;
     }
 
     constructor(private readonly createMessageStore: CreateMessageStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.scheduledAtValidationError,
             scheduledAtError => {
@@ -55,19 +53,16 @@ export class ScheduleMessageStore {
         );
     }
 
-    @action
     setScheduleMessageDialogOpen = (scheduleMessageDialogOpen: boolean): void => {
         this.scheduleMessageDialogOpen = scheduleMessageDialogOpen;
-    }
+    };
 
-    @action
     setScheduledAt = (scheduledAt?: Date): void => {
         this.createMessageStore.setFormValue("scheduledAt", scheduledAt);
-    }
+    };
 
-    @action
     cancelMessageScheduling = (): void => {
         this.setScheduleMessageDialogOpen(false);
         this.setScheduledAt(undefined);
-    }
+    };
 }

@@ -1,13 +1,14 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import {createRoot} from "react-dom/client";
 import {Provider} from "mobx-react";
+import {parse} from "query-string";
+import {startRouter} from "mobx-router";
 import {App} from "./App";
-import {store, routerStore} from "./store";
+import {store, rootStore} from "./store";
 import {Routes} from "./router";
 import * as serviceWorker from "./serviceWorker";
-import {parse} from "query-string";
 
-const {startRouter} = require("mobx-router");
+const routerStore = rootStore.router;
 
 const injectRouterStore = (): void => {
     store.messageCreation.setRouterStore(routerStore);
@@ -15,28 +16,31 @@ const injectRouterStore = (): void => {
 
 injectRouterStore();
 
-startRouter(Routes, routerStore, {
+startRouter(Routes, rootStore, {
     notfound: () => {
         if (window.location.href.includes(`${process.env.REACT_APP_PUBLIC_URL}/oauth/google/`)) {
             const queryStringParameters = parse(window.location.href.substring(`${process.env.REACT_APP_PUBLIC_URL}/oauth/google/`.length));
-            console.log(queryStringParameters);
-            routerStore.router.goTo(Routes.googleAuthentication, {}, {access_token: queryStringParameters.access_token});
+            const access_token = queryStringParameters.access_token ? `${queryStringParameters.access_token}` : "";
+            routerStore.goTo(Routes.googleAuthentication, {}, {access_token});
         } else {
-            routerStore.router.goTo(Routes.notFound);
+            routerStore.goTo(Routes.notFound);
         }
     }
 });
 
-ReactDOM.render(
+const root = createRoot(document.getElementById("root")!);
+root.render(
     <Provider store={routerStore} {...store}>
         <App/>
     </Provider>,
-    document.getElementById("root")
 );
 
 if (localStorage.getItem("accessToken")) {
     store.authorization.fetchCurrentUser()
-        .then(() => store.chatsOfCurrentUser.fetchChatsOfCurrentUser());
+        .then(() => {
+            store.chatsOfCurrentUser.fetchChatsOfCurrentUser();
+            store.blacklistedUsers.fetchBlacklistedUsers();
+        });
 } else {
     store.websocket.startListening();
 }

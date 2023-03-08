@@ -23,5 +23,7 @@ export interface MessageEntity {
     videosCount: number,
     filesCount: number,
     scheduledAt?: Date,
-    index: number
+    index: number,
+    stickerId?: string,
+    senderRoleId?: string
 }

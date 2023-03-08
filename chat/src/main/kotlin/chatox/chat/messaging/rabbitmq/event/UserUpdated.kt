@@ -15,5 +15,6 @@ data class UserUpdated(
         val lastSeen: ZonedDateTime,
         val avatarUri: String?,
         val dateOfBirth: ZonedDateTime?,
-        val avatar: UploadResponse<ImageUploadMetadata>?
+        val avatar: UploadResponse<ImageUploadMetadata>?,
+        val email: String?
 )

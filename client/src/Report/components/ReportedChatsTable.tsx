@@ -9,11 +9,11 @@ import {
     CircularProgress,
     Table,
     TableBody
-} from "@material-ui/core";
+} from "@mui/material";
 import {ShowNotViewedOnlySwitch} from "./ShowNotViewedOnlySwitch";
 import {ReportedChatsTableHeader} from "./ReportedChatsTableHeader";
 import {ReportedChatsTableRow} from "./ReportedChatsTableRow";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 
 export const ReportedChatsTable: FunctionComponent = observer(() => {
     const {

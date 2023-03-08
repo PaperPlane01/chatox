@@ -1,5 +1,5 @@
 import React, {lazy, Suspense} from "react";
-import {CircularProgress} from "@material-ui/core";
+import {CircularProgress} from "@mui/material";
 import {store} from "../store";
 import {getSettingsTabFromString} from "../Settings";
 import {ErrorBoundary} from "../ErrorBoundary";
@@ -14,7 +14,7 @@ const fallback = (
     }}>
         <CircularProgress size={50} color="primary"/>
     </div>
-)
+);
 
 const HomePage = lazy(() => import("../pages/HomePage"));
 const NotFoundPage = lazy(() => import("../pages/NotFoundPage"));
@@ -28,6 +28,9 @@ const MessageReportsPage = lazy(() => import("../pages/MessageReportsPage"));
 const UserReportsPage = lazy(() => import("../pages/UserReportsPage"));
 const ChatReportsPage = lazy(() => import("../pages/ChatReportsPage"));
 const GoogleAuthentication = lazy(() => import("../pages/GoogleAuthenticationPage"));
+const CreateStickerPackPage = lazy(() => import("../pages/CreateStickerPackPage"));
+const StickerPacksPage = lazy(() => import("../pages/StickerPacksPage"));
+const NewPrivateChatPage = lazy(() => import("../pages/NewPrivateChatPage"));
 
 const {Route} = require("mobx-router");
 
@@ -68,6 +71,26 @@ export const Routes = {
             </ErrorBoundary>
         )
     }),
+    newPrivateChat: new Route({
+        path: "/chat/private",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <NewPrivateChatPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: (view: any, params: any, _: any, queryParams: any) => {
+            if (queryParams) {
+                store.messageCreation.setEmojiPickerExpanded(`${queryParams.emojiPickerExpanded}` === "true");
+            }
+        },
+        onParamsChange: (view: any, params: any, _: any, queryParams: any) => {
+            if (queryParams) {
+                store.messageCreation.setEmojiPickerExpanded(`${queryParams.emojiPickerExpanded}` === "true");
+            }
+        }
+    }),
     chatPage: new Route({
         path: "/chat/:slug",
         component: (
@@ -79,14 +102,38 @@ export const Routes = {
         ),
         onEnter: (view: any, params: any, _: any, queryParams: any) => {
             store.chat.setSelectedChat(params.slug);
-            store.messageCreation.setEmojiPickerExpanded(`${queryParams.emojiPickerExpanded}` === "true");
+            store.messageCreation.setEmojiPickerExpanded(`${queryParams && queryParams.emojiPickerExpanded}` === "true");
         },
         onParamsChange: (view: any, params: any, _: any, queryParams: any) => {
             store.chat.setSelectedChat(params.slug);
-            store.messageCreation.setEmojiPickerExpanded(`${queryParams.emojiPickerExpanded}` === "true");
+            store.messageCreation.setEmojiPickerExpanded(`${queryParams && queryParams.emojiPickerExpanded}` === "true");
+            store.messagesSearch.reset();
         },
         onExit: () => {
             store.chat.setSelectedChat(undefined)
+            store.messagesSearch.reset();
+        }
+    }),
+    chatMessagePage: new Route({
+        path: "/chat/:slug/message/:messageId",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <ChatPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: (view: any, params: any) => {
+            store.chat.setSelectedChat(params.slug);
+            store.messageDialog.setMessageId(params.messageId);
+        },
+        onParamsChange: (view: any, params: any) => {
+            store.chat.setSelectedChat(params.slug);
+            store.messageDialog.setMessageId(params.messageId);
+            store.messagesSearch.reset();
+        },
+        onExit: () => {
+            store.messageDialog.setMessageId(undefined);
         }
     }),
     userPage: new Route({
@@ -238,6 +285,34 @@ export const Routes = {
             store.googleLogin.setGoogleAccessToken(queryParams.access_token);
             store.googleLogin.loginWithGoogle();
         }
+    }),
+    createStickerPack: new Route({
+        path: "/create-sticker-pack",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <CreateStickerPackPage/>
+                </Suspense>
+            </ErrorBoundary>
+        )
+    }),
+    stickerPacks: new Route({
+        path: "/sticker-packs",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <StickerPacksPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: () => {
+            store.stickerPacksSearch.setReactToNameChange(true);
+            store.stickerPacksSearch.searchStickerPacks();
+        },
+        onExit: () => {
+            store.stickerPacksSearch.setReactToNameChange(false);
+            store.stickerPacksSearch.reset();
+        }
     })
 };
 
@@ -249,6 +324,10 @@ export const getRouteByPath = (path: string) => {
             resultRoute = Routes[route as keyof typeof Routes];
         }
     });
+
+    if (!resultRoute) {
+        resultRoute = Routes.home;
+    }
 
     return resultRoute;
 };

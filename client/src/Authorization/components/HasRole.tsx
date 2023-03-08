@@ -1,7 +1,7 @@
-import React, {Fragment, FunctionComponent, ReactElement} from "react";
+import React, {Fragment, FunctionComponent, PropsWithChildren, ReactElement} from "react";
 import {observer} from "mobx-react";
-import {convertStringToUserRole} from "../../api/types/response";
 import {AuthorizationStore} from "../stores";
+import {convertStringToUserRole} from "../../api/types/response";
 import {useAuthorization, useStore} from "../../store";
 
 interface HasRoleProps {
@@ -10,7 +10,7 @@ interface HasRoleProps {
     alternative?: ReactElement
 }
 
-export const HasRole: FunctionComponent<HasRoleProps> = observer(({
+export const HasRole: FunctionComponent<PropsWithChildren<HasRoleProps>> = observer(({
     role,
     additionalCondition = true,
     children,
@@ -18,8 +18,10 @@ export const HasRole: FunctionComponent<HasRoleProps> = observer(({
 }) => {
     const {currentUser} = useAuthorization();
     const {authorization} = useStore();
-    let shouldRender = false;
-    let additionalConditionValue: boolean = typeof additionalCondition === "function" ? additionalCondition(authorization) : Boolean(additionalCondition);
+    let shouldRender: boolean;
+    let additionalConditionValue: boolean = typeof additionalCondition === "function"
+        ? additionalCondition(authorization)
+        : Boolean(additionalCondition);
 
     if (role === "ROLE_NOT_LOGGED_IN") {
        shouldRender = currentUser === undefined && additionalConditionValue;

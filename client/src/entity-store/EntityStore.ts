@@ -1,17 +1,26 @@
-export interface EntityMap<Entity> {
-    [id: string]: Entity
+import {Entities, GetEntityType} from "../entities-store";
+
+export interface BaseEntity {
+    id: string
 }
 
-export interface EntityStore<Entity extends {id: string}, DenormalizedEntity extends {id: string}> {
-    entities: EntityMap<Entity>,
-    ids: string[],
-    insert: (entity: DenormalizedEntity) => Entity,
-    insertEntity: (entity: Entity) => Entity,
-    insertAll: (entities: DenormalizedEntity[]) => void,
-    insertAllEntities: (entities: Entity[]) => void,
-    findById: (id: string) => Entity | undefined,
-    deleteById: (id: string) => void,
-    deleteAllById: (id: string[]) => void,
+export interface EntityStore<
+    EntityName extends Entities,
+    Entity extends GetEntityType<EntityName>,
+    DenormalizedEntity extends BaseEntity,
+    InsertOptions extends object = {},
+    DeleteOptions extends object = {}
+    > {
+    readonly ids: string[],
+    insert: (entity: DenormalizedEntity, options?: InsertOptions) => Entity,
+    insertEntity: (entity: Entity, options?: InsertOptions) => Entity,
+    insertAll: (entities: DenormalizedEntity[], options?: InsertOptions) => void,
+    insertAllEntities: (entities: Entity[], options?: InsertOptions) => void,
+    findById: (id: string) => Entity,
+    findByIdOptional: (id: string) => Entity | undefined,
+    deleteById: (id: string, options?: DeleteOptions) => void,
+    deleteAllById: (id: string[], options?: DeleteOptions) => void,
+    deleteAll: () => void,
     findAllById: (ids: string[]) => Entity[],
     findAll: () => Entity[]
 }

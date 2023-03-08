@@ -1,7 +1,10 @@
 package chatox.user.service.impl
 
+import chatox.platform.pagination.PaginationRequest
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import chatox.user.api.response.SessionActivityStatusResponse
 import chatox.user.api.response.UserSessionResponse
+import chatox.user.domain.User
 import chatox.user.domain.UserSession
 import chatox.user.mapper.UserSessionMapper
 import chatox.user.messaging.rabbitmq.event.UserConnected
@@ -11,11 +14,10 @@ import chatox.user.messaging.rabbitmq.event.UserOnline
 import chatox.user.messaging.rabbitmq.event.producer.UserEventsProducer
 import chatox.user.repository.UserRepository
 import chatox.user.repository.UserSessionRepository
-import chatox.user.security.AuthenticationFacade
 import chatox.user.service.UserSessionService
-import chatox.platform.pagination.PaginationRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.cloud.client.discovery.DiscoveryClient
@@ -34,7 +36,7 @@ import java.util.UUID
 class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepository,
                              private val userRepository: UserRepository,
                              private val userSessionMapper: UserSessionMapper,
-                             private val authenticationFacade: AuthenticationFacade,
+                             private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                              private val userEventsProducer: UserEventsProducer,
                              private val discoveryClient: DiscoveryClient) : UserSessionService {
 
@@ -42,12 +44,10 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
 
     override fun userConnected(userConnected: UserConnected): Mono<Void> {
         return mono {
-            log.debug("Received userConnected event")
-            val user = userRepository.findAndIncreaseActiveSessionsCount(userConnected.userId).awaitFirstOrNull()
+            log.debug("Received userConnected event $userConnected")
+            val user = userRepository.findById(userConnected.userId).awaitFirstOrNull()
 
             if (user != null) {
-                log.debug("Number of active sessions of user ${user.id} is ${user.activeSessionsCount}")
-                val shouldPublishUserWentOnline = user.activeSessionsCount == 1
                 val userSession = UserSession(
                         id = UUID.randomUUID().toString(),
                         userAgent = userConnected.userAgent,
@@ -60,14 +60,13 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                 )
                 userSessionRepository.save(userSession).awaitFirst()
 
-                userRepository.updateLastSeenDateIfNecessary(user.id, userSession.createdAt).subscribe()
-
-                if (shouldPublishUserWentOnline) {
+                if (!user.online) {
                     log.debug("Publishing userWentOnline event")
                     userEventsProducer.userWentOnline(UserOnline(
                             userId = user.id,
                             lastSeen = user.lastSeen
                     ))
+                    userRepository.save(user.copy(online = true, lastSeen = ZonedDateTime.now())).awaitFirst()
                 }
             }
 
@@ -78,38 +77,14 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
 
     override fun userDisconnected(userDisconnected: UserDisconnected): Mono<Void> {
         return mono {
-            log.debug("Received userDisconnected event")
-            var userSession = userSessionRepository
+            log.debug("Received userDisconnected event $userDisconnected")
+            val userSession = userSessionRepository
                     .findBySocketIoId(userDisconnected.socketIoId)
-                    .awaitFirstOrNull()
-            var user = userRepository.findAndDecreaseActiveSessionsCount(userDisconnected.userId).awaitFirstOrNull()
+                    .awaitSingleOrNull()
+            val user = userRepository.findById(userDisconnected.userId).awaitFirstOrNull()
 
             if (userSession != null && user != null) {
-                log.debug("Number of active sessions of user ${user.id} is ${user.activeSessionsCount}")
-                if (user.activeSessionsCount < 0) {
-                    user = userRepository.findAndIncreaseActiveSessionsCount(
-                            user.id,
-                            user.activeSessionsCount * (-1)
-                    )
-                            .awaitFirst()
-                }
-
-                val shouldPublishUserDisconnected = user!!.activeSessionsCount == 0
-                userSession = userSession.copy(
-                        disconnectedAt = ZonedDateTime.now()
-                )
-                userSessionRepository.save(userSession).awaitFirst()
-                userRepository.updateLastSeenDateIfNecessary(user.id, userSession.disconnectedAt!!).subscribe()
-
-                if (shouldPublishUserDisconnected) {
-                    log.debug("Publishing userWentOffline event")
-                    userEventsProducer.userWentOffline(
-                            UserOffline(
-                                    userId = user.id,
-                                    lastSeen = user.lastSeen
-                            )
-                    )
-                }
+                disconnectSessionAndCheckIfUserIsOffline(user, userSession).awaitFirstOrNull()
             }
 
             Mono.empty<Void>()
@@ -119,7 +94,7 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
 
     override fun findActiveSessionsOfCurrentUser(): Flux<UserSessionResponse> {
         return mono {
-            val user = authenticationFacade.getCurrentUser().awaitFirst()
+            val user = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
             userSessionRepository
                     .findByUserIdAndDisconnectedAtNull(user.id)
@@ -130,7 +105,7 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
 
     override fun findSessionsOfCurrentUser(paginationRequest: PaginationRequest): Flux<UserSessionResponse> {
         return mono {
-            val user = authenticationFacade.getCurrentUser().awaitFirst()
+            val user = authenticationHolder.requireCurrentUser().awaitFirst()
 
             userSessionRepository.findByUserId(user.id, paginationRequest.toPageRequest())
                     .map { userSessionMapper.toUserSessionResponse(it) }
@@ -139,17 +114,25 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
     }
 
     @Scheduled(cron = "0 0/5 * * * *")
-    override fun lookForInactiveSessions() {
+    override fun checkOnlineStatusOfUsers() {
+        mono {
+            lookForInactiveSessions().awaitFirstOrNull()
+            checkUsersWithOnlineStatus().awaitFirstOrNull()
+        }
+                .subscribe()
+    }
+
+    private fun lookForInactiveSessions(): Mono<Unit> {
         log.info("Looking for inactive sessions")
         val webClient = WebClient.create()
-        val sessionActivityMap: MutableMap<String, Boolean> = HashMap()
 
-        mono {
+        return mono {
             val activeSessions = userSessionRepository.findByDisconnectedAtNullAndCreatedAtBefore(
                     ZonedDateTime.now().minusMinutes(5L)
             )
                     .collectList()
                     .awaitFirst()
+            val sessionActivityMap = activeSessions.associate { it.id to false }.toMutableMap()
 
             log.debug("Active sessions are")
             log.debug("$activeSessions")
@@ -169,9 +152,12 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                                 .uri(url)
                                 .accept(MediaType.APPLICATION_JSON)
                                 .retrieve()
-                                .bodyToMono<SessionActivityStatusResponse>(SessionActivityStatusResponse::class.java)
+                                .bodyToMono(SessionActivityStatusResponse::class.java)
                                 .awaitFirst()
-                        sessionActivityMap[session.id] = sessionActivityStatusResponse.active
+
+                        if (sessionActivityStatusResponse.active) {
+                            sessionActivityMap[session.id] = true
+                        }
                     }
                 }
 
@@ -182,28 +168,77 @@ class UserSessionServiceImpl(private val userSessionRepository: UserSessionRepos
                     val nonActiveSessions = activeSessions
                             .filter { session -> !sessionActivityMap[session.id]!! }
                             .map { session -> session.copy(disconnectedAt = ZonedDateTime.now()) }
+                            .sortedByDescending { session -> session.disconnectedAt }
                     userSessionRepository.saveAll(nonActiveSessions).collectList().awaitFirst()
 
                     nonActiveSessions.forEach { session ->
-                        val user = userRepository.findAndDecreaseActiveSessionsCount(session.userId).awaitFirst()
-                        userRepository.updateLastSeenDateIfNecessary(session.userId, session.disconnectedAt!!).subscribe()
-                        val shouldPublishWentOffline = user.activeSessionsCount == 0
+                        val user = userRepository.findById(session.userId).awaitFirst()
+                        disconnectSessionAndCheckIfUserIsOffline(user, session)
+                    }
+                }
+            }
+        }
+    }
 
-                        if (shouldPublishWentOffline) {
-                            userEventsProducer.userWentOffline(
-                                    UserOffline(
-                                            userId = session.userId,
-                                            lastSeen = session.disconnectedAt!!
-                                    )
-                            )
-                        }
-                     }
+    private fun disconnectSessionAndCheckIfUserIsOffline(user: User, disconnectedSession: UserSession): Mono<Unit> {
+        return mono {
+            log.debug("Checking if user ${user.id} is offline")
+            val otherSessionsCount = userSessionRepository.countByUserIdAndDisconnectedAtNullAndIdNot(
+                    userId = user.id,
+                    excludedId = disconnectedSession.id
+            )
+                    .awaitFirst()
+            val disconnectedAt = ZonedDateTime.now()
+            userSessionRepository.save(
+                    disconnectedSession.copy(disconnectedAt = disconnectedAt)
+            )
+                    .awaitFirst()
+
+            if (otherSessionsCount == 0L && user.online) {
+                log.debug("Updating online status and publishing UserWentOffline event for user ${user.id}")
+                userRepository.save(user.copy(
+                        online = false,
+                        lastSeen = disconnectedAt
+                ))
+                        .awaitFirst()
+                userEventsProducer.userWentOffline(
+                        UserOffline(
+                                userId = user.id,
+                                lastSeen = disconnectedAt
+                        )
+                )
+            }
+        }
+    }
+
+    private fun checkUsersWithOnlineStatus(): Mono<Unit> {
+        return mono {
+            log.debug("Checking users with online status")
+            val onlineUsers = userRepository.findByOnlineTrue().collectList().awaitFirst()
+            val usersToUpdate = mutableListOf<User>()
+            val lastSeen = ZonedDateTime.now()
+
+            onlineUsers.forEach { user ->
+                val activeSessionsCount = userSessionRepository.countByUserIdAndDisconnectedAtNull(user.id).awaitFirst()
+
+                if (activeSessionsCount == 0L) {
+                    usersToUpdate.add(user.copy(online = false, lastSeen = lastSeen))
                 }
             }
 
-            Mono.empty<Void>()
+            if (usersToUpdate.isNotEmpty()) {
+                userRepository.saveAll(usersToUpdate).collectList().awaitFirst()
+
+                usersToUpdate.forEach { user ->
+                    log.debug("Publishing UserOffline for user ${user.id}")
+                    userEventsProducer.userWentOffline(
+                            UserOffline(
+                                    userId = user.id,
+                                    lastSeen = user.lastSeen
+                            )
+                    )
+                }
+            }
         }
-                .flatMap { it }
-                .subscribe()
     }
 }

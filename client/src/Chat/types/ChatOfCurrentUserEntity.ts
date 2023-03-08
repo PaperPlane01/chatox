@@ -1,4 +1,4 @@
-import {ChatDeletionReason} from "../../api/types/response";
+import {ChatDeletionReason, ChatType} from "../../api/types/response";
 
 export interface ChatOfCurrentUserEntity {
     id: string,
@@ -23,5 +23,7 @@ export interface ChatOfCurrentUserEntity {
     deleted: boolean,
     deletionReason?: ChatDeletionReason,
     deletionComment?: string,
-    pinnedMessageId?: string
+    pinnedMessageId?: string,
+    type: ChatType,
+    userId?: string
 }

@@ -1,41 +1,53 @@
-import {action, observable, reaction} from "mobx";
+import {action, computed, makeObservable, observable, reaction} from "mobx";
 import {CheckEmailConfirmationCodeFormData, ConfirmationCodeSuccessCheckCallback} from "../types";
 import {validateConfirmationCode} from "../validation";
 import {FormErrors} from "../../utils/types";
 import {ApiError, EmailConfirmationCodeApi, getInitialApiErrorFromResponse} from "../../api";
+import {AbstractFormStore} from "../../form-store";
+import {containsNotUndefinedValues} from "../../utils/object-utils";
 
-export class CheckEmailConfirmationCodeStore {
-    @observable
-    checkEmailConfirmationCodeForm: CheckEmailConfirmationCodeFormData = {
-        confirmationCode: ""
-    };
+const INITIAL_FORM_VALUES: CheckEmailConfirmationCodeFormData = {
+    confirmationCode: ""
+};
+const INITIAL_FORM_ERRORS: FormErrors<CheckEmailConfirmationCodeFormData> = {
+    confirmationCode: undefined
+};
 
-    @observable
-    formErrors: FormErrors<CheckEmailConfirmationCodeFormData> = {
-        confirmationCode: undefined
-    };
+export class CheckEmailConfirmationCodeStore extends AbstractFormStore<CheckEmailConfirmationCodeFormData>{
+    emailConfirmationCodeId?: string = undefined;
 
-    @observable
-    pending: boolean = false;
-
-    @observable
-    error?: ApiError = undefined;
+    /**
+     * @deprecated
+     */
+    get checkEmailConfirmationCodeForm(): CheckEmailConfirmationCodeFormData {
+        return this.formValues;
+    }
 
     constructor(private readonly successCheckCallback: ConfirmationCodeSuccessCheckCallback) {
+        super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS)
+
+        makeObservable(this, {
+            emailConfirmationCodeId: observable,
+            checkEmailConfirmationCodeForm: computed,
+            checkEmailConfirmationCode: action,
+            submitForm: action,
+            validateForm: action,
+            reset: action
+        });
+
         reaction(
-            () => this.checkEmailConfirmationCodeForm.confirmationCode,
-            confirmationCode => validateConfirmationCode(confirmationCode)
+            () => this.formValues.confirmationCode,
+            confirmationCode => this.setFormError("confirmationCode", validateConfirmationCode(confirmationCode))
         );
     }
 
-    @action
-    setFormValue = <Key extends keyof CheckEmailConfirmationCodeFormData>(key: Key, value: CheckEmailConfirmationCodeFormData[Key]): void => {
-        this.checkEmailConfirmationCodeForm[key] = value;
+    checkEmailConfirmationCode = (emailConfirmationCodeId: string): void => {
+        this.emailConfirmationCodeId = emailConfirmationCodeId;
+        this.submitForm();
     };
 
-    @action
-    checkEmailConfirmationCode = (emailConfirmationCodeId: string): void => {
-        if (!this.validateForm()) {
+    submitForm = (): void => {
+        if (!this.validateForm() || !this.emailConfirmationCodeId) {
             return;
         }
 
@@ -43,38 +55,32 @@ export class CheckEmailConfirmationCodeStore {
         this.error = undefined;
 
         EmailConfirmationCodeApi.checkEmailConfirmationCode(
-            emailConfirmationCodeId,
+            this.emailConfirmationCodeId,
             {
-                confirmationCode: this.checkEmailConfirmationCodeForm.confirmationCode
+                confirmationCode: this.formValues.confirmationCode
             }
         )
             .then(({data}) => {
                 if (!data.valid) {
-                    this.formErrors.confirmationCode = "email.verification.code.invalid";
+                    this.setFormError("confirmationCode", "email.verification.code.invalid")
                 } else {
                     this.successCheckCallback();
                 }
             })
-            .catch(error => {
-                this.error = getInitialApiErrorFromResponse(error);
-            })
-            .finally(() => this.pending = false);
+            .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
+            .finally(() => this.setPending(false));
     };
 
-    @action
     validateForm = (): boolean => {
-        this.formErrors.confirmationCode = validateConfirmationCode(this.checkEmailConfirmationCodeForm.confirmationCode);
+        this.setFormErrors({
+            confirmationCode: validateConfirmationCode(this.formValues.confirmationCode)
+        });
 
-        return !Boolean(this.formErrors.confirmationCode);
+        return !containsNotUndefinedValues(this.formErrors);
     };
 
-    @action
     reset = (): void => {
-        this.checkEmailConfirmationCodeForm = {
-            confirmationCode: ""
-        };
-        setTimeout(() => this.formErrors = {
-            confirmationCode: undefined
-        });
-    }
+        this.resetForm();
+        this.emailConfirmationCodeId = undefined;
+    };
 }

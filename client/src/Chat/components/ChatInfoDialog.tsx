@@ -4,22 +4,22 @@ import {
     Button,
     Card,
     CardHeader,
-    createStyles,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    makeStyles,
-    Theme
-} from "@material-ui/core";
+    Theme,
+} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {ChatDescription} from "./ChatDescription";
-import {AllChatParticipantsList} from "./AllChatParticipantsList";
 import {ChatMenu} from "./ChatMenu";
 import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
+import {ChatParticipantsCard, useChatParticipantsListScroll} from "../../ChatParticipant";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
+import {ChatType} from "../../api/types/response";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     chatInfoContainer: {
@@ -56,12 +56,18 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
     const {l} = useLocalization();
     const {fullScreen} = useMobileDialog();
     const classes = useStyles();
+    const {scrollHandler} = useChatParticipantsListScroll("all");
 
     if (!selectedChatId) {
         return null;
     }
 
     const chat = findChat(selectedChatId);
+
+    if (chat.type === ChatType.DIALOG) {
+        return null;
+    }
+
     const avatarLetter = getAvatarLabel(chat.name);
     const color = randomColor({seed: chat.id});
 
@@ -71,6 +77,8 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
                 fullScreen={fullScreen}
                 fullWidth
                 maxWidth="xs"
+                scroll="paper"
+                onScroll={scrollHandler}
         >
             <DialogTitle>
                 <CardHeader title={l("chat.info")}
@@ -97,7 +105,7 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
                         <ChatDescription/>
                     </div>
                     <div className={classes.chatInfoCard}>
-                        <AllChatParticipantsList/>
+                        <ChatParticipantsCard defaultMode="all" preventScroll/>
                     </div>
                 </div>
             </DialogContent>
@@ -110,5 +118,5 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
                 </Button>
             </DialogActions>
         </Dialog>
-    )
+    );
 });

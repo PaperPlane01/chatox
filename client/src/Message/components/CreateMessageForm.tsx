@@ -1,38 +1,28 @@
-import React, {Fragment, FunctionComponent, useEffect, useLayoutEffect, useRef} from "react";
+import React, {Fragment, FunctionComponent, KeyboardEvent, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
-import {
-    createStyles,
-    Divider,
-    Hidden,
-    IconButton,
-    InputAdornment,
-    makeStyles,
-    Menu,
-    TextField,
-    Theme,
-    Tooltip,
-    useMediaQuery,
-    useTheme
-} from "@material-ui/core";
-import {InsertEmoticon, KeyboardVoice, Send} from "@material-ui/icons";
-import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
-import {EmojiData, Picker} from "emoji-mart";
+import {Divider, Hidden, IconButton, InputAdornment, TextField, Theme, Tooltip} from "@mui/material";
+import createStyles from '@mui/styles/createStyles';
+import makeStyles from '@mui/styles/makeStyles';
+import {KeyboardVoice, Send} from "@mui/icons-material";
+import {EmojiData} from "emoji-mart";
 import 'emoji-mart/css/emoji-mart.css';
 import {AttachFilesButton} from "./AttachFilesButton";
 import {ReferredMessageCard} from "./ReferredMessageCard";
 import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
-import {useLocalization, useRouter, useStore} from "../../store";
-import {Routes} from "../../router";
+import {EmojiAndStickerPicker} from "./EmojiAndStickerPicker";
+import {EmojiPickerContainer} from "./EmojiPickerContainer";
+import {useLocalization, useStore} from "../../store";
+import {SendMessageButton} from "../../Chat";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     textField: {
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down("lg")]: {
             backgroundColor: theme.palette.background
         }
     },
-    inputIconButton: {
+    inputAdornment: {
         [theme.breakpoints.up("lg")]: {
-            marginTop: theme.spacing(2)
+            paddingTop: theme.spacing(2)
         }
     }
 }));
@@ -41,37 +31,23 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
     const {
         messageCreation: {
             createMessageForm: formValues,
-            formErrors,
             pending,
-            submissionError,
             emojiPickerExpanded,
             referredMessageId,
             attachmentsIds,
             setFormValue,
             createMessage,
-        },
-        entities: {
-            chats: {
-                findById: findChat
-            }
-        },
-        chat: {
-            selectedChatId
+            setEmojiPickerExpanded
         },
         emoji: {
-            selectedEmojiSet,
             useEmojiCodes
+        },
+        chatsPreferences: {
+            sendMessageButton
         }
     } = useStore();
     const {l} = useLocalization();
-    const routerStore = useRouter();
     const classes = useStyles();
-    const emojiPickerPopupState = usePopupState({
-        variant: "popover",
-        popupId: "emojiPicker"
-    });
-    const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -88,34 +64,9 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
         }
     }, [referredMessageId]);
 
-    useLayoutEffect(() => {
-        if (!onSmallScreen) {
-            setTimeout(() => {
-                // For some reason search text field in emoji-mart picker is being focused right after render
-                // despite passing autoFocus={false} property, so I have to do this ugly work-around
-                const emojiMartTextFieldWrappers = document.getElementsByClassName("emoji-mart-search");
-
-                if (emojiMartTextFieldWrappers && emojiMartTextFieldWrappers.length !== 0) {
-                    const emojiMartTextFieldWrapper = emojiMartTextFieldWrappers.item(0);
-
-                    if (emojiMartTextFieldWrapper && emojiMartTextFieldWrapper.children && emojiMartTextFieldWrapper.children.length !== 0) {
-                        const emojiMartSearchTextField = emojiMartTextFieldWrapper.children.item(0) as HTMLInputElement;
-
-                        if (emojiMartSearchTextField) {
-                            emojiMartSearchTextField.blur();
-                        }
-                    }
-                }
-            });
-        }},
-        [emojiPickerPopupState.isOpen]
-    );
-
-    const chat = findChat(selectedChatId!);
-
     const updateText = (): void => {
         setFormValue("text", inputRef!.current!.value);
-    }
+    };
 
     const handleEmojiSelect = (emoji: EmojiData): void => {
         if (inputRef && inputRef.current) {
@@ -128,9 +79,49 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                     inputRef.current.value = `${emoji.colons}`;
                 }
             }
+
             updateText();
         }
-    }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
+        if (event.key !== "Enter") {
+            return;
+        }
+
+        if (event.ctrlKey) {
+            if (sendMessageButton === SendMessageButton.CTRL_ENTER) {
+                createMessage();
+            } else {
+                insertNewLineOnCursorPosition();
+            }
+        } else if (sendMessageButton === SendMessageButton.ENTER) {
+            createMessage();
+        } else {
+            insertNewLineOnCursorPosition();
+        }
+    };
+
+    const insertNewLineOnCursorPosition = (): void => {
+        if (!inputRef || !inputRef.current) {
+            return;
+        }
+
+        let [start, end] = [inputRef.current.selectionStart, inputRef.current.selectionEnd];
+
+        if (start === null || end === null) {
+           start = 0;
+           end = 1;
+        }
+
+        if (end === formValues.text.length) {
+            inputRef.current.value = `${inputRef.current.value}\r\n`;
+        } else {
+            inputRef.current.setRangeText("\r\n", start, end, "preserve");
+        }
+
+        updateText();
+    };
 
     return (
         <div>
@@ -141,69 +132,44 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                        placeholder={l("message.type-something")}
                        onChange={updateText}
                        onPaste={updateText}
+                       onKeyDown={handleKeyDown}
                        inputRef={inputRef}
                        multiline
-                       rows={2}
-                       rowsMax={8}
+                       maxRows={8}
+                       variant="standard"
+                       className={classes.textField}
                        InputProps={{
                            disableUnderline: true,
                            startAdornment: (
-                               <InputAdornment position="start">
-                                   <AttachFilesButton className={classes.inputIconButton}/>
+                               <InputAdornment position="start"
+                                               className={classes.inputAdornment}
+                               >
+                                   <AttachFilesButton/>
                                </InputAdornment>
                            ),
                            endAdornment: (
-                               <InputAdornment position="end">
+                               <InputAdornment position="end"
+                                               className={classes.inputAdornment}
+                               >
                                    <div style={{display: "flex"}}>
                                        <Fragment>
-                                           {formValues.scheduledAt && (<OpenScheduleMessageDialogButton className={classes.inputIconButton}/>)}
-                                           <Hidden mdDown>
-                                               <IconButton className={classes.inputIconButton}
-                                                           {...bindToggle(emojiPickerPopupState)}
-                                               >
-                                                   <InsertEmoticon/>
-                                               </IconButton>
-                                               <Menu {...bindMenu(emojiPickerPopupState)}>
-                                                   <Picker set={selectedEmojiSet === "native" ? undefined : selectedEmojiSet}
-                                                           onSelect={handleEmojiSelect}
-                                                           autoFocus={false}
-                                                           native={selectedEmojiSet === "native"}
-                                                   />
-                                               </Menu>
-                                           </Hidden>
-                                           <Hidden lgUp>
-                                               <IconButton className={classes.inputIconButton}
-                                                           onClick={() => {
-                                                               routerStore.router.goTo(
-                                                                   Routes.chatPage,
-                                                                   {slug: chat!.slug || chat!.id},
-                                                                   {},
-                                                                   emojiPickerExpanded
-                                                                       ? {}
-                                                                       : {emojiPickerExpanded: true}
-                                                               )
-                                                           }}
-                                               >
-                                                   <InsertEmoticon/>
-                                               </IconButton>
-                                           </Hidden>
+                                           {formValues.scheduledAt && <OpenScheduleMessageDialogButton/>}
+                                           <EmojiPickerContainer onEmojiSelected={handleEmojiSelect}/>
                                        </Fragment>
                                        {formValues.text.length !== 0 || attachmentsIds.length !== 0
                                            ? (
-                                               <IconButton onClick={createMessage}
-                                                           color="primary"
-                                                           disabled={pending}
-                                                           className={classes.inputIconButton}
-                                               >
+                                               <IconButton
+                                                   onClick={createMessage}
+                                                   color="primary"
+                                                   disabled={pending}
+                                                   size="large">
                                                    <Send/>
                                                </IconButton>
                                            )
                                            : (
                                                <Tooltip title={l("feature.not-available")}>
                                                   <div>
-                                                      <IconButton disabled
-                                                                  className={classes.inputIconButton}
-                                                      >
+                                                      <IconButton disabled size="large">
                                                           <KeyboardVoice/>
                                                       </IconButton>
                                                   </div>
@@ -214,23 +180,14 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                </InputAdornment>
                            )
                        }}
-                       className={classes.textField}
             />
             <Hidden lgUp>
                 {emojiPickerExpanded && (
-                    <Picker set={selectedEmojiSet === "native" ? undefined : selectedEmojiSet}
-                            onSelect={handleEmojiSelect}
-                            autoFocus={false}
-                            showPreview={false}
-                            showSkinTones={false}
-                            native={selectedEmojiSet === "native"}
-                            style={{
-                                width: "100%",
-                                backgroundColor: theme.palette.background.default
-                            }}
+                    <EmojiAndStickerPicker onEmojiPicked={handleEmojiSelect}
+                                           onStickerPicked={() => setEmojiPickerExpanded(false)}
                     />
                 )}
             </Hidden>
         </div>
-    )
+    );
 });

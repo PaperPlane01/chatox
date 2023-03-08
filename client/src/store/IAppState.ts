@@ -1,4 +1,4 @@
-import {EntitiesStore} from "../entities-store";
+import {EntitiesStore, RawEntitiesStore} from "../entities-store";
 import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
 import {AuthorizationStore, LoginStore, LoginWithGoogleStore} from "../Authorization";
@@ -10,26 +10,31 @@ import {
 } from "../Registration";
 import {
     ChatInfoDialogStore,
-    ChatParticipantsStore,
     ChatsOfCurrentUserStore,
     ChatsPreferencesStore,
     ChatStore,
     CreateChatStore,
     DeleteChatStore,
-    JoinChatStore,
-    KickChatParticipantStore,
     LeaveChatStore,
-    OnlineChatParticipantsStore,
     PopularChatsStore,
-    UpdateChatParticipantStore,
     UpdateChatStore
 } from "../Chat";
+import {
+    ChatParticipantsSearchStore,
+    ChatParticipantsStore,
+    JoinChatStore,
+    KickChatParticipantStore,
+    OnlineChatParticipantsStore,
+    UpdateChatParticipantStore,
+} from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {
     ClosedPinnedMessagesStore,
     CreateMessageStore,
     DeleteScheduledMessageStore,
-    DownloadMessageFileStore, MarkMessageReadStore,
+    DownloadMessageFileStore,
+    EmojiPickerTabsStore,
+    MarkMessageReadStore,
     MessageDialogStore,
     MessagesListScrollPositionsStore,
     MessagesOfChatStore,
@@ -38,6 +43,7 @@ import {
     PublishScheduledMessageStore,
     ScheduledMessagesOfChatStore,
     ScheduleMessageStore,
+    SearchMessagesStore,
     UnpinMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
@@ -89,6 +95,37 @@ import {
     UpdateSelectedReportsStore
 } from "../Report/stores";
 import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
+import {
+    CreateStickerPackStore,
+    InstalledStickerPacksStore,
+    InstallStickerPackStore,
+    SearchStickerPacksStore,
+    StickerEmojiPickerDialogStore,
+    StickerPackDialogStore,
+    StickerPickerStore,
+    UninstallStickerPackStore
+} from "../Sticker";
+import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
+import {
+    AllChatsMessagesSearchStore,
+    ChatsAndMessagesSearchQueryStore,
+    ChatsOfCurrentUserSearchStore
+} from "../ChatsAndMessagesSearch";
+import {
+    ChatFeaturesFormStore,
+    ChatRoleInfoDialogStore,
+    CreateChatRoleStore,
+    EditChatRoleStore,
+    RolesOfChatStore,
+    UserChatRolesStore
+} from "../ChatRole";
+import {
+    SendEmailChangeConfirmationCodeStore,
+    SendNewEmailConfirmationCodeStore,
+    UpdateEmailDialogStore,
+    UpdateEmailStore
+} from "../EmailUpdate";
+import {ThemeStore} from "../Theme";
 
 export interface IAppState {
     language: LocaleStore,
@@ -99,6 +136,7 @@ export interface IAppState {
     chatCreation: CreateChatStore,
     markdownPreviewDialog: MarkdownPreviewDialogStore,
     entities: EntitiesStore,
+    rawEntities: RawEntitiesStore,
     chatsOfCurrentUser: ChatsOfCurrentUserStore,
     chat: ChatStore,
     chatParticipants: ChatParticipantsStore,
@@ -178,5 +216,34 @@ export interface IAppState {
     googleLogin: LoginWithGoogleStore,
     messagesListScrollPositions: MessagesListScrollPositionsStore,
     markMessageRead: MarkMessageReadStore,
-    store?: any
+    stickerPackCreation: CreateStickerPackStore,
+    stickerEmojiPickerDialog: StickerEmojiPickerDialogStore,
+    installedStickerPacks: InstalledStickerPacksStore,
+    stickerPackInstallation: InstallStickerPackStore,
+    stickerPackUninstallation: UninstallStickerPackStore,
+    stickerPacksSearch: SearchStickerPacksStore,
+    stickerPackDialog: StickerPackDialogStore,
+    stickerPicker: StickerPickerStore,
+    emojiPickerTabs: EmojiPickerTabsStore,
+    blacklistedUsers: BlacklistedUsersStore,
+    addUserToBlacklist: AddUserToBlacklistStore,
+    removeUserFromBlacklist: RemoveUserFromBlacklistStore,
+    messagesSearch: SearchMessagesStore,
+    chatsAndMessagesSearchQuery: ChatsAndMessagesSearchQueryStore,
+    allChatsMessagesSearch: AllChatsMessagesSearchStore,
+    chatsOfCurrentUserSearch: ChatsOfCurrentUserSearchStore,
+    rolesOfChats: RolesOfChatStore,
+    userChatRoles: UserChatRolesStore,
+    chatFeaturesForm: ChatFeaturesFormStore,
+    chatRoleInfo: ChatRoleInfoDialogStore,
+    editChatRole: EditChatRoleStore,
+    createChatRole: CreateChatRoleStore,
+    chatParticipantsSearch: ChatParticipantsSearchStore,
+    updateEmailDialog: UpdateEmailDialogStore,
+    emailChangeConfirmationCode: SendEmailChangeConfirmationCodeStore,
+    emailChangeConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
+    newEmailConfirmationCode: SendNewEmailConfirmationCodeStore,
+    newEmailConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
+    emailUpdate: UpdateEmailStore,
+    theme: ThemeStore
 }

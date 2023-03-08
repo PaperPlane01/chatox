@@ -26,16 +26,23 @@ export class UploadApi {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("originalName", file.name);
-        const config: AxiosRequestConfig = {};
+        const config: AxiosRequestConfig = {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            },
+            url,
+            method: "POST",
+            data: formData
+        };
 
         if (onUploadProgress) {
             config.onUploadProgress = progressEvent => {
-                const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total!);
                 onUploadProgress(percentage);
             }
         }
 
-        return axiosInstance.post(url, formData, config);
+        return axiosInstance(config);
     }
 
     public static downloadFile(fileName: string, onDownloadProgress?: ProgressCallback): AxiosPromise<Blob> {
@@ -45,7 +52,7 @@ export class UploadApi {
 
         if (onDownloadProgress) {
             config.onDownloadProgress = progressEvent => {
-                const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total!);
                 onDownloadProgress(percentage);
             }
         }

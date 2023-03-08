@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {addMonths} from "date-fns";
 import {BanUserFormData, GlobalBanEntity} from "../types";
 import {validateGlobalBanComment, validateGlobalBanExpirationDate} from "../validation";
@@ -22,28 +22,20 @@ const FORM_ERRORS_INITIAL_STATE: FormErrors<BanUserFormData> = {
 };
 
 export class UpdateGlobalBanStore {
-    @observable
     updatedGlobalBanId?: string = undefined;
     
-    @observable
     updateGlobalBanDialogOpen: boolean = false;
     
-    @observable
     updateGlobalBanForm: BanUserFormData = UPDATE_GLOBAL_BAN_FORM_INITIAL_STATE;
     
-    @observable
     formErrors: FormErrors<BanUserFormData> = FORM_ERRORS_INITIAL_STATE;
     
-    @observable
     pending: boolean = false;
     
-    @observable
     error?: ApiError = undefined;
 
-    @observable
     showSnackbar: boolean = false;
     
-    @computed
     get updatedGlobalBan(): GlobalBanEntity | undefined {
         if (this.updatedGlobalBanId) {
             return this.entities.globalBans.findById(this.updatedGlobalBanId);
@@ -53,6 +45,8 @@ export class UpdateGlobalBanStore {
     }
     
     constructor(private readonly entities: EntitiesStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.updatedGlobalBan,
             () => {
@@ -96,27 +90,22 @@ export class UpdateGlobalBanStore {
         );
     }
 
-    @action
     setFormValue = <Key extends keyof BanUserFormData>(key: Key, value: BanUserFormData[Key]): void => {
         this.updateGlobalBanForm[key] = value;
-    }
+    };
 
-    @action
     setUpdatedGlobalBanId = (updatedGlobalBanId?: string): void => {
         this.updatedGlobalBanId = updatedGlobalBanId;
-    }
+    };
 
-    @action
     setUpdateGlobalBanDialogOpen = (updatedGlobalBanDialogOpen: boolean): void => {
         this.updateGlobalBanDialogOpen = updatedGlobalBanDialogOpen;
-    }
+    };
 
-    @action
     setShowSnackbar = (showSnackbar: boolean): void => {
         this.showSnackbar = showSnackbar;
-    }
+    };
 
-    @action
     updateGlobalBan = (): void => {
         if (!this.updatedGlobalBan) {
             return;
@@ -135,13 +124,12 @@ export class UpdateGlobalBanStore {
                 this.setUpdateGlobalBanDialogOpen(false);
                 this.setUpdatedGlobalBanId(undefined);
                 this.setShowSnackbar(true);
-                this.entities.insertGlobalBan(data);
+                this.entities.globalBans.insert(data);
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false);
-    }
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.pending = false));
+    };
     
-    @action
     validateForm = (): boolean => {
         this.formErrors = {
             ...this.formErrors,
@@ -154,5 +142,5 @@ export class UpdateGlobalBanStore {
         const {comment, reason} = this.formErrors;
 
         return !Boolean(comment || reason);
-    }
+    };
 }

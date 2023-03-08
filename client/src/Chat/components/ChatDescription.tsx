@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Card, CardContent, createStyles, makeStyles} from "@material-ui/core";
-import InfoIcon from "@material-ui/icons/Info"
-import {Skeleton} from "@material-ui/lab";
+import {Card, CardContent, Skeleton} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Info} from "@mui/icons-material";
 import ReactMarkdown from "react-markdown";
 import {useLocalization, useStore} from "../../store";
 
@@ -38,18 +38,18 @@ export const ChatDescription: FunctionComponent = observer(() => {
                 root: classes.root
             }}>
                 <CardContent>
-                    <InfoIcon/>
+                    <Info/>
                     {pending
                         ? <Skeleton variant="text" width={60}/>
                         : (
-                            <ReactMarkdown source={chat.description ? chat.description : l("chat.no-description")}
-                                           plugins={[breaks]}
+                            <ReactMarkdown children={chat.description ? chat.description : l("chat.no-description")}
+                                           remarkPlugins={[breaks]}
                             />
                         )
                     }
                 </CardContent>
             </Card>
-        )
+        );
     } else {
         return null;
     }

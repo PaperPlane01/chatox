@@ -8,8 +8,8 @@ import chatox.chat.model.Chat
 import chatox.chat.model.ChatBlocking
 import chatox.chat.model.User
 import chatox.chat.service.UserService
+import chatox.platform.security.jwt.JwtPayload
 import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
@@ -60,7 +60,7 @@ class ChatBlockingMapper(private val userService: UserService) {
     fun fromCreateChatBlockingRequest(createChatBlockingRequest: CreateChatBlockingRequest,
                                       chat: Chat,
                                       blockedUser: User,
-                                      currentUser: User): ChatBlocking {
+                                      currentUser: JwtPayload): ChatBlocking {
         return ChatBlocking(
                 id = UUID.randomUUID().toString(),
                 blockedById = currentUser.id,
@@ -79,7 +79,7 @@ class ChatBlockingMapper(private val userService: UserService) {
 
     fun mapChatBlockingUpdate(chatBlocking: ChatBlocking,
                               updateChatBlockingRequest: UpdateChatBlockingRequest,
-                              currentUser: User
+                              currentUser: JwtPayload
     ): ChatBlocking {
         return chatBlocking.copy(
                 blockedUntil = updateChatBlockingRequest.blockedUntil ?: chatBlocking.blockedUntil,

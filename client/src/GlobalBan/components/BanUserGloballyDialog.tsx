@@ -2,10 +2,10 @@ import React, {FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
 import {useSnackbar} from "notistack";
 import {BanUserGloballyDialogBase} from "./BanUserGloballyDialogBase";
-import {useLocalization, useStore} from "../../store/hooks";
-import {getUserDisplayedName} from "../../User/utils/get-user-displayed-name";
+import {useLocalization, useStore} from "../../store";
+import {getUserDisplayedName} from "../../User/utils/labels";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {TranslationFunction} from "../../localization/types";
+import {TranslationFunction} from "../../localization";
 
 const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
     if (error.status === API_UNREACHABLE_STATUS) {

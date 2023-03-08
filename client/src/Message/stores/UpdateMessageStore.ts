@@ -1,38 +1,34 @@
-import {action, computed, observable, reaction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {UpdateMessageFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {EntitiesStore} from "../../entities-store";
 import {validateMessageText} from "../validation";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {ChatStore} from "../../Chat/stores";
+import {ChatStore} from "../../Chat";
 
 export class UpdateMessageStore {
-    @observable
     updateMessageForm: UpdateMessageFormData = {
         text: ""
     };
 
-    @observable
     formErrors: FormErrors<UpdateMessageFormData> = {
         text: undefined
     };
 
-    @observable
     updatedMessageId?: string = undefined;
 
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
     }
 
     constructor(private readonly chatStore: ChatStore,
                 private readonly entities: EntitiesStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.updatedMessageId,
             messageId => {
@@ -51,17 +47,14 @@ export class UpdateMessageStore {
         );
     }
 
-    @action
     setUpdatedMessageId = (messageId?: string): void => {
         this.updatedMessageId = messageId;
     };
 
-    @action
     setFormValue = <Key extends keyof UpdateMessageFormData>(key: Key, value: UpdateMessageFormData[Key]): void => {
         this.updateMessageForm[key] = value;
     };
 
-    @action
     updateMessage = (): void => {
         if (!this.selectedChatId || !this.updatedMessageId || !this.validateForm()) {
             return;
@@ -75,26 +68,24 @@ export class UpdateMessageStore {
             this.updatedMessageId,
             {text: this.updateMessageForm.text}
         )
-            .then(({data}) => {
-                this.entities.insertMessage(data);
+            .then(({data}) => runInAction(() => {
+                this.entities.messages.insert(data);
                 this.updatedMessageId = undefined;
                 this.reset();
-            })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false);
+            }))
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.pending = false));
     };
 
-    @action
     validateForm = (): boolean => {
         this.formErrors.text = validateMessageText(this.updateMessageForm.text);
 
         return !Boolean(this.formErrors.text);
     };
 
-    @action
     reset = () => {
         this.updatedMessageId = undefined;
         this.setFormValue("text", "");
-        setTimeout(() => this.formErrors = {text: undefined});
-    }
+        setTimeout(() => runInAction(() => this.formErrors = {text: undefined}));
+    };
 }

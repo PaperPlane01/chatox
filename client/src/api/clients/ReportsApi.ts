@@ -15,7 +15,7 @@ export class ReportsApi {
         return axiosInstance.post(`/${REPORTS}`, createReportRequest);
     }
 
-    public static findReports(filterReportsRequest: FilterReportsRequest): AxiosPromise<Array<Report<any>>> {
+    public static findReports(filterReportsRequest: FilterReportsRequest): AxiosPromise<Array<Report>> {
         const transformedRequest = {
             ...filterReportsRequest,
             reason: JSON.stringify(filterReportsRequest.reason),
@@ -25,11 +25,11 @@ export class ReportsApi {
         return axiosInstance.get(`/${REPORTS}?${stringify(transformedRequest)}`);
     }
 
-    public static updateReport(id: string, updateReportRequest: UpdateReportRequest): AxiosPromise<Report<any>> {
+    public static updateReport(id: string, updateReportRequest: UpdateReportRequest): AxiosPromise<Report> {
         return  axiosInstance.put(`/${REPORTS}/${id}`, updateReportRequest);
     }
 
-    public static updateMultipleReports(updateMultipleReportsRequest: UpdateMultipleReportsRequest): AxiosPromise<Array<Report<any>>> {
+    public static updateMultipleReports(updateMultipleReportsRequest: UpdateMultipleReportsRequest): AxiosPromise<Array<Report>> {
         return axiosInstance.put(`/${REPORTS}`, updateMultipleReportsRequest);
     }
 }

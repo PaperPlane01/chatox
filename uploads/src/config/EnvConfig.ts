@@ -25,6 +25,12 @@ export class EnvConfig {
     @Env({type: "string", required: true})
     FILES_DIRECTORY: string;
 
+    @Env({type: "string", required: true})
+    FFPROBE_PATH: string;
+
+    @Env({type: "string", required: true})
+    FFMPEG_PATH: string;
+
     @Env({type: "number", required: false})
     FILE_MAX_SIZE_BYTES: number = 1073741824; // 1 gigabyte default
 

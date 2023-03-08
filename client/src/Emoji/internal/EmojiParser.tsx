@@ -1,7 +1,8 @@
 import React, {ReactNode} from "react";
 import {Data, Emoji, getEmojiDataFromNative} from "emoji-mart";
 import createRegEmojiRegExp from "emoji-regex";
-import {ParseEmojiOptions} from "./ParseEmojiOptions";
+import {Position} from "react-markdown/lib/ast-to-react";
+import {EmojiKeyProviderFunction, ParseEmojiOptions} from "./ParseEmojiOptions";
 import {ExtendedEmojiSet} from "../types";
 import {MessageEmoji} from "../../api/types/response";
 
@@ -12,7 +13,11 @@ export class EmojiParser {
     public parseEmoji(text: string, options: ParseEmojiOptions): ReactNode | ReactNode[] {
         if (text.match(this.emojiRegExp) || text.match(this.emojiColonsRegexp)) {
             if (options.emojiData && options.emojiData.emojiPositions.length !== 0) {
-                return this.parseWithBackendEmojiData(text, options.emojiData, options.set);
+                if (options.nodePosition) {
+                    return this.parseTextPart(text, options.emojiData, options.set, options.nodePosition);
+                } else {
+                    return this.parseWithBackendEmojiData(text, options.emojiData, options.set, options.nodePosition);
+                }
             } else {
                 return this.parseWithEmojiMartData(text, options.emojiMartData, options.set);
             }
@@ -21,7 +26,37 @@ export class EmojiParser {
         }
     }
 
-    private parseWithBackendEmojiData(text: string, emojiData: MessageEmoji, set: ExtendedEmojiSet): ReactNode | ReactNode[] {
+    private parseTextPart(textPart: string, emojiData: MessageEmoji, set: ExtendedEmojiSet, partPosition: Position, keyProvider?: EmojiKeyProviderFunction): ReactNode | ReactNode[] {
+        const result: ReactNode[] = [];
+        let cursor = 0;
+        const emojisWithinTextPart = emojiData
+            .emojiPositions
+            .filter(position => position.start + 1 >= partPosition.start.offset! && position.end + 1 <= partPosition.end.offset!);
+        const offset = partPosition.start.offset!;
+
+        for (let emojiPosition of emojisWithinTextPart) {
+            if (emojiPosition.end - offset + 1 !== cursor) {
+                result.push(textPart.substring(cursor, emojiPosition.start - offset));
+            }
+
+            cursor = emojiPosition.end - offset + 1;
+
+            const emojiMartData = emojiData.emoji[emojiPosition.emojiId];
+            const emojiSet = set === "native" ? undefined : set;
+            const native = set === "native";
+            const key = keyProvider ? keyProvider(emojiMartData, partPosition) : `${emojiMartData.colons}-${partPosition.start.column}-${cursor}`;
+
+            result.push(<Emoji size={20} emoji={emojiMartData} set={emojiSet} native={native} key={key}/>)
+        }
+
+        if (cursor !== textPart.length) {
+            result.push(textPart.substring(cursor));
+        }
+
+        return result;
+    }
+
+    private parseWithBackendEmojiData(text: string, emojiData: MessageEmoji, set: ExtendedEmojiSet, nodePosition?: Position): ReactNode | ReactNode[] {
         const result : ReactNode[] = [];
         let cursor = 0;
 

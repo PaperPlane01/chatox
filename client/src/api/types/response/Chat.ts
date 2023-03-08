@@ -1,5 +1,7 @@
 import {Upload} from "./Upload";
 import {ImageUploadMetadata} from "./ImageUploadMetadata";
+import {ChatType} from "./ChatType";
+import {User} from "./User";
 
 export interface Chat {
     avatarUri?: string,
@@ -12,5 +14,7 @@ export interface Chat {
     slug?: string,
     tags: string[],
     createdAt: string,
-    avatar?: Upload<ImageUploadMetadata>
+    avatar?: Upload<ImageUploadMetadata>,
+    type: ChatType,
+    user?: User
 }

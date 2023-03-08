@@ -1,8 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, createStyles, makeStyles, Theme} from "@material-ui/core";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {Button, Theme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {stringify} from "query-string";
+import {useLocalization, useRouter, useStore} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     loginWithGoogleButton: {
@@ -29,11 +30,11 @@ export const LoginWithGoogleButton: FunctionComponent = observer(() => {
     const classes = useStyles();
 
     const handleClick = (): void => {
-        const currentPath = router.router.currentView.path;
-        const currentParams = router.router.params;
-        const queryParams = router.router.queryParams;
+        const currentPath = router.currentRoute?.path;
+        const currentParams = router.params;
+        const queryParams = router.queryParams;
 
-        setOriginalPath(currentPath);
+        setOriginalPath(currentPath ? currentPath : "");
         currentParams && setOriginalParams(currentParams);
         queryParams && setOriginalQueryParams(queryParams);
 

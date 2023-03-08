@@ -1,5 +1,7 @@
 package chatox.chat.messaging.rabbitmq.event.listener
 
+import chatox.chat.config.CacheWrappersConfig
+import chatox.chat.config.RedisConfig
 import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.messaging.rabbitmq.event.UserCreated
 import chatox.chat.messaging.rabbitmq.event.UserDeleted
@@ -8,15 +10,15 @@ import chatox.chat.messaging.rabbitmq.event.UserWentOffline
 import chatox.chat.messaging.rabbitmq.event.UserWentOnline
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
-import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
 import chatox.chat.model.User
-import chatox.chat.repository.ChatParticipationRepository
-import chatox.chat.repository.ChatRepository
-import chatox.chat.repository.UploadRepository
-import chatox.chat.repository.UserRepository
+import chatox.chat.repository.mongodb.ChatParticipationRepository
+import chatox.chat.repository.mongodb.ChatRepository
+import chatox.chat.repository.mongodb.UploadRepository
+import chatox.chat.repository.mongodb.UserRepository
+import chatox.chat.support.UserDisplayedNameHelper
 import chatox.platform.cache.ReactiveCacheService
 import com.rabbitmq.client.Channel
 import kotlinx.coroutines.reactive.awaitFirst
@@ -25,6 +27,7 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.support.AmqpHeaders
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.stereotype.Component
 import java.time.ZonedDateTime
@@ -36,7 +39,10 @@ class UserEventsListener(private val userRepository: UserRepository,
                          private val chatRepository: ChatRepository,
                          private val chatParticipationMapper: ChatParticipationMapper,
                          private val chatEventsPublisher: ChatEventsPublisher,
-                         private val chatCacheService: ReactiveCacheService<Chat, String>) {
+
+                         @Qualifier(RedisConfig.CHAT_BY_ID_CACHE_SERVICE)
+                         private val chatCacheService: ReactiveCacheService<Chat, String>,
+                         private val userDisplayedNameHelper: UserDisplayedNameHelper) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     @RabbitListener(queues = ["chat_service_user_created"])
@@ -98,12 +104,31 @@ class UserEventsListener(private val userRepository: UserRepository,
                         bio = userUpdated.bio,
                         dateOfBirth = userUpdated.dateOfBirth,
                         createdAt = userUpdated.createdAt,
-                        avatar = avatar
+                        avatar = avatar,
+                        email = userUpdated.email
                 ))
                         .awaitFirst()
                 chatParticipationRepository
                         .updateChatParticipationsOfUser(user)
                         .awaitFirst()
+                val dialogChats = chatRepository
+                        .findByDialogDisplayOtherParticipantUserId(user.id)
+                        .map { chat ->
+                            val dialogDisplays = chat.dialogDisplay.map { dialogDisplay ->
+                                if (dialogDisplay.otherParticipant.userId != user.id) {
+                                    dialogDisplay
+                                } else {
+                                    dialogDisplay.copy(
+                                            otherParticipant = dialogDisplay.otherParticipant.copy(
+                                                    userDisplayedName = userDisplayedNameHelper.getDisplayedName(user),
+                                                    userSlug = user.slug
+                                            )
+                                    )
+                                }
+                            }
+                            chat.copy(dialogDisplay = dialogDisplays)
+                        }
+                chatRepository.saveAll(dialogChats).collectList().awaitFirst()
             }
         }
                 .doOnSuccess { channel.basicAck(tag, false) }
@@ -159,7 +184,7 @@ class UserEventsListener(private val userRepository: UserRepository,
 
                 chatEventsPublisher.chatParticipantsWentOnline(
                         chatParticipants = chatParticipations.map { chatParticipation ->
-                            chatParticipationMapper.toChatParticipationResponse(chatParticipation)
+                            chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst()
                         }
                 )
             }
@@ -175,7 +200,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                           channel: Channel,
                           @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
         log.info("userWentOffline event received")
-        log.info("$userWentOffline")
+        log.debug("$userWentOffline")
         mono {
             var user = userRepository.findById(userWentOffline.userId).awaitFirstOrNull()
 
@@ -202,7 +227,7 @@ class UserEventsListener(private val userRepository: UserRepository,
 
                 chatEventsPublisher.chatParticipantsWentOffline(
                         chatParticipants = chatParticipations.map { chatParticipation ->
-                            chatParticipationMapper.toChatParticipationResponse(chatParticipation)
+                            chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst()
                         }
                 )
                 log.debug("Chat participations have been updated")

@@ -1,9 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
-import {Block} from "@material-ui/icons";
-import {canBlockUsersInChat} from "../../ChatBlocking/permissions";
-import {useAuthorization, useLocalization, useStore} from "../../store";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {Block} from "@mui/icons-material";
+import {useLocalization, useStore} from "../../store";
 
 interface BlockMessageAuthorInChatMenuItemProps {
     onClick?: () => void,
@@ -15,13 +14,7 @@ export const BlockMessageAuthorInChatMenuItem: FunctionComponent<BlockMessageAut
     messageId
 }) => {
     const {
-        chat: {
-            selectedChatId
-        },
         entities: {
-            chatParticipations: {
-                findByUserAndChat: findChatParticipation
-            },
             messages: {
                 findById: findMessage
             },
@@ -35,15 +28,9 @@ export const BlockMessageAuthorInChatMenuItem: FunctionComponent<BlockMessageAut
         },
 
     } = useStore();
-    const {currentUser} = useAuthorization();
     const {l} = useLocalization();
 
     const setBlockedUserId = (id: string): void => setFormValue("blockedUserId", id);
-
-    const chatParticipation = currentUser && selectedChatId  && findChatParticipation({
-        userId: currentUser.id,
-        chatId: selectedChatId
-    });
 
     const handleClick = (): void => {
         if (onClick) {
@@ -57,18 +44,14 @@ export const BlockMessageAuthorInChatMenuItem: FunctionComponent<BlockMessageAut
         setCreateChatBlockingDialogOpen(true);
     };
 
-    if (chatParticipation && canBlockUsersInChat(chatParticipation)) {
-        return (
-            <MenuItem onClick={handleClick}>
-                <ListItemIcon>
-                    <Block/>
-                </ListItemIcon>
-                <ListItemText>
-                    {l("chat.blocking.block-user")}
-                </ListItemText>
-            </MenuItem>
-        )
-    } else {
-        return null;
-    }
+    return (
+        <MenuItem onClick={handleClick}>
+            <ListItemIcon>
+                <Block/>
+            </ListItemIcon>
+            <ListItemText>
+                {l("chat.blocking.block-user")}
+            </ListItemText>
+        </MenuItem>
+    )
 });

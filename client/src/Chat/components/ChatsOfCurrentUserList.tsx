@@ -1,79 +1,39 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {CircularProgress, createStyles, Divider, Hidden, List, makeStyles, Theme} from "@material-ui/core";
+import {CircularProgress, Divider, List} from "@mui/material";
 import {ChatsOfCurrentUserListItem} from "./ChatsOfCurrentUserListItem";
-import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
-import {CreateChatDialog} from "./CreateChatDialog";
-import {canCreateChat} from "../permissions";
 import {useStore} from "../../store";
+import {ChatsOfCurrentUserListProps} from "../types";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-    centered: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100%"
-    },
-    chatListWrapper: {
-        [theme.breakpoints.up("lg")]: {
-            height: `calc(100vh - 64px)`,
-            width: 280,
-            display: "flex",
-        },
-        [theme.breakpoints.down("md")]: {
-            width: "100%"
-        }
-    },
-    chatList: {
-        [theme.breakpoints.up("lg")]: {
-            flex: 1,
-            overflowY: "auto"
-        }
-    },
-    padding: {
-        paddingTop: 0,
-        paddingBottom: 0
-    }
-}));
-
-export const ChatsOfCurrentUserList: FunctionComponent = observer(() => {
+export const ChatsOfCurrentUserList: FunctionComponent<ChatsOfCurrentUserListProps> = observer(({classes}) => {
     const {
         chatsOfCurrentUser: {
-            chatsOfCurrentUser: chatIds,
+            chatsOfCurrentUser,
             pending
         },
-        authorization
     } = useStore();
-    const classes = useStyles();
 
     if (pending) {
         return (
-            <div className={classes.centered}>
+            <div className={classes && classes.circularProgress}>
                 <CircularProgress size={40} color="primary"/>
             </div>
         )
     }
 
    return (
-       <div className={classes.chatListWrapper}>
-           <List className={classes.chatList}
-                 classes={{
-                     padding: classes.padding
-                 }}
-           >
-               {chatIds.map(chatId => (
-                   <Fragment key={chatId}>
-                       <ChatsOfCurrentUserListItem chatId={chatId}
-                                                   key={chatId}
-                       />
-                       <Divider variant="inset"/>
-                   </Fragment>
-               ))}
-           </List>
-           <Hidden mdUp>
-               {canCreateChat(authorization) && <CreateChatFloatingActionButton/>}
-           </Hidden>
-           <CreateChatDialog/>
-       </div>
-   )
+       <List className={classes && classes.list}
+       >
+           {chatsOfCurrentUser.map(({chatId, messageId}) => (
+               <Fragment key={chatId}>
+                   <ChatsOfCurrentUserListItem chatId={chatId}
+                                               messageId={messageId}
+                                               key={chatId}
+                                               linkGenerationStrategy="chat"
+                   />
+                   <Divider variant="inset"/>
+               </Fragment>
+           ))}
+       </List>
+   );
 });

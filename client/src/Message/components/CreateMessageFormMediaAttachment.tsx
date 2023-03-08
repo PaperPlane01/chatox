@@ -1,6 +1,7 @@
 import React, {CSSProperties, FunctionComponent, useState} from "react";
-import {CircularProgress, createStyles, IconButton, ListItem, ListItemText, makeStyles, Theme} from "@material-ui/core";
-import {Audiotrack, Close, FileCopy, VideoLibrary} from "@material-ui/icons";
+import { CircularProgress, IconButton, ListItem, ListItemText, Theme } from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Audiotrack, Close, FileCopy, VideoLibrary} from "@mui/icons-material";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {UploadType} from "../../api/types/response";
 
@@ -96,7 +97,7 @@ export const CreateMessageFormMediaAttachment: FunctionComponent<CreateMessageFo
                                 <CircularProgress size={25}
                                                   className={classes.circularProgress}
                                                   value={progress}
-                                                  variant={progress === 100 ? "indeterminate": "static"}
+                                                  variant={progress === 100 ? "indeterminate": "determinate"}
                                 />
                             </div>
                         )}
@@ -117,7 +118,7 @@ export const CreateMessageFormMediaAttachment: FunctionComponent<CreateMessageFo
                                     <CircularProgress size={25}
                                                       color="primary"
                                                       value={progress}
-                                                      variant={(progress === 100 || progress === 0) ? "indeterminate": "static"}
+                                                      variant={(progress === 100 || progress === 0) ? "indeterminate": "determinate"}
                                     />
                                 </div>
                             )}
@@ -130,9 +131,9 @@ export const CreateMessageFormMediaAttachment: FunctionComponent<CreateMessageFo
             }}>
                 {fileContainer.file.name}
             </ListItemText>
-            <IconButton onClick={handleDelete}>
+            <IconButton onClick={handleDelete} size="large">
                 <Close/>
             </IconButton>
         </ListItem>
-    )
+    );
 }

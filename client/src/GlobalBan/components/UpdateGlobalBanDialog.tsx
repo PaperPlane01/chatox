@@ -1,24 +1,25 @@
 import React, {FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
 import {
-    Dialog,
-    DialogContent,
-    DialogActions,
-    DialogTitle,
     Button,
+    Checkbox,
     CircularProgress,
-    Typography,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControlLabel,
     TextField,
-    FormControlLabel, Checkbox
-} from "@material-ui/core"
-import {DateTimePicker} from "@material-ui/pickers";
+    Typography
+} from "@mui/material"
+import {DateTimePicker} from "@mui/x-date-pickers";
 import {useSnackbar} from "notistack";
 import {GlobalBanReasonSelect} from "./GlobalBanReasonSelect";
-import {useLocalization, useStore} from "../../store/hooks";
+import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
-import {getUserDisplayedName} from "../../User/utils/get-user-displayed-name";
+import {getUserDisplayedName} from "../../User/utils/labels";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {TranslationFunction} from "../../localization/types";
+import {TranslationFunction} from "../../localization";
 
 const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
     if (error.status === 403) {
@@ -88,17 +89,19 @@ export const UpdateGlobalBanDialog: FunctionComponent = observer(() => {
             </DialogTitle>
             <DialogContent>
                 <DateTimePicker value={updateGlobalBanForm.expiresAt || null}
-                                label={l("global.ban.expires-at")}
                                 onChange={date => setFormValue("expiresAt", date || undefined)}
-                                error={Boolean(formErrors.expiresAt)}
-                                helperText={formErrors.expiresAt && l(formErrors.expiresAt)}
                                 disabled={updateGlobalBanForm.permanent}
-                                clearable
-                                autoOk
-                                format="dd MMMM yyyy HH:mm"
-                                margin="dense"
-                                fullWidth
+                                inputFormat="dd MMMM yyyy HH:mm"
                                 disablePast
+                                renderInput={props => (
+                                    <TextField {...props}
+                                               label={l("global.ban.expires-at")}
+                                               error={Boolean(formErrors.expiresAt)}
+                                               helperText={formErrors.expiresAt && l(formErrors.expiresAt)}
+                                               margin="dense"
+                                               fullWidth
+                                    />
+                                )}
                 />
                 <GlobalBanReasonSelect onSelect={reason => setFormValue("reason", reason)}
                                        value={updateGlobalBanForm.reason}
@@ -110,7 +113,7 @@ export const UpdateGlobalBanDialog: FunctionComponent = observer(() => {
                            helperText={formErrors.comment && l(formErrors.comment)}
                            multiline
                            rows={4}
-                           rowsMax={8}
+                           maxRows={8}
                            fullWidth
                            margin="dense"
                 />
@@ -144,5 +147,5 @@ export const UpdateGlobalBanDialog: FunctionComponent = observer(() => {
                 </Button>
             </DialogActions>
         </Dialog>
-    )
+    );
 });

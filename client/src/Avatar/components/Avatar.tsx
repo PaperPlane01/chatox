@@ -1,11 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Avatar as MuiAvatar} from "@material-ui/core";
-import {Skeleton} from "@material-ui/lab";
+import {Avatar as MuiAvatar, Skeleton} from "@mui/material";
 import {isStringEmpty} from "../../utils/string-utils";
-import {useStore} from "../../store";
+import {useEntities} from "../../store";
 
-interface AvatarProps {
+export interface AvatarProps {
     avatarUri?: string,
     avatarId?: string
     avatarLetter: string,
@@ -13,7 +12,8 @@ interface AvatarProps {
     width?: number,
     height?: number,
     pending?: boolean,
-    className?: string
+    className?: string,
+    shape?: "circular" | "rectangular" | "square" | "rounded"
 }
 
 export const Avatar: FunctionComponent<AvatarProps> = observer(({
@@ -24,19 +24,18 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
     width = 40,
     height = 40,
     pending,
-    className
+    className,
+    shape = "circular"
 }) => {
     const {
-        entities: {
-            uploads: {
-                findImage
-            }
+        uploads: {
+            findImage
         }
-    } = useStore();
+    } = useEntities();
 
     if (pending) {
         return (
-            <Skeleton variant="circle"
+            <Skeleton variant={shape === "circular" || shape === "rounded" ? "circular" : "rectangular"}
                       width={width}
                       height={height}
             />
@@ -64,10 +63,11 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
                                height: imageProps.height
                            }}
                            className={className}
+                           variant={shape === "rectangular" ? "square" : shape }
                 >
                     {avatarLetter}
                 </MuiAvatar>
-            )
+            );
         } else {
             return (
                 <MuiAvatar src={uri}
@@ -76,8 +76,9 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
                                height: imageProps.height
                            }}
                            className={className}
+                           variant={shape === "rectangular" ? "square" : shape}
                 />
-            )
+            );
         }
     }
 });

@@ -1,23 +1,22 @@
-import React, {Fragment, FunctionComponent, ReactNode} from "react";
+import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Badge, CardHeader, createStyles, Divider, ListItem, makeStyles, Theme, Typography} from "@material-ui/core";
-import {Audiotrack, FileCopy, Image, VideoLibrary} from "@material-ui/icons";
+import {Badge, CardHeader, Divider, ListItem, Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
-import {getAvatarLabel} from "../utils";
+import {Link} from "mobx-router";
+import {ChatListMessagePreview} from "./ChatListMessagePreview";
+import {getAvatarLabel, getChatLinkProps} from "../utils";
+import {ChatLinkPropsGenerationStrategy} from "../types";
 import {Avatar} from "../../Avatar";
-import {useLocalization, useRouter, useStore} from "../../store";
-import {Routes} from "../../router";
-import {ParseEmojiFunction, useEmojiParser} from "../../Emoji";
-import {upperCaseFirstLetter} from "../../utils/string-utils";
-import {MessageEntity} from "../../Message/types";
-import {Labels, TranslationFunction} from "../../localization";
-import {UserEntity} from "../../User";
-import {Upload, UploadType} from "../../api/types/response";
-
-const {Link} = require("mobx-router");
+import {useRouter, useStore} from "../../store";
+import {ChatType} from "../../api/types/response";
+import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 
 interface ChatsOfCurrentUserListItemProps {
-    chatId: string
+    chatId: string,
+    messageId?: string,
+    linkGenerationStrategy?: ChatLinkPropsGenerationStrategy,
+    ignoreSelection?: boolean
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -27,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     gutters: {
         paddingLeft: 0,
-        paddingRight: 16
+        paddingRight: theme.spacing(2)
     },
     selected: {
         [theme.breakpoints.up("lg")]: {
@@ -36,8 +35,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         }
     },
     listItemHeaderRoot: {
-        [theme.breakpoints.down("md")]: {
-            padding: 16,
+        [theme.breakpoints.down('xl')]: {
+            padding: theme.spacing(2),
             paddingLeft: 0
         },
         maxWidth: "100%"
@@ -69,130 +68,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-interface GetLastMessageTextParameters {
-    message: MessageEntity,
-    messageSender: UserEntity,
-    messageUploads: Upload<any>[],
-    l: TranslationFunction,
-    parseEmoji: ParseEmojiFunction
-}
-
-type GetLastMessageTextFunction = (parameters: GetLastMessageTextParameters) => ReactNode
-
-const getSingularOrPluralLabel = (count: number, singularLabel: keyof Labels): keyof Labels => {
-    if (count > 1) {
-        return `${singularLabel}.plural` as keyof Labels;
-    } else {
-        return singularLabel;
-    }
-}
-
-const getLastMessageText: GetLastMessageTextFunction = ({
-    message,
-    messageSender,
-    messageUploads,
-    parseEmoji,
-    l
-}): ReactNode => {
-    if (message.deleted) {
-        return <i>{l("message.deleted")}</i>
-    }
-
-    const messageSenderName = messageSender.firstName;
-
-    if (message.text && message.text.length !== 0) {
-        return (
-            <Fragment>
-                {messageSenderName}
-                {": "}
-                {parseEmoji(message.text, message.emoji)}
-            </Fragment>
-        )
-    }
-
-    if (messageUploads.length !== 0) {
-        if (messageUploads.length === 1) {
-            const upload = messageUploads[0];
-            let uploadDisplay: ReactNode;
-
-            switch (upload.type) {
-                case UploadType.IMAGE:
-                case UploadType.GIF:
-                    uploadDisplay = (
-                        <Fragment>
-                            <Image fontSize="inherit"/>
-                            {" "}
-                            {upperCaseFirstLetter(l("message.attachments.image"))}
-                        </Fragment>
-                    );
-                    break;
-                case UploadType.FILE:
-                default:
-                    uploadDisplay = (
-                        <Fragment>
-                            <FileCopy fontSize="inherit"/>
-                            {" "}
-                            {upperCaseFirstLetter(l("message.attachments.file"))}
-                        </Fragment>
-                    );
-                    break;
-                case UploadType.VIDEO:
-                    uploadDisplay = (
-                        <Fragment>
-                            <VideoLibrary fontSize="inherit"/>
-                            {" "}
-                            {upperCaseFirstLetter(l("message.attachments.video"))}
-                        </Fragment>
-                    );
-                    break;
-                case UploadType.AUDIO:
-                    uploadDisplay = (
-                        <Fragment>
-                            <Audiotrack fontSize="inherit"/>
-                            {" "}
-                            {upperCaseFirstLetter(l("message.attachments.audio"))}
-                        </Fragment>
-                    )
-            }
-
-            return (
-                <Fragment>
-                    {messageSenderName}
-                    {": "}
-                    {uploadDisplay}
-                </Fragment>
-            );
-        } else {
-            const imagesText = message.imagesCount !== 0
-                ? `${message.imagesCount} ${l(getSingularOrPluralLabel(message.imagesCount, "message.attachments.image"))}`
-                : "";
-            const videosText = message.videosCount !== 0
-                ? `${message.videosCount} ${l(getSingularOrPluralLabel(message.videosCount, "message.attachments.video"))}`
-                : "";
-            const audiosText = message.audiosCount !== 0
-                ? `${message.audiosCount} ${l(getSingularOrPluralLabel(message.audiosCount, "message.attachments.audio"))}`
-                : "";
-            const filesText = message.filesCount !== 0
-                ? `${message.filesCount} ${l(getSingularOrPluralLabel(message.filesCount, "message.attachments.file"))}`
-                : "";
-            let attachmentsText = [imagesText, videosText, audiosText, filesText]
-                .filter(text => text !== "")
-                .reduce((left, right) => `${left}, ${right}`)
-            attachmentsText = `[${attachmentsText}]`;
-
-            return  (
-                <Fragment>
-                    {messageSenderName}
-                    {": "}
-                    {attachmentsText}
-                </Fragment>
-            )
-        }
-    }
-}
-
 export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemProps> = observer(({
-    chatId
+    chatId,
+    messageId,
+    linkGenerationStrategy = "chat",
+    ignoreSelection = false
 }) => {
     const {
         chat: {
@@ -202,36 +82,40 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
             chats: {
                 findById: findChat
             },
-            messages: {
-                findById: findMessage
-            },
             users: {
                 findById: findUser
-            },
-            uploads: {
-                findAllById: findUploads,
             }
         }
     } = useStore();
     const routerStore = useRouter();
-    const {l} = useLocalization();
     const classes = useStyles();
-    const {parseEmoji} = useEmojiParser();
     const chat = findChat(chatId);
-    const lastMessage = chat.lastMessage && findMessage(chat.lastMessage);
-    const lastMessageSender = lastMessage && findUser(lastMessage.sender);
+    const chatUser = chat.type === ChatType.DIALOG && chat.userId && findUser(chat.userId);
     const selected = selectedChatId === chatId;
-    const lastMessageUploads = lastMessage
-        ? findUploads(lastMessage.uploads)
-        : []
+    const linkProps = getChatLinkProps(linkGenerationStrategy, {chat, messageId});
+
+    const avatar = chatUser
+        ? (
+            <Avatar avatarLetter={getUserAvatarLabel(chatUser)}
+                    avatarColor={randomColor({seed: chatUser.id})}
+                    avatarUri={chatUser.externalAvatarUri}
+                    avatarId={chatUser.avatarId}
+            />
+        )
+        : (
+            <Avatar avatarLetter={getAvatarLabel(chat.name)}
+                    avatarColor={randomColor({seed: chatId})}
+                    avatarUri={chat.avatarUri}
+                    avatarId={chat.avatarId}
+            />
+        );
 
     return (
-        <Link store={routerStore}
-              view={Routes.chatPage}
-              params={{slug: chat.slug || chat.id}}
+        <Link router={routerStore}
               className={classes.undecoratedLink}
+              {...linkProps}
         >
-            <ListItem className={`${classes.chatsOfCurrentUserListItem} ${selected && classes.selected}`}
+            <ListItem className={`${classes.chatsOfCurrentUserListItem} ${selected && !ignoreSelection && classes.selected}`}
                       classes={{
                           gutters: classes.gutters
                       }}
@@ -240,7 +124,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                        color="secondary"
                        classes={{
                            root: classes.unreadMessagesBadgeRoot,
-                           anchorOriginTopRightRectangle: classes.unreadMessagesBadgeTopRightRectangle
+                           anchorOriginTopRightRectangular: classes.unreadMessagesBadgeTopRightRectangle
                        }}
                        hidden={chat.unreadMessagesCount === 0}
                 >
@@ -248,32 +132,24 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                         <div className={classes.flexWrapper}>
                             <div className={classes.flexTruncatedTextContainer}>
                                 <Typography className={classes.flexTruncatedText}>
-                                    <strong>{chat.name}</strong>
+                                    <strong>
+                                        {chatUser ? getUserDisplayedName(chatUser) : chat.name}
+                                    </strong>
                                 </Typography>
                             </div>
                         </div>
 
                     }
-                                subheader={lastMessage && lastMessageSender && (
+                                subheader={messageId && (
                                     <div className={classes.flexWrapper}>
                                         <div className={classes.flexTruncatedTextContainer}>
-                                            <Typography className={`${classes.flexTruncatedText} ${selected && classes.selected}`}>
-                                                {getLastMessageText({
-                                                    message: lastMessage,
-                                                    messageUploads: lastMessageUploads,
-                                                    messageSender: lastMessageSender,
-                                                    parseEmoji,
-                                                    l
-                                                })}
+                                            <Typography className={`${classes.flexTruncatedText} ${selected && !ignoreSelection && classes.selected}`}>
+                                                <ChatListMessagePreview messageId={messageId}/>
                                             </Typography>
                                         </div>
                                     </div>
                                 )}
-                                avatar={<Avatar avatarLetter={getAvatarLabel(chat.name)}
-                                                avatarColor={randomColor({seed: chatId})}
-                                                avatarUri={chat.avatarUri}
-                                                avatarId={chat.avatarId}
-                                />}
+                                avatar={avatar}
                                 classes={{
                                     root: classes.listItemHeaderRoot,
                                     content: classes.listItemHeaderContent
@@ -283,5 +159,5 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                 </Badge>
             </ListItem>
         </Link>
-    )
+    );
 });

@@ -31,7 +31,6 @@ spring:
             allowedOrigins: '*'
             allowedMethods: '*'
             allowedHeaders: '*'
-            allowCredentials: true
           '[/api/v1/events/**]':
             allowedMethods: '*'
             allowedHeaders: '*'
@@ -60,6 +59,10 @@ spring:
           uri: lb://reports-service
           predicates:
             - Path=/api/v1/reports/**
+        - id: sticker-service
+          uri: lb://sticker-service
+          predicates:
+            - Path=/api/v1/stickers-packs/**
         - id: events-service
           uri: lb://events-service
           predicates:

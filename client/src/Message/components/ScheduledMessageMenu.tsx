@@ -1,13 +1,12 @@
-import React, {FunctionComponent, ReactNode, Fragment} from "react";
+import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {Menu, IconButton} from "@material-ui/core";
-import {MoreVert} from "@material-ui/icons";
-import {usePopupState, bindMenu, bindToggle} from "material-ui-popup-state/hooks";
+import {IconButton, Menu} from "@mui/material";
+import {MoreVert} from "@mui/icons-material";
+import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {EditScheduledMessageMenuItem} from "./EditScheduledMessageMenuItem";
 import {PublishScheduledMessageNowMenuItem} from "./PublishScheduledMessageNowMenuItem";
 import {DeleteScheduledMessageMenuItem} from "./DeleteScheduledMessageMenuItem";
-import {canDeleteScheduledMessage, canScheduleMessage, canUpdateScheduledMessage} from "../permissions";
-import {useStore} from "../../store/hooks";
+import {usePermissions, useStore} from "../../store";
 
 export type ScheduledMessageMenuItemType = "publishScheduledMessage" | "deleteScheduledMessage" | "editScheduledMessage";
 
@@ -22,37 +21,24 @@ export const ScheduledMessageMenu: FunctionComponent<ScheduledMessageMenuProps> 
 }) => {
     const {
         entities: {
-            chatParticipations: {
-                findById: findChatParticipation
-            },
-            chats: {
-                findById: findChat
-            },
             scheduledMessages: {
                 findById: findScheduledMessage
             }
-        },
-        chat: {
-            selectedChatId
         }
     } = useStore();
+    const {
+        messages: {
+            canScheduleMessage,
+            canUpdateScheduledMessage,
+            canDeleteScheduledMessage
+        }
+    } = usePermissions();
     const popupState = usePopupState({
         popupId: `scheduledMessage-${messageId}-popup`,
         variant: "popover"
     });
 
-    if (!selectedChatId) {
-        return null;
-    }
-
-    const chat = findChat(selectedChatId);
     const scheduledMessage = findScheduledMessage(messageId);
-
-    if (!chat.currentUserParticipationId) {
-        return null;
-    }
-
-    const currentUserChatParticipation = findChatParticipation(chat.currentUserParticipationId);
 
     const handleMenuItemClick = (menuItemType: ScheduledMessageMenuItemType) => (): void => {
         if (onMenuItemClick) {
@@ -64,7 +50,7 @@ export const ScheduledMessageMenu: FunctionComponent<ScheduledMessageMenuProps> 
 
     const menuItems: ReactNode[] = [];
 
-    if (canUpdateScheduledMessage(scheduledMessage, currentUserChatParticipation)) {
+    if (canUpdateScheduledMessage(scheduledMessage)) {
         menuItems.push(
             <EditScheduledMessageMenuItem messageId={messageId}
                                           onClick={handleMenuItemClick("editScheduledMessage")}
@@ -72,7 +58,7 @@ export const ScheduledMessageMenu: FunctionComponent<ScheduledMessageMenuProps> 
         )
     }
 
-    if (canScheduleMessage(currentUserChatParticipation)) {
+    if (canScheduleMessage(scheduledMessage.chatId)) {
         menuItems.push(
             <PublishScheduledMessageNowMenuItem messageId={messageId}
                                                 onClick={handleMenuItemClick("publishScheduledMessage")}
@@ -80,7 +66,7 @@ export const ScheduledMessageMenu: FunctionComponent<ScheduledMessageMenuProps> 
         );
     }
 
-    if (canDeleteScheduledMessage(scheduledMessage, currentUserChatParticipation)) {
+    if (canDeleteScheduledMessage(scheduledMessage)) {
         menuItems.push(
             <DeleteScheduledMessageMenuItem messageId={messageId}
                                             onClick={handleMenuItemClick("deleteScheduledMessage")}
@@ -94,7 +80,7 @@ export const ScheduledMessageMenu: FunctionComponent<ScheduledMessageMenuProps> 
 
     return (
         <Fragment>
-            <IconButton {...bindToggle(popupState)}>
+            <IconButton {...bindToggle(popupState)} size="large">
                 <MoreVert/>
             </IconButton>
             <Menu {...bindMenu(popupState)}>

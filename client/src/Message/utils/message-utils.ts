@@ -12,7 +12,7 @@ export const sortMessages = (leftMessageId: string, rightMessageId: string, find
     }
 }
 
-export const createSortMessages = (findMessage: (id: string) => MessageEntity, reverse: boolean) => (leftMessageId: string, rightMessageId: string) => sortMessages(leftMessageId, rightMessageId, findMessage, reverse);
+export const createSortMessages = (findMessage: (id: string) => MessageEntity, reverse: boolean = false) => (leftMessageId: string, rightMessageId: string) => sortMessages(leftMessageId, rightMessageId, findMessage, reverse);
 
 export const convertMessageToNormalizedForm = (message: Message): MessageEntity => {
     const uploadStats: MessageUploadsStats = {
@@ -72,8 +72,10 @@ export const convertMessageToNormalizedForm = (message: Message): MessageEntity 
         emoji: message.emoji,
         uploads: message.attachments.map(attachment => attachment.id),
         scheduledAt: message.scheduledAt ? new Date(message.scheduledAt) : undefined,
+        index: message.index,
+        stickerId: message.sticker ? message.sticker.id : undefined,
         ...uploadStats,
         ...uploadsByType,
-        index: message.index
+        senderRoleId: message.senderChatRole && message.senderChatRole.id
     };
 }

@@ -1,12 +1,14 @@
-import {action, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 import {ReportsListStore} from "./ReportsListStore";
 
 export class CurrentReportsListStore {
-    @observable
     currentReportsList: ReportsListStore;
 
-    @action
+    constructor() {
+       makeAutoObservable(this);
+    }
+
     setCurrentReportsList = (currentReportsList: ReportsListStore): void => {
         this.currentReportsList = currentReportsList;
-    }
+    };
 }

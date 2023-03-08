@@ -11,17 +11,16 @@ import chatox.chat.mapper.ChatBlockingMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatBlocking
-import chatox.chat.model.ChatRole
 import chatox.chat.model.User
-import chatox.chat.repository.ChatBlockingRepository
-import chatox.chat.repository.ChatRepository
-import chatox.chat.repository.MessageRepository
-import chatox.chat.repository.UserRepository
-import chatox.chat.security.AuthenticationFacade
+import chatox.chat.repository.mongodb.ChatBlockingMongoRepository
+import chatox.chat.repository.mongodb.ChatRepository
+import chatox.chat.repository.mongodb.MessageMongoRepository
+import chatox.chat.repository.mongodb.UserRepository
 import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatParticipationService
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.pagination.PaginationRequest
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -34,11 +33,11 @@ import java.time.ZonedDateTime
 
 @Service
 @Transactional
-class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRepository,
+class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingMongoRepository,
                               private val chatRepository: ChatRepository,
                               private val userRepository: UserRepository,
-                              private val messageRepository: MessageRepository,
-                              private val authenticationFacade: AuthenticationFacade,
+                              private val messageRepository: MessageMongoRepository,
+                              private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                               private val chatBlockingMapper: ChatBlockingMapper,
                               private val chatEventsPublisher: ChatEventsPublisher,
                               private val chatBlockingCacheService: ReactiveCacheService<ChatBlocking, String>
@@ -52,7 +51,7 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
 
     override fun blockUser(chatId: String, createChatBlockingRequest: CreateChatBlockingRequest): Mono<ChatBlockingResponse> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val chat = findChatById(chatId).awaitFirst()
             val blockedUser = findUserById(createChatBlockingRequest.userId).awaitFirst()
 
@@ -65,39 +64,34 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
 
             chatBlocking = chatBlockingRepository.save(chatBlocking).awaitFirst()
 
-            if (createChatBlockingRequest.deleteRecentMessages) {
-                val roleOfUserInChat = chatParticipationService.getRoleOfUserInChat(chat, blockedUser).awaitFirst()
-
-                if (roleOfUserInChat != ChatRole.MODERATOR && roleOfUserInChat != ChatRole.ADMIN) {
-                    val deleteMessagesSince = createChatBlockingRequest.deleteMessagesSince ?: ZonedDateTime.now().minusMinutes(5L)
-                    var deletedMessages = messageRepository.findBySenderIdAndCreatedAtAfter(
-                            senderId = blockedUser.id,
-                            date = deleteMessagesSince
-                    )
-                            .collectList()
-                            .awaitFirst()
-                    deletedMessages = deletedMessages.map { it.copy(
-                            deleted = true,
-                            deletedAt = ZonedDateTime.now(),
-                            deletedById = currentUser.id
-                    ) }
-                    deletedMessages = messageRepository.saveAll(deletedMessages).collectList().awaitFirst()
-                    chatEventsPublisher.messagesDeleted(
-                            chatId = chat.id,
-                            messagesIds = deletedMessages.map { it.id }
-                    )
-                }
-            }
+            val deleteMessagesSince = createChatBlockingRequest.deleteMessagesSince ?: ZonedDateTime.now().minusMinutes(5L)
+            var deletedMessages = messageRepository.findBySenderIdAndCreatedAtAfter(
+                    senderId = blockedUser.id,
+                    date = deleteMessagesSince
+            )
+                    .collectList()
+                    .awaitFirst()
+            deletedMessages = deletedMessages.map { it.copy(
+                    deleted = true,
+                    deletedAt = ZonedDateTime.now(),
+                    deletedById = currentUser.id
+            ) }
+            deletedMessages = messageRepository.saveAll(deletedMessages).collectList().awaitFirst()
+            chatEventsPublisher.messagesDeleted(
+                    chatId = chat.id,
+                    messagesIds = deletedMessages.map { it.id }
+            )
 
             val chatBlockingResponse = chatBlockingMapper.toChatBlockingResponse(chatBlocking).awaitFirst()
             chatEventsPublisher.chatBlockingCreated(chatBlockingResponse)
-            chatBlockingResponse
+
+            return@mono chatBlockingResponse
         }
     }
 
     override fun unblockUser(chatId: String, blockingId: String): Mono<ChatBlockingResponse> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             var chatBlocking = findBlockingById(blockingId).awaitFirst()
 
             val cancelDate = ZonedDateTime.now()
@@ -113,7 +107,8 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
 
             val chatBlockingResponse = chatBlockingMapper.toChatBlockingResponse(chatBlocking).awaitFirst()
             chatEventsPublisher.chatBlockingUpdated(chatBlockingResponse)
-            chatBlockingResponse
+
+            return@mono chatBlockingResponse
         }
     }
 
@@ -123,7 +118,7 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
             updateBlockingRequest: UpdateChatBlockingRequest
     ): Mono<ChatBlockingResponse> {
         return mono {
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
             var chatBlocking = findBlockingById(blockingId).awaitFirst()
             chatBlocking = chatBlockingMapper.mapChatBlockingUpdate(
@@ -135,7 +130,8 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
 
             val chatBlockingResponse = chatBlockingMapper.toChatBlockingResponse(chatBlocking).awaitFirst()
             chatEventsPublisher.chatBlockingUpdated(chatBlockingResponse)
-            chatBlockingResponse
+
+            return@mono chatBlockingResponse
         }
     }
 
@@ -238,7 +234,7 @@ class ChatBlockingServiceImpl(private val chatBlockingRepository: ChatBlockingRe
                 throw ChatBlockingNotFoundException("Could not find chat blocking with id $blockingId")
             }
 
-            chatBlocking
+            return@mono chatBlocking
         }
     }
 }

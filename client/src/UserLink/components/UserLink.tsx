@@ -1,14 +1,14 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import randomColor from "randomcolor";
-import {createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
+import {Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Link} from "mobx-router";
 import {Avatar} from "../../Avatar";
-import {UserEntity} from "../../User/types";
+import {UserEntity} from "../../User";
 import {Routes} from "../../router";
-import {getUserAvatarLabel} from "../../User/utils/get-user-avatar-label";
+import {getUserAvatarLabel} from "../../User/utils/labels";
 import {useRouter} from "../../store";
-
-const {Link} = require("mobx-router");
 
 interface UserLinkProps {
     user: UserEntity,
@@ -46,10 +46,10 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
 
     if (displayAvatar) {
         return (
-            <Link view={Routes.userPage}
+            <Link route={Routes.userPage}
                   params={{slug: identifierType === "slug" ? user.slug : user.id}}
                   className={classes.userLink}
-                  store={routerStore}
+                  router={routerStore}
             >
                 <Avatar avatarLetter={avatarLabel}
                         avatarColor={color}
@@ -67,13 +67,13 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
                     }
                 </Typography>
             </Link>
-        )
+        );
     } else {
         return (
-            <Link view={Routes.userPage}
+            <Link route={Routes.userPage}
                   params={{slug: user.slug}}
                   className={classes.userLink}
-                  store={routerStore}
+                  router={routerStore}
             >
                 <Typography style={{color}}>
                     {boldText
@@ -82,6 +82,6 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
                     }
                 </Typography>
             </Link>
-        )
+        );
     }
 });

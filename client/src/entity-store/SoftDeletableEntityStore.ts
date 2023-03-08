@@ -1,23 +1,34 @@
+import {BaseEntity} from "./EntityStore";
 import {AbstractEntityStore} from "./AbstractEntityStore";
-import {action} from "mobx";
+import {Entities, EntitiesStore, GetEntityType, RawEntitiesStore} from "../entities-store";
 
-interface SoftDeletableEntity {
+type SoftDeletableEntity<EntityName extends Entities> = GetEntityType<EntityName> & {
     id: string,
     deleted: boolean
 }
 
-export abstract class SoftDeletableEntityStore<Entity extends SoftDeletableEntity, DenormalizedEntity extends {id: string}>
-    extends AbstractEntityStore<Entity, DenormalizedEntity> {
+export abstract class SoftDeletableEntityStore<
+    EntityName extends Entities,
+    Entity extends SoftDeletableEntity<EntityName>,
+    DenormalizedEntity extends BaseEntity,
+    InsertOptions extends object = {},
+    DeleteOptions extends object = {}
+    >
+    extends AbstractEntityStore<EntityName, Entity, DenormalizedEntity, InsertOptions> {
 
-    @action
-    public deleteAllById(ids: string[]): void {
-        ids.forEach(id => this.entities[id].deleted = true);
-    };
+    constructor(rawEntities: RawEntitiesStore, entityName: EntityName, entities: EntitiesStore) {
+        super(rawEntities, entityName, entities);
+    }
 
-    @action
-    public deleteById(idToDelete: string): void {
-        if (this.entities[idToDelete]) {
-            this.entities[idToDelete].deleted = true;
-        }
-    };
+    deleteAllById(ids: string[]): void {
+        const entities = this.findAllById(ids);
+        entities.forEach(entity => entity.deleted = true);
+        this.insertAllEntities(entities);
+    }
+
+    deleteById(id: string): void {
+        const entity = this.findById(id);
+        entity.deleted = true;
+        this.insertEntity(entity);
+    }
 }

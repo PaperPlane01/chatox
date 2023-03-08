@@ -7,3 +7,4 @@ export * from "./UserKickedFromChat";
 export * from "./UserLeftChat";
 export * from "./ChatDeleted";
 export * from "./MessageRead";
+export * from "./PrivateChatCreated";

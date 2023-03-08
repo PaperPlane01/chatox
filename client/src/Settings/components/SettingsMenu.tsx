@@ -1,17 +1,20 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, List, ListItemIcon, ListItemText, makeStyles, MenuItem} from "@material-ui/core";
-import {ChatBubble, Language, Palette, Person, Security} from "@material-ui/icons";
+import {List, ListItemIcon, ListItemText, MenuItem, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {ChatBubble, Image, Language, Palette, Person, Security} from "@mui/icons-material";
+import {Link} from "mobx-router";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
-import {ChangePasswordContainer, EditProfileForm} from "../../User";
-import {EmojiSetPicker} from "../../Emoji";
-import {LanguagePicker} from "../../localization";
+import {SecurityTabWrapper} from "./SecurityTabWrapper";
+import {AppearanceTabWrapper} from "./AppearanceTabWrapper";
 import {SettingsTab} from "../types";
+import {EditProfileForm} from "../../User";
+import {LanguagePicker} from "../../localization";
 import {Routes} from "../../router";
 import {useLocalization, useRouter, useStore} from "../../store";
-import {ChatsPreferencesCard} from "../../Chat/components";
-
-const {Link} = require("mobx-router");
+import {ChatsPreferencesCard} from "../../Chat";
+import {HasAnyRole} from "../../Authorization";
+import {InstalledStickerPacksList} from "../../Sticker";
 
 const useStyles = makeStyles(() => createStyles({
     undecoratedLink: {
@@ -34,9 +37,9 @@ export const SettingsMenu: FunctionComponent = observer(() => {
         <Fragment>
             <List>
                 <Link className={classes.undecoratedLink}
-                      view={Routes.settingsTabPage}
+                      route={Routes.settingsTabPage}
                       params={{tab: SettingsTab.PROFILE}}
-                      store={routerStore}
+                      router={routerStore}
                 >
                     <MenuItem>
                         <ListItemIcon>
@@ -48,9 +51,9 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                     </MenuItem>
                 </Link>
                 <Link className={classes.undecoratedLink}
-                      view={Routes.settingsTabPage}
+                      route={Routes.settingsTabPage}
                       params={{tab: SettingsTab.LANGUAGE}}
-                      store={routerStore}
+                      router={routerStore}
                 >
                     <MenuItem>
                         <ListItemIcon>
@@ -62,9 +65,9 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                     </MenuItem>
                 </Link>
                 <Link className={classes.undecoratedLink}
-                      view={Routes.settingsTabPage}
+                      route={Routes.settingsTabPage}
                       params={{tab: SettingsTab.APPEARANCE}}
-                      store={routerStore}
+                      router={routerStore}
                 >
                     <MenuItem>
                         <ListItemIcon>
@@ -76,9 +79,9 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                     </MenuItem>
                 </Link>
                 <Link className={classes.undecoratedLink}
-                      view={Routes.settingsTabPage}
+                      route={Routes.settingsTabPage}
                       params={{tab: SettingsTab.SECURITY}}
-                      store={routerStore}
+                      router={routerStore}
                 >
                     <MenuItem>
                         <ListItemIcon>
@@ -90,9 +93,9 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                     </MenuItem>
                 </Link>
                 <Link className={classes.undecoratedLink}
-                      view={Routes.settingsTabPage}
+                      route={Routes.settingsTabPage}
                       params={{tab: SettingsTab.CHATS}}
-                      store={routerStore}
+                      router={routerStore}
                 >
                     <MenuItem>
                         <ListItemIcon>
@@ -100,6 +103,20 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                         </ListItemIcon>
                         <ListItemText>
                             {l("settings.chats")}
+                        </ListItemText>
+                    </MenuItem>
+                </Link>
+                <Link className={classes.undecoratedLink}
+                      route={Routes.settingsTabPage}
+                      params={{tab: SettingsTab.STICKERS}}
+                      router={routerStore}
+                >
+                    <MenuItem>
+                        <ListItemIcon>
+                            <Image/>
+                        </ListItemIcon>
+                        <ListItemText>
+                            {l("sticker.pack.list")}
                         </ListItemText>
                     </MenuItem>
                 </Link>
@@ -117,18 +134,30 @@ export const SettingsMenu: FunctionComponent = observer(() => {
             <SettingsFullScreenDialog title={l("settings.security")}
                                       open={activeTab === SettingsTab.SECURITY}
             >
-                <ChangePasswordContainer/>
+                <SecurityTabWrapper/>
             </SettingsFullScreenDialog>
             <SettingsFullScreenDialog title={l("settings.appearance")}
                                       open={activeTab === SettingsTab.APPEARANCE}
             >
-                <EmojiSetPicker/>
+                <AppearanceTabWrapper/>
             </SettingsFullScreenDialog>
             <SettingsFullScreenDialog title={l("settings.chats")}
                                       open={activeTab === SettingsTab.CHATS}
             >
                 <ChatsPreferencesCard/>
             </SettingsFullScreenDialog>
+            <SettingsFullScreenDialog title={l("sticker.pack.list")}
+                                      open={activeTab === SettingsTab.STICKERS}>
+                <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}
+                            alternative={
+                                <Typography>
+                                    {l("common.authorization-required")}
+                                </Typography>
+                            }
+                >
+                    <InstalledStickerPacksList/>
+                </HasAnyRole>
+            </SettingsFullScreenDialog>
         </Fragment>
-    )
+    );
 });

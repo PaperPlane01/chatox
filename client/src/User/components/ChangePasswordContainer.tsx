@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {ChangePasswordForm} from "./ChangePasswordForm";
 import {CheckPasswordChangeEmailConfirmationDialog} from "./CheckPasswordChangeEmailConfirmationDialog";
 import {EmailConfirmationCodeCreationPendingDialog} from "../../EmailConfirmation";
-import {useStore} from "../../store/hooks";
+import {useStore} from "../../store";
 
 export const ChangePasswordContainer: FunctionComponent = observer(() => {
     const {

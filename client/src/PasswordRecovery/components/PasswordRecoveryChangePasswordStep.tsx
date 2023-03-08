@@ -11,11 +11,11 @@ import {
     TextField,
     Typography,
     useTheme
-} from "@material-ui/core";
-import {Visibility, VisibilityOff} from "@material-ui/icons";
-import {useLocalization, useStore} from "../../store/hooks";
+} from "@mui/material";
+import {Visibility, VisibilityOff} from "@mui/icons-material";
+import {useLocalization, useStore} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {TranslationFunction} from "../../localization/types";
+import {TranslationFunction} from "../../localization";
 
 const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     if (error.status === API_UNREACHABLE_STATUS) {
@@ -80,7 +80,7 @@ export const PasswordRecoveryChangePasswordStep: FunctionComponent = observer(()
                            InputProps={{
                                endAdornment: (
                                    <InputAdornment position="end">
-                                       <IconButton onClick={() => setShowPassword(!showPassword)}>
+                                       <IconButton onClick={() => setShowPassword(!showPassword)} size="large">
                                            {showPassword ? <VisibilityOff/> : <Visibility/>}
                                        </IconButton>
                                    </InputAdornment>
@@ -98,7 +98,7 @@ export const PasswordRecoveryChangePasswordStep: FunctionComponent = observer(()
                            InputProps={{
                                endAdornment: (
                                    <InputAdornment position="end">
-                                       <IconButton onClick={() => setShowPassword(!showPassword)}>
+                                       <IconButton onClick={() => setShowPassword(!showPassword)} size="large">
                                            {showPassword ? <VisibilityOff/> : <Visibility/>}
                                        </IconButton>
                                    </InputAdornment>
@@ -128,5 +128,5 @@ export const PasswordRecoveryChangePasswordStep: FunctionComponent = observer(()
                 </Button>
             </DialogActions>
         </Fragment>
-    )
+    );
 });

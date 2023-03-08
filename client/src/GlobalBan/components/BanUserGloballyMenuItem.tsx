@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText} from "@material-ui/core";
-import {RemoveCircle} from "@material-ui/icons";
-import {useStore, useLocalization} from "../../store/hooks";
+import {MenuItem, ListItemIcon, ListItemText} from "@mui/material";
+import {RemoveCircle} from "@mui/icons-material";
+import {useStore, useLocalization} from "../../store";
 
 interface BanUserGloballyMenuItemProps {
     userId: string,
@@ -39,5 +39,5 @@ export const BanUserGloballyMenuItem: FunctionComponent<BanUserGloballyMenuItemP
                 {l("global.ban.create")}
             </ListItemText>
         </MenuItem>
-    )
+    );
 });

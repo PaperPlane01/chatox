@@ -2,6 +2,7 @@ package chatox.chat.controller
 
 import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
+import chatox.chat.service.MessageSearchService
 import chatox.chat.service.MessageService
 import chatox.platform.pagination.PaginationRequest
 import chatox.platform.pagination.annotation.PageSize
@@ -25,11 +26,12 @@ import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/chats")
-class ChatMessageController(private val messageService: MessageService) {
+class ChatMessageController(private val messageService: MessageService,
+                            private val messageSearchService: MessageSearchService) {
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
-    @ReactivePermissionCheck("@messagePermissions.canCreateMessage(#chatId)")
+    @ReactivePermissionCheck("@messagePermissions.canCreateMessage(#chatId, #createMessageRequest)")
     @PostMapping("/{chatId}/messages")
     fun createMessage(@PathVariable chatId: String,
                       @RequestBody @Valid createMessageRequest: CreateMessageRequest
@@ -44,8 +46,17 @@ class ChatMessageController(private val messageService: MessageService) {
                       @RequestBody @Valid updateMessageRequest: UpdateMessageRequest
     ) = messageService.updateMessage(messageId, chatId,updateMessageRequest)
 
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canReadMessages(#chatId)")
     @GetMapping("/{chatId}/messages/pinned")
     fun findPinnedMessageByChat(@PathVariable chatId: String) = messageService.findPinnedMessageByChat(chatId)
+
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canReadMessages(#chatId)")
+    @GetMapping("/{chatId}/messages/{messageId}")
+    fun findMessageByChatIdAndMessageId(@PathVariable chatId: String,
+                                        @PathVariable messageId: String
+    ) = messageService.findMessageByIdAndChatId(messageId, chatId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
@@ -56,6 +67,8 @@ class ChatMessageController(private val messageService: MessageService) {
                       @PathVariable messageId: String
     ) = messageService.deleteMessage(messageId, chatId)
 
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canReadMessages(#chatId)")
     @PaginationConfig(
             pageSize = PageSize(defaultValue = 200, max = 300),
             sortBy = SortBy(defaultValue = "createdAt", allowed = ["createdAt"]),
@@ -66,6 +79,8 @@ class ChatMessageController(private val messageService: MessageService) {
                            paginationRequest: PaginationRequest
     ) = messageService.findMessagesByChat(chatId, paginationRequest)
 
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canReadMessages(#chatId)")
     @PaginationConfig(
             pageSize = PageSize(defaultValue = 200, max = 300),
             sortBy = SortBy(defaultValue = "createdAt", allowed = ["createdAt"])
@@ -77,6 +92,8 @@ class ChatMessageController(private val messageService: MessageService) {
             paginationRequest: PaginationRequest
     ) = messageService.findMessagesBeforeMessageByChat(chatId, beforeId, paginationRequest)
 
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canReadMessages(#chatId)")
     @PaginationConfig(
             pageSize = PageSize(defaultValue = 200, max = 300),
             sortBy = SortBy(defaultValue = "createdAt", allowed = ["createdAt"])
@@ -88,13 +105,37 @@ class ChatMessageController(private val messageService: MessageService) {
             paginationRequest: PaginationRequest
     ) = messageService.findMessagesSinceMessageByChat(chatId, afterId, paginationRequest)
 
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canReadMessages(#chatId)")
+    @PaginationConfig(
+            pageSize = PageSize(defaultValue = 200, max = 300),
+            sortBy = SortBy(defaultValue = "createdAt", allowed = ["createdAt"])
+    )
+    @GetMapping("/{chatId}/messages", params = ["query"])
+    fun searchMessages(@PathVariable chatId: String,
+                       @RequestParam query: String,
+                       paginationRequest: PaginationRequest
+    ) = messageSearchService.searchMessages(query, chatId, paginationRequest)
+
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    @PaginationConfig(
+            pageSize = PageSize(defaultValue = 200, max = 300),
+            sortBy = SortBy(defaultValue = "createdAt", allowed = ["createdAt"])
+    )
+    @GetMapping("/my/messages", params = ["query"])
+    fun searchMessagesInChatsOfCurrentUser(@RequestParam query: String,
+                                           paginationRequest: PaginationRequest
+    ) = messageSearchService.searchMessagesInChatsOfCurrentUser(query, paginationRequest)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canSeeScheduledMessages(#chatId)")
     @GetMapping("/{chatId}/messages/scheduled")
     fun findScheduledMessagesBuChat(@PathVariable("chatId") chatId: String) = messageService.findScheduledMessagesByChat(chatId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
-    @ReactivePermissionCheck("@messagePermissions.canUpdateScheduledMessage(#messageId, #chatId)")
+    @ReactivePermissionCheck("@messagePermissions.canDeleteScheduledMessage(#messageId, #chatId)")
     @DeleteMapping("/{chatId}/messages/scheduled/{messageId}")
     fun deleteScheduledMessage(@PathVariable chatId: String,
                                @PathVariable messageId: String
@@ -110,6 +151,8 @@ class ChatMessageController(private val messageService: MessageService) {
     ) = messageService.updateScheduledMessage(chatId, messageId, updateMessageRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canPublishScheduledMessage(#chatId)")
     @PostMapping("/{chatId}/messages/scheduled/{messageId}/publish")
     fun publishScheduledMessage(@PathVariable chatId: String,
                                 @PathVariable messageId: String

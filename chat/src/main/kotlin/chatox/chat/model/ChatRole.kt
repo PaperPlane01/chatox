@@ -1,24 +1,26 @@
 package chatox.chat.model
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import java.lang.IllegalArgumentException
+import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.Indexed
+import org.springframework.data.mongodb.core.mapping.Document
+import java.time.ZonedDateTime
 
-enum class ChatRole {
-    USER,
-    MODERATOR,
-    ADMIN,
-    NOT_PARTICIPANT;
+@Document(collection = "chatRole")
+data class ChatRole(
+        @Id
+        val id: String,
 
-    companion object {
-        @JsonCreator
-        fun fromJsonValue(value: String): ChatRole {
-            for (role: ChatRole in values()) {
-                if (role !== NOT_PARTICIPANT && role.name.contentEquals(value)) {
-                    return role
-                }
-            }
+        @Indexed
+        val chatId: String,
+        val name: String,
+        val features: ChatFeatures,
+        val default: Boolean,
+        val level: Int,
 
-            throw IllegalArgumentException()
-        }
-    }
-}
+        @Indexed
+        val templateId: String? = null,
+        val createdAt: ZonedDateTime,
+        val createdBy: String? = null,
+        val updatedAt: ZonedDateTime? = null,
+        val updatedBy: String? = null
+)

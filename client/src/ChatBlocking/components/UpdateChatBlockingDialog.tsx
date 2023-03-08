@@ -3,22 +3,21 @@ import {observer} from "mobx-react";
 import {
     Button,
     CircularProgress,
-    createStyles,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    makeStyles,
     TextField,
     Typography,
-    useTheme
-} from "@material-ui/core";
-import {DateTimePicker} from "@material-ui/pickers";
+    useTheme,
+} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {DateTimePicker} from "@mui/x-date-pickers";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import randomColor from "randomcolor";
-import {getUserAvatarLabel} from "../../User/utils/get-user-avatar-label";
-import {Avatar} from "../../Avatar/components";
-import {TranslationFunction} from "../../localization/types";
+import {getUserAvatarLabel} from "../../User/utils/labels";
+import {Avatar} from "../../Avatar";
+import {TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 
@@ -107,17 +106,20 @@ export const UpdateChatBlockingDialog: FunctionComponent = observer(() => {
                         {blockedUser.firstName} {blockedUser.lastName && blockedUser.lastName}
                     </Typography>
                 </div>
-                <DateTimePicker label={l("chat.blocking.blocked-until")}
-                                value={formData.blockedUntil}
+                <DateTimePicker value={formData.blockedUntil}
                                 onChange={date => setFormValue("blockedUntil", date ? date : undefined)}
                                 disablePast
-                                autoOk
-                                error={Boolean(formErrors.blockedUntil)}
-                                helperText={formErrors.blockedUntil && l(formErrors.blockedUntil)}
-                                format="dd MMMM yyyy HH:mm"
-                                fullWidth
-                                margin="dense"
+                                inputFormat="dd MMMM yyyy HH:mm"
                                 ampm={false}
+                                renderInput={props => (
+                                    <TextField {...props}
+                                               label={l("chat.blocking.blocked-until")}
+                                               error={Boolean(formErrors.blockedUntil)}
+                                               helperText={formErrors.blockedUntil && l(formErrors.blockedUntil)}
+                                               fullWidth
+                                               margin="dense"
+                                    />
+                                )}
                 />
                 <TextField label={l("chat.blocking.description")}
                            value={formData.description}
@@ -151,5 +153,5 @@ export const UpdateChatBlockingDialog: FunctionComponent = observer(() => {
                 </Button>
             </DialogActions>
         </Dialog>
-    )
+    );
 });

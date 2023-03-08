@@ -1,22 +1,33 @@
 package chatox.chat.mapper
 
-import chatox.chat.api.request.UpdateChatParticipationRequest
 import chatox.chat.api.response.ChatBlockingResponse
 import chatox.chat.api.response.ChatParticipationMinifiedResponse
 import chatox.chat.api.response.ChatParticipationResponse
+import chatox.chat.api.response.UserResponse
+import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.model.ChatParticipation
-import chatox.chat.repository.ChatParticipationRepository
+import chatox.chat.model.ChatRole
+import chatox.chat.model.DialogParticipant
+import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.service.ChatBlockingService
+import chatox.chat.support.UserDisplayedNameHelper
+import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 
 @Component
 class ChatParticipationMapper(private val userMapper: UserMapper,
+                              private val chatRoleMapper: ChatRoleMapper,
                               private val chatBlockingService: ChatBlockingService,
-                              private val chatParticipationRepository: ChatParticipationRepository) {
+                              private val chatParticipationRepository: ChatParticipationRepository,
+                              private val userDisplayedNameHelper: UserDisplayedNameHelper,
+
+                              @Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
+                              private val chatRoleCacheWrapper: ReactiveRepositoryCacheWrapper<ChatRole, String>) {
 
     fun toMinifiedChatParticipationResponse(chatParticipation: ChatParticipation, updateChatBlockingStatusIfNecessary: Boolean = false): Mono<ChatParticipationMinifiedResponse> {
         return mono {
@@ -37,24 +48,39 @@ class ChatParticipationMapper(private val userMapper: UserMapper,
                 }
             }
 
-            ChatParticipationMinifiedResponse(
+            val role = chatRoleMapper.toChatRoleResponse(
+                    chatRoleCacheWrapper.findById(chatParticipation.roleId).awaitFirst()
+            )
+
+            return@mono ChatParticipationMinifiedResponse(
                     id = chatParticipation.id,
-                    role = chatParticipation.role,
+                    role = role,
                     activeChatBlocking = activeChatBlocking
             )
         }
     }
 
-    fun toChatParticipationResponse(chatParticipation: ChatParticipation) = ChatParticipationResponse(
-            id = chatParticipation.id,
-            user = userMapper.toUserResponse(chatParticipation.user),
-            role = chatParticipation.role,
-            chatId = chatParticipation.chatId
-    )
+    fun toChatParticipationResponse(chatParticipation: ChatParticipation, localUsersCache: MutableMap<String, UserResponse> = mutableMapOf()): Mono<ChatParticipationResponse> {
+       return mono {
+           val chatRole = chatRoleMapper.toChatRoleResponseAsync(
+                   chatRole = chatRoleCacheWrapper.findById(chatParticipation.roleId).awaitFirst(),
+                   localUsersCache = localUsersCache
+           )
+                   .awaitFirst()
 
-    fun mapChatParticipationUpdate(updateChatParticipationRequest: UpdateChatParticipationRequest,
-                                   originalChatParticipation: ChatParticipation
-    ) = originalChatParticipation.copy(
-            role = updateChatParticipationRequest.chatRole
+           return@mono ChatParticipationResponse(
+                   id = chatParticipation.id,
+                   user = userMapper.toUserResponse(chatParticipation.user),
+                   chatId = chatParticipation.chatId,
+                   role = chatRole
+           )
+       }
+    }
+
+    fun toDialogParticipant(chatParticipation: ChatParticipation) = DialogParticipant(
+            id = chatParticipation.id,
+            userId = chatParticipation.user.id,
+            userSlug = chatParticipation.user.slug,
+            userDisplayedName = userDisplayedNameHelper.getDisplayedName(chatParticipation.user)
     )
 }

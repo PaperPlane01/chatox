@@ -1,9 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Typography, TypographyProps} from "@material-ui/core";
+import {Typography, TypographyProps} from "@mui/material";
 import {ChatDeletionReason} from "../../api/types/response";
-import {useLocalization} from "../../store/hooks";
-import {Labels, TranslationFunction} from "../../localization/types";
+import {useLocalization} from "../../store";
+import {Labels, TranslationFunction} from "../../localization";
 import {isStringEmpty} from "../../utils/string-utils";
 
 interface ChatDeletionLabelProps extends TypographyProps {
@@ -27,7 +27,7 @@ const getChatDeletionLabel = (l: TranslationFunction, chatDeletionReason?: ChatD
     } else {
         return l("chat.deleted.by-creator");
     }
-}
+};
 
 export const ChatDeletionLabel: FunctionComponent<ChatDeletionLabelProps> = observer(({
     deletionComment,

@@ -1,6 +1,6 @@
-import {observable, action} from "mobx";
+import {makeAutoObservable} from "mobx";
 import downloadFile from "js-file-download";
-import {UploadApi} from "../../api/clients";
+import {UploadApi} from "../../api";
 
 interface DownloadProgressMap {
     [fileId: string]: {
@@ -10,10 +10,12 @@ interface DownloadProgressMap {
 }
 
 export class DownloadMessageFileStore {
-    @observable
     downloadProgressMap: DownloadProgressMap = {};
 
-    @action
+    constructor() {
+        makeAutoObservable(this);
+    }
+
     downloadFile = (fileName: string, originalFileName: string): void => {
         this.downloadProgressMap[fileName] = {
             percentage: 0,

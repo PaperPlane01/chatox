@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Card, CardContent, Checkbox, FormControlLabel} from "@material-ui/core";
+import {Card, CardContent, Checkbox, FormControlLabel} from "@mui/material";
 import {useLocalization, useStore} from "../../store";
 
 export const GlobalBanFiltersForm: FunctionComponent = observer(() => {

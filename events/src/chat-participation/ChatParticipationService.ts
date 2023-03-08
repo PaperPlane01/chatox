@@ -1,25 +1,39 @@
 import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
-import {ChatParticipation, ChatParticipationDto, ChatRole} from "./types";
+import {ChatParticipation, ChatParticipationDocument} from "./entities";
+import {ChatParticipationDto} from "./types";
+import {ChatFeatures, ChatRoleService} from "../chat-roles";
 
 @Injectable()
 export class ChatParticipationService {
-    constructor(@InjectModel("chatParticipation") private readonly chatParticipationModel: Model<ChatParticipation>) {}
+    constructor(@InjectModel(ChatParticipation.name) private readonly chatParticipationModel: Model<ChatParticipationDocument>,
+                private readonly chatRoleService: ChatRoleService) {
 
-    public async saveChatParticipation(createChatParticipationDto: ChatParticipationDto): Promise<void> {
-        const chatParticipation = new this.chatParticipationModel({
-            id: createChatParticipationDto.id,
-            chatId: createChatParticipationDto.chatId,
-            role: createChatParticipationDto.role,
-            userId: createChatParticipationDto.user.id,
-            deleted: false
+    }
+
+    public async saveChatParticipations(chatParticipations: ChatParticipationDto[]): Promise<void> {
+        for (const chatParticipation of chatParticipations) {
+            await this.saveChatParticipation(chatParticipation);
+        }
+    }
+
+    public async saveChatParticipation(chatParticipationDto: ChatParticipationDto): Promise<void> {
+        const existingChatParticipation = await this.chatParticipationModel.findOne({
+            id: chatParticipationDto.id
         });
-        await chatParticipation.save();
+
+        if (existingChatParticipation) {
+            existingChatParticipation.roleId = chatParticipationDto.role.id;
+            await existingChatParticipation.save();
+        } else {
+            const chatParticipation = new ChatParticipation(chatParticipationDto);
+            await new this.chatParticipationModel(chatParticipation).save();
+        }
     }
 
     public async deleteChatParticipation(id: string): Promise<void> {
-        const chatParticipation = await this.chatParticipationModel.findOne({id}).exec();
+        const chatParticipation = await this.chatParticipationModel.findOne({id});
 
         if (chatParticipation) {
             chatParticipation.deleted = true;
@@ -27,31 +41,32 @@ export class ChatParticipationService {
         }
     }
 
-    public findChatParticipationById(id: string): Promise<ChatParticipation> {
-        return this.chatParticipationModel.findOne({id}).exec();
+    public async findChatParticipationById(id: string): Promise<ChatParticipation> {
+        return this.chatParticipationModel.findOne({id});
     }
 
     public async findByChatId(chatId: string): Promise<ChatParticipation[]> {
         return this.chatParticipationModel.find({
             chatId,
             deleted: false
-        })
-            .exec();
-    }
-
-    public async findAdminsByChatId(chatId: string): Promise<ChatParticipation[]> {
-        return this.chatParticipationModel.find({
-            chatId,
-            deleted: false,
-            role: ChatRole.ADMIN
-        })
-            .exec();
+        });
     }
 
     public async findByUserId(userId: string): Promise<ChatParticipation[]> {
         return this.chatParticipationModel.find({
             userId
-        })
-            .exec();
+        });
+    }
+
+    public async findChatParticipationsWithEnabledFeatures(chatId: string, features: Array<keyof ChatFeatures>): Promise<ChatParticipation[]> {
+        const chatRoles = await this.chatRoleService.findRolesWithEnabledFeatures(chatId, features);
+        const chatRolesIds = chatRoles.map(chatRole => chatRole._id.toHexString());
+
+        return this.chatParticipationModel.find({
+            chatId,
+            roleId: {
+                $in: chatRolesIds
+            }
+        });
     }
 }

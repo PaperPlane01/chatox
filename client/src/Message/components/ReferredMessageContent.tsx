@@ -1,10 +1,11 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {CardContent, CardHeader, createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
+import {CardContent, CardHeader, Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {UserLink} from "../../UserLink";
 import {trimString} from "../../utils/string-utils";
 import {useLocalization, useStore} from "../../store";
-import {useEmojiParser} from "../../Emoji/hooks";
+import {useEmojiParser} from "../../Emoji";
 
 interface ReferredMessageContentProps {
     messageId?: string

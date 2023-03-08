@@ -10,6 +10,7 @@ import {FilesModule} from "./files";
 import {AuthModule} from "./auth";
 import {ContextModule} from "./context";
 import {RabbitMQConfigModule} from "./rabbitmq";
+import {FfmpegModule} from "./ffmpeg";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import {RabbitMQConfigModule} from "./rabbitmq";
       AuthModule,
       ContextModule,
       RabbitMQConfigModule,
+      FfmpegModule,
       MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.MONGODB_DATABASE_NAME}`),
   ]
 })

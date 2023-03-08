@@ -1,23 +1,18 @@
-import {action, observable} from "mobx";
-import {parseReverseScrollingDirectionOptionFromString, ReverseScrollDirectionOption} from "../types";
+import {makeAutoObservable} from "mobx";
+import {parseSendMessageButton, SendMessageButton} from "../types";
 
 export class ChatsPreferencesStore {
-    @observable
     enableVirtualScroll: boolean = false;
 
-    @observable
-    useSimplifiedGalleryForVirtualScroll: boolean = true;
-
-    @observable
-    reverseScrollingDirectionOption: ReverseScrollDirectionOption = ReverseScrollDirectionOption.DO_NOT_REVERSE;
-
-    @observable
-    restoredScrollingSpeedCoefficient = 1;
-
-    @observable
     virtualScrollOverscan: number = 120;
 
+    sendMessageButton: SendMessageButton = SendMessageButton.CTRL_ENTER;
+
+    enablePartialVirtualization: boolean = false;
+
     constructor() {
+        makeAutoObservable(this);
+
         if (localStorage.getItem("enableVirtualScroll")) {
             this.enableVirtualScroll = localStorage.getItem("enableVirtualScroll") === "true";
         }
@@ -30,32 +25,20 @@ export class ChatsPreferencesStore {
             }
         }
 
-        if (localStorage.getItem("reverseScrollDirectionOption")) {
-            this.reverseScrollingDirectionOption = parseReverseScrollingDirectionOptionFromString(
-                localStorage.getItem("reverseScrollDirectionOption")
-            );
+        if (localStorage.getItem("sendMessageButton")) {
+            this.sendMessageButton = parseSendMessageButton(localStorage.getItem("sendMessageButton"));
         }
 
-        if (localStorage.getItem("useSimplifiedGalleryForVirtualScroll")) {
-            this.useSimplifiedGalleryForVirtualScroll = localStorage.getItem("useSimplifiedGalleryForVirtualScroll") === "true";
-        }
-
-        if (localStorage.getItem("reversedScrollSpeedCoefficient")) {
-            const reversedScrollSpeedCoefficient = Number(localStorage.getItem("reversedScrollSpeedCoefficient"));
-
-            if (!isNaN(reversedScrollSpeedCoefficient) && reversedScrollSpeedCoefficient > 0) {
-                this.restoredScrollingSpeedCoefficient = reversedScrollSpeedCoefficient;
-            }
+        if (localStorage.getItem("enablePartialVirtualization")) {
+            this.enablePartialVirtualization = localStorage.getItem("enablePartialVirtualization") === "true";
         }
     }
 
-    @action
     setEnableVirtualScroll = (enableVirtualScroll: boolean): void => {
         this.enableVirtualScroll = enableVirtualScroll;
         localStorage.setItem("enableVirtualScroll", `${enableVirtualScroll}`);
     };
 
-    @action
     setVirtualScrollOverscan = (virtualScrollOverscan: number): void => {
         if (virtualScrollOverscan >= 0) {
             this.virtualScrollOverscan = virtualScrollOverscan;
@@ -63,21 +46,13 @@ export class ChatsPreferencesStore {
         }
     };
 
-    @action
-    setReversedScrollSpeedCoefficient = (reversedScrollSpeedCoefficient: number): void => {
-        this.restoredScrollingSpeedCoefficient = reversedScrollSpeedCoefficient;
-        localStorage.setItem("reversedScrollSpeedCoefficient", `${reversedScrollSpeedCoefficient}`);
+    setSendMessageButton = (sendMessageButton: SendMessageButton): void => {
+        this.sendMessageButton = sendMessageButton;
+        localStorage.setItem("sendMessageButton", sendMessageButton);
     };
 
-    @action
-    setUseSimplifiedGalleryForVirtualScroll = (useSimplifiedGalleryForVirtualScroll: boolean): void => {
-        this.useSimplifiedGalleryForVirtualScroll = useSimplifiedGalleryForVirtualScroll;
-        localStorage.setItem("useSimplifiedGalleryForVirtualScroll", `${useSimplifiedGalleryForVirtualScroll}`);
-    };
-
-    @action
-    setReverseScrollDirectionOption = (reverseScrollOption: ReverseScrollDirectionOption): void => {
-        this.reverseScrollingDirectionOption = reverseScrollOption;
-        localStorage.setItem("reverseScrollDirectionOption", reverseScrollOption);
+    setEnablePartialVirtualization = (enablePartialVirtualization: boolean): void => {
+        this.enablePartialVirtualization = enablePartialVirtualization;
+        localStorage.setItem("enablePartialVirtualization", `${enablePartialVirtualization}`);
     };
 }

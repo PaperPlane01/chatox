@@ -2,20 +2,19 @@ import React, {FunctionComponent, ReactNode, useEffect} from "react";
 import {observer} from "mobx-react";
 import {
     Button,
-    createStyles,
     CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    makeStyles,
     Theme,
-    Typography
-} from "@material-ui/core";
+    Typography,
+} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {useSnackbar} from "notistack";
 import {getChatDeletionErrorText} from "../utils";
-import {useLocalization, useStore} from "../../store/hooks";
-import {Language} from "../../localization/types";
+import {useLocalization, useStore} from "../../store";
+import {Language} from "../../localization";
 import {ChatDeletionStep} from "../types";
 import {useMobileDialog} from "../../utils/hooks";
 

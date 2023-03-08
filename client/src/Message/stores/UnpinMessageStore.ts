@@ -1,20 +1,15 @@
-import {action, computed, observable} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {ChatStore} from "../../Chat/stores";
+import {ChatOfCurrentUserEntity, ChatStore} from "../../Chat";
 import {EntitiesStore} from "../../entities-store";
-import {ChatOfCurrentUserEntity} from "../../Chat/types";
 
 export class UnpinMessageStore {
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @observable
     showSnackbar: boolean = false;
 
-    @computed
     get selectedChat(): ChatOfCurrentUserEntity | undefined {
         if (this.chatStore.selectedChatId) {
             return this.entities.chats.findById(this.chatStore.selectedChatId);
@@ -25,9 +20,9 @@ export class UnpinMessageStore {
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore) {
+        makeAutoObservable(this);
     }
 
-    @action
     unpinMessage = (): void => {
         if (!this.selectedChat) {
             return;
@@ -44,17 +39,16 @@ export class UnpinMessageStore {
 
         MessageApi.unpinMessage(this.selectedChat.id, this.selectedChat.pinnedMessageId)
             .then(({data}) => {
-                this.entities.insertMessage(data);
+                this.entities.messages.insert(data);
                 chat.pinnedMessageId = undefined;
                 this.entities.chats.insertEntity(chat);
                 this.setShowSnackbar(true);
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false);
-    }
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => this.pending = false));
+    };
 
-    @action
     setShowSnackbar = (showSnackbar: boolean): void => {
         this.showSnackbar = showSnackbar;
-    }
+    };
 }

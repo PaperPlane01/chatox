@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
-import {Edit} from "@material-ui/icons";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {Edit} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
 
 interface EditChatMenuItemProps {
@@ -33,5 +33,5 @@ export const EditChatMenuItem: FunctionComponent<EditChatMenuItemProps> = observ
                 {l("chat.edit")}
             </ListItemText>
         </MenuItem>
-    )
+    );
 });

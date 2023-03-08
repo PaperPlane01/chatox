@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ListItemIcon, ListItemText, MenuItem} from "@material-ui/core";
-import PersonIcon from "@material-ui/icons/Person";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import PersonIcon from "@mui/icons-material/Person";
 import {useLocalization, useStore} from "../../store";
 
 interface LoginMenuItemProps {

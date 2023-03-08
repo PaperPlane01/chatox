@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {List} from "@material-ui/core";
+import {List} from "@mui/material";
 import {GlobalBansListItem} from "./GlobalBansListItem";
 import {useStore} from "../../store";
 

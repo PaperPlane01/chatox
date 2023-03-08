@@ -35,7 +35,7 @@ create table if not exists oauth_approvals (
   lastModifiedAt TIMESTAMP
 );
 
-INSERT INTO public.account VALUES ('092a350e-b686-4ba3-97dd-417a207b2c3c', true, false, '$2a$12$TNbUx13Y7lMHfZ09cwXCHOfi7oDKUET8ZBstH8VGjqCHVB5ne5wuC', 'admin', '["17d6b568-af13-470d-88fb-8b982a5dcadf"]');
+INSERT INTO public.account(id, enabled, locked, password_hash, type, username, user_ids) VALUES ('092a350e-b686-4ba3-97dd-417a207b2c3c', true, false, '$2a$12$TNbUx13Y7lMHfZ09cwXCHOfi7oDKUET8ZBstH8VGjqCHVB5ne5wuC', 'USERNAME_AND_PASSWORD', 'admin', '["17d6b568-af13-470d-88fb-8b982a5dcadf"]');
 
 --
 -- TOC entry 2916 (class 0 OID 1142933)

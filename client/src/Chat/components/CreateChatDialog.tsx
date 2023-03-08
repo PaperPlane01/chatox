@@ -1,26 +1,26 @@
-import React, {Fragment, FunctionComponent, KeyboardEvent} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {
     Button,
-    Chip,
     CircularProgress,
-    createStyles,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
     InputAdornment,
-    makeStyles,
     TextField,
-    Typography
-} from "@material-ui/core";
+    Theme,
+    Typography,
+} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {ChipInput} from "../../ChipInput";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {useMobileDialog} from "../../utils/hooks";
 
-const useStyles = makeStyles(theme => createStyles({
+const useStyles = makeStyles((theme: Theme) => createStyles({
     errorLabel: {
         color: theme.palette.error.main
     }
@@ -35,12 +35,9 @@ export const CreateChatDialog: FunctionComponent = observer(() => {
             formErrors,
             submissionError,
             pending,
-            currentTag,
             checkingSlugAvailability,
             setCurrentTag,
             setFormValue,
-            addTag,
-            removeTagByIndex,
             reset,
             createChat,
             setCreateChatDialogOpen
@@ -54,24 +51,11 @@ export const CreateChatDialog: FunctionComponent = observer(() => {
     if (createdChat) {
         setCreateChatDialogOpen(false);
         reset();
-        routerStore.router.goTo(
+        routerStore.goTo(
             Routes.chatPage,
             {slug: createdChat.slug || createdChat.id},
-            routerStore,
-            {}
         );
     }
-
-    const handleTagsInputKeydown = (event: KeyboardEvent) => {
-        if (currentTag.trim().length !== 0) {
-            if (event.keyCode === 13 || event.keyCode === 32) {
-                addTag(currentTag);
-                setCurrentTag("");
-            }
-        } else if (event.keyCode === 8 || event.keyCode === 46) {
-            removeTagByIndex(createChatForm.tags.length - 1);
-        }
-    };
 
     return (
         <Dialog open={createChatDialogOpen}
@@ -101,7 +85,7 @@ export const CreateChatDialog: FunctionComponent = observer(() => {
                            helperText={formErrors.description && l(formErrors.description)}
                            multiline
                            rows={4}
-                           rowsMax={20}
+                           maxRows={20}
                            InputProps={{
                                endAdornment: (
                                    <InputAdornment position="end">
@@ -127,9 +111,10 @@ export const CreateChatDialog: FunctionComponent = observer(() => {
                                    : null
                            }}
                 />
-                <TextField label={l("chat.tags")}
-                           value={currentTag}
-                           onChange={event => setCurrentTag(event.target.value)}
+                <ChipInput value={createChatForm.tags}
+                           label={l("chat.tags")}
+                           onChange={value => setFormValue("tags", value as string[])}
+                           onTextValueChange={setCurrentTag}
                            fullWidth
                            margin="dense"
                            error={Boolean(
@@ -138,33 +123,18 @@ export const CreateChatDialog: FunctionComponent = observer(() => {
                            helperText={
                                formErrors.tags ? l(formErrors.tags)
                                    : containsNotUndefinedValues(formErrors.tagErrorsMap)
-                                   ? (
-                                       <Fragment>
-                                           {Object.keys(formErrors.tagErrorsMap).map(key => (
-                                               <Typography>
-                                                   {formErrors.tagErrorsMap[key]
-                                                   && l(formErrors.tagErrorsMap[key]!, {tag: key})}
-                                               </Typography>
-                                           ))}
-                                       </Fragment>
-                                   )
-                                   : null
+                                       ? (
+                                           <Fragment>
+                                               {Object.keys(formErrors.tagErrorsMap).map(key => (
+                                                   <Typography>
+                                                       {formErrors.tagErrorsMap[key]
+                                                       && l(formErrors.tagErrorsMap[key]!, {tag: key})}
+                                                   </Typography>
+                                               ))}
+                                           </Fragment>
+                                       )
+                                       : null
                            }
-                           InputProps={{
-                               startAdornment: (
-                                   <InputAdornment position="start">
-                                       <Fragment>
-                                           {createChatForm.tags.map((tag, index) => (
-                                               <Chip onDelete={() => removeTagByIndex(index)}
-                                                     label={tag}
-                                                     key={tag}
-                                               />
-                                           ))}
-                                       </Fragment>
-                                   </InputAdornment>
-                               ),
-                               onKeyDown: event => handleTagsInputKeydown(event)
-                           }}
                 />
                 {submissionError && (
                     <Typography variant="body1"

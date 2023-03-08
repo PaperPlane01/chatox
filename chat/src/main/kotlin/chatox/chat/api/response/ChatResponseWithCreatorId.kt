@@ -1,5 +1,6 @@
 package chatox.chat.api.response
 
+import chatox.chat.model.ChatType
 import chatox.chat.model.ImageUploadMetadata
 import com.fasterxml.jackson.annotation.JsonInclude
 
@@ -16,5 +17,6 @@ data class ChatResponseWithCreatorId(
         val participantsCount: Int?,
         val onlineParticipantsCount: Int = 0,
         val avatar: UploadResponse<ImageUploadMetadata>?,
-        val createdById: String?
+        val createdById: String?,
+        val type: ChatType
 )

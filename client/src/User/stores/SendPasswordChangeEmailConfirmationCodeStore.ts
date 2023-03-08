@@ -1,4 +1,4 @@
-import {action, computed, observable} from "mobx";
+import {makeAutoObservable} from "mobx";
 import {ApiError, EmailConfirmationCodeApi, getInitialApiErrorFromResponse} from "../../api";
 import {EmailConfirmationCodeResponse} from "../../api/types/response";
 import {LocaleStore} from "../../localization/stores";
@@ -8,24 +8,21 @@ import {PasswordChangeStepStore} from "./PasswordChangeStepStore";
 import {ChangePasswordStep} from "../types";
 
 export class SendPasswordChangeEmailConfirmationCodeStore {
-    @observable
     pending: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @observable
     emailConfirmationCodeResponse?: EmailConfirmationCodeResponse = undefined;
 
-    @computed
     get currentLanguage(): Language {
         return this.localeStore.selectedLanguage;
     }
 
     constructor(private readonly localeStore: LocaleStore,
-                private readonly passwordChangeStepStore: PasswordChangeStepStore) {}
+                private readonly passwordChangeStepStore: PasswordChangeStepStore) {
+        makeAutoObservable(this);
+    }
 
-    @action
     sendEmailConfirmationCode = (): void => {
         this.pending = true;
         this.error = undefined;
@@ -42,7 +39,6 @@ export class SendPasswordChangeEmailConfirmationCodeStore {
             .finally(() => this.pending = false);
     };
 
-    @action
     reset = (): void => {
         this.emailConfirmationCodeResponse = undefined;
     };

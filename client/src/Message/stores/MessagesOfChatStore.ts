@@ -1,82 +1,67 @@
-import {action, computed, observable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {AxiosPromise} from "axios";
+import {SearchMessagesStore} from "./SearchMessagesStore";
 import {createSortMessages} from "../utils";
 import {ChatMessagesFetchingStateMap, MessageEntity} from "../types";
 import {EntitiesStore} from "../../entities-store";
-import {ChatsPreferencesStore, ChatStore, ReverseScrollDirectionOption} from "../../Chat";
+import {ChatsPreferencesStore, ChatStore} from "../../Chat";
 import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api";
 import {Message} from "../../api/types/response";
 
 export class MessagesOfChatStore {
-    @observable
     chatMessagesFetchingStateMap: ChatMessagesFetchingStateMap = {};
 
-    @observable
     initialMessagesMap: {[chatId: string]: number} = {};
 
-    @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
     }
 
-    @computed
-    get messagesListReverted(): boolean {
-        return this.chatPreferencesStore.enableVirtualScroll
-            && this.chatPreferencesStore.reverseScrollingDirectionOption !== ReverseScrollDirectionOption.DO_NOT_REVERSE
-    }
-
-    @computed
     get messagesOfChat(): string[] {
         if (this.selectedChatId) {
-            const messages = this.entities.chats.findById(this.selectedChatId).messages;
+            const messages = this.isInSearchMode
+                ? this.searchMessagesStore.foundMessagesIds
+                : this.entities.chats.findById(this.selectedChatId).messages;
             return messages.slice().sort(createSortMessages(
-                this.entities.messages.findById,
-                this.messagesListReverted
+                this.entities.messages.findById
             ));
         } else {
             return [];
         }
     }
 
-    @computed
-    get firstMessage(): MessageEntity | undefined {
-        const messages = this.messagesOfChat;
+    get lastMessage(): MessageEntity | undefined {
+        if (!this.selectedChatId) {
+            return undefined;
+        }
+
+        const messages = this.isInSearchMode
+            ? this.entities.chats.findById(this.selectedChatId).messages
+            : this.messagesOfChat;
 
         if (messages.length !== 0) {
-            if (this.messagesListReverted) {
-                return this.entities.messages.findById(messages[messages.length - 1]);
-            } else {
-                return this.entities.messages.findById(messages[0]);
-            }
+            return this.entities.messages.findById(messages[messages.length - 1]);
         }
 
         return undefined;
     }
 
-    @computed
-    get lastMessage(): MessageEntity | undefined {
-        const messages = this.messagesOfChat;
-
-        if (messages.length !== 0) {
-            if (this.messagesListReverted) {
-                return this.entities.messages.findById(messages[0]);
-            } else {
-                return this.entities.messages.findById(messages[messages.length - 1]);
-            }
-        }
-
-        return undefined;
+    get isInSearchMode(): boolean {
+        return this.searchMessagesStore.query.trim().length !== 0;
     }
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
-                private readonly chatPreferencesStore: ChatsPreferencesStore) {
+                private readonly chatPreferencesStore: ChatsPreferencesStore,
+                private readonly searchMessagesStore: SearchMessagesStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.selectedChatId,
             () => this.fetchMessages({abortIfInitiallyFetched: true})
-        )
+        );
     }
 
     getFetchingState = createTransformer((chatId: string) => {
@@ -90,9 +75,8 @@ export class MessagesOfChatStore {
         }
     });
 
-    @action
     fetchMessages = async (options: FetchOptions = {abortIfInitiallyFetched: false}): Promise<void> => {
-        if (!this.selectedChatId) {
+        if (!this.selectedChatId || this.isInSearchMode) {
             return;
         }
 
@@ -112,13 +96,10 @@ export class MessagesOfChatStore {
 
         let fetchMessageFunction: (...ars: any[]) => AxiosPromise<Message[]>;
         let beforeMessage: string | undefined = undefined;
-        const initialLength = this.messagesOfChat.length;
 
         if (this.getFetchingState(chatId).initiallyFetched && this.messagesOfChat.length !== 0) {
             fetchMessageFunction = MessageApi.getMessagesByChatBeforeMessage;
-            beforeMessage = this.messagesListReverted
-                ? this.messagesOfChat[this.messagesOfChat.length - 1]
-                : this.messagesOfChat[0];
+            beforeMessage = this.messagesOfChat[0];
         } else {
             fetchMessageFunction = MessageApi.getMessagesByChat;
         }
@@ -129,7 +110,7 @@ export class MessagesOfChatStore {
             .then(({data}) => {
                 runInAction(() => {
                     if (data.length !== 0) {
-                        this.entities.insertMessages(data, Boolean(beforeMessage));
+                        this.entities.messages.insertAll(data, {skipSettingLastMessage: true});
 
                         if (beforeMessage) {
                             this.initialMessagesMap[chatId] = this.initialMessagesMap[chatId]
@@ -142,5 +123,5 @@ export class MessagesOfChatStore {
                 })
             })
             .finally(() => runInAction(() => this.chatMessagesFetchingStateMap[chatId].pending = false));
-    }
+    };
 }

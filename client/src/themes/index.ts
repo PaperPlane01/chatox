@@ -1,1 +1,1 @@
-export * from "./cyan";
+export * from "./themes";

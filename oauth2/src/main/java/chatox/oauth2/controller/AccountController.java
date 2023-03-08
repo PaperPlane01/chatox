@@ -4,6 +4,7 @@ import chatox.oauth2.api.request.CreateAccountRequest;
 import chatox.oauth2.api.request.CreateAnonymousAccountRequest;
 import chatox.oauth2.api.request.LoginWithGoogleRequest;
 import chatox.oauth2.api.request.RecoverPasswordRequest;
+import chatox.oauth2.api.request.UpdateEmailRequest;
 import chatox.oauth2.api.request.UpdatePasswordRequest;
 import chatox.oauth2.api.response.AccountResponse;
 import chatox.oauth2.api.response.CreateAccountResponse;
@@ -78,6 +79,12 @@ public class AccountController {
     @GetMapping("/username/{username}/isAvailable")
     public UsernameAvailabilityResponse isUsernameAvailable(@PathVariable String username) {
         return accountService.isUsernameAvailable(username);
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping("/email")
+    public AccountResponse updateEmail(@RequestBody @Valid UpdateEmailRequest updateEmailRequest) {
+        return accountService.updateAccountEmail(updateEmailRequest);
     }
 
     @GetMapping("/email/{email}/isAvailable")

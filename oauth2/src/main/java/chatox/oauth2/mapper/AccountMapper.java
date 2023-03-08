@@ -19,7 +19,7 @@ public abstract class AccountMapper {
     public abstract AccountResponse toAccountResponse(Account account);
 
     @AfterMapping
-    protected void mapRoles(Account account, @MappingTarget AccountResponse accountResponse) {
-        accountResponse.setRoles(account.getRoles().stream().map(UserRole::getRole).collect(Collectors.toList()));
+    protected void mapRoles(Account account, @MappingTarget AccountResponse.AccountResponseBuilder accountResponse) {
+        accountResponse.roles(account.getRoles().stream().map(UserRole::getRole).collect(Collectors.toList()));
     }
 }

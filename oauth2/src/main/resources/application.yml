@@ -11,7 +11,7 @@ spring:
       initialization-fail-timeout: 50000
       connection-timeout: 6000
       jdbc-url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/chatox-oauth2-service}
-    username: ${POSTGRES_USER:admin}
+    username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD:root}
   main:
     allow-bean-definition-overriding: true
@@ -23,6 +23,9 @@ spring:
     default-encoding: UTF-8
     protocol: ${OAUTH2_SERVICE_SPRING_MAIL_PROTOCOL}
     full-email: ${OAUTH2_SERVICE_FULL_EMAIL}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.tls.enable: true
   jpa:
     hibernate:
       ddl-auto: update

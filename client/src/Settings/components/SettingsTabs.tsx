@@ -1,25 +1,20 @@
 import React, {ChangeEvent, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {
-    createStyles,
-    ListItemIcon,
-    ListItemText,
-    makeStyles,
-    MenuItem,
-    Tab,
-    Theme,
-    Typography
-} from "@material-ui/core";
-import {TabContext, TabList, TabPanel} from "@material-ui/lab";
-import {Language, Palette, Person, Security, ChatBubble} from "@material-ui/icons";
+import {ListItemIcon, ListItemText, MenuItem, Tab, Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {TabContext, TabList, TabPanel} from "@mui/lab";
+import {Block, ChatBubble, Image, Language, Palette, Person, Security} from "@mui/icons-material";
+import {SecurityTabWrapper} from "./SecurityTabWrapper";
+import {AppearanceTabWrapper} from "./AppearanceTabWrapper";
 import {SettingsTab} from "../types";
-import {HasRole} from "../../Authorization";
-import {EditProfileForm, ChangePasswordContainer} from "../../User";
-import {EmojiSetPicker} from "../../Emoji";
+import {HasAnyRole, HasRole} from "../../Authorization";
+import {EditProfileForm} from "../../User";
 import {ChatsPreferencesCard} from "../../Chat";
 import {LanguagePicker} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
+import {InstalledStickerPacksList} from "../../Sticker";
+import {BlacklistedUsersList} from "../../Blacklist";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     undecoratedLink: {
@@ -52,7 +47,7 @@ export const SettingsTabs: FunctionComponent = observer(() => {
     const classes = useStyles();
 
     const goTo = (settingsTab: string) => {
-        routerStore.router.goTo(Routes.settingsTabPage, {tab: settingsTab});
+        routerStore.goTo(Routes.settingsTabPage, {tab: settingsTab});
     };
 
     return (
@@ -126,6 +121,30 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                              </MenuItem>
                          }
                     />
+                    <Tab value={SettingsTab.STICKERS}
+                         label={
+                             <MenuItem>
+                                 <ListItemIcon>
+                                     <Image/>
+                                 </ListItemIcon>
+                                 <ListItemText>
+                                     {l("sticker.pack.list")}
+                                 </ListItemText>
+                             </MenuItem>
+                         }
+                    />
+                    <Tab value={SettingsTab.BLACKLIST}
+                         label={
+                             <MenuItem>
+                                 <ListItemIcon>
+                                     <Block/>
+                                 </ListItemIcon>
+                                 <ListItemText>
+                                     {l("blacklist.users")}
+                                 </ListItemText>
+                             </MenuItem>
+                         }
+                    />
                 </TabList>
                 <TabPanel value={SettingsTab.PROFILE}
                           className={classes.fullWidth}
@@ -148,7 +167,7 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                 <TabPanel value={SettingsTab.APPEARANCE}
                           className={classes.fullWidth}
                 >
-                    <EmojiSetPicker/>
+                    <AppearanceTabWrapper/>
                 </TabPanel>
                 <TabPanel value={SettingsTab.SECURITY}
                           className={classes.fullWidth}
@@ -160,7 +179,7 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                                  </Typography>
                              }
                     >
-                        <ChangePasswordContainer/>
+                        <SecurityTabWrapper/>
                     </HasRole>
                 </TabPanel>
                 <TabPanel value={SettingsTab.CHATS}
@@ -168,7 +187,33 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                 >
                     <ChatsPreferencesCard/>
                 </TabPanel>
+                <TabPanel value={SettingsTab.STICKERS}
+                          className={classes.fullWidth}
+                >
+                    <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}
+                                alternative={
+                                    <Typography>
+                                        {l("common.authorization-required")}
+                                    </Typography>
+                                }
+                    >
+                        <InstalledStickerPacksList/>
+                    </HasAnyRole>
+                </TabPanel>
+                <TabPanel value={SettingsTab.BLACKLIST}
+                          className={classes.fullWidth}
+                >
+                    <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}
+                                alternative={
+                                    <Typography>
+                                        {l("common.authorization-required")}
+                                    </Typography>
+                                }
+                    >
+                        <BlacklistedUsersList/>
+                    </HasAnyRole>
+                </TabPanel>
             </TabContext>
         </div>
-    )
+    );
 });

@@ -24,10 +24,10 @@ public abstract class ClientMapper {
     public abstract ClientResponse toClientResponse(Client client);
 
     @AfterMapping
-    protected void mapRemainingFieldsOfClientResponse(Client client, @MappingTarget ClientResponse clientResponse) {
-        clientResponse.setAuthorizedGrantTypes(
+    protected void mapRemainingFieldsOfClientResponse(Client client, @MappingTarget ClientResponse.ClientResponseBuilder clientResponse) {
+        clientResponse.authorizedGrantTypes(
                 client.getAuthorizedGrantTypes().stream().map(AuthorizedGrantType::getName).collect(Collectors.toList())
         );
-        clientResponse.setScope(client.getScope().stream().map(Scope::getName).collect(Collectors.toList()));
+        clientResponse.scope(client.getScope().stream().map(Scope::getName).collect(Collectors.toList()));
     }
 }

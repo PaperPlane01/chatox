@@ -1,4 +1,4 @@
-import {action, computed, observable} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {ChatApi} from "../../api/clients";
 import {EntitiesStore} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse} from "../../api";
@@ -9,24 +9,20 @@ interface ChatErrorsMap {
 }
 
 export class ChatStore {
-    @observable
     selectedChatId?: string = undefined;
 
-    @observable
     pending: boolean = false;
 
-    @observable
     errorsMap: ChatErrorsMap = {};
 
-    @observable
     currentSlug?: string = undefined;
 
-    @observable
     previousChatId?: string = undefined;
 
-    constructor(private readonly entities: EntitiesStore) {}
+    constructor(private readonly entities: EntitiesStore) {
+       makeAutoObservable(this);
+    }
 
-    @computed
     get selectedChat(): ChatOfCurrentUserEntity | undefined {
         if (this.selectedChatId) {
             return this.entities.chats.findById(this.selectedChatId);
@@ -35,7 +31,6 @@ export class ChatStore {
         return undefined;
     }
 
-    @action
     setSelectedChat = (slug?: string): void => {
         if (!slug) {
             this.selectedChatId = undefined;
@@ -52,23 +47,24 @@ export class ChatStore {
         } else {
             this.pending = true;
             ChatApi.findChatByIdOrSlug(slug)
-                .then(({data}) => {
-                    this.entities.insertChat({
+                .then(({data}) => runInAction(() => {
+                    const chat = {
                         ...data,
                         deletionReason: undefined,
                         deletionComment: undefined,
                         deleted: false,
                         unreadMessagesCount: 0
-                    });
+                    }
+                    this.entities.chats.insert(chat);
                     this.previousChatId = this.selectedChatId;
                     this.selectedChatId = data.id;
 
                     if (this.errorsMap[slug]) {
                         delete this.errorsMap[slug];
                     }
-                })
-                .catch(error => this.errorsMap[slug] = getInitialApiErrorFromResponse(error))
-                .finally(() => this.pending = false);
+                }))
+                .catch(error => runInAction(() => this.errorsMap[slug] = getInitialApiErrorFromResponse(error)))
+                .finally(() => runInAction(() => this.pending = false));
         }
-    }
+    };
 }

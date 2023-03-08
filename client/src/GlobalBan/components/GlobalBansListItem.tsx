@@ -1,11 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {MenuItem, ListItemAvatar, ListItemText} from "@material-ui/core";
+import {MenuItem, ListItemAvatar, ListItemText} from "@mui/material";
 import randomColor from "randomcolor";
 import {useStore} from "../../store";
 import {Avatar} from "../../Avatar";
-import {getUserAvatarLabel} from "../../User/utils/get-user-avatar-label";
-import {getUserDisplayedName} from "../../User/utils/get-user-displayed-name";
+import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 
 interface GlobalBansListItemProps {
     globalBanId: string

@@ -2,7 +2,7 @@ package chatox.user.controller
 
 import chatox.user.api.request.CreateUserRequest
 import chatox.user.api.request.UpdateUserRequest
-import chatox.user.security.AuthenticationFacade
+import chatox.user.security.CurrentUserService
 import chatox.user.service.UserService
 import chatox.user.service.UserSessionService
 import chatox.platform.pagination.PaginationRequest
@@ -23,7 +23,7 @@ import javax.validation.Valid
 @RequestMapping("/api/v1/users")
 class UserController(private val userService: UserService,
                      private val userSessionService: UserSessionService,
-                     private val authenticationFacade: AuthenticationFacade) {
+                     private val currentUserService: CurrentUserService) {
 
     @PreAuthorize("hasAuthority('SCOPE_internal_create_user')")
     @PostMapping
@@ -43,7 +43,7 @@ class UserController(private val userService: UserService,
 
     @PreAuthorize("hasRole('USER') || hasRole('ANONYMOUS_USER')")
     @GetMapping("/me")
-    fun getCurrentUser() = authenticationFacade.getCurrentUser()
+    fun getCurrentUser() = currentUserService.getCurrentUser()
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/me/sessions")

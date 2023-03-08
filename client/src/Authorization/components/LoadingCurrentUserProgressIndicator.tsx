@@ -1,6 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Backdrop, CircularProgress, createStyles, makeStyles, Theme} from "@material-ui/core";
+import {Backdrop, CircularProgress, Theme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {useAuthorization} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -24,5 +25,5 @@ export const LoadingCurrentUserProgressIndicator: FunctionComponent = observer((
         >
             <CircularProgress color="primary"/>
         </Backdrop>
-    )
+    );
 });

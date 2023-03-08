@@ -1,9 +1,12 @@
 import React, {Fragment, FunctionComponent} from "react";
-import {createStyles, Grid, Hidden, makeStyles, Typography} from "@material-ui/core";
+import {observer} from "mobx-react";
+import {Grid, Hidden, Typography, useMediaQuery, useTheme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {HasRole} from "../Authorization";
 import {AppBar} from "../AppBar";
-import {ChatsOfCurrentUserList} from "../Chat";
-import {useLocalization} from "../store/hooks";
+import {ChatsOfCurrentUserListWrapper} from "../Chat";
+import {ChatsAndMessagesSearchInputWrapper} from "../ChatsAndMessagesSearch";
+import {useLocalization, useStore} from "../store";
 
 const ScrollLock = require("react-scrolllock").default;
 
@@ -17,14 +20,23 @@ const useStyles = makeStyles(() => createStyles({
     }
 }));
 
-export const ChatsPage: FunctionComponent = () => {
+export const ChatsPage: FunctionComponent = observer(() => {
+    const {
+        chatsAndMessagesSearchQuery: {
+            showInput
+        }
+    } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
+    const theme = useTheme();
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down('xl'));
 
     const content = (
         <Grid container style={{overflow: "hidden"}}>
             <Grid item xs={12}>
-                <AppBar/>
+                <AppBar hideTitle={showInput && onSmallScreen}
+                        additionalLeftItem={<ChatsAndMessagesSearchInputWrapper/>}
+                />
             </Grid>
             <HasRole role="ROLE_ACCESS_TOKEN_PRESENT"
                      alternative={(
@@ -36,8 +48,8 @@ export const ChatsPage: FunctionComponent = () => {
                      )}
             >
                 <Grid item xs={12} style={{display: "flex"}}>
-                    <ChatsOfCurrentUserList/>
-                    <Hidden mdDown>
+                    <ChatsOfCurrentUserListWrapper/>
+                    <Hidden xlDown>
                         <div className={classes.centered}>
                             <Typography variant="body1"
                                         color="textSecondary"
@@ -53,7 +65,7 @@ export const ChatsPage: FunctionComponent = () => {
 
     return (
         <Fragment>
-            <Hidden mdDown>
+            <Hidden xlDown>
                 <ScrollLock>
                     {content}
                 </ScrollLock>
@@ -62,7 +74,7 @@ export const ChatsPage: FunctionComponent = () => {
                 {content}
             </Hidden>
         </Fragment>
-    )
-};
+    );
+});
 
 export default ChatsPage;

@@ -1,7 +1,7 @@
 import React, {FunctionComponent, MouseEvent} from "react";
 import {observer} from "mobx-react";
-import {MenuItem, ListItemText} from "@material-ui/core";
-import {useStore, useLocalization} from "../../store/hooks";
+import {MenuItem, ListItemText} from "@mui/material";
+import {useStore, useLocalization} from "../../store";
 
 interface ClosePinnedMessageMenuItemProps {
     messageId: string,

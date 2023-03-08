@@ -13,6 +13,6 @@ interface UserSessionRepository : ReactiveMongoRepository<UserSession, String> {
     fun findByUserId(userId: String, pageable: Pageable): Flux<UserSession>
     fun findByUserIdAndDisconnectedAtNull(userId: String): Flux<UserSession>
     fun countByUserIdAndDisconnectedAtNull(userId: String): Mono<Long>
-    fun countByUserIdAndDisconnectedAtNullAndIdNotIn(user: String, ids: List<String>): Mono<Long>
+    fun countByUserIdAndDisconnectedAtNullAndIdNot(userId: String, excludedId: String): Mono<Long>
     fun findByDisconnectedAtNullAndCreatedAtBefore(createdAt: ZonedDateTime): Flux<UserSession>
 }

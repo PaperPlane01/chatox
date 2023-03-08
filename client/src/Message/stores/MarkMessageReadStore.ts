@@ -1,4 +1,4 @@
-import {action, computed, observable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {createTransformer} from "mobx-utils";
 import {MessagesListScrollPositionsStore} from "./MessagesListScrollPositionsStore";
 import {EntitiesStore} from "../../entities-store";
@@ -6,13 +6,10 @@ import {MessageApi} from "../../api";
 import {ChatStore} from "../../Chat";
 
 export class MarkMessageReadStore {
-    @observable
     pendingMap: {[messageId: string]: boolean} = {};
 
-    @observable
     queues: {[chatId: string]: string[]} = {};
 
-    @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
     }
@@ -20,6 +17,8 @@ export class MarkMessageReadStore {
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
                 private readonly scrollPositionStore: MessagesListScrollPositionsStore) {
+        makeAutoObservable(this);
+
         reaction(
             () => this.selectedChatId,
             () => {
@@ -50,7 +49,6 @@ export class MarkMessageReadStore {
             .sort((left, right) => left.createdAt.getTime() - right.createdAt.getTime())[0].id;
     })
 
-    @action
     addMessageToQueue = (messageId: string): void => {
         if (!this.selectedChatId) {
             return;
@@ -62,9 +60,8 @@ export class MarkMessageReadStore {
 
         this.queues[this.selectedChatId].push(messageId);
         this.entities.chats.decreaseUnreadMessagesCountOfChat(this.selectedChatId);
-    }
+    };
 
-    @action
     markMessagesAsRead = (chatId: string): void => {
         if (!this.queues[chatId] || this.queues[chatId].length === 0) {
             return;
@@ -74,9 +71,8 @@ export class MarkMessageReadStore {
 
         this.markMessageRead(latestMessageId)
             .then(() => runInAction(() => this.queues[chatId] = []));
-    }
+    };
 
-    @action
     markMessageRead = async (messageId: string): Promise<void> => {
         if (!this.selectedChatId) {
             return;
@@ -99,5 +95,5 @@ export class MarkMessageReadStore {
                 this.entities.messages.insertEntity({...message, readByCurrentUser: true});
                 this.entities.chats.decreaseUnreadMessagesCountOfChat(message.chatId);
             });
-    }
+    };
 }

@@ -10,12 +10,12 @@
     </parent>
     <groupId>chatox</groupId>
     <artifactId>spring-utils</artifactId>
-    <version>0.0.6</version>
+    <version>0.0.9</version>
     <name>spring-utils</name>
     <description>Chatox Spring utilities</description>
 
     <properties>
-        <java.version>12</java.version>
+        <java.version>11</java.version>
     </properties>
 
     <dependencies>
@@ -48,10 +48,20 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-configuration-processor -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.24</version>
             <optional>true</optional>
         </dependency>
         <dependency>

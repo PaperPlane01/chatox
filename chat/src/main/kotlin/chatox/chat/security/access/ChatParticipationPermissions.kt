@@ -1,88 +1,114 @@
 package chatox.chat.security.access
 
+import chatox.chat.api.request.UpdateChatParticipationRequest
+import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.model.Chat
-import chatox.chat.model.ChatRole
-import chatox.chat.security.AuthenticationFacade
+import chatox.chat.model.User
 import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatParticipationService
-import chatox.chat.service.ChatService
+import chatox.chat.service.ChatRoleService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.reactive.awaitFirstOrDefault
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class ChatParticipationPermissions(private val chatService: ChatService,
-                                   private val chatBlockingService: ChatBlockingService,
-                                   private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
-                                   private val authenticationFacade: AuthenticationFacade) {
-    private lateinit var chatParticipationService: ChatParticipationService
+class ChatParticipationPermissions(private val chatBlockingService: ChatBlockingService,
+                                   private val chatRoleService: ChatRoleService,
+                                   private val chatParticipationService: ChatParticipationService,
 
-    @Autowired
-    fun setChatParticipationService(chatParticipationService: ChatParticipationService) {
-        this.chatParticipationService = chatParticipationService
-    }
+                                   @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+                                   private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
+                                   private val authenticationHolder: ReactiveAuthenticationHolder<User>) {
 
     fun canJoinChat(chatId: String): Mono<Boolean> {
         return mono {
-            val chat = chatCacheWrapper.findById(chatId) { ChatNotFoundException("Could not find chat with id $chatId")}
+            val chat = chatCacheWrapper.findById(chatId) { ChatNotFoundException("Could not find chat with id $chatId") }
                     .awaitFirst()
 
             if (chat.deleted) {
                 throw ChatDeletedException(chat.chatDeletion)
             }
 
-            val currentUser = authenticationFacade.getCurrentUserDetails().awaitFirst()
-            val chatRole = chatParticipationService.getRoleOfUserInChat(
-                    chatId = chat.id,
-                    userId = currentUser.id
-            )
-                    .awaitFirstOrDefault(ChatRole.NOT_PARTICIPANT)
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
+            val chatRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId)
+                    .awaitFirstOrNull()
             val userBlockedInChat = chatBlockingService
                     .isUserBlockedInChat(chatId = chatId, userId = currentUser.id)
                     .awaitFirst()
 
-            chatRole == ChatRole.NOT_PARTICIPANT && !userBlockedInChat
+            return@mono chatRole == null && !userBlockedInChat
         }
     }
 
     fun canLeaveChat(chatId: String): Mono<Boolean> {
         return mono {
-            val chat = chatCacheWrapper.findById(chatId) { ChatNotFoundException("Could not find chat with id $chatId") }
-                    .awaitFirst()
-            val currentUserId = authenticationFacade.getCurrentUserDetails().awaitFirst().id
-            val currentUserRole = chatParticipationService.getRoleOfUserInChat(chat.id, currentUserId)
-                    .awaitFirstOrDefault(ChatRole.NOT_PARTICIPANT)
+            val currentUserId = authenticationHolder.requireCurrentUserDetails().awaitFirst().id
+            val currentUserRole = chatRoleService.getRoleOfUserInChat(userId = currentUserId, chatId = chatId).awaitFirstOrNull()
 
-            currentUserRole != ChatRole.NOT_PARTICIPANT
+            return@mono currentUserRole != null
         }
     }
 
     fun canKickChatParticipant(chatId: String, chatParticipationId: String): Mono<Boolean> {
         return mono {
             val kickedParticipant = chatParticipationService.findChatParticipationById(chatParticipationId).awaitFirst()
-            val currentUser = authenticationFacade.getCurrentUser().awaitFirst()
-            val chatRoleOfCurrentUser = chatParticipationService.getRoleOfUserInChat(chatId, currentUser).awaitFirst()
 
-            kickedParticipant.chatId == chatId &&
-                    ((chatRoleOfCurrentUser == ChatRole.MODERATOR || chatRoleOfCurrentUser == ChatRole.ADMIN)
-                            && (kickedParticipant.role !== ChatRole.MODERATOR && kickedParticipant.role !== ChatRole.ADMIN))
+            if (kickedParticipant.chatId != chatId) {
+                return@mono false
+            }
+
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
+            val currentUserRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
+                    ?: return@mono false
+
+            if (!currentUserRole.features.kickUsers.enabled) {
+                return@mono false
+            }
+
+            val otherUserRole = kickedParticipant.role
+
+            return@mono !otherUserRole.features.kickImmunity.enabled
         }
     }
 
-    fun canUpdateChatParticipant(chatId: String, chatParticipationId: String): Mono<Boolean> {
+    fun canUpdateChatParticipant(chatId: String, chatParticipationId: String, updateChatParticipantRequest: UpdateChatParticipationRequest): Mono<Boolean> {
         return mono {
-            val chat = chatService.findChatBySlugOrId(chatId).awaitFirst()
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
+            val (currentUserRole, currentUserChatParticipation) = chatRoleService.getRoleAndChatParticipationOfUserInChat(
+                    userId = currentUser.id,
+                    chatId = chatId
+            )
+                    .awaitFirstOrNull() ?: return@mono false;
+
+            val chatRole = chatRoleService.findRoleByIdAndChatId(roleId = updateChatParticipantRequest.roleId, chatId = chatId).awaitFirst()
             val chatParticipation = chatParticipationService.findChatParticipationById(chatParticipationId).awaitFirst()
 
-            println(chat.createdByCurrentUser)
+            if (currentUserChatParticipation.id === chatParticipation.id) {
+                return@mono false
+            }
 
-            return@mono chat.createdByCurrentUser!! && chatParticipation.chatId == chat.id;
+            if (chatParticipation.chatId != chatId) {
+                return@mono false
+            }
+
+            val assignRoleFeature = currentUserRole.features.assignChatRole
+
+            if (!assignRoleFeature.enabled) {
+                return@mono false
+            }
+
+            if (assignRoleFeature.additional.upToLevel == null) {
+                return@mono true
+            }
+
+            return@mono assignRoleFeature.additional.upToLevel <= chatRole.level
         }
     }
 }

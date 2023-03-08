@@ -1,23 +1,13 @@
 import React, {forwardRef, Fragment, SyntheticEvent} from "react";
 import {observer} from "mobx-react";
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    createStyles,
-    IconButton,
-    makeStyles,
-    Menu,
-    Theme,
-    Typography
-} from "@material-ui/core";
-import {Close} from "@material-ui/icons";
+import {Card, CardContent, CardHeader, IconButton, Menu, Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Close} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {ClosePinnedMessageMenuItem} from "./ClosePinnedMessageMenuItem";
 import {UnpinMessageMenuItem} from "./UnpinMessageMenuItem";
-import {useAuthorization, useLocalization, useStore} from "../../store/hooks";
-import {useEmojiParser} from "../../Emoji/hooks";
-import {canUnpinMessage} from "../permissions";
+import {useEntities, useLocalization, usePermissions, useStore} from "../../store";
+import {useEmojiParser} from "../../Emoji";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 
 interface PinnedMessageProps {
@@ -27,7 +17,7 @@ interface PinnedMessageProps {
 const useStyles = makeStyles((theme: Theme) => createStyles({
     cardRoot: {
         maxHeight: 120,
-        [theme.breakpoints.down("md")]: {
+        [theme.breakpoints.down('lg')]: {
             position: "fixed",
             zIndex: theme.zIndex.modal - 1
         }
@@ -70,17 +60,6 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
         chat: {
             selectedChatId
         },
-        entities: {
-            chats: {
-                findById: findChat
-            },
-            messages: {
-                findById: findMessage
-            },
-            chatParticipations: {
-                findByUserAndChat: findChatParticipation
-            }
-        },
         messageDialog: {
             setMessageId
         },
@@ -89,10 +68,22 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
             closePinnedMessagesMap
         }
     } = useStore();
+    const {
+        chats: {
+            findById: findChat
+        },
+        messages: {
+            findById: findMessage
+        },
+    } = useEntities();
+    const {
+        messages: {
+            canUnpinMessage
+        }
+    } = usePermissions();
     const classes = useStyles();
     const {parseEmoji} = useEmojiParser();
     const {l} = useLocalization();
-    const {currentUser} = useAuthorization();
     const closeOrUnpinMessageMenuPopupState = usePopupState({
         variant: "popover",
         popupId: "closeOrUnpinMessageMenuPopup"
@@ -119,10 +110,7 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
     }
 
     const pinnedMessage = findMessage(chat.pinnedMessageId);
-    const currentUserChatParticipation = currentUser
-        ? findChatParticipation({chatId: selectedChatId, userId: currentUser.id})
-        : undefined;
-    const ableToUnpinMessage = canUnpinMessage(currentUserChatParticipation);
+    const ableToUnpinMessage = canUnpinMessage(pinnedMessage.chatId);
 
     return (
         <Card ref={ref}
@@ -147,7 +135,8 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
                 <div className={classes.truncatedTextContainer}>
                     <Typography classes={{
                         root: classes.cardContentTypography
-                    }}>
+                    }}
+                    >
                         {pinnedMessage.deleted
                             ? <i>{l("message.deleted")}</i>
                             : parseEmoji(pinnedMessage.text, pinnedMessage.emoji)
@@ -157,9 +146,11 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
                 {ableToUnpinMessage
                     ? (
                         <Fragment>
-                            <IconButton className={classes.unpinButton}
-                                        disableRipple
-                                        {...closeOrUnpinMessageMenuButtonProps}
+                            <IconButton
+                                className={classes.unpinButton}
+                                disableRipple
+                                {...closeOrUnpinMessageMenuButtonProps}
+                                size="large"
                             >
                                 <Close/>
                             </IconButton>
@@ -178,15 +169,17 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
                         </Fragment>
                     )
                     : (
-                        <IconButton onClick={event => {
-                            ensureEventWontPropagate(event);
+                        <IconButton
+                            onClick={event => {
+                                ensureEventWontPropagate(event);
 
-                            if (chat.pinnedMessageId) {
-                                closePinnedMessage(chat.pinnedMessageId);
-                            }
-                        }}
-                                    className={classes.unpinButton}
-                                    disableRipple
+                                if (chat.pinnedMessageId) {
+                                    closePinnedMessage(chat.pinnedMessageId);
+                                }
+                            }}
+                            className={classes.unpinButton}
+                            disableRipple
+                            size="large"
                         >
                             <Close/>
                         </IconButton>

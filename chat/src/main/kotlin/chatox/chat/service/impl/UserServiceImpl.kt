@@ -3,7 +3,7 @@ package chatox.chat.service.impl
 import chatox.chat.api.response.UserResponse
 import chatox.chat.mapper.UserMapper
 import chatox.chat.model.User
-import chatox.chat.repository.UserRepository
+import chatox.chat.repository.mongodb.UserRepository
 import chatox.chat.service.UserService
 import chatox.platform.cache.ReactiveCacheService
 import kotlinx.coroutines.reactive.awaitFirst

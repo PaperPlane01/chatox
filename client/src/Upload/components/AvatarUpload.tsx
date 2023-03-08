@@ -1,12 +1,10 @@
-import React, {ChangeEvent, Fragment, FunctionComponent, useState} from "react";
-import {Button, CircularProgress, createStyles, makeStyles, Theme, Typography} from "@material-ui/core";
-import {Image} from "@material-ui/icons";
+import React, {FunctionComponent} from "react";
+import {ImageUpload} from "./ImageUpload";
 import {Labels} from "../../localization";
 import {ApiError} from "../../api";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ImageUploadMetadata} from "../../api/types/response";
-import {Avatar} from "../../Avatar";
-import {useLocalization} from "../../store/hooks";
+import {useLocalization} from "../../store";
 
 interface AvatarUploadProps {
     onFileAttached: (file: File) => void,
@@ -20,12 +18,6 @@ interface AvatarUploadProps {
     externalAvatarUri?: string
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-    avatarUploadButton: {
-        marginTop: theme.spacing(1)
-    }
-}));
-
 export const AvatarUpload: FunctionComponent<AvatarUploadProps> = ({
     onFileAttached,
     pending,
@@ -38,52 +30,25 @@ export const AvatarUpload: FunctionComponent<AvatarUploadProps> = ({
     externalAvatarUri
 }) => {
     const {l} = useLocalization();
-    const [value, setValue] = useState("");
-    const classes = useStyles();
-
     const avatarUri = imageContainer
         ? imageContainer.url
         : externalAvatarUri ? externalAvatarUri : undefined;
 
-    const handleFileAttachment = (event: ChangeEvent<HTMLInputElement>): void => {
-        if (event.target.files && event.target.files.length !== 0) {
-            onFileAttached(event.target.files[0]);
-        }
-    };
-
     return (
-        <Fragment>
-            <Avatar avatarLetter={defaultAvatarLabel}
-                    avatarColor={avatarColor}
-                    avatarId={defaultAvatarId}
-                    avatarUri={avatarUri}
-                    width={80}
-                    height={80}
-            />
-            <Button variant="outlined"
-                    color="primary"
-                    disabled={pending}
-                    component="label"
-                    className={classes.avatarUploadButton}
-            >
-                {pending && <CircularProgress color="primary" size={25}/>}
-                {!pending && <Image/>}
-                {l("chat.avatar.upload")}
-                <input type="file"
-                       value={value}
-                       style={{display: "none"}}
-                       accept="image/png, image/jpg, image/jpeg"
-                       onClick={() => setValue("")}
-                       onChange={handleFileAttachment}
-                />
-            </Button>
-            {validationError && (
-                <Typography variant="body1"
-                            style={{color: "red"}}
-                >
-                    {l(validationError)}
-                </Typography>
-            )}
-        </Fragment>
-    )
+        <ImageUpload onFileAttached={onFileAttached}
+                     pending={pending}
+                     avatarProps={{
+                         width: 80,
+                         height: 80,
+                         shape: "rounded",
+                         avatarId: defaultAvatarId,
+                         avatarUri: avatarUri,
+                         avatarLetter: defaultAvatarLabel,
+                         avatarColor: avatarColor
+                     }}
+                     uploadButtonLabel={l("chat.avatar.upload")}
+                     validationError={validationError && l(validationError)}
+                     imageContainer={imageContainer}
+        />
+    );
 };

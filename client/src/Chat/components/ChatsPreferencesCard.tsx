@@ -4,15 +4,16 @@ import {
     Card,
     CardContent,
     CardHeader,
+    Divider,
     FormControlLabel,
     Radio,
     RadioGroup,
     Switch,
     TextField,
     Typography
-} from "@material-ui/core";
-import {parseReverseScrollingDirectionOptionFromString, ReverseScrollDirectionOption} from "../types";
-import {useLocalization, useStore} from "../../store/hooks";
+} from "@mui/material";
+import {parseSendMessageButton, SendMessageButton} from "../types";
+import {useLocalization, useStore} from "../../store";
 
 interface ChatsPreferencesCardProps {
     hideHeader?: boolean
@@ -25,12 +26,10 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
             setEnableVirtualScroll,
             setVirtualScrollOverscan,
             virtualScrollOverscan,
-            useSimplifiedGalleryForVirtualScroll,
-            setUseSimplifiedGalleryForVirtualScroll,
-            reverseScrollingDirectionOption,
-            setReverseScrollDirectionOption,
-            restoredScrollingSpeedCoefficient,
-            setReversedScrollSpeedCoefficient
+            sendMessageButton,
+            setSendMessageButton,
+            enablePartialVirtualization,
+            setEnablePartialVirtualization
         }
     } = useStore();
     const {l} = useLocalization();
@@ -39,6 +38,27 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
         <Card>
             {!hideHeader && <CardHeader title={l("settings.chats")}/>}
             <CardContent>
+                <Fragment>
+                    <Typography variant="h6">
+                        {l("common.messages")}
+                    </Typography>
+                    <RadioGroup value={sendMessageButton}
+                                onChange={event => setSendMessageButton(parseSendMessageButton(event.target.value))}
+                    >
+                        <FormControlLabel control={<Radio/>}
+                                          label={l("settings.chat.messages.send-message-button.CTRL_ENTER")}
+                                          value={SendMessageButton.CTRL_ENTER}
+                        />
+                        <FormControlLabel control={<Radio/>}
+                                          label={l("settings.chat.messages.send-message-button.ENTER")}
+                                          value={SendMessageButton.ENTER}
+                        />
+                    </RadioGroup>
+                </Fragment>
+                <Divider/>
+                <Typography variant="h6">
+                    {l("settings.chat.virtual-scroll")}
+                </Typography>
                 <FormControlLabel control={
                     <Switch checked={enableVirtualScroll} onChange={() => setEnableVirtualScroll(!enableVirtualScroll)}/>
                 }
@@ -56,51 +76,16 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                                }}
                     />
                 )}
-                {enableVirtualScroll && (
+                {!enableVirtualScroll && (
                     <FormControlLabel control={
-                        <Switch checked={useSimplifiedGalleryForVirtualScroll}
-                                onChange={() => setUseSimplifiedGalleryForVirtualScroll(!useSimplifiedGalleryForVirtualScroll)}
+                        <Switch checked={enablePartialVirtualization}
+                                onChange={() => setEnablePartialVirtualization(!enablePartialVirtualization)}
                         />
                     }
-                                      label={l("settings.chat.virtual-scroll.use-simplified-gallery")}
+                                      label={l("settings.chat.virtual-scroll.enable-partial-virtualization")}
                     />
-                )}
-                {enableVirtualScroll && (
-                    <Fragment>
-                        <Typography variant="h6">
-                            {l("settings.chat.virtual-scroll.scroll-direction-behavior")}
-                        </Typography>
-                        <RadioGroup value={reverseScrollingDirectionOption}
-                                    onChange={event => setReverseScrollDirectionOption(parseReverseScrollingDirectionOptionFromString(event.target.value))}
-                        >
-                            <FormControlLabel control={<Radio/>}
-                                              label={l("settings.chat.virtual-scroll.scroll-direction-behavior.do-not-reverse")}
-                                              value={ReverseScrollDirectionOption.DO_NOT_REVERSE}
-                            />
-                            <FormControlLabel control={<Radio/>}
-                                              label={l("settings.chat.virtual-scroll.scroll-direction-behavior.reverse")}
-                                              value={ReverseScrollDirectionOption.REVERSE}
-                            />
-                            <FormControlLabel control={<Radio/>}
-                                              label={l("settings.chat.virtual-scroll.scroll-direction-behavior.reverse-and-try-to-restore")}
-                                              value={ReverseScrollDirectionOption.REVERSE_AND_TRY_TO_RESTORE}
-                            />
-                        </RadioGroup>
-                        {reverseScrollingDirectionOption === ReverseScrollDirectionOption.REVERSE_AND_TRY_TO_RESTORE && (
-                            <TextField fullWidth
-                                       margin="dense"
-                                       onChange={event => setReversedScrollSpeedCoefficient(Number(event.target.value))}
-                                       label={l("setting.chat.virtual-scroll.reversed-scroll-speed-coefficient")}
-                                       value={restoredScrollingSpeedCoefficient}
-                                       type="number"
-                                       inputProps={{
-                                           step: 0.0001
-                                       }}
-                            />
-                        )}
-                    </Fragment>
                 )}
             </CardContent>
         </Card>
-    )
-})
+    );
+});

@@ -1,4 +1,4 @@
-import {action, reaction, observable, computed} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {throttle} from "lodash";
 import {EditProfileFormData} from "../types";
 import {FormErrors} from "../../utils/types";
@@ -13,7 +13,6 @@ import {Labels} from "../../localization/types";
 import {EntitiesStore} from "../../entities-store";
 
 export class EditProfileStore {
-    @observable
     editProfileForm: EditProfileFormData = {
         firstName: "",
         slug: "",
@@ -22,7 +21,6 @@ export class EditProfileStore {
         dateOfBirth: undefined
     };
 
-    @observable
     formErrors: FormErrors<EditProfileFormData> = {
         firstName: undefined,
         lastName: undefined,
@@ -31,44 +29,34 @@ export class EditProfileStore {
         bio: undefined
     };
 
-    @observable
     pending: boolean = false;
 
-    @observable
     checkingSlugAvailability: boolean = false;
 
-    @observable
     showSnackbar: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @computed
     get currentUser(): CurrentUser | undefined {
         return this.authorizationStore.currentUser;
     }
 
-    @computed
     get currentUserAvatarId(): string | undefined {
         return this.currentUser && this.currentUser.avatarId;
     }
 
-    @computed
     get avatarFileContainer(): UploadedFileContainer<ImageUploadMetadata> | undefined {
         return this.uploadUserAvatarStore.imageContainer
     }
 
-    @computed
     get avatarValidationError(): keyof Labels | undefined {
         return this.uploadUserAvatarStore.validationError;
     }
 
-    @computed
     get avatarUploadPending(): boolean {
         return this.uploadUserAvatarStore.pending;
     }
 
-    @computed
     get uploadedAvatarId(): string | undefined {
         return this.avatarFileContainer && this.avatarFileContainer.uploadedFile
             && this.avatarFileContainer.uploadedFile.id
@@ -77,6 +65,8 @@ export class EditProfileStore {
     constructor(private readonly authorizationStore: AuthorizationStore,
                 private readonly uploadUserAvatarStore: UploadImageStore,
                 private readonly entities: EntitiesStore) {
+        makeAutoObservable(this);
+
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300) as () => Promise<void>;
 
         reaction(
@@ -133,12 +123,10 @@ export class EditProfileStore {
         );
     }
 
-    @action
     setFormValue = <Key extends keyof EditProfileFormData>(key: Key, value: EditProfileFormData[Key]): void => {
         this.editProfileForm[key] = value;
     };
 
-    @action
     updateProfile = (): void => {
         this.validateForm().then(formValid => {
             if (!this.currentUser || !formValid) {
@@ -164,16 +152,15 @@ export class EditProfileStore {
                             ...data,
                             avatarId: data.avatar && data.avatar.id
                         });
-                        this.entities.insertUser(data);
+                        this.entities.users.insert(data);
                         this.setShowSnackbar(true);
                     }
                 })
-                .catch(error => this.error = getInitialApiErrorFromResponse(error))
-                .finally(() => this.pending = false);
+                .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
+                .finally(() => runInAction(() => this.pending = false));
         })
     };
 
-    @action
     checkSlugAvailability = (): Promise<void> => {
         if (!this.editProfileForm.slug || this.editProfileForm.slug.length === 0) {
             return new Promise<void>(resolve => resolve());
@@ -187,17 +174,18 @@ export class EditProfileStore {
         this.checkingSlugAvailability = true;
 
         return UserApi.isSlugAvailable(this.editProfileForm.slug)
-            .then(({data}) => {
+            .then(({data}) => runInAction(() => {
                 if (!data.available) {
                     this.formErrors.slug = "slug.has-already-been-taken";
                 } else {
                     this.formErrors.slug = undefined;
                 }
-            })
-            .finally(() => this.checkingSlugAvailability = false);
+            }))
+            .finally(() => runInAction(() => {
+                this.checkingSlugAvailability = false
+            }));
     };
 
-    @action
     validateForm = (): Promise<boolean> => {
         return new Promise<boolean>(async resolve => {
             let {firstName, lastName, bio, slug, dateOfBirth} = this.formErrors;
@@ -211,7 +199,6 @@ export class EditProfileStore {
         })
     };
 
-    @action
     setShowSnackbar = (showSnackbar: boolean): void => {
         this.showSnackbar = showSnackbar;
     };

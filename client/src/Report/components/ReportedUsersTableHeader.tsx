@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {TableHead, TableRow, TableCell} from "@material-ui/core";
-import {useLocalization} from "../../store/hooks";
+import {TableHead, TableRow, TableCell} from "@mui/material";
+import {useLocalization} from "../../store";
 
 export const ReportedUsersTableHeader: FunctionComponent = observer(() => {
     const {l} = useLocalization();

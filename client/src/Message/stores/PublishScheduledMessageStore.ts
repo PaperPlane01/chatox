@@ -1,28 +1,24 @@
-import {action, computed, observable} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
-import {ChatStore} from "../../Chat/stores";
+import {ChatStore} from "../../Chat";
 
 export class PublishScheduledMessageStore {
-    @observable
     pendingMessagesMap: {[messageId: string]: boolean} = {};
 
-    @observable
     showSnackbar: boolean = false;
 
-    @observable
     error?: ApiError = undefined;
 
-    @computed
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
     }
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore) {
+        makeAutoObservable(this);
     }
 
-    @action
     publishScheduledMessage = (messageId: string): void => {
         if (!this.selectedChatId) {
             return;
@@ -34,18 +30,18 @@ export class PublishScheduledMessageStore {
 
         MessageApi.publishScheduledMessage(chatId, messageId)
             .then(({data}) => {
-                this.entities.deleteScheduledMessage(chatId, messageId);
-                this.entities.insertMessage(data);
+                this.entities.chats.removeScheduledMessageFromChat(chatId, messageId);
+                this.entities.scheduledMessages.deleteById(messageId);
+                this.entities.messages.insert(data);
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
+            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => {
                 this.pendingMessagesMap[messageId] = false;
                 this.setShowSnackbar(true);
             });
-    }
+    };
 
-    @action
     setShowSnackbar = (showSnackbar: boolean): void => {
         this.showSnackbar = showSnackbar;
-    }
+    };
 }

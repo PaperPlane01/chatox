@@ -1,19 +1,11 @@
 import React, {FunctionComponent, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    createStyles,
-    IconButton,
-    makeStyles,
-    Theme,
-    Typography
-} from "@material-ui/core";
-import {Close} from "@material-ui/icons";
+import {Card, CardContent, CardHeader, IconButton, Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import {Close} from "@mui/icons-material";
 import randomColor from "randomcolor";
 import {useLocalization, useStore} from "../../store";
-import {useEmojiParser} from "../../Emoji/hooks";
+import {useEmojiParser} from "../../Emoji";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     cardContentRoot: {
@@ -103,7 +95,7 @@ export const ReferredMessageCard: FunctionComponent = observer(() => {
                 </Typography>
             }
                         action={
-                            <IconButton onClick={() => setReferredMessageId(undefined)}>
+                            <IconButton onClick={() => setReferredMessageId(undefined)} size="large">
                                 <Close/>
                             </IconButton>
                         }
@@ -123,5 +115,5 @@ export const ReferredMessageCard: FunctionComponent = observer(() => {
                 }
             </CardContent>
         </Card>
-    )
+    );
 });
