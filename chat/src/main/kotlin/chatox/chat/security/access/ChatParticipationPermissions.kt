@@ -1,6 +1,7 @@
 package chatox.chat.security.access
 
 import chatox.chat.api.request.UpdateChatParticipationRequest
+import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.model.Chat
@@ -13,6 +14,7 @@ import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -20,6 +22,8 @@ import reactor.core.publisher.Mono
 class ChatParticipationPermissions(private val chatBlockingService: ChatBlockingService,
                                    private val chatRoleService: ChatRoleService,
                                    private val chatParticipationService: ChatParticipationService,
+
+                                   @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
                                    private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
                                    private val authenticationHolder: ReactiveAuthenticationHolder<User>) {
 

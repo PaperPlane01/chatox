@@ -27,6 +27,7 @@ import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.impl.ChatServiceImpl
 import chatox.chat.support.UserDisplayedNameHelper
+import chatox.platform.cache.DefaultReactiveRepositoryCacheWrapper
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import chatox.platform.time.TimeService

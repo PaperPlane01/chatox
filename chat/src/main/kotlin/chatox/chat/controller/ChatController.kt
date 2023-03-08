@@ -67,6 +67,8 @@ class ChatController(private val chatService: ChatService,
     @GetMapping("/my", params = ["query"])
     fun searchChatsOfCurrentUser(@RequestParam query: String) = chatSearchService.searchChatsOfCurrentUser(query)
 
+    //language=SpEL
+    @ReactivePermissionCheck("@chatPermissions.canReadChat(#idOrSlug)")
     @GetMapping("/{idOrSlug}")
     fun findChatByIdOrSlug(@PathVariable idOrSlug: String) = chatService.findChatBySlugOrId(idOrSlug)
 

@@ -1,5 +1,7 @@
 package chatox.chat.messaging.rabbitmq.event.listener
 
+import chatox.chat.config.CacheWrappersConfig
+import chatox.chat.config.RedisConfig
 import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.messaging.rabbitmq.event.UserCreated
 import chatox.chat.messaging.rabbitmq.event.UserDeleted
@@ -25,6 +27,7 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.support.AmqpHeaders
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.stereotype.Component
 import java.time.ZonedDateTime
@@ -36,6 +39,8 @@ class UserEventsListener(private val userRepository: UserRepository,
                          private val chatRepository: ChatRepository,
                          private val chatParticipationMapper: ChatParticipationMapper,
                          private val chatEventsPublisher: ChatEventsPublisher,
+
+                         @Qualifier(RedisConfig.CHAT_BY_ID_CACHE_SERVICE)
                          private val chatCacheService: ReactiveCacheService<Chat, String>,
                          private val userDisplayedNameHelper: UserDisplayedNameHelper) {
     private val log = LoggerFactory.getLogger(javaClass)

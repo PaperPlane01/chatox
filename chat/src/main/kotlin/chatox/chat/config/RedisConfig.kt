@@ -37,11 +37,20 @@ class RedisConfig {
     private lateinit var applicationName: String
 
     @Bean
-    fun chatCacheService() = RedisReactiveCacheService(
+    @Qualifier(CHAT_BY_ID_CACHE_SERVICE)
+    fun chatByIdCacheService() = RedisReactiveCacheService(
             chatRedisTemplate(),
             cacheKeyGenerator(),
             Chat::class.java
     ) { chat -> chat.id }
+
+    @Bean
+    @Qualifier(CHAT_BY_SLUG_CACHE_SERVICE)
+    fun chatBySlugCacheService() = RedisReactiveCacheService(
+            chatRedisTemplate(),
+            cacheKeyGenerator(),
+            Chat::class.java
+    ) { chat -> chat.slug }
 
     @Bean
     fun userCacheService() = RedisReactiveCacheService(
@@ -124,7 +133,7 @@ class RedisConfig {
 
     private fun <T: Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
         val stringRedisSerializer = StringRedisSerializer()
-        val jackson2JsonRedisSerializer = Jackson2JsonRedisSerializer<T>(clazz.java)
+        val jackson2JsonRedisSerializer = Jackson2JsonRedisSerializer(clazz.java)
         jackson2JsonRedisSerializer.setObjectMapper(objectMapper)
         val redisSerializationContext = RedisSerializationContext.newSerializationContext<String, T>(stringRedisSerializer)
                 .value(jackson2JsonRedisSerializer)
@@ -136,5 +145,7 @@ class RedisConfig {
     companion object {
         const val DEFAULT_ROLE_OF_CHAT_CACHE_SERVICE = "defaultRoleOfChatCacheService"
         const val CHAT_ROLE_CACHE_SERVICE = "chatRoleCacheService"
+        const val CHAT_BY_ID_CACHE_SERVICE = "chatByIdCacheService"
+        const val CHAT_BY_SLUG_CACHE_SERVICE = "chatBySlugCacheService"
     }
 }

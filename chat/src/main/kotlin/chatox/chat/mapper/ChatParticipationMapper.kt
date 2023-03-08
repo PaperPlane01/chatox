@@ -4,6 +4,7 @@ import chatox.chat.api.response.ChatBlockingResponse
 import chatox.chat.api.response.ChatParticipationMinifiedResponse
 import chatox.chat.api.response.ChatParticipationResponse
 import chatox.chat.api.response.UserResponse
+import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.DialogParticipant
@@ -25,7 +26,7 @@ class ChatParticipationMapper(private val userMapper: UserMapper,
                               private val chatParticipationRepository: ChatParticipationRepository,
                               private val userDisplayedNameHelper: UserDisplayedNameHelper,
 
-                              @Qualifier("chatRoleCacheWrapper")
+                              @Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
                               private val chatRoleCacheWrapper: ReactiveRepositoryCacheWrapper<ChatRole, String>) {
 
     fun toMinifiedChatParticipationResponse(chatParticipation: ChatParticipation, updateChatBlockingStatusIfNecessary: Boolean = false): Mono<ChatParticipationMinifiedResponse> {

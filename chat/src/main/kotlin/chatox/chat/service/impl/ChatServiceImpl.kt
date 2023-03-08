@@ -10,6 +10,7 @@ import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.api.response.ChatResponseWithCreatorId
+import chatox.chat.config.RedisConfig
 import chatox.chat.exception.InvalidChatDeletionCommentException
 import chatox.chat.exception.InvalidChatDeletionReasonException
 import chatox.chat.exception.SlugIsAlreadyInUseException
@@ -44,6 +45,7 @@ import chatox.chat.service.ChatRoleService
 import chatox.chat.service.ChatService
 import chatox.chat.service.MessageService
 import chatox.chat.support.UserDisplayedNameHelper
+import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
@@ -54,6 +56,7 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.access.AccessDeniedException
@@ -75,6 +78,9 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
                       private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
                       private val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String>,
+
+                      @Qualifier(RedisConfig.CHAT_BY_SLUG_CACHE_SERVICE)
+                      private val chatBySlugCacheService: ReactiveCacheService<Chat, String>,
                       private val chatMapper: ChatMapper,
                       private val chatParticipationMapper: ChatParticipationMapper,
                       private val authenticationHolder: ReactiveAuthenticationHolder<User>,
@@ -233,6 +239,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     override fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse> {
         return mono {
             var chat = findChatByIdInternal(id).awaitFirst()
+            var slugChanged = false
 
             if (chat.deleted) {
                 throw ChatDeletedException(chat.chatDeletion)
@@ -248,6 +255,8 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                             "Slug ${updateChatRequest.slug} is already used by another chat"
                     )
                 }
+
+                slugChanged = true
             }
 
             var avatar: Upload<ImageUploadMetadata>? = chat.avatar
@@ -262,6 +271,10 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 if (avatar == null) {
                     throw UploadNotFoundException("Could not find image with id ${updateChatRequest.avatarId}")
                 }
+            }
+
+            if (slugChanged) {
+                chatBySlugCacheService.delete(chat.slug)
             }
 
             chat = chat.copy(
@@ -340,14 +353,19 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 throw ChatDeletedException(chat.chatDeletion)
             }
 
-            val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
+            val currentUser = authenticationHolder.currentUser.awaitFirstOrNull()
             var otherUser: User? = null
 
             if (chat.type == ChatType.DIALOG) {
+                if (currentUser == null) {
+                    throw AccessDeniedException("")
+                }
+
                 val chatParticipants = chatParticipationRepository.findByChatId(chat.id).collectList().awaitFirst()
-                chatParticipants.firstOrNull { chatParticipation -> chatParticipation.user.id == currentUser.id }
-                        ?: throw AccessDeniedException("Current user cannot access this chat")
-                val otherUserChatParticipation = chatParticipants.firstOrNull { chatParticipation -> chatParticipation.user.id != currentUser.id }
+                chatParticipants.first { chatParticipation -> chatParticipation.user.id == currentUser.id }
+
+                val otherUserChatParticipation = chatParticipants
+                        .firstOrNull { chatParticipation -> chatParticipation.user.id != currentUser.id }
 
                 otherUser = if (otherUserChatParticipation != null) {
                     userCacheWrapper.findById(otherUserChatParticipation.user.id).awaitFirst()
@@ -358,7 +376,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
             return@mono chatMapper.toChatResponse(
                     chat = chat,
-                    currentUserId = currentUser.id,
+                    currentUserId = currentUser?.id,
                     user = otherUser
             )
         }

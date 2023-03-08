@@ -41,6 +41,8 @@ class ChatRoleServiceImpl(
         private val chatParticipationRepository: ChatParticipationRepository,
         private val chatRoleRepository: ChatRoleRepository,
         private val chatRoleTemplateRepository: ChatRoleTemplateRepository,
+
+        @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
 
         @Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)

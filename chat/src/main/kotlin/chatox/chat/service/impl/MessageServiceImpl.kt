@@ -5,6 +5,7 @@ import chatox.chat.api.request.DeleteMultipleMessagesRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.UserResponse
+import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.exception.ChatAlreadyHasPinnedMessageException
 import chatox.chat.exception.MessageNotFoundException
 import chatox.chat.exception.MessageValidationException
@@ -49,7 +50,7 @@ import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
-import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
@@ -72,11 +73,11 @@ class MessageServiceImpl(
         private val authenticationHolder: ReactiveAuthenticationHolder<User>,
         private val emojiParserService: EmojiParserService,
         private val messageCacheService: ReactiveCacheService<Message, String>,
+
+        @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val chatEventsPublisher: ChatEventsPublisher,
         private val messageMapper: MessageMapper) : MessageService {
-    private val log = LoggerFactory.getLogger(this.javaClass)
-
     private companion object {
         const val ALLOWED_NUMBER_OF_SCHEDULED_MESSAGES = 50
     }

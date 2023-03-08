@@ -20,10 +20,7 @@ class DefaultRoleOfChatCacheWrapper @Autowired constructor(
         @Qualifier(RedisConfig.DEFAULT_ROLE_OF_CHAT_CACHE_SERVICE)
         private val cacheService: ReactiveCacheService<ChatRole, String>,
         private val chatRoleRepository: ChatRoleRepository
-) : ReactiveRepositoryCacheWrapper<ChatRole, String>(
-        cacheService,
-        chatRoleRepository
-) {
+) : ReactiveRepositoryCacheWrapper<ChatRole, String> {
     override fun findById(id: String): Mono<ChatRole> {
         return findById(
                 id = id,
