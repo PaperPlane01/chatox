@@ -1,7 +1,7 @@
 package chatox.user.cache
 
 import chatox.platform.cache.ReactiveCacheService
-import chatox.platform.cache.ReactiveRepositoryCacheWrapper
+import chatox.platform.cache.DefaultReactiveRepositoryCacheWrapper
 import chatox.user.config.RedisConfig
 import chatox.user.domain.User
 import chatox.user.repository.UserRepository
@@ -25,7 +25,7 @@ class UserReactiveRepositoryCacheWrapper(
 
         @Autowired
         private val userRepository: UserRepository
-) : ReactiveRepositoryCacheWrapper<User, String>(userByIdCache, userRepository) {
+) : DefaultReactiveRepositoryCacheWrapper<User, String, UserRepository>(userByIdCache, userRepository) {
 
     fun findBySlug(slug: String, putInCacheIfAbsent: Boolean): Mono<User> {
         return mono {
