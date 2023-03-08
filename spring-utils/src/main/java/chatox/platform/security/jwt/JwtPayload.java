@@ -126,6 +126,6 @@ public class JwtPayload implements UserDetails {
     }
 
     public boolean isAdmin() {
-        return getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+        return getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals(ROLE_ADMIN));
     }
 }
