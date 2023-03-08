@@ -6,9 +6,9 @@ import {BlockMessageAuthorInChatMenuItem} from "./BlockMessageAuthorInChatMenuIt
 import {ReplyToMessageMenuItem} from "./ReplyToMessageMenuItem";
 import {EditMessageMenuItem} from "./EditMessageMenuItem";
 import {DeleteMessageMenuItem} from "./DeleteMessageMenuItem";
-import {usePermissions, useStore} from "../../store";
-import {BanUserGloballyMenuItem} from "../../GlobalBan";
 import {PinMessageMenuItem} from "./PinMessageMenuItem";
+import {useAuthorization, usePermissions, useStore} from "../../store";
+import {BanUserGloballyMenuItem} from "../../GlobalBan";
 import {ReportMessageMenuItem} from "../../Report";
 import {BlacklistUserActionMenuItemWrapper} from "../../Blacklist";
 
@@ -51,6 +51,7 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
             canBanUsersGlobally
         }
     } = usePermissions();
+    const {currentUser} = useAuthorization();
     const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
     const menuOpen = Boolean(anchorElement);
     const message = findMessage(messageId);
@@ -98,7 +99,10 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
 
     menuItems.push(<Divider/>);
     menuItems.push(<ReportMessageMenuItem messageId={messageId} onClick={handleClose("reportMessage")}/>);
-    menuItems.push(<BlacklistUserActionMenuItemWrapper userId={message.sender} onClick={handleClose("blacklistOrRemoveFromBlacklist")}/>);
+
+    if (currentUser) {
+        menuItems.push(<BlacklistUserActionMenuItemWrapper userId={message.sender} onClick={handleClose("blacklistOrRemoveFromBlacklist")}/>);
+    }
 
     return (
         <div>

@@ -8,7 +8,7 @@ import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
 import {CreateChatDialog} from "./CreateChatDialog";
 import {ChatsOfCurrentUserListProps} from "../types";
 import {ChatsAndMessagesSearchInput, ChatsAndMessagesSearchResult} from "../../ChatsAndMessagesSearch";
-import {usePermissions, useStore} from "../../store";
+import {useAuthorization, usePermissions, useStore} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     centered: {
@@ -46,13 +46,15 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
         chatsAndMessagesSearchQuery: {
             searchModeActive
         },
-        authorization
     } = useStore();
     const {
         chats: {
             canCreateChat
         }
     } = usePermissions();
+    const {
+        currentUser
+    } = useAuthorization();
     const classes = useStyles();
     const [hovered, setHovered] = useState(false);
     const theme = useTheme<Theme>();
@@ -94,7 +96,7 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
                     {canCreateChat && <CreateChatFloatingActionButton/>}
                 </Hidden>
                 <Hidden lgDown>
-                    {hovered && (authorization) && <CreateChatFloatingActionButton/>}
+                    {hovered && currentUser && <CreateChatFloatingActionButton/>}
                 </Hidden>
             </div>
             <CreateChatDialog/>
