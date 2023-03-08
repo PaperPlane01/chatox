@@ -1,4 +1,4 @@
-import { action, observable, makeObservable } from "mobx";
+import {makeAutoObservable} from "mobx";
 import {merge, union} from "lodash";
 import {Entities, EntitiesIds, EntitiesPatch, RawEntities} from "./types";
 
@@ -43,6 +43,10 @@ export class RawEntitiesStore {
         chatRoles: []
     };
 
+    constructor() {
+        makeAutoObservable(this);
+    }
+
     applyPatch = (patch: EntitiesPatch): void => {
         merge(this.entities, patch.entities);
 
@@ -56,13 +60,4 @@ export class RawEntitiesStore {
         this.ids[entityName] = this.ids[entityName].filter(entityId => entityId !== id);
         delete this.entities[entityName][id];
     };
-
-    constructor() {
-        makeObservable(this, {
-            entities: observable,
-            ids: observable,
-            applyPatch: action,
-            deleteEntity: action
-        });
-    }
 }
