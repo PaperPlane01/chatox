@@ -3,7 +3,7 @@ import {Transform} from "class-transformer";
 
 export class ImageSizeRequest {
     @ValidateIf((object: ImageSizeRequest) => object.size !== null && object.size !== undefined)
-    @Transform((value?: string) => {
+    @Transform(({value}) => {
         if (value !== null && value !== undefined && value.trim().length !== 0) {
             return Number(value);
         }

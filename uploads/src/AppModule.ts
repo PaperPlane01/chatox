@@ -1,5 +1,6 @@
-import {Module} from "@nestjs/common";
+import {CacheModule, Module} from "@nestjs/common";
 import {MongooseModule} from "@nestjs/mongoose";
+import redisStore from "cache-manager-redis-store";
 import {ImagesUploadModule} from "./images";
 import {config} from "./config";
 import {UploadsModule} from "./uploads";
@@ -8,7 +9,6 @@ import {VideosUploadModule} from "./videos";
 import {AudiosUploadModule} from "./audios";
 import {FilesModule} from "./files";
 import {AuthModule} from "./auth";
-import {ContextModule} from "./context";
 import {RabbitMQConfigModule} from "./rabbitmq";
 import {FfmpegModule} from "./ffmpeg";
 
@@ -21,9 +21,15 @@ import {FfmpegModule} from "./ffmpeg";
       AudiosUploadModule,
       FilesModule,
       AuthModule,
-      ContextModule,
       RabbitMQConfigModule,
       FfmpegModule,
+      CacheModule.register({
+          store: redisStore,
+          host: config.REDIS_HOST,
+          port: config.REDIS_PORT,
+          ttl: Number.MAX_SAFE_INTEGER,
+          isGlobal: true
+      }),
       MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.MONGODB_DATABASE_NAME}`),
   ]
 })

@@ -1,10 +1,13 @@
-import {Upload, UploadType} from "../../mongoose/entities";
-import {UploadInfoResponse} from "../types/response";
+import {Injectable} from "@nestjs/common";
+import {Upload, UploadType} from "../entities";
+import {UploadResponse} from "../types/responses";
 import {config} from "../../config";
 
+@Injectable()
 export class UploadMapper {
-    public toUploadInfoResponse<Metadata>(upload: Upload<Metadata>): UploadInfoResponse<Metadata> {
-        return {
+
+    public toUploadResponse<Metadata>(upload: Upload<Metadata>): UploadResponse<Metadata> {
+        return new UploadResponse<Metadata>({
             id: upload.id,
             extension: upload.extension,
             meta: upload.meta,
@@ -12,13 +15,13 @@ export class UploadMapper {
             originalName: upload.originalName,
             size: upload.size,
             type: upload.type,
-            previewImage: upload.previewImage && this.toUploadInfoResponse(upload.previewImage),
-            thumbnails: upload.thumbnails.map(thumbnail => this.toUploadInfoResponse(thumbnail)),
+            previewImage: upload.previewImage && this.toUploadResponse(upload.previewImage),
+            thumbnails: upload.thumbnails.map(thumbnail => this.toUploadResponse(thumbnail)),
             name: upload.name,
             isPreview: upload.isPreview,
             isThumbnail: upload.isThumbnail,
             uri: this.getUploadUri(upload)
-        }
+        });
     }
 
     private getUploadUri(upload: Upload<any>): string {
