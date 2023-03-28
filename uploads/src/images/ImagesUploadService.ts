@@ -275,8 +275,8 @@ export class ImagesUploadService {
             );
         }
 
-        const image = new this.uploadModel({
-            id,
+        const image = new Upload({
+            _id: id,
             size: fileStats.size,
             mimeType: fileInfo.mime,
             extension: fileInfo.ext,
@@ -290,8 +290,9 @@ export class ImagesUploadService {
             isThumbnail: options.isThumbnail,
             isPreview: options.isPreview,
             thumbnails
-        });
-        await image.save();
+        })
+        await new this.uploadModel(image).save();
+
         return image;
     }
 
