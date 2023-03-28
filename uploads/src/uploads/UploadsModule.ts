@@ -16,6 +16,6 @@ import {uploadSchemaFactory} from "./entities";
             uploadSchemaFactory
         ])
     ],
-    exports: [UploadMapper]
+    exports: [UploadMapper, UploadsService]
 })
 export class UploadsModule {}

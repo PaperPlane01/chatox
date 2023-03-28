@@ -1,5 +1,6 @@
 import {CacheModule, Module} from "@nestjs/common";
 import {MongooseModule} from "@nestjs/mongoose";
+import {ScheduleModule} from "@nestjs/schedule";
 import redisStore from "cache-manager-redis-store";
 import {ImagesUploadModule} from "./images";
 import {config} from "./config";
@@ -11,6 +12,7 @@ import {FilesModule} from "./files";
 import {AuthModule} from "./auth";
 import {RabbitMQConfigModule} from "./rabbitmq";
 import {FfmpegModule} from "./ffmpeg";
+import {UploadReferenceModule} from "./upload-references";
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import {FfmpegModule} from "./ffmpeg";
       AuthModule,
       RabbitMQConfigModule,
       FfmpegModule,
+      UploadReferenceModule,
       CacheModule.register({
           store: redisStore,
           host: config.REDIS_HOST,
@@ -31,6 +34,7 @@ import {FfmpegModule} from "./ffmpeg";
           isGlobal: true
       }),
       MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.MONGODB_DATABASE_NAME}`),
+      ScheduleModule.forRoot()
   ]
 })
 export class AppModule {}

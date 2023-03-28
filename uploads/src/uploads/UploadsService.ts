@@ -1,4 +1,4 @@
-import {CACHE_MANAGER, HttpException, HttpStatus, Inject, Injectable} from "@nestjs/common";
+import {CACHE_MANAGER, HttpException, HttpStatus, Inject, Injectable, Logger} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
 import path from "path";
@@ -13,10 +13,11 @@ import {config} from "../config";
 
 @Injectable()
 export class UploadsService {
+    private readonly log = new Logger(UploadsService.name);
+
     constructor(@InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<any>>,
                 private readonly uploadMapper: UploadMapper,
                 @Inject(CACHE_MANAGER) private readonly cacheManager: Store) {
-
     }
 
     public async getUploadInfo(uploadId: string): Promise<UploadResponse<any>> {
@@ -27,7 +28,11 @@ export class UploadsService {
 
     public async deleteUpload(uploadId: string): Promise<void> {
         const upload = await this.getUpload(uploadId);
+        await this.deleteUploadDocument(upload);
+    }
 
+    public async deleteUploadDocument(upload: UploadDocument<any>): Promise<void> {
+        this.log.verbose(`Deleting upload ${upload.id}`);
         await this.deleteUploadFromDatabase(upload);
         await this.deleteUploadFromFileSystem(upload);
         await this.deleteUploadInfoFromCache(upload);
@@ -50,6 +55,7 @@ export class UploadsService {
     }
 
     private async deleteUploadFromDatabase(upload: UploadDocument<any>): Promise<void> {
+        this.log.verbose(`Deleting upload ${upload.id} from database`);
         await upload.deleteOne();
 
         await forEachAsync(

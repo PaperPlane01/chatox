@@ -103,5 +103,8 @@ IPaa2Uit2gOySFIHFiD4i75O76rYwSjhTavCwQA4tOwCuF8EnopTfi0dBVDKWK1T
 uoP2v55gv3Xw79kD0wAnUlPdpMH8GT1OyPKKHkH+/hcanEO4W4goswEwLj2s7VYw
 PsT6edytR9T/+rob9cvuoz2owBBTGYYAwxvscuVqM5OvXD+pNaeCwT77XoO8pCyS
 WE1lrebeBEpZdw79ygRL6UuFvUg9OCW88Q==
------END CERTIFICATE-----`
+-----END CERTIFICATE-----`;
+
+    @Env({type: "boolean", required: false})
+    ENABLE_SCHEDULED_UPLOAD_DELETION = false;
 }

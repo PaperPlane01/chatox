@@ -3,6 +3,7 @@ import {AmqpConnection} from "@golevelup/nestjs-rabbitmq";
 import * as mongoose from "mongoose";
 import {UploadType} from "./UploadType";
 import {ImageUploadMetadata} from "./ImageUploadMetadata";
+import {UploadMapper} from "../mappers";
 import {PartialBy} from "../../utils/types";
 
 @Schema({collection: "uploads"})
@@ -10,8 +11,9 @@ export class Upload<UploadMetadata> {
     @Prop({type: mongoose.Schema.Types.ObjectId})
     _id = new mongoose.Types.ObjectId();
 
+    //legacy property, do not use
     @Prop()
-    readonly id: string = this._id.toHexString();
+    id: string;
 
     @Prop()
     size: number;
@@ -96,11 +98,14 @@ export const uploadSchemaFactory: AsyncModelFactory = {
     useFactory: (amqpConnection: AmqpConnection) => {
         const schema = UploadSchema;
 
+        //TODO: Inject via dependency injection
+        const uploadMapper = new UploadMapper();
+
         schema.post("save", async document => {
             await amqpConnection.publish(
                 "upload.events",
                 getUploadCreatedRabbitMQRoutingKey(document as UploadDocument<any>),
-                document
+                uploadMapper.toUploadResponse(document as UploadDocument<any>)
             );
         });
 
