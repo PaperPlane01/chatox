@@ -1,21 +1,22 @@
-import {CACHE_MANAGER, HttpException, HttpStatus, Inject, Injectable} from "@nestjs/common";
+import {CACHE_MANAGER, HttpException, HttpStatus, Inject, Injectable, Logger} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Store} from "cache-manager";
 import {Response} from "express";
 import {Model, Types} from "mongoose";
 import graphicsMagic, {Dimensions} from "gm";
-import {createReadStream, promises} from "fs";
+import {promises} from "fs";
 import path from "path";
 import {FileTypeResult, fromFile} from "file-type";
 import {getInfo} from "gify-parse";
 import {ImageSizeRequest} from "./types/request";
 import {MultipartFile} from "../common/types/request";
 import {config} from "../config";
-import {mapAsync} from "../utils/map-async";
 import {GifUploadMetadata, ImageUploadMetadata, Upload, UploadDocument, UploadType} from "../uploads";
 import {UploadMapper} from "../uploads/mappers";
 import {UploadResponse} from "../uploads/types/responses";
 import {generateFileInfoCacheKey} from "../utils/cache-utils";
+import {streamFileToResponse} from "../utils/file-utils";
+import {mapAsync} from "../utils/map-async";
 import {User} from "../auth";
 
 const fileSystem = promises;
@@ -32,7 +33,8 @@ interface SaveImageOptions {
 
 interface RedisFileInfo {
     name: string,
-    mimeType: string
+    mimeType: string,
+    thumbnail?: boolean
 }
 
 const SUPPORTED_IMAGES_FORMATS = [
@@ -49,6 +51,8 @@ const STANDARD_THUMBNAIL_SIZES = [64, 128, 256, 300, 400, 512, 1024, 2048];
 
 @Injectable()
 export class ImagesUploadService {
+    private readonly log = new Logger(ImagesUploadService.name);
+
     constructor(@InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<ImageUploadMetadata | GifUploadMetadata>>,
                 private readonly uploadMapper: UploadMapper,
                 @Inject(CACHE_MANAGER) private readonly cacheManager: Store) {}
@@ -300,45 +304,19 @@ export class ImagesUploadService {
         response.setHeader("Cache-Control", "max-age=31536000");
 
         const cacheKey = generateFileInfoCacheKey(imageName, imageSizeRequest.size);
+        const fileInfo: RedisFileInfo | undefined = await this.cacheManager.get(cacheKey);
 
-        if (imageSizeRequest.size) {
-            const fileInfo: RedisFileInfo | undefined = await this.cacheManager.get(cacheKey);
-
-            if (fileInfo) {
-                response.setHeader("Content-Type", fileInfo.mimeType);
-
-                try {
-                    createReadStream(path.join(config.IMAGES_THUMBNAILS_DIRECTORY, fileInfo.name)).pipe(response);
-                    return;
-                } catch (error) {
-                    throw new HttpException(
-                        `Could not find image with ${imageName} name`,
-                        HttpStatus.NOT_FOUND
-                    );
-                }
-            }
-        } else {
-            const fileInfo: RedisFileInfo | undefined = await this.cacheManager.get(cacheKey);
-
-            if (fileInfo) {
-                response.setHeader("Content-Type", fileInfo.mimeType);
-
-                try {
-                    createReadStream(path.join(config.IMAGES_DIRECTORY, fileInfo.name)).pipe(response);
-                    return;
-                } catch (error) {
-                    throw new HttpException(
-                        `Could not find image with ${imageName} name`,
-                        HttpStatus.NOT_FOUND
-                    );
-                }
-            }
+        if (fileInfo) {
+            const baseDirectory = fileInfo.thumbnail
+                ? config.IMAGES_THUMBNAILS_DIRECTORY
+                : config.IMAGES_DIRECTORY;
+            await streamFileToResponse(path.join(baseDirectory, fileInfo.name), response, this.log);
+            return;
         }
 
         const image = await this.uploadModel.findOne({
             name: imageName
-        })
-            .exec();
+        });
 
         if (!image) {
             throw new HttpException(
@@ -357,7 +335,8 @@ export class ImagesUploadService {
                 const thumbnail = await this.getThumbnailOrCreateNew(image, imageSizeRequest.size);
                 await this.cacheManager.set(cacheKey, {
                     name: thumbnail.name,
-                    mimeType: thumbnail.mimeType
+                    mimeType: thumbnail.mimeType,
+                    thumbnail: true
                 });
                 imagePath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, thumbnail.name);
             } else {
@@ -369,15 +348,7 @@ export class ImagesUploadService {
             }
         }
 
-        try {
-            createReadStream(imagePath).pipe(response);
-            return;
-        } catch (error) {
-            throw new HttpException(
-                `Could not find image with ${imageName} name`,
-                HttpStatus.NOT_FOUND
-            );
-        }
+        await streamFileToResponse(imagePath, response, this.log);
     }
 
     private async getThumbnailOrCreateNew(image: Upload<ImageUploadMetadata>, size: number): Promise<Upload<ImageUploadMetadata>> {
