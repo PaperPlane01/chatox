@@ -12,7 +12,10 @@ data class UpdateMessageRequest(
         private val _text: String?,
 
         @field:StringIn(["apple", "facebook", "twitter", "native"])
-        val emojisSet: String = "apple"
+        val emojisSet: String = "apple",
+
+        @field:Size(max = 10)
+        val uploadAttachments: List<String> = listOf()
 ) {
         val text: String
                 get() = _text!!

@@ -14,7 +14,7 @@ interface MessageInterface {
     val deletedAt: ZonedDateTime?;
     val deletedById: String?;
     val uploadAttachmentsIds: List<String>;
-    val attachments: List<Upload<Any>>;
+    val attachments: List<Upload<*>>;
     val emoji: EmojiInfo;
     val pinned: Boolean;
     val pinnedById: String?;

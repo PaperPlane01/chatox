@@ -3,19 +3,19 @@ import {ReportReason} from "../../enums/report-reason.enum";
 import {ReportStatus} from "../../enums/report-status.enum";
 import {ReportActionTaken} from "../../enums/report-action-taken.enum";
 
-export class ReportResponse<ReportedObject> {
+export class ReportResponse<T> {
     id: string;
-    createdAt: string
-    submittedById?: string
+    createdAt: string;
+    submittedById?: string;
     submittedByIpAddress: string;
     type: ReportType;
     reason: ReportReason;
     status: ReportStatus;
     takenActions: ReportActionTaken[] = [];
     description: string;
-    reportedObject: ReportedObject;
+    reportedObject: T;
 
-    constructor(reportResponse: ReportResponse<ReportedObject>) {
+    constructor(reportResponse: ReportResponse<T>) {
         Object.assign(this, reportResponse);
     }
 }

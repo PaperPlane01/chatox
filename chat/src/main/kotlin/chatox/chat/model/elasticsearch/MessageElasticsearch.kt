@@ -32,7 +32,7 @@ data class MessageElasticsearch(
         override val deletedAt: ZonedDateTime?,
         override val deletedById: String? = null,
         override val uploadAttachmentsIds: List<String> = listOf(),
-        override val attachments: List<Upload<Any>> = listOf(),
+        override val attachments: List<Upload<*>> = listOf(),
         override val emoji: EmojiInfo = EmojiInfo(),
         override val pinned: Boolean = false,
         override val pinnedById: String? = null,

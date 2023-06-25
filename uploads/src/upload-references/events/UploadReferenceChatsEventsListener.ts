@@ -4,6 +4,8 @@ import {RabbitSubscribe} from "@golevelup/nestjs-rabbitmq";
 import {Model} from "mongoose";
 import {UploadReference, UploadReferenceDocument, UploadReferenceType} from "../entities";
 import {Chat, ChatDeleted} from "../../external/types";
+import {UploadDeletionReason} from "../entities/UploadDeletionReason";
+import {UploadDeletionReasonType} from "../entities/UploadDeletionReasonType";
 
 @Injectable()
 export class UploadReferenceChatsEventsListener {
@@ -49,6 +51,9 @@ export class UploadReferenceChatsEventsListener {
 
         if (!chat.avatar && existingUploadReference) {
             existingUploadReference.scheduledForDeletion = true;
+            existingUploadReference.deletionReasons.push(new UploadDeletionReason({
+                deletionReasonType: UploadDeletionReasonType.CHAT_UPDATED_EVENT
+            }));
             await existingUploadReference.updateOne();
             return;
         }
@@ -62,6 +67,9 @@ export class UploadReferenceChatsEventsListener {
 
         if (existingUploadReference) {
             existingUploadReference.scheduledForDeletion = true;
+            existingUploadReference.deletionReasons.push(new UploadDeletionReason({
+                deletionReasonType: UploadDeletionReasonType.CHAT_UPDATED_EVENT
+            }));
             await existingUploadReference.updateOne();
         }
     }
@@ -80,6 +88,12 @@ export class UploadReferenceChatsEventsListener {
             {
                 $set: {
                     scheduledForDeletion: true
+                },
+                $push: {
+                    deletionSources: new UploadDeletionReason({
+                        deletionReasonType: UploadDeletionReasonType.CHAT_DELETED_EVENT,
+                        sourceObjectId: chatDeleted.id
+                    })
                 }
             }
         );

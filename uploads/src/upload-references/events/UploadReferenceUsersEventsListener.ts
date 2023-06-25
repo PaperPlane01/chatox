@@ -2,7 +2,13 @@ import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {RabbitSubscribe} from "@golevelup/nestjs-rabbitmq";
 import {Model} from "mongoose";
-import {UploadReference, UploadReferenceDocument, UploadReferenceType} from "../entities";
+import {
+    UploadDeletionReason,
+    UploadDeletionReasonType,
+    UploadReference,
+    UploadReferenceDocument,
+    UploadReferenceType
+} from "../entities";
 import {ExternalUser, UserDeleted} from "../../external/types";
 
 @Injectable()
@@ -36,7 +42,8 @@ export class UploadReferenceUsersEventsListener {
     public async onUserUpdated(user: ExternalUser): Promise<void> {
         const existingReference = await this.uploadReferenceModel.findOne({
             referenceObjectId: user.id,
-            type: UploadReferenceType.USER_PROFILE_IMAGE
+            type: UploadReferenceType.USER_PROFILE_IMAGE,
+            scheduledForDeletion: false
         });
 
         if (!existingReference && !user.avatar) {
@@ -50,6 +57,10 @@ export class UploadReferenceUsersEventsListener {
 
         if (existingReference && user.avatar?.id !== existingReference.uploadId) {
             existingReference.scheduledForDeletion = true;
+            existingReference.deletionReasons.push(new UploadDeletionReason({
+                deletionReasonType: UploadDeletionReasonType.USER_UPDATED_EVENT,
+                sourceObjectId: user.id
+            }))
             await existingReference.updateOne();
         }
 
@@ -79,6 +90,12 @@ export class UploadReferenceUsersEventsListener {
             {
                 $set: {
                     scheduledForDeletion: true
+                },
+                $push: {
+                    deletionReasons: new UploadDeletionReason({
+                        deletionReasonType: UploadDeletionReasonType.USER_DELETED_EVENT,
+                        sourceObjectId: userDeleted.id
+                    })
                 }
             }
         );

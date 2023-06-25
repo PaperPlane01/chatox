@@ -28,7 +28,7 @@ data class ScheduledMessage(
         override val deletedById: String? = null,
 
         override val uploadAttachmentsIds: List<String> = listOf(),
-        override val attachments: List<Upload<Any>> = listOf(),
+        override val attachments: List<Upload<*>> = listOf(),
         override val emoji: EmojiInfo = EmojiInfo(),
         override val scheduledAt: ZonedDateTime,
         override val sticker: Sticker<Any>? = null,

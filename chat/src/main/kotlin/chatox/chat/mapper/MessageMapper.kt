@@ -261,11 +261,15 @@ class MessageMapper(private val userService: UserService,
 
     fun mapMessageUpdate(updateMessageRequest: UpdateMessageRequest,
                          originalMessage: Message,
-                         emojis: EmojiInfo = originalMessage.emoji
+                         emojis: EmojiInfo = originalMessage.emoji,
+                         uploads: List<Upload<*>>? = null,
+                         chatUploadsIds: List<String>? = null
     ) = originalMessage.copy(
             text = updateMessageRequest.text,
             updatedAt = ZonedDateTime.now(),
-            emoji = emojis
+            emoji = emojis,
+            attachments = uploads ?: originalMessage.attachments,
+            uploadAttachmentsIds = chatUploadsIds ?: originalMessage.uploadAttachmentsIds
     )
 
     fun mapScheduledMessageUpdate(updateMessageRequest: UpdateMessageRequest,

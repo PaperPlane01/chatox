@@ -1,19 +1,22 @@
-import {Injectable, Logger} from "@nestjs/common";
+import {Injectable, Logger, OnApplicationBootstrap} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Cron, CronExpression} from "@nestjs/schedule";
 import {Model} from "mongoose";
-import {UploadReference, UploadReferenceDocument} from "./entities";
+import {UploadDeletionReason, UploadReference, UploadReferenceDocument} from "./entities";
 import {Upload, UploadDocument, UploadsService} from "../uploads";
-import {mapTo2Arrays, filterAsync, forEachAsync} from "../utils/array-utils";
+import {filterAsync, forEachAsync, mapTo3Arrays} from "../utils/array-utils";
 import {config} from "../config";
+import {UploadDeleted} from "../uploads/types/events";
+import {UploadEventsPublisher} from "../uploads/events";
 
 @Injectable()
-export class UploadReferenceDeletionChecker {
+export class UploadReferenceDeletionChecker implements OnApplicationBootstrap {
     private readonly log = new Logger(UploadReferenceDeletionChecker.name);
 
     constructor(@InjectModel(UploadReference.name) private readonly uploadReferenceModel: Model<UploadReferenceDocument>,
                 @InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<any>>,
-                private readonly uploadsService: UploadsService) {
+                private readonly uploadsService: UploadsService,
+                private readonly uploadEventsPublisher: UploadEventsPublisher) {
     }
 
     @Cron(CronExpression.EVERY_HOUR)
@@ -32,10 +35,18 @@ export class UploadReferenceDeletionChecker {
             return;
         }
 
-        const [uploadsIds, uploadReferencesIds] = mapTo2Arrays(
+        const deletionReasonsMap = new Map<string, UploadDeletionReason[]>();
+        const [uploadsIds, uploadReferencesIds] = mapTo3Arrays(
             uploadReferencesToDelete,
             uploadReference => uploadReference.uploadId,
-            uploadReference => uploadReference._id
+            uploadReference => uploadReference._id,
+            uploadReference => {
+                if (deletionReasonsMap.has(uploadReference.uploadId)) {
+                    deletionReasonsMap.get(uploadReference.uploadId).push(...uploadReference.deletionReasons);
+                } else {
+                    deletionReasonsMap.set(uploadReference.uploadId, uploadReference.deletionReasons);
+                }
+            }
         );
         this.log.log(`Found ${uploadReferencesIds.length} upload references scheduled for deletion`);
 
@@ -52,13 +63,22 @@ export class UploadReferenceDeletionChecker {
         const uploadsToDelete = await this.uploadModel.find({
             id: {
                 $in: uploadsIdsToDelete
-            }
+            },
+            scheduledDeletionDate: null
         });
         this.log.log(`Found ${uploadsToDelete.length} uploads to delete`);
 
         await forEachAsync(
             uploadsToDelete,
-            async upload => await this.uploadsService.deleteUploadDocument(upload)
+            async upload => {
+                const uploadDeleted: UploadDeleted = {
+                    uploadId: upload.id,
+                    deletionReasons: deletionReasonsMap.get(upload.id) || [],
+                    uploadType: upload.type
+                };
+                await this.uploadEventsPublisher.uploadDeleted(uploadDeleted);
+                await this.uploadsService.scheduleUploadDocumentForDeletion(upload);
+            }
         );
 
         await this.uploadReferenceModel.deleteMany({
@@ -66,5 +86,9 @@ export class UploadReferenceDeletionChecker {
                 $in: uploadReferencesIds
             }
         });
+    }
+
+    public onApplicationBootstrap(): void {
+        this.checkForDeletableUploads();
     }
 }

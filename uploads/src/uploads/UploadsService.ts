@@ -4,20 +4,31 @@ import {Model} from "mongoose";
 import path from "path";
 import {promises} from "fs";
 import {Store} from "cache-manager";
+import {addDays, addHours} from "date-fns";
 import {Upload, UploadDocument, UploadType} from "./entities";
 import {UploadMapper} from "./mappers";
 import {UploadResponse} from "./types/responses";
+import {UploadDeleted} from "./types/events";
+import {UploadEventsPublisher} from "./events";
 import {forEachAsync} from "../utils/for-each-async";
 import {generateFileInfoCacheKey} from "../utils/cache-utils";
 import {config} from "../config";
+import {
+    UploadDeletionReason,
+    UploadDeletionReasonType,
+    UploadReference,
+    UploadReferenceDocument
+} from "../upload-references/entities";
 
 @Injectable()
 export class UploadsService {
     private readonly log = new Logger(UploadsService.name);
 
     constructor(@InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<any>>,
+                @InjectModel(UploadReference.name) private readonly uploadReferenceModel: Model<UploadReferenceDocument>,
                 private readonly uploadMapper: UploadMapper,
-                @Inject(CACHE_MANAGER) private readonly cacheManager: Store) {
+                @Inject(CACHE_MANAGER) private readonly cacheManager: Store,
+                private readonly uploadEventsPublisher: UploadEventsPublisher) {
     }
 
     public async getUploadInfo(uploadId: string): Promise<UploadResponse<any>> {
@@ -26,9 +37,40 @@ export class UploadsService {
         return this.uploadMapper.toUploadResponse(upload);
     }
 
-    public async deleteUpload(uploadId: string): Promise<void> {
+    public async scheduleUploadForDeletion(uploadId: string): Promise<void> {
         const upload = await this.getUpload(uploadId);
-        await this.deleteUploadDocument(upload);
+
+        await this.uploadReferenceModel.updateMany({
+            uploadId
+        },
+            {
+                $set: {
+                    scheduledForDeletion: true
+                },
+                $push: {
+                    deletionReasons: new UploadDeletionReason({
+                        deletionReasonType: UploadDeletionReasonType.DELETE_UPLOAD_REQUEST
+                    })
+                }
+            }
+        );
+
+        const deletionReasons = (await this.uploadReferenceModel.find({uploadId}))
+            .flatMap(uploadReference => uploadReference.deletionReasons);
+        const uploadDeleted: UploadDeleted = {
+            uploadId,
+            uploadType: upload.type,
+            deletionReasons
+        };
+        await this.uploadEventsPublisher.uploadDeleted(uploadDeleted);
+        await this.scheduleUploadDocumentForDeletion(upload, addHours(new Date(), 4));
+    }
+
+    public async scheduleUploadDocumentForDeletion(upload: UploadDocument<any>, scheduledDate?: Date): Promise<void> {
+        upload.scheduledDeletionDate = scheduledDate
+            ? scheduledDate
+            : addDays(new Date(), 1);
+        await upload.save();
     }
 
     public async deleteUploadDocument(upload: UploadDocument<any>): Promise<void> {
@@ -88,18 +130,24 @@ export class UploadsService {
                 break;
         }
 
-        const uploadPath = path.join(directory, upload.name);
+       try {
+           const uploadPath = path.join(directory, upload.name);
 
-        await promises.unlink(uploadPath);
+           await promises.unlink(uploadPath);
 
-        await forEachAsync(
-            upload.thumbnails,
-            async thumbnail => await promises.unlink(path.join(config.IMAGES_DIRECTORY, thumbnail.name))
-        );
+           await forEachAsync(
+               upload.thumbnails,
+               async thumbnail => await promises.unlink(path.join(config.IMAGES_DIRECTORY, thumbnail.name))
+           );
 
-        if (upload.previewImage) {
-            await promises.unlink(path.join(config.IMAGES_DIRECTORY, upload.previewImage.name));
-        }
+           if (upload.previewImage) {
+               await promises.unlink(path.join(config.IMAGES_DIRECTORY, upload.previewImage.name));
+           }
+       } catch (error) {
+            this.log.error("Error occurred when tried to remove upload from file system", error);
+            this.log.error(error.stack ? error.stack : error);
+            throw error;
+       }
     }
 
     private async deleteUploadInfoFromCache(upload: Upload<any>): Promise<void> {

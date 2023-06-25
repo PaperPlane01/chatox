@@ -29,6 +29,10 @@ export class MessagePermissions {
             return false;
         }
 
+        if (message.deleted) {
+            return false;
+        }
+
         if (this.authorization.isCurrentUserBannedGlobally()) {
             return false;
         }
@@ -104,6 +108,10 @@ export class MessagePermissions {
 
     canDeleteMessage = createTransformer((message: MessageEntity): boolean => {
         if (!this.currentUser) {
+            return false;
+        }
+
+        if (message.deleted) {
             return false;
         }
 

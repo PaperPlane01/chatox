@@ -9,7 +9,7 @@ class StickerEventsProducer(private val rabbitTemplate: RabbitTemplate) {
 
     fun stickerPackCreated(stickerPackResponse: StickerPackResponse<Any>) = rabbitTemplate.convertAndSend(
             "sticker.events",
-            "sticker.pack.created",
+            "sticker.pack.created.#",
             stickerPackResponse
     )
 }

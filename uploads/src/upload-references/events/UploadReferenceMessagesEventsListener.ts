@@ -2,7 +2,13 @@ import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
 import {RabbitSubscribe} from "@golevelup/nestjs-rabbitmq";
-import {UploadReference, UploadReferenceDocument, UploadReferenceType} from "../entities";
+import {
+    UploadDeletionReason,
+    UploadDeletionReasonType,
+    UploadReference,
+    UploadReferenceDocument,
+    UploadReferenceType
+} from "../entities";
 import {Message, MessageDeleted, MessagesDeleted} from "../../external/types";
 
 @Injectable()
@@ -68,6 +74,12 @@ export class UploadReferenceMessagesEventsListener {
             {
                 $set: {
                     scheduledForDeletion: true
+                },
+                $push: {
+                    deletionReasons: new UploadDeletionReason({
+                        deletionReasonType: UploadDeletionReasonType.MESSAGE_UPDATED_EVENT,
+                        sourceObjectId: message.id
+                    })
                 }
             }
         );
@@ -88,6 +100,12 @@ export class UploadReferenceMessagesEventsListener {
             {
                 $set: {
                     scheduledForDeletion: true
+                },
+                $push: {
+                    deletionReasons: new UploadDeletionReason({
+                        deletionReasonType: UploadDeletionReasonType.MESSAGE_DELETED_EVENT,
+                        sourceObjectId: messageDeleted.messageId
+                    })
                 }
             }
         );
@@ -109,6 +127,11 @@ export class UploadReferenceMessagesEventsListener {
             {
                 $set: {
                     scheduledForDeletion: true
+                },
+                $push: {
+                    deletionReasons: new UploadDeletionReason({
+                        deletionReasonType: UploadDeletionReasonType.MESSAGES_DELETED_EVENT
+                    })
                 }
             }
         );

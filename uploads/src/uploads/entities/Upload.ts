@@ -11,7 +11,7 @@ export class Upload<UploadMetadata> {
     @Prop({type: mongoose.Schema.Types.ObjectId})
     _id = new mongoose.Types.ObjectId();
 
-    //legacy property, do not use
+    //legacy property, do not assign
     @Prop()
     id: string;
 
@@ -62,7 +62,10 @@ export class Upload<UploadMetadata> {
     @Prop()
     originalId?: string;
 
-    constructor(upload: PartialBy<Upload<UploadMetadata>, "id" | "isThumbnail" | "isPreview" | "thumbnails">) {
+    @Prop({type: mongoose.Schema.Types.Date})
+    scheduledDeletionDate?: Date;
+
+    constructor(upload: PartialBy<Upload<UploadMetadata>, "id" | "isThumbnail" | "isPreview" | "thumbnails" | "scheduledDeletionDate">) {
         Object.assign(this, upload);
 
         this.id = this._id.toHexString();

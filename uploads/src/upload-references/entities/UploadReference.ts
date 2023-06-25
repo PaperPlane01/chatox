@@ -2,6 +2,7 @@ import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import * as mongoose from "mongoose";
 import {UploadReferenceType} from "./UploadReferenceType";
 import {PartialBy} from "../../utils/types";
+import {UploadDeletionReason} from "./UploadDeletionReason";
 
 @Schema({collection: "uploadReferences"})
 export class UploadReference {
@@ -30,7 +31,10 @@ export class UploadReference {
     @Prop()
     scheduledForDeletion: boolean = false;
 
-    constructor(uploadReference: PartialBy<UploadReference, "_id" | "createdAt" | "scheduledForDeletion">) {
+    @Prop({type: mongoose.Schema.Types.Array})
+    deletionReasons: UploadDeletionReason[] = [];
+
+    constructor(uploadReference: PartialBy<UploadReference, "_id" | "createdAt" | "scheduledForDeletion" | "deletionReasons">) {
         Object.assign(this, uploadReference);
     }
 }
