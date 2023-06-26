@@ -6,15 +6,20 @@ export class UploadedFileContainer<UploadedFileMetadataType = any> {
     public url: string;
 
     constructor(
-       public file: File,
+       public file: File | null | undefined,
        public expectedUploadType: UploadType,
        public pending: boolean = false,
-       public uploadPercentage: number = 0,
-       public uploadedFile: Upload<UploadedFileMetadataType> | undefined = undefined,
        public localId = uuid(),
-       public error: ApiError | undefined = undefined,
-    ) {
-        this.url = URL.createObjectURL(file);
+       public uploadedFile: Upload<UploadedFileMetadataType> | undefined = undefined,
+       public uploadPercentage: number = 0,
+       public error: ApiError | undefined = undefined) {
+        if (file) {
+            this.url = URL.createObjectURL(file);
+        } else if (uploadedFile) {
+            this.url = uploadedFile.uri;
+        } else {
+            throw new Error("Creating UploadedFileContainer without both file and uploadedFile parameters is not allowed!")
+        }
     }
 
     public copy(newFields: Partial<UploadedFileContainer>): UploadedFileContainer<UploadedFileMetadataType> {
@@ -22,10 +27,10 @@ export class UploadedFileContainer<UploadedFileMetadataType = any> {
             newFields.file || this.file,
             newFields.expectedUploadType || this.expectedUploadType,
             newFields.pending || this.pending,
-            newFields.uploadPercentage || this.uploadPercentage,
-            newFields.uploadedFile || this.uploadedFile,
             newFields.localId || this.localId,
+            newFields.uploadedFile || this.uploadedFile,
+        newFields.uploadPercentage || this.uploadPercentage,
             newFields.error || this.error
-        )
+        );
     }
 }

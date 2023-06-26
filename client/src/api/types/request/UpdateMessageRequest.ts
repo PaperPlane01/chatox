@@ -1,3 +1,4 @@
 export interface UpdateMessageRequest {
-    text: string
+    text: string,
+    uploadAttachments: string[]
 }

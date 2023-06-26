@@ -1,5 +1,5 @@
 import React, {CSSProperties, FunctionComponent, useState} from "react";
-import { CircularProgress, IconButton, ListItem, ListItemText, Theme } from "@mui/material";
+import {CircularProgress, IconButton, ListItem, ListItemText, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Audiotrack, Close, FileCopy, VideoLibrary} from "@mui/icons-material";
 import {UploadedFileContainer} from "../../utils/file-utils";
@@ -54,9 +54,9 @@ const iconsMap = {
     [UploadType.AUDIO]: <Audiotrack fontSize="large"/>,
     [UploadType.FILE]: <FileCopy/>,
     [UploadType.VIDEO]: <VideoLibrary/>
-}
+};
 
-export const CreateMessageFormMediaAttachment: FunctionComponent<CreateMessageFormMediaAttachmentProps> = ({
+export const MessageFormMediaAttachment: FunctionComponent<CreateMessageFormMediaAttachmentProps> = ({
     fileContainer,
     onDelete,
     progress
@@ -79,7 +79,7 @@ export const CreateMessageFormMediaAttachment: FunctionComponent<CreateMessageFo
         if (onDelete) {
             onDelete(fileContainer.localId);
         }
-    }
+    };
 
     return (
         <ListItem>
@@ -129,7 +129,7 @@ export const CreateMessageFormMediaAttachment: FunctionComponent<CreateMessageFo
             <ListItemText classes={{
                 root: classes.listItemTextRoot
             }}>
-                {fileContainer.file.name}
+                {fileContainer.file ? fileContainer.file.name : fileContainer.uploadedFile!.originalName}
             </ListItemText>
             <IconButton onClick={handleDelete} size="large">
                 <Close/>

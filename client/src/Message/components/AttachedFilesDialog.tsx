@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Dialog, DialogContent, DialogActions, DialogTitle, List} from "@mui/material";
-import {CreateMessageFormMediaAttachment} from "./CreateMessageFormMediaAttachment";
+import {MessageFormMediaAttachment} from "./MessageFormMediaAttachment";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 
@@ -31,10 +31,10 @@ export const AttachedFilesDialog: FunctionComponent = observer(() => {
             <DialogContent>
                 <List>
                     {messageAttachmentsFiles.map(fileContainer => (
-                        <CreateMessageFormMediaAttachment fileContainer={fileContainer}
-                                                          key={fileContainer.localId}
-                                                          onDelete={removeAttachment}
-                                                          progress={uploadPercentageMap[fileContainer.localId]}
+                        <MessageFormMediaAttachment fileContainer={fileContainer}
+                                                    key={fileContainer.localId}
+                                                    onDelete={removeAttachment}
+                                                    progress={uploadPercentageMap[fileContainer.localId]}
                         />
                     ))}
                 </List>

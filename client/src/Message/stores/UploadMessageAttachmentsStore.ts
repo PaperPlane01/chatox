@@ -44,6 +44,10 @@ export class UploadMessageAttachmentsStore {
             .length
     }
 
+    setMessageAttachmentsFiles = (messageAttachmentsFiles: UploadedFileContainer[]): void => {
+        this.messageAttachmentsFiles = messageAttachmentsFiles;
+    };
+
     removeAttachment = (localId: string): void => {
         this.messageAttachmentsFiles = this.messageAttachmentsFiles.filter(attachment => attachment.localId !== localId);
     };
@@ -91,7 +95,7 @@ export class UploadMessageAttachmentsStore {
                 ...this.messageAttachmentsFiles,
                 fileContainer
             ];
-            this.uploadFile(fileContainer.file, fileContainer.localId, uploadFile);
+            this.uploadFile(file, fileContainer.localId, uploadFile);
         }
 
         if (validationErrors.length !== 0) {

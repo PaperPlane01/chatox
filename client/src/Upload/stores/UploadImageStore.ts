@@ -49,11 +49,10 @@ export class UploadImageStore {
     validateFile = (): boolean => {
         this.validationError = undefined;
 
-        if (this.imageContainer && this.imageContainer.file) {
-            if (this.imageContainer.file.size > IMAGE_MAX_SIZE) {
-                this.validationError = "upload.file.too-large";
-                return false;
-            }
+        if (this.imageContainer && this.imageContainer.file
+            && typeof this.imageContainer.file !== "string" && this.imageContainer.file.size > IMAGE_MAX_SIZE) {
+            this.validationError = "upload.file.too-large";
+            return false;
         }
 
         return true;

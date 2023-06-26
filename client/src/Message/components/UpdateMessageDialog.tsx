@@ -85,12 +85,12 @@ export const UpdateMessageDialog: FunctionComponent = observer(() => {
     const {
         messageUpdate: {
             updatedMessageId,
-            updateMessageForm,
+            formValues,
             formErrors,
             pending,
             error,
             setUpdatedMessageId,
-            updateMessage,
+            submitForm,
             setFormValue
         }
     } = useStore();
@@ -112,7 +112,7 @@ export const UpdateMessageDialog: FunctionComponent = observer(() => {
             </DialogTitle>
             <DialogContent>
                 <TextField placeholder={l("message.type-something")}
-                           value={updateMessageForm.text}
+                           value={formValues.text}
                            onChange={event => setFormValue("text", event.target.value)}
                            error={Boolean(formErrors.text)}
                            helperText={formErrors.text && l(formErrors.text)}
@@ -138,7 +138,7 @@ export const UpdateMessageDialog: FunctionComponent = observer(() => {
                 >
                     {l("close")}
                 </Button>
-                <Button onClick={updateMessage}
+                <Button onClick={submitForm}
                         variant="contained"
                         color="primary"
                         disabled={pending}
@@ -147,7 +147,7 @@ export const UpdateMessageDialog: FunctionComponent = observer(() => {
                     {l("chat.update.save-changes")}
                 </Button>
             </DialogActions>
-            <MarkdownPreviewDialog text={updateMessageForm.text}/>
+            <MarkdownPreviewDialog text={formValues.text}/>
         </Dialog>
     );
 });

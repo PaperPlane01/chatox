@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useLayoutEffect, useState} from "react";
+import React, {FunctionComponent, ReactNode, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, IconButton, Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -16,7 +16,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         whiteSpace: "nowrap",
         borderLeft: "4px solid",
         borderLeftColor: theme.palette.primary.main,
-        cursor: "pointer"
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center"
     },
     cardHeaderRoot: {
         paddingLeft: theme.spacing(2),
@@ -26,12 +28,18 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-export const ReferredMessageCard: FunctionComponent = observer(() => {
+interface MessageFormMessageCardProps {
+    messageId: string,
+    icon?: ReactNode,
+    onClose: () => void
+}
+
+export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardProps> = observer(({
+    messageId,
+    icon = null,
+    onClose
+}) => {
     const {
-        messageCreation: {
-            referredMessageId,
-            setReferredMessageId
-        },
         chat: {
             selectedChatId
         },
@@ -72,11 +80,11 @@ export const ReferredMessageCard: FunctionComponent = observer(() => {
         return () => window.removeEventListener("resize", updateWidth);
     }, []);
 
-    if (!referredMessageId || !selectedChatId) {
+    if (!messageId || !selectedChatId) {
         return null;
     }
 
-    const message = findMessage(referredMessageId);
+    const message = findMessage(messageId);
 
     if (message.chatId !== selectedChatId) {
         return null;
@@ -95,7 +103,7 @@ export const ReferredMessageCard: FunctionComponent = observer(() => {
                 </Typography>
             }
                         action={
-                            <IconButton onClick={() => setReferredMessageId(undefined)} size="large">
+                            <IconButton onClick={onClose} size="large">
                                 <Close/>
                             </IconButton>
                         }
@@ -107,8 +115,9 @@ export const ReferredMessageCard: FunctionComponent = observer(() => {
                 root: classes.cardContentRoot
             }}
                          style={{maxWidth: width}}
-                         onClick={() => setMessageDialogMessageId(referredMessageId)}
+                         onClick={() => setMessageDialogMessageId(messageId)}
             >
+                {icon && icon}
                 {message.deleted
                     ? <i>{l("message.deleted")}</i>
                     : parseEmoji(message.text, message.emoji)
