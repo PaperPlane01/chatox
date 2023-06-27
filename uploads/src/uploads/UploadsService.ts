@@ -137,14 +137,14 @@ export class UploadsService {
 
            await forEachAsync(
                upload.thumbnails,
-               async thumbnail => await promises.unlink(path.join(config.IMAGES_DIRECTORY, thumbnail.name))
+               async thumbnail => await promises.unlink(path.join(config.IMAGES_THUMBNAILS_DIRECTORY, thumbnail.name))
            );
 
            if (upload.previewImage) {
                await promises.unlink(path.join(config.IMAGES_DIRECTORY, upload.previewImage.name));
            }
        } catch (error) {
-            this.log.error("Error occurred when tried to remove upload from file system", error);
+            this.log.error(`Error occurred when tried to remove upload ${upload.id} from file system`);
             this.log.error(error.stack ? error.stack : error);
             throw error;
        }
