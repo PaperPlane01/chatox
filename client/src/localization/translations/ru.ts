@@ -550,5 +550,7 @@ export const ru: Labels = {
     "theme.red": "Красный",
     "theme.darkBlue": "Тёмно-синий",
     "theme.lightBlue": "Голубой",
-    "settings.chat.virtual-scroll.enable-partial-virtualization": "Включить частичную виртуализацию"
+    "settings.chat.virtual-scroll.enable-partial-virtualization": "Включить частичную виртуализацию",
+    "message.send": "Отправить",
+    "message.preview": "Превью"
 };

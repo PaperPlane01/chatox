@@ -9,8 +9,10 @@ import {AttachFilesButton} from "./AttachFilesButton";
 import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
 import {EmojiAndStickerPicker} from "./EmojiAndStickerPicker";
 import {EmojiPickerContainer} from "./EmojiPickerContainer";
+import {SendMessageButton} from "./SendMessageButton";
+import {MarkdownPreviewDialog} from "../../Markdown";
 import {useLocalization, useStore} from "../../store";
-import {SendMessageButton} from "../../Chat";
+import {SendMessageButton as SendMessageButtonType} from "../../Chat";
 import {MessageFormData} from "../types";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -57,16 +59,17 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
         },
         chatsPreferences: {
             sendMessageButton
+        },
+        markdownPreviewDialog: {
+            setMarkdownPreviewDialogOpen
         }
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
 
     useEffect(() => {
-        if (formValues.text === "") {
-            if (inputRef && inputRef.current) {
-                inputRef.current.value = "";
-            }
+        if (inputRef && inputRef.current) {
+            inputRef.current.value = formValues.text;
         }
     });
 
@@ -96,12 +99,12 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
         }
 
         if (event.ctrlKey) {
-            if (sendMessageButton === SendMessageButton.CTRL_ENTER) {
+            if (sendMessageButton === SendMessageButtonType.CTRL_ENTER) {
                 submitForm();
             } else {
                 insertNewLineOnCursorPosition();
             }
-        } else if (sendMessageButton === SendMessageButton.ENTER) {
+        } else if (sendMessageButton === SendMessageButtonType.ENTER) {
             submitForm();
         } else {
             insertNewLineOnCursorPosition();
@@ -162,13 +165,10 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
                                        </Fragment>
                                        {formValues.text.length !== 0 || attachmentsIds.length !== 0
                                            ? (
-                                               <IconButton
-                                                   onClick={submitForm}
-                                                   color="primary"
-                                                   disabled={pending}
-                                                   size="large">
-                                                   <Send/>
-                                               </IconButton>
+                                              <SendMessageButton onClick={submitForm}
+                                                                 onOpenPreviewClick={() => setMarkdownPreviewDialogOpen(true)}
+                                                                 disabled={pending}
+                                              />
                                            )
                                            : (
                                                <Tooltip title={l("feature.not-available")}>
@@ -192,6 +192,7 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
                     />
                 )}
             </Hidden>
+            <MarkdownPreviewDialog text={formValues.text}/>
         </Fragment>
     );
 });
