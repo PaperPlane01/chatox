@@ -1,14 +1,14 @@
 import {Labels} from "../types";
 
 export const ru: Labels = {
-    "blacklist.users": "Заблокированные пользователи",
-    "blacklist.users.add": "Заблокировать пользователя",
-    "blacklist.users.add.error": "Не удалось заблокировать пользователя, сервер ответил со статусом {errorStatus}",
-    "blacklist.users.add.success": "Пользователь {username} был заблокирован",
-    "blacklist.users.error": "Не удалось загрузить список заблокированных пользователей, сервер ответил со статусом {errorStatus}",
-    "blacklist.users.remove": "Разблокировать пользователя",
-    "blacklist.users.remove.error": "Не удалось разблокировать пользователя, сервер ответил со статусом {errorStatus}",
-    "blacklist.users.remove.success": "Пользователь {username} был разблокирован",
+    "blacklist.users": "Пользователи в чёрном списке",
+    "blacklist.users.add": "Добавить пользователя в ЧС",
+    "blacklist.users.add.error": "Не удалось добавить пользователя в ЧС, сервер ответил со статусом {errorStatus}",
+    "blacklist.users.add.success": "Пользователь {username} был добавлен в ЧС",
+    "blacklist.users.error": "Не удалось загрузить список пользователей в чёрном списке, сервер ответил со статусом {errorStatus}",
+    "blacklist.users.remove": "Удалить пользователя из ЧС",
+    "blacklist.users.remove.error": "Не удалось удалить пользователя из ЧС, сервер ответил со статусом {errorStatus}",
+    "blacklist.users.remove.success": "Пользователь {username} был удалён из ЧС",
     "cancel": "Отменить",
     "change-password": "Сменить пароль",
     "change-password.confirm-password": "Повторите новый парль",
@@ -550,5 +550,7 @@ export const ru: Labels = {
     "theme.red": "Красный",
     "theme.darkBlue": "Тёмно-синий",
     "theme.lightBlue": "Голубой",
-    "settings.chat.virtual-scroll.enable-partial-virtualization": "Включить частичную виртуализацию"
+    "settings.chat.virtual-scroll.enable-partial-virtualization": "Включить частичную виртуализацию",
+    "message.send": "Отправить",
+    "message.preview": "Превью"
 };

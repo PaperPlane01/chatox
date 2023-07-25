@@ -27,7 +27,8 @@ class EmojiParserServiceImpl(private val loadBalancerClient: LoadBalancerClient)
                 log.debug("Found instance of emoji-parser-service")
                 val host = emojiParserInstance.host
                 val port = emojiParserInstance.port
-                val url = "http://${host}:${port}/api/v1/emoji-parser"
+                val scheme = emojiParserInstance.scheme
+                val url = "$scheme://${host}:${port}/api/v1/emoji-parser"
 
                 val webClient = WebClient.create()
 
@@ -46,18 +47,17 @@ class EmojiParserServiceImpl(private val loadBalancerClient: LoadBalancerClient)
                                     )
                             ))
                             .retrieve()
-                            .bodyToMono<EmojiInfo>(EmojiInfo::class.java)
+                            .bodyToMono(EmojiInfo::class.java)
                             .awaitFirst()
                 } catch (exception: Exception) {
                     // Ignore exception and return empty result as client
                     // app will be able to use its fallback method to render emoji
                     // even without this info
-                    log.error("Error occurred when tried to fetch result from emoji-parser-service")
-                    exception.printStackTrace()
+                    log.error("Error occurred when tried to fetch result from emoji-parser-service", exception)
                 }
             }
 
-            result
+            return@mono result
         }
     }
 

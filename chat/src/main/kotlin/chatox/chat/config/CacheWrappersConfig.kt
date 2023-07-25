@@ -4,6 +4,7 @@ import chatox.chat.model.Chat
 import chatox.chat.model.ChatBlocking
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
+import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.Message
 import chatox.chat.model.User
 import chatox.chat.model.UserBlacklistItem
@@ -11,11 +12,13 @@ import chatox.chat.repository.mongodb.ChatBlockingMongoRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.ChatRoleRepository
+import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.UserBlacklistItemRepository
 import chatox.chat.repository.mongodb.UserRepository
-import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.DefaultReactiveRepositoryCacheWrapper
+import chatox.platform.cache.ReactiveCacheService
+import chatox.platform.cache.redis.RedisReactiveCacheService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
@@ -71,6 +74,12 @@ class CacheWrappersConfig {
     @Autowired
     private lateinit var chatParticipationCacheService: ReactiveCacheService<ChatParticipation, String>
 
+    @Autowired
+    private lateinit var chatUploadAttachmentRepository: ChatUploadAttachmentRepository
+
+    @Autowired
+    private lateinit var chatUploadAttachmentCacheService: RedisReactiveCacheService<ChatUploadAttachment<*>>
+
     @Bean
     @Qualifier(CHAT_BY_ID_CACHE_WRAPPER)
     fun chatByIdCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(chatByIdCacheService, chatRepository)
@@ -91,10 +100,16 @@ class CacheWrappersConfig {
     fun chatBlockingCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(chatBlockingCacheService, chatBlockingRepository)
 
     @Bean
-    fun userCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(userCacheService, userRepository)
+    fun userCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(
+            userCacheService,
+            userRepository
+    ) { user -> user.id }
 
     @Bean
-    fun messageCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(messageCacheService, messageRepository)
+    fun messageCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(
+            messageCacheService,
+            messageRepository
+    ) { message -> message.id }
 
     @Bean
     fun userBlacklistItemCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(userBlacklistItemCacheService, userBlacklistItemRepository)
@@ -105,6 +120,12 @@ class CacheWrappersConfig {
 
     @Bean
     fun chatParticipationCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(chatParticipationCacheService, chatParticipationRepository)
+
+    @Bean
+    fun chatUploadAttachmentCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(
+            chatUploadAttachmentCacheService,
+            chatUploadAttachmentRepository
+    ) { chatUploadAttachment -> chatUploadAttachment.id }
 
     companion object {
         const val CHAT_ROLE_CACHE_WRAPPER = "chatRoleCacheWrapper"

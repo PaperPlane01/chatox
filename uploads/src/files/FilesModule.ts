@@ -2,22 +2,18 @@ import {Module} from "@nestjs/common";
 import {MongooseModule} from "@nestjs/mongoose";
 import {FilesUploadController} from "./FilesUploadController";
 import {FilesUploadService} from "./FilesUploadService";
-import {UploadMapper} from "../common/mappers";
-import {uploadSchemaFactory} from "../mongoose/schemas";
+import {uploadSchemaFactory, UploadsModule} from "../uploads";
 
 @Module({
     controllers: [FilesUploadController],
     providers: [
-        FilesUploadService,
-        {
-            provide: UploadMapper,
-            useValue: new UploadMapper()
-        }
+        FilesUploadService
     ],
     imports: [
         MongooseModule.forFeatureAsync([
             uploadSchemaFactory
-        ])
+        ]),
+        UploadsModule
     ]
 })
 export class FilesModule {}

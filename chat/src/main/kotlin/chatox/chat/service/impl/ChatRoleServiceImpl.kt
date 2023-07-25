@@ -58,6 +58,27 @@ class ChatRoleServiceImpl(
                 .map { tuple -> tuple.t1 }
     }
 
+    override fun getRolesOfUsersInChat(usersIds: List<String>, chatId: String): Mono<Map<String, ChatRole>> {
+        return mono {
+            val chatParticipations = chatParticipationRepository.findByChatIdAndUserIdInAndDeletedFalse(
+                    chatId = chatId,
+                    userIds = usersIds
+            )
+                    .collectList()
+                    .awaitFirst()
+            val chatRoles = chatRoleCacheService
+                    .findByIds(chatParticipations.map { it.roleId })
+                    .collectList()
+                    .awaitFirst()
+                    .associateBy { chatRole -> chatRole.id }
+
+            return@mono chatParticipations
+                    .associate {
+                        chatParticipation -> chatParticipation.user.id to chatRoles[chatParticipation.roleId]!!
+                    }
+        }
+    }
+
     override fun getRoleAndChatParticipationOfUserInChat(userId: String, chatId: String): Mono<NTuple2<ChatRole, ChatParticipation>> {
         return mono {
             val chatParticipation = chatParticipationRepository.findByChatIdAndUserIdAndDeletedFalse(chatId, userId).awaitFirstOrNull()

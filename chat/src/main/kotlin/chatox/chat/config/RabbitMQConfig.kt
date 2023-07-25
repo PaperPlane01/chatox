@@ -127,6 +127,9 @@ class RabbitMQConfig {
     fun fileCreated() = Queue("chat_service_file_created")
 
     @Bean
+    fun uploadDeleted() = Queue("chat_service_upload_deleted")
+
+    @Bean
     fun imageCreatedBinding(): Binding = BindingBuilder
             .bind(imageCreated())
             .to(uploadEvents())
@@ -155,6 +158,12 @@ class RabbitMQConfig {
             .bind(fileCreated())
             .to(uploadEvents())
             .with("upload.file.created.#")
+
+    @Bean
+    fun uploadDeletedBinding(): Binding = BindingBuilder
+            .bind(uploadDeleted())
+            .to(uploadEvents())
+            .with("upload.deleted.#")
 
     @Bean
     fun stickerEvents() = TopicExchange("sticker.events")

@@ -285,7 +285,13 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     description = updateChatRequest.description
             )
 
-            chat = chatRepository.save(chat).awaitFirst()
+            return@mono updateChat(chat).awaitFirst()
+        }
+    }
+
+    override fun updateChat(chat: Chat): Mono<ChatResponse> {
+        return mono {
+            chatRepository.save(chat).awaitFirst()
             val chatUpdatedEvent = chatMapper.toChatUpdated(chat)
             chatEventsPublisher.chatUpdated(chatUpdatedEvent)
 

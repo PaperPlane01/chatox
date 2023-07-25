@@ -6,6 +6,7 @@ import chatox.chat.api.response.ChatRoleResponse
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.UserResponse
 import chatox.chat.config.CacheWrappersConfig
+import chatox.chat.messaging.rabbitmq.event.MessageCreated
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
@@ -17,10 +18,13 @@ import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Sticker
 import chatox.chat.model.Upload
 import chatox.chat.service.UserService
+import chatox.chat.util.NTuple4
+import chatox.chat.util.NTuple5
 import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.jwt.JwtPayload
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
@@ -84,57 +88,16 @@ class MessageMapper(private val userService: UserService,
             localChatRolesCache: MutableMap<String, ChatRoleResponse>? = null
     ): Mono<MessageResponse> {
         return mono {
-            var referredMessage: MessageResponse? = null
-
-            if (message.referredMessageId != null && mapReferredMessage) {
-                if (localReferredMessagesCache != null && localReferredMessagesCache[message.referredMessageId!!] != null) {
-                    referredMessage = localReferredMessagesCache[message.referredMessageId!!]!!
-                } else {
-                    val referredMessageEntity = messageCacheWrapper.findById(message.referredMessageId!!).awaitFirst()
-                    referredMessage = toMessageResponse(
-                            message = referredMessageEntity,
-                            localUsersCache = localUsersCache,
-                            localReferredMessagesCache = null,
-                            readByCurrentUser = readByCurrentUser,
-                            mapReferredMessage = false
-                    )
-                            .awaitFirst()
-
-                    putInLocalCache(referredMessage, localReferredMessagesCache) { it.id }
-                }
-            }
-
-            val sender: UserResponse = if (localUsersCache != null && localUsersCache[message.senderId] != null) {
-                localUsersCache[message.senderId]!!
-            } else {
-                userService.findUserByIdAndPutInLocalCache(message.senderId, localUsersCache)
-                        .awaitFirst()
-            }
-
-            var pinnedBy: UserResponse? = null
-
-            if (message.pinnedById != null) {
-                pinnedBy = if (localUsersCache != null && localUsersCache[message.pinnedById!!] != null) {
-                    localUsersCache[message.pinnedById!!]
-                } else {
-                    userService.findUserByIdAndPutInLocalCache(message.pinnedById!!, localUsersCache).awaitFirst()
-                }
-            }
-
-            val chatParticipation = if (localChatParticipationsCache != null && localChatParticipationsCache[message.chatParticipationId!!] != null) {
-                localChatParticipationsCache[message.chatParticipationId!!]!!
-            } else {
-                chatParticipationCacheWrapper.findById(message.chatParticipationId!!).awaitFirst()
-            }
-
-            val chatRole = if (localChatRolesCache != null && localChatRolesCache[chatParticipation.roleId] != null) {
-                localChatRolesCache[chatParticipation.roleId]!!
-            } else {
-                putInLocalCache(
-                        chatRoleMapper.toChatRoleResponse(chatRoleCacheWrapper.findById(chatParticipation.roleId).awaitFirst()),
-                        localChatRolesCache
-                ) { it.id }
-            }
+            val (referredMessage, sender, pinnedBy, chatRole) = getDataForMessageResponse(
+                    message = message,
+                    mapReferredMessage = mapReferredMessage,
+                    readByCurrentUser = readByCurrentUser,
+                    localReferredMessagesCache = localReferredMessagesCache,
+                    localUsersCache = localUsersCache,
+                    localChatParticipationsCache = localChatParticipationsCache,
+                    localChatRolesCache = localChatRolesCache
+            )
+                    .awaitFirst()
 
             return@mono MessageResponse(
                     id = message.id,
@@ -164,6 +127,169 @@ class MessageMapper(private val userService: UserService,
                     scheduledAt = message.scheduledAt,
                     senderChatRole = chatRole
             )
+        }
+    }
+
+    fun <T: MessageInterface> toMessageCreated(
+            message: T,
+            mapReferredMessage: Boolean,
+            readByCurrentUser: Boolean,
+            localReferredMessagesCache: MutableMap<String, MessageResponse>? = null,
+            localUsersCache: MutableMap<String, UserResponse>? = null,
+            localChatParticipationsCache: MutableMap<String, ChatParticipation>? = null,
+            localChatRolesCache: MutableMap<String, ChatRoleResponse>? = null,
+            fromScheduled: Boolean = false
+    ): Mono<MessageCreated> {
+        return mono {
+            val (referredMessage, sender, pinnedBy, chatRole) = getDataForMessageResponse(
+                    message = message,
+                    mapReferredMessage = mapReferredMessage,
+                    readByCurrentUser = readByCurrentUser,
+                    localReferredMessagesCache = localReferredMessagesCache,
+                    localUsersCache = localUsersCache,
+                    localChatParticipationsCache = localChatParticipationsCache,
+                    localChatRolesCache = localChatRolesCache
+            )
+                    .awaitFirst()
+
+            return@mono MessageCreated(
+                    id = message.id,
+                    deleted = message.deleted,
+                    createdAt = message.createdAt,
+                    sender = sender,
+                    text = message.text,
+                    readByCurrentUser = readByCurrentUser,
+                    referredMessage = referredMessage,
+                    updatedAt = message.updatedAt,
+                    chatId = message.chatId,
+                    emoji = message.emoji,
+                    attachments = message.attachments.map { attachment ->
+                        uploadMapper.toUploadResponse(
+                                attachment
+                        )
+                    },
+                    index = message.index,
+                    pinned = message.pinned,
+                    pinnedAt = message.pinnedAt,
+                    pinnedBy = pinnedBy,
+                    sticker = if (message.sticker != null) {
+                        stickerMapper.toStickerResponse(message.sticker!!)
+                    } else {
+                        null
+                    },
+                    scheduledAt = message.scheduledAt,
+                    senderChatRole = chatRole,
+                    fromScheduled = fromScheduled
+            )
+        }
+    }
+
+    private fun <T: MessageInterface> getDataForMessageResponse(
+            message: T,
+            mapReferredMessage: Boolean,
+            readByCurrentUser: Boolean,
+            localReferredMessagesCache: MutableMap<String, MessageResponse>? = null,
+            localUsersCache: MutableMap<String, UserResponse>? = null,
+            localChatParticipationsCache: MutableMap<String, ChatParticipation>? = null,
+            localChatRolesCache: MutableMap<String, ChatRoleResponse>? = null
+    ): Mono<NTuple4<MessageResponse?, UserResponse, UserResponse?, ChatRoleResponse>> {
+        return mono {
+            val referredMessage: MessageResponse? = if (!mapReferredMessage || message.referredMessageId == null) {
+                null
+            } else {
+                getReferredMessage(message, readByCurrentUser, localReferredMessagesCache, localUsersCache).awaitFirst()
+            }
+            val sender: UserResponse = getUser(message.senderId, localUsersCache).awaitFirst()
+            val pinnedBy: UserResponse? = getOptionalUser(message.pinnedById, localUsersCache).awaitFirstOrNull()
+            val chatParticipation = getChatParticipation(message.chatParticipationId!!, localChatParticipationsCache)
+                    .awaitFirst()
+            val chatRole = getChatRole(chatParticipation.roleId, localChatRolesCache).awaitFirst()
+
+            return@mono NTuple4(referredMessage, sender, pinnedBy, chatRole)
+        }
+    }
+
+    private fun <T: MessageInterface> getReferredMessage(
+            message: T,
+            readByCurrentUser: Boolean,
+            localReferredMessagesCache: MutableMap<String, MessageResponse>?,
+            localUsersCache: MutableMap<String, UserResponse>?,
+    ): Mono<MessageResponse> {
+        return mono {
+            if (localReferredMessagesCache != null && localReferredMessagesCache[message.referredMessageId!!] != null) {
+                return@mono localReferredMessagesCache[message.referredMessageId!!]!!
+            } else {
+                val referredMessageEntity = messageCacheWrapper.findById(message.referredMessageId!!).awaitFirst()
+                val referredMessage = toMessageResponse(
+                        message = referredMessageEntity,
+                        localUsersCache = localUsersCache,
+                        localReferredMessagesCache = null,
+                        readByCurrentUser = readByCurrentUser,
+                        mapReferredMessage = false
+                )
+                        .awaitFirst()
+
+                return@mono putInLocalCache(referredMessage, localReferredMessagesCache) { it.id }
+            }
+        }
+    }
+
+    private fun getUser(id: String, localUsersCache: MutableMap<String, UserResponse>?): Mono<UserResponse> {
+        return mono {
+            if (localUsersCache != null && localUsersCache.containsKey(id)) {
+                return@mono localUsersCache[id]!!
+            }
+
+            return@mono userService
+                    .findUserByIdAndPutInLocalCache(id, localUsersCache)
+                    .awaitFirst()
+        }
+    }
+
+    private fun getOptionalUser(id: String?, localUsersCache: MutableMap<String, UserResponse>?): Mono<UserResponse?> {
+        return mono {
+            if (id == null) {
+                return@mono null
+            }
+
+            if (localUsersCache != null && localUsersCache.containsKey(id)) {
+                return@mono localUsersCache[id]!!
+            }
+
+            return@mono userService
+                    .findUserByIdAndPutInLocalCache(id, localUsersCache)
+                    .awaitFirstOrNull()
+        }
+    }
+
+    private fun getChatParticipation(
+            id: String,
+            localChatParticipationsCache: MutableMap<String, ChatParticipation>?
+    ): Mono<ChatParticipation> {
+        return mono {
+            if (localChatParticipationsCache != null && localChatParticipationsCache.containsKey(id)) {
+                return@mono localChatParticipationsCache[id]!!
+            }
+
+            val chatParticipation = chatParticipationCacheWrapper.findById(id).awaitFirst()
+
+            return@mono putInLocalCache(chatParticipation, localChatParticipationsCache) { it.id }
+        }
+    }
+
+    private fun getChatRole(
+            id: String,
+            localChatRolesCache: MutableMap<String, ChatRoleResponse>?
+    ): Mono<ChatRoleResponse> {
+        return mono {
+            if (localChatRolesCache != null && localChatRolesCache.containsKey(id)) {
+                return@mono localChatRolesCache[id]!!
+            }
+
+            return@mono putInLocalCache(
+                    chatRoleMapper.toChatRoleResponse(chatRoleCacheWrapper.findById(id).awaitFirst()),
+                    localChatRolesCache
+            ) { it.id }
         }
     }
 
@@ -261,11 +387,15 @@ class MessageMapper(private val userService: UserService,
 
     fun mapMessageUpdate(updateMessageRequest: UpdateMessageRequest,
                          originalMessage: Message,
-                         emojis: EmojiInfo = originalMessage.emoji
+                         emojis: EmojiInfo = originalMessage.emoji,
+                         uploads: List<Upload<*>>? = null,
+                         chatUploadsIds: List<String>? = null
     ) = originalMessage.copy(
             text = updateMessageRequest.text,
             updatedAt = ZonedDateTime.now(),
-            emoji = emojis
+            emoji = emojis,
+            attachments = uploads ?: originalMessage.attachments,
+            uploadAttachmentsIds = chatUploadsIds ?: originalMessage.uploadAttachmentsIds
     )
 
     fun mapScheduledMessageUpdate(updateMessageRequest: UpdateMessageRequest,

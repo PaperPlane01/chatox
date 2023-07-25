@@ -1,33 +1,20 @@
-import {
-    Controller,
-    Get,
-    Param,
-    Post,
-    Query,
-    Res,
-    UploadedFile,
-    UseGuards,
-    UseInterceptors
-} from "@nestjs/common";
+import {Controller, Get, Param, Post, Query, Res, UploadedFile, UseInterceptors} from "@nestjs/common";
 import {FileInterceptor} from "@nestjs/platform-express";
-import {AuthGuard} from "@nestjs/passport";
 import {Response} from "express";
 import {ImagesUploadService} from "./ImagesUploadService";
 import {ImageSizeRequest} from "./types/request";
 import {MultipartFile} from "../common/types/request";
-import {UploadInfoResponse} from "../common/types/response";
-import {GifUploadMetadata, ImageUploadMetadata} from "../mongoose/entities";
 import {config} from "../config";
-import {HasAnyRole} from "../common/security";
 import {RejectEmptyInterceptor} from "../common/interceptors";
-import {RolesGuard} from "../auth";
+import {CurrentUser, HasRole, User} from "../auth";
+import {UploadResponse} from "../uploads/types/responses";
+import {GifUploadMetadata, ImageUploadMetadata} from "../uploads";
 
 @Controller("api/v1/uploads/images")
 export class ImagesUploadController {
     constructor(private readonly imagesUploadService: ImagesUploadService) {}
 
-    @UseGuards(AuthGuard("jwt"), RolesGuard)
-    @HasAnyRole("ROLE_USER", "ROLE_ANONYMOUS_USER")
+    @HasRole("ROLE_USER", "ROLE_ANONYMOUS_USER")
     @UseInterceptors(
         RejectEmptyInterceptor,
         FileInterceptor(
@@ -40,8 +27,9 @@ export class ImagesUploadController {
         )
     )
     @Post()
-    public async uploadImage(@UploadedFile() file: MultipartFile): Promise<UploadInfoResponse<ImageUploadMetadata | GifUploadMetadata>> {
-        return this.imagesUploadService.uploadImage(file);
+    public async uploadImage(@UploadedFile() file: MultipartFile,
+                             @CurrentUser() currentUser: User): Promise<UploadResponse<ImageUploadMetadata | GifUploadMetadata>> {
+        return this.imagesUploadService.uploadImage(file, currentUser);
     }
 
     @Get(":imageName")

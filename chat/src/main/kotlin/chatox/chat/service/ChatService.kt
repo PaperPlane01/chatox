@@ -18,6 +18,7 @@ interface ChatService {
     fun createChat(createChatRequest: CreateChatRequest): Mono<ChatOfCurrentUserResponse>
     fun createPrivateChat(createPrivateChatRequest: CreatePrivateChatRequest): Mono<ChatOfCurrentUserResponse>
     fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse>
+    fun updateChat(chat: Chat): Mono<ChatResponse>
     fun deleteChat(id: String, deleteChatRequest: DeleteChatRequest?): Mono<Void>
     fun findChatBySlugOrId(slugOrId: String): Mono<ChatResponse>
     fun searchChats(query: String, paginationRequest: PaginationRequest): Flux<ChatResponse>

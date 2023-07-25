@@ -1,6 +1,7 @@
 package chatox.chat.security.access
 
 import chatox.chat.api.request.CreateMessageRequest
+import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatType
 import chatox.chat.model.MessageUploadsCount
 import chatox.chat.model.SendMessagesFeatureAdditionalData
@@ -11,6 +12,9 @@ import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatRoleService
 import chatox.chat.service.ChatService
 import chatox.chat.service.MessageService
+import chatox.chat.util.Bound
+import chatox.chat.util.BoundMode
+import chatox.chat.util.isBetween
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
@@ -105,15 +109,37 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 return@mono true
             }
 
-            val features = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()?.features
+            val chatRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
 
             if (message.sender.id == currentUser.id) {
-                return@mono features.deleteOwnMessages.enabled
+                return@mono chatRole.features.deleteOwnMessages.enabled
             } else {
-                return@mono false
+                val otherUserRole = chatRoleService.getRoleOfUserInChat(
+                        userId = message.sender.id,
+                        chatId = chatId
+                )
+                        .awaitFirstOrNull() ?: return@mono true
+
+                return@mono canDeleteOtherUserMessage(chatRole, otherUserRole)
             }
         }
+    }
+
+    fun canDeleteOtherUserMessage(currentUserRole: ChatRole, otherUserRole: ChatRole): Boolean {
+        if (!currentUserRole.features.deleteOtherUsersMessages.enabled) {
+            return false
+        }
+
+        if (!otherUserRole.features.messageDeletionsImmunity.enabled) {
+            return true
+        }
+
+        return isBetween(
+                currentUserRole.level,
+                Bound(otherUserRole.features.messageDeletionsImmunity.additional.fromLevel, BoundMode.INCLUSIVE),
+                Bound(otherUserRole.features.messageDeletionsImmunity.additional.upToLevel, BoundMode.INCLUSIVE)
+        )
     }
 
     fun canPinMessage(messageId: String, chatId: String): Mono<Boolean> {

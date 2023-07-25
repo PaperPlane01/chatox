@@ -17,8 +17,7 @@ import {
     MessagesListWrapper,
     PinMessageSnackbarManager,
     ScheduleMessageDialog,
-    UnpinMessageSnackbarManager,
-    UpdateMessageDialog
+    UnpinMessageSnackbarManager
 } from "../Message";
 import {
     BlockUserInChatByIdOrSlugDialog,
@@ -77,7 +76,6 @@ export const ChatPage: FunctionComponent = observer(() => {
                 <BlockUserInChatByIdOrSlugDialog/>
                 <UpdateChatDialog/>
                 <MessageDialog/>
-                <UpdateMessageDialog/>
                 <AttachedFilesDialog/>
                 <ConfirmChatDeletionDialog/>
                 <SpecifyChatDeletionReasonDialog/>

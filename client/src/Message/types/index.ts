@@ -7,4 +7,6 @@ export * from "./UploadsGroupedByType";
 export * from "./UpdateScheduledMessageFormData";
 export * from "./MessageInsertOptions";
 export * from "./MessagesListRefs";
+export * from "./MessageFormData";
+
 

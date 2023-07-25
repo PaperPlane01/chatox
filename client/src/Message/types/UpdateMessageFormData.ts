@@ -1,3 +1,5 @@
-export interface UpdateMessageFormData {
-    text: string
+import {MessageFormData} from "./MessageFormData";
+
+export interface UpdateMessageFormData extends MessageFormData {
+
 }

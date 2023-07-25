@@ -6,13 +6,13 @@ import {createReadStream, promises as fileSystem} from "fs";
 import path from "path";
 import {fromFile} from "file-type";
 import contentDisposition from "content-disposition";
-import {AudioUploadMetadata, Upload, UploadType} from "../mongoose/entities";
-import {UploadMapper} from "../common/mappers";
 import {MultipartFile} from "../common/types/request";
-import {UploadInfoResponse} from "../common/types/response";
 import {config} from "../config";
-import {CurrentUserHolder} from "../context/CurrentUserHolder";
 import {FfmpegWrapper} from "../ffmpeg";
+import {AudioUploadMetadata, Upload, UploadDocument, UploadType} from "../uploads";
+import {UploadMapper} from "../uploads/mappers";
+import {UploadResponse} from "../uploads/types/responses";
+import {User} from "../auth";
 
 const SUPPORTED_AUDIO_FORMATS = [
     "mp3",
@@ -24,52 +24,47 @@ const isAudioFormatSupported = (format: string): boolean => SUPPORTED_AUDIO_FORM
 
 @Injectable()
 export class AudiosUploadService {
-    constructor(@InjectModel("upload") private readonly uploadModel: Model<Upload<AudioUploadMetadata>>,
+    constructor(@InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<AudioUploadMetadata>>,
                 private readonly uploadMapper: UploadMapper,
-                private readonly currentUserHolder: CurrentUserHolder,
                 private readonly ffmpegFactory: FfmpegWrapper) {
 
     }
 
-    public async uploadAudio(multipartFile: MultipartFile, originalName?: string): Promise<UploadInfoResponse<AudioUploadMetadata>> {
-        return new Promise<UploadInfoResponse<AudioUploadMetadata>>(async (resolve, reject) => {
-            const currentUser = this.currentUserHolder.getCurrentUser();
-            const id = new Types.ObjectId().toHexString();
-            const temporaryFilePath = path.join(config.AUDIOS_DIRECTORY, `${id}.tmp`);
-            const fileHandle = await fileSystem.open(temporaryFilePath, "w");
-            await fileSystem.writeFile(fileHandle, multipartFile.buffer);
-            await fileHandle.close();
+    public async uploadAudio(multipartFile: MultipartFile, currentUser: User, originalName?: string): Promise<UploadResponse<AudioUploadMetadata>> {
+        const id = new Types.ObjectId();
+        const temporaryFilePath = path.join(config.AUDIOS_DIRECTORY, `${id.toHexString()}.tmp`);
+        const fileHandle = await fileSystem.open(temporaryFilePath, "w");
+        await fileSystem.writeFile(fileHandle, multipartFile.buffer);
+        await fileHandle.close();
 
-            const fileInfo = await fromFile(temporaryFilePath);
+        const fileInfo = await fromFile(temporaryFilePath);
 
-            if (!isAudioFormatSupported(fileInfo.ext)) {
-                reject(new HttpException(
-                    `Audio format ${fileInfo.ext} is not supported`,
-                    HttpStatus.BAD_REQUEST
-                ));
-            }
+        if (!isAudioFormatSupported(fileInfo.ext)) {
+            throw new HttpException(
+                `Audio format ${fileInfo.ext} is not supported`,
+                HttpStatus.BAD_REQUEST
+            );
+        }
 
-            const permanentFilePath = path.join(config.AUDIOS_DIRECTORY, `${id}.${fileInfo.ext}`);
-            await fileSystem.rename(temporaryFilePath, permanentFilePath);
+        const permanentFilePath = path.join(config.AUDIOS_DIRECTORY, `${id}.${fileInfo.ext}`);
+        await fileSystem.rename(temporaryFilePath, permanentFilePath);
 
-            const meta = await this.getAudioMetadata(permanentFilePath);
+        const meta = await this.getAudioMetadata(permanentFilePath);
 
-            const audio: Upload<AudioUploadMetadata> = new this.uploadModel({
-                id,
-                name: `${id}.${fileInfo.ext}`,
-                originalName: originalName ? originalName : multipartFile.originalname,
-                size: multipartFile.size,
-                mimeType: fileInfo.mime,
-                extension: fileInfo.ext,
-                isThumbnail: false,
-                isPreview: false,
-                meta,
-                type: UploadType.AUDIO,
-                userId: currentUser!.id
-            });
-            await audio.save();
-            resolve(this.uploadMapper.toUploadInfoResponse(audio));
-        })
+        const audio = new Upload({
+            _id: id,
+            name: `${id.toHexString()}.${fileInfo.ext}`,
+            originalName: originalName ? originalName : multipartFile.originalname,
+            size: multipartFile.size,
+            mimeType: fileInfo.mime,
+            extension: fileInfo.ext,
+            meta,
+            type: UploadType.AUDIO,
+            userId: currentUser.id
+        });
+        await new this.uploadModel(audio).save();
+
+        return this.uploadMapper.toUploadResponse(audio);
     }
 
     private getAudioMetadata(audioPath: string): Promise<AudioUploadMetadata> {
@@ -85,8 +80,8 @@ export class AudiosUploadService {
                         duration: data.format.duration * 1000,
                         bitrate: Number(data.format.bit_rate)
                     })
-                })
-        })
+                });
+        });
     }
 
     public async getAudio(audioName: string, response: Response): Promise<void> {

@@ -1,44 +1,26 @@
-import {makeAutoObservable, reaction, runInAction} from "mobx";
+import {action, computed, makeObservable, observable} from "mobx";
+import {RouterStore} from "mobx-router";
+import {AbstractMessageFormStore} from "./AbstractMessageFormStore";
 import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
 import {CreateMessageFormData} from "../types";
-import {validateMessageText} from "../validation";
 import {ChatStore} from "../../Chat";
 import {FormErrors} from "../../utils/types";
-import {ApiError, ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
+import {ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {Routes} from "../../router";
-import {RouterStore} from "mobx-router";
+import {createWithUndefinedValues} from "../../utils/object-utils";
 
-export class CreateMessageStore {
-    createMessageForm: CreateMessageFormData = {
-        text: "",
-        scheduledAt: undefined
-    };
+const INITIAL_FORM_VALUES: CreateMessageFormData = {
+    text: "",
+    scheduledAt: undefined,
+    referredMessageId: undefined
+};
+const INITIAL_FORM_ERRORS: FormErrors<CreateMessageFormData> = createWithUndefinedValues(INITIAL_FORM_VALUES);
 
-    formErrors: FormErrors<CreateMessageFormData> = {
-        text: undefined,
-        scheduledAt: undefined
-    };
-
-    pending: boolean = false;
-
-    submissionError?: ApiError = undefined;
-
+export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFormData> {
     referredMessageId?: string = undefined;
 
-    emojiPickerExpanded: boolean = false;
-
     userId?: string = undefined;
-
-    get selectedChatId(): string | undefined {
-        return this.chatStore.selectedChatId;
-    };
-
-    get attachmentsIds(): string[] {
-        return this.messageUploads.messageAttachmentsFiles
-            .filter(fileContainer => fileContainer.uploadedFile !== undefined && fileContainer.uploadedFile !== null)
-            .map(fileContainer => fileContainer.uploadedFile!.id!)
-    };
 
     get shouldSendReferredMessageId(): boolean {
         if (this.referredMessageId && this.selectedChatId) {
@@ -52,17 +34,20 @@ export class CreateMessageStore {
 
     private routerStore: RouterStore<any>;
 
-    constructor(private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStore,
-                private readonly messageUploads: UploadMessageAttachmentsStore) {
-        makeAutoObservable(this);
+    constructor(chatStore: ChatStore,
+                messageUploads: UploadMessageAttachmentsStore,
+                entities: EntitiesStore) {
+        super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS, chatStore, messageUploads, entities);
 
-        reaction(
-            () => this.createMessageForm.text,
-            text => runInAction(() => {
-                this.formErrors.text = validateMessageText(text, {acceptEmpty: this.attachmentsIds.length !== 0});
-            })
-        );
+        makeObservable<CreateMessageStore>(this, {
+            referredMessageId: observable,
+            userId: observable,
+            shouldSendReferredMessageId: computed,
+            submitForm: action,
+            setUserId: action,
+            setReferredMessageId: action,
+            sendSticker: action
+        });
     };
 
     setRouterStore = (routerStore: RouterStore<any>): void => {
@@ -77,17 +62,13 @@ export class CreateMessageStore {
         this.referredMessageId = referredMessageId;
     };
 
-    setFormValue = <Key extends keyof CreateMessageFormData>(key: Key, value: CreateMessageFormData[Key]): void => {
-        this.createMessageForm[key] = value;
-    };
-
     sendSticker = (stickerId: string): void => {
         if (!this.selectedChatId || this.pending) {
             return;
         }
 
         this.pending = true;
-        this.submissionError = undefined;
+        this.error = undefined;
 
         MessageApi.createMessage(this.selectedChatId, {
             text: "",
@@ -96,11 +77,11 @@ export class CreateMessageStore {
             stickerId
         })
             .then(({data}) => this.entities.messages.insert(data))
-            .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
-            .finally(() => runInAction(() => this.pending = false));
+            .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
+            .finally(() => this.setPending(false));
     };
 
-    createMessage = (): void => {
+    submitForm = (): void => {
         if (!this.selectedChatId ) {
             if (!this.userId) {
                 return;
@@ -112,18 +93,18 @@ export class CreateMessageStore {
         }
 
         this.pending = true;
-        this.submissionError = undefined;
+        this.error = undefined;
 
         if (this.selectedChatId) {
             const chatId = this.selectedChatId;
             MessageApi.createMessage(chatId, {
-                text: this.createMessageForm.text,
+                text: this.formValues.text,
                 referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined,
                 uploadAttachments: this.attachmentsIds,
-                scheduledAt: this.createMessageForm.scheduledAt ? this.createMessageForm.scheduledAt.toISOString() : undefined
+                scheduledAt: this.formValues.scheduledAt ? this.formValues.scheduledAt.toISOString() : undefined
             })
                 .then(({data}) => {
-                    if (!this.createMessageForm.scheduledAt) {
+                    if (!this.formValues.scheduledAt) {
                         this.entities.messages.insert(data);
                     } else {
                         if (this.routerStore) {
@@ -134,19 +115,19 @@ export class CreateMessageStore {
                         }
                     }
 
-                    this.resetForm();
+                    this.reset();
                 })
-                .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
-                .finally(() => runInAction(() => this.pending = false))
+                .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
+                .finally(() => this.setPending(false))
         } else if (this.userId) {
             const userId = this.userId;
             ChatApi.startPrivateChat({
                 userId,
                 message: {
-                    text: this.createMessageForm.text,
+                    text: this.formValues.text,
                     referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined,
                     uploadAttachments: this.attachmentsIds,
-                    scheduledAt: this.createMessageForm.scheduledAt ? this.createMessageForm.scheduledAt.toISOString() : undefined
+                    scheduledAt: this.formValues.scheduledAt ? this.formValues.scheduledAt.toISOString() : undefined
                 }
             })
                 .then(({data}) => {
@@ -158,36 +139,8 @@ export class CreateMessageStore {
                         }, {});
                     }
                 })
-                .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
-                .finally(() => runInAction(() => this.pending = false))
+                .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
+                .finally(() => this.setPending(false))
         }
-    };
-
-    validateForm = (): boolean => {
-        this.formErrors = {
-            ...this.formErrors,
-            text: validateMessageText(this.createMessageForm.text, {
-                acceptEmpty: this.attachmentsIds.length !== 0
-            })
-        };
-
-        return !this.formErrors.text;
-    };
-
-    resetForm = (): void => {
-        this.createMessageForm = {
-            text: ""
-        };
-        this.referredMessageId = undefined;
-        this.messageUploads.reset();
-        setTimeout(() => {
-            this.formErrors = {
-                text: undefined
-            }
-        })
-    };
-
-    setEmojiPickerExpanded = (emojiPickerExpanded: boolean): void => {
-        this.emojiPickerExpanded = emojiPickerExpanded;
     };
 }

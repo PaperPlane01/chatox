@@ -8,7 +8,7 @@ export class ScheduleMessageStore {
     scheduleMessageDialogOpen: boolean = false;
 
     get scheduledAt(): Date | undefined {
-        return this.createMessageStore.createMessageForm.scheduledAt;
+        return this.createMessageStore.formValues.scheduledAt;
     }
 
     get scheduledAtValidationError(): keyof Labels | undefined {
@@ -16,7 +16,7 @@ export class ScheduleMessageStore {
     }
 
     get submissionError(): ApiError | undefined {
-        return this.createMessageStore.submissionError;
+        return this.createMessageStore.error;
     }
 
     constructor(private readonly createMessageStore: CreateMessageStore) {

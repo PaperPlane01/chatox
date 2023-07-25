@@ -11,5 +11,5 @@ data class ChatUploadAttachmentResponse<UploadMetadataType>(
         val upload: UploadResponse<UploadMetadataType>,
         val createdAt: ZonedDateTime,
         val uploadCreator: UserResponse?,
-        val uploadSender: UserResponse
+        val uploadSender: UserResponse?
 )

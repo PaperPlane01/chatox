@@ -37,10 +37,14 @@ import chatox.chat.repository.mongodb.MessageReadRepository
 import chatox.chat.repository.mongodb.ScheduledMessageRepository
 import chatox.chat.repository.mongodb.StickerRepository
 import chatox.chat.repository.mongodb.UploadRepository
+import chatox.chat.service.ChatUploadAttachmentEntityService
 import chatox.chat.service.EmojiParserService
+import chatox.chat.service.MessageEntityService
 import chatox.chat.service.MessageService
+import chatox.chat.util.NTuple2
 import chatox.chat.util.NTuple7
 import chatox.chat.util.isDateBeforeOrEquals
+import chatox.chat.util.mapTo2Lists
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
@@ -52,14 +56,12 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 import java.util.UUID
 
 @Service
-@Transactional
 @LogExecution
 class MessageServiceImpl(
         private val messageRepository: MessageMongoRepository,
@@ -77,7 +79,10 @@ class MessageServiceImpl(
         @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val chatEventsPublisher: ChatEventsPublisher,
-        private val messageMapper: MessageMapper) : MessageService {
+        private val messageMapper: MessageMapper,
+        private val messageEntityService: MessageEntityService,
+        private val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService
+) : MessageService {
     private companion object {
         const val ALLOWED_NUMBER_OF_SCHEDULED_MESSAGES = 50
     }
@@ -122,7 +127,7 @@ class MessageServiceImpl(
             message = messageRepository.save(message).awaitFirst()
             linkChatUploadAttachmentsToMessage(uploadAttachments, message).collectList().awaitFirst()
 
-            val response = messageMapper.toMessageResponse(
+            val response = messageMapper.toMessageCreated(
                     message = message,
                     readByCurrentUser = true,
                     mapReferredMessage = true
@@ -131,11 +136,11 @@ class MessageServiceImpl(
 
             Mono.fromRunnable<Void>{ chatEventsPublisher.messageCreated(response) }.subscribe()
 
-            return@mono response
+            return@mono response.toMessageResponse()
         }
     }
 
-    private fun linkChatUploadAttachmentsToMessage(uploadAttachments: List<ChatUploadAttachment<Any>>, message: Message): Flux<ChatUploadAttachment<Any>> {
+    private fun linkChatUploadAttachmentsToMessage(uploadAttachments: List<ChatUploadAttachment<*>>, message: Message): Flux<ChatUploadAttachment<*>> {
         return mono {
             var result = uploadAttachments
 
@@ -308,6 +313,7 @@ class MessageServiceImpl(
 
     override fun updateMessage(id: String, chatId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
         return mono {
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             var message = findMessageEntityById(id).awaitFirst()
             val chat = findChatById(chatId).awaitFirst()
 
@@ -315,10 +321,56 @@ class MessageServiceImpl(
                 throw ChatDeletedException(chat.chatDeletion)
             }
 
+            val existingUploadsIds = message.attachments.map { upload -> upload.id }
+            val uploadIdsToDeleteFromAttachments = existingUploadsIds
+                    .filter { uploadId -> !updateMessageRequest.uploadAttachments.contains(uploadId) }
+            var chatUploadsIds = message.uploadAttachmentsIds.toMutableList()
+            var chatUploadsToRemove: List<ChatUploadAttachment<*>>? = null
+            var attachments = message.attachments.toMutableList()
+
+            if (uploadIdsToDeleteFromAttachments.isNotEmpty()) {
+                chatUploadsToRemove = chatUploadAttachmentRepository.findByMessageIdAndUploadIdIn(
+                        messageId = message.id,
+                        uploadsIds = uploadIdsToDeleteFromAttachments
+                )
+                        .collectList()
+                        .awaitFirst()
+                val attachmentsIdsToRemove = chatUploadsToRemove.map { attachment -> attachment.id }
+                chatUploadsIds = chatUploadsIds
+                        .filter { attachmentId -> !attachmentsIdsToRemove.contains(attachmentId) }
+                        .toMutableList()
+                attachments = attachments
+                        .filter { upload -> !uploadIdsToDeleteFromAttachments.contains(upload.id) }
+                        .toMutableList()
+            }
+
+            var newChatUploads: List<ChatUploadAttachment<*>>? = null
+            val newUploadsIds = updateMessageRequest.uploadAttachments
+                    .filter { uploadId -> !existingUploadsIds.contains(uploadId) }
+
+            if (newUploadsIds.isNotEmpty()) {
+                val newUploads = uploadRepository.findAllById<Any>(newUploadsIds).collectList().awaitFirst()
+                attachments.addAll(newUploads)
+                newChatUploads = newUploads.map { upload -> ChatUploadAttachment(
+                        id = UUID.randomUUID().toString(),
+                        chatId = chat.id,
+                        upload = upload,
+                        type = upload.type,
+                        uploadCreatorId = upload.userId,
+                        uploadSenderId = currentUser.id,
+                        messageId = null,
+                        createdAt = ZonedDateTime.now(),
+                        uploadId = upload.id
+                ) }
+                chatUploadsIds.addAll(newChatUploads.map { it.id })
+            }
+
             val originalMessageText = message.text
             message = messageMapper.mapMessageUpdate(
                     updateMessageRequest = updateMessageRequest,
-                    originalMessage = message
+                    originalMessage = message,
+                    uploads = attachments,
+                    chatUploadsIds = chatUploadsIds
             )
 
             if (originalMessageText != message.text) {
@@ -330,34 +382,38 @@ class MessageServiceImpl(
                 message = message.copy(emoji = emoji)
             }
 
-            message = messageRepository.save(message).awaitFirst()
+            if (newChatUploads != null) {
+                linkChatUploadAttachmentsToMessage(
+                        uploadAttachments = newChatUploads,
+                        message = message
+                )
+                        .collectList()
+                        .awaitFirst()
+            }
 
-            val response = messageMapper.toMessageResponse(
-                    message = message,
-                    mapReferredMessage = true,
-                    readByCurrentUser = true
-            )
-                    .awaitFirst()
+            if (chatUploadsToRemove != null) {
+                chatUploadAttachmentEntityService.deleteChatUploadAttachments(chatUploadsToRemove).awaitFirstOrNull()
+            }
 
-            Mono.fromRunnable<Void>{ chatEventsPublisher.messageUpdated(response) }.subscribe()
-
-            return@mono response
+            return@mono messageEntityService.updateMessage(message).awaitFirst()
         }
     }
 
     override fun deleteMessage(id: String, chatId: String): Mono<Void> {
         return mono {
-            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val message = findMessageEntityById(id).awaitFirst()
+            val uploadsIds = message.attachments.map { upload -> upload.id }
 
-            messageRepository.save(message.copy(
-                    deleted = true,
-                    deletedAt = ZonedDateTime.now(),
-                    deletedById = currentUser.id
-            ))
-                    .awaitFirst()
+            messageEntityService.deleteMessage(message).awaitFirstOrNull()
 
-            Mono.fromRunnable<Void>{ chatEventsPublisher.messageDeleted(chatId = message.chatId, messageId = message.id) }.subscribe()
+            if (uploadsIds.isNotEmpty()) {
+                val uploadsAttachments = chatUploadAttachmentRepository
+                        .findByUploadIdIn(uploadsIds)
+                        .collectList()
+                        .awaitFirst()
+                chatUploadAttachmentEntityService.deleteChatUploadAttachments(uploadsAttachments)
+                        .awaitFirstOrNull()
+            }
 
             return@mono Mono.empty<Void>()
         }
@@ -508,7 +564,7 @@ class MessageServiceImpl(
             val now = ZonedDateTime.now()
 
             if (chatParticipation.lastReadMessageCreatedAt == null
-                    || isDateBeforeOrEquals(chatParticipation.lastReadMessageCreatedAt!!, message.createdAt)) {
+                    || isDateBeforeOrEquals(chatParticipation.lastReadMessageCreatedAt, message.createdAt)) {
                 val messageRead = messageReadRepository.save(MessageRead(
                         id = UUID.randomUUID().toString(),
                         userId = currentUser.id,
@@ -538,7 +594,7 @@ class MessageServiceImpl(
                 return@mono chatParticipation
             }
         }
-                .flatMap { Mono.empty<Void>() }
+                .flatMap { Mono.empty() }
     }
 
     override fun pinMessage(id: String, chatId: String): Mono<MessageResponse> {
@@ -676,16 +732,18 @@ class MessageServiceImpl(
             messageRepository.save(message).awaitFirst()
             scheduledMessageRepository.delete(scheduledMessage).awaitFirstOrNull()
 
-            val messageResponse = messageMapper.toMessageResponse(
+            val messageCreated = messageMapper.toMessageCreated(
                     message = message,
                     localUsersCache = localUsersCache,
                     localReferredMessagesCache = localReferredMessagesCache,
                     readByCurrentUser = true,
-                    mapReferredMessage = true
+                    mapReferredMessage = true,
+                    fromScheduled = true
             )
                     .awaitFirst()
+            val messageResponse = messageCreated.toMessageResponse()
 
-            chatEventsPublisher.messageCreated(messageResponse)
+            chatEventsPublisher.messageCreated(messageCreated)
             chatEventsPublisher.scheduledMessagePublished(messageResponse)
 
             return@mono messageResponse
@@ -777,22 +835,30 @@ class MessageServiceImpl(
 
     override fun deleteMultipleMessages(deleteMultipleMessagesRequest: DeleteMultipleMessagesRequest): Mono<Void> {
         return mono {
-            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            var messages = messageRepository.findAllById(deleteMultipleMessagesRequest.messagesIds)
+            val messages = messageRepository.findAllById(deleteMultipleMessagesRequest.messagesIds)
                     .collectList()
                     .awaitFirst()
 
-            messages = messages.map { message -> message.copy(
-                    deleted = true,
-                    deletedAt = ZonedDateTime.now(),
-                    deletedById = currentUser.id
-            ) }
+            messageEntityService.deleteMultipleMessages(messages).awaitFirstOrNull()
 
-            messageRepository.saveAll(messages).collectList().awaitFirst();
-
-            messages.forEach { message ->
-                Mono.fromRunnable<Void> { chatEventsPublisher.messageDeleted(chatId = message.chatId, messageId = message.id) }.subscribe()
-            }
+            val (messagesIds, uploadAttachmentsIds) = mapTo2Lists(
+                    messages,
+                    { message -> message.id },
+                    { message -> message.uploadAttachmentsIds }
+            )
+                    .map { (messagesIds, attachmentsIds) -> NTuple2(
+                            messagesIds,
+                            attachmentsIds.flatten()
+                    ) }
+            val chatUploadAttachments = chatUploadAttachmentRepository
+                    .findAllById(uploadAttachmentsIds)
+                    .collectList()
+                    .awaitFirst()
+            chatUploadAttachmentEntityService.deleteChatUploadAttachmentsAndUpdateRelatedMessages(
+                    chatUploadAttachments = chatUploadAttachments,
+                    messagesIdsToSkip = messagesIds
+            )
+                    .awaitFirstOrNull()
 
             return@mono Mono.empty<Void>()
         }

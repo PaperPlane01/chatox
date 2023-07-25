@@ -14,7 +14,7 @@ data class MessageResponse(
         val readByCurrentUser: Boolean,
         val chatId: String,
         val emoji: EmojiInfo = EmojiInfo(),
-        val attachments: List<UploadResponse<Any>> = listOf(),
+        val attachments: List<UploadResponse<*>> = listOf(),
         val index: Long = 0L,
         val pinned: Boolean,
         val pinnedAt: ZonedDateTime?,

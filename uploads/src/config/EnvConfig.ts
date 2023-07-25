@@ -1,4 +1,5 @@
 import {Env} from "env-decorator";
+import {UploadType} from "../uploads";
 
 export class EnvConfig {
     @Env({type: "string", required: true})
@@ -24,6 +25,9 @@ export class EnvConfig {
 
     @Env({type: "string", required: true})
     FILES_DIRECTORY: string;
+
+    @Env({type: "string", required: true})
+    ARCHIVED_FILES_DIRECTORY: string;
 
     @Env({type: "string", required: true})
     FFPROBE_PATH: string;
@@ -103,5 +107,23 @@ IPaa2Uit2gOySFIHFiD4i75O76rYwSjhTavCwQA4tOwCuF8EnopTfi0dBVDKWK1T
 uoP2v55gv3Xw79kD0wAnUlPdpMH8GT1OyPKKHkH+/hcanEO4W4goswEwLj2s7VYw
 PsT6edytR9T/+rob9cvuoz2owBBTGYYAwxvscuVqM5OvXD+pNaeCwT77XoO8pCyS
 WE1lrebeBEpZdw79ygRL6UuFvUg9OCW88Q==
------END CERTIFICATE-----`
+-----END CERTIFICATE-----`;
+
+    @Env({type: "boolean", required: false})
+    ENABLE_SCHEDULED_UPLOAD_DELETION = false;
+
+    getUploadDirectory(uploadType: UploadType): string {
+        switch (uploadType) {
+            case UploadType.AUDIO:
+                return this.AUDIOS_DIRECTORY;
+            case UploadType.IMAGE:
+            case UploadType.GIF:
+                return this.IMAGES_DIRECTORY;
+            case UploadType.VIDEO:
+                return this.VIDEOS_DIRECTORY;
+            case UploadType.FILE:
+            default:
+                return this.FILES_DIRECTORY;
+        }
+    }
 }

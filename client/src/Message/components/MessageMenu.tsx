@@ -74,18 +74,18 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
         menuItems.push(<EditMessageMenuItem messageId={messageId} onClick={handleClose("editMessage")}/>);
     }
 
-    if (canBlockUserInChat({chatId: message.chatId, userId: message.sender})) {
-        menuItems.push(<BlockMessageAuthorInChatMenuItem onClick={handleClose("blockMessageAuthorInChat")}
-                                                         messageId={messageId}/>
-        );
-    }
-
     if (canCreateMessage(message.chatId)) {
         menuItems.push(<ReplyToMessageMenuItem messageId={messageId} onClick={handleClose("replyToMessage")}/>);
     }
 
     if (canDeleteMessage(message)) {
         menuItems.push(<DeleteMessageMenuItem messageId={messageId} onClick={handleClose("deleteMessage")}/>)
+    }
+
+    if (canBlockUserInChat({chatId: message.chatId, userId: message.sender})) {
+        menuItems.push(<BlockMessageAuthorInChatMenuItem onClick={handleClose("blockMessageAuthorInChat")}
+                                                         messageId={messageId}/>
+        );
     }
 
     if (canPinMessage(message.chatId)) {
@@ -97,11 +97,21 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
         menuItems.push(<BanUserGloballyMenuItem userId={message.sender} onClick={handleClose("banUserGlobally")}/>);
     }
 
-    menuItems.push(<Divider/>);
-    menuItems.push(<ReportMessageMenuItem messageId={messageId} onClick={handleClose("reportMessage")}/>);
+    if (!message.deleted) {
+        menuItems.push(<Divider/>);
+        menuItems.push(<ReportMessageMenuItem messageId={messageId} onClick={handleClose("reportMessage")}/>);
+    }
 
     if (currentUser) {
-        menuItems.push(<BlacklistUserActionMenuItemWrapper userId={message.sender} onClick={handleClose("blacklistOrRemoveFromBlacklist")}/>);
+        menuItems.push(
+            <BlacklistUserActionMenuItemWrapper userId={message.sender}
+                                                onClick={handleClose("blacklistOrRemoveFromBlacklist")}
+            />
+        );
+    }
+
+    if (menuItems.length === 0) {
+        return null;
     }
 
     return (

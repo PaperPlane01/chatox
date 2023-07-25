@@ -2,9 +2,9 @@ import {Labels} from "../types";
 
 export const en: Labels = {
     "blacklist.users": "Blocked users",
-    "blacklist.users.add": "Block user",
-    "blacklist.users.add.error": "Error occurred when tried to block user. Server responded with {errorStatus} status",
-    "blacklist.users.add.success": "User {username} was blocked",
+    "blacklist.users.add": "Blacklist user",
+    "blacklist.users.add.error": "Error occurred when tried to blacklist user. Server responded with {errorStatus} status",
+    "blacklist.users.add.success": "User {username} was blacklisted",
     "blacklist.users.error": "Error occurred when tried to fetch blacklisted users. Server responded with {errorStatus} status",
     "blacklist.users.remove": "Unblock user",
     "blacklist.users.remove.error": "Error occurred when tried to unblock user. Server responded with {errorStatus} status",
@@ -550,5 +550,7 @@ export const en: Labels = {
     "theme.red": "Red",
     "theme.darkBlue": "Dark blue",
     "theme.lightBlue": "Light blue",
-    "settings.chat.virtual-scroll.enable-partial-virtualization": "Enable partial virtualization"
+    "settings.chat.virtual-scroll.enable-partial-virtualization": "Enable partial virtualization",
+    "message.send": "Send",
+    "message.preview": "Preview"
 };

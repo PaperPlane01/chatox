@@ -1,5 +1,5 @@
-import {Module} from '@nestjs/common';
-import {UsersService} from './users.service';
+import {Module} from "@nestjs/common";
+import {UsersService} from "./users.service";
 import {AxiosModule} from "../axios/axios.module";
 import {EurekaModule} from "../eureka/eureka.module";
 

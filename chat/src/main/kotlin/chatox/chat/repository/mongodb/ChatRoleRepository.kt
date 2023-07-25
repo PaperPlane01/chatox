@@ -11,4 +11,5 @@ interface ChatRoleRepository : ReactiveMongoRepository<ChatRole, String> {
     fun findByChatIdAndName(chatId: String, name: String): Mono<ChatRole>
     fun findByChatIdAndDefaultTrue(chatId: String): Mono<ChatRole>
     fun findByIdAndChatId(id: String, chatId: String): Mono<ChatRole>
+    fun findByChatIdIn(ids: List<String>): Flux<ChatRole>
 }

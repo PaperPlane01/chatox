@@ -30,7 +30,7 @@ data class Message(
         override val deletedById: String? = null,
 
         override val uploadAttachmentsIds: List<String> = listOf(),
-        override val attachments: List<Upload<Any>> = listOf(),
+        override val attachments: List<Upload<*>> = listOf(),
         override val emoji: EmojiInfo = EmojiInfo(),
 
         @Indexed
