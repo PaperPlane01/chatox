@@ -7,6 +7,7 @@ import chatox.chat.messaging.rabbitmq.event.PrivateChatCreated
 import chatox.chat.messaging.rabbitmq.event.ChatDeleted
 import chatox.chat.messaging.rabbitmq.event.ChatParticipationDeleted
 import chatox.chat.messaging.rabbitmq.event.ChatUpdated
+import chatox.chat.messaging.rabbitmq.event.MessageCreated
 import chatox.chat.messaging.rabbitmq.event.MessageReadEvent
 import chatox.chat.messaging.rabbitmq.event.UserLeftChat
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component
 @Component
 class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
 
-    fun messageCreated(messageResponse: MessageResponse) = rabbitTemplate.convertAndSend(
+    fun messageCreated(messageResponse: MessageCreated) = rabbitTemplate.convertAndSend(
             "chat.events",
             "chat.message.created.#",
             messageResponse

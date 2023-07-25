@@ -22,6 +22,23 @@ export class UploadReferenceMessagesEventsListener {
         routingKey: "chat.message.created.#"
     })
     public async onMessageCreated(message: Message): Promise<void> {
+        if (message.fromScheduled) {
+            return;
+        }
+
+       await this.handleMessageCreated(message);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: "upload_service_scheduled_message_created",
+        routingKey: "chat.scheduled.message.created.#"
+    })
+    public async onScheduledMessageCreated(message: Message): Promise<void> {
+        await this.handleMessageCreated(message);
+    }
+
+    private async handleMessageCreated(message: Message): Promise<void> {
         if (message.attachments.length === 0) {
             return;
         }
@@ -42,6 +59,19 @@ export class UploadReferenceMessagesEventsListener {
         routingKey: "chat.message.updated.#"
     })
     public async onMessageUpdated(message: Message): Promise<void> {
+        await this.handleMessageUpdated(message);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: "upload_service_scheduled_message_updated",
+        routingKey: "chat.scheduled.message.updated.#"
+    })
+    public async onScheduledMessageUpdated(message: Message): Promise<void> {
+        await this.handleMessageUpdated(message);
+    }
+
+    private async handleMessageUpdated(message: Message): Promise<void> {
         const existingReferencesUploadsIds = (await this.uploadReferenceModel.find({
             referenceObjectId: message.id,
             type: UploadReferenceType.MESSAGE_ATTACHMENT

@@ -70,7 +70,7 @@ class ChatUploadAttachmentServiceImpl(
     private fun <UploadMetadataType> findByType(chatId: String, type: UploadType, paginationRequest: PaginationRequest): Flux<ChatUploadAttachmentResponse<UploadMetadataType>> {
         return mono {
             val messageRead = getLastMessageRead(chatId).awaitFirstOrNull()
-            val attachments = chatUploadAttachmentRepository.findByChatIdAndType<UploadMetadataType>(
+            val attachments = chatUploadAttachmentRepository.findByChatIdAndTypeAndMessageIdIsNotNull<UploadMetadataType>(
                     chatId = chatId,
                     type = type,
                     pageable = paginationRequest.toPageRequest()

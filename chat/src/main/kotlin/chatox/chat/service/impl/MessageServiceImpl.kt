@@ -127,7 +127,7 @@ class MessageServiceImpl(
             message = messageRepository.save(message).awaitFirst()
             linkChatUploadAttachmentsToMessage(uploadAttachments, message).collectList().awaitFirst()
 
-            val response = messageMapper.toMessageResponse(
+            val response = messageMapper.toMessageCreated(
                     message = message,
                     readByCurrentUser = true,
                     mapReferredMessage = true
@@ -136,7 +136,7 @@ class MessageServiceImpl(
 
             Mono.fromRunnable<Void>{ chatEventsPublisher.messageCreated(response) }.subscribe()
 
-            return@mono response
+            return@mono response.toMessageResponse()
         }
     }
 
@@ -732,16 +732,18 @@ class MessageServiceImpl(
             messageRepository.save(message).awaitFirst()
             scheduledMessageRepository.delete(scheduledMessage).awaitFirstOrNull()
 
-            val messageResponse = messageMapper.toMessageResponse(
+            val messageCreated = messageMapper.toMessageCreated(
                     message = message,
                     localUsersCache = localUsersCache,
                     localReferredMessagesCache = localReferredMessagesCache,
                     readByCurrentUser = true,
-                    mapReferredMessage = true
+                    mapReferredMessage = true,
+                    fromScheduled = true
             )
                     .awaitFirst()
+            val messageResponse = messageCreated.toMessageResponse()
 
-            chatEventsPublisher.messageCreated(messageResponse)
+            chatEventsPublisher.messageCreated(messageCreated)
             chatEventsPublisher.scheduledMessagePublished(messageResponse)
 
             return@mono messageResponse
