@@ -19,19 +19,19 @@ export const SendMessageButton: FunctionComponent<SendMessageButtonProps> = obse
 }) => {
     const [longPressed, setLongPressed] = useState(false);
     const [anchorElement, setAnchorElement] = useState<Element | null>(null);
-    const callback = useCallback(() => setLongPressed(true), []);
-    const bind = useLongPress(callback, {
+    const handleLongPress = useCallback(() => setLongPressed(true), []);
+    const createLongPressHandlers = useLongPress(handleLongPress, {
         onStart: event => setAnchorElement(event.currentTarget),
         onCancel: (_, meta) => {
             setLongPressed(false);
             setAnchorElement(null);
 
-            if (meta.reason && meta.reason === LongPressCallbackReason.CancelledByRelease) {
+            if (meta.reason === LongPressCallbackReason.CancelledByRelease) {
                 onClick();
             }
         }
     });
-    const longPressHandlers = bind("sendMessage");
+    const longPressHandlers = createLongPressHandlers("sendMessage");
 
     const handleSendClick = (): void => {
         setLongPressed(false);
