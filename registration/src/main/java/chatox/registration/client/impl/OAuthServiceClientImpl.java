@@ -3,7 +3,6 @@ package chatox.registration.client.impl;
 import chatox.registration.api.request.CreateAccountRequest;
 import chatox.registration.api.request.CreateAnonymousAccountRequest;
 import chatox.registration.api.request.EnhancedLoginWithGoogleRequest;
-import chatox.registration.api.request.LoginWithGoogleRequest;
 import chatox.registration.api.response.CreateAccountResponse;
 import chatox.registration.api.response.LoginWithGoogleResponse;
 import chatox.registration.client.OAuthServiceClient;
@@ -15,6 +14,9 @@ import chatox.registration.exception.EmailVerificationNotFoundException;
 import chatox.registration.exception.InvalidEmailVerificationCodeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -34,9 +36,10 @@ public class OAuthServiceClientImpl implements OAuthServiceClient {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(createAccountRequest), CreateAccountRequest.class)
-                .exchange()
-                .doOnNext(this::handleRegistrationErrorIfPresent)
-                .flatMap(clientResponse -> clientResponse.bodyToMono(CreateAccountResponse.class));
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, this::handleRegistrationError)
+                .toEntity(CreateAccountResponse.class)
+                .mapNotNull(HttpEntity::getBody);
     }
 
     @Override
@@ -46,36 +49,31 @@ public class OAuthServiceClientImpl implements OAuthServiceClient {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(createAnonymousAccountRequest), CreateAnonymousAccountRequest.class)
-                .exchange()
-                .doOnNext(this::handleRegistrationErrorIfPresent)
-                .flatMap(clientResponse -> clientResponse.bodyToMono(CreateAccountResponse.class));
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, this::handleRegistrationError)
+                .toEntity(CreateAccountResponse.class)
+                .mapNotNull(HttpEntity::getBody);
     }
 
-    private void handleRegistrationErrorIfPresent(ClientResponse clientResponse) {
-        if (clientResponse.statusCode().is4xxClientError()) {
-            switch (clientResponse.statusCode()) {
-                case BAD_REQUEST:
-                    throw new InvalidEmailVerificationCodeException("Provided email verification code is invalid");
-                case FORBIDDEN:
-                    throw new EmailMismatchException(
-                            "Email provided in request does not match with email in email verification with the specified id"
-                    );
-                case NOT_FOUND:
-                    throw new EmailVerificationNotFoundException("Email verification with the specified ID was not found");
-                case CONFLICT:
-                    throw new EmailAlreadyTakenException("This email has already been taken");
-                case GONE:
-                    throw new EmailVerificationExpiredException("This email verification code expired");
-                default:
-                    log.error("Unexpected error occurred upon account registration, oauth2 service responded with {} status", clientResponse.statusCode().value());
-                    throw new AccountRegistrationException("Unexpected error occurred upon account registration");
+    private Mono<Throwable> handleRegistrationError(ClientResponse clientResponse) {
+        Throwable error;
+
+        switch (HttpStatus.valueOf(clientResponse.statusCode().value())) {
+            case BAD_REQUEST -> error = new InvalidEmailVerificationCodeException("Provided email verification code is invalid");
+            case FORBIDDEN -> error = new EmailMismatchException(
+                    "Email provided in request does not match with email in email verification with the specified id"
+            );
+            case NOT_FOUND -> error = new EmailVerificationNotFoundException("Email verification with the specified ID was not found");
+            case CONFLICT -> error = new EmailAlreadyTakenException("This email has already been taken");
+            case GONE -> error = new EmailVerificationExpiredException("This email verification code expired");
+            default -> {
+                log.error("Unexpected error occurred upon account registration," +
+                        " oauth2 service responded with {} status", clientResponse.statusCode().value());
+                error = new AccountRegistrationException("Unexpected error occurred upon account registration");
             }
         }
 
-        if (clientResponse.statusCode().is5xxServerError()) {
-            log.error("Unexpected error occurred upon account registration, oauth2 service responded with {} status", clientResponse.statusCode().value());
-            throw new AccountRegistrationException("Unexpected error occurred upon account registration");
-        }
+        return Mono.just(error);
     }
 
     @Override
@@ -93,15 +91,17 @@ public class OAuthServiceClientImpl implements OAuthServiceClient {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(loginWithGoogleRequest), EnhancedLoginWithGoogleRequest.class)
-                .exchange()
-                .doOnNext(this::handleGoogleRegistrationErrorIfPresent)
-                .flatMap(clientResponse -> clientResponse.bodyToMono(LoginWithGoogleResponse.class));
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, this::handleGoogleRegistrationError)
+                .toEntity(LoginWithGoogleResponse.class)
+                .mapNotNull(HttpEntity::getBody);
     }
 
-    private void handleGoogleRegistrationErrorIfPresent(ClientResponse clientResponse) {
-        if (clientResponse.statusCode().isError()) {
-            log.error("Unexpected error occurred upon registration with google account, oauth2 service responded with {} status", clientResponse.statusCode().value());
-            throw new AccountRegistrationException("Unexpected error occurred upon registration with google account");
-        }
+    private Mono<Throwable> handleGoogleRegistrationError(ClientResponse clientResponse) {
+        log.error("Unexpected error occurred upon registration with google account," +
+                " oauth2 service responded with {} status", clientResponse.statusCode().value());
+        return Mono.just(
+                new AccountRegistrationException("Unexpected error occurred upon registration with google account")
+        );
     }
 }
