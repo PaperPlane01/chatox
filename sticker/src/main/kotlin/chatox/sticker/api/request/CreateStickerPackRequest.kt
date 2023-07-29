@@ -1,9 +1,9 @@
 package chatox.sticker.api.request
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 import org.hibernate.validator.constraints.Length
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.Size
 
 data class CreateStickerPackRequest(
         @field:NotBlank
