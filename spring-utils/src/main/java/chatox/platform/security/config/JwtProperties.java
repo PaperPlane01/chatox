@@ -1,4 +1,4 @@
-package chatox.platform.security.reactive.config;
+package chatox.platform.security.config;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -4,7 +4,7 @@ import chatox.platform.security.jwt.JwtAuthentication;
 import chatox.platform.security.jwt.JwtPayload;
 import reactor.core.publisher.Mono;
 
-public interface ReactiveAuthenticationHolder<UserClass> {
+public interface ReactiveAuthenticationHolder<U> {
     /**
      * Returns current authentication, or empty <code>Mono</code> if absent. <br/>
      * @return <code>Mono</code> with {@link JwtAuthentication} instance if present
@@ -40,7 +40,7 @@ public interface ReactiveAuthenticationHolder<UserClass> {
      * It is implied that <strong>database calls might be made</strong> in this method.
      * @return <code>Mono</code> with current user
      */
-    Mono<UserClass> getCurrentUser();
+    Mono<U> getCurrentUser();
 
     /**
      * Returns current user. <br/>
@@ -48,5 +48,5 @@ public interface ReactiveAuthenticationHolder<UserClass> {
      * @return <code>Mono</code> with current user
      * @throws org.springframework.security.authentication.BadCredentialsException if no authentication is present
      */
-    Mono<UserClass> requireCurrentUser();
+    Mono<U> requireCurrentUser();
 }
