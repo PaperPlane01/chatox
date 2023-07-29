@@ -1,6 +1,6 @@
 package chatox.chat.api.request
 
-import javax.validation.constraints.Size
+import jakarta.validation.constraints.Size
 
 data class DeleteMultipleMessagesRequest(
         @field:Size(max = 50)

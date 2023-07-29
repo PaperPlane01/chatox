@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Date
-import javax.validation.ConstraintValidator
-import javax.validation.ConstraintValidatorContext
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
 
 class MinIntervalFromNowValidator : ConstraintValidator<MinIntervalFromNow, Any> {
     private lateinit var constraintAnnotation: MinIntervalFromNow

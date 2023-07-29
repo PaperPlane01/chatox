@@ -3,7 +3,7 @@ package chatox.chat.repository.elasticsearch.custom.impl
 import chatox.chat.model.elasticsearch.MessageElasticsearch
 import chatox.chat.repository.elasticsearch.custom.MessageCustomElasticsearchRepository
 import org.springframework.data.domain.Pageable
-import org.springframework.data.elasticsearch.core.ReactiveElasticsearchTemplate
+import org.springframework.data.elasticsearch.client.elc.ReactiveElasticsearchTemplate
 import org.springframework.data.elasticsearch.core.query.Criteria
 import org.springframework.data.elasticsearch.core.query.CriteriaQuery
 import org.springframework.data.elasticsearch.core.query.Query

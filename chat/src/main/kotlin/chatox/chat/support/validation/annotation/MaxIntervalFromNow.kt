@@ -2,8 +2,8 @@ package chatox.chat.support.validation.annotation
 
 import chatox.chat.support.validation.validator.MaxIntervalFromNowValidator
 import java.time.temporal.ChronoUnit
-import javax.validation.Constraint
-import javax.validation.Payload
+import jakarta.validation.Constraint
+import jakarta.validation.Payload
 import kotlin.reflect.KClass
 
 @Target(allowedTargets = [AnnotationTarget.FIELD])

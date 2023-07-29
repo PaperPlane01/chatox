@@ -2,8 +2,8 @@ package chatox.chat.api.request
 
 import chatox.chat.support.validation.annotation.StringIn
 import com.fasterxml.jackson.annotation.JsonProperty
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.Size
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 
 data class UpdateMessageRequest(
         @field:NotBlank
