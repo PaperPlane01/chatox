@@ -1,6 +1,6 @@
 package chatox.user.support.validation.globalban.annotation
 
-import javax.validation.Payload
+import jakarta.validation.Payload
 import kotlin.reflect.KClass
 
 @Target(allowedTargets = [AnnotationTarget.CLASS])
