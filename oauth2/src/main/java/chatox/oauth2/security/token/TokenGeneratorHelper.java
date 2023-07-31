@@ -1,95 +1,92 @@
 package chatox.oauth2.security.token;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.util.OAuth2Utils;
-import org.springframework.security.oauth2.provider.ClientDetails;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
+import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContext;
+import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.token.DefaultOAuth2TokenContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
 public class TokenGeneratorHelper {
-    private final TokenServicesFactory tokenServicesFactory;
+    private final TokenGeneratorFactory tokenGeneratorFactory;
 
-    private JdbcTokenStore tokenStore;
-
-    @Autowired
-    public void setTokenStore(JdbcTokenStore jdbcTokenStore) {
-        this.tokenStore = jdbcTokenStore;
-    }
-
-    public TokenPair generateTokenPair(UserDetails userDetails, ClientDetails clientDetails) {
-        var accessToken = createToken(userDetails, clientDetails);
+    public TokenPair generateTokenPair(UserDetails userDetails, RegisteredClient registeredClient) {
+        var accessToken = createToken(userDetails, registeredClient);
 
         return TokenPair.builder()
-                .accessToken(accessToken.getValue())
+                .accessToken(accessToken.getAccessToken().getToken().getTokenValue())
                 .refreshToken(accessToken.getRefreshToken() != null
-                        ? accessToken.getRefreshToken().getValue()
+                        ? accessToken.getRefreshToken().getToken().getTokenValue()
                         : null
                 )
                 .build();
     }
 
-    private OAuth2AccessToken createToken(UserDetails userDetails, ClientDetails clientDetails) {
-        var authorizationParameters = new LinkedHashMap<String, String>();
-        authorizationParameters.put(OAuth2Utils.SCOPE, convertScopeToString(clientDetails.getScope()));
-        authorizationParameters.put(OAuth2Utils.CLIENT_ID, clientDetails.getClientId());
-        authorizationParameters.put(OAuth2Utils.GRANT_TYPE, "implicit");
+    public OAuth2Authorization createToken(UserDetails userDetails, RegisteredClient registeredClient) {
+        var accessToken = tokenGeneratorFactory.accessTokenGenerator().generate(createContext(
+                OAuth2TokenType.ACCESS_TOKEN,
+                registeredClient,
+                userDetails
+        ));
 
-        String redirectUri = null;
+        OAuth2RefreshToken refreshToken = null;
 
-        if (clientDetails.getRegisteredRedirectUri() != null
-                && !clientDetails.getRegisteredRedirectUri().isEmpty()) {
-            redirectUri = (new ArrayList<>(clientDetails.getRegisteredRedirectUri())).get(0);
+        if (registeredClient.getAuthorizationGrantTypes().contains(AuthorizationGrantType.REFRESH_TOKEN)) {
+            refreshToken = tokenGeneratorFactory.refreshTokenGenerator().generate(createContext(
+                    OAuth2TokenType.REFRESH_TOKEN,
+                    registeredClient,
+                    userDetails
+            ));
         }
-        var oAuth2Request = new OAuth2Request(
-                authorizationParameters,
-                clientDetails.getClientId(),
-                userDetails.getAuthorities(),
-                true,
-                clientDetails.getScope(),
-                clientDetails.getResourceIds(),
-                redirectUri,
-                clientDetails.getAuthorizedGrantTypes(),
-                new HashMap<>()
-        );
-        var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-        );
-        var oAuth2Authentication = new OAuth2Authentication(oAuth2Request, usernamePasswordAuthenticationToken);
-        var defaultTokenServices = tokenServicesFactory.createDefaultTokenServices();
-        defaultTokenServices.setSupportRefreshToken(true);
-        defaultTokenServices.setTokenStore(tokenStore);
-        defaultTokenServices.setAccessTokenValiditySeconds(clientDetails.getAccessTokenValiditySeconds());
-        defaultTokenServices.setRefreshTokenValiditySeconds(clientDetails.getRefreshTokenValiditySeconds());
-        return defaultTokenServices.createAccessToken(oAuth2Authentication);
+
+        return OAuth2Authorization
+                .withRegisteredClient(registeredClient)
+                .accessToken(new OAuth2AccessToken(
+                        accessToken.getTokenType(),
+                        accessToken.getTokenValue(),
+                        accessToken.getIssuedAt(),
+                        accessToken.getExpiresAt(),
+                        accessToken.getScopes()
+                ))
+                .refreshToken(refreshToken)
+                .principalName(userDetails.getUsername())
+                .authorizedScopes(registeredClient.getScopes())
+                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
+                .build();
     }
 
-    private String convertScopeToString(Set<String> scope) {
-        var stringBuilder = new StringBuilder();
-        var scopeList = new ArrayList<>(scope);
+    public OAuth2TokenContext createContext(OAuth2TokenType tokenType, RegisteredClient registeredClient, UserDetails userDetails) {
+        return DefaultOAuth2TokenContext.builder()
+                .registeredClient(registeredClient)
+                .authorizedScopes(registeredClient.getScopes())
+                .tokenType(tokenType)
+                .principal(new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                ))
+                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
+                .authorizationServerContext(new AuthorizationServerContext() {
+                    @Override
+                    public String getIssuer() {
+                        return "oauth2-service";
+                    }
 
-        for (int index = 0; index < scopeList.size(); index++) {
-            stringBuilder.append(scopeList.get(index));
-
-            if (index != scopeList.size() - 1) {
-                stringBuilder.append(" ");
-            }
-        }
-
-        return stringBuilder.toString();
+                    @Override
+                    public AuthorizationServerSettings getAuthorizationServerSettings() {
+                        return null;
+                    }
+                })
+                .build();
     }
 }

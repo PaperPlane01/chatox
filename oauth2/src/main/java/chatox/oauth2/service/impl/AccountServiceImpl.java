@@ -27,7 +27,6 @@ import chatox.oauth2.respository.ClientRepository;
 import chatox.oauth2.respository.EmailConfirmationCodeRepository;
 import chatox.oauth2.respository.UserRoleRepository;
 import chatox.oauth2.security.AuthenticationFacade;
-import chatox.oauth2.security.CustomClientDetails;
 import chatox.oauth2.security.CustomUserDetails;
 import chatox.oauth2.security.token.TokenGeneratorHelper;
 import chatox.oauth2.service.AccountService;
@@ -114,7 +113,7 @@ public class AccountServiceImpl implements AccountService {
             emailConfirmationCodeRepository.save(emailConfirmationCode);
         }
 
-        var tokenPair = tokenGeneratorHelper.generateTokenPair(new CustomUserDetails(account), new CustomClientDetails(client));
+        var tokenPair = tokenGeneratorHelper.generateTokenPair(new CustomUserDetails(account), client.toRegisteredClient());
         var accessToken = tokenPair.getAccessToken();
         var refreshToken = tokenPair.getRefreshToken();
 
@@ -141,7 +140,7 @@ public class AccountServiceImpl implements AccountService {
 
         accountRepository.save(account);
 
-        var tokenPair = tokenGeneratorHelper.generateTokenPair(new CustomUserDetails(account), new CustomClientDetails(client));
+        var tokenPair = tokenGeneratorHelper.generateTokenPair(new CustomUserDetails(account), client.toRegisteredClient());
         var accessToken = tokenPair.getAccessToken();
         var refreshToken = tokenPair.getRefreshToken();
 

@@ -3,51 +3,72 @@ package chatox.oauth2.controller;
 import chatox.oauth2.api.request.ExchangeTokenRequest;
 import chatox.oauth2.api.response.ExchangeTokenResponse;
 import chatox.oauth2.exception.InvalidAccessTokenException;
-import chatox.oauth2.security.token.CustomTokenEnhancer;
+import chatox.oauth2.security.token.TokenGeneratorHelper;
+import chatox.oauth2.service.AccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
-import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
+import org.springframework.security.oauth2.server.authorization.token.JwtGenerator;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
 
-import javax.validation.Valid;
-import java.util.Arrays;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 @RestController
 @RequiredArgsConstructor
 public class TokenExchangeController {
-    private final TokenStore tokenStore;
-    private final JwtAccessTokenConverter jwtAccessTokenConverter;
-    private final JwtTokenStore jwtTokenStore;
-    private final CustomTokenEnhancer customTokenEnhancer;
+    private final JdbcOAuth2AuthorizationService oAuth2AuthorizationService;
+    private final JwtGenerator jwtGenerator;
+    private final AccountService accountService;
+    private final TokenGeneratorHelper tokenGeneratorHelper;
 
     @PostMapping("/oauth/exchangeToken")
     public ExchangeTokenResponse exchangeToken(@RequestBody @Valid ExchangeTokenRequest exchangeTokenRequest) {
-        try {
-            DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
-            defaultTokenServices.setTokenStore(tokenStore);
-            OAuth2Authentication oAuth2Authentication = defaultTokenServices.loadAuthentication(exchangeTokenRequest.getAccessToken());
+        var accessToken = oAuth2AuthorizationService.findByToken(
+                exchangeTokenRequest.getAccessToken(),
+                OAuth2TokenType.ACCESS_TOKEN
+        );
 
-            TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-            tokenEnhancerChain.setTokenEnhancers(Arrays.asList(customTokenEnhancer, jwtAccessTokenConverter));
-
-            DefaultTokenServices jwtTokenServices = new DefaultTokenServices();
-            jwtTokenServices.setTokenStore(jwtTokenStore);
-            jwtTokenServices.setTokenEnhancer(tokenEnhancerChain);
-            jwtTokenServices.setAccessTokenValiditySeconds(900);
-
-            OAuth2AccessToken oAuth2AccessToken = jwtTokenServices.createAccessToken(oAuth2Authentication);
-            return ExchangeTokenResponse.builder().jwt(oAuth2AccessToken.getValue()).build();
-        } catch (InvalidTokenException exception) {
+        if (accessToken == null) {
             throw new InvalidAccessTokenException("Access token is either invalid or expired");
         }
+
+        var client = createStubRegisteredClient(accessToken);
+        var user = accountService.loadUserByUsername(accessToken.getPrincipalName());
+
+        var context = tokenGeneratorHelper.createContext(
+                OAuth2TokenType.ACCESS_TOKEN,
+                client,
+                user
+        );
+
+        var jwt = jwtGenerator.generate(context);
+
+        if (jwt == null) {
+            throw new InvalidAccessTokenException("Access token is either invalid or expired");
+        }
+
+        return ExchangeTokenResponse.builder()
+                .jwt(jwt.getTokenValue())
+                .build();
     }
+
+    private RegisteredClient createStubRegisteredClient(OAuth2Authorization accessToken) {
+        var registeredClient = RegisteredClient
+                .withId(accessToken.getRegisteredClientId())
+                .clientId(accessToken.getRegisteredClientId())
+                .authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
+                .tokenSettings(TokenSettings.builder()
+                .accessTokenTimeToLive(Duration.of(900, ChronoUnit.SECONDS))
+                .build());
+        return registeredClient.build();
+    }
+
 }

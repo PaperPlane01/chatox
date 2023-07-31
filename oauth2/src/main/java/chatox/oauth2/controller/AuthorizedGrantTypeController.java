@@ -1,5 +1,6 @@
 package chatox.oauth2.controller;
 
+import chatox.oauth2.domain.GrantType;
 import chatox.oauth2.service.AuthorizedGrantTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +16,7 @@ public class AuthorizedGrantTypeController {
     private final AuthorizedGrantTypeService authorizedGrantTypeService;
 
     @GetMapping
-    public List<String> findAllAuthorizedGrantTypes() {
+    public List<GrantType> findAllAuthorizedGrantTypes() {
         return authorizedGrantTypeService.getAllAuthorizedGrantTypes();
     }
 }

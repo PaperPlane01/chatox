@@ -1,15 +1,25 @@
 package chatox.oauth2.config;
 
-import chatox.oauth2.security.token.CustomTokenEnhancer;
+import chatox.oauth2.security.token.JwtCustomizer;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
-import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
-import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.authorization.token.JwtGenerator;
+import org.springframework.security.rsa.crypto.KeyStoreKeyFactory;
+
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.UUID;
 
 @Configuration
 @PropertySource("classpath:jwt.properties")
@@ -21,24 +31,40 @@ public class JwtConfig {
     @Value("${jwt.keystore.alias}")
     private String jwtKeyStoreAlias;
 
+    @Autowired
+    private JwtCustomizer jwtCustomizer;
+
     @Bean
-    public JwtAccessTokenConverter jwtAccessTokenConverter() {
-        JwtAccessTokenConverter accessTokenConverter = new JwtAccessTokenConverter();
-        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(
+    public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
+        return new NimbusJwtEncoder(jwkSource);
+    }
+
+    @Bean
+    public JWKSource<SecurityContext> jwkSource(KeyStoreKeyFactory keyStoreKeyFactory) {
+        var keyPair = keyStoreKeyFactory.getKeyPair(jwtKeyStoreAlias);
+        var publicKey = (RSAPublicKey) keyPair.getPublic();
+        var privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        var rsaKey = new RSAKey.Builder(publicKey)
+                .privateKey(privateKey)
+                .keyID(UUID.randomUUID().toString())
+                .build();
+        var jwkSet = new JWKSet(rsaKey);
+
+        return new ImmutableJWKSet<>(jwkSet);
+    }
+
+    @Bean
+    public KeyStoreKeyFactory keyStore() {
+        return new KeyStoreKeyFactory(
                 new ClassPathResource(jwtKeyStoreLocation),
                 jwtKeyStorePassword.toCharArray()
         );
-        accessTokenConverter.setKeyPair(keyStoreKeyFactory.getKeyPair(jwtKeyStoreAlias));
-        return accessTokenConverter;
     }
 
     @Bean
-    public JwtTokenStore jwtTokenStore() {
-        return new JwtTokenStore(jwtAccessTokenConverter());
-    }
-
-    @Bean
-    public CustomTokenEnhancer customTokenEnhancer() {
-        return new CustomTokenEnhancer();
+    public JwtGenerator jwtGenerator(JwtEncoder jwtEncoder) {
+        var jwtGenerator = new JwtGenerator(jwtEncoder);
+        jwtGenerator.setJwtCustomizer(jwtCustomizer);
+        return jwtGenerator;
     }
 }
