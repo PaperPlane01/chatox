@@ -76,17 +76,24 @@ public class TokenGeneratorHelper {
                         userDetails.getAuthorities()
                 ))
                 .authorizationGrantType(AuthorizationGrantType.PASSWORD)
-                .authorizationServerContext(new AuthorizationServerContext() {
-                    @Override
-                    public String getIssuer() {
-                        return "oauth2-service";
-                    }
-
-                    @Override
-                    public AuthorizationServerSettings getAuthorizationServerSettings() {
-                        return null;
-                    }
-                })
+                .authorizationServerContext(ChatoxAuthorizationServiceContext.INSTANCE)
                 .build();
+    }
+
+    private static class ChatoxAuthorizationServiceContext implements AuthorizationServerContext {
+        private static final ChatoxAuthorizationServiceContext INSTANCE = new ChatoxAuthorizationServiceContext();
+
+        private ChatoxAuthorizationServiceContext() {
+        }
+
+        @Override
+        public String getIssuer() {
+            return "chatox-oauth2-service";
+        }
+
+        @Override
+        public AuthorizationServerSettings getAuthorizationServerSettings() {
+            return null;
+        }
     }
 }
