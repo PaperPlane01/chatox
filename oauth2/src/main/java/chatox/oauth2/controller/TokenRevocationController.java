@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TokenRevocationController {
     private final JdbcOAuth2AuthorizationService oAuth2AuthorizationService;
 
-    @DeleteMapping("/oauth/token/revoke")
+    @DeleteMapping("/oauth2/token/revoke")
     public ResponseEntity<?> revokeToken(@RequestBody @Valid RevokeTokenRequest revokeTokenRequest) {
         var accessToken = oAuth2AuthorizationService.findById(revokeTokenRequest.getAccessToken());
 
