@@ -38,7 +38,7 @@ spring:
         - id: oauth2
           uri: lb://oauth2-service
           predicates:
-            - Path=/oauth/**
+            - Path=/oauth/**, /oauth2/**
         - id: chat-service
           uri: lb://chat-service
           predicates:
