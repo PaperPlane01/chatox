@@ -5,6 +5,7 @@ import chatox.oauth2.security.CustomUserDetails;
 import chatox.platform.security.jwt.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.stereotype.Component;
@@ -16,12 +17,20 @@ public class JwtCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> 
     private final GlobalBanRepository globalBanRepository;
 
     @Override
-    public void customize(JwtEncodingContext context) {;
+    public void customize(JwtEncodingContext context) {
         if (context.getPrincipal().getPrincipal() instanceof CustomUserDetails user) {
             var claims = context.getClaims()
                     .claim(Claims.ACCOUNT_ID, user.getAccountId())
                     .claim(Claims.USER_ID, user.getUserId())
-                    .claim(Claims.EMAIL, user.getEmail());
+                    .claim(Claims.EMAIL, user.getEmail())
+                    .claim(
+                            Claims.AUTHORITIES,
+                            user.getAuthorities()
+                                    .stream()
+                                    .map(GrantedAuthority::getAuthority)
+                                    .toList()
+                    )
+                    .claim(Claims.SCOPE, context.getAuthorizedScopes());
 
             var lastActiveBan = globalBanRepository.findLastActiveBanOfAccount(user.getAccountId());
 

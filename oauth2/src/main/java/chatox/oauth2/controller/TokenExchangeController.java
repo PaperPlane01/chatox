@@ -65,6 +65,7 @@ public class TokenExchangeController {
                 .withId(accessToken.getRegisteredClientId())
                 .clientId(accessToken.getRegisteredClientId())
                 .authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
+                .scopes(scope -> scope.addAll(accessToken.getAuthorizedScopes()))
                 .tokenSettings(TokenSettings.builder()
                 .accessTokenTimeToLive(Duration.of(900, ChronoUnit.SECONDS))
                 .build());
