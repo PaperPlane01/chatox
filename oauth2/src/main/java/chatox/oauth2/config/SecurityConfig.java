@@ -1,5 +1,6 @@
 package chatox.oauth2.config;
 
+import chatox.oauth2.security.ChatoxAuthenticationManager;
 import chatox.oauth2.security.password.PasswordGrantAuthenticationProvider;
 import chatox.oauth2.security.password.PasswordGrantAuthorizationConverter;
 import chatox.oauth2.security.token.TokenGeneratorHelper;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
@@ -45,9 +47,17 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
-                                           AuthenticationManager authenticationManager,
                                            PasswordGrantAuthenticationProvider passwordGrantAuthenticationProvider,
-                                           PasswordGrantAuthorizationConverter passwordGrantAuthorizationConverter) throws Exception {
+                                           PasswordGrantAuthorizationConverter passwordGrantAuthorizationConverter,
+                                           ChatoxAuthenticationManager chatoxAuthenticationManager) throws Exception {
+        http
+                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/**").permitAll())
+                .csrf(AbstractHttpConfigurer::disable)
+                .oauth2ResourceServer(resourceServer -> {
+                    resourceServer.authenticationManagerResolver(request -> chatoxAuthenticationManager);
+                    resourceServer.configure(http);
+                });
+
         var authorizationServerConfigurer =
                 new OAuth2AuthorizationServerConfigurer();
         authorizationServerConfigurer.tokenEndpoint(tokenEndpoint -> {
@@ -56,13 +66,6 @@ public class SecurityConfig {
         });
         http.apply(authorizationServerConfigurer);
 
-        http
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/**").permitAll())
-                .csrf(csrf -> csrf.disable())
-                .oauth2ResourceServer(
-                        oauth2 ->
-                                oauth2.jwt(jwt -> jwt.authenticationManager(authenticationManager))
-                );
         return http.build();
     }
 
@@ -98,5 +101,16 @@ public class SecurityConfig {
     @Bean
     public PasswordGrantAuthorizationConverter passwordGrantAuthorizationConverter() {
         return new PasswordGrantAuthorizationConverter();
+    }
+
+    @Bean
+    public ChatoxAuthenticationManager authenticationManager(AccountService accountService,
+                                                             ClientService clientService,
+                                                             JdbcOAuth2AuthorizationService oAuth2AuthorizationService) {
+        return new ChatoxAuthenticationManager(
+                oAuth2AuthorizationService,
+                clientService,
+                accountService
+        );
     }
 }

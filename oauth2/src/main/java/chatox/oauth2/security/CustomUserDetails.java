@@ -27,6 +27,9 @@ public class CustomUserDetails implements UserDetails {
     @Getter
     private String email;
 
+    @Getter
+    private final Account account;
+
     public CustomUserDetails(Account account) {
         roles = account.getRoles().stream().map(UserRole::getRole).collect(Collectors.toList());
         password = account.getPasswordHash();
@@ -35,6 +38,7 @@ public class CustomUserDetails implements UserDetails {
         enabled = account.isEnabled();
         accountId = account.getId();
         email = account.getEmail();
+        this.account = account;
 
         if (account.getUserIds() != null && !account.getUserIds().isEmpty()) {
             userId = account.getUserIds().get(0);

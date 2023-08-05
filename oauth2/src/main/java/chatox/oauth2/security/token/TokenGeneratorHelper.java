@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
+import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -19,9 +20,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TokenGeneratorHelper {
     private final TokenGeneratorFactory tokenGeneratorFactory;
+    private final JdbcOAuth2AuthorizationService jdbcOAuth2AuthorizationService;
 
     public TokenPair generateTokenPair(UserDetails userDetails, RegisteredClient registeredClient) {
         var accessToken = createToken(userDetails, registeredClient);
+        jdbcOAuth2AuthorizationService.save(accessToken);
 
         return TokenPair.builder()
                 .accessToken(accessToken.getAccessToken().getToken().getTokenValue())

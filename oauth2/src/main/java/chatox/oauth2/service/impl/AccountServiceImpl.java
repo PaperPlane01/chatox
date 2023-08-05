@@ -180,7 +180,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void updateCurrentAccountPassword(UpdatePasswordRequest updatePasswordRequest) {
         var currentUserDetails = authenticationFacade.getCurrentUserDetails();
-        var currentAccount = accountRepository.findById(currentUserDetails.getAccountId()).get();
+        var currentAccount = currentUserDetails.getAccount();
 
         if (!passwordEncoder.matches(updatePasswordRequest.getCurrentPassword(), currentAccount.getPasswordHash())) {
             throw new InvalidPasswordException("Current user has different password");

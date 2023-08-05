@@ -52,7 +52,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientResponse createClient(CreateClientRequest createClientRequest) {
-        var owner = findAccountById(authenticationFacade.getCurrentUserDetails().getAccountId());
+        var owner = authenticationFacade.getCurrentUserDetails().getAccount();
         var authorizedGrantTypes = createClientRequest.getAuthorizedGrantTypes()
                 .stream()
                 .map(this::findAuthorizedGrantTypeByName)
