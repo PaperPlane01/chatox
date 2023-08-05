@@ -1,6 +1,7 @@
 package chatox.oauth2.domain;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,8 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
@@ -37,8 +36,7 @@ public class Client {
     private String name;
     private String secretHash;
 
-    @ManyToMany
-    @LazyCollection(LazyCollectionOption.EXTRA)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "clientToScope",
             joinColumns = {
@@ -50,8 +48,7 @@ public class Client {
     )
     private List<Scope> scope;
 
-    @ManyToMany
-    @LazyCollection(LazyCollectionOption.EXTRA)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "clientToAuthorizedGrantType",
             joinColumns = {
@@ -75,6 +72,15 @@ public class Client {
     private boolean autoApprove;
 
     public RegisteredClient toRegisteredClient() {
+        var tokenSettings = TokenSettings.builder()
+                .accessTokenTimeToLive(Duration.of(accessTokenValidity, ChronoUnit.MINUTES))
+                .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
+                .reuseRefreshTokens(true);
+
+        if (refreshTokenValidity != null) {
+            tokenSettings.refreshTokenTimeToLive(Duration.of(refreshTokenValidity, ChronoUnit.MINUTES));
+        }
+
         return RegisteredClient
                 .withId(id)
                 .clientId(id)
@@ -86,20 +92,12 @@ public class Client {
                     methods.add(ClientAuthenticationMethod.CLIENT_SECRET_POST);
                 })
                 .clientSettings(ClientSettings.builder().build())
-                .authorizationGrantTypes(grantTypes -> {
-                    grantTypes.addAll(authorizedGrantTypes.stream()
-                            .map(AuthorizedGrantType::toAuthorizationGrantType)
-                            .toList()
-                    );
-                })
+                .authorizationGrantTypes(grantTypes -> grantTypes.addAll(authorizedGrantTypes.stream()
+                        .map(AuthorizedGrantType::toAuthorizationGrantType)
+                        .toList()
+                ))
                 .scopes(scopes -> scopes.addAll(scope.stream().map(Scope::getName).toList()))
-                .tokenSettings(TokenSettings.builder()
-                        .accessTokenTimeToLive(Duration.of(accessTokenValidity, ChronoUnit.MINUTES))
-                        .refreshTokenTimeToLive(Duration.of(refreshTokenValidity, ChronoUnit.MINUTES))
-                        .reuseRefreshTokens(true)
-                        .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
-                        .build()
-                )
+                .tokenSettings(tokenSettings.build())
                 .build();
     }
 }

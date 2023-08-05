@@ -1,12 +1,10 @@
 package chatox.oauth2.config;
 
-import chatox.oauth2.security.token.JwtCustomizer;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +12,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.authorization.token.JwtGenerator;
 import org.springframework.security.rsa.crypto.KeyStoreKeyFactory;
 
 import java.security.interfaces.RSAPrivateKey;
@@ -30,9 +27,6 @@ public class JwtConfig {
     private String jwtKeyStorePassword;
     @Value("${jwt.keystore.alias}")
     private String jwtKeyStoreAlias;
-
-    @Autowired
-    private JwtCustomizer jwtCustomizer;
 
     @Bean
     public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
@@ -59,12 +53,5 @@ public class JwtConfig {
                 new ClassPathResource(jwtKeyStoreLocation),
                 jwtKeyStorePassword.toCharArray()
         );
-    }
-
-    @Bean
-    public JwtGenerator jwtGenerator(JwtEncoder jwtEncoder) {
-        var jwtGenerator = new JwtGenerator(jwtEncoder);
-        jwtGenerator.setJwtCustomizer(jwtCustomizer);
-        return jwtGenerator;
     }
 }

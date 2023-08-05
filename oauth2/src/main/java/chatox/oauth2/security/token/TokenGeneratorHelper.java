@@ -65,6 +65,20 @@ public class TokenGeneratorHelper {
                 .build();
     }
 
+    public OAuth2TokenContext createContext(OAuth2TokenType tokenType, RegisteredClient registeredClient) {
+        return DefaultOAuth2TokenContext.builder()
+                .registeredClient(registeredClient)
+                .authorizedScopes(registeredClient.getScopes())
+                .tokenType(tokenType)
+                .principal(new UsernamePasswordAuthenticationToken(
+                        registeredClient.getClientId(),
+                        null
+                ))
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .authorizationServerContext(ChatoxAuthorizationServiceContext.INSTANCE)
+                .build();
+    }
+
     public OAuth2TokenContext createContext(OAuth2TokenType tokenType, RegisteredClient registeredClient, UserDetails userDetails) {
         return DefaultOAuth2TokenContext.builder()
                 .registeredClient(registeredClient)

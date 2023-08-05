@@ -3,6 +3,7 @@ package chatox.oauth2.controller;
 import chatox.oauth2.api.request.ExchangeTokenRequest;
 import chatox.oauth2.api.response.ExchangeTokenResponse;
 import chatox.oauth2.exception.InvalidAccessTokenException;
+import chatox.oauth2.security.token.TokenGeneratorFactory;
 import chatox.oauth2.security.token.TokenGeneratorHelper;
 import chatox.oauth2.service.AccountService;
 import jakarta.validation.Valid;
@@ -13,7 +14,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
-import org.springframework.security.oauth2.server.authorization.token.JwtGenerator;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,9 +26,9 @@ import java.time.temporal.ChronoUnit;
 @RequiredArgsConstructor
 public class TokenExchangeController {
     private final JdbcOAuth2AuthorizationService oAuth2AuthorizationService;
-    private final JwtGenerator jwtGenerator;
     private final AccountService accountService;
     private final TokenGeneratorHelper tokenGeneratorHelper;
+    private final TokenGeneratorFactory tokenGeneratorFactory;
 
     @PostMapping("/oauth/exchangeToken")
     public ExchangeTokenResponse exchangeToken(@RequestBody @Valid ExchangeTokenRequest exchangeTokenRequest) {
@@ -41,14 +42,21 @@ public class TokenExchangeController {
         }
 
         var client = createStubRegisteredClient(accessToken);
-        var user = accountService.loadUserByUsername(accessToken.getPrincipalName());
 
-        var context = tokenGeneratorHelper.createContext(
-                OAuth2TokenType.ACCESS_TOKEN,
-                client,
-                user
-        );
+        OAuth2TokenContext context;
 
+        if (accessToken.getAuthorizationGrantType().equals(AuthorizationGrantType.CLIENT_CREDENTIALS)) {
+            context = tokenGeneratorHelper.createContext(OAuth2TokenType.ACCESS_TOKEN, client);
+        } else {
+            var user = accountService.loadUserByUsername(accessToken.getPrincipalName());
+            context = tokenGeneratorHelper.createContext(
+                    OAuth2TokenType.ACCESS_TOKEN,
+                    client,
+                    user
+            );
+        }
+
+        var jwtGenerator = tokenGeneratorFactory.jwtGenerator();
         var jwt = jwtGenerator.generate(context);
 
         if (jwt == null) {
