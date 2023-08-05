@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/oauth/emailConfirmationCodes")
+@RequestMapping("/oauth2/emailConfirmationCodes")
 @RequiredArgsConstructor
 public class EmailConfirmationCodeController {
     private final EmailConfirmationCodeService emailConfirmationCodeService;

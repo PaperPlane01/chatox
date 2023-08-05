@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/oauth/authorizedGrantTypes")
+@RequestMapping("/oauth2/authorizedGrantTypes")
 @RequiredArgsConstructor
 public class AuthorizedGrantTypeController {
     private final AuthorizedGrantTypeService authorizedGrantTypeService;

@@ -30,7 +30,7 @@ public class TokenExchangeController {
     private final TokenGeneratorHelper tokenGeneratorHelper;
     private final TokenGeneratorFactory tokenGeneratorFactory;
 
-    @PostMapping("/oauth/exchangeToken")
+    @PostMapping("/oauth2/exchangeToken")
     public ExchangeTokenResponse exchangeToken(@RequestBody @Valid ExchangeTokenRequest exchangeTokenRequest) {
         var accessToken = oAuth2AuthorizationService.findByToken(
                 exchangeTokenRequest.getAccessToken(),

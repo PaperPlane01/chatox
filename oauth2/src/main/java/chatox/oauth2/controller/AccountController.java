@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/oauth/accounts")
+@RequestMapping("/oauth2/accounts")
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;

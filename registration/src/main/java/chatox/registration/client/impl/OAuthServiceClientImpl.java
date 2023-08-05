@@ -32,7 +32,7 @@ public class OAuthServiceClientImpl implements OAuthServiceClient {
     @Override
     public Mono<CreateAccountResponse> createAccount(CreateAccountRequest createAccountRequest) {
         return webClient.post()
-                .uri("/oauth/accounts")
+                .uri("/oauth2/accounts")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(createAccountRequest), CreateAccountRequest.class)
@@ -45,7 +45,7 @@ public class OAuthServiceClientImpl implements OAuthServiceClient {
     @Override
     public Mono<CreateAccountResponse> createAnonymousAccount(CreateAnonymousAccountRequest createAnonymousAccountRequest) {
         return webClient.post()
-                .uri("/oauth/accounts/anonymous")
+                .uri("/oauth2/accounts/anonymous")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(createAnonymousAccountRequest), CreateAnonymousAccountRequest.class)
@@ -79,7 +79,7 @@ public class OAuthServiceClientImpl implements OAuthServiceClient {
     @Override
     public Mono<Void> addUserToAccount(String accountId, String userId) {
         return webClient.put()
-                .uri("/oauth/accounts/" + accountId + "/users/" + userId)
+                .uri("/oauth2/accounts/" + accountId + "/users/" + userId)
                 .retrieve()
                 .bodyToMono(Void.class);
     }
@@ -87,7 +87,7 @@ public class OAuthServiceClientImpl implements OAuthServiceClient {
     @Override
     public Mono<LoginWithGoogleResponse> loginWithGoogle(EnhancedLoginWithGoogleRequest loginWithGoogleRequest) {
         return webClient.post()
-                .uri("/oauth/accounts/google")
+                .uri("/oauth2/accounts/google")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(loginWithGoogleRequest), EnhancedLoginWithGoogleRequest.class)
