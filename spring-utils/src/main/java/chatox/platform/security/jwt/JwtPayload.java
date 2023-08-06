@@ -52,18 +52,18 @@ public class JwtPayload implements UserDetails {
         authorities.addAll(jwtAuthorities);
         authorities.addAll(jwtScope);
 
-        if (token.containsClaim(Claims.GLOBAL_BAN_ID)) {
+        if (token.hasClaim(Claims.GLOBAL_BAN_ID)) {
             globalBanInfo = new GlobalBanInfo();
             globalBanInfo.setId(token.getClaimAsString(Claims.GLOBAL_BAN_ID));
 
-            if (token.containsClaim(Claims.GLOBAL_BAN_EXPIRATION_DATE)) {
+            if (token.hasClaim(Claims.GLOBAL_BAN_EXPIRATION_DATE)) {
                 globalBanInfo.setExpiresAt(ZonedDateTime.ofInstant(
                         token.getClaimAsInstant(Claims.GLOBAL_BAN_EXPIRATION_DATE),
                         ZoneId.of("UTC")
                 ));
             }
 
-            globalBanInfo.setPermanent(token.containsClaim(Claims.GLOBAL_BAN_PERMANENT)
+            globalBanInfo.setPermanent(token.hasClaim(Claims.GLOBAL_BAN_PERMANENT)
                     && token.getClaimAsBoolean(Claims.GLOBAL_BAN_PERMANENT));
         }
     }

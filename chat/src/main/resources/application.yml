@@ -3,6 +3,7 @@ spring:
     name: chat-service
   main:
     allow-bean-definition-overriding: true
+    allow-circular-references: true
   data:
     mongodb:
       repositories:
@@ -67,3 +68,9 @@ chatox:
   method:
     logging:
       enabled: true
+  elasticsearch:
+    sync:
+      messages:
+        sync-on-start: false
+      chats:
+        sync-on-start: false

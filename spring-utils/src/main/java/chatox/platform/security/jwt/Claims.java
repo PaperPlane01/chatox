@@ -1,6 +1,6 @@
 package chatox.platform.security.jwt;
 
-interface Claims {
+public interface Claims {
     String ACCOUNT_ID = "account_id";
     String USER_ID = "user_id";
     String CLIENT_ID = "client_id";

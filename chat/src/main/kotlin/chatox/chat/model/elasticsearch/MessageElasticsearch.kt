@@ -21,14 +21,14 @@ data class MessageElasticsearch(
         override val senderId: String,
         override val chatId: String,
 
-        @Field(type = FieldType.Date, format = DateFormat.ordinal_date_time)
+        @Field(type = FieldType.Date, format = [DateFormat.ordinal_date_time])
         override val createdAt: ZonedDateTime,
 
-        @Field(type = FieldType.Date, format = DateFormat.ordinal_date_time)
+        @Field(type = FieldType.Date, format = [DateFormat.ordinal_date_time])
         override val updatedAt: ZonedDateTime?,
         override val deleted: Boolean,
 
-        @Field(type = FieldType.Date, format = DateFormat.ordinal_date_time)
+        @Field(type = FieldType.Date, format = [DateFormat.ordinal_date_time])
         override val deletedAt: ZonedDateTime?,
         override val deletedById: String? = null,
         override val uploadAttachmentsIds: List<String> = listOf(),
@@ -37,7 +37,7 @@ data class MessageElasticsearch(
         override val pinned: Boolean = false,
         override val pinnedById: String? = null,
 
-        @Field(type = FieldType.Date, format = DateFormat.ordinal_date_time)
+        @Field(type = FieldType.Date, format = [DateFormat.ordinal_date_time])
         override val pinnedAt: ZonedDateTime? = null,
         override val fromScheduled: Boolean = false,
         override val index: Long = 0L,

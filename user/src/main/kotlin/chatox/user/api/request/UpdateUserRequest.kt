@@ -1,11 +1,11 @@
 package chatox.user.api.request
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Past
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 import java.time.ZonedDateTime
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.Past
-import javax.validation.constraints.Pattern
-import javax.validation.constraints.Size
 
 data class UpdateUserRequest(
         @field:NotBlank

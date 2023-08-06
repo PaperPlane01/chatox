@@ -1,6 +1,7 @@
 package chatox.chat.service.impl
 
 import chatox.chat.api.response.MessageResponse
+import chatox.chat.config.property.ElasticsearchSynchronizationProperties
 import chatox.chat.mapper.MessageMapper
 import chatox.chat.model.User
 import chatox.chat.repository.elasticsearch.MessageElasticsearchRepository
@@ -12,7 +13,6 @@ import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
@@ -24,9 +24,9 @@ class MessageSearchServiceImpl(private val messageElasticsearchRepository: Messa
                                private val messageMongoRepository: MessageMongoRepository,
                                private val chatParticipationRepository: ChatParticipationRepository,
                                private val messageMapper: MessageMapper,
-                               private val authenticationHolder: ReactiveAuthenticationHolder<User>) : MessageSearchService {
-    @Value("\${messages.elasticsearch.sync-on-start}")
-    private var runSyncOnStart: Boolean = false
+                               private val authenticationHolder: ReactiveAuthenticationHolder<User>,
+                               private val elasticsearchSync: ElasticsearchSynchronizationProperties
+) : MessageSearchService {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     override fun searchMessages(text: String, chatId: String, paginationRequest: PaginationRequest): Flux<MessageResponse> {
@@ -73,7 +73,7 @@ class MessageSearchServiceImpl(private val messageElasticsearchRepository: Messa
 
     @EventListener(ApplicationReadyEvent::class)
     fun onApplicationStarted() {
-        if (!runSyncOnStart) {
+        if (!elasticsearchSync.messages.syncOnStart) {
             return
         }
 

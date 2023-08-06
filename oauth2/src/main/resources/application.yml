@@ -29,12 +29,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQL94Dialect
-        merge:
-          entity_copy_observer: allow
-    show-sql: true
+      merge:
+        entity_copy_observer: allow
+    show-sql: ${OAUTH2_SERVICE_DEBUG_QUERIES:false}
   rabbitmq:
     listener:
       simple:

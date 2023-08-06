@@ -32,8 +32,7 @@ public class TokenExchanger {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(exchangeTokenRequest), ExchangeTokenRequest.class)
-                .exchange()
-                .doOnNext(clientResponse -> {
+                .exchangeToMono(clientResponse -> {
                     if (clientResponse.statusCode().isError()) {
                         if (clientResponse.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
                             throw new AccessTokenExpiredException("Access token is either expired or invalid");
@@ -46,8 +45,9 @@ public class TokenExchanger {
 
                         throw new InternalServerErrorException();
                     }
+
+                    return clientResponse.bodyToMono(ExchangeTokenResponse.class);
                 })
-                .flatMap(clientResponse -> clientResponse.bodyToMono(ExchangeTokenResponse.class))
                 .map(ExchangeTokenResponse::getJwt);
 
     }

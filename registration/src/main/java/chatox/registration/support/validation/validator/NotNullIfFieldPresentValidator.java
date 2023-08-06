@@ -1,11 +1,11 @@
 package chatox.registration.support.validation.validator;
 
 import chatox.registration.support.validation.annotation.NotNullIfFieldPresent;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.util.Collection;
 import java.util.Map;
 

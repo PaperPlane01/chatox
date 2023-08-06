@@ -1,7 +1,6 @@
 package chatox.oauth2.security;
 
 import chatox.oauth2.domain.Account;
-import chatox.oauth2.domain.GlobalBan;
 import chatox.oauth2.domain.Role;
 import chatox.oauth2.domain.UserRole;
 import lombok.Getter;
@@ -11,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CustomUserDetails implements UserDetails {
@@ -29,6 +27,9 @@ public class CustomUserDetails implements UserDetails {
     @Getter
     private String email;
 
+    @Getter
+    private final Account account;
+
     public CustomUserDetails(Account account) {
         roles = account.getRoles().stream().map(UserRole::getRole).collect(Collectors.toList());
         password = account.getPasswordHash();
@@ -37,6 +38,7 @@ public class CustomUserDetails implements UserDetails {
         enabled = account.isEnabled();
         accountId = account.getId();
         email = account.getEmail();
+        this.account = account;
 
         if (account.getUserIds() != null && !account.getUserIds().isEmpty()) {
             userId = account.getUserIds().get(0);

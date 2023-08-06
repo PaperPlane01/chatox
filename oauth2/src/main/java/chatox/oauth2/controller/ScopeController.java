@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/oauth/scopes")
+@RequestMapping("/oauth2/scopes")
 @RequiredArgsConstructor
 public class ScopeController {
     private final ScopeService scopeService;

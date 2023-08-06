@@ -1,5 +1,6 @@
 package chatox.platform.security.reactive.config;
 
+import chatox.platform.security.config.JwtProperties;
 import chatox.platform.security.reactive.ChatoxReactiveAuthenticationManager;
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder;
 import chatox.platform.security.reactive.interceptor.ReactivePermissionEvaluator;
@@ -16,7 +17,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
-public abstract class AbstractReactiveSecurityConfig<UserClass> {
+public abstract class AbstractReactiveSecurityConfig<U> {
     @Autowired
     protected JwtProperties jwtProperties;
 
@@ -29,14 +30,13 @@ public abstract class AbstractReactiveSecurityConfig<UserClass> {
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http,
                                                             ReactiveJwtDecoder jwtDecoder,
                                                             ChatoxReactiveAuthenticationManager authenticationManager) {
-        http.csrf().disable()
-                .authorizeExchange()
-                .pathMatchers("/**").permitAll()
-                .and()
-                .oauth2ResourceServer()
-                .jwt()
-                .jwtDecoder(jwtDecoder)
-                .authenticationManager(authenticationManager);
+        http
+                .authorizeExchange(authorize -> authorize.pathMatchers("/**").permitAll())
+                .csrf(csrf -> csrf.disable())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {
+                    jwt.authenticationManager(authenticationManager);
+                    jwt.jwtDecoder(jwtDecoder);
+                }));
         return http.build();
     }
 
@@ -64,5 +64,5 @@ public abstract class AbstractReactiveSecurityConfig<UserClass> {
         return new ChatoxReactiveAuthenticationManager(jwtDecoder);
     }
 
-    public abstract ReactiveAuthenticationHolder<UserClass> reactiveAuthenticationHolder();
+    public abstract ReactiveAuthenticationHolder<U> reactiveAuthenticationHolder();
 }

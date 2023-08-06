@@ -1,12 +1,15 @@
 package chatox.oauth2;
 
+import chatox.platform.ChatoxConfig;
+import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
 
-import javax.annotation.PostConstruct;
 import java.util.TimeZone;
 
 @SpringBootApplication
+@Import(ChatoxConfig.class)
 public class Oauth2Application {
 
     public static void main(String[] args) {

@@ -1,10 +1,9 @@
 package chatox.registration.support.validation.validator;
 
 import chatox.registration.support.validation.annotation.FieldsValueMatch;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.BeanWrapperImpl;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 public class FieldsValueMatchValidator implements ConstraintValidator<FieldsValueMatch, Object> {
     private String field;
