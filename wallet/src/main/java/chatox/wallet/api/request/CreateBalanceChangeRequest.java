@@ -1,6 +1,8 @@
 package chatox.wallet.api.request;
 
+import chatox.wallet.model.BalanceChangeDirection;
 import chatox.wallet.model.Currency;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -9,29 +11,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateRewardRequest {
+public class CreateBalanceChangeRequest {
     @NotNull
     private Currency currency;
+
+    @NotBlank
     private String userId;
-    private ZonedDateTime periodStart;
-    private ZonedDateTime periodEnd;
 
     @NotNull
     @Positive
-    private BigDecimal minRewardValue;
+    private BigDecimal amount;
 
     @NotNull
-    @Positive
-    private BigDecimal maxRewardValue;
-    private boolean useIntegersOnly;
-    private ChronoUnit recurringPeriodUnit;
-    private Integer recurringPeriodValue;
-    private boolean active;
+    private BalanceChangeDirection direction;
+    private String comment;
 }

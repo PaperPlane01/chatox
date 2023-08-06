@@ -9,11 +9,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public abstract class BalanceChangeMapper {
 
     @BeanMapping(resultType = BalanceChangeResponse.class)
-    @Mapping(source = "data", target = "metadata", ignore = true)
+    @Mapping(source = "balanceChangeData", target = "metadata", ignore = true)
     public abstract BalanceChangeResponse toBalanceChangeResponse(BalanceChange balanceChange);
 
     @AfterMapping

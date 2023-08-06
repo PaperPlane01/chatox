@@ -5,7 +5,7 @@ import chatox.wallet.model.User;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
     @BeanMapping(resultType = UserResponse.class)

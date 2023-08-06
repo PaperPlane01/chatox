@@ -63,6 +63,10 @@ spring:
           uri: lb://sticker-service
           predicates:
             - Path=/api/v1/stickers-packs/**
+        - id: wallet-service
+          uri: lb://wallet-service
+          predicates:
+            - Path=/api/v1/balance/**, /api/v1/rewards/**
         - id: events-service
           uri: lb://events-service
           predicates:

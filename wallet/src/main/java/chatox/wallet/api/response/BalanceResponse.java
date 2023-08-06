@@ -13,7 +13,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Builder
 public class BalanceResponse {
-    private String id;
     private BigDecimal amount;
     private Currency currency;
 }

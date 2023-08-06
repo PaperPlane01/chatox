@@ -3,6 +3,7 @@ package chatox.wallet.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
@@ -18,8 +19,8 @@ import java.time.ZonedDateTime;
 
 @Entity
 @Table(indexes = {
-        @Index(name = "user_id_index", columnList = "userId"),
-        @Index(name = "user_id_and_currency_index", columnList = "userId, currency")
+        @Index(name = "user_id_index", columnList = "user_id"),
+        @Index(name = "user_id_and_currency_index", columnList = "user_id, currency")
 })
 @Data
 @AllArgsConstructor
@@ -30,7 +31,7 @@ public class Balance {
     private String id;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(foreignKey = @ForeignKey(name = "FK_balance_user"))
     private User user;
 
     @Enumerated(EnumType.STRING)

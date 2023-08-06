@@ -1,11 +1,14 @@
 package chatox.wallet.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -27,10 +30,14 @@ public class BalanceChange {
     private String id;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(foreignKey = @ForeignKey(name = "FK_balance_change_balance"))
     private Balance balance;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "FK_foreign_key_created_by"))
+    private User createdBy;
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "balanceChange")
     private List<BalanceChangeData> balanceChangeData;
 
     @Enumerated(EnumType.STRING)

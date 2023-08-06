@@ -19,7 +19,7 @@ import java.util.Map;
 public class BalanceChangeResponse {
     private String id;
     private ZonedDateTime date;
-    private BigDecimal amount;
+    private BigDecimal change;
     private BalanceChangeType type;
     private BalanceChangeDirection direction;
     private Map<BalanceChangeDataKey, String> metadata;

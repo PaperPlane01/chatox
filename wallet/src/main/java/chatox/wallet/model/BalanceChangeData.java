@@ -1,9 +1,13 @@
 package chatox.wallet.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,9 +28,9 @@ public class BalanceChangeData {
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
     private BalanceChange balanceChange;
 
+    @Enumerated(EnumType.STRING)
     private BalanceChangeDataKey key;
     private String value;
 

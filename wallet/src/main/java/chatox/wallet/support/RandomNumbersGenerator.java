@@ -11,14 +11,18 @@ public class RandomNumbersGenerator {
     private final SecureRandom random = new SecureRandom();
 
     public BigInteger randomBigInteger(BigInteger lowerBound, BigInteger upperBound) {
-        return lowerBound.add(
-                BigInteger.valueOf(random.nextInt()).multiply(upperBound.subtract(lowerBound))
-        );
+        var randomNumber = new BigInteger(upperBound.bitLength(), random);
+
+        while (randomNumber.compareTo(lowerBound) <= 0 || randomNumber.compareTo(upperBound) >= 0) {
+            randomNumber = new BigInteger(upperBound.bitLength(), random);
+        }
+
+        return randomNumber;
     }
 
-    public BigDecimal randomBigDecimal(BigDecimal loweBound, BigDecimal upperBound) {
-        return loweBound.add(
-                BigDecimal.valueOf(random.nextDouble()).multiply(upperBound.subtract(loweBound))
+    public BigDecimal randomBigDecimal(BigDecimal lowerBound, BigDecimal upperBound) {
+        return lowerBound.add(
+                BigDecimal.valueOf(random.nextDouble()).multiply(upperBound.subtract(lowerBound))
         );
     }
 }

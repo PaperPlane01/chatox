@@ -1,5 +1,6 @@
 package chatox.wallet.api.response;
 
+import chatox.wallet.model.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,5 +17,5 @@ public class RewardClaimResponse {
     private String id;
     private ZonedDateTime createdAt;
     private BigDecimal claimedAmount;
-    private BigDecimal currency;
+    private Currency currency;
 }

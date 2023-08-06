@@ -1,7 +1,8 @@
-package chatox.wallet.api.response;
+package chatox.wallet.api.request;
 
 import chatox.wallet.model.Currency;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,25 +16,19 @@ import java.time.temporal.ChronoUnit;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RewardResponse {
-    private String id;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private UserResponse createdBy;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private UserResponse updatedBy;
-    private UserResponse rewardedUser;
+public class UpdateRewardRequest {
+    @NotNull
     private Currency currency;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private ZonedDateTime createdAt;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private ZonedDateTime updatedAt;
+    private String userId;
     private ZonedDateTime periodStart;
     private ZonedDateTime periodEnd;
+
+    @NotNull
+    @Positive
     private BigDecimal minRewardValue;
+
+    @NotNull
+    @Positive
     private BigDecimal maxRewardValue;
     private boolean useIntegersOnly;
     private ChronoUnit recurringPeriodUnit;

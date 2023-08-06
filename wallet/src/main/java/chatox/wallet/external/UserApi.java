@@ -23,11 +23,19 @@ public class UserApi {
     }
 
     public UserResponse getUserById(String userId) {
+        return getUserById(userId, false);
+    }
+
+    public UserResponse getUserById(String userId, boolean returnNullIfNotFound) {
         try {
             return restTemplate.getForObject("/{userId}", UserResponse.class, userId);
         } catch (HttpStatusCodeException httpStatusCodeException) {
             if (httpStatusCodeException.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-                throw new UserNotFoundException("Could not find user with id " + userId);
+                if (returnNullIfNotFound) {
+                    return null;
+                } else {
+                    throw new UserNotFoundException("Could not find user with id " + userId);
+                }
             }
 
             log.error("Unknown error occurred when tried to retrieve user by id {}", userId, httpStatusCodeException);
