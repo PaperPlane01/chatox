@@ -7,7 +7,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import reactor.core.publisher.Mono;
 
-public abstract class AbstractReactiveAuthenticationHolder<UserClass> implements ReactiveAuthenticationHolder<UserClass> {
+public abstract class AbstractReactiveAuthenticationHolder<U> implements ReactiveAuthenticationHolder<U> {
 
     @Override
     public Mono<JwtAuthentication> getCurrentAuthentication() {
@@ -33,10 +33,10 @@ public abstract class AbstractReactiveAuthenticationHolder<UserClass> implements
     }
 
     @Override
-    public abstract Mono<UserClass> getCurrentUser();
+    public abstract Mono<U> getCurrentUser();
 
     @Override
-    public Mono<UserClass> requireCurrentUser() {
+    public Mono<U> requireCurrentUser() {
         return getCurrentUser().switchIfEmpty(Mono.error(new BadCredentialsException("Bad credentials")));
     }
 }

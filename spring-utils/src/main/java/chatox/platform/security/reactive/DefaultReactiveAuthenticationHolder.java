@@ -7,11 +7,11 @@ import reactor.core.publisher.Mono;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-public class DefaultReactiveAuthenticationHolder<UserClass> extends AbstractReactiveAuthenticationHolder<UserClass> {
-    private final Function<JwtPayload, Mono<UserClass>> userProvider;
+public class DefaultReactiveAuthenticationHolder<U> extends AbstractReactiveAuthenticationHolder<U> {
+    private final Function<JwtPayload, Mono<U>> userProvider;
 
     @Override
-    public Mono<UserClass> getCurrentUser() {
+    public Mono<U> getCurrentUser() {
         return getCurrentUserDetails().flatMap(userProvider);
     }
 }

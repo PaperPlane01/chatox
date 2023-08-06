@@ -27,6 +27,7 @@ import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
@@ -40,10 +41,16 @@ import java.util.UUID
 class ChatParticipationServiceImpl(private val chatParticipationRepository: ChatParticipationRepository,
                                    private val chatRoleRepository: ChatRoleRepository,
                                    private val chatRepository: ChatRepository,
-                                   private val chatParticipationMapper: ChatParticipationMapper,
                                    private val chatEventsPublisher: ChatEventsPublisher,
                                    private val authenticationHolder: ReactiveAuthenticationHolder<User>): ChatParticipationService {
     private val log = LoggerFactory.getLogger(this::class.java)
+
+    private lateinit var chatParticipationMapper: ChatParticipationMapper
+
+    @Autowired
+    fun setChatParticipationMapper(chatParticipationMapper: ChatParticipationMapper) {
+        this.chatParticipationMapper = chatParticipationMapper
+    }
 
     override fun joinChat(chatId: String): Mono<ChatParticipationMinifiedResponse> {
         return mono {

@@ -2,8 +2,8 @@ package chatox.user.support.validation.globalban.annotation
 
 import chatox.user.domain.GlobalBanReason
 import chatox.user.support.validation.globalban.validator.RequireCommentIfGlobalBanReasonIsValidator
-import javax.validation.Constraint
-import javax.validation.Payload
+import jakarta.validation.Constraint
+import jakarta.validation.Payload
 import kotlin.reflect.KClass
 
 @Target(allowedTargets = [AnnotationTarget.CLASS])

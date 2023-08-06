@@ -17,19 +17,23 @@ public interface GlobalBanRepository extends JpaRepository<GlobalBan, String> {
 
     @Query(
             "select globalBan from GlobalBan globalBan " +
-            "where globalBan.bannedAccount = :#{#account} " +
+            "where globalBan.bannedAccount.id = :#{#accountId} " +
             "and (globalBan.canceled = false and (globalBan.permanent = true or globalBan.expiresAt > current_date))"
     )
-    List<GlobalBan> findActiveBansOfAccount(@Param("account") Account account, Pageable pageable);
+    List<GlobalBan> findActiveBansOfAccount(@Param("accountId") String accountId, Pageable pageable);
 
     default Optional<GlobalBan> findLastActiveBanOfAccount(Account account) {
+        return findLastActiveBanOfAccount(account.getId());
+    }
+
+    default Optional<GlobalBan> findLastActiveBanOfAccount(String accountId) {
         var pageRequest = PageRequest.of(
                 0,
                 1,
                 Sort.Direction.DESC,
                 "expiresAt"
         );
-        var globalBans = findActiveBansOfAccount(account, pageRequest);
+        var globalBans = findActiveBansOfAccount(accountId, pageRequest);
 
         if (globalBans.isEmpty()) {
             return Optional.empty();

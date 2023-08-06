@@ -1,12 +1,11 @@
 package chatox.oauth2.support.validation.validator;
 
 import chatox.oauth2.support.validation.annotation.NotNullIfFieldPresent;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.ObjectUtils;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 public class NotNullIfFieldPresentValidator implements ConstraintValidator<NotNullIfFieldPresent, Object> {
     private String otherField;

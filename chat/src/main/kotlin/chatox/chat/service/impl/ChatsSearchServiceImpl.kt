@@ -1,6 +1,7 @@
 package chatox.chat.service.impl
 
 import chatox.chat.api.response.ChatResponse
+import chatox.chat.config.property.ElasticsearchSynchronizationProperties
 import chatox.chat.mapper.ChatMapper
 import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.model.ChatType
@@ -14,7 +15,7 @@ import chatox.chat.service.ChatSearchService
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
-import org.springframework.beans.factory.annotation.Value
+import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
@@ -27,9 +28,10 @@ class ChatsSearchServiceImpl(private val chatElasticsearchRepository: ChatElasti
                              private val chatRepository: ChatRepository,
                              private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                              private val chatMapper: ChatMapper,
-                             private val chatParticipationMapper: ChatParticipationMapper) : ChatSearchService {
-    @Value("\${chats.elasticsearch.sync-on-start}")
-    private var runSyncOnStart: Boolean = false
+                             private val chatParticipationMapper: ChatParticipationMapper,
+                             private val elasticsearchSync: ElasticsearchSynchronizationProperties
+) : ChatSearchService {
+    private val log = LoggerFactory.getLogger(this.javaClass)
 
     override fun searchChatsOfCurrentUser(query: String): Flux<ChatResponse> {
         return mono {
@@ -52,13 +54,17 @@ class ChatsSearchServiceImpl(private val chatElasticsearchRepository: ChatElasti
 
     override fun importChatsToElasticsearch(): Mono<Void> {
         return mono {
+            log.info("Importing chats from MongoDB to Elasticsearch")
+
             val chats = chatRepository.findAll().collectList().awaitFirst()
             val elasticsearchChats = mutableListOf<ChatElasticsearch>()
 
             for (chat in chats) {
+                log.info("Importing chat ${chat.id}")
                 val dialogDisplay = mutableListOf<DialogDisplay>()
 
                 if (chat.type == ChatType.DIALOG) {
+                    log.info("Creating dialog display for chat ${chat.id}")
                     val dialogParticipants = chatParticipationRepository.findByChatId(chat.id).collectList().awaitFirst()
                     val firstParticipant = dialogParticipants[0]
                     val secondParticipant = dialogParticipants[1]
@@ -77,7 +83,7 @@ class ChatsSearchServiceImpl(private val chatElasticsearchRepository: ChatElasti
 
     @EventListener(ApplicationReadyEvent::class)
     fun onApplicationStarted() {
-        if (runSyncOnStart) {
+        if (elasticsearchSync.chats.syncOnStart) {
             importChatsToElasticsearch().subscribe()
         }
     }

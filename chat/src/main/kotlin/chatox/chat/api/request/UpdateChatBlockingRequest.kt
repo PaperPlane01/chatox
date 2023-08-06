@@ -1,8 +1,8 @@
 package chatox.chat.api.request
 
+import jakarta.validation.constraints.Future
+import jakarta.validation.constraints.Size
 import java.time.ZonedDateTime
-import javax.validation.constraints.Future
-import javax.validation.constraints.Size
 
 data class UpdateChatBlockingRequest(
         @field:Size(max = 2000)

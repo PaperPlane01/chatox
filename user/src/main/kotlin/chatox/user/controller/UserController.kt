@@ -1,11 +1,12 @@
 package chatox.user.controller
 
+import chatox.platform.pagination.PaginationRequest
 import chatox.user.api.request.CreateUserRequest
 import chatox.user.api.request.UpdateUserRequest
 import chatox.user.security.CurrentUserService
 import chatox.user.service.UserService
 import chatox.user.service.UserSessionService
-import chatox.platform.pagination.PaginationRequest
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
-import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/users")

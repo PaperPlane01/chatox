@@ -1,6 +1,7 @@
 package chatox.oauth2.service.impl;
 
 import chatox.oauth2.domain.AuthorizedGrantType;
+import chatox.oauth2.domain.GrantType;
 import chatox.oauth2.respository.AuthorizedGrantTypeRepository;
 import chatox.oauth2.service.AuthorizedGrantTypeService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ public class AuthorizedGrantTypeServiceImpl implements AuthorizedGrantTypeServic
     private final AuthorizedGrantTypeRepository authorizedGrantTypeRepository;
 
     @Override
-    public List<String> getAllAuthorizedGrantTypes() {
+    public List<GrantType> getAllAuthorizedGrantTypes() {
         return authorizedGrantTypeRepository.findAll()
                 .stream()
                 .map(AuthorizedGrantType::getName)

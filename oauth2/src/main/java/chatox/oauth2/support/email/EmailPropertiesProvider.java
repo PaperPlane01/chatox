@@ -2,10 +2,10 @@ package chatox.oauth2.support.email;
 
 import chatox.oauth2.domain.EmailConfirmationCodeType;
 import chatox.oauth2.domain.Language;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;

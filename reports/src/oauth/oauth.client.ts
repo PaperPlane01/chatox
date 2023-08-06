@@ -18,16 +18,17 @@ export class OauthClient {
     }
 
     public async getAccessToken(tokenType: "plain" | "jwt" = "jwt"): Promise<string> {
-        const url = this.eurekaService.getUrlForService("oauth2-service")
+        const url = this.eurekaService.getUrlForService("oauth2-service");
 
         try {
             this.log.verbose("Retrieving access token");
             const accessTokenResponse = await this.axios.post<AccessTokenResponse>(
-                `${url}/oauth/token`,
+                `${url}/oauth2/token`,
                 stringify({
                     client_id: config.REPORTS_SERVICE_CLIENT_ID,
                     client_secret: config.REPORTS_SERVICE_CLIENT_SECRET,
-                    grant_type: "client_credentials"
+                    grant_type: "client_credentials",
+                    scope: "internal_reports_service"
                 }),
                 {
                     headers: {
@@ -38,7 +39,7 @@ export class OauthClient {
             );
             
             const accessToken = accessTokenResponse.data.access_token;
-            
+
             if (tokenType === "jwt") {
                 this.log.verbose("Exchanging access token to JWT");
                 const exchangeTokenRequest: ExchangeTokenRequest = {accessToken};
@@ -59,7 +60,7 @@ export class OauthClient {
         } catch (error) {
             this.log.error("Error occurred when tried to retrieve access token");
             this.log.error(error.trace ? error.trace : error);
-            
+
             throw new AccessTokenRetrievalException();
         }
     }

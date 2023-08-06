@@ -14,6 +14,7 @@ import chatox.chat.support.UserDisplayedNameHelper
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
@@ -22,12 +23,18 @@ import java.time.ZonedDateTime
 @Component
 class ChatParticipationMapper(private val userMapper: UserMapper,
                               private val chatRoleMapper: ChatRoleMapper,
-                              private val chatBlockingService: ChatBlockingService,
                               private val chatParticipationRepository: ChatParticipationRepository,
                               private val userDisplayedNameHelper: UserDisplayedNameHelper,
 
                               @Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
                               private val chatRoleCacheWrapper: ReactiveRepositoryCacheWrapper<ChatRole, String>) {
+
+    private lateinit var chatBlockingService: ChatBlockingService
+
+    @Autowired
+    fun setChatBlockingService(chatBlockingService: ChatBlockingService) {
+        this.chatBlockingService = chatBlockingService
+    }
 
     fun toMinifiedChatParticipationResponse(chatParticipation: ChatParticipation, updateChatBlockingStatusIfNecessary: Boolean = false): Mono<ChatParticipationMinifiedResponse> {
         return mono {

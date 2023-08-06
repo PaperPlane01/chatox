@@ -4,9 +4,9 @@ import chatox.user.domain.GlobalBanReason
 import chatox.user.support.validation.globalban.annotation.RequireCommentIfGlobalBanReasonIs
 import chatox.user.support.validation.globalban.annotation.RequireExpirationDateIfBanIsNotPermanent
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.validation.constraints.Future
+import jakarta.validation.constraints.NotNull
 import java.time.ZonedDateTime
-import javax.validation.constraints.Future
-import javax.validation.constraints.NotNull
 
 @RequireCommentIfGlobalBanReasonIs(reasons = [GlobalBanReason.OTHER])
 @RequireExpirationDateIfBanIsNotPermanent

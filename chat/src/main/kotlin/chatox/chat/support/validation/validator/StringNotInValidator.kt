@@ -1,8 +1,8 @@
 package chatox.chat.support.validation.validator
 
 import chatox.chat.support.validation.annotation.StringNotIn
-import javax.validation.ConstraintValidator
-import javax.validation.ConstraintValidatorContext
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
 
 class StringNotInValidator : ConstraintValidator<StringNotIn, String> {
     private lateinit var constraintAnnotation: StringNotIn

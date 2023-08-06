@@ -2,12 +2,11 @@ package chatox.oauth2.support.validation.validator;
 
 import chatox.oauth2.domain.EmailConfirmationCodeType;
 import chatox.oauth2.support.validation.annotation.FieldMustBeNotNullIfEmailConfirmationCodeTypeIs;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.ObjectUtils;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 public class FieldMustBeNotNullIfEmailConfirmationCodeTypeIsValidator
         implements ConstraintValidator<FieldMustBeNotNullIfEmailConfirmationCodeTypeIs, Object> {

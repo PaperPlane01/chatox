@@ -1,12 +1,12 @@
 package chatox.chat.support.validation.validator
 
 import chatox.chat.support.validation.annotation.MaxIntervalFromNow
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
 import org.slf4j.LoggerFactory
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Date
-import javax.validation.ConstraintValidator
-import javax.validation.ConstraintValidatorContext
 
 class MaxIntervalFromNowValidator : ConstraintValidator<MaxIntervalFromNow, Any> {
     private lateinit var constraintAnnotation: MaxIntervalFromNow

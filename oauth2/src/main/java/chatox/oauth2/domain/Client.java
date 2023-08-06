@@ -1,21 +1,27 @@
 package chatox.oauth2.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Entity
@@ -25,14 +31,12 @@ import java.util.List;
 @Builder
 public class Client {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String name;
     private String secretHash;
 
-    @ManyToMany
-    @LazyCollection(LazyCollectionOption.EXTRA)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "clientToScope",
             joinColumns = {
@@ -44,8 +48,7 @@ public class Client {
     )
     private List<Scope> scope;
 
-    @ManyToMany
-    @LazyCollection(LazyCollectionOption.EXTRA)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "clientToAuthorizedGrantType",
             joinColumns = {
@@ -67,4 +70,34 @@ public class Client {
     private Integer refreshTokenValidity;
     private String redirectUri;
     private boolean autoApprove;
+
+    public RegisteredClient toRegisteredClient() {
+        var tokenSettings = TokenSettings.builder()
+                .accessTokenTimeToLive(Duration.of(accessTokenValidity, ChronoUnit.MINUTES))
+                .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
+                .reuseRefreshTokens(true);
+
+        if (refreshTokenValidity != null) {
+            tokenSettings.refreshTokenTimeToLive(Duration.of(refreshTokenValidity, ChronoUnit.MINUTES));
+        }
+
+        return RegisteredClient
+                .withId(id)
+                .clientId(id)
+                .clientIdIssuedAt(createdAt.toInstant())
+                .clientName(name)
+                .clientSecret(secretHash)
+                .clientAuthenticationMethods(methods -> {
+                    methods.add(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
+                    methods.add(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+                })
+                .clientSettings(ClientSettings.builder().build())
+                .authorizationGrantTypes(grantTypes -> grantTypes.addAll(authorizedGrantTypes.stream()
+                        .map(AuthorizedGrantType::toAuthorizationGrantType)
+                        .toList()
+                ))
+                .scopes(scopes -> scopes.addAll(scope.stream().map(Scope::getName).toList()))
+                .tokenSettings(tokenSettings.build())
+                .build();
+    }
 }
