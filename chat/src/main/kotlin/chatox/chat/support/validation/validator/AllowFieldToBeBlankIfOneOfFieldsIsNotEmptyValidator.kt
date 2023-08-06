@@ -1,10 +1,10 @@
 package chatox.chat.support.validation.validator
 
 import chatox.chat.support.validation.annotation.AllowFieldToBeBlankIfOneOfFieldsIsNotEmpty
-import org.springframework.beans.PropertyAccessorFactory
-import org.springframework.util.ObjectUtils
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
+import org.springframework.beans.PropertyAccessorFactory
+import org.springframework.util.ObjectUtils
 
 class AllowFieldToBeBlankIfOneOfFieldsIsNotEmptyValidator
     : ConstraintValidator<AllowFieldToBeBlankIfOneOfFieldsIsNotEmpty, Any> {

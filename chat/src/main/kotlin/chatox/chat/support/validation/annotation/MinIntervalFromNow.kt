@@ -1,9 +1,9 @@
 package chatox.chat.support.validation.annotation
 
 import chatox.chat.support.validation.validator.MinIntervalFromNowValidator
-import java.time.temporal.ChronoUnit
 import jakarta.validation.Constraint
 import jakarta.validation.Payload
+import java.time.temporal.ChronoUnit
 import kotlin.reflect.KClass
 
 @Target(allowedTargets = [AnnotationTarget.FIELD])

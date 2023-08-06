@@ -5,10 +5,10 @@ import chatox.chat.support.validation.annotation.MaxIntervalFromNow
 import chatox.chat.support.validation.annotation.MinIntervalFromNow
 import chatox.chat.support.validation.annotation.StringIn
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
 import jakarta.validation.constraints.Future
 import jakarta.validation.constraints.Size
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 
 @AllowFieldToBeBlankIfOneOfFieldsIsNotEmpty(
         checkedField = "_text",
