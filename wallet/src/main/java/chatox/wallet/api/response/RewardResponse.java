@@ -39,4 +39,5 @@ public class RewardResponse {
     private ChronoUnit recurringPeriodUnit;
     private Integer recurringPeriodValue;
     private boolean active;
+    private String name;
 }
