@@ -54,4 +54,5 @@ public class Reward {
     private ChronoUnit recurringPeriodUnit;
     private Integer recurringPeriodValue;
     private boolean active;
+    private String name;
 }

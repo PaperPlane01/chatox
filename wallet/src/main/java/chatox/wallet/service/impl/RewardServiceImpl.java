@@ -76,6 +76,7 @@ public class RewardServiceImpl implements RewardService {
                 .useIntegersOnly(createRewardRequest.isUseIntegersOnly())
                 .rewardedUser(rewardedUser)
                 .active(createRewardRequest.isActive())
+                .name(createRewardRequest.getName())
                 .build();
         rewardRepository.save(reward);
 
@@ -106,6 +107,7 @@ public class RewardServiceImpl implements RewardService {
         reward.setActive(updateRewardRequest.isActive());
         reward.setUpdatedAt(ZonedDateTime.now());
         reward.setUpdatedBy(currentUser);
+        reward.setName(updateRewardRequest.getName());
 
         rewardRepository.save(reward);
 
