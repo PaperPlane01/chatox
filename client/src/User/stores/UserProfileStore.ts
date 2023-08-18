@@ -13,7 +13,11 @@ export class UserProfileStore {
        makeAutoObservable(this);
     }
 
-    setSelectedUser = (slug: string): void => {
+    setSelectedUser = (slug?: string): void => {
+        if (!slug) {
+            return;
+        }
+
         const user = this.entities.users.findByIdOrSlug(slug);
 
         if (user) {

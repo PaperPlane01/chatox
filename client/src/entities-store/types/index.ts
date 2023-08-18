@@ -9,6 +9,7 @@ import {ChatWithCreatorIdEntity, ReportEntity} from "../../Report/types";
 import {StickerEntity, StickerPackEntity} from "../../Sticker";
 import {ChatRoleEntity} from "../../ChatRole/types";
 import {RequiredField} from "../../utils/types";
+import {RewardEntity} from "../../Reward/types";
 
 export type Entities = "messages"
     | "chats"
@@ -26,7 +27,8 @@ export type Entities = "messages"
     | "reportedChats"
     | "stickers"
     | "stickerPacks"
-    | "chatRoles";
+    | "chatRoles"
+    | "rewards";
 
 interface EntityMap<T> {
     [key: string]: T
@@ -51,6 +53,7 @@ export type GetEntityType<Key extends Entities>
     : Key extends "stickers" ? StickerEntity
     : Key extends "stickerPacks" ? StickerPackEntity
     : Key extends "chatRoles" ? ChatRoleEntity
+    : Key extends "rewards" ? RewardEntity
     : never;
 //@formatter:on
 

@@ -32,6 +32,18 @@ export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "r
 
         denormalizedEntities.forEach(user => {
             const userEntity = this.convertToNormalizedForm(user);
+
+            if (options.retrieveOnlineStatusFromExistingUser) {
+                const existingUser = this.findByIdOptional(user.id);
+
+                if (existingUser && !existingUser.onlineStatusMightBeInaccurate) {
+                    userEntity.online = existingUser.online;
+                    userEntity.lastSeen = existingUser.lastSeen
+                } else {
+                    userEntity.onlineStatusMightBeInaccurate = true;
+                }
+            }
+
             patch.entities[this.getEntityName()][userEntity.id] = userEntity;
             patch.ids[this.entityName].push(userEntity.id);
 

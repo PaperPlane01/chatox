@@ -4,7 +4,7 @@ import {IAppState} from "./IAppState";
 
 class RootStore {
     public readonly store: IAppState = store;
-    public readonly router: RouterStore<RootStore> = new RouterStore<RootStore>(this);
+    public readonly router: RouterStore<any> = new RouterStore(this);
 }
 
 export const rootStore = new RootStore();
