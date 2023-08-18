@@ -39,15 +39,4 @@ public abstract class RewardMapper {
             rewardResponse.updatedAt(null);
         }
     }
-
-    @AfterMapping
-    protected void setLastClaimDate(
-            @MappingTarget CurrentUserRewardResponse.CurrentUserRewardResponseBuilder currentUserReward,
-            Reward reward,
-            @Context Map<String, RewardClaim> recurringRewardClaimMap) {
-
-        if (reward.getRecurringPeriodValue() != null && recurringRewardClaimMap.containsKey(reward.getId())) {
-            currentUserReward.lastClaim(recurringRewardClaimMap.get(reward.getId()).getCreatedAt());
-        }
-    }
 }
