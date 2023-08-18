@@ -6,15 +6,11 @@ import chatox.wallet.api.request.CreateBalanceChangeRequest;
 import chatox.wallet.api.response.BalanceChangeResponse;
 import chatox.wallet.api.response.BalanceResponse;
 import chatox.wallet.exception.BalanceNotFoundException;
-import chatox.wallet.external.UserApi;
 import chatox.wallet.mapper.BalanceChangeMapper;
 import chatox.wallet.mapper.BalanceMapper;
 import chatox.wallet.model.Balance;
 import chatox.wallet.model.BalanceChange;
-import chatox.wallet.model.BalanceChangeData;
-import chatox.wallet.model.BalanceChangeDataKey;
 import chatox.wallet.model.BalanceChangeDirection;
-import chatox.wallet.model.BalanceChangeType;
 import chatox.wallet.model.Currency;
 import chatox.wallet.model.RewardClaim;
 import chatox.wallet.model.User;
@@ -22,6 +18,7 @@ import chatox.wallet.repository.BalanceChangeRepository;
 import chatox.wallet.repository.BalanceRepository;
 import chatox.wallet.service.BalanceService;
 import chatox.wallet.service.UserService;
+import chatox.wallet.support.BalanceChangeFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -41,6 +37,7 @@ import java.util.stream.Stream;
 public class BalanceServiceImpl implements BalanceService {
     private final BalanceRepository balanceRepository;
     private final BalanceChangeRepository balanceChangeRepository;
+    private final BalanceChangeFactory balanceChangeFactory;
     private final BalanceMapper balanceMapper;
     private final BalanceChangeMapper balanceChangeMapper;
     private final AuthenticationHolder<User> authenticationHolder;
@@ -128,24 +125,7 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     public void updateBalance(Balance balance, RewardClaim rewardClaim) {
-        var balanceChange = BalanceChange.builder()
-                .id(UUID.randomUUID().toString())
-                .change(rewardClaim.getClaimedAmount())
-                .balanceBefore(balance.getAmount())
-                .balance(balance)
-                .date(ZonedDateTime.now())
-                .type(BalanceChangeType.REWARD)
-                .direction(BalanceChangeDirection.IN)
-                .build();
-        var balanceChangeData = List.of(
-                BalanceChangeData.builder()
-                        .id(UUID.randomUUID().toString())
-                        .key(BalanceChangeDataKey.REWARD_CLAIM_ID)
-                        .value(rewardClaim.getId())
-                        .balanceChange(balanceChange)
-                        .build()
-        );
-        balanceChange.setBalanceChangeData(balanceChangeData);
+        var balanceChange = balanceChangeFactory.createBalanceChange(balance, rewardClaim);
         applyBalanceChange(balance, balanceChange);
     }
 
@@ -168,30 +148,7 @@ public class BalanceServiceImpl implements BalanceService {
                 true,
                 () -> userService.requireUserById(createBalanceChangeRequest.getUserId())
         );
-
-        var balanceChange = BalanceChange.builder()
-                .id(UUID.randomUUID().toString())
-                .change(createBalanceChangeRequest.getAmount())
-                .balanceBefore(balance.getAmount())
-                .balance(balance)
-                .date(ZonedDateTime.now())
-                .type(
-                        createBalanceChangeRequest.getDirection().equals(BalanceChangeDirection.IN)
-                                ? BalanceChangeType.MANUAL_ADD
-                                : BalanceChangeType.MANUAL_DEDUCT
-                )
-                .direction(createBalanceChangeRequest.getDirection())
-                .createdBy(currentUser)
-                .build();
-        var balanceChangeData = List.of(
-                BalanceChangeData.builder()
-                        .id(UUID.randomUUID().toString())
-                        .key(BalanceChangeDataKey.COMMENT)
-                        .value(createBalanceChangeRequest.getComment())
-                        .balanceChange(balanceChange)
-                        .build()
-        );
-        balanceChange.setBalanceChangeData(balanceChangeData);
+        var balanceChange = balanceChangeFactory.createBalanceChange(balance, createBalanceChangeRequest, currentUser);
 
         return balanceMapper.toBalanceResponse(applyBalanceChange(balance, balanceChange));
     }
