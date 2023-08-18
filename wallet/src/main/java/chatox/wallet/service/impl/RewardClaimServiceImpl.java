@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -62,10 +61,6 @@ public class RewardClaimServiceImpl implements RewardClaimService {
                         reward.getRecurringPeriodValue(),
                         reward.getRecurringPeriodUnit()
                 );
-                System.out.println(nextDate.toEpochSecond());
-                System.out.println(ZonedDateTime.now().toEpochSecond());
-                System.out.println(nextDate);
-                System.out.println(ZonedDateTime.now());
 
                 if (ZonedDateTime.now().isBefore(nextDate)) {
                     throw new RewardHasBeenClaimedRecentlyException(nextDate);
