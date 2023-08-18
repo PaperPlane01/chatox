@@ -4,6 +4,7 @@ import chatox.platform.pagination.PaginationRequest;
 import chatox.platform.pagination.annotation.PaginationConfig;
 import chatox.platform.pagination.annotation.SortBy;
 import chatox.wallet.api.request.CreateRewardRequest;
+import chatox.wallet.api.request.UpdateRewardRequest;
 import chatox.wallet.api.response.CurrentUserRewardResponse;
 import chatox.wallet.api.response.RewardResponse;
 import chatox.wallet.service.RewardService;
@@ -11,7 +12,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,6 +43,13 @@ public class RewardController {
     @PostMapping
     public RewardResponse createReward(@RequestBody @Valid CreateRewardRequest createRewardRequest) {
         return rewardService.createReward(createRewardRequest);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{rewardId}")
+    public RewardResponse updateReward(@PathVariable String rewardId,
+                                       @RequestBody @Valid UpdateRewardRequest updateRewardRequest) {
+        return rewardService.updateReward(rewardId, updateRewardRequest);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
