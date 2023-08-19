@@ -2,6 +2,7 @@ package chatox.platform.exception.metadata;
 
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.Map;
@@ -14,6 +15,10 @@ public class ServletChatoxErrorAttributes extends DefaultErrorAttributes {
 
         if (error instanceof MetadataEnhancedException) {
             errorAttributes.put("metadata", ((MetadataEnhancedException) error).getMetadata());
+        }
+
+        if (error instanceof MethodArgumentNotValidException ) {
+            errorAttributes.put("constraintViolations", ((MethodArgumentNotValidException) error).getFieldErrors());
         }
 
         return errorAttributes;

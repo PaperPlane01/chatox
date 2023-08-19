@@ -1,5 +1,8 @@
 package chatox.wallet.api.request;
 
+import chatox.platform.validation.annotation.Compare;
+import chatox.platform.validation.annotation.ComparisonResult;
+import chatox.platform.validation.annotation.RequireAllIfOneNotNull;
 import chatox.wallet.model.Currency;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Max;
@@ -19,6 +22,18 @@ import java.time.temporal.ChronoUnit;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@RequireAllIfOneNotNull(fields = {"periodStart", "periodEnd"})
+@RequireAllIfOneNotNull(fields = {"recurringPeriodUnit", "recurringPeriodValue"})
+@Compare(
+        field = "periodStart",
+        compareWith = "periodEnd",
+        expectedResult = ComparisonResult.LESS_THAN_OR_EQUALS
+)
+@Compare(
+        field = "minRewardValue",
+        compareWith = "maxRewardValue",
+        expectedResult = ComparisonResult.LESS_THAN_OR_EQUALS
+)
 public class CreateRewardRequest {
     @NotNull
     private Currency currency;
