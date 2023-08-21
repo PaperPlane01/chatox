@@ -2,7 +2,7 @@ import {mergeWith} from "lodash";
 import {createTransformer} from "mobx-utils";
 import {UserEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
-import {EntitiesPatch, GetEntityType} from "../../entities-store";
+import {EntitiesPatch, GetEntityType, RawEntityKey} from "../../entities-store";
 import {User} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
 
@@ -27,7 +27,7 @@ export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "r
     });
 
     createPatchForArray(denormalizedEntities: User[], options: UserInsertOptions = {retrieveOnlineStatusFromExistingUser: false}): EntitiesPatch {
-        const patch = this.createEmptyEntitiesPatch(this.getEntityName());
+        const patch = this.createEmptyPatch();
         const patches: EntitiesPatch[] = [];
 
         denormalizedEntities.forEach(user => {
@@ -55,7 +55,7 @@ export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "r
         return mergeWith(patch, ...patches, mergeCustomizer);
     }
 
-    private getEntityName(): "users" | "reportedUsers" | "reportedMessageSenders" {
+    private getEntityName(): RawEntityKey {
         return this.entityName;
     }
 
