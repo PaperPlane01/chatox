@@ -127,7 +127,9 @@ import {
 } from "../EmailUpdate";
 import {ThemeStore} from "../Theme";
 import {
+    ClaimableRewardsStore,
     CreateRewardStore,
+    RewardClaimStore,
     RewardDetailsDialogStore,
     RewardDetailsStore,
     RewardsListStore,
@@ -260,5 +262,7 @@ export interface IAppState {
     rewardUpdateUserSelect: SelectUserForRewardStore,
     rewardsList: RewardsListStore,
     rewardDetails: RewardDetailsStore,
-    rewardDetailsDialog: RewardDetailsDialogStore
+    rewardDetailsDialog: RewardDetailsDialogStore,
+    claimableRewards: ClaimableRewardsStore,
+    rewardClaim: RewardClaimStore
 }

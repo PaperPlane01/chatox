@@ -138,7 +138,9 @@ import {
 } from "../EmailUpdate";
 import {ThemeStore} from "../Theme";
 import {
+    ClaimableRewardsStore,
     CreateRewardStore,
+    RewardClaimStore,
     RewardDetailsDialogStore,
     RewardDetailsStore,
     RewardsListStore,
@@ -339,6 +341,8 @@ const rewardUpdate = new UpdateRewardStore(
 const rewardsList = new RewardsListStore(entities);
 const rewardDetails = new RewardDetailsStore();
 const rewardDetailsDialog = new RewardDetailsDialogStore();
+const claimableRewards = new ClaimableRewardsStore(entities, authorization);
+const rewardClaim = new RewardClaimStore(claimableRewards, entities);
 
 export const store: IAppState = {
     authorization,
@@ -465,5 +469,7 @@ export const store: IAppState = {
     rewardUpdateUserSelect,
     rewardsList,
     rewardDetails,
-    rewardDetailsDialog
+    rewardDetailsDialog,
+    claimableRewards,
+    rewardClaim
 };

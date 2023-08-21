@@ -2,7 +2,7 @@ import React, {Fragment, FunctionComponent, KeyboardEvent, RefObject, useEffect}
 import {observer} from "mobx-react";
 import {Hidden, IconButton, InputAdornment, TextField, Theme, Tooltip} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
-import {KeyboardVoice, Send} from "@mui/icons-material";
+import {KeyboardVoice} from "@mui/icons-material";
 import {EmojiData} from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 import {AttachFilesButton} from "./AttachFilesButton";
@@ -10,10 +10,11 @@ import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton
 import {EmojiAndStickerPicker} from "./EmojiAndStickerPicker";
 import {EmojiPickerContainer} from "./EmojiPickerContainer";
 import {SendMessageButton} from "./SendMessageButton";
+import {MessageFormData} from "../types";
 import {MarkdownPreviewDialog} from "../../Markdown";
 import {useLocalization, useStore} from "../../store";
 import {SendMessageButton as SendMessageButtonType} from "../../Chat";
-import {MessageFormData} from "../types";
+import {ClaimRewardButton} from "../../Reward";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     textField: {
@@ -152,6 +153,7 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
                                                className={classes.inputAdornment}
                                >
                                    <AttachFilesButton/>
+                                   <ClaimRewardButton/>
                                </InputAdornment>
                            ),
                            endAdornment: (

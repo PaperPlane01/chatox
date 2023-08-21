@@ -49,3 +49,6 @@ export const STATUS = "status";
 export const ROLES = "roles";
 export const SEARCH = "search";
 export const REWARDS = "rewards";
+export const AVAILABLE = "available";
+export const CLAIM = "claim";
+

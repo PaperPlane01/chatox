@@ -46,3 +46,5 @@ export * from "./SendMessagesFeatureData";
 export * from "./Currency";
 export * from "./Reward";
 export * from "./TimeUnit";
+export * from "./UserReward";
+export * from "./RewardClaim";

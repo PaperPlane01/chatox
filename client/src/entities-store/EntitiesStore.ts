@@ -10,7 +10,7 @@ import {AuthorizationStore} from "../Authorization";
 import {StickersStore, StickerPacksStore} from "../Sticker";
 import {ReportedChatsStore, ReportedMessagesStore, ReportsStore} from "../Report";
 import {GlobalBansStore} from "../GlobalBan";
-import {RewardsStore} from "../Reward";
+import {RewardsStore, UserRewardsStore} from "../Reward";
 
 export class EntitiesStore {
     public messages: MessagesStore<"messages">;
@@ -30,6 +30,7 @@ export class EntitiesStore {
     public reportedChats: ReportedChatsStore;
     public reports: ReportsStore;
     public rewards: RewardsStore;
+    public userRewards: UserRewardsStore;
 
     constructor(rawEntities: RawEntitiesStore, authorization: AuthorizationStore) {
         this.messages = new MessagesStore(rawEntities, "messages", this);
@@ -49,5 +50,6 @@ export class EntitiesStore {
         this.reportedChats = new ReportedChatsStore(rawEntities, "reportedChats", this);
         this.reports = new ReportsStore(rawEntities, "reports", this);
         this.rewards = new RewardsStore(rawEntities, this);
+        this.userRewards = new UserRewardsStore(rawEntities, "userRewards", this);
     }
 }

@@ -21,7 +21,8 @@ export class RawEntitiesStore {
         stickers: {},
         stickerPacks: {},
         chatRoles: {},
-        rewards: {}
+        rewards: {},
+        userRewards: {}
     };
 
     ids: EntitiesIds = {
@@ -42,7 +43,8 @@ export class RawEntitiesStore {
         stickers: [],
         stickerPacks: [],
         chatRoles: [],
-        rewards: []
+        rewards: [],
+        userRewards: []
     };
 
     constructor() {
