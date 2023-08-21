@@ -13,7 +13,7 @@ public enum ComparisonResult {
     GTE;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public boolean satisfices(Comparable first, Comparable second) {
+    public boolean satisfies(Comparable first, Comparable second) {
         switch (this) {
             case LESS_THAN, LT -> {
                 return first.compareTo(second) < 0;

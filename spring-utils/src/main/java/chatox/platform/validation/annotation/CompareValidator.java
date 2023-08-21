@@ -44,7 +44,7 @@ class CompareValidator implements ConstraintValidator<Compare, Object> {
             return true;
         }
 
-        var result = expectedResult.satisfices((Comparable) fieldValue, (Comparable) compareWithValue);
+        var result = expectedResult.satisfies((Comparable) fieldValue, (Comparable) compareWithValue);
 
         if (!result) {
             addConstraintViolation(context);
