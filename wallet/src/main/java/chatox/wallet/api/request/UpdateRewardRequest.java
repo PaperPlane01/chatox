@@ -1,5 +1,6 @@
 package chatox.wallet.api.request;
 
+import chatox.platform.validation.annotation.AllowedChronoUnits;
 import chatox.platform.validation.annotation.Compare;
 import chatox.platform.validation.annotation.ComparisonResult;
 import chatox.platform.validation.annotation.RequireAllIfOneNotNull;
@@ -55,6 +56,16 @@ public class UpdateRewardRequest {
     @Max(ValidationConstants.MAX_REWARD_VALUE)
     private BigDecimal maxRewardValue;
     private boolean useIntegersOnly;
+
+    @AllowedChronoUnits({
+            ChronoUnit.SECONDS,
+            ChronoUnit.MINUTES,
+            ChronoUnit.HOURS,
+            ChronoUnit.DAYS,
+            ChronoUnit.WEEKS,
+            ChronoUnit.MONTHS,
+            ChronoUnit.YEARS
+    })
     private ChronoUnit recurringPeriodUnit;
     private Integer recurringPeriodValue;
     private boolean active;
