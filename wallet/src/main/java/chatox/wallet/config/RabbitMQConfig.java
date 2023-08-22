@@ -60,4 +60,9 @@ public class RabbitMQConfig {
                 .to(userEvents())
                 .with("user.updated.#");
     }
+
+    @Bean
+    public TopicExchange balanceEvents() {
+        return new TopicExchange("balance.events");
+    }
 }
