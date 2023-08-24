@@ -1,0 +1,42 @@
+{
+  "active": true,
+  "claimed": false,
+  "maxRewardValue": 20,
+  "minRewardValue": 1,
+  "recurringPeriodValue": 10,
+  "useIntegersOnly": true,
+  "createdAt": "2023-08-06T15:40:56.38586Z",
+  "periodEnd": null,
+  "periodStart": null,
+  "updatedAt": null,
+  "createdBy": {
+    "deleted": false,
+    "createdAt": "2023-01-31T15:48:29.868Z",
+    "dateOfBirth": "1900-01-14T18:00:00.000Z",
+    "accountId": null,
+    "bio": null,
+    "email": null,
+    "externalAvatarUri": null,
+    "firstName": "Test",
+    "id": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+    "lastName": null,
+    "slug": "testuser",
+    "avatar": {
+      "id": "629273d608e4210d449ef7f5",
+      "uri": "http://localhost:8080/api/v1/uploads/images/629273d608e4210d449ef7f5.jpg",
+      "meta": {
+        "width": 800,
+        "height": 800
+      },
+      "name": "629273d608e4210d449ef7f5.jpg",
+      "type": "IMAGE",
+      "mimeType": "image/jpeg",
+      "extension": "jpg",
+      "originalName": "image.jpg"
+    }
+  },
+  "currency": "COIN",
+  "id": "e80462ea-6fb9-4574-ad18-2db22c9bca4c",
+  "recurringPeriodUnit": "MINUTES",
+  "name": null
+}

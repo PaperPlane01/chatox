@@ -1,19 +1,20 @@
 package chatox.wallet.service.impl;
 
-import chatox.wallet.api.response.UserResponse;
 import chatox.wallet.external.UserApi;
 import chatox.wallet.mapper.UserMapper;
-import chatox.wallet.model.User;
 import chatox.wallet.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static chatox.util.test.ResourceLoader.loadResource;
+import static chatox.util.test.TestObjects.user;
+import static chatox.util.test.TestObjects.userResponse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -23,6 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @DisplayName("UserServiceImpl tests")
+@ExtendWith(MockitoExtension.class)
 class UserServiceTests {
     @Mock
     UserRepository userRepository;
@@ -43,11 +45,9 @@ class UserServiceTests {
         @Test
         @DisplayName("It returns user from database")
         void findUser_returnsUserFromDatabase() {
-            var user = loadResource("user.json", User.class);
-            var userResponse = loadResource("user-response.json", UserResponse.class);
+            var user = user();
 
             when(userRepository.findById(anyString())).thenReturn(Optional.of(user));
-            when(userMapper.toUserResponse(user)).thenReturn(userResponse);
 
             var result = userService.findUserById("123");
 
@@ -58,8 +58,8 @@ class UserServiceTests {
         @Test
         @DisplayName("It calls UserApi and saves user in database if user is not present in database")
         void findUser_whenUserNotPresentInDatabase_thenCallApiAndSaveUserToDatabase() {
-            var user = loadResource("user.json", User.class);
-            var userResponse = loadResource("user-response.json", UserResponse.class);
+            var user = user();
+            var userResponse = userResponse();
 
             when(userRepository.findById(anyString())).thenReturn(Optional.empty());
             when(userApi.getUserById(anyString(), eq(true))).thenReturn(userResponse);

@@ -1,13 +1,18 @@
 package chatox.util.test;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import org.apache.commons.io.IOUtils;
-
-import java.nio.charset.StandardCharsets;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.FileCopyUtils;
 
 public class ResourceLoader {
     private static ObjectMapper objectMapper = new ObjectMapper();
+
+    static {
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.findAndRegisterModules();
+    }
 
     public static ObjectMapper getObjectMapper() {
         return objectMapper;
@@ -19,7 +24,10 @@ public class ResourceLoader {
 
     @SneakyThrows
     public static <T> T loadResource(String fileName, Class<T> targetClass) {
-        var json = IOUtils.resourceToString(fileName, StandardCharsets.UTF_8);
-        return objectMapper.readValue(json, targetClass);
+       var classPathResource = new ClassPathResource(fileName);
+       var bytes = FileCopyUtils.copyToByteArray(classPathResource.getInputStream());
+       var json = new String(bytes);
+
+       return objectMapper.readValue(json, targetClass);
     }
 }

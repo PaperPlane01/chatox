@@ -4,9 +4,8 @@
   "bio": "__Test!__",
   "firstName": "Test",
   "lastName": null,
-  "createdAt": "2021-01-31T15:48:29.868Z",
-  "lastSeen": "2023-08-24T04:50:43.345Z",
-  "dateOfBirth": "2005-01-14T18:00:00Z",
+  "createdAt": "2023-01-31T15:48:29.868Z",
+  "dateOfBirth": "1900-01-14T18:00:00.000Z",
   "online": true,
   "anonymous": false,
   "avatar": {
