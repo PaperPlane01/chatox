@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -31,6 +32,12 @@ public class BalanceController {
     @GetMapping
     public List<BalanceResponse> getBalanceOfCurrentUser() {
         return balanceService.getBalanceOfCurrentUser();
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_internal_get_balance')")
+    @GetMapping(params = "userId")
+    public List<BalanceResponse> getBalancesOfUser(@RequestParam String userId) {
+        return balanceService.getBalanceOfUser(userId);
     }
 
     @PreAuthorize("hasRole('USER')")

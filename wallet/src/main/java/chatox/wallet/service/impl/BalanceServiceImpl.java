@@ -28,6 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -45,7 +46,21 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     public List<BalanceResponse> getBalanceOfCurrentUser() {
-        var userId = authenticationHolder.requireCurrentUserDetails().getId();
+        return getBalancesOrCreateNew(
+                authenticationHolder.requireCurrentUserDetails().getId(),
+                $ -> authenticationHolder.requireCurrentUser()
+        );
+    }
+
+    @Override
+    public List<BalanceResponse> getBalanceOfUser(String userId) {
+        return getBalancesOrCreateNew(
+                userId,
+                userService::requireUserById
+        );
+    }
+
+    private List<BalanceResponse> getBalancesOrCreateNew(String userId, Function<String, User> userProvider) {
         var balances = balanceRepository.findByUserId(userId);
 
         if (balances.size() == Currency.values().length) {
@@ -54,7 +69,7 @@ public class BalanceServiceImpl implements BalanceService {
                     .toList();
         }
 
-        var user = authenticationHolder.requireCurrentUser();
+        var user = userProvider.apply(userId);
 
         return createMissingBalances(balances, user)
                 .stream()

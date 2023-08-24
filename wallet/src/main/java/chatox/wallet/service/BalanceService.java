@@ -14,6 +14,7 @@ import java.util.List;
 
 public interface BalanceService {
     List<BalanceResponse> getBalanceOfCurrentUser();
+    List<BalanceResponse> getBalanceOfUser(String userId);
     Balance getBalanceOfCurrentUser(Currency currency);
     Balance getBalanceOfCurrentUser(Currency currency, boolean createIfAbsent);
     Balance applyBalanceChange(Balance balance, BalanceChange balanceChange);
