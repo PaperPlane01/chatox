@@ -28,6 +28,7 @@ public class BalanceChangeData {
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_balance_change_id"))
     private BalanceChange balanceChange;
 
     @Enumerated(EnumType.STRING)
