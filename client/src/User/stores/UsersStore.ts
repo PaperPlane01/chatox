@@ -2,7 +2,7 @@ import {mergeWith} from "lodash";
 import {createTransformer} from "mobx-utils";
 import {UserEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
-import {EntitiesPatch, GetEntityType} from "../../entities-store";
+import {EntitiesPatch, GetEntityType, RawEntityKey} from "../../entities-store";
 import {User} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
 
@@ -27,11 +27,23 @@ export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "r
     });
 
     createPatchForArray(denormalizedEntities: User[], options: UserInsertOptions = {retrieveOnlineStatusFromExistingUser: false}): EntitiesPatch {
-        const patch = this.createEmptyEntitiesPatch(this.getEntityName());
+        const patch = this.createEmptyPatch();
         const patches: EntitiesPatch[] = [];
 
         denormalizedEntities.forEach(user => {
             const userEntity = this.convertToNormalizedForm(user);
+
+            if (options.retrieveOnlineStatusFromExistingUser) {
+                const existingUser = this.findByIdOptional(user.id);
+
+                if (existingUser && !existingUser.onlineStatusMightBeInaccurate) {
+                    userEntity.online = existingUser.online;
+                    userEntity.lastSeen = existingUser.lastSeen
+                } else {
+                    userEntity.onlineStatusMightBeInaccurate = true;
+                }
+            }
+
             patch.entities[this.getEntityName()][userEntity.id] = userEntity;
             patch.ids[this.entityName].push(userEntity.id);
 
@@ -43,7 +55,7 @@ export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "r
         return mergeWith(patch, ...patches, mergeCustomizer);
     }
 
-    private getEntityName(): "users" | "reportedUsers" | "reportedMessageSenders" {
+    private getEntityName(): RawEntityKey {
         return this.entityName;
     }
 

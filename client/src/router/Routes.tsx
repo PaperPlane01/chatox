@@ -1,5 +1,6 @@
 import React, {lazy, Suspense} from "react";
 import {CircularProgress} from "@mui/material";
+import {QueryParams, Route, RouteParams} from "mobx-router";
 import {store} from "../store";
 import {getSettingsTabFromString} from "../Settings";
 import {ErrorBoundary} from "../ErrorBoundary";
@@ -31,8 +32,7 @@ const GoogleAuthentication = lazy(() => import("../pages/GoogleAuthenticationPag
 const CreateStickerPackPage = lazy(() => import("../pages/CreateStickerPackPage"));
 const StickerPacksPage = lazy(() => import("../pages/StickerPacksPage"));
 const NewPrivateChatPage = lazy(() => import("../pages/NewPrivateChatPage"));
-
-const {Route} = require("mobx-router");
+const RewardsManagementPage = lazy(() => import("../pages/RewardsManagementPage"));
 
 export const Routes = {
     home: new Route({
@@ -80,18 +80,18 @@ export const Routes = {
                 </Suspense>
             </ErrorBoundary>
         ),
-        onEnter: (view: any, params: any, _: any, queryParams: any) => {
+        onEnter: (_view: Route<any>, _params: RouteParams, _store: any, queryParams: QueryParams) => {
             if (queryParams) {
                 store.messageCreation.setEmojiPickerExpanded(`${queryParams.emojiPickerExpanded}` === "true");
             }
         },
-        onParamsChange: (view: any, params: any, _: any, queryParams: any) => {
+        onParamsChange: (_view: Route<any>, _params: RouteParams, _store: any, queryParams: QueryParams) => {
             if (queryParams) {
                 store.messageCreation.setEmojiPickerExpanded(`${queryParams.emojiPickerExpanded}` === "true");
             }
         }
     }),
-    chatPage: new Route({
+    chatPage: new Route<any, {slug?: string}>({
         path: "/chat/:slug",
         component: (
             <ErrorBoundary>
@@ -100,11 +100,11 @@ export const Routes = {
                 </Suspense>
             </ErrorBoundary>
         ),
-        onEnter: (view: any, params: any, _: any, queryParams: any) => {
+        onEnter: (_view, params, _store, queryParams) => {
             store.chat.setSelectedChat(params.slug);
             store.messageCreation.setEmojiPickerExpanded(`${queryParams && queryParams.emojiPickerExpanded}` === "true");
         },
-        onParamsChange: (view: any, params: any, _: any, queryParams: any) => {
+        onParamsChange: (view, params, _store, queryParams) => {
             store.chat.setSelectedChat(params.slug);
             store.messageCreation.setEmojiPickerExpanded(`${queryParams && queryParams.emojiPickerExpanded}` === "true");
             store.messagesSearch.reset();
@@ -114,7 +114,7 @@ export const Routes = {
             store.messagesSearch.reset();
         }
     }),
-    chatMessagePage: new Route({
+    chatMessagePage: new Route<any, {slug?: string, messageId?: string}>({
         path: "/chat/:slug/message/:messageId",
         component: (
             <ErrorBoundary>
@@ -123,11 +123,11 @@ export const Routes = {
                 </Suspense>
             </ErrorBoundary>
         ),
-        onEnter: (view: any, params: any) => {
+        onEnter: (_, params) => {
             store.chat.setSelectedChat(params.slug);
             store.messageDialog.setMessageId(params.messageId);
         },
-        onParamsChange: (view: any, params: any) => {
+        onParamsChange: (_, params) => {
             store.chat.setSelectedChat(params.slug);
             store.messageDialog.setMessageId(params.messageId);
             store.messagesSearch.reset();
@@ -136,7 +136,7 @@ export const Routes = {
             store.messageDialog.setMessageId(undefined);
         }
     }),
-    userPage: new Route({
+    userPage: new Route<any, {slug?: string}>({
         path: "/user/:slug",
         component: (
             <ErrorBoundary>
@@ -145,7 +145,7 @@ export const Routes = {
                 </Suspense>
             </ErrorBoundary>
         ),
-        onEnter: (view: any, params: any) => {
+        onEnter: (view, params) => {
             store.userProfile.setSelectedUser(params.slug)
         },
         onParamsChange: (view: any, params: any) => {
@@ -171,11 +171,11 @@ export const Routes = {
                 </Suspense>
             </ErrorBoundary>
         ),
-        onEnter: (view: any, params: any) => {
-            store.settingsTabs.setActiveTab(getSettingsTabFromString(params.tab as string))
+        onEnter: (_: Route<any>, params: RouteParams) => {
+            store.settingsTabs.setActiveTab(getSettingsTabFromString(params?.tab as string))
         },
-        onParamsChange: (view: any, params: any) => {
-            store.settingsTabs.setActiveTab(getSettingsTabFromString(params.tab as string))
+        onParamsChange: (_: Route<any>, params: RouteParams) => {
+            store.settingsTabs.setActiveTab(getSettingsTabFromString(params?.tab as string))
         },
         onExit: () => {
             store.settingsTabs.setActiveTab(undefined);
@@ -197,7 +197,7 @@ export const Routes = {
             store.globalBansList.reset();
         }
     }),
-    scheduledMessagesPage: new Route({
+    scheduledMessagesPage: new Route<any, {slug?: string}>({
         path: "/chat/:slug/scheduled-messages",
         component: (
             <ErrorBoundary>
@@ -206,9 +206,9 @@ export const Routes = {
                 </Suspense>
             </ErrorBoundary>
         ),
-        onEnter: (view: any, params: any) => {
+        onEnter: (_, params) => {
             store.scheduledMessagesOfChat.setReactToChatIdChange(true);
-            store.chat.setSelectedChat(params.slug);
+            store.chat.setSelectedChat(params?.slug);
             store.scheduledMessagesOfChat.fetchScheduledMessages();
         },
         onParamsChange: (view: any, params: any) => {
@@ -312,6 +312,21 @@ export const Routes = {
         onExit: () => {
             store.stickerPacksSearch.setReactToNameChange(false);
             store.stickerPacksSearch.reset();
+        }
+    }),
+    rewardsManagement: new Route({
+        path: "/rewards/management",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <RewardsManagementPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: () => {
+            if (!store.rewardsList.fetchingState.initiallyFetched) {
+                store.rewardsList.fetchRewards();
+            }
         }
     })
 };

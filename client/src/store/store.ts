@@ -137,6 +137,16 @@ import {
     UpdateEmailStore
 } from "../EmailUpdate";
 import {ThemeStore} from "../Theme";
+import {
+    ClaimableRewardsStore,
+    CreateRewardStore,
+    RewardClaimStore,
+    RewardDetailsDialogStore,
+    RewardDetailsStore,
+    RewardsListStore,
+    SelectUserForRewardStore,
+    UpdateRewardStore
+} from "../Reward";
 
 const rawEntities = new RawEntitiesStore();
 const authorization = new AuthorizationStore();
@@ -314,6 +324,25 @@ const emailUpdate = new UpdateEmailStore(
     snackbarService
 );
 const theme = new ThemeStore();
+const rewardCreationUserSelect = new SelectUserForRewardStore(entities);
+const rewardCreation = new CreateRewardStore(
+    entities,
+    rewardCreationUserSelect,
+    language,
+    snackbarService
+);
+const rewardUpdateUserSelect = new SelectUserForRewardStore(entities);
+const rewardUpdate = new UpdateRewardStore(
+    entities,
+    rewardUpdateUserSelect,
+    language,
+    snackbarService
+);
+const rewardsList = new RewardsListStore(entities);
+const rewardDetails = new RewardDetailsStore();
+const rewardDetailsDialog = new RewardDetailsDialogStore();
+const claimableRewards = new ClaimableRewardsStore(entities, authorization);
+const rewardClaim = new RewardClaimStore(claimableRewards, entities);
 
 export const store: IAppState = {
     authorization,
@@ -433,5 +462,14 @@ export const store: IAppState = {
     newEmailConfirmationCode,
     newEmailConfirmationCodeCheck,
     emailUpdate,
-    theme
+    theme,
+    rewardCreation,
+    rewardCreationUserSelect,
+    rewardUpdate,
+    rewardUpdateUserSelect,
+    rewardsList,
+    rewardDetails,
+    rewardDetailsDialog,
+    claimableRewards,
+    rewardClaim
 };

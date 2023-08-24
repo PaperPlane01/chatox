@@ -10,6 +10,7 @@ import {ChatsModule} from "./chats";
 import {GlobalBansModule} from "./global-bans";
 import {ChatRoleModule} from "./chat-roles";
 import {config} from "./env-config";
+import {BalanceModule} from "./balance";
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import {config} from "./env-config";
       ChatsModule,
       GlobalBansModule,
       ChatRoleModule,
+      BalanceModule,
       MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.EVENTS_SERVICE_DATABASE_NAME}`)
   ]
 })

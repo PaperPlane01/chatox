@@ -1,0 +1,142 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet author="User (generated)" id="1692861753040-1">
+        <createTable tableName="balance">
+            <column name="amount" type="numeric(38, 2)"/>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="last_change" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="currency" type="VARCHAR(255)"/>
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="balance_pkey"/>
+            </column>
+            <column name="user_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-2">
+        <createTable tableName="balance_change_data">
+            <column name="balance_change_id" type="VARCHAR(255)"/>
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="balance_change_data_pkey"/>
+            </column>
+            <column name="key" type="VARCHAR(255)"/>
+            <column name="value" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-3">
+        <createTable tableName="balance_change">
+            <column name="balance_after" type="numeric(38, 2)"/>
+            <column name="balance_before" type="numeric(38, 2)"/>
+            <column name="change" type="numeric(38, 2)"/>
+            <column name="date" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="balance_id" type="VARCHAR(255)"/>
+            <column name="direction" type="VARCHAR(255)"/>
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="balance_change_pkey"/>
+            </column>
+            <column name="type" type="VARCHAR(255)"/>
+            <column name="created_by_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-4">
+        <createTable tableName="reward">
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="claimed" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_reward_value" type="numeric(38, 2)"/>
+            <column name="min_reward_value" type="numeric(38, 2)"/>
+            <column name="recurring_period_value" type="INTEGER"/>
+            <column name="use_integers_only" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="period_end" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="period_start" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="created_by_id" type="VARCHAR(255)"/>
+            <column name="currency" type="VARCHAR(255)"/>
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="reward_pkey"/>
+            </column>
+            <column name="recurring_period_unit" type="VARCHAR(255)"/>
+            <column name="rewarded_user_id" type="VARCHAR(255)"/>
+            <column name="updated_by_id" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-5">
+        <createIndex indexName="user_id_index" tableName="balance">
+            <column name="user_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-6">
+        <createIndex indexName="user_id_and_currency_index" tableName="balance">
+            <column name="user_id"/>
+            <column name="currency"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-7">
+        <createTable tableName="reward_claim">
+            <column name="claimed_amount" type="numeric(38, 2)"/>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="balance_id" type="VARCHAR(255)"/>
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="reward_claim_pkey"/>
+            </column>
+            <column name="reward_id" type="VARCHAR(255)"/>
+            <column name="user_id" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-8">
+        <createTable tableName="user_entity">
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="date_of_birth" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="account_id" type="VARCHAR(255)"/>
+            <column name="bio" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="external_avatar_uri" type="VARCHAR(255)"/>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="id" type="VARCHAR(255)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="user_entity_pkey"/>
+            </column>
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="slug" type="VARCHAR(255)"/>
+            <column name="avatar" type="JSONB"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-9">
+        <addForeignKeyConstraint baseColumnNames="balance_id" baseTableName="balance_change" constraintName="fk_balance_change_balance" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="balance" validate="true"/>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-10">
+        <addForeignKeyConstraint baseColumnNames="balance_change_id" baseTableName="balance_change_data" constraintName="fk_balance_change_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="balance_change" validate="true"/>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-11">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="balance" constraintName="fk_balance_user" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user_entity" validate="true"/>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-12">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="balance_change" constraintName="fk_foreign_key_created_by" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user_entity" validate="true"/>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-13">
+        <addForeignKeyConstraint baseColumnNames="balance_id" baseTableName="reward_claim" constraintName="fk_reward_claim_balance" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="balance" validate="true"/>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-14">
+        <addForeignKeyConstraint baseColumnNames="reward_id" baseTableName="reward_claim" constraintName="fk_reward_claim_reward" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="reward" validate="true"/>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-15">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="reward_claim" constraintName="fk_reward_claim_user" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user_entity" validate="true"/>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-16">
+        <addForeignKeyConstraint baseColumnNames="created_by_id" baseTableName="reward" constraintName="fk_reward_created_by" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user_entity" validate="true"/>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-17">
+        <addForeignKeyConstraint baseColumnNames="rewarded_user_id" baseTableName="reward" constraintName="fk_reward_rewarded_user" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user_entity" validate="true"/>
+    </changeSet>
+    <changeSet author="User (generated)" id="1692861753040-18">
+        <addForeignKeyConstraint baseColumnNames="updated_by_id" baseTableName="reward" constraintName="fk_reward_updated_by" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="user_entity" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

@@ -21,7 +21,7 @@ public class TokenExchanger {
     private final WebClient.Builder loadBalancedWebClientBuilder;
 
     private static final String OAUTH2_SERVICE_ID = "oauth2-service";
-    private static final String EXCHANGE_TOKEN = "oauth/exchangeToken";
+    private static final String EXCHANGE_TOKEN = "oauth2/exchangeToken";
 
     public Mono<String> exchangeAccessTokenToJwtToken(String accessToken) {
         var exchangeTokenRequest = new ExchangeTokenRequest(accessToken);

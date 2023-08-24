@@ -126,6 +126,16 @@ import {
     UpdateEmailStore
 } from "../EmailUpdate";
 import {ThemeStore} from "../Theme";
+import {
+    ClaimableRewardsStore,
+    CreateRewardStore,
+    RewardClaimStore,
+    RewardDetailsDialogStore,
+    RewardDetailsStore,
+    RewardsListStore,
+    SelectUserForRewardStore,
+    UpdateRewardStore
+} from "../Reward";
 
 export interface IAppState {
     language: LocaleStore,
@@ -245,5 +255,14 @@ export interface IAppState {
     newEmailConfirmationCode: SendNewEmailConfirmationCodeStore,
     newEmailConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
     emailUpdate: UpdateEmailStore,
-    theme: ThemeStore
+    theme: ThemeStore,
+    rewardCreation: CreateRewardStore,
+    rewardCreationUserSelect: SelectUserForRewardStore,
+    rewardUpdate: UpdateRewardStore,
+    rewardUpdateUserSelect: SelectUserForRewardStore,
+    rewardsList: RewardsListStore,
+    rewardDetails: RewardDetailsStore,
+    rewardDetailsDialog: RewardDetailsDialogStore,
+    claimableRewards: ClaimableRewardsStore,
+    rewardClaim: RewardClaimStore
 }

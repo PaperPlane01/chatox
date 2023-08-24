@@ -3,7 +3,7 @@ import {Routes} from "../../router";
 import {Route, RouteParams} from "mobx-router";
 
 interface ChatLinkProps {
-    route: Route<any>,
+    route: Route<any, {slug?: string}>,
     params: RouteParams
 }
 

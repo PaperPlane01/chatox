@@ -23,7 +23,13 @@ import {
     WebsocketEvent
 } from "./types";
 import {Chat, ChatBlocking, ChatMessage, GlobalBan} from "../common/types";
-import {ChatDeleted, PrivateChatCreated, UserKickedFromChat, UserLeftChat} from "../common/types/events";
+import {
+    BalanceUpdated,
+    ChatDeleted,
+    PrivateChatCreated,
+    UserKickedFromChat,
+    UserLeftChat
+} from "../common/types/events";
 import {ChatParticipationService} from "../chat-participation";
 import {ChatParticipation} from "../chat-participation/entities";
 import {ChatParticipationDto} from "../chat-participation/types";
@@ -412,6 +418,14 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.CHAT_ROLE_UPDATED
         };
         await this.publishEventToChatParticipants(chatRole.chatId, chatRoleUpdated);
+      }
+
+      public async publishBalanceUpdated(balance: BalanceUpdated) {
+        const balanceUpdated: WebsocketEvent<BalanceUpdated> = {
+            payload: balance,
+            type: EventType.BALANCE_UPDATED
+        };
+        await this.publishEventToUser(balance.userId, balanceUpdated);
       }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent): Promise<void> {

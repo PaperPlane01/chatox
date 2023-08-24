@@ -14,6 +14,19 @@ spring:
         acknowledge-mode: manual
       simple:
         acknowledge-mode: manual
+  security:
+    oauth2:
+      client:
+        provider:
+          user-service:
+            token-uri: ${TOKEN_URL:http://localhost:8080/oauth2/token}
+        registration:
+          user-service:
+            client-id: ${REGISTRATION_SERVICE_CLIENT_ID:c4798915-9db8-4683-a01b-4bb49cbf2963}
+            client-secret: ${REGISTRATION_SERVICE_CLIENT_SECRET:secret}
+            authorization-grant-type: client_credentials
+            scope:
+              - internal_get_balance
 
 server:
   port: 8083
@@ -43,3 +56,5 @@ chatox:
   method:
     logging:
       enabled: true
+  gateway:
+    url: ${GATEWAY_URL:http://localhost:8080}

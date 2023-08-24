@@ -1,0 +1,58 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: wallet-service
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/chatox-wallet-service}
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 50
+      initialization-fail-timeout: 50000
+      connection-timeout: 6000
+      jdbc-url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/chatox-wallet-service}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: ${HIBERNATE_DDL_AUTO:none}
+    properties:
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+      properties:
+        merge:
+          entity_copy_observer: allow
+    show-sql: false
+  liquibase:
+    enabled: ${LIQUIBASE_ENABLED:true}
+  rabbitmq:
+    listener:
+      simple:
+        default-requeue-rejected: false
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8081/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    appname: 'wallet-service'
+    instance-id: 'wallet-service-${server.port}'
+
+ribbon:
+  eureka:
+    enabled: true
+
+chatox:
+  jwt:
+    public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuIwjG7bwqv6J+JsuF2A3BRmJS4yj/q5esXzNkGCJSAzrtsOYX3wbf8uZCvSHtfCl/igPeL+HUgD+RtGkCqzn8WBadJfqVh1tuF3X3sc8DRQu/Z5RodRTmWDNkF1CYlEo5OcrQ5Quv5raUGl8TnRPJhjYF7quvDwV6EJTamm0sILN2tRg79pXhkf1kkAc5uhJOs+SWUYmkFGim2ZwMN5IA0QOCb0mzvj7XYgqW18376qCThtYk9CYjx9kCvuufUm93/G4VHWb2mvyHgJ8duzNeAWaPfTqShIBmuxdf0xQnCydozzzq0IvI8bd/YwouqrKFp9ueIRX2zC7WdOhpROGUwIDAQAB
+  method:
+    logging:
+      enabled: true

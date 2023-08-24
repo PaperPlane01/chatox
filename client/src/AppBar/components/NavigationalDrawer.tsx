@@ -9,6 +9,7 @@ import {SettingsMenuItem} from "./SettingsMenuItem";
 import {DrawerAudioControls} from "./DrawerAudioControls";
 import {GlobalBansMenuItem} from "./GlobalBansMenuItem";
 import {ReportsMenuItem} from "./ReportsMenuItem";
+import {RewardsManagementMenuItem} from "./RewardsManagementMenuItem";
 import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {PasswordRecoveryDialog} from "../../PasswordRecovery";
@@ -54,6 +55,7 @@ export const NavigationalDrawer: FunctionComponent = observer(() => {
                         <Divider/>
                         <GlobalBansMenuItem onClick={closeDrawer}/>
                         <ReportsMenuItem onClick={closeDrawer}/>
+                        <RewardsManagementMenuItem onClick={closeDrawer}/>
                     </HasRole>
                     <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
                         <Divider/>
