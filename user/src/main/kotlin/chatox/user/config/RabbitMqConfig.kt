@@ -71,6 +71,18 @@ class RabbitMqConfig {
             .to(accountEvents())
             .with("account.email.updated.#")
 
+    @Bean
+    fun balanceEvents() = TopicExchange("balance.events")
+
+    @Bean
+    fun balanceUpdatedQueue() = Queue("user_service_balance_updated")
+
+    @Bean
+    fun balanceUpdatedBinding(): Binding = BindingBuilder
+            .bind(balanceUpdatedQueue())
+            .to(balanceEvents())
+            .with("balance.updated.#")
+
     @Autowired
     @Bean
     fun rabbitTemplate(connectionFactory: ConnectionFactory,
