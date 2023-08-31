@@ -65,4 +65,22 @@ public class RabbitMQConfig {
     public TopicExchange balanceEvents() {
         return new TopicExchange("balance.events");
     }
+
+    @Bean
+    public TopicExchange userInteractionEvents() {
+        return new TopicExchange("user.interactions.events");
+    }
+
+    @Bean
+    public Queue userInteractionCreated() {
+        return new Queue("wallet_service_user_interaction_created");
+    }
+
+    @Bean
+    public Binding userInteractionCreatedBinding() {
+        return BindingBuilder
+                .bind(userInteractionCreated())
+                .to(userInteractionEvents())
+                .with("user.interaction.created.#");
+    }
 }

@@ -1,6 +1,7 @@
 package chatox.wallet.support;
 
 import chatox.wallet.api.request.CreateBalanceChangeRequest;
+import chatox.wallet.event.UserInteractionCreated;
 import chatox.wallet.model.Balance;
 import chatox.wallet.model.BalanceChange;
 import chatox.wallet.model.BalanceChangeData;
@@ -63,6 +64,34 @@ public class BalanceChangeFactory {
                         .id(UUID.randomUUID().toString())
                         .key(BalanceChangeDataKey.COMMENT)
                         .value(createBalanceChangeRequest.getComment())
+                        .balanceChange(balanceChange)
+                        .build()
+        );
+        balanceChange.setBalanceChangeData(balanceChangeData);
+        return balanceChange;
+    }
+
+    public BalanceChange createBalanceChange(Balance balance, UserInteractionCreated userInteractionCreated) {
+        var balanceChange = BalanceChange.builder()
+                .id(UUID.randomUUID().toString())
+                .change(userInteractionCreated.getCost())
+                .balanceBefore(balance.getAmount())
+                .balance(balance)
+                .date(userInteractionCreated.getCreatedAt())
+                .type(BalanceChangeType.USER_INTERACTION)
+                .direction(BalanceChangeDirection.OUT)
+                .build();
+        var balanceChangeData = List.of(
+                BalanceChangeData.builder()
+                        .id(UUID.randomUUID().toString())
+                        .key(BalanceChangeDataKey.TARGET_USER_ID)
+                        .value(userInteractionCreated.getTargetUserId())
+                        .balanceChange(balanceChange)
+                        .build(),
+                BalanceChangeData.builder()
+                        .id(UUID.randomUUID().toString())
+                        .key(BalanceChangeDataKey.USER_INTERACTION_TYPE)
+                        .value(userInteractionCreated.getType().name())
                         .balanceChange(balanceChange)
                         .build()
         );
