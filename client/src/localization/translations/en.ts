@@ -608,5 +608,6 @@ export const en: Labels = {
     "reward.user.id": "User id or username",
     "reward.with-name": "Reward {rewardName}",
     "reward.with-no-name": "Reward",
-    "common.update": "Update"
+    "common.update": "Update",
+    "balance.your-balance": "Balance"
 };

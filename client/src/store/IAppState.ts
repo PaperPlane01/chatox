@@ -136,6 +136,7 @@ import {
     SelectUserForRewardStore,
     UpdateRewardStore
 } from "../Reward";
+import {BalanceStore} from "../Balance";
 
 export interface IAppState {
     language: LocaleStore,
@@ -264,5 +265,6 @@ export interface IAppState {
     rewardDetails: RewardDetailsStore,
     rewardDetailsDialog: RewardDetailsDialogStore,
     claimableRewards: ClaimableRewardsStore,
-    rewardClaim: RewardClaimStore
+    rewardClaim: RewardClaimStore,
+    balance: BalanceStore
 }

@@ -14,6 +14,7 @@ import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from ".
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {PasswordRecoveryDialog} from "../../PasswordRecovery";
 import {useStore} from "../../store";
+import {BalanceList} from "../../Balance/components";
 
 export const NavigationalDrawer: FunctionComponent = observer(() => {
     const {appBar} = useStore();
@@ -62,11 +63,14 @@ export const NavigationalDrawer: FunctionComponent = observer(() => {
                         <LogOutMenuItem onClick={closeDrawer}/>
                     </HasAnyRole>
                 </List>
+                <HasRole role="ROLE_USER">
+                    <BalanceList/>
+                </HasRole>
                 <DrawerAudioControls/>
             </SwipeableDrawer>
             <LoginDialog/>
             <RegistrationDialog/>
             <PasswordRecoveryDialog/>
         </Fragment>
-    )
+    );
 });

@@ -8,3 +8,4 @@ export * from "./UserLeftChat";
 export * from "./ChatDeleted";
 export * from "./MessageRead";
 export * from "./PrivateChatCreated";
+export * from "./BalanceUpdated";

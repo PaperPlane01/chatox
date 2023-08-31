@@ -147,6 +147,7 @@ import {
     SelectUserForRewardStore,
     UpdateRewardStore
 } from "../Reward";
+import {BalanceStore} from "../Balance";
 
 const rawEntities = new RawEntitiesStore();
 const authorization = new AuthorizationStore();
@@ -279,7 +280,15 @@ const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsSto
 const googleLogin = new LoginWithGoogleStore(authorization);
 const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
 const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
-const websocket = new WebsocketStore(authorization, entities, chat, messagesListScrollPositions, markMessageRead);
+const balance = new BalanceStore(authorization);
+const websocket = new WebsocketStore(
+    authorization,
+    entities,
+    chat,
+    messagesListScrollPositions,
+    markMessageRead,
+    balance
+);
 const stickerPackCreation = new CreateStickerPackStore(entities);
 const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
 const installedStickerPacks = new InstalledStickerPacksStore(authorization, entities);
@@ -471,5 +480,6 @@ export const store: IAppState = {
     rewardDetails,
     rewardDetailsDialog,
     claimableRewards,
-    rewardClaim
+    rewardClaim,
+    balance
 };

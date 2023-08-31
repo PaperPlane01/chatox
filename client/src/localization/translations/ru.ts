@@ -608,5 +608,6 @@ export const ru: Labels = {
     "reward.user.id": "ID или username пользователя",
     "reward.with-name": "Награда {rewardName}",
     "reward.with-no-name": "Награда",
-    "common.update": "Обновить"
+    "common.update": "Обновить",
+    "balance.your-balance": "Баланс"
 };

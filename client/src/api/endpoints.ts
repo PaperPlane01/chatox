@@ -51,4 +51,5 @@ export const SEARCH = "search";
 export const REWARDS = "rewards";
 export const AVAILABLE = "available";
 export const CLAIM = "claim";
-
+export const BALANCE = "balance";
+export const HISTORY = "history";

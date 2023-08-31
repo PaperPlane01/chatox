@@ -3,6 +3,7 @@ import {connect, Socket} from "socket.io-client"
 import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
 import {
+    BalanceUpdated,
     ChatDeleted,
     ChatUpdated,
     MessageDeleted,
@@ -17,6 +18,7 @@ import {
 import {ChatBlocking, ChatParticipation, ChatRole, GlobalBan, Message} from "../../api/types/response";
 import {ChatStore} from "../../Chat";
 import {MarkMessageReadStore, MessagesListScrollPositionsStore} from "../../Message";
+import {BalanceStore} from "../../Balance";
 
 export class WebsocketStore {
     socketIoClient?: Socket;
@@ -29,7 +31,8 @@ export class WebsocketStore {
                 private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
                 private readonly scrollPositionStore: MessagesListScrollPositionsStore,
-                private readonly markMessageReadStore: MarkMessageReadStore) {
+                private readonly markMessageReadStore: MarkMessageReadStore,
+                private readonly balanceStore: BalanceStore) {
         makeAutoObservable(this);
 
         reaction(
@@ -213,6 +216,13 @@ export class WebsocketStore {
         this.socketIoClient.on(
             WebsocketEventType.CHAT_PARTICIPANT_UPDATED,
             (event: WebsocketEvent<ChatParticipation>) => this.entities.chatParticipations.insert(event.payload)
+        );
+        this.socketIoClient.on(
+            WebsocketEventType.BALANCE_UPDATED,
+            (event: WebsocketEvent<BalanceUpdated>) => this.balanceStore.updateBalance(
+                event.payload.currency,
+                event.payload.amount
+            )
         );
     }
 

@@ -11,3 +11,4 @@ export * from "./BlacklistApi";
 export * from "./ChatRoleApi";
 export * from "./ChatParticipantApi";
 export * from "./RewardApi";
+export * from "./WalletApi";

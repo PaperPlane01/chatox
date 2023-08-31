@@ -606,5 +606,6 @@ export interface Labels {
     "common.validation.error.must-be-integer": string,
     "common.validation.error.required": string,
     "common.validation.error.value-too-large": string,
-    "common.update": string
+    "common.update": string,
+    "balance.your-balance": string
 }
