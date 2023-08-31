@@ -16,4 +16,5 @@ interface UserService {
     fun findUsersByAccount(accountId: String): Flux<UserResponse>
     fun isSlugAvailable(slug: String): Mono<SlugAvailabilityResponse>
     fun updateEmail(accountId: String, email: String): Mono<Void>
+    fun assertUserExists(id: String): Mono<Unit>
 }

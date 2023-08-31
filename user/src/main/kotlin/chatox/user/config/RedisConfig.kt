@@ -4,6 +4,7 @@ import chatox.platform.cache.CacheKeyGenerator
 import chatox.platform.cache.DefaultCacheKeyGenerator
 import chatox.platform.cache.redis.RedisReactiveCacheService
 import chatox.user.domain.User
+import chatox.user.domain.UserInteractionCost
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -28,29 +29,38 @@ class RedisConfig {
     private lateinit var applicationName: String
 
     @Bean(name = [USER_BY_ID_CACHE])
-    fun userByIdCacheService() = RedisReactiveCacheService<User>(
+    fun userByIdCacheService() = RedisReactiveCacheService(
             userRedisTemplate(),
             cacheKeyGenerator(),
             User::class.java
     ) { user -> user.id }
 
     @Bean(name = [USER_BY_SLUG_CACHE])
-    fun userBySlugCache() = RedisReactiveCacheService<User>(
+    fun userBySlugCache() = RedisReactiveCacheService(
             userRedisTemplate(),
             cacheKeyGenerator(),
             User::class.java
     ) { user -> user.slug }
 
     @Bean
+    fun userInteractionCostCache() = RedisReactiveCacheService(
+            userInteractionCostRedisTemplate(),
+            cacheKeyGenerator(),
+            UserInteractionCost::class.java
+    ) { userInteractionCost -> userInteractionCost.type.name }
+
+    @Bean
     fun userRedisTemplate() = createRedisTemplate(User::class)
+
+    @Bean
+    fun userInteractionCostRedisTemplate() = createRedisTemplate(UserInteractionCost::class)
 
     @Bean
     fun cacheKeyGenerator() = DefaultCacheKeyGenerator(applicationName, CacheKeyGenerator.ClassKeyMode.SIMPLE)
 
     private fun <T: Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
         val stringRedisSerializer = StringRedisSerializer()
-        val jackson2JsonRedisSerializer = Jackson2JsonRedisSerializer<T>(clazz.java)
-        jackson2JsonRedisSerializer.setObjectMapper(objectMapper)
+        val jackson2JsonRedisSerializer = Jackson2JsonRedisSerializer(objectMapper, clazz.java)
         val redisSerializationContext = RedisSerializationContext.newSerializationContext<String, T>(stringRedisSerializer)
                 .value(jackson2JsonRedisSerializer)
                 .build()

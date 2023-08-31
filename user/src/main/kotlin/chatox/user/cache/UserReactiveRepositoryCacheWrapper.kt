@@ -2,8 +2,10 @@ package chatox.user.cache
 
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.DefaultReactiveRepositoryCacheWrapper
+import chatox.user.api.response.UserResponse
 import chatox.user.config.RedisConfig
 import chatox.user.domain.User
+import chatox.user.mapper.UserMapper
 import chatox.user.repository.UserRepository
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -24,7 +26,10 @@ class UserReactiveRepositoryCacheWrapper(
         private val userBySlugCache: ReactiveCacheService<User, String>,
 
         @Autowired
-        private val userRepository: UserRepository
+        private val userRepository: UserRepository,
+
+        @Autowired
+        private val userMapper: UserMapper
 ) : DefaultReactiveRepositoryCacheWrapper<User, String, UserRepository>(userByIdCache, userRepository) {
 
     fun findBySlug(slug: String, putInCacheIfAbsent: Boolean): Mono<User> {
@@ -39,7 +44,7 @@ class UserReactiveRepositoryCacheWrapper(
                 }
             }
 
-            user
+            return@mono user
         }
     }
 }
