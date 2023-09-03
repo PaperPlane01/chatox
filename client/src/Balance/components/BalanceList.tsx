@@ -1,4 +1,5 @@
-import React, {FunctionComponent, ReactNode} from "react";
+import React, {FunctionComponent} from "react";
+import {entries} from "mobx";
 import {observer} from "mobx-react";
 import {Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -24,20 +25,14 @@ export const BalanceList: FunctionComponent = observer(() => {
     const {l} = useLocalization();
     const classes = useStyles();
 
-    const balanceList: ReactNode[] = [];
-
-    for (const [currency, amount] of balances.entries()) {
-        balanceList.push(
-            <Balance currency={currency} amount={amount}/>
-        );
-    }
-
     return (
         <div className={classes.balanceList}>
             <Typography>
                 {l("balance.your-balance")}
             </Typography>
-            {balanceList}
+            {entries(balances).map(([currency, amount]) => (
+                <Balance currency={currency} amount={amount}/>
+            ))}
         </div>
     );
 });

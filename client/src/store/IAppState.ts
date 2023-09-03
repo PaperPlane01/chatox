@@ -137,6 +137,12 @@ import {
     UpdateRewardStore
 } from "../Reward";
 import {BalanceStore} from "../Balance";
+import {
+    CreateUserInteractionStore,
+    UserInteractionCostsStore,
+    UserInteractionsCountStore,
+    UserInteractionsHistoryStore
+} from "../UserInteraction";
 
 export interface IAppState {
     language: LocaleStore,
@@ -266,5 +272,9 @@ export interface IAppState {
     rewardDetailsDialog: RewardDetailsDialogStore,
     claimableRewards: ClaimableRewardsStore,
     rewardClaim: RewardClaimStore,
-    balance: BalanceStore
+    balance: BalanceStore,
+    userInteractionsCount: UserInteractionsCountStore,
+    userInteractionCosts: UserInteractionCostsStore,
+    userInteractionCreation: CreateUserInteractionStore,
+    userInteractionsHistory: UserInteractionsHistoryStore
 }

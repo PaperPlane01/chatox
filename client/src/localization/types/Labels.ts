@@ -607,5 +607,18 @@ export interface Labels {
     "common.validation.error.required": string,
     "common.validation.error.value-too-large": string,
     "common.update": string,
-    "balance.your-balance": string
+    "balance.your-balance": string,
+    "user.interactions.count.fetch-error": string,
+    "user.interaction.LIKE": string,
+    "user.interaction.DISLIKE": string,
+    "user.interaction.LOVE": string,
+    "user.interaction.LIKE.count": string,
+    "user.interaction.DISLIKE.count": string,
+    "user.interaction.LOVE.count": string,
+    "user.interaction.cost": string,
+    "balance.insufficient": string,
+    "user.interaction.list": string,
+    "user.interaction.type": string,
+    "user.interaction.user": string,
+    "user.interaction.created-at": string
 }

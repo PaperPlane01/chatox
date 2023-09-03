@@ -609,5 +609,18 @@ export const en: Labels = {
     "reward.with-name": "Reward {rewardName}",
     "reward.with-no-name": "Reward",
     "common.update": "Update",
-    "balance.your-balance": "Balance"
+    "balance.your-balance": "Balance",
+    "user.interactions.count.fetch-error": "Error occurred when tried to fetch user interactions count",
+    "user.interaction.LIKE": "Like",
+    "user.interaction.DISLIKE": "Dislike",
+    "user.interaction.LOVE": "Love",
+    "user.interaction.LIKE.count": "{count} likes",
+    "user.interaction.DISLIKE.count": "{count} dislikes",
+    "user.interaction.LOVE.count": "{count} loves",
+    "user.interaction.cost": "Cost: {cost} coins",
+    "balance.insufficient": "You don't have enough coins",
+    "user.interaction.list": "Interactions",
+    "user.interaction.type": "Type",
+    "user.interaction.user": "User",
+    "user.interaction.created-at": "Date"
 };

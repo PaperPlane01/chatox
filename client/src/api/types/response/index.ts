@@ -48,3 +48,7 @@ export * from "./Reward";
 export * from "./TimeUnit";
 export * from "./UserReward";
 export * from "./RewardClaim";
+export * from "./UserInteractionsCount";
+export * from "./UserInteractionType";
+export * from "./UserInteractionCost";
+export * from "./UserInteraction";

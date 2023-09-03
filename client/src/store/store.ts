@@ -148,6 +148,12 @@ import {
     UpdateRewardStore
 } from "../Reward";
 import {BalanceStore} from "../Balance";
+import {
+    CreateUserInteractionStore,
+    UserInteractionCostsStore,
+    UserInteractionsCountStore,
+    UserInteractionsHistoryStore
+} from "../UserInteraction";
 
 const rawEntities = new RawEntitiesStore();
 const authorization = new AuthorizationStore();
@@ -352,6 +358,27 @@ const rewardDetails = new RewardDetailsStore();
 const rewardDetailsDialog = new RewardDetailsDialogStore();
 const claimableRewards = new ClaimableRewardsStore(entities, authorization);
 const rewardClaim = new RewardClaimStore(claimableRewards, entities);
+const userInteractionsCount = new UserInteractionsCountStore(
+    userProfile,
+    snackbarService,
+    language
+);
+const userInteractionCosts = new UserInteractionCostsStore(userProfile);
+const userInteractionsHistory = new UserInteractionsHistoryStore(
+    userProfile,
+    authorization,
+    entities
+);
+const userInteractionCreation = new CreateUserInteractionStore(
+    userInteractionsCount,
+    userInteractionCosts,
+    userInteractionsHistory,
+    balance,
+    userProfile,
+    authorization,
+    language,
+    snackbarService
+);
 
 export const store: IAppState = {
     authorization,
@@ -481,5 +508,9 @@ export const store: IAppState = {
     rewardDetailsDialog,
     claimableRewards,
     rewardClaim,
-    balance
+    balance,
+    userInteractionCosts,
+    userInteractionsCount,
+    userInteractionCreation,
+    userInteractionsHistory
 };
