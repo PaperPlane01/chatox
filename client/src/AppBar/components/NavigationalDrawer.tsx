@@ -13,8 +13,8 @@ import {RewardsManagementMenuItem} from "./RewardsManagementMenuItem";
 import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {PasswordRecoveryDialog} from "../../PasswordRecovery";
+import {BalanceList} from "../../Balance";
 import {useStore} from "../../store";
-import {BalanceList} from "../../Balance/components";
 
 export const NavigationalDrawer: FunctionComponent = observer(() => {
     const {appBar} = useStore();
