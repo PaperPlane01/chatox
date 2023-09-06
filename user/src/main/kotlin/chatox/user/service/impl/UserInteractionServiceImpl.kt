@@ -131,11 +131,19 @@ class UserInteractionServiceImpl(
     override fun getUserInteractionsHistory(userId: String, paginationRequest: PaginationRequest): Flux<UserInteractionResponse> {
         val usersCache = mutableMapOf<String, UserResponse>()
 
-        return userInteractionRepository
-                .findByTargetUserId(userId, paginationRequest.toPageRequest())
-                .flatMap { userInteraction -> userInteractionMapper.toUserInteractionResponse(
-                        userInteraction,
-                        usersCache
-                ) }
+        return mono {
+            val history = userInteractionRepository
+                    .findByTargetUserId(userId, paginationRequest.toPageRequest())
+                    .collectList()
+                    .awaitFirst()
+
+            return@mono history.map { userInteraction -> userInteractionMapper.toUserInteractionResponse(
+                    userInteraction,
+                    usersCache
+            )
+                    .awaitFirst()
+            }
+        }
+                .flatMapIterable { it }
     }
 }
