@@ -1,7 +1,5 @@
 package chatox.user.util
 
-import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactor.mono
 import reactor.core.publisher.Mono
 
 fun <O, ID> findAndPutToCache(
@@ -9,17 +7,13 @@ fun <O, ID> findAndPutToCache(
         id: ID,
         cache: MutableMap<ID, O>
 ): Mono<O> {
-    return mono {
-        if (cache.containsKey(id)) {
-            return@mono cache[id]!!
-        }
-
-        val target = objectProvider().awaitFirstOrNull()
-
-        if (target != null) {
-            cache[id] = target
-        }
-
-        return@mono target
+    if (cache.containsKey(id)) {
+        return Mono.just(cache[id]!!)
     }
+
+    return objectProvider()
+            .mapNotNull { target ->
+                cache[id] =target
+                return@mapNotNull target
+            }
 }
