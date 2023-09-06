@@ -622,5 +622,6 @@ export const ru: Labels = {
     "user.interaction.list": "Симпатии",
     "user.interaction.type": "Тип",
     "user.interaction.user": "Пользователь",
-    "user.interaction.created-at": "Дата"
+    "user.interaction.created-at": "Дата",
+    "user.interaction.list.empty": "У этого пользователя нет истории симпатий"
 };

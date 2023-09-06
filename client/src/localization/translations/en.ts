@@ -622,5 +622,6 @@ export const en: Labels = {
     "user.interaction.list": "Interactions",
     "user.interaction.type": "Type",
     "user.interaction.user": "User",
-    "user.interaction.created-at": "Date"
+    "user.interaction.created-at": "Date",
+    "user.interaction.list.empty": "This user has no interactions"
 };

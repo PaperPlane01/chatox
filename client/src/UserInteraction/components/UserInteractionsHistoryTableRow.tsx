@@ -1,6 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {TableCell, TableRow, Typography} from "@mui/material";
+import {TableCell, TableRow, Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {format} from "date-fns";
 import {USER_INTERACTIONS_ICONS_MAP} from "./UserInteractionIcons";
 import {useEntities, useLocalization} from "../../store";
@@ -10,6 +11,16 @@ import {UserLink} from "../../UserLink";
 interface UserInteractionsTableRowProps {
     userInteractionId: string
 }
+
+const useStyles = makeStyles((theme: Theme) => createStyles({
+    interactionTypeCell: {
+        display: "flex",
+        gap: theme.spacing(2)
+    },
+    interactionIconWrapper: {
+        color: theme.palette.primary.main
+    }
+}));
 
 export const UserInteractionsHistoryTableRow: FunctionComponent<UserInteractionsTableRowProps> = observer(({
     userInteractionId
@@ -23,16 +34,16 @@ export const UserInteractionsHistoryTableRow: FunctionComponent<UserInteractions
         }
     } = useEntities();
     const {l} = useLocalization();
+    const classes = useStyles();
     const userInteraction = findUserInteraction(userInteractionId);
     const user = findUser(userInteraction.userId);
 
     return (
         <TableRow>
-            <TableCell sx={theme => ({
-                display: "flex",
-                gap: theme.spacing(1)
-            })}>
-                {USER_INTERACTIONS_ICONS_MAP[userInteraction.type]}
+            <TableCell className={classes.interactionTypeCell}>
+                <div className={classes.interactionIconWrapper}>
+                    {USER_INTERACTIONS_ICONS_MAP[userInteraction.type]}
+                </div>
                 <Typography>
                     {l(`user.interaction.${userInteraction.type}` as keyof Labels)}
                 </Typography>

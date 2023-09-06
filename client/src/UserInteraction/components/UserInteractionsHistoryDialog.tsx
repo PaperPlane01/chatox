@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton} from "@mui/material";
+import {Button, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, Typography} from "@mui/material";
 import {Close} from "@mui/icons-material";
 import {UserInteractionHistoryTable} from "./UserInteractionHistoryTable";
 import {commonStyles} from "../../style";
@@ -13,7 +13,8 @@ export const UserInteractionsHistoryDialog: FunctionComponent = observer(() => {
             userInteractionsHistoryDialogOpen,
             setUserInteractionsHistoryDialogOpen,
             pending,
-            fetchUserInteractionsHistory
+            fetchUserInteractionsHistory,
+            userInteractionsIds
         }
     } = useStore();
     const {l} = useLocalization();
@@ -35,15 +36,27 @@ export const UserInteractionsHistoryDialog: FunctionComponent = observer(() => {
                 </IconButton>
             </DialogTitle>
             <DialogContent>
-                <UserInteractionHistoryTable/>
+                {userInteractionsIds.length !== 0 && (
+                    <UserInteractionHistoryTable/>
+                )}
                 {pending && <CircularProgress size={25} color="primary" style={commonStyles.centered}/>}
-                <Button variant="outlined"
-                        color="primary"
-                        onClick={fetchUserInteractionsHistory}
-                        disabled={pending}
-                >
-                    {l("common.load-more")}
-                </Button>
+                {!pending && userInteractionsIds.length === 0 && (
+                    <Typography variant="h6"
+                                color="textSecondary"
+                                style={commonStyles.centered}
+                    >
+                        {l("user.interaction.list.empty")}
+                    </Typography>
+                )}
+                {userInteractionsIds.length !== 0 && (
+                    <Button variant="outlined"
+                            color="primary"
+                            onClick={fetchUserInteractionsHistory}
+                            disabled={pending}
+                    >
+                        {l("common.load-more")}
+                    </Button>
+                )}
             </DialogContent>
         </Dialog>
     );

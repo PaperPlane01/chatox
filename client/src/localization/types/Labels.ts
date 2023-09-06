@@ -620,5 +620,6 @@ export interface Labels {
     "user.interaction.list": string,
     "user.interaction.type": string,
     "user.interaction.user": string,
-    "user.interaction.created-at": string
+    "user.interaction.created-at": string,
+    "user.interaction.list.empty": string
 }
