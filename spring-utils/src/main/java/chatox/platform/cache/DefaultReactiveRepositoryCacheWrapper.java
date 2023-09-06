@@ -5,6 +5,7 @@ import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -105,22 +106,24 @@ public class DefaultReactiveRepositoryCacheWrapper<T, ID, RepositoryType extends
     @Override
     public Mono<T> findById(ID id, boolean putInCacheIfAbsent) {
         return reactiveCacheService.find(id)
-                .switchIfEmpty(findInRepository(id, putInCacheIfAbsent));
+                .switchIfEmpty(Mono.defer(() -> findInRepository(id)
+                        .publishOn(Schedulers.boundedElastic())
+                        .map(object -> {
+                            if (putInCacheIfAbsent) {
+                                log.info("Saving to cache after cache miss");
+                                putInCache(object).subscribe();
+                            }
+
+                            return object;
+                        })));
     }
 
     private Mono<T> putInCache(T value) {
         return reactiveCacheService.put(value);
     }
 
-    private Mono<T> findInRepository(ID id, boolean putInCacheIfAbsent) {
-        return repositoryCall
-                .apply(reactiveCrudRepository, id)
-                .map(object -> {
-                    if (putInCacheIfAbsent) {
-                        putInCache(object).subscribe();
-                    }
-
-                    return object;
-                });
+    private Mono<T> findInRepository(ID id) {
+        log.info("Cache miss with object id {}", id);
+        return repositoryCall.apply(reactiveCrudRepository, id);
     }
 }
