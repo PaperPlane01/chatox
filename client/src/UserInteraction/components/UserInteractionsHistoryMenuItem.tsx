@@ -8,7 +8,7 @@ interface UserInteractionHistoryMenuItemProps {
     onClick?: () => void
 }
 
-export const UserInteractionHistoryMenuItem: FunctionComponent<UserInteractionHistoryMenuItemProps> = observer(({
+export const UserInteractionsHistoryMenuItem: FunctionComponent<UserInteractionHistoryMenuItemProps> = observer(({
     onClick
 }) => {
     const {
@@ -35,5 +35,5 @@ export const UserInteractionHistoryMenuItem: FunctionComponent<UserInteractionHi
                 {l("user.interaction.list")}
             </ListItemText>
         </MenuItem>
-    )
-})
+    );
+});

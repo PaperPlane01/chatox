@@ -5,7 +5,7 @@ import {UserInteractionsHistoryTableRow} from "./UserInteractionsHistoryTableRow
 import {UserInteractionsHistoryTableHeader} from "./UserInteractionsHistoryTableHeader";
 import {useStore} from "../../store";
 
-export const UserInteractionHistoryTable: FunctionComponent = observer(() => {
+export const UserInteractionsHistoryTable: FunctionComponent = observer(() => {
     const {
         userInteractionsHistory: {
             userInteractionsIds

@@ -57,5 +57,5 @@ export const UserInteractionsHistoryTableRow: FunctionComponent<UserInteractions
                 {format(userInteraction.createdAt, "dd-MM-yyyy hh:mm")}
             </TableCell>
         </TableRow>
-    )
-})
+    );
+});

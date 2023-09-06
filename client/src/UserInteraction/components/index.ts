@@ -1,5 +1,5 @@
 export * from "./CreateUserInteractionButton";
 export * from "./UserInteractionsCount";
-export * from "./UserInteractionHistoryMenuItem";
-export * from "./UserInteractionHistoryTable";
+export * from "./UserInteractionsHistoryMenuItem";
+export * from "./UserInteractionsHistoryTable";
 export * from "./UserInteractionsHistoryDialog";
