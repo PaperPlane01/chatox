@@ -83,6 +83,18 @@ class RabbitMqConfig {
             .to(balanceEvents())
             .with("balance.updated.#")
 
+    @Bean
+    fun userInteractionEvents() = TopicExchange("user.interactions.events")
+
+    @Bean
+    fun userInteractionRolledBackQueue() = Queue("user_service_user_interaction_rolled_back")
+
+    @Bean
+    fun userInteractionRolledBackBinding(): Binding = BindingBuilder
+            .bind(userInteractionRolledBackQueue())
+            .to(userInteractionEvents())
+            .with("user.interaction.rolled.back.#")
+
     @Autowired
     @Bean
     fun rabbitTemplate(connectionFactory: ConnectionFactory,

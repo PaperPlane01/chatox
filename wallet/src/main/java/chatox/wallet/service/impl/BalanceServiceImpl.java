@@ -5,6 +5,7 @@ import chatox.platform.security.web.AuthenticationHolder;
 import chatox.wallet.api.request.CreateBalanceChangeRequest;
 import chatox.wallet.api.response.BalanceChangeResponse;
 import chatox.wallet.api.response.BalanceResponse;
+import chatox.wallet.event.UserInteractionCreated;
 import chatox.wallet.exception.BalanceNotFoundException;
 import chatox.wallet.mapper.BalanceChangeMapper;
 import chatox.wallet.mapper.BalanceMapper;
@@ -141,6 +142,12 @@ public class BalanceServiceImpl implements BalanceService {
     @Override
     public void updateBalance(Balance balance, RewardClaim rewardClaim) {
         var balanceChange = balanceChangeFactory.createBalanceChange(balance, rewardClaim);
+        applyBalanceChange(balance, balanceChange);
+    }
+
+    @Override
+    public void updateBalance(Balance balance, UserInteractionCreated userInteractionCreated) {
+        var balanceChange = balanceChangeFactory.createBalanceChange(balance, userInteractionCreated);
         applyBalanceChange(balance, balanceChange);
     }
 

@@ -51,4 +51,11 @@ export const SEARCH = "search";
 export const REWARDS = "rewards";
 export const AVAILABLE = "available";
 export const CLAIM = "claim";
-
+export const BALANCE = "balance";
+export const HISTORY = "history";
+export const INTERACTIONS = "interactions";
+export const COUNT = "count";
+export const LIKE = "like";
+export const DISLIKE = "dislike";
+export const LOVE = "love";
+export const COSTS = "costs";

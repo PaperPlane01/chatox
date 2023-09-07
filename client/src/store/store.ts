@@ -147,6 +147,13 @@ import {
     SelectUserForRewardStore,
     UpdateRewardStore
 } from "../Reward";
+import {BalanceStore} from "../Balance";
+import {
+    CreateUserInteractionStore,
+    UserInteractionCostsStore,
+    UserInteractionsCountStore,
+    UserInteractionsHistoryStore
+} from "../UserInteraction";
 
 const rawEntities = new RawEntitiesStore();
 const authorization = new AuthorizationStore();
@@ -279,7 +286,15 @@ const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsSto
 const googleLogin = new LoginWithGoogleStore(authorization);
 const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
 const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
-const websocket = new WebsocketStore(authorization, entities, chat, messagesListScrollPositions, markMessageRead);
+const balance = new BalanceStore(authorization);
+const websocket = new WebsocketStore(
+    authorization,
+    entities,
+    chat,
+    messagesListScrollPositions,
+    markMessageRead,
+    balance
+);
 const stickerPackCreation = new CreateStickerPackStore(entities);
 const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
 const installedStickerPacks = new InstalledStickerPacksStore(authorization, entities);
@@ -343,6 +358,27 @@ const rewardDetails = new RewardDetailsStore();
 const rewardDetailsDialog = new RewardDetailsDialogStore();
 const claimableRewards = new ClaimableRewardsStore(entities, authorization);
 const rewardClaim = new RewardClaimStore(claimableRewards, entities);
+const userInteractionsCount = new UserInteractionsCountStore(
+    userProfile,
+    snackbarService,
+    language
+);
+const userInteractionCosts = new UserInteractionCostsStore(userProfile);
+const userInteractionsHistory = new UserInteractionsHistoryStore(
+    userProfile,
+    authorization,
+    entities
+);
+const userInteractionCreation = new CreateUserInteractionStore(
+    userInteractionsCount,
+    userInteractionCosts,
+    userInteractionsHistory,
+    balance,
+    userProfile,
+    authorization,
+    language,
+    snackbarService
+);
 
 export const store: IAppState = {
     authorization,
@@ -471,5 +507,10 @@ export const store: IAppState = {
     rewardDetails,
     rewardDetailsDialog,
     claimableRewards,
-    rewardClaim
+    rewardClaim,
+    balance,
+    userInteractionCosts,
+    userInteractionsCount,
+    userInteractionCreation,
+    userInteractionsHistory
 };

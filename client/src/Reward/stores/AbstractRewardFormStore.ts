@@ -210,8 +210,6 @@ export abstract class AbstractRewardFormStore extends AbstractFormStore<RewardFo
     }
 
     protected convertFormToApiRequest = (): RewardRequest => {
-        console.log(this.formValues.name);
-        console.log(isStringEmpty(this.formValues.name));
         return {
             minRewardValue: Number(this.formValues.minRewardValue),
             maxRewardValue: Number(this.formValues.maxRewardValue),
@@ -228,7 +226,7 @@ export abstract class AbstractRewardFormStore extends AbstractFormStore<RewardFo
             name: !isStringEmpty(this.formValues.name)
                 ? this.formValues.name
                 : undefined
-        }
+        };
     }
 
     protected abstract getSubmitFunction(): <R extends RewardRequest>(request: R) => AxiosPromise<Reward>;

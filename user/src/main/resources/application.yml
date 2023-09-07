@@ -58,3 +58,15 @@ chatox:
       enabled: true
   gateway:
     url: ${GATEWAY_URL:http://localhost:8080}
+  user:
+    interaction:
+      cost:
+        create-on-application-start: true
+        user-interaction-costs:
+          dislike: ${USER_INTERACTION_LIKE_COST:100}
+          like: ${USER_INTERACTION_DISLIKE_COST:200}
+          love: ${USER_INTERACTION_LOVE_COST:500}
+        update-existing: false
+  pagination:
+    processing:
+      enabled: true

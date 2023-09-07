@@ -5,6 +5,7 @@ import chatox.user.api.request.CreateUserRequest
 import chatox.user.api.request.UpdateUserRequest
 import chatox.user.api.response.SlugAvailabilityResponse
 import chatox.user.api.response.UserResponse
+import chatox.user.cache.UserReactiveRepositoryCacheWrapper
 import chatox.user.domain.ImageUploadMetadata
 import chatox.user.domain.Upload
 import chatox.user.domain.UploadType
@@ -34,7 +35,8 @@ class UserServiceImpl(private val userRepository: UserRepository,
                       private val uploadRepository: UploadRepository,
                       private val userMapper: UserMapper,
                       private val userEventsProducer: UserEventsProducer,
-                      private val authenticationHolder: ReactiveAuthenticationHolder<User>) : UserService {
+                      private val authenticationHolder: ReactiveAuthenticationHolder<User>,
+                      private val userCacheWrapper: UserReactiveRepositoryCacheWrapper) : UserService {
 
     override fun deleteUsersByAccount(accountId: String): Flux<Void> {
         return userRepository.findByAccountId(accountId)
@@ -164,6 +166,17 @@ class UserServiceImpl(private val userRepository: UserRepository,
             return@mono Mono.empty<Void>()
         }
                 .flatMap { it }
+    }
+
+    override fun assertUserExists(id: String): Mono<Unit> {
+        return mono {
+           userCacheWrapper.findById(
+                   id
+           ) { id -> UserNotFoundException("Could not find user with id $id") }
+                   .awaitFirstOrNull()
+
+            return@mono
+        }
     }
 
     private fun findById(id: String) = userRepository.findById(id)

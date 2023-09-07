@@ -608,5 +608,20 @@ export const ru: Labels = {
     "reward.user.id": "ID или username пользователя",
     "reward.with-name": "Награда {rewardName}",
     "reward.with-no-name": "Награда",
-    "common.update": "Обновить"
+    "common.update": "Обновить",
+    "balance.your-balance": "Баланс",
+    "user.interactions.count.fetch-error": "Произошла ошибка при получении иноформации о количестве интеракций",
+    "user.interaction.LIKE": "Лайк",
+    "user.interaction.DISLIKE": "Дизлайк",
+    "user.interaction.LOVE": "Любовь",
+    "user.interaction.LIKE.count": "{count} лайков",
+    "user.interaction.DISLIKE.count": "{count} дизлайков",
+    "user.interaction.LOVE.count": "{count} раз была выражена любовь",
+    "user.interaction.cost": "Цена: {cost} монет",
+    "balance.insufficient": "У вас недостаточно монет",
+    "user.interaction.list": "Симпатии",
+    "user.interaction.type": "Тип",
+    "user.interaction.user": "Пользователь",
+    "user.interaction.created-at": "Дата",
+    "user.interaction.list.empty": "У этого пользователя нет истории симпатий"
 };

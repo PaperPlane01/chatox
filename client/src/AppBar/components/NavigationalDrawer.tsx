@@ -13,6 +13,7 @@ import {RewardsManagementMenuItem} from "./RewardsManagementMenuItem";
 import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {PasswordRecoveryDialog} from "../../PasswordRecovery";
+import {BalanceList} from "../../Balance";
 import {useStore} from "../../store";
 
 export const NavigationalDrawer: FunctionComponent = observer(() => {
@@ -62,11 +63,14 @@ export const NavigationalDrawer: FunctionComponent = observer(() => {
                         <LogOutMenuItem onClick={closeDrawer}/>
                     </HasAnyRole>
                 </List>
+                <HasRole role="ROLE_USER">
+                    <BalanceList/>
+                </HasRole>
                 <DrawerAudioControls/>
             </SwipeableDrawer>
             <LoginDialog/>
             <RegistrationDialog/>
             <PasswordRecoveryDialog/>
         </Fragment>
-    )
+    );
 });

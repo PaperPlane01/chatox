@@ -16,7 +16,8 @@ interface UserLinkProps {
     boldText?: boolean,
     avatarWidth?: number,
     avatarHeight?: number,
-    identifierType?: "slug" | "id"
+    identifierType?: "slug" | "id",
+    onClick?: () => void
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -36,7 +37,8 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
     boldText = false,
     avatarWidth = 30,
     avatarHeight = 30,
-    identifierType = "slug"
+    identifierType = "slug",
+    onClick
 }) => {
     const routerStore = useRouter();
     const classes = useStyles();
@@ -46,42 +48,46 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
 
     if (displayAvatar) {
         return (
-            <Link route={Routes.userPage}
-                  params={{slug: identifierType === "slug" ? user.slug : user.id}}
-                  className={classes.userLink}
-                  router={routerStore}
-            >
-                <Avatar avatarLetter={avatarLabel}
-                        avatarColor={color}
-                        width={avatarWidth}
-                        height={avatarHeight}
-                        avatarId={user.avatarId}
-                        avatarUri={user.externalAvatarUri}
-                />
-                <Typography className={classes.userNicknameTypography}
-                            style={{color}}
+            <div onClick={onClick}>
+                <Link route={Routes.userPage}
+                      params={{slug: identifierType === "slug" ? user.slug : user.id}}
+                      className={classes.userLink}
+                      router={routerStore}
                 >
-                    {boldText
-                        ? <strong>{text}</strong>
-                        : text
-                    }
-                </Typography>
-            </Link>
+                    <Avatar avatarLetter={avatarLabel}
+                            avatarColor={color}
+                            width={avatarWidth}
+                            height={avatarHeight}
+                            avatarId={user.avatarId}
+                            avatarUri={user.externalAvatarUri}
+                    />
+                    <Typography className={classes.userNicknameTypography}
+                                style={{color}}
+                    >
+                        {boldText
+                            ? <strong>{text}</strong>
+                            : text
+                        }
+                    </Typography>
+                </Link>
+            </div>
         );
     } else {
         return (
-            <Link route={Routes.userPage}
-                  params={{slug: user.slug}}
-                  className={classes.userLink}
-                  router={routerStore}
-            >
-                <Typography style={{color}}>
-                    {boldText
-                        ? <strong>{text}</strong>
-                        : text
-                    }
-                </Typography>
-            </Link>
+           <div onClick={onClick}>
+               <Link route={Routes.userPage}
+                     params={{slug: user.slug}}
+                     className={classes.userLink}
+                     router={routerStore}
+               >
+                   <Typography style={{color}}>
+                       {boldText
+                           ? <strong>{text}</strong>
+                           : text
+                       }
+                   </Typography>
+               </Link>
+           </div>
         );
     }
 });

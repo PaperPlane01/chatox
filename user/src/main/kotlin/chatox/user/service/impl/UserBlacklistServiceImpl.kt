@@ -16,6 +16,7 @@ import chatox.user.messaging.rabbitmq.event.producer.BlacklistEventsProducer
 import chatox.user.repository.UserBlacklistRepository
 import chatox.user.repository.UserRepository
 import chatox.user.service.UserBlacklistService
+import chatox.user.service.UserService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -28,6 +29,7 @@ import java.util.UUID
 @Service
 class UserBlacklistServiceImpl(private val userBlacklistRepository: UserBlacklistRepository,
                                private val userRepository: UserRepository,
+                               private val userService: UserService,
                                private val userReactiveRepositoryCacheWrapper: UserReactiveRepositoryCacheWrapper,
                                private val blacklistEventsProducer: BlacklistEventsProducer,
                                private val userMapper: UserMapper,
@@ -107,6 +109,14 @@ class UserBlacklistServiceImpl(private val userBlacklistRepository: UserBlacklis
         }
     }
 
+    override fun isUserBlacklisted(checkedUserId: String, blacklistOwnerId: String): Mono<Boolean> {
+        return mono {
+            val blacklist = getBlacklistOfUserOrCreate(blacklistOwnerId).awaitFirst()
+
+            return@mono blacklist.entries.any { entry -> entry.userId == checkedUserId }
+        }
+    }
+
     private fun getBlacklistOfCurrentUserOrCreate(): Mono<UserBlacklist> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
@@ -120,6 +130,8 @@ class UserBlacklistServiceImpl(private val userBlacklistRepository: UserBlacklis
            val userBlacklist = userBlacklistRepository.findByUserId(userId).awaitFirstOrNull()
 
            if (userBlacklist == null) {
+               userService.assertUserExists(userId).awaitFirstOrNull()
+
                return@mono userBlacklistRepository.save(UserBlacklist(
                        id = UUID.randomUUID().toString(),
                        entries = mutableListOf(),
