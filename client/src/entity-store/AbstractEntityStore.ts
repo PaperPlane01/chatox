@@ -147,6 +147,19 @@ export abstract class AbstractEntityStore<
         return patch as unknown as PopulatedEntitiesPatch<T>;
     }
 
+    protected isPatchPopulated<T extends RawEntityKey>(
+        patch: EntitiesPatch,
+        ...entities: T[]
+    ): patch is PopulatedEntitiesPatch<T> {
+        for (const entity of entities) {
+            if (!patch.ids[entity] || !patch.entities[entity]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public createPatch(denormalizedEntity: DenormalizedEntity, options?: InsertOptions): EntitiesPatch {
         return this.createPatchForArray([denormalizedEntity], options);
     }

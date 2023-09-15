@@ -1,4 +1,4 @@
-import {makeAutoObservable} from "mobx";
+import {makeAutoObservable, runInAction, toJS} from "mobx";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ApiError, getInitialApiErrorFromResponse, UploadApi} from "../../api";
 import {ImageUploadMetadata, UploadType} from "../../api/types/response";
@@ -31,30 +31,38 @@ export class UploadImageStore {
         this.pending = true;
 
         UploadApi.uploadImage(file)
-            .then(({data}) => {
+            .then(({data}) => runInAction(() => {
                 if (this.imageContainer) {
                     this.imageContainer.uploadedFile = data;
                     this.entities.uploads.insert(data);
                 }
-            })
-            .catch(error => this.submissionError = getInitialApiErrorFromResponse(error))
-            .finally(() => {
+            }))
+            .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
+            .finally(() => runInAction(() => {
+                console.log(toJS(this.submissionError))
+
                 if (this.imageContainer) {
                     this.imageContainer.pending = false;
                 }
                 this.pending = false;
-            });
-    };
+            }));
+    }
 
     validateFile = (): boolean => {
         this.validationError = undefined;
 
-        if (this.imageContainer && this.imageContainer.file
-            && typeof this.imageContainer.file !== "string" && this.imageContainer.file.size > IMAGE_MAX_SIZE) {
+        if (this.imageContainer && this.imageContainer.file && this.imageContainer.file.size > IMAGE_MAX_SIZE) {
             this.validationError = "upload.file.too-large";
             return false;
         }
 
         return true;
-    };
+    }
+
+    reset = (): void => {
+        this.imageContainer = undefined;
+        this.validationError = undefined;
+        this.pending = false;
+        this.submissionError = undefined;
+    }
 }

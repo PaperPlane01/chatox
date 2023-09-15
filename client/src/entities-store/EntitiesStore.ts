@@ -2,7 +2,7 @@ import {RawEntitiesStore} from "./RawEntitiesStore";
 import {MessagesStore} from "../Message";
 import {ChatsStore} from "../Chat";
 import {UploadsStore} from "../Upload";
-import {UsersStore} from "../User";
+import {UserProfilePhotosStore, UsersStore} from "../User";
 import {ChatRolesStore} from "../ChatRole";
 import {ChatBlockingsStore} from "../ChatBlocking";
 import {ChatParticipationsStore} from "../ChatParticipant";
@@ -33,6 +33,7 @@ export class EntitiesStore {
     public rewards: RewardsStore;
     public userRewards: UserRewardsStore;
     public userInteractions: UserInteractionsStore;
+    public userProfilePhotos: UserProfilePhotosStore;
 
     constructor(rawEntities: RawEntitiesStore, authorization: AuthorizationStore) {
         this.messages = new MessagesStore(rawEntities, "messages", this);
@@ -54,5 +55,6 @@ export class EntitiesStore {
         this.rewards = new RewardsStore(rawEntities, this);
         this.userRewards = new UserRewardsStore(rawEntities, "userRewards", this);
         this.userInteractions = new UserInteractionsStore(rawEntities, "userInteractions", this);
+        this.userProfilePhotos = new UserProfilePhotosStore(rawEntities, "userProfilePhotos", this);
     }
 }

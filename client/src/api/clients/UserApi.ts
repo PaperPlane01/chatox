@@ -9,7 +9,7 @@ import {
     IS_AVAILABLE,
     ME,
     OAUTH,
-    PASSWORD,
+    PASSWORD, PHOTOS,
     RECOVERY,
     REGISTRATION,
     REVOKE,
@@ -19,7 +19,7 @@ import {
     USERS
 } from "../endpoints";
 import {
-    AnonymousUserRegistrationRequest,
+    AnonymousUserRegistrationRequest, CreateUserProfilePhotoRequest,
     GoogleRegistrationRequest,
     RecoverPasswordRequest,
     RegistrationRequest,
@@ -28,7 +28,14 @@ import {
     UpdatePasswordRequest,
     UpdateUserRequest
 } from "../types/request";
-import {AvailabilityResponse, CurrentUser, OAuth2Response, RegistrationResponse, User} from "../types/response";
+import {
+    AvailabilityResponse,
+    CurrentUser,
+    OAuth2Response,
+    RegistrationResponse,
+    User,
+    UserProfilePhoto
+} from "../types/response";
 
 export class UserApi {
     public static registerUser(registrationRequest: RegistrationRequest): AxiosPromise<RegistrationResponse> {
@@ -159,5 +166,13 @@ export class UserApi {
 
     public static registerWithGoogle(googleRegistrationRequest: GoogleRegistrationRequest): AxiosPromise<RegistrationResponse> {
         return axiosInstance.post(`/${REGISTRATION}/${GOOGLE}`, googleRegistrationRequest);
+    }
+
+    public static getUserProfilePhotos(userId: string): AxiosPromise<UserProfilePhoto[]> {
+        return axiosInstance.get(`/${USERS}/${userId}/${PHOTOS}`);
+    }
+
+    public static createUserProfilePhoto(userId: string, createUserProfilePhotoRequest: CreateUserProfilePhotoRequest): AxiosPromise<UserProfilePhoto> {
+        return axiosInstance.post(`/${USERS}/${userId}/${PHOTOS}`, createUserProfilePhotoRequest);
     }
 }

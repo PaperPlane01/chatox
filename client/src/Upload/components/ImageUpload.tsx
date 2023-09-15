@@ -12,7 +12,7 @@ interface ImageUploadProps {
     onFileAttached: (file: File) => void,
     pending: boolean,
     validationError?: string,
-    submissionError?: ApiError,
+    submissionError?: string,
     imageContainer?: UploadedFileContainer<ImageUploadMetadata>,
     avatarProps: PartialBy<AvatarProps, "avatarColor" | "avatarLetter">,
     uploadButtonLabel: string,
@@ -22,6 +22,10 @@ interface ImageUploadProps {
 const useStyles = makeStyles((theme: Theme) => createStyles({
     avatarUploadButton: {
         marginTop: theme.spacing(1)
+    },
+    imageUploadContainer: {
+        display: "flex",
+        flexDirection: "column"
     }
 }));
 
@@ -44,7 +48,7 @@ export const ImageUpload: FunctionComponent<ImageUploadProps> = ({
     };
 
     return (
-        <Fragment>
+        <div className={classes.imageUploadContainer}>
             {avatarProps.avatarUri
                 ? <Avatar avatarLetter="" avatarColor="" {...avatarProps}/>
                 : (avatarProps.avatarColor && avatarProps.avatarLetter)
@@ -75,6 +79,13 @@ export const ImageUpload: FunctionComponent<ImageUploadProps> = ({
                     {validationError}
                 </Typography>
             )}
-        </Fragment>
+            {submissionError && (
+                <Typography variant="body1"
+                            style={{color: "red"}}
+                >
+                    {submissionError}
+                </Typography>
+            )}
+        </div>
     );
 };

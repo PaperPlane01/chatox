@@ -623,5 +623,10 @@ export const ru: Labels = {
     "user.interaction.type": "Тип",
     "user.interaction.user": "Пользователь",
     "user.interaction.created-at": "Дата",
-    "user.interaction.list.empty": "У этого пользователя нет истории симпатий"
+    "user.interaction.list.empty": "У этого пользователя нет истории симпатий",
+    "common.photos": "Фото",
+    "photo.upload": "Загрузить фото",
+    "photo.upload.set-as-avatar": "Установить в качестве аватара",
+    "photo.upload.error.profile-photos-limit-reached": "Вы достигли лимита в {maxProfilePhotos} фото для профиля. Вам необходимо удалить 1 фото, чтобы загрузить новое.",
+    "photo.upload.error.unknown": "Во время загрузки фото произошла ошибка. Сервер ответил со статусом {errorStatus}"
 };

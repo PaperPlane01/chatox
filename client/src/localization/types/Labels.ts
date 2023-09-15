@@ -621,5 +621,10 @@ export interface Labels {
     "user.interaction.type": string,
     "user.interaction.user": string,
     "user.interaction.created-at": string,
-    "user.interaction.list.empty": string
+    "user.interaction.list.empty": string,
+    "common.photos": string,
+    "photo.upload": string,
+    "photo.upload.set-as-avatar": string,
+    "photo.upload.error.profile-photos-limit-reached": string,
+    "photo.upload.error.unknown": string
 }

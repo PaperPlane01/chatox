@@ -5,7 +5,7 @@ export class Duration {
     public readonly unit: TimeUnit;
     public readonly value: number;
 
-    constructor(source: Omit<Duration, "addToDate">) {
+    private constructor(source: Omit<Duration, "addToDate">) {
         this.unit = source.unit;
         this.value = source.value;
     }

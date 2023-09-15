@@ -6,3 +6,6 @@ export * from "./PasswordChangeFormSubmissionStore";
 export * from "./PasswordChangeStepStore";
 export * from "./PasswordChangeStore";
 export * from "./SendPasswordChangeEmailConfirmationCodeStore";
+export * from "./UserProfilePhotosStore";
+export * from "./UserProfilePhotosGalleryStore";
+export * from "./CreateUserProfilePhotoStore";

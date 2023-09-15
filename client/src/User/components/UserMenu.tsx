@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import {IconButton, Menu} from "@mui/material";
 import {MoreVert} from "@mui/icons-material";
 import {usePopupState, bindMenu, bindToggle} from "material-ui-popup-state/hooks";
+import {OpenUserPhotosMenuItem} from "./OpenUserPhotosMenuItem";
 import {canReportUser, ReportUserMenuItem} from "../../Report";
 import {UserInteractionsHistoryMenuItem} from "../../UserInteraction";
 import {useAuthorization} from "../../store";
@@ -19,6 +20,7 @@ export const UserMenu: FunctionComponent<UserMenuProps> = observer(({
 
     const menuItems: ReactNode[] = [];
 
+    menuItems.push(<OpenUserPhotosMenuItem onClick={popupState.close}/>);
     menuItems.push(<UserInteractionsHistoryMenuItem onClick={popupState.close}/>)
 
     if (canReportUser(userId, currentUser)) {

@@ -10653,10 +10653,10 @@ yargs@^16.2.0:
     y18n "^5.0.5"
     yargs-parser "^20.2.2"
 
-yet-another-react-lightbox@^2.2.7:
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/yet-another-react-lightbox/-/yet-another-react-lightbox-2.4.3.tgz#83d6b76b5ae7a743949ffc0d97a738007fd6f954"
-  integrity sha512-w7/jnplKot17dkHSUI8VpgNxWfWqEueiut4hVGvy4fs0e+2ubh9JBdgU+JEpEtxj6tbKIaljGXZoZJGqt7ijpg==
+yet-another-react-lightbox@^3.12.2:
+  version "3.12.2"
+  resolved "https://registry.yarnpkg.com/yet-another-react-lightbox/-/yet-another-react-lightbox-3.12.2.tgz#10b6a023fe6469e51d52e881715f00d5f2e5e82b"
+  integrity sha512-sFypE74Rjjl7WbzKSrGeZ7lbcgduOam/BKj8kqzx/ciC4dJyYdE1SG0dur9oDq/gZiY3VGJh+PYGbq6ZwmPFmA==
 
 yocto-queue@^0.1.0:
   version "0.1.0"

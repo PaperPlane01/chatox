@@ -38,11 +38,13 @@ import {LocaleStore} from "../localization";
 import {EntitiesStore, RawEntitiesStore} from "../entities-store";
 import {
     createSetChangePasswordStepCallback,
+    CreateUserProfilePhotoStore,
     EditProfileStore,
     PasswordChangeFormSubmissionStore,
     PasswordChangeStepStore,
     PasswordChangeStore,
     SendPasswordChangeEmailConfirmationCodeStore,
+    UserProfilePhotosGalleryStore,
     UserProfileStore
 } from "../User";
 import {
@@ -379,6 +381,16 @@ const userInteractionCreation = new CreateUserInteractionStore(
     language,
     snackbarService
 );
+const userProfilePhotosGallery = new UserProfilePhotosGalleryStore(
+    userProfile,
+    entities
+);
+const userProfilePhotoCreation = new CreateUserProfilePhotoStore(
+    new UploadImageStore(entities),
+    authorization,
+    entities,
+    userProfilePhotosGallery
+)
 
 export const store: IAppState = {
     authorization,
@@ -512,5 +524,7 @@ export const store: IAppState = {
     userInteractionCosts,
     userInteractionsCount,
     userInteractionCreation,
-    userInteractionsHistory
+    userInteractionsHistory,
+    userProfilePhotosGallery,
+    userProfilePhotoCreation
 };
