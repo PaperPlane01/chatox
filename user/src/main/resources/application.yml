@@ -67,6 +67,9 @@ chatox:
           like: ${USER_INTERACTION_DISLIKE_COST:200}
           love: ${USER_INTERACTION_LOVE_COST:500}
         update-existing: false
+    photos:
+      max-profile-photos: ${MAX_USER_PROFILE_PHOTOS:10}
+      create-photos-from-avatars-on-application-start: ${CREATE_USER_PROFILE_PHOTOS_ON_APPLICATION_START:true}
   pagination:
     processing:
       enabled: true

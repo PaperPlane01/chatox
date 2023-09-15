@@ -24,6 +24,6 @@ class RequireExpirationDateIfBanIsNotPermanentValidator
 
     override fun initialize(constraintAnnotation: RequireExpirationDateIfBanIsNotPermanent?) {
         expirationDateField = constraintAnnotation!!.expirationDateField
-        permanentField = constraintAnnotation!!.permanentField
+        permanentField = constraintAnnotation.permanentField
     }
 }

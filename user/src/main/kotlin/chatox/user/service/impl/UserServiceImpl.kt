@@ -10,14 +10,15 @@ import chatox.user.domain.ImageUploadMetadata
 import chatox.user.domain.Upload
 import chatox.user.domain.UploadType
 import chatox.user.domain.User
+import chatox.user.domain.UserProfilePhoto
 import chatox.user.exception.UploadNotFoundException
 import chatox.user.exception.UserNotFoundException
-import chatox.user.exception.WrongUploadTypeException
 import chatox.user.mapper.UserMapper
 import chatox.user.messaging.rabbitmq.event.producer.UserEventsProducer
 import chatox.user.repository.UploadRepository
 import chatox.user.repository.UserRepository
 import chatox.user.repository.UserSessionRepository
+import chatox.user.service.UserProfilePhotoService
 import chatox.user.service.UserService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -33,6 +34,7 @@ import reactor.core.publisher.Mono
 class UserServiceImpl(private val userRepository: UserRepository,
                       private val userSessionRepository: UserSessionRepository,
                       private val uploadRepository: UploadRepository,
+                      private val userProfilePhotoService: UserProfilePhotoService,
                       private val userMapper: UserMapper,
                       private val userEventsProducer: UserEventsProducer,
                       private val authenticationHolder: ReactiveAuthenticationHolder<User>,
@@ -74,21 +76,12 @@ class UserServiceImpl(private val userRepository: UserRepository,
 
             var user = findById(id).awaitFirst()
             var avatar: Upload<ImageUploadMetadata>? = null
+            var userProfilePhoto: UserProfilePhoto? = null
 
-            if (updateUserRequest.avatarId != null) {
-                val avatarUpload = uploadRepository.findById(updateUserRequest.avatarId)
-                        .awaitFirstOrNull()
-                        ?: throw UploadNotFoundException(
-                                "Could not find image with ${updateUserRequest.avatarId}"
-                        )
-
-                if (avatarUpload.type !== UploadType.IMAGE) {
-                    throw WrongUploadTypeException(
-                            "Avatar upload must have ${UploadType.IMAGE} type, however this upload has ${avatarUpload.type} type"
-                    )
-                }
-
-                avatar = avatarUpload as Upload<ImageUploadMetadata>;
+            if (updateUserRequest.avatarId != null
+                    && (user.avatar == null || user.avatar?.id != updateUserRequest.avatarId)) {
+                userProfilePhoto = createAvatar(updateUserRequest.avatarId, user).awaitFirst()
+                avatar = userProfilePhoto.upload
             }
 
             user = userMapper.mapUserUpdate(
@@ -97,6 +90,7 @@ class UserServiceImpl(private val userRepository: UserRepository,
                     updateUserRequest = updateUserRequest
             )
             user = userRepository.save(user).awaitFirst()
+
             val online = userSessionRepository.countByUserIdAndDisconnectedAtNull(user.id).awaitFirst() != 0L
 
             val userResponse = userMapper.toUserResponse(
@@ -107,7 +101,20 @@ class UserServiceImpl(private val userRepository: UserRepository,
                     mapAccountId = true
             )
             userEventsProducer.userUpdated(userResponse)
-            userResponse
+
+            return@mono userResponse
+        }
+    }
+
+    private fun createAvatar(uploadId: String, user: User): Mono<UserProfilePhoto> {
+        return mono {
+            val avatarUpload = uploadRepository.findByIdAndType<ImageUploadMetadata>(uploadId, UploadType.IMAGE)
+                    .awaitFirstOrNull()
+                    ?: throw UploadNotFoundException(
+                            "Could not find image with $uploadId"
+                    )
+
+            return@mono userProfilePhotoService.createUserProfilePhoto(user, avatarUpload).awaitFirst()
         }
     }
 
@@ -117,7 +124,7 @@ class UserServiceImpl(private val userRepository: UserRepository,
                 .map { user -> userRepository.save(user) }
                 .flatMap {
                     userEventsProducer.userDeleted(id)
-                    Mono.empty<Void>()
+                    Mono.empty()
                 }
     }
 
