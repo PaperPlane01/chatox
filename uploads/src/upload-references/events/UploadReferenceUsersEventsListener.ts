@@ -9,71 +9,11 @@ import {
     UploadReferenceDocument,
     UploadReferenceType
 } from "../entities";
-import {ExternalUser, UserDeleted} from "../../external/types";
+import {UserDeleted, UserProfilePhotoCreated, UserProfilePhotoDeleted} from "../../external/types";
 
 @Injectable()
 export class UploadReferenceUsersEventsListener {
     constructor(@InjectModel(UploadReference.name) private readonly uploadReferenceModel: Model<UploadReferenceDocument>) {
-    }
-
-    @RabbitSubscribe({
-        exchange: "user.events",
-        queue: "upload_service_user_created",
-        routingKey: "user.created.#"
-    })
-    public async onUserCreated(user: ExternalUser): Promise<void> {
-        if (!user.avatar) {
-            return;
-        }
-
-        const uploadReference = new UploadReference({
-            referenceObjectId: user.id,
-            uploadId: user.avatar.id,
-            type: UploadReferenceType.USER_PROFILE_IMAGE
-        });
-        await new this.uploadReferenceModel(uploadReference).save();
-    }
-
-    @RabbitSubscribe({
-        exchange: "user.events",
-        queue: "upload_service_user_updated",
-        routingKey: "user.updated.#"
-    })
-    public async onUserUpdated(user: ExternalUser): Promise<void> {
-        const existingReference = await this.uploadReferenceModel.findOne({
-            referenceObjectId: user.id,
-            type: UploadReferenceType.USER_PROFILE_IMAGE,
-            scheduledForDeletion: false
-        });
-
-        if (!existingReference && !user.avatar) {
-            return;
-        }
-
-        if (existingReference && user.avatar && existingReference.uploadId === user.avatar.id) {
-            return;
-        }
-
-
-        if (existingReference && user.avatar?.id !== existingReference.uploadId) {
-            existingReference.scheduledForDeletion = true;
-            existingReference.deletionReasons.push(new UploadDeletionReason({
-                deletionReasonType: UploadDeletionReasonType.USER_UPDATED_EVENT,
-                sourceObjectId: user.id
-            }))
-            await existingReference.updateOne();
-        }
-
-        if (!user.avatar) {
-            return;
-        }
-
-        const uploadReference = new UploadReference({
-            referenceObjectId: user.id,
-            uploadId: user.avatar.id,
-            type: UploadReferenceType.USER_PROFILE_IMAGE
-        });
-        await new this.uploadReferenceModel(uploadReference).save();
     }
 
     @RabbitSubscribe({
@@ -95,6 +35,56 @@ export class UploadReferenceUsersEventsListener {
                     deletionReasons: new UploadDeletionReason({
                         deletionReasonType: UploadDeletionReasonType.USER_DELETED_EVENT,
                         sourceObjectId: userDeleted.id
+                    })
+                }
+            }
+        );
+    }
+
+    @RabbitSubscribe({
+        exchange: "user.events",
+        queue: "upload_service_user_profile_photo_created",
+        routingKey: "user.photo.created.#"
+    })
+    public async onUserProfilePhotoCreated(userProfilePhotoCreated: UserProfilePhotoCreated): Promise<void> {
+        const existingReference = await this.uploadReferenceModel.find({
+            referenceObjectId: userProfilePhotoCreated.userId,
+            uploadId: userProfilePhotoCreated.upload.id,
+            type: UploadReferenceType.USER_PROFILE_IMAGE
+        });
+
+        if (existingReference) {
+            return;
+        }
+
+        const uploadReference = new UploadReference({
+            referenceObjectId: userProfilePhotoCreated.userId,
+            uploadId: userProfilePhotoCreated.upload.id,
+            type: UploadReferenceType.USER_PROFILE_IMAGE
+        });
+        await new this.uploadReferenceModel(uploadReference).save();
+    }
+
+    @RabbitSubscribe({
+        exchange: "user.events",
+        queue: "upload_service_user_profile_photo_deleted",
+        routingKey: "user.profile.deleted.#"
+    })
+    public async onUserProfilePhotoDeleted(userProfilePhotoDeleted: UserProfilePhotoDeleted): Promise<void> {
+        await this.uploadReferenceModel.updateOne(
+            {
+                referenceObjectId: userProfilePhotoDeleted.userId,
+                type: UploadReferenceType.USER_PROFILE_IMAGE,
+                uploadId: userProfilePhotoDeleted.upload.id
+            },
+            {
+                $set: {
+                    scheduledForDeletion: true
+                },
+                $push: {
+                    deletionReasons: new UploadDeletionReason({
+                        deletionReasonType: UploadDeletionReasonType.USER_PROFILE_PHOTO_DELETED_EVENT,
+                        sourceObjectId: userProfilePhotoDeleted.upload.id
                     })
                 }
             }
