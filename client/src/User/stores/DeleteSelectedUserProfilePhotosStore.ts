@@ -6,14 +6,26 @@ import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {SnackbarService} from "../../Snackbar";
 import {LocaleStore} from "../../localization";
+import {CurrentUser, User, UserProfilePhoto} from "../../api/types/response";
+import {UserEntity} from "../types";
+import {isDefined} from "../../utils/object-utils";
+import {AuthorizationStore} from "../../Authorization";
 
 export class DeleteSelectedUserProfilePhotosStore {
     pending = false;
 
     error?: ApiError = undefined;
 
-    get userId(): string | undefined {
-        return this.userProfile.selectedUserId;
+    get user(): UserEntity | undefined {
+        if (!this.userProfile.selectedUserId) {
+            return undefined;
+        }
+
+        return this.entities.users.findByIdOptional(this.userProfile.selectedUserId);
+    }
+
+    get currentUser(): CurrentUser | undefined {
+        return this.authorization.currentUser;
     }
 
     constructor(private readonly userPhotosGallery: UserProfilePhotosGalleryStore,
@@ -21,12 +33,13 @@ export class DeleteSelectedUserProfilePhotosStore {
                 private readonly entities: EntitiesStore,
                 private readonly userProfile: UserProfileStore,
                 private readonly localization: LocaleStore,
+                private readonly authorization: AuthorizationStore,
                 private readonly snackbarService: SnackbarService) {
         makeAutoObservable(this);
     }
 
     deleteSelectedPhotos = (): void => {
-        if (!this.userId) {
+        if (!this.user) {
             return;
         }
 
@@ -37,8 +50,13 @@ export class DeleteSelectedUserProfilePhotosStore {
         this.pending = true;
         this.error = undefined;
 
-        const userId = this.userId;
+        const user = this.user;
+        const userId = user.id;
         const userProfilePhotosIds = this.selectedUserPhotos.selectedPhotosIds;
+        const containsAvatar = isDefined(user.avatarId) && this.entities.userProfilePhotos
+            .findAllById(userProfilePhotosIds)
+            .map(userProfilePhoto => userProfilePhoto.uploadId)
+            .includes(user.avatarId);
 
         UserApi.deleteMultipleUserProfilePhotos(
             userId,
@@ -48,6 +66,19 @@ export class DeleteSelectedUserProfilePhotosStore {
         )
             .then(() => runInAction(() => {
                 this.selectedUserPhotos.clearSelection();
+
+                if (containsAvatar) {
+                    user.avatarId = undefined;
+                    this.entities.users.insertEntity(user);
+
+                    if (this.currentUser && this.currentUser.id === user.id) {
+                        this.authorization.setCurrentUser({
+                            ...this.currentUser,
+                            avatarId: undefined
+                        });
+                    }
+                }
+
                 this.userPhotosGallery.removePhotosOfUser(userId, userProfilePhotosIds);
                 this.entities.userProfilePhotos.deleteAllById(userProfilePhotosIds);
                 this.snackbarService.enqueueSnackbar(

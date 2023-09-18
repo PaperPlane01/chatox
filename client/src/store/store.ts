@@ -398,6 +398,7 @@ const deleteSelectedUserPhotos = new DeleteSelectedUserProfilePhotosStore(
     entities,
     userProfile,
     language,
+    authorization,
     snackbarService
 );
 
