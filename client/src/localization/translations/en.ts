@@ -631,6 +631,6 @@ export const en: Labels = {
     "photo.upload.error.unknown": "Unknown error occurred when tried to upload a photo. Server responded with {errorStatus} status",
     "photo.selection.count.singular": "{selectedPhotosCount} photo selected",
     "photo.selection.count": "{selectedPhotosCount} photos selected",
-    "photo.delete.success": "Photos has been deleted",
+    "photo.delete.success": "Photos have been deleted",
     "user.photo.list": "{username} photos"
 };
