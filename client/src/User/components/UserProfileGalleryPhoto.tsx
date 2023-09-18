@@ -5,6 +5,7 @@ import {createStyles, makeStyles} from "@mui/styles";
 import clsx from "clsx";
 import {useLongPress} from "use-long-press";
 import {useStore} from "../../store";
+import {ensureEventWontPropagate} from "../../utils/event-utils";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     imageListItem: {
@@ -82,7 +83,8 @@ export const UserProfileGalleryPhoto: FunctionComponent<UserProfileGalleryPhotoP
            <img src={uri}/>
            {selectMode && (
                <Checkbox checked={selected}
-                         onClick={handleSelection}
+                         onClick={event => ensureEventWontPropagate(event)}
+                         onChange={handleSelection}
                          className={classes.checkbox}
                />
            )}
