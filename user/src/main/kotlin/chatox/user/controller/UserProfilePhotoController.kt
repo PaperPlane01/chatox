@@ -2,9 +2,11 @@ package chatox.user.controller
 
 import chatox.platform.security.reactive.annotation.ReactivePermissionCheck
 import chatox.user.api.request.CreateUserProfilePhotoRequest
+import chatox.user.api.request.DeleteMultipleUserProfilePhotosRequest
 import chatox.user.api.request.SetUserProfilePhotoAsAvatarRequest
 import chatox.user.service.UserProfilePhotoService
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -47,4 +50,14 @@ class UserProfilePhotoController(private val userProfilePhotoService: UserProfil
             @PathVariable userId: String,
             @PathVariable userProfilePhotoId: String
     ) = userProfilePhotoService.deleteUserProfilePhoto(userId, userProfilePhotoId)
+
+    @PreAuthorize("hasRole('USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@userProfilePhotoPermissions.canDeleteUserProfilePhoto(#userId)")
+    @DeleteMapping("/{userId}/photos")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteMultipleUserProfilePhotos(
+            @PathVariable userId: String,
+            @RequestBody @Valid deleteMultipleUserProfilePhotosRequest: DeleteMultipleUserProfilePhotosRequest
+    ) = userProfilePhotoService.deleteMultipleUserProfilePhotos(userId, deleteMultipleUserProfilePhotosRequest)
 }

@@ -1,6 +1,7 @@
 package chatox.user.service
 
 import chatox.user.api.request.CreateUserProfilePhotoRequest
+import chatox.user.api.request.DeleteMultipleUserProfilePhotosRequest
 import chatox.user.api.request.SetUserProfilePhotoAsAvatarRequest
 import chatox.user.api.response.UserProfilePhotoResponse
 import chatox.user.domain.ImageUploadMetadata
@@ -23,5 +24,9 @@ interface UserProfilePhotoService {
             userId: String,
             userProfilePhotoId: String,
             setUserProfilePhotoAsAvatarRequest: SetUserProfilePhotoAsAvatarRequest
+    ): Mono<Unit>
+    fun deleteMultipleUserProfilePhotos(
+            userId: String,
+            deleteMultipleUserProfilePhotosRequest: DeleteMultipleUserProfilePhotosRequest
     ): Mono<Unit>
 }

@@ -1,6 +1,7 @@
 package chatox.user.service.impl
 
 import chatox.user.api.request.CreateUserProfilePhotoRequest
+import chatox.user.api.request.DeleteMultipleUserProfilePhotosRequest
 import chatox.user.api.request.SetUserProfilePhotoAsAvatarRequest
 import chatox.user.api.response.UserProfilePhotoResponse
 import chatox.user.cache.UserReactiveRepositoryCacheWrapper
@@ -124,7 +125,6 @@ class UserProfilePhotoServiceImpl(
                     ?: throw UserProfilePhotoNotFoundException("Could not find user profile photo $userProfilePhotoId")
             userProfilePhotoRepository.delete(userProfilePhoto).awaitFirstOrNull()
 
-
             if (user.avatar != null && user.avatar.id == userProfilePhoto.upload.id) {
                 userAvatarService.removeAvatar(
                         user = user,
@@ -187,6 +187,45 @@ class UserProfilePhotoServiceImpl(
                     return@mono
                 }
             }
+        }
+    }
+
+    override fun deleteMultipleUserProfilePhotos(
+            userId: String,
+            deleteMultipleUserProfilePhotosRequest: DeleteMultipleUserProfilePhotosRequest
+    ): Mono<Unit> {
+        return mono {
+            val user = getUser(userId).awaitFirst()
+            val userProfilePhotos = userProfilePhotoRepository.findByIdInAndUserId(
+                    deleteMultipleUserProfilePhotosRequest.userProfilePhotosIds,
+                    userId
+            )
+                    .collectList()
+                    .awaitFirst()
+
+            if (userProfilePhotos.size != deleteMultipleUserProfilePhotosRequest.userProfilePhotosIds.size) {
+                throw UserProfilePhotoNotFoundException("Could not find some of the profile photos")
+            }
+
+            userProfilePhotoRepository.deleteAll(userProfilePhotos).awaitFirstOrNull()
+
+            Mono.fromRunnable<Unit> {
+                userProfilePhotos.forEach { userProfilePhotoEventsProducer.userProfilePhotoDeleted(
+                        userProfilePhotoMapper.toUserProfilePhotoResponse(it)
+                ) }
+            }
+                    .subscribe()
+
+            val containsAvatar = user.avatar != null && userProfilePhotos.any { it.upload.id == user.avatar.id }
+            if (containsAvatar) {
+                userAvatarService.removeAvatar(
+                        user = user,
+                        publishUserUpdatedEvent = true
+                )
+                        .awaitFirst()
+            }
+
+            return@mono
         }
     }
 
