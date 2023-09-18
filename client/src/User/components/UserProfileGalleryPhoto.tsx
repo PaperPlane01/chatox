@@ -4,7 +4,7 @@ import {ImageListItem, Checkbox, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import clsx from "clsx";
 import {useLongPress} from "use-long-press";
-import {useStore} from "../../store";
+import {usePermissions, useStore} from "../../store";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -28,13 +28,15 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 interface UserProfileGalleryPhotoProps {
     uri: string,
     index: number,
-    userProfilePhotoId: string
+    userProfilePhotoId: string,
+    userId: string
 }
 
 export const UserProfileGalleryPhoto: FunctionComponent<UserProfileGalleryPhotoProps> = observer(({
     uri,
     index,
-    userProfilePhotoId
+    userProfilePhotoId,
+    userId
 }) => {
    const {
        userProfilePhotosGallery: {
@@ -47,11 +49,21 @@ export const UserProfileGalleryPhoto: FunctionComponent<UserProfileGalleryPhotoP
            unselectPhoto
        }
    } = useStore();
+   const {
+       users: {
+           canDeleteProfilePhoto
+       }
+   } = usePermissions();
    const classes = useStyles();
 
+   const selectable = canDeleteProfilePhoto(userId)
    const selected = isPhotoSelected(userProfilePhotoId);
 
    const handleSelection = (): void => {
+       if (!selectable) {
+           return;
+       }
+
        if (selected) {
            unselectPhoto(userProfilePhotoId);
        } else {
