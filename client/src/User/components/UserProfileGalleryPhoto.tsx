@@ -1,8 +1,28 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ImageListItem} from "@mui/material";
+import {ImageListItem, Checkbox, Theme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
+import clsx from "clsx";
 import {useLongPress} from "use-long-press";
 import {useStore} from "../../store";
+
+const useStyles = makeStyles((theme: Theme) => createStyles({
+    imageListItem: {
+        position: "relative",
+        width: "auto",
+        height: "100%"
+    },
+    selected: {
+        borderStyle: "solid",
+        borderColor: theme.palette.primary.main,
+        borderWidth: 5
+    },
+    checkbox: {
+        position: "absolute",
+        top: 5,
+        right: 5
+    }
+}))
 
 interface UserProfileGalleryPhotoProps {
     uri: string,
@@ -26,9 +46,12 @@ export const UserProfileGalleryPhoto: FunctionComponent<UserProfileGalleryPhotoP
            unselectPhoto
        }
    } = useStore();
+   const classes = useStyles();
+
+   const selected = isPhotoSelected(userProfilePhotoId);
 
    const handleSelection = (): void => {
-       if (isPhotoSelected(userProfilePhotoId)) {
+       if (selected) {
            unselectPhoto(userProfilePhotoId);
        } else {
            selectPhoto(userProfilePhotoId);
@@ -50,8 +73,19 @@ export const UserProfileGalleryPhoto: FunctionComponent<UserProfileGalleryPhotoP
    const longPressHandlers = createLongPressHandlers(`userPhoto-${userProfilePhotoId}-handlers`);
 
    return (
-       <ImageListItem {...longPressHandlers}>
+       <ImageListItem className={clsx({
+           [classes.imageListItem]: true,
+           [classes.selected]: selected
+       })}
+                      {...longPressHandlers}
+       >
            <img src={uri}/>
+           {selectMode && (
+               <Checkbox checked={selected}
+                         onClick={handleSelection}
+                         className={classes.checkbox}
+               />
+           )}
        </ImageListItem>
    );
 });
