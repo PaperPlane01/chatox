@@ -83,7 +83,7 @@ export const UserProfileGalleryPhoto: FunctionComponent<UserProfileGalleryPhotoP
            <img src={uri}/>
            {selectMode && (
                <Checkbox checked={selected}
-                         onClick={event => ensureEventWontPropagate(event)}
+                         onClick={ensureEventWontPropagate}
                          onChange={handleSelection}
                          className={classes.checkbox}
                />
