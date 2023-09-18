@@ -40,7 +40,7 @@ class UserAvatarServiceImpl(
 
             if (publishUserUpdatedEvent) {
                 Mono.fromRunnable<Unit> {
-                    userEventsProducer.userUpdated(userMapper.toUserResponse(user))
+                    userEventsProducer.userUpdated(userMapper.toUserResponse(updatedUser))
                 }
                         .subscribe()
             }
