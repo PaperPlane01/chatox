@@ -52,11 +52,14 @@ import {
 import {WebsocketStore} from "../websocket";
 import {
     CreateUserProfilePhotoStore,
+    DeleteSelectedUserProfilePhotosStore,
     EditProfileStore,
     PasswordChangeFormSubmissionStore,
     PasswordChangeStepStore,
     PasswordChangeStore,
-    SendPasswordChangeEmailConfirmationCodeStore, UserProfilePhotosGalleryStore,
+    SelectedUserProfilePhotosStore,
+    SendPasswordChangeEmailConfirmationCodeStore,
+    UserProfilePhotosGalleryStore,
     UserProfileStore
 } from "../User";
 import {
@@ -279,5 +282,7 @@ export interface IAppState {
     userInteractionCreation: CreateUserInteractionStore,
     userInteractionsHistory: UserInteractionsHistoryStore,
     userProfilePhotosGallery: UserProfilePhotosGalleryStore,
-    userProfilePhotoCreation: CreateUserProfilePhotoStore
+    userProfilePhotoCreation: CreateUserProfilePhotoStore,
+    selectedUserPhotos: SelectedUserProfilePhotosStore,
+    deleteSelectedUserPhotos: DeleteSelectedUserProfilePhotosStore
 }

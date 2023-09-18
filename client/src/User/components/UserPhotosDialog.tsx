@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Dialog, DialogContent, DialogTitle, IconButton} from "@mui/material";
-import {Close} from "@mui/icons-material";
+import {Dialog, DialogContent, DialogTitle} from "@mui/material";
 import {UserPhotosGallery} from "./UserPhotosGallery";
+import {UserPhotosActions} from "./UserPhotosActions";
 import {useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 
@@ -11,23 +11,27 @@ export const UserPhotosDialog: FunctionComponent = observer(() => {
         userProfilePhotosGallery: {
             galleryOpen,
             setGalleryOpen
+        },
+        selectedUserPhotos: {
+            clearSelection
         }
     } = useStore();
     const {fullScreen} = useMobileDialog();
 
+    const handleClose = (): void => {
+        setGalleryOpen(false);
+        clearSelection();
+    };
+
     return (
         <Dialog open={galleryOpen}
-                onClose={() => setGalleryOpen(false)}
+                onClose={handleClose}
                 fullWidth
                 maxWidth="md"
                 fullScreen={fullScreen}
         >
             <DialogTitle>
-                <IconButton onClick={() => setGalleryOpen(false)}
-                            style={{float: "right"}}
-                >
-                    <Close/>
-                </IconButton>
+                <UserPhotosActions onClose={handleClose}/>
             </DialogTitle>
             <DialogContent>
                 <UserPhotosGallery/>

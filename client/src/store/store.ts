@@ -38,11 +38,11 @@ import {LocaleStore} from "../localization";
 import {EntitiesStore, RawEntitiesStore} from "../entities-store";
 import {
     createSetChangePasswordStepCallback,
-    CreateUserProfilePhotoStore,
+    CreateUserProfilePhotoStore, DeleteSelectedUserProfilePhotosStore,
     EditProfileStore,
     PasswordChangeFormSubmissionStore,
     PasswordChangeStepStore,
-    PasswordChangeStore,
+    PasswordChangeStore, SelectedUserProfilePhotosStore,
     SendPasswordChangeEmailConfirmationCodeStore,
     UserProfilePhotosGalleryStore,
     UserProfileStore
@@ -391,6 +391,15 @@ const userProfilePhotoCreation = new CreateUserProfilePhotoStore(
     entities,
     userProfilePhotosGallery
 )
+const selectedUserPhotos = new SelectedUserProfilePhotosStore();
+const deleteSelectedUserPhotos = new DeleteSelectedUserProfilePhotosStore(
+    userProfilePhotosGallery,
+    selectedUserPhotos,
+    entities,
+    userProfile,
+    language,
+    snackbarService
+);
 
 export const store: IAppState = {
     authorization,
@@ -526,5 +535,7 @@ export const store: IAppState = {
     userInteractionCreation,
     userInteractionsHistory,
     userProfilePhotosGallery,
-    userProfilePhotoCreation
+    userProfilePhotoCreation,
+    selectedUserPhotos,
+    deleteSelectedUserPhotos
 };

@@ -37,3 +37,4 @@ export * from "./CreateRewardRequest";
 export * from "./UpdateRewardRequest";
 export * from "./RewardRequest";
 export * from "./CreateUserProfilePhotoRequest";
+export * from "./DeleteMultipleUserProfilePhotosRequest";

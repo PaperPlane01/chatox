@@ -1,9 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ImageList, ImageListItem} from "@mui/material";
+import {ImageList} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {CreateUserProfilePhotoButton} from "./CreateUserProfilePhotoButton";
 import {useStore} from "../../store";
+import {UserProfileGalleryPhoto} from "./UserProfileGalleryPhoto";
 
 const useStyles = makeStyles(() => createStyles({
     galleryContainer: {
@@ -15,7 +16,6 @@ const useStyles = makeStyles(() => createStyles({
 export const UserPhotosGallery: FunctionComponent = observer(() => {
     const {
         userProfilePhotosGallery: {
-            openLightboxToIndex,
             uploads
         }
     } = useStore();
@@ -26,11 +26,11 @@ export const UserPhotosGallery: FunctionComponent = observer(() => {
             <CreateUserProfilePhotoButton/>
             <ImageList cols={3}>
                 {uploads.map((upload, index) => (
-                    <ImageListItem key={upload.id}
-                                   onClick={() => openLightboxToIndex(index)}
-                    >
-                        <img src={`${upload.uri}?size=256`}/>
-                    </ImageListItem>
+                    <UserProfileGalleryPhoto uri={upload.uri}
+                                             index={index}
+                                             userProfilePhotoId={upload.profilePhotoId}
+                                             key={upload.id}
+                    />
                 ))}
             </ImageList>
         </div>

@@ -626,5 +626,9 @@ export interface Labels {
     "photo.upload": string,
     "photo.upload.set-as-avatar": string,
     "photo.upload.error.profile-photos-limit-reached": string,
-    "photo.upload.error.unknown": string
+    "photo.upload.error.unknown": string,
+    "photo.selection.count.singular": string,
+    "photo.selection.count": string,
+    "photo.delete.success": string,
+    "user.photo.list": string
 }

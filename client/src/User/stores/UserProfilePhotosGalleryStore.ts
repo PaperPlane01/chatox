@@ -1,4 +1,4 @@
-import {makeAutoObservable, reaction, runInAction, toJS} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {Slide} from "yet-another-react-lightbox";
 import {UserProfileStore} from "./UserProfileStore";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
@@ -37,15 +37,19 @@ export class UserProfilePhotosGalleryStore {
         return this.photosByUser.storage.get(this.userId) || [];
     }
 
-    get uploads(): Array<Upload<ImageUploadMetadata>> {
+    get uploads(): Array<Upload<ImageUploadMetadata> & {profilePhotoId: string}> {
         if (this.currentUserProfilePhotosIds.length === 0) {
             return [];
         }
 
-        const photos = this.entities.userProfilePhotos.findAllById(this.currentUserProfilePhotosIds);
+        const photos = this.entities
+            .userProfilePhotos
+            .findAllById(this.currentUserProfilePhotosIds);
 
-        return this.entities.uploads
-            .findAllById(photos.map(photo => photo.uploadId)) as Array<Upload<ImageUploadMetadata>>;
+        return photos.map(photo => ({
+            ...this.entities.uploads.findById(photo.uploadId) as Upload<ImageUploadMetadata>,
+            profilePhotoId: photo.id
+        }));
     }
 
     get lightboxSlides(): CustomSlide[] {
@@ -156,5 +160,17 @@ export class UserProfilePhotosGalleryStore {
         existingPhotos.unshift(profilePhotoId);
 
         this.photosByUser.insert(userId, existingPhotos);
+    }
+
+    removePhotosOfUser = (userId: string, photosIds: string[]): void => {
+        const photos = this.photosByUser.storage.get(userId);
+
+        if (!photos || photos.length === 0) {
+            return
+        }
+
+        const newPhotos = photos.filter(photo => !photosIds.includes(photo));
+
+        this.photosByUser.insert(userId, newPhotos);
     }
 }

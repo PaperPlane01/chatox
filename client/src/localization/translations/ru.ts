@@ -628,5 +628,9 @@ export const ru: Labels = {
     "photo.upload": "Загрузить фото",
     "photo.upload.set-as-avatar": "Установить в качестве аватара",
     "photo.upload.error.profile-photos-limit-reached": "Вы достигли лимита в {maxProfilePhotos} фото для профиля. Вам необходимо удалить 1 фото, чтобы загрузить новое.",
-    "photo.upload.error.unknown": "Во время загрузки фото произошла ошибка. Сервер ответил со статусом {errorStatus}"
+    "photo.upload.error.unknown": "Во время загрузки фото произошла ошибка. Сервер ответил со статусом {errorStatus}",
+    "photo.selection.count.singular": "{selectedPhotosCount} фото выбрано",
+    "photo.selection.count": "{selectedPhotosCount} фото выбраны",
+    "photo.delete.success": "Фото были удалены",
+    "user.photo.list": "Фотографии {username}"
 };

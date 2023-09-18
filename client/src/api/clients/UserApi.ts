@@ -9,7 +9,8 @@ import {
     IS_AVAILABLE,
     ME,
     OAUTH,
-    PASSWORD, PHOTOS,
+    PASSWORD,
+    PHOTOS,
     RECOVERY,
     REGISTRATION,
     REVOKE,
@@ -19,7 +20,9 @@ import {
     USERS
 } from "../endpoints";
 import {
-    AnonymousUserRegistrationRequest, CreateUserProfilePhotoRequest,
+    AnonymousUserRegistrationRequest,
+    CreateUserProfilePhotoRequest,
+    DeleteMultipleUserProfilePhotosRequest,
     GoogleRegistrationRequest,
     RecoverPasswordRequest,
     RegistrationRequest,
@@ -174,5 +177,14 @@ export class UserApi {
 
     public static createUserProfilePhoto(userId: string, createUserProfilePhotoRequest: CreateUserProfilePhotoRequest): AxiosPromise<UserProfilePhoto> {
         return axiosInstance.post(`/${USERS}/${userId}/${PHOTOS}`, createUserProfilePhotoRequest);
+    }
+
+    public static deleteMultipleUserProfilePhotos(userId: string, deleteMultipleUserProfilePhotosRequest: DeleteMultipleUserProfilePhotosRequest): AxiosPromise<void> {
+        return axiosInstance.delete(`/${USERS}/${userId}/${PHOTOS}`, {
+            data: deleteMultipleUserProfilePhotosRequest,
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
     }
 }

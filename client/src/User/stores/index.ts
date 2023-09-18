@@ -9,3 +9,5 @@ export * from "./SendPasswordChangeEmailConfirmationCodeStore";
 export * from "./UserProfilePhotosStore";
 export * from "./UserProfilePhotosGalleryStore";
 export * from "./CreateUserProfilePhotoStore";
+export * from "./SelectedUserProfilePhotosStore";
+export * from "./DeleteSelectedUserProfilePhotosStore";
