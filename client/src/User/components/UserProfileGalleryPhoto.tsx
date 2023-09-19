@@ -13,6 +13,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         width: "auto",
         height: "100%"
     },
+    image: {
+        maxHeight: "100%"
+    },
     selected: {
         borderStyle: "solid",
         borderColor: theme.palette.primary.main,
@@ -92,7 +95,9 @@ export const UserProfileGalleryPhoto: FunctionComponent<UserProfileGalleryPhotoP
        })}
                       {...longPressHandlers}
        >
-           <img src={uri}/>
+           <img src={uri}
+                className={classes.image}
+           />
            {selectMode && (
                <Checkbox checked={selected}
                          onClick={ensureEventWontPropagate}

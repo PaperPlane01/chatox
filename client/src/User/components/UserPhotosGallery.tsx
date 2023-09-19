@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ImageList} from "@mui/material";
+import {ImageList, useMediaQuery, useTheme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {CreateUserProfilePhotoButton} from "./CreateUserProfilePhotoButton";
 import {UserProfileGalleryPhoto} from "./UserProfileGalleryPhoto";
@@ -28,6 +28,8 @@ export const UserPhotosGallery: FunctionComponent = observer(() => {
         }
     } = usePermissions();
     const classes = useStyles();
+    const theme = useTheme();
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
     if (!selectedUserId) {
         return null;
@@ -38,7 +40,9 @@ export const UserPhotosGallery: FunctionComponent = observer(() => {
             {canUploadProfilePhoto(selectedUserId) && (
                 <CreateUserProfilePhotoButton/>
             )}
-            <ImageList cols={3}>
+            <ImageList cols={onSmallScreen ? 2 : 3}
+                       rowHeight={256}
+            >
                 {uploads.map((upload, index) => (
                     <UserProfileGalleryPhoto uri={upload.uri}
                                              index={index}
