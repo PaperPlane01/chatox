@@ -47,7 +47,7 @@ export class UploadReferenceUsersEventsListener {
         routingKey: "user.photo.created.#"
     })
     public async onUserProfilePhotoCreated(userProfilePhotoCreated: UserProfilePhotoCreated): Promise<void> {
-        const existingReference = await this.uploadReferenceModel.find({
+        const existingReference = await this.uploadReferenceModel.findOne({
             referenceObjectId: userProfilePhotoCreated.userId,
             uploadId: userProfilePhotoCreated.upload.id,
             type: UploadReferenceType.USER_PROFILE_IMAGE
@@ -68,7 +68,7 @@ export class UploadReferenceUsersEventsListener {
     @RabbitSubscribe({
         exchange: "user.events",
         queue: "upload_service_user_profile_photo_deleted",
-        routingKey: "user.profile.deleted.#"
+        routingKey: "user.photo.deleted.#"
     })
     public async onUserProfilePhotoDeleted(userProfilePhotoDeleted: UserProfilePhotoDeleted): Promise<void> {
         await this.uploadReferenceModel.updateOne(
