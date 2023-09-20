@@ -59,6 +59,7 @@ import {
     PasswordChangeStore,
     SelectedUserProfilePhotosStore,
     SendPasswordChangeEmailConfirmationCodeStore,
+    SetPhotoAsAvatarStore,
     UserProfilePhotosGalleryStore,
     UserProfileStore
 } from "../User";
@@ -284,5 +285,6 @@ export interface IAppState {
     userProfilePhotosGallery: UserProfilePhotosGalleryStore,
     userProfilePhotoCreation: CreateUserProfilePhotoStore,
     selectedUserPhotos: SelectedUserProfilePhotosStore,
-    deleteSelectedUserPhotos: DeleteSelectedUserProfilePhotosStore
+    deleteSelectedUserPhotos: DeleteSelectedUserProfilePhotosStore,
+    setPhotoAsAvatar: SetPhotoAsAvatarStore
 }

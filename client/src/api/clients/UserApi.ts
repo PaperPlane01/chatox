@@ -27,6 +27,7 @@ import {
     RecoverPasswordRequest,
     RegistrationRequest,
     RevokeTokenRequest,
+    SetUserProfilePhotoAsAvatarRequest,
     UpdateEmailRequest,
     UpdatePasswordRequest,
     UpdateUserRequest
@@ -186,5 +187,13 @@ export class UserApi {
                 "Content-Type": "application/json"
             }
         });
+    }
+
+    public static deleteUserProfilePhoto(userId: string, userProfilePhotoId: string): AxiosPromise<void> {
+        return axiosInstance.delete(`/${USERS}/${userId}/${PHOTOS}/${userProfilePhotoId}`);
+    }
+
+    public static setUserProfilePhotoAsAvatar(userId: string, userProfilePhotoId: string, setUserProfilePhotoAsAvatarRequest: SetUserProfilePhotoAsAvatarRequest): AxiosPromise<void> {
+        return axiosInstance.put(`/${USERS}/${userId}/${PHOTOS}/${userProfilePhotoId}`, setUserProfilePhotoAsAvatarRequest);
     }
 }

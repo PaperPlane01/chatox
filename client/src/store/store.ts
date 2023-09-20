@@ -44,6 +44,7 @@ import {
     PasswordChangeStepStore,
     PasswordChangeStore, SelectedUserProfilePhotosStore,
     SendPasswordChangeEmailConfirmationCodeStore,
+    SetPhotoAsAvatarStore,
     UserProfilePhotosGalleryStore,
     UserProfileStore
 } from "../User";
@@ -401,6 +402,13 @@ const deleteSelectedUserPhotos = new DeleteSelectedUserProfilePhotosStore(
     authorization,
     snackbarService
 );
+const setPhotoAsAvatar = new SetPhotoAsAvatarStore(
+    userProfile,
+    entities,
+    authorization,
+    language,
+    snackbarService
+);
 
 export const store: IAppState = {
     authorization,
@@ -538,5 +546,6 @@ export const store: IAppState = {
     userProfilePhotosGallery,
     userProfilePhotoCreation,
     selectedUserPhotos,
-    deleteSelectedUserPhotos
+    deleteSelectedUserPhotos,
+    setPhotoAsAvatar
 };

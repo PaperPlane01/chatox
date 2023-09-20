@@ -11,3 +11,4 @@ export * from "./UserProfilePhotosGalleryStore";
 export * from "./CreateUserProfilePhotoStore";
 export * from "./SelectedUserProfilePhotosStore";
 export * from "./DeleteSelectedUserProfilePhotosStore";
+export * from "./SetPhotoAsAvatarStore";

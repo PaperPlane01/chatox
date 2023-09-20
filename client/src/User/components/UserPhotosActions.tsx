@@ -1,9 +1,10 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {IconButton} from "@mui/material";
+import {IconButton, useMediaQuery, useTheme} from "@mui/material";
 import {Close} from "@mui/icons-material";
 import {DeleteSelectedUserPhotosButton} from "./DeleteSelectedUserPhotosButton";
-import {useEntities, useLocalization, useStore} from "../../store";
+import {SetSelectedPhotoAsAvatarButton} from "./SetSelectedPhotoAsAvatarButton";
+import {useEntities, useLocalization, usePermissions, useStore} from "../../store";
 import {TranslationFunction} from "../../localization";
 
 interface SelectedUserPhotosActionsProps {
@@ -37,6 +38,14 @@ export const UserPhotosActions: FunctionComponent<SelectedUserPhotosActionsProps
         }
     } = useEntities();
     const {l} = useLocalization();
+    const {
+        users: {
+            canUploadProfilePhoto,
+            canDeleteProfilePhoto
+        }
+    } = usePermissions();
+    const theme = useTheme();
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
     if (!selectedUserId) {
         return null;
@@ -45,11 +54,27 @@ export const UserPhotosActions: FunctionComponent<SelectedUserPhotosActionsProps
     const user = findUser(selectedUserId);
     const label = getLabel(selectedPhotosCount, user.firstName, l);
 
+    const displaySetAsAvatarButton = canUploadProfilePhoto(selectedUserId) && selectedPhotosCount === 1;
+    const displayDeleteButton = canDeleteProfilePhoto(selectedUserId) && selectedPhotosCount !== 0;
+
     return (
         <Fragment>
-            {label}
-            <div style={{float: "right"}}>
-                {selectedPhotosCount !== 0 && <DeleteSelectedUserPhotosButton/>}
+            {onSmallScreen && selectedPhotosCount !== 0
+                ? (
+                    <Fragment>
+                        {displayDeleteButton && <DeleteSelectedUserPhotosButton showCount/>}
+                        {displaySetAsAvatarButton && <SetSelectedPhotoAsAvatarButton/>}
+                    </Fragment>
+                )
+                : label
+            }
+            <div style={{
+                float: "right",
+                display: "flex",
+                gap: 8
+            }}>
+                {displayDeleteButton && !onSmallScreen && <DeleteSelectedUserPhotosButton/>}
+                {displaySetAsAvatarButton && !onSmallScreen && <SetSelectedPhotoAsAvatarButton/>}
                 <IconButton onClick={onClose}>
                     <Close/>
                 </IconButton>
