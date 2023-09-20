@@ -5,6 +5,10 @@ fun <SourceType, TargetType1, TargetType2> mapTo2Lists(
         mapFunction1: (SourceType) -> TargetType1,
         mapFunction2: (SourceType) -> TargetType2
 ): NTuple2<List<TargetType1>, List<TargetType2>> {
+    if (list.isEmpty()) {
+        return NTuple2(listOf(), listOf())
+    }
+
    val result = list.map { item ->
 
         return@map NTuple2(mutableListOf(mapFunction1(item)), mutableListOf(mapFunction2(item)))
@@ -28,6 +32,10 @@ inline fun <SourceType, TargetType1, TargetType2, TargetType3> mapTo3Lists(
         mapFunction2: (SourceType) -> TargetType2,
         mapFunction3: (SourceType) -> TargetType3
 ): NTuple3<List<TargetType1>, List<TargetType2>, List<TargetType3>> {
+    if (list.isEmpty()) {
+        return NTuple3(listOf(), listOf(), listOf())
+    }
+
     val result = list.map { item ->
 
         return@map NTuple3(
