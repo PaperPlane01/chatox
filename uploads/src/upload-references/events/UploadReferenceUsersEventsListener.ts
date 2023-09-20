@@ -48,7 +48,7 @@ export class UploadReferenceUsersEventsListener {
     })
     public async onUserProfilePhotoCreated(userProfilePhotoCreated: UserProfilePhotoCreated): Promise<void> {
         const existingReference = await this.uploadReferenceModel.findOne({
-            referenceObjectId: userProfilePhotoCreated.userId,
+            referenceObjectId: userProfilePhotoCreated.id,
             uploadId: userProfilePhotoCreated.upload.id,
             type: UploadReferenceType.USER_PROFILE_IMAGE
         });
@@ -58,7 +58,7 @@ export class UploadReferenceUsersEventsListener {
         }
 
         const uploadReference = new UploadReference({
-            referenceObjectId: userProfilePhotoCreated.userId,
+            referenceObjectId: userProfilePhotoCreated.id,
             uploadId: userProfilePhotoCreated.upload.id,
             type: UploadReferenceType.USER_PROFILE_IMAGE
         });
@@ -73,7 +73,7 @@ export class UploadReferenceUsersEventsListener {
     public async onUserProfilePhotoDeleted(userProfilePhotoDeleted: UserProfilePhotoDeleted): Promise<void> {
         await this.uploadReferenceModel.updateOne(
             {
-                referenceObjectId: userProfilePhotoDeleted.userId,
+                referenceObjectId: userProfilePhotoDeleted.id,
                 type: UploadReferenceType.USER_PROFILE_IMAGE,
                 uploadId: userProfilePhotoDeleted.upload.id
             },
@@ -84,7 +84,7 @@ export class UploadReferenceUsersEventsListener {
                 $push: {
                     deletionReasons: new UploadDeletionReason({
                         deletionReasonType: UploadDeletionReasonType.USER_PROFILE_PHOTO_DELETED_EVENT,
-                        sourceObjectId: userProfilePhotoDeleted.upload.id
+                        sourceObjectId: userProfilePhotoDeleted.id
                     })
                 }
             }

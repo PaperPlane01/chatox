@@ -1,6 +1,6 @@
 import {UploadResponse} from "../../uploads/types/responses";
 
 export interface UserProfilePhotoCreated {
-    userId: string,
+    id: string,
     upload: UploadResponse<any>
 }

@@ -34,7 +34,9 @@ class UserProfilePhotoController(private val userProfilePhotoService: UserProfil
     @GetMapping("/{userId}/photos")
     fun getUserProfilePhotos(@PathVariable userId: String) = userProfilePhotoService.getUserProfilePhotos(userId)
 
-    @PreAuthorize("hasRole('USER') && #authentication.details.id == #userId")
+    @PreAuthorize("hasRole('USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@userProfilePhotoPermissions.canCreateUserProfilePhoto(#userId)")
     @PutMapping("/{userId}/photos/{userProfilePhotoId}")
     fun setUserProfilePhotoAsAvatar(
             @PathVariable userId: String,
