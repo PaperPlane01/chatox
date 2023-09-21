@@ -50,8 +50,6 @@ export class CreateUserProfilePhotoStore {
         reaction(
             () => this.uploadedFile,
             file => {
-                console.log("reacting to file")
-
                 if (file) {
                     this.createProfilePhoto(true);
                 }

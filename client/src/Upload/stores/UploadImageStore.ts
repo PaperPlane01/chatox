@@ -1,4 +1,4 @@
-import {makeAutoObservable, runInAction, toJS} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ApiError, getInitialApiErrorFromResponse, UploadApi} from "../../api";
 import {ImageUploadMetadata, UploadType} from "../../api/types/response";
@@ -39,8 +39,6 @@ export class UploadImageStore {
             }))
             .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => {
-                console.log(toJS(this.submissionError))
-
                 if (this.imageContainer) {
                     this.imageContainer.pending = false;
                 }
