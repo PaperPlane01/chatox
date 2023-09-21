@@ -7,7 +7,7 @@ import {EntitiesStore} from "../../entities-store";
 import {ExpirableStore} from "../../expirable-store";
 import {Duration} from "../../utils/date-utils";
 
-type CustomSlide = Slide & {uploadId: string};
+type CustomSlide = Slide & {uploadId: string, profilePhotoId: string};
 
 export class UserProfilePhotosGalleryStore {
     pending = false;
@@ -58,7 +58,8 @@ export class UserProfilePhotosGalleryStore {
             width: upload.meta?.width,
             height: upload.meta?.height,
             type: "image",
-            uploadId: upload.id
+            uploadId: upload.id,
+            profilePhotoId: upload.profilePhotoId
         }));
     }
 
@@ -169,8 +170,39 @@ export class UserProfilePhotosGalleryStore {
             return
         }
 
+        if (this.lightboxOpen) {
+            if (photosIds.length === this.currentUserProfilePhotosIds.length) {
+                this.setLightboxOpen(false);
+            } else {
+                this.setCurrentLightboxIndex(this.calculateIndexAfterDelete(photosIds));
+            }
+        }
+
         const newPhotos = photos.filter(photo => !photosIds.includes(photo));
 
         this.photosByUser.insert(userId, newPhotos);
+    }
+
+    private calculateIndexAfterDelete = (photosIds: string[]): number => {
+        const resultLength = this.currentUserProfilePhotosIds.length - photosIds.length;
+        let minDeletedIndex = this.currentUserProfilePhotosIds.length - resultLength;
+
+        for (let deletedPhotoId of photosIds) {
+            const currentIndex = this.currentUserProfilePhotosIds.indexOf(deletedPhotoId) - resultLength - 1;
+
+            if (currentIndex < minDeletedIndex) {
+                minDeletedIndex = currentIndex;
+            }
+        }
+
+        if (minDeletedIndex < 0) {
+            minDeletedIndex = 0;
+        }
+
+        if (minDeletedIndex >= resultLength) {
+            minDeletedIndex = resultLength - 1;
+        }
+
+        return minDeletedIndex;
     }
 }

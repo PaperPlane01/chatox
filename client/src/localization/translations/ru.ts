@@ -632,6 +632,7 @@ export const ru: Labels = {
     "photo.selection.count.singular": "{selectedPhotosCount} фото выбрано",
     "photo.selection.count": "{selectedPhotosCount} фото выбраны",
     "photo.delete.success": "Фото были удалены",
+    "photo.delete.success.singular": "Фото было удалено",
     "user.photo.list": "Фотографии {username}",
     "common.delete.with-count": "Удалить {count} выбранных",
     "photo.set-as-avatar": "Сделать аватаром",

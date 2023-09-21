@@ -632,6 +632,7 @@ export const en: Labels = {
     "photo.selection.count.singular": "{selectedPhotosCount} photo selected",
     "photo.selection.count": "{selectedPhotosCount} photos selected",
     "photo.delete.success": "Photos have been deleted",
+    "photo.delete.success.singular": "Photo has been deleted",
     "user.photo.list": "{username} photos",
     "common.delete.with-count": "Delete {count} selected",
     "photo.set-as-avatar": "Set as avatar",

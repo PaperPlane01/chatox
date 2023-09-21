@@ -38,7 +38,7 @@ import {LocaleStore} from "../localization";
 import {EntitiesStore, RawEntitiesStore} from "../entities-store";
 import {
     createSetChangePasswordStepCallback,
-    CreateUserProfilePhotoStore, DeleteSelectedUserProfilePhotosStore,
+    CreateUserProfilePhotoStore, DeleteSelectedUserProfilePhotosStore, DeleteUserProfilePhotoStore,
     EditProfileStore,
     PasswordChangeFormSubmissionStore,
     PasswordChangeStepStore,
@@ -409,6 +409,14 @@ const setPhotoAsAvatar = new SetPhotoAsAvatarStore(
     language,
     snackbarService
 );
+const deleteUserPhoto = new DeleteUserProfilePhotoStore(
+    userProfilePhotosGallery,
+    userProfile,
+    entities,
+    authorization,
+    language,
+    snackbarService
+);
 
 export const store: IAppState = {
     authorization,
@@ -547,5 +555,6 @@ export const store: IAppState = {
     userProfilePhotoCreation,
     selectedUserPhotos,
     deleteSelectedUserPhotos,
-    setPhotoAsAvatar
+    setPhotoAsAvatar,
+    deleteUserPhoto
 };

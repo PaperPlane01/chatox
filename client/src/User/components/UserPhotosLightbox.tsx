@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import {Lightbox} from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import {useStore} from "../../store";
+import {UserProfilePhotoMenu} from "./UserProfilePhotoMenu";
 
 export const UserPhotosLightbox: FunctionComponent = observer(() => {
     const {
@@ -23,6 +24,13 @@ export const UserPhotosLightbox: FunctionComponent = observer(() => {
                   on={{
                       view: ({index}) => setCurrentLightboxIndex(index),
                       exited: () => setLightboxOpen(false)
+                  }}
+                  toolbar={{
+                      buttons: [
+                          <UserProfilePhotoMenu/>,
+                          "zoom",
+                          "close",
+                      ]
                   }}
         />
     );

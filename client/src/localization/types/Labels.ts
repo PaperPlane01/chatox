@@ -630,6 +630,7 @@ export interface Labels {
     "photo.selection.count.singular": string,
     "photo.selection.count": string,
     "photo.delete.success": string,
+    "photo.delete.success.singular": string,
     "user.photo.list": string,
     "common.delete.with-count": string,
     "photo.set-as-avatar": string,
