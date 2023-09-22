@@ -13,7 +13,8 @@ export interface AvatarProps {
     height?: number,
     pending?: boolean,
     className?: string,
-    shape?: "circular" | "rectangular" | "square" | "rounded"
+    shape?: "circular" | "rectangular" | "square" | "rounded",
+    onCLick?: () => void
 }
 
 export const Avatar: FunctionComponent<AvatarProps> = observer(({
@@ -25,7 +26,8 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
     height = 40,
     pending,
     className,
-    shape = "circular"
+    shape = "circular",
+    onCLick
 }) => {
     const {
         uploads: {
@@ -64,6 +66,7 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
                            }}
                            className={className}
                            variant={shape === "rectangular" ? "square" : shape }
+                           onClick={onCLick}
                 >
                     {avatarLetter}
                 </MuiAvatar>
@@ -77,6 +80,7 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
                            }}
                            className={className}
                            variant={shape === "rectangular" ? "square" : shape}
+                           onClick={onCLick}
                 />
             );
         }

@@ -38,11 +38,14 @@ import {LocaleStore} from "../localization";
 import {EntitiesStore, RawEntitiesStore} from "../entities-store";
 import {
     createSetChangePasswordStepCallback,
+    CreateUserProfilePhotoStore, DeleteSelectedUserProfilePhotosStore, DeleteUserProfilePhotoStore,
     EditProfileStore,
     PasswordChangeFormSubmissionStore,
     PasswordChangeStepStore,
-    PasswordChangeStore,
+    PasswordChangeStore, SelectedUserProfilePhotosStore,
     SendPasswordChangeEmailConfirmationCodeStore,
+    SetPhotoAsAvatarStore,
+    UserProfilePhotosGalleryStore,
     UserProfileStore
 } from "../User";
 import {
@@ -379,6 +382,41 @@ const userInteractionCreation = new CreateUserInteractionStore(
     language,
     snackbarService
 );
+const userProfilePhotosGallery = new UserProfilePhotosGalleryStore(
+    userProfile,
+    entities
+);
+const userProfilePhotoCreation = new CreateUserProfilePhotoStore(
+    new UploadImageStore(entities),
+    authorization,
+    entities,
+    userProfilePhotosGallery
+)
+const selectedUserPhotos = new SelectedUserProfilePhotosStore();
+const deleteSelectedUserPhotos = new DeleteSelectedUserProfilePhotosStore(
+    userProfilePhotosGallery,
+    selectedUserPhotos,
+    entities,
+    userProfile,
+    language,
+    authorization,
+    snackbarService
+);
+const setPhotoAsAvatar = new SetPhotoAsAvatarStore(
+    userProfile,
+    entities,
+    authorization,
+    language,
+    snackbarService
+);
+const deleteUserPhoto = new DeleteUserProfilePhotoStore(
+    userProfilePhotosGallery,
+    userProfile,
+    entities,
+    authorization,
+    language,
+    snackbarService
+);
 
 export const store: IAppState = {
     authorization,
@@ -512,5 +550,11 @@ export const store: IAppState = {
     userInteractionCosts,
     userInteractionsCount,
     userInteractionCreation,
-    userInteractionsHistory
+    userInteractionsHistory,
+    userProfilePhotosGallery,
+    userProfilePhotoCreation,
+    selectedUserPhotos,
+    deleteSelectedUserPhotos,
+    setPhotoAsAvatar,
+    deleteUserPhoto
 };

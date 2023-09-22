@@ -623,5 +623,18 @@ export const en: Labels = {
     "user.interaction.type": "Type",
     "user.interaction.user": "User",
     "user.interaction.created-at": "Date",
-    "user.interaction.list.empty": "This user has no interactions"
+    "user.interaction.list.empty": "This user has no interactions",
+    "common.photos": "Photos",
+    "photo.upload": "Upload photo",
+    "photo.upload.set-as-avatar": "Set as avatar",
+    "photo.upload.error.profile-photos-limit-reached": "You have reached limit of {maxProfilePhotos} photos per profile. You have to remove some profile photos to upload a new one.",
+    "photo.upload.error.unknown": "Unknown error occurred when tried to upload a photo. Server responded with {errorStatus} status",
+    "photo.selection.count.singular": "{selectedPhotosCount} photo selected",
+    "photo.selection.count": "{selectedPhotosCount} photos selected",
+    "photo.delete.success": "Photos have been deleted",
+    "photo.delete.success.singular": "Photo has been deleted",
+    "user.photo.list": "{username} photos",
+    "common.delete.with-count": "Delete {count} selected",
+    "photo.set-as-avatar": "Set as avatar",
+    "photo.avatar.update.success": "Avatar has been updated"
 };

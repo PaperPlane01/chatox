@@ -51,11 +51,16 @@ import {
 } from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
+    CreateUserProfilePhotoStore,
+    DeleteSelectedUserProfilePhotosStore, DeleteUserProfilePhotoStore,
     EditProfileStore,
     PasswordChangeFormSubmissionStore,
     PasswordChangeStepStore,
     PasswordChangeStore,
+    SelectedUserProfilePhotosStore,
     SendPasswordChangeEmailConfirmationCodeStore,
+    SetPhotoAsAvatarStore,
+    UserProfilePhotosGalleryStore,
     UserProfileStore
 } from "../User";
 import {
@@ -276,5 +281,11 @@ export interface IAppState {
     userInteractionsCount: UserInteractionsCountStore,
     userInteractionCosts: UserInteractionCostsStore,
     userInteractionCreation: CreateUserInteractionStore,
-    userInteractionsHistory: UserInteractionsHistoryStore
+    userInteractionsHistory: UserInteractionsHistoryStore,
+    userProfilePhotosGallery: UserProfilePhotosGalleryStore,
+    userProfilePhotoCreation: CreateUserProfilePhotoStore,
+    selectedUserPhotos: SelectedUserProfilePhotosStore,
+    deleteSelectedUserPhotos: DeleteSelectedUserProfilePhotosStore,
+    setPhotoAsAvatar: SetPhotoAsAvatarStore,
+    deleteUserPhoto: DeleteUserProfilePhotoStore
 }

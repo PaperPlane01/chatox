@@ -621,5 +621,18 @@ export interface Labels {
     "user.interaction.type": string,
     "user.interaction.user": string,
     "user.interaction.created-at": string,
-    "user.interaction.list.empty": string
+    "user.interaction.list.empty": string,
+    "common.photos": string,
+    "photo.upload": string,
+    "photo.upload.set-as-avatar": string,
+    "photo.upload.error.profile-photos-limit-reached": string,
+    "photo.upload.error.unknown": string,
+    "photo.selection.count.singular": string,
+    "photo.selection.count": string,
+    "photo.delete.success": string,
+    "photo.delete.success.singular": string,
+    "user.photo.list": string,
+    "common.delete.with-count": string,
+    "photo.set-as-avatar": string,
+    "photo.avatar.update.success": string
 }

@@ -38,6 +38,10 @@ class ChatUploadAttachmentEntityServiceImpl(
             messagesIdsToSkip: List<String>
     ): Mono<Unit> {
         return mono {
+            if (chatUploadAttachments.isEmpty()) {
+                return@mono
+            }
+
             val (messagesIds, uploadIds, attachmentsIds) = mapTo3Lists(
                     chatUploadAttachments.filter {
                         attachment -> attachment.messageId != null

@@ -3,7 +3,7 @@ import {Grid} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {AppBar} from "../AppBar";
 import {Layout} from "../Layout";
-import {UserProfileInfo} from "../User";
+import {CreateUserProfilePhotoDialog, UserPhotosDialog, UserPhotosLightbox, UserProfileInfo} from "../User";
 import {ReportUserDialog} from "../Report";
 import {UserInteractionsHistoryDialog} from "../UserInteraction";
 
@@ -36,8 +36,11 @@ export const UserPage: FunctionComponent = () => {
                <ReportUserDialog/>
            </Grid>
            <UserInteractionsHistoryDialog/>
+           <UserPhotosDialog/>
+           <UserPhotosLightbox/>
+           <CreateUserProfilePhotoDialog/>
        </Fragment>
-    )
+    );
 };
 
 export default UserPage;

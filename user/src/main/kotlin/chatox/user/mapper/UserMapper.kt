@@ -30,7 +30,7 @@ class UserMapper(private val uploadMapper: UploadMapper) {
             dateOfBirth = user.dateOfBirth,
             online = online,
             email = if (mapEmail) user.email else null,
-            avatar = if (user.avatar != null) uploadMapper.toUploadResponse(user.avatar!!) else null,
+            avatar = if (user.avatar != null) uploadMapper.toUploadResponse(user.avatar) else null,
             anonymous = user.anonymous,
             accountRegistrationType = if (mapAccountRegistrationType) user.accountRegistrationType else null,
             externalAvatarUri = user.externalAvatarUri
@@ -59,7 +59,7 @@ class UserMapper(private val uploadMapper: UploadMapper) {
             updateUserRequest: UpdateUserRequest,
             avatar: Upload<ImageUploadMetadata>?
     ): User = originalUser.copy(
-            firstName = updateUserRequest.firstName ?: originalUser.firstName,
+            firstName = updateUserRequest.firstName,
             lastName = updateUserRequest.lastName,
             bio = updateUserRequest.bio,
             slug = updateUserRequest.slug,

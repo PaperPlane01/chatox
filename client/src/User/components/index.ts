@@ -6,3 +6,8 @@ export * from "./CheckPasswordChangeEmailConfirmationDialog";
 export * from "./ChangePasswordContainer";
 export * from "./UserMenu";
 export * from "./DialogWithUserButton";
+export * from "./UserPhotosDialog";
+export * from "./UserProfileAvatar";
+export * from "./UserPhotosLightbox";
+export * from "./OpenUserPhotosMenuItem";
+export * from "./CreateUserProfilePhotoDialog";

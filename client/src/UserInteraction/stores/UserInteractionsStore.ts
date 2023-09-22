@@ -1,8 +1,8 @@
-import {AbstractEntityStore} from "../../entity-store";
-import {UserInteractionEntity} from "../types";
-import {UserInteraction} from "../../api/types/response";
-import {EntitiesPatch} from "../../entities-store";
 import {mergeWith} from "lodash";
+import {UserInteractionEntity} from "../types";
+import {AbstractEntityStore} from "../../entity-store";
+import {EntitiesPatch} from "../../entities-store";
+import {UserInteraction} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
 
 export class UserInteractionsStore extends AbstractEntityStore<"userInteractions", UserInteractionEntity, UserInteraction> {

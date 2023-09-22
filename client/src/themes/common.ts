@@ -10,7 +10,7 @@ export const createStyleOverride = (mainColor: string): Components => ({
                 color: `${mainColor} !important`
             },
             ".yarl__portal": {
-                zIndex: "1500 !important"
+                zIndex: "1350 !important"
             }
         }
     },

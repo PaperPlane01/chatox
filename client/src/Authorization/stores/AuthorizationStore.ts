@@ -31,9 +31,13 @@ export class AuthorizationStore {
             this.entities.globalBans.insert(currentUser.globalBan);
         }
 
+        const avatarId = currentUser.avatarId
+            ? currentUser.avatarId
+            : currentUser.avatar ? currentUser.avatar.id : undefined;
+
         this.currentUser = {
             ...currentUser,
-            avatarId: currentUser.avatar ? currentUser.avatar.id : undefined
+            avatarId
         };
         this.entities.users.insert({
             ...currentUser,

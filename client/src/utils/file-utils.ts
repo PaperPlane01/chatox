@@ -1,6 +1,7 @@
 import {v4 as uuid} from "uuid";
 import {Upload, UploadType} from "../api/types/response";
 import {ApiError} from "../api";
+import {makeAutoObservable} from "mobx";
 
 export class UploadedFileContainer<UploadedFileMetadataType = any> {
     public url: string;
@@ -20,6 +21,8 @@ export class UploadedFileContainer<UploadedFileMetadataType = any> {
         } else {
             throw new Error("Creating UploadedFileContainer without both file and uploadedFile parameters is not allowed!")
         }
+
+        makeAutoObservable(this);
     }
 
     public copy(newFields: Partial<UploadedFileContainer>): UploadedFileContainer<UploadedFileMetadataType> {
