@@ -24,7 +24,7 @@ const useStyles = makeStyles(() => createStyles({
     }
 }))
 
-export const Emoji AndStickerPicker: FunctionComponent<EmojiAndStickerPickerProps> = observer(({
+export const EmojiAndStickerPicker: FunctionComponent<EmojiAndStickerPickerProps> = observer(({
     onEmojiPicked,
     onStickerPicked
 }) => {
