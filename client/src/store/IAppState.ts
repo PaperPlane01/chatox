@@ -1,7 +1,10 @@
-import {EntitiesStore, RawEntitiesStore} from "../entities-store";
-import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore, LoginWithGoogleStore} from "../Authorization";
+import {AuthorizationStore, LoginStore, LoginWithGoogleStore} from "../Authorization/stores";
+import {
+    PasswordRecoveryDialogStore,
+    RecoverPasswordStore,
+    SendPasswordRecoveryEmailConfirmationCodeStore
+} from "../PasswordRecovery";
 import {
     AnonymousRegistrationDialogStore,
     RegistrationDialogStore,
@@ -28,9 +31,26 @@ import {
     UpdateChatParticipantStore,
 } from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
+import {LocaleStore} from "../localization";
+import {EntitiesStore, RawEntitiesStore} from "../entities-store";
+import {
+    CreateUserProfilePhotoStore,
+    DeleteSelectedUserProfilePhotosStore,
+    DeleteUserProfilePhotoStore,
+    EditProfileStore,
+    PasswordChangeFormSubmissionStore,
+    PasswordChangeStepStore,
+    PasswordChangeStore,
+    SelectedUserProfilePhotosStore,
+    SendPasswordChangeEmailConfirmationCodeStore,
+    SetPhotoAsAvatarStore,
+    UserProfilePhotosGalleryStore,
+    UserProfileStore
+} from "../User";
 import {
     ClosedPinnedMessagesStore,
     CreateMessageStore,
+    DeleteMessageStore,
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     EmojiPickerTabsStore,
@@ -51,19 +71,6 @@ import {
 } from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
-    CreateUserProfilePhotoStore,
-    DeleteSelectedUserProfilePhotosStore, DeleteUserProfilePhotoStore,
-    EditProfileStore,
-    PasswordChangeFormSubmissionStore,
-    PasswordChangeStepStore,
-    PasswordChangeStore,
-    SelectedUserProfilePhotosStore,
-    SendPasswordChangeEmailConfirmationCodeStore,
-    SetPhotoAsAvatarStore,
-    UserProfilePhotosGalleryStore,
-    UserProfileStore
-} from "../User";
-import {
     BlockUserInChatByIdOrSlugStore,
     CancelChatBlockingStore,
     ChatBlockingInfoDialogStore,
@@ -73,33 +80,27 @@ import {
     UpdateChatBlockingStore
 } from "../ChatBlocking";
 import {UploadImageStore} from "../Upload";
-import {SettingsTabsStore} from "../Settings/stores";
+import {SettingsTabsStore} from "../Settings";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
-import {EmojiSettingsStore} from "../Emoji/stores";
-import {AudioPlayerStore} from "../AudioPlayer/stores";
-import {
-    PasswordRecoveryDialogStore,
-    RecoverPasswordStore,
-    SendPasswordRecoveryEmailConfirmationCodeStore
-} from "../PasswordRecovery";
-import {DeleteMessageStore} from "../Message/stores/DeleteMessageStore";
+import {EmojiSettingsStore} from "../Emoji";
+import {AudioPlayerStore} from "../AudioPlayer";
 import {
     BanUserStore,
     CancelGlobalBanStore,
     GlobalBanDetailsDialogStore,
     GlobalBansListStore,
     UpdateGlobalBanStore
-} from "../GlobalBan/stores";
+} from "../GlobalBan";
 import {
     BanUsersRelatedToSelectedReportsStore,
     CreateReportStore,
     CurrentReportsListStore,
     DeclineSelectedReportsStore,
+    DeleteSelectedReportedMessagesStore,
     ReportedMessageDialogStore,
     ReportsListStore,
     UpdateSelectedReportsStore
-} from "../Report/stores";
-import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
+} from "../Report";
 import {
     CreateStickerPackStore,
     InstalledStickerPacksStore,

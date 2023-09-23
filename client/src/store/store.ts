@@ -38,11 +38,14 @@ import {LocaleStore} from "../localization";
 import {EntitiesStore, RawEntitiesStore} from "../entities-store";
 import {
     createSetChangePasswordStepCallback,
-    CreateUserProfilePhotoStore, DeleteSelectedUserProfilePhotosStore, DeleteUserProfilePhotoStore,
+    CreateUserProfilePhotoStore,
+    DeleteSelectedUserProfilePhotosStore,
+    DeleteUserProfilePhotoStore,
     EditProfileStore,
     PasswordChangeFormSubmissionStore,
     PasswordChangeStepStore,
-    PasswordChangeStore, SelectedUserProfilePhotosStore,
+    PasswordChangeStore,
+    SelectedUserProfilePhotosStore,
     SendPasswordChangeEmailConfirmationCodeStore,
     SetPhotoAsAvatarStore,
     UserProfilePhotosGalleryStore,
