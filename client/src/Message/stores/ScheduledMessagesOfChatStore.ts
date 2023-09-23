@@ -1,5 +1,5 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {ChatMessagesFetchingStateMap} from "../types";
 import {createSortMessages} from "../utils";
 import {ChatStore} from "../../Chat";
@@ -43,7 +43,7 @@ export class ScheduledMessagesOfChatStore {
         );
     }
 
-    getFetchingState = createTransformer((chatId: string) => {
+    getFetchingState = computedFn((chatId: string) => {
         if (this.fetchingStateMap[chatId]) {
             return this.fetchingStateMap[chatId];
         } else {

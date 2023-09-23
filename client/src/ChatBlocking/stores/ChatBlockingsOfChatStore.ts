@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {ChatBlockingEntity, ChatBlockingSortableProperties} from "../types";
 import {isChatBlockingActive} from "../utils";
 import {ChatStore} from "../../Chat";
@@ -33,7 +33,7 @@ export class ChatBlockingsOfChatStore {
         makeAutoObservable(this);
     }
 
-    getChatBlockingsOfChatState = createTransformer((chatId: string) => this.chatBlockingsOfChatStateMap[chatId]);
+    getChatBlockingsOfChatState = computedFn((chatId: string) => this.chatBlockingsOfChatStateMap[chatId]);
 
     setShowActiveOnly = (showActiveOnly: boolean, chatId: string | undefined = this.selectedChatId): void => {
         if (chatId) {

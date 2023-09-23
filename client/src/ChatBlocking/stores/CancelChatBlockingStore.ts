@@ -1,5 +1,5 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {EntitiesStore} from "../../entities-store";
 import {ChatBlockingApi} from "../../api/clients";
 
@@ -12,7 +12,7 @@ export class CancelChatBlockingStore {
         makeAutoObservable(this);
     }
 
-    isChatBlockingCancellationPending = createTransformer((blockingId: string) => {
+    isChatBlockingCancellationPending = computedFn((blockingId: string) => {
         return Boolean(this.pendingCancellationsMap[blockingId]);
     });
 

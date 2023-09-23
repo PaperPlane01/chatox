@@ -1,5 +1,5 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {ApiError, getInitialApiErrorFromResponse, GlobalBanApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 
@@ -14,7 +14,7 @@ export class CancelGlobalBanStore {
         makeAutoObservable(this);
     }
 
-    isGlobalBanCancellationPending = createTransformer((globalBanId: string) => {
+    isGlobalBanCancellationPending = computedFn((globalBanId: string) => {
         return Boolean(this.pendingCancellationsMap[globalBanId])
     });
 

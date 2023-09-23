@@ -1,5 +1,5 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {ApiError, BlacklistApi, getInitialApiErrorFromResponse} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {User} from "../../api/types/response";
@@ -15,7 +15,7 @@ export class BlacklistedUsersStore {
        makeAutoObservable(this);
     }
 
-    isUserBlacklisted = createTransformer((userId: string) => this.usersIds.includes(userId));
+    isUserBlacklisted = computedFn((userId: string) => this.usersIds.includes(userId));
 
     fetchBlacklistedUsers = (): void => {
         this.pending = true;

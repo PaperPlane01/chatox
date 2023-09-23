@@ -1,5 +1,5 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {AxiosPromise} from "axios";
 import {SearchMessagesStore} from "./SearchMessagesStore";
 import {createSortMessages} from "../utils";
@@ -64,7 +64,7 @@ export class MessagesOfChatStore {
         );
     }
 
-    getFetchingState = createTransformer((chatId: string) => {
+    getFetchingState = computedFn((chatId: string) => {
         if (this.chatMessagesFetchingStateMap[chatId]) {
             return this.chatMessagesFetchingStateMap[chatId];
         } else {

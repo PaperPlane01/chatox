@@ -1,5 +1,5 @@
-import {action, computed, observable, makeObservable, override} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {action, computed, makeObservable, observable, override} from "mobx";
+import {computedFn} from "mobx-utils";
 import {mergeWith} from "lodash";
 import {ChatOfCurrentUserEntity} from "../types";
 import {SoftDeletableEntityStore} from "../../entity-store";
@@ -61,7 +61,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
         });
     }
 
-    findBySlug = createTransformer((slug: string) => {
+    findBySlug = computedFn((slug: string) => {
         const chats = this.ids.map(id => this.findById(id));
         return chats.find(chat => chat.slug === slug);
     });

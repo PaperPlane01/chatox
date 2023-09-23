@@ -1,5 +1,5 @@
 import {computed, makeObservable} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn, createTransformer} from "mobx-utils";
 import {mergeWith} from "lodash";
 import {ChatParticipationEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
@@ -44,7 +44,7 @@ export class ChatParticipationsStore extends AbstractEntityStore<
         });
     }
 
-    findByChat = createTransformer((chatId: string) => {
+    findByChat = computedFn((chatId: string) => {
         return this.ids
             .filter(id => this.findById(id).chatId === chatId);
     });
