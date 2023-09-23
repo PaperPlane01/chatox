@@ -296,7 +296,8 @@ const websocket = new WebsocketStore(
     chat,
     messagesListScrollPositions,
     markMessageRead,
-    balance
+    balance,
+    chatsPreferences
 );
 const stickerPackCreation = new CreateStickerPackStore(entities);
 const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();

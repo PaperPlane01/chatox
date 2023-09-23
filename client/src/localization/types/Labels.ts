@@ -456,6 +456,9 @@ export interface Labels {
     "settings.chat.virtual-scroll.scrollable-element.MESSAGES_LIST": string,
     "settings.chat.virtual-scroll.scrollable-element.WINDOW": string,
     "settings.chat.virtual-scroll.use-simplified-gallery": string,
+    "settings.chat.use-shared-worker": string,
+    "settings.chat.use-shared-worker.explained": string
+    "settings.chat.server-connection": string,
     "settings.chats": string,
     "settings.chats.virtual-scroll.enable-virtual-scroll": string
     "settings.language": string,

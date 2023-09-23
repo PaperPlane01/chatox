@@ -10,6 +10,8 @@ export class ChatsPreferencesStore {
 
     enablePartialVirtualization: boolean = false;
 
+    useSharedWorker: boolean = false;
+
     constructor() {
         makeAutoObservable(this);
 
@@ -31,6 +33,10 @@ export class ChatsPreferencesStore {
 
         if (localStorage.getItem("enablePartialVirtualization")) {
             this.enablePartialVirtualization = localStorage.getItem("enablePartialVirtualization") === "true";
+        }
+
+        if (localStorage.getItem("useSharedWorker")) {
+            this.useSharedWorker = localStorage.getItem("useSharedWorker") === "true";
         }
     }
 
@@ -55,4 +61,10 @@ export class ChatsPreferencesStore {
         this.enablePartialVirtualization = enablePartialVirtualization;
         localStorage.setItem("enablePartialVirtualization", `${enablePartialVirtualization}`);
     };
+
+    setUseSharedWorker = (useSharedWorker: boolean): void => {
+        this.useSharedWorker = useSharedWorker;
+        localStorage.setItem("useSharedWorker", `${useSharedWorker}`);
+        window.location.reload();
+    }
 }

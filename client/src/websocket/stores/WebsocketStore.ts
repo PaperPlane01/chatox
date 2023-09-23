@@ -17,7 +17,7 @@ import {
     WebsocketEventType
 } from "../../api/types/websocket";
 import {ChatBlocking, ChatParticipation, ChatRole, CurrentUser, GlobalBan, Message} from "../../api/types/response";
-import {ChatStore} from "../../Chat";
+import {ChatsPreferencesStore, ChatStore} from "../../Chat";
 import {MarkMessageReadStore, MessagesListScrollPositionsStore} from "../../Message";
 import {BalanceStore} from "../../Balance";
 import type {ISocketIoWorker} from "../../workers";
@@ -26,7 +26,7 @@ import {Promisify} from "../../utils/types";
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import WorkerModule from "@socheatsok78/sharedworker-loader!../../workers"
 
-const workerInstance = window.SharedWorker
+const workerInstance = window.SharedWorker && localStorage && localStorage.getItem("useSharedWorker") === "true"
     ? new WorkerModule()
     : undefined;
 
@@ -65,7 +65,8 @@ export class WebsocketStore {
                 private readonly chatStore: ChatStore,
                 private readonly scrollPositionStore: MessagesListScrollPositionsStore,
                 private readonly markMessageReadStore: MarkMessageReadStore,
-                private readonly balanceStore: BalanceStore) {
+                private readonly balanceStore: BalanceStore,
+                private readonly chatPreferences: ChatsPreferencesStore) {
         makeAutoObservable(this);
 
         reaction(
@@ -75,7 +76,7 @@ export class WebsocketStore {
     }
 
     startListening = (): void => {
-        if (window.SharedWorker) {
+        if (this.chatPreferences.useSharedWorker && window.SharedWorker) {
             this.startListeningWithSharedWorker();
         } else {
             this.startListeningWithSocketIo();
@@ -84,6 +85,7 @@ export class WebsocketStore {
 
     startListeningWithSharedWorker = async (): Promise<void> => {
         const socketIoWorker = await getSocketIoWorker();
+        console.log(socketIoWorker)
 
         if (!socketIoWorker) {
             return;
