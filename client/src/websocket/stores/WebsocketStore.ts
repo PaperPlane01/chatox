@@ -1,4 +1,4 @@
-import {makeAutoObservable, reaction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {connect, Socket} from "socket.io-client"
 import {proxy} from "comlink";
 import {AuthorizationStore} from "../../Authorization";
@@ -16,21 +16,48 @@ import {
     WebsocketEvent,
     WebsocketEventType
 } from "../../api/types/websocket";
-import {ChatBlocking, ChatParticipation, ChatRole, GlobalBan, Message} from "../../api/types/response";
+import {ChatBlocking, ChatParticipation, ChatRole, CurrentUser, GlobalBan, Message} from "../../api/types/response";
 import {ChatStore} from "../../Chat";
 import {MarkMessageReadStore, MessagesListScrollPositionsStore} from "../../Message";
 import {BalanceStore} from "../../Balance";
+import type {ISocketIoWorker} from "../../workers";
+import {Promisify} from "../../utils/types";
 // @ts-ignore
 // eslint-disable-next-line import/no-webpack-loader-syntax
-import workerModule from "@socheatsok78/sharedworker-loader!../../workers"
+import WorkerModule from "@socheatsok78/sharedworker-loader!../../workers"
 
-const workerInstance = new workerModule();
+const workerInstance = window.SharedWorker
+    ? new WorkerModule()
+    : undefined;
+
+let socketIoWorkerInstance: Promisify<ISocketIoWorker> | undefined = undefined;
+
+const getSocketIoWorker = async (): Promise<Promisify<ISocketIoWorker> | undefined> => {
+    if (socketIoWorkerInstance) {
+        return socketIoWorkerInstance;
+    }
+
+    if (workerInstance) {
+        socketIoWorkerInstance = await new workerInstance.SocketIoWorker();
+        return socketIoWorkerInstance;
+    } else {
+        return undefined;
+    }
+};
+
+type ConnectionType = "socketIo" | "sharedWorker";
+
+let pendingEvents: Array<[WebsocketEventType, object]> = [];
 
 export class WebsocketStore {
-    socketIoClient?: Socket;
+    socketIoClient?: Socket = undefined;
 
-    get refreshingToken(): boolean {
-        return this.authorization.refreshingToken;
+    socketIoWorker?: Promisify<ISocketIoWorker> = undefined;
+
+    connectionType: ConnectionType = "socketIo";
+
+    get currentUser(): CurrentUser | undefined {
+        return this.authorization.currentUser;
     }
 
     constructor(private readonly authorization: AuthorizationStore,
@@ -42,10 +69,8 @@ export class WebsocketStore {
         makeAutoObservable(this);
 
         reaction(
-            () => authorization.currentUser,
-            () => {
-                this.startListening();
-            }
+            () => this.currentUser?.id,
+            () => this.startListening()
         );
     }
 
@@ -58,33 +83,38 @@ export class WebsocketStore {
     }
 
     startListeningWithSharedWorker = async (): Promise<void> => {
-        if (!window.SharedWorker) {
+        const socketIoWorker = await getSocketIoWorker();
+
+        if (!socketIoWorker) {
             return;
         }
 
-        const socketIoWorker = await new workerInstance.SocketIoWorker();
+        if (!await socketIoWorker.isConnected()) {
+            const accessToken = localStorage.getItem("accessToken");
+            const url = accessToken
+                ? `${process.env.REACT_APP_API_BASE_URL}?accessToken=${accessToken}`
+                : process.env.REACT_APP_BASE_URL + "";
 
-        console.log(socketIoWorker);
+            console.log("Connecting to socket io with worker");
 
-        if (await socketIoWorker.isConnected()) {
-            return;
+            await socketIoWorker.connect(url, {
+                path: "/api/v1/events",
+                transports: ["websocket"]
+            });
         }
-
-        const accessToken = localStorage.getItem("accessToken");
-        const url = accessToken
-            ? `${process.env.REACT_APP_API_BASE_URL}?accessToken=${accessToken}`
-            : process.env.REACT_APP_BASE_URL + "";
-
-        await socketIoWorker.connect(url, {
-            path: "/api/v1/events",
-            transports: ["websocket"]
-        });
 
         const handlers = this.createHandlers();
 
         for (const [eventType, handler] of handlers) {
             await socketIoWorker.registerEventHandler(eventType, proxy(handler))
         }
+
+        runInAction(() => {
+            this.socketIoWorker = socketIoWorker;
+            this.connectionType = "sharedWorker";
+        });
+
+        await this.emitPendingEvents();
     }
 
     startListeningWithSocketIo = (): void => {
@@ -105,6 +135,8 @@ export class WebsocketStore {
         }
 
         this.subscribeSocketIoToEvents();
+
+        this.emitPendingEvents();
     }
 
     private subscribeSocketIoToEvents = (): void => {
@@ -117,6 +149,18 @@ export class WebsocketStore {
         for (let [event, handler] of eventHandlers) {
             this.socketIoClient.on(event, handler);
         }
+
+        this.connectionType = "socketIo";
+    }
+
+    private emitPendingEvents = async (): Promise<void> => {
+        if (pendingEvents.length !== 0) {
+            for (const [eventType, args] of pendingEvents) {
+                await this.emitWebsocketEvent(eventType, args);
+            }
+        }
+
+        pendingEvents = [];
     }
     
     private createHandlers(): Map<WebsocketEventType, (websocketEvent: WebsocketEvent<any>) => void> {
@@ -295,14 +339,34 @@ export class WebsocketStore {
     }
 
     subscribeToChat = (chatId: string) => {
-        if (this.socketIoClient) {
-            this.socketIoClient.emit(WebsocketEventType.CHAT_SUBSCRIPTION, {chatId});
-        }
-    };
+        this.emitWebsocketEvent(WebsocketEventType.CHAT_SUBSCRIPTION, {chatId});
+    }
 
     unsubscribeFromChat = (chatId: string) => {
-        if (this.socketIoClient) {
-            this.socketIoClient.emit(WebsocketEventType.CHAT_UNSUBSCRIPTION, {chatId});
+       this.emitWebsocketEvent(WebsocketEventType.CHAT_UNSUBSCRIPTION, {chatId});
+    }
+
+    private emitWebsocketEvent = async (eventType: WebsocketEventType, args: object): Promise<void> => {
+        switch (this.connectionType) {
+            case "socketIo":
+            default:
+                if (this.socketIoClient) {
+                    this.socketIoClient.emit(eventType, args);
+                } else {
+                    this.addEventToQueue(eventType, args);
+
+                }
+                break;
+            case "sharedWorker":
+                if (this.socketIoWorker) {
+                    await this.socketIoWorker.emitEvent(eventType, args);
+                } else {
+                    this.addEventToQueue(eventType, args);
+                }
         }
-    };
+    }
+
+    private addEventToQueue = (eventType: WebsocketEventType, args: object) => {
+        pendingEvents.push([eventType, args]);
+    }
 }

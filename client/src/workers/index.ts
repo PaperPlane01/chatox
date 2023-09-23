@@ -1,31 +1,58 @@
 import {connect, Socket, SocketOptions, ManagerOptions} from "socket.io-client";
 import {WebsocketEvent, WebsocketEventType} from "../api/types/websocket";
 
-export class SocketIoWorker {
-    private socketIoClient?: Socket = undefined
+let socketIoClient: Socket | undefined = undefined;
+
+interface SocketIoWorkerBase {
+    connect: (url: string, options: Partial<ManagerOptions & SocketOptions>) => void,
+    isConnected: () => boolean,
+    registerEventHandler: <T>(eventType: WebsocketEventType, handler: (event: WebsocketEvent<T>) => void) => void,
+    disconnect: () => void,
+    emitEvent: (eventType: WebsocketEventType, args: object) => void
+}
+
+export interface ISocketIoWorker extends SocketIoWorkerBase {
+    [key: string]: (...any: any[]) => void
+}
+
+export class SocketIoWorker implements SocketIoWorkerBase {
 
     connect = (url: string, options: Partial<ManagerOptions & SocketOptions>): void => {
         console.log("connecting!")
 
-        if (this.socketIoClient) {
-            this.socketIoClient.disconnect();
+        if (socketIoClient) {
+            console.log("Already connected");
+            return;
         }
 
-        this.socketIoClient = connect(url, options);
+        socketIoClient = connect(url, options);
     }
 
     isConnected = (): boolean => {
-        return this.socketIoClient !== undefined;
+        console.log("connected? " + socketIoClient !== undefined);
+        return socketIoClient !== undefined;
     }
 
     registerEventHandler = <T>(eventType: WebsocketEventType, handler: (event: WebsocketEvent<T>) => void): void => {
-        if (this.socketIoClient) {
-            console.log(`Registering handler for event ${eventType}`)
-            console.log(handler);
-            this.socketIoClient.on(eventType, (event: WebsocketEvent<any>) => {
-                console.log("Calling back to main with event " + eventType);
+        if (socketIoClient) {
+            console.log("registering event handler")
+            socketIoClient.on(eventType, (event: WebsocketEvent<any>) => {
                 handler(event);
             });
+        }
+    }
+
+    disconnect = (): void => {
+        if (socketIoClient) {
+            socketIoClient.disconnect();
+        }
+
+        socketIoClient = undefined;
+    }
+
+    emitEvent = (eventType: WebsocketEventType, args: object): void => {
+        if (socketIoClient) {
+            socketIoClient.emit(eventType, args);
         }
     }
 }
