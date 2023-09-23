@@ -6,6 +6,7 @@ import {
     CardHeader,
     Divider,
     FormControlLabel,
+    FormHelperText,
     Radio,
     RadioGroup,
     Switch,
@@ -29,7 +30,9 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
             sendMessageButton,
             setSendMessageButton,
             enablePartialVirtualization,
-            setEnablePartialVirtualization
+            setEnablePartialVirtualization,
+            useSharedWorker,
+            setUseSharedWorker
         }
     } = useStore();
     const {l} = useLocalization();
@@ -85,6 +88,22 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                                       label={l("settings.chat.virtual-scroll.enable-partial-virtualization")}
                     />
                 )}
+                <Divider/>
+                <Typography variant="h6">
+                    {l("settings.chat.server-connection")}
+                </Typography>
+                <Fragment>
+                    <FormControlLabel control={
+                        <Switch checked={useSharedWorker}
+                                onChange={() => setUseSharedWorker(!useSharedWorker)}
+                        />
+                    }
+                                      label={l("settings.chat.use-shared-worker")}
+                    />
+                    <FormHelperText>
+                        {l("settings.chat.use-shared-worker.explained")}
+                    </FormHelperText>
+                </Fragment>
             </CardContent>
         </Card>
     );

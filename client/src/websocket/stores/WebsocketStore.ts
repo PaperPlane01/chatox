@@ -1,5 +1,6 @@
-import {makeAutoObservable, reaction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {connect, Socket} from "socket.io-client"
+import {proxy} from "comlink";
 import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
 import {
@@ -15,16 +16,48 @@ import {
     WebsocketEvent,
     WebsocketEventType
 } from "../../api/types/websocket";
-import {ChatBlocking, ChatParticipation, ChatRole, GlobalBan, Message} from "../../api/types/response";
-import {ChatStore} from "../../Chat";
+import {ChatBlocking, ChatParticipation, ChatRole, CurrentUser, GlobalBan, Message} from "../../api/types/response";
+import {ChatsPreferencesStore, ChatStore} from "../../Chat";
 import {MarkMessageReadStore, MessagesListScrollPositionsStore} from "../../Message";
 import {BalanceStore} from "../../Balance";
+import type {ISocketIoWorker} from "../../workers";
+import {Promisify} from "../../utils/types";
+// @ts-ignore
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import WorkerModule from "@socheatsok78/sharedworker-loader!../../workers"
+
+const workerInstance = window.SharedWorker && localStorage && localStorage.getItem("useSharedWorker") === "true"
+    ? new WorkerModule()
+    : undefined;
+
+let socketIoWorkerInstance: Promisify<ISocketIoWorker> | undefined = undefined;
+
+const getSocketIoWorker = async (): Promise<Promisify<ISocketIoWorker> | undefined> => {
+    if (socketIoWorkerInstance) {
+        return socketIoWorkerInstance;
+    }
+
+    if (workerInstance) {
+        socketIoWorkerInstance = await new workerInstance.SocketIoWorker();
+        return socketIoWorkerInstance;
+    } else {
+        return undefined;
+    }
+};
+
+type ConnectionType = "socketIo" | "sharedWorker";
+
+let pendingEvents: Array<[WebsocketEventType, object]> = [];
 
 export class WebsocketStore {
-    socketIoClient?: Socket;
+    socketIoClient?: Socket = undefined;
 
-    get refreshingToken(): boolean {
-        return this.authorization.refreshingToken;
+    socketIoWorker?: Promisify<ISocketIoWorker> = undefined;
+
+    connectionType: ConnectionType = "socketIo";
+
+    get currentUser(): CurrentUser | undefined {
+        return this.authorization.currentUser;
     }
 
     constructor(private readonly authorization: AuthorizationStore,
@@ -32,16 +65,61 @@ export class WebsocketStore {
                 private readonly chatStore: ChatStore,
                 private readonly scrollPositionStore: MessagesListScrollPositionsStore,
                 private readonly markMessageReadStore: MarkMessageReadStore,
-                private readonly balanceStore: BalanceStore) {
+                private readonly balanceStore: BalanceStore,
+                private readonly chatPreferences: ChatsPreferencesStore) {
         makeAutoObservable(this);
 
         reaction(
-            () => authorization.currentUser,
+            () => this.currentUser?.id,
             () => this.startListening()
         );
     }
 
     startListening = (): void => {
+        if (this.chatPreferences.useSharedWorker && window.SharedWorker) {
+            this.startListeningWithSharedWorker();
+        } else {
+            this.startListeningWithSocketIo();
+        }
+    }
+
+    startListeningWithSharedWorker = async (): Promise<void> => {
+        const socketIoWorker = await getSocketIoWorker();
+        console.log(socketIoWorker)
+
+        if (!socketIoWorker) {
+            return;
+        }
+
+        if (!await socketIoWorker.isConnected()) {
+            const accessToken = localStorage.getItem("accessToken");
+            const url = accessToken
+                ? `${process.env.REACT_APP_API_BASE_URL}?accessToken=${accessToken}`
+                : process.env.REACT_APP_BASE_URL + "";
+
+            console.log("Connecting to socket io with worker");
+
+            await socketIoWorker.connect(url, {
+                path: "/api/v1/events",
+                transports: ["websocket"]
+            });
+        }
+
+        const handlers = this.createHandlers();
+
+        for (const [eventType, handler] of handlers) {
+            await socketIoWorker.registerEventHandler(eventType, proxy(handler))
+        }
+
+        runInAction(() => {
+            this.socketIoWorker = socketIoWorker;
+            this.connectionType = "sharedWorker";
+        });
+
+        await this.emitPendingEvents();
+    }
+
+    startListeningWithSocketIo = (): void => {
         if (this.socketIoClient) {
             this.socketIoClient.disconnect();
         }
@@ -58,15 +136,38 @@ export class WebsocketStore {
             });
         }
 
-        this.subscribeToEvents();
+        this.subscribeSocketIoToEvents();
+
+        this.emitPendingEvents();
     }
 
-    private subscribeToEvents = (): void => {
+    private subscribeSocketIoToEvents = (): void => {
         if (!this.socketIoClient) {
             return;
         }
 
-        this.socketIoClient.on(
+        const eventHandlers = this.createHandlers();
+
+        for (let [event, handler] of eventHandlers) {
+            this.socketIoClient.on(event, handler);
+        }
+
+        this.connectionType = "socketIo";
+    }
+
+    private emitPendingEvents = async (): Promise<void> => {
+        if (pendingEvents.length !== 0) {
+            for (const [eventType, args] of pendingEvents) {
+                await this.emitWebsocketEvent(eventType, args);
+            }
+        }
+
+        pendingEvents = [];
+    }
+    
+    private createHandlers(): Map<WebsocketEventType, (websocketEvent: WebsocketEvent<any>) => void> {
+        const map = new  Map<WebsocketEventType, (websocketEvent: WebsocketEvent<any>) => void>();
+        map.set(
             WebsocketEventType.MESSAGE_CREATED,
             (event: WebsocketEvent<Message>) => {
                 const message = event.payload;
@@ -91,61 +192,61 @@ export class WebsocketStore {
                 }
             }
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.MESSAGE_UPDATED,
             (event: WebsocketEvent<Message>) => {
                 this.entities.messages.insert(event.payload);
             }
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.MESSAGES_DELETED,
             (event: WebsocketEvent<MessagesDeleted>) => {
                 this.entities.messages.deleteAllById(event.payload.messagesIds);
             }
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.CHAT_BLOCKING_CREATED,
             (event: WebsocketEvent<ChatBlocking>) => this.entities.chatBlockings.insert(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.CHAT_BLOCKING_UPDATED,
             (event: WebsocketEvent<ChatBlocking>) => this.entities.chatBlockings.insert(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.CHAT_BLOCKING_CANCELED,
             (event: WebsocketEvent<ChatBlocking>) => this.entities.chatBlockings.insert(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.CHAT_PARTICIPANT_WENT_ONLINE,
             (event: WebsocketEvent<ChatParticipation>) => this.entities.chatParticipations.insert(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.CHAT_PARTICIPANT_WENT_OFFLINE,
             (event: WebsocketEvent<ChatParticipation>) => this.entities.chatParticipations.insert(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.CHAT_UPDATED,
             (event: WebsocketEvent<ChatUpdated>) => this.entities.chats.onChatUpdated(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.MESSAGE_DELETED,
             (event: WebsocketEvent<MessageDeleted>) => this.entities.messages.deleteById(event.payload.messageId)
-    );
-        this.socketIoClient.on(
+        );
+        map.set(
             WebsocketEventType.USER_KICKED_FROM_CHAT,
             (event: WebsocketEvent<UserKickedFromChat>) => this.entities.chatParticipations.deleteById(
                 event.payload.chatParticipationId,
                 {decreaseChatParticipantsCount: true}
             )
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.USER_LEFT_CHAT,
             (event: WebsocketEvent<UserLeftChat>) => this.entities.chatParticipations.deleteById(
                 event.payload.chatParticipationId,
                 {decreaseChatParticipantsCount: true}
             )
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.CHAT_DELETED,
             (event: WebsocketEvent<ChatDeleted>) => this.entities.chats.deleteById(
                 event.payload.id,
@@ -155,19 +256,19 @@ export class WebsocketStore {
                 }
             )
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.GLOBAL_BAN_CREATED,
             (event: WebsocketEvent<GlobalBan>) => this.processGlobalBan(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.GLOBAL_BAN_UPDATED,
             (event: WebsocketEvent<GlobalBan>) => this.processGlobalBan(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.MESSAGE_PINNED,
             (event: WebsocketEvent<Message>) => this.entities.messages.insert(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.MESSAGE_UNPINNED,
             (event: WebsocketEvent<Message>) => {
                 const chat = this.entities.chats.findByIdOptional(event.payload.chatId);
@@ -179,51 +280,53 @@ export class WebsocketStore {
                 }
             }
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.SCHEDULED_MESSAGE_CREATED,
             (event: WebsocketEvent<Message>) => this.entities.scheduledMessages.insert(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.SCHEDULED_MESSAGE_PUBLISHED,
             (event: WebsocketEvent<Message>) => this.entities.chats.removeScheduledMessageFromChat(
                 event.payload.chatId,
                 event.payload.id
             )
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.SCHEDULED_MESSAGE_DELETED,
             (event: WebsocketEvent<MessageDeleted>) => this.entities.chats.removeScheduledMessageFromChat(
                 event.payload.chatId,
                 event.payload.messageId
             )
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.MESSAGE_READ,
             (event: WebsocketEvent<MessageRead>) => this.entities.chats.decreaseUnreadMessagesCountOfChat(event.payload.chatId)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.PRIVATE_CHAT_CREATED,
             (event: WebsocketEvent<PrivateChatCreated>) => this.entities.chats.onPrivateChatCreated(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.CHAT_ROLE_CREATED,
             (event: WebsocketEvent<ChatRole>) => this.entities.chatRoles.insert(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.CHAT_ROLE_UPDATED,
             (event: WebsocketEvent<ChatRole>) => this.entities.chatRoles.insert(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.CHAT_PARTICIPANT_UPDATED,
             (event: WebsocketEvent<ChatParticipation>) => this.entities.chatParticipations.insert(event.payload)
         );
-        this.socketIoClient.on(
+        map.set(
             WebsocketEventType.BALANCE_UPDATED,
             (event: WebsocketEvent<BalanceUpdated>) => this.balanceStore.updateBalance(
                 event.payload.currency,
                 event.payload.amount
             )
         );
+        
+        return map;
     }
 
     private processGlobalBan(globalBan: GlobalBan): void {
@@ -238,14 +341,34 @@ export class WebsocketStore {
     }
 
     subscribeToChat = (chatId: string) => {
-        if (this.socketIoClient) {
-            this.socketIoClient.emit(WebsocketEventType.CHAT_SUBSCRIPTION, {chatId});
-        }
-    };
+        this.emitWebsocketEvent(WebsocketEventType.CHAT_SUBSCRIPTION, {chatId});
+    }
 
     unsubscribeFromChat = (chatId: string) => {
-        if (this.socketIoClient) {
-            this.socketIoClient.emit(WebsocketEventType.CHAT_UNSUBSCRIPTION, {chatId});
+       this.emitWebsocketEvent(WebsocketEventType.CHAT_UNSUBSCRIPTION, {chatId});
+    }
+
+    private emitWebsocketEvent = async (eventType: WebsocketEventType, args: object): Promise<void> => {
+        switch (this.connectionType) {
+            case "socketIo":
+            default:
+                if (this.socketIoClient) {
+                    this.socketIoClient.emit(eventType, args);
+                } else {
+                    this.addEventToQueue(eventType, args);
+
+                }
+                break;
+            case "sharedWorker":
+                if (this.socketIoWorker) {
+                    await this.socketIoWorker.emitEvent(eventType, args);
+                } else {
+                    this.addEventToQueue(eventType, args);
+                }
         }
-    };
+    }
+
+    private addEventToQueue = (eventType: WebsocketEventType, args: object) => {
+        pendingEvents.push([eventType, args]);
+    }
 }
