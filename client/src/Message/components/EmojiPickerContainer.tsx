@@ -21,6 +21,7 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
     const {
         messageCreation: {
             emojiPickerExpanded,
+            setEmojiPickerExpanded,
             userId
         },
         chat: {
@@ -69,13 +70,14 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
         const queryParameters = emojiPickerExpanded
             ? {}
             : {emojiPickerExpanded: true};
+        setEmojiPickerExpanded(!emojiPickerExpanded);
 
         if (chat) {
             routerStore.goTo(
                 Routes.chatPage,
                 {slug: chat!.slug || chat!.id},
                 queryParameters
-            )
+            );
         } else if (userId) {
             routerStore.goTo(
                 Routes.newPrivateChat,

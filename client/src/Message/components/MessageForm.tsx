@@ -12,7 +12,7 @@ import {EmojiPickerContainer} from "./EmojiPickerContainer";
 import {SendMessageButton} from "./SendMessageButton";
 import {MessageFormData} from "../types";
 import {MarkdownPreviewDialog} from "../../Markdown";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store";
 import {SendMessageButton as SendMessageButtonType} from "../../Chat";
 import {ClaimRewardButton} from "../../Reward";
 
@@ -67,6 +67,7 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
+    const router = useRouter();
 
     useEffect(() => {
         if (inputRef && inputRef.current) {
@@ -190,7 +191,12 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
             <Hidden lgUp>
                 {emojiPickerExpanded && (
                     <EmojiAndStickerPicker onEmojiPicked={handleEmojiSelect}
-                                           onStickerPicked={() => setEmojiPickerExpanded(false)}
+                                           onStickerPicked={() => {
+                                               if (emojiPickerExpanded) {
+                                                   setEmojiPickerExpanded(false);
+                                                   window.history.go(-1);
+                                               }
+                                           }}
                     />
                 )}
             </Hidden>
