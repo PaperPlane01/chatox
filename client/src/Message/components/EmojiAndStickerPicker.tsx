@@ -17,14 +17,14 @@ interface EmojiAndStickerPickerProps {
 
 const useStyles = makeStyles(() => createStyles({
     pickerContainer: {
-        width: 350
+        width: "100%"
     },
     tabPanelRoot: {
         padding: 0
     }
 }))
 
-export const EmojiAndStickerPicker: FunctionComponent<EmojiAndStickerPickerProps> = observer(({
+export const Emoji AndStickerPicker: FunctionComponent<EmojiAndStickerPickerProps> = observer(({
     onEmojiPicked,
     onStickerPicked
 }) => {
