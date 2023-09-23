@@ -22,7 +22,6 @@ public class JwtCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> 
             var claims = context.getClaims()
                     .claim(Claims.ACCOUNT_ID, user.getAccountId())
                     .claim(Claims.USER_ID, user.getUserId())
-                    .claim(Claims.EMAIL, user.getEmail())
                     .claim(
                             Claims.AUTHORITIES,
                             user.getAuthorities()
@@ -31,6 +30,10 @@ public class JwtCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> 
                                     .toList()
                     )
                     .claim(Claims.SCOPE, context.getAuthorizedScopes());
+
+            if (user.getEmail() != null) {
+                claims.claim(Claims.EMAIL, user.getEmail());
+            }
 
             var lastActiveBan = globalBanRepository.findLastActiveBanOfAccount(user.getAccountId());
 
