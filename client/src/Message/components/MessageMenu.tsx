@@ -82,7 +82,7 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
         menuItems.push(<DeleteMessageMenuItem messageId={messageId} onClick={handleClose("deleteMessage")}/>)
     }
 
-    if (canBlockUserInChat({chatId: message.chatId, userId: message.sender})) {
+    if (canBlockUserInChat(message.chatId, message.sender)) {
         menuItems.push(<BlockMessageAuthorInChatMenuItem onClick={handleClose("blockMessageAuthorInChat")}
                                                          messageId={messageId}/>
         );

@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {ChatOfCurrentUserEntity} from "../types";
 import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
@@ -25,7 +25,7 @@ export class ChatPermissions {
         makeAutoObservable(this);
     }
 
-    canUpdateChat = createTransformer((chatId: string): boolean => {
+    canUpdateChat = computedFn((chatId: string): boolean => {
         if (!this.currentUser) {
             return false;
         }
@@ -46,7 +46,7 @@ export class ChatPermissions {
         return chatRole.features.changeChatSettings.enabled;
     });
 
-    canDeleteChat = createTransformer((chat: ChatOfCurrentUserEntity): boolean => {
+    canDeleteChat = computedFn((chat: ChatOfCurrentUserEntity): boolean => {
         if (!this.currentUser) {
             return false;
         }
@@ -54,7 +54,7 @@ export class ChatPermissions {
         return chat.createdByCurrentUser || this.currentUser.roles.includes(UserRole.ROLE_ADMIN);
     });
 
-    canLeaveChat = createTransformer((chatId: string): boolean => {
+    canLeaveChat = computedFn((chatId: string): boolean => {
         if (!this.currentUser) {
             return false;
         }

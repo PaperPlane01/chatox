@@ -1,5 +1,5 @@
 import {mergeWith} from "lodash";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {UserEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch, GetEntityType, RawEntityKey} from "../../entities-store";
@@ -16,7 +16,7 @@ export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "r
     User,
     UserInsertOptions> {
 
-    findByIdOrSlug = createTransformer((idOrSlug: string): UserEntity | undefined => {
+    findByIdOrSlug = computedFn((idOrSlug: string): UserEntity | undefined => {
        const user = this.findByIdOptional(idOrSlug);
 
        if (user) {

@@ -1,5 +1,5 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {ApiError, getInitialApiErrorFromResponse, StickerApi} from "../../api";
 import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
@@ -25,7 +25,7 @@ export class InstalledStickerPacksStore {
         );
     }
 
-    isStickerPackInstalled = createTransformer((stickerPackId: string) => this.installedStickerPacksIds.includes(stickerPackId));
+    isStickerPackInstalled = computedFn((stickerPackId: string) => this.installedStickerPacksIds.includes(stickerPackId));
 
     fetchInstalledStickerPacks = (): void => {
         this.pending = true;

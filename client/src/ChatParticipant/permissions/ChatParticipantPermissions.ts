@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
 import {UserChatRolesStore} from "../../ChatRole";
@@ -17,7 +17,7 @@ export class ChatParticipantPermissions {
         makeAutoObservable(this);
     }
 
-    canKickChatParticipant = createTransformer((chatParticipantId: string): boolean => {
+    canKickChatParticipant = computedFn((chatParticipantId: string): boolean => {
         if (!this.currentUser) {
             return false;
         }
@@ -62,12 +62,10 @@ export class ChatParticipantPermissions {
         );
     });
 
-    canModifyChatParticipant = createTransformer((parameters: {chatId: string, chatParticipantId: string}): boolean => {
+    canModifyChatParticipant = computedFn((chatId: string, chatParticipantId: string): boolean => {
         if (!this.currentUser) {
             return false;
         }
-
-        const {chatId, chatParticipantId} = parameters;
 
         const currentUserChatParticipation = this.entities.chatParticipations.findByUserAndChat({
             userId: this.currentUser.id,
@@ -81,7 +79,7 @@ export class ChatParticipantPermissions {
         return this.canAssignRole(chatId);
     });
 
-    canAssignRole = createTransformer((chatId: string): boolean => {
+    canAssignRole = computedFn((chatId: string): boolean => {
         if (!this.currentUser) {
             return false;
         }
@@ -98,7 +96,7 @@ export class ChatParticipantPermissions {
         return chatRole.features.assignChatRole.enabled;
     });
 
-    getPossibleAssignedRolesRange = createTransformer((chatId: string): {fromLevel?: number, upToLevel?: number} => {
+    getPossibleAssignedRolesRange = computedFn((chatId: string): {fromLevel?: number, upToLevel?: number} => {
         return this.userChatRoles.getRoleOfUserInChat({
             chatId,
             userId: this.currentUser!.id

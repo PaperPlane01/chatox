@@ -1,5 +1,5 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {ChatStore} from "../../Chat";
 import {PaginationState} from "../../utils/types";
 import {ChatApi} from "../../api";
@@ -38,7 +38,7 @@ export class ChatParticipantsStore {
         )
     }
 
-    getPaginationState = createTransformer((chatId: string) => {
+    getPaginationState = computedFn((chatId: string) => {
         if (this.paginationStateMap[chatId]) {
             return this.paginationStateMap[chatId];
         } else {

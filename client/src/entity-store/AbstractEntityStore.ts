@@ -1,5 +1,5 @@
 import {action, computed, makeObservable, observable} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {orderBy} from "lodash";
 import {BaseEntity, EntityStore} from "./EntityStore";
 import {
@@ -74,7 +74,7 @@ export abstract class AbstractEntityStore<
         return this.findAllById(this.ids);
     }
 
-    findAllById = createTransformer((ids: Iterable<string>): Entity[] => {
+    findAllById = computedFn((ids: Iterable<string>): Entity[] => {
         const entities: Entity[] = [];
         for (const id of ids) {
             entities.push(this.findById(id));
@@ -87,11 +87,11 @@ export abstract class AbstractEntityStore<
         }
     });
 
-    findById = createTransformer((id: string): Entity => {
+    findById = computedFn((id: string): Entity => {
         return this.findByIdOptional(id)!
     });
 
-    findByIdOptional = createTransformer((id: string): Entity | undefined => {
+    findByIdOptional = computedFn((id: string): Entity | undefined => {
         return this.rawEntities.entities[this.entityName][id] as Entity | undefined;
     });
 

@@ -1,4 +1,4 @@
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {AbstractEntityStore} from "../../entity-store";
 import {
     AudioUploadMetadata,
@@ -10,13 +10,13 @@ import {
 import {EntitiesPatch} from "../../entities-store";
 
 export class UploadsStore extends AbstractEntityStore<"uploads", Upload<any>, Upload<any>> {
-    findImage = createTransformer((id: string) => this.findById(id) as Upload<ImageUploadMetadata>);
+    findImage = computedFn((id: string) => this.findById(id) as Upload<ImageUploadMetadata>);
 
-    findGif = createTransformer((id: string) => this.findById(id) as Upload<GifUploadMetadata>);
+    findGif = computedFn((id: string) => this.findById(id) as Upload<GifUploadMetadata>);
 
-    findAudio = createTransformer((id: string) => this.findById(id) as Upload<AudioUploadMetadata>);
+    findAudio = computedFn((id: string) => this.findById(id) as Upload<AudioUploadMetadata>);
 
-    findVideo = createTransformer((id: string) => this.findById(id) as Upload<VideoUploadMetadata>);
+    findVideo = computedFn((id: string) => this.findById(id) as Upload<VideoUploadMetadata>);
 
     createPatchForArray(denormalizedEntities: Upload<any>[], options: {} = {}): EntitiesPatch {
         const patch = this.createEmptyEntitiesPatch("uploads");

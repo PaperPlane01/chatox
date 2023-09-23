@@ -1,5 +1,5 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {ChatStore} from "../../Chat";
 import {FetchingState, FetchOptions} from "../../utils/types";
 import {EntitiesStore} from "../../entities-store";
@@ -39,7 +39,7 @@ export class OnlineChatParticipantsStore {
         makeAutoObservable(this);
     }
 
-    getFetchingState = createTransformer((chatId: string) => {
+    getFetchingState = computedFn((chatId: string) => {
         if (this.fetchingStateMap[chatId]) {
             return this.fetchingStateMap[chatId];
         } else {

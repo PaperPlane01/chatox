@@ -49,7 +49,7 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
         );
     }
 
-    if (canBlockUserInChat({chatId: chatParticipation.chatId, userId: chatParticipation.userId})) {
+    if (canBlockUserInChat(chatParticipation.chatId, chatParticipation.userId)){
         menuItems.push(
             <BlockChatParticipantMenuItem userId={chatParticipation.userId}
                                           onClick={handleClose}
@@ -57,7 +57,7 @@ export const ChatParticipantMenu: FunctionComponent<ChatParticipantMenuProps> = 
         );
     }
 
-    if (canModifyChatParticipant({chatId: chatParticipation.chatId, chatParticipantId: chatParticipation.id})) {
+    if (canModifyChatParticipant(chatParticipation.chatId, chatParticipation.id)) {
         menuItems.push(
             <UpdateChatParticipantMenuItem chatParticipantId={chatParticipation.id}
                                            onClick={handleClose}

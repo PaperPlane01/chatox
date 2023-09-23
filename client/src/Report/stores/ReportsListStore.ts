@@ -1,5 +1,5 @@
 import {makeAutoObservable, observable, reaction, runInAction} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {EntitiesStore} from "../../entities-store";
 import {CurrentUser, ReportStatus, ReportType} from "../../api/types/response";
 import {ApiError, getInitialApiErrorFromResponse, ReportsApi} from "../../api";
@@ -71,7 +71,7 @@ export class ReportsListStore {
         );
     }
 
-    isReportSelected = createTransformer((reportId: string) => {
+    isReportSelected = computedFn((reportId: string) => {
         return Boolean(this.selectedReportsMap.get(reportId));
     });
 

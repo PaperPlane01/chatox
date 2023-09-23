@@ -1,4 +1,4 @@
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {mergeWith} from "lodash";
 import {ReportEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
@@ -7,7 +7,7 @@ import {ChatWithCreatorId, Message, Report, ReportType, User} from "../../api/ty
 import {mergeCustomizer} from "../../utils/object-utils";
 
 export class ReportsStore extends AbstractEntityStore<"reports", ReportEntity, Report> {
-    findIdsByType = createTransformer((targetType: ReportType) => this
+    findIdsByType = computedFn((targetType: ReportType) => this
         .findAll()
         .filter(({type}) => type === targetType)
         .map(({id}) => id)
