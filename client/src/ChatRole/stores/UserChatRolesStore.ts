@@ -1,6 +1,6 @@
 import {makeAutoObservable} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesAware, EntitiesStore} from "../../entities-store";
 
 interface GetRoleOfUserInChatOptions {
     chatId: string,
@@ -11,13 +11,19 @@ interface InsertInCacheParameters extends GetRoleOfUserInChatOptions {
     roleId: string
 }
 
-export class UserChatRolesStore {
+export class UserChatRolesStore implements EntitiesAware {
     rolesCache: {
         [cacheKey: string]: string
     } = {};
 
-    constructor(private readonly entitiesStore: EntitiesStore) {
+    private entities: EntitiesStore;
+
+    constructor() {
         makeAutoObservable(this);
+    }
+
+    setEntities = (entities: EntitiesStore): void => {
+        this.entities = entities;
     }
 
     insertInCache = (parameters: InsertInCacheParameters): void => {
@@ -34,7 +40,7 @@ export class UserChatRolesStore {
         if (this.rolesCache[cacheKey]) {
             roleId = this.rolesCache[cacheKey];
         } else {
-            const chatParticipation = this.entitiesStore.chatParticipations.findByUserAndChat(options);
+            const chatParticipation = this.entities.chatParticipations.findByUserAndChat(options);
 
             if (!chatParticipation) {
                 return undefined;
@@ -48,7 +54,7 @@ export class UserChatRolesStore {
             });
         }
 
-        return this.entitiesStore.chatRoles.findById(roleId);
+        return this.entities.chatRoles.findById(roleId);
     });
 
     private generateCacheKey = (chatId: string, userId: string): string => `${chatId}_${userId}`;

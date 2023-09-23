@@ -1,11 +1,11 @@
 import {makeAutoObservable} from "mobx";
 import {UserApi} from "../../api";
 import {CurrentUser, UserRole} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesAware, EntitiesStore} from "../../entities-store";
 import {tokenRefreshState} from "../../api/axios-instance";
 import {isGlobalBanActive} from "../../GlobalBan/utils";
 
-export class AuthorizationStore {
+export class AuthorizationStore implements EntitiesAware {
     currentUser?: CurrentUser = undefined;
 
     fetchingCurrentUser: boolean = false;

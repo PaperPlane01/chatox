@@ -3,7 +3,7 @@ import {MessagesStore} from "../Message";
 import {ChatsStore} from "../Chat";
 import {UploadsStore} from "../Upload";
 import {UserProfilePhotosStore, UsersStore} from "../User";
-import {ChatRolesStore} from "../ChatRole";
+import {ChatRolesStore, UserChatRolesStore} from "../ChatRole";
 import {ChatBlockingsStore} from "../ChatBlocking";
 import {ChatParticipationsStore} from "../ChatParticipant";
 import {AuthorizationStore} from "../Authorization";
@@ -12,6 +12,7 @@ import {ReportedChatsStore, ReportedMessagesStore, ReportsStore} from "../Report
 import {GlobalBansStore} from "../GlobalBan";
 import {RewardsStore, UserRewardsStore} from "../Reward";
 import {UserInteractionsStore} from "../UserInteraction";
+import {EntitiesAware} from "./EntitiesAware";
 
 export class EntitiesStore {
     public messages: MessagesStore<"messages">;
@@ -35,8 +36,8 @@ export class EntitiesStore {
     public userInteractions: UserInteractionsStore;
     public userProfilePhotos: UserProfilePhotosStore;
 
-    constructor(rawEntities: RawEntitiesStore, authorization: AuthorizationStore) {
-        this.messages = new MessagesStore(rawEntities, "messages", this);
+    constructor(rawEntities: RawEntitiesStore, authorization: AuthorizationStore, userChatRoles: UserChatRolesStore) {
+        this.messages = new MessagesStore(rawEntities, "messages", this, userChatRoles);
         this.chats = new ChatsStore(rawEntities, this, authorization);
         this.uploads = new UploadsStore(rawEntities, "uploads", this);
         this.users = new UsersStore(rawEntities, "users", this);
@@ -46,7 +47,7 @@ export class EntitiesStore {
         this.chatParticipations = new ChatParticipationsStore(rawEntities, this, authorization);
         this.stickers = new StickersStore(rawEntities, "stickers", this);
         this.stickerPacks = new StickerPacksStore(rawEntities, "stickerPacks", this);
-        this.scheduledMessages = new MessagesStore(rawEntities, "scheduledMessages", this);
+        this.scheduledMessages = new MessagesStore(rawEntities, "scheduledMessages", this, userChatRoles);
         this.reportedUsers = new UsersStore(rawEntities, "reportedUsers", this);
         this.reportedMessages = new ReportedMessagesStore(rawEntities, "reportedMessages", this);
         this.reportedMessageSenders = new UsersStore(rawEntities, "reportedMessageSenders", this);
@@ -56,5 +57,9 @@ export class EntitiesStore {
         this.userRewards = new UserRewardsStore(rawEntities, "userRewards", this);
         this.userInteractions = new UserInteractionsStore(rawEntities, "userInteractions", this);
         this.userProfilePhotos = new UserProfilePhotosStore(rawEntities, "userProfilePhotos", this);
+    }
+
+    public setEntitiesStore(entitiesAwareStores: EntitiesAware[]): void {
+        entitiesAwareStores.forEach(entitiesAware => entitiesAware.setEntities(this));
     }
 }

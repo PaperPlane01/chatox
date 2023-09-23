@@ -5,7 +5,7 @@ import {SearchMessagesStore} from "./SearchMessagesStore";
 import {createSortMessages} from "../utils";
 import {ChatMessagesFetchingStateMap, MessageEntity} from "../types";
 import {EntitiesStore} from "../../entities-store";
-import {ChatsPreferencesStore, ChatStore} from "../../Chat";
+import {ChatStore} from "../../Chat";
 import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api";
 import {Message} from "../../api/types/response";
@@ -54,7 +54,6 @@ export class MessagesOfChatStore {
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
-                private readonly chatPreferencesStore: ChatsPreferencesStore,
                 private readonly searchMessagesStore: SearchMessagesStore) {
         makeAutoObservable(this);
 

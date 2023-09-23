@@ -163,8 +163,10 @@ import {
 
 const rawEntities = new RawEntitiesStore();
 const authorization = new AuthorizationStore();
-const entities = new EntitiesStore(rawEntities, authorization);
-authorization.setEntities(entities);
+const userChatRoles = new UserChatRolesStore();
+const entities = new EntitiesStore(rawEntities, authorization, userChatRoles);
+
+entities.setEntitiesStore([userChatRoles, authorization]);
 
 const login = new LoginStore(authorization);
 const registrationDialog = new RegistrationDialogStore();
@@ -189,7 +191,7 @@ const messageUploads = new UploadMessageAttachmentsStore();
 const messageCreation = new CreateMessageStore(chat, messageUploads, entities);
 const chatsPreferences = new ChatsPreferencesStore();
 const messagesSearch = new SearchMessagesStore(entities, chat);
-const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences, messagesSearch);
+const messagesOfChat = new MessagesOfChatStore(entities, chat, messagesSearch);
 const joinChat = new JoinChatStore(entities, authorization);
 const userProfile = new UserProfileStore(entities);
 const createChatBlocking = new CreateChatBlockingStore(chat, entities);
@@ -318,7 +320,6 @@ const chatsAndMessagesSearchQuery = new ChatsAndMessagesSearchQueryStore();
 const allChatsMessagesSearch = new AllChatsMessagesSearchStore(chatsAndMessagesSearchQuery, entities);
 const chatsOfCurrentUserSearch = new ChatsOfCurrentUserSearchStore(chatsAndMessagesSearchQuery, entities);
 const rolesOfChats = new RolesOfChatStore(chat, entities);
-const userChatRoles = new UserChatRolesStore(entities);
 const chatFeaturesForm = ChatFeaturesFormStore.createInstance(entities);
 const updateChatParticipant = new UpdateChatParticipantStore(entities, authorization, userChatRoles);
 const chatRoleInfo = new ChatRoleInfoDialogStore();

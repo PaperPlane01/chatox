@@ -2,13 +2,21 @@ import {mergeWith, uniq} from "lodash";
 import {MessageInsertOptions} from "../types";
 import {convertMessageToNormalizedForm} from "../utils";
 import {SoftDeletableEntityStore} from "../../entity-store";
-import {EntitiesPatch, GetEntityType} from "../../entities-store";
+import {EntitiesPatch, EntitiesStore, GetEntityType, RawEntitiesStore} from "../../entities-store";
 import {Message} from "../../api/types/response";
 import {ChatOfCurrentUserEntity} from "../../Chat";
 import {mergeCustomizer} from "../../utils/object-utils";
+import {UserChatRolesStore} from "../../ChatRole";
 
 export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
     extends SoftDeletableEntityStore<MessageType, GetEntityType<MessageType>, Message, MessageInsertOptions> {
+
+    constructor(rawEntities: RawEntitiesStore,
+                entityName: MessageType,
+                entities: EntitiesStore,
+                private readonly userChatRoles: UserChatRolesStore) {
+        super(rawEntities, entityName, entities);
+    }
 
     protected convertToNormalizedForm(denormalizedEntity: Message): GetEntityType<MessageType> {
         return convertMessageToNormalizedForm(denormalizedEntity) as GetEntityType<MessageType>;
@@ -53,6 +61,11 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
             patches.push(this.entities.users.createPatch(message.sender));
 
             if (message.senderChatRole) {
+                this.userChatRoles.insertInCache({
+                    chatId: message.chatId,
+                    roleId: message.senderChatRole.id,
+                    userId: message.sender.id
+                });
                 patches.push(this.entities.chatRoles.createPatch(message.senderChatRole));
             }
 
