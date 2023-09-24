@@ -638,4 +638,7 @@ export interface Labels {
     "username.has-already-been-taken": string
     "username.too-long": string,
     "username.too-short": string,
+    "user.typing": string,
+    "user.typing.plural": string,
+    "user.typing.many": string
 }

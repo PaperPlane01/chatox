@@ -22,7 +22,7 @@ import {
     CreateChatStore,
     DeleteChatStore,
     LeaveChatStore,
-    PopularChatsStore,
+    PopularChatsStore, TypingUsersStore,
     UpdateChatStore
 } from "../Chat";
 import {
@@ -295,6 +295,7 @@ const googleLogin = new LoginWithGoogleStore(authorization);
 const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
 const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
 const balance = new BalanceStore(authorization);
+const typingUsers = new TypingUsersStore(entities, authorization);
 const websocket = new WebsocketStore(
     authorization,
     entities,
@@ -302,7 +303,8 @@ const websocket = new WebsocketStore(
     messagesListScrollPositions,
     markMessageRead,
     balance,
-    chatsPreferences
+    chatsPreferences,
+    typingUsers
 );
 const stickerPackCreation = new CreateStickerPackStore(entities);
 const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
@@ -561,5 +563,6 @@ export const store: IAppState = {
     selectedUserPhotos,
     deleteSelectedUserPhotos,
     setPhotoAsAvatar,
-    deleteUserPhoto
+    deleteUserPhoto,
+    typingUsers
 };

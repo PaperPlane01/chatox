@@ -5,12 +5,17 @@ import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {Link} from "mobx-router";
 import {ChatListMessagePreview} from "./ChatListMessagePreview";
+import {TypingIndicator} from "./TypingIndicator";
 import {getAvatarLabel, getChatLinkProps} from "../utils";
 import {ChatLinkPropsGenerationStrategy} from "../types";
 import {Avatar} from "../../Avatar";
-import {useRouter, useStore} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store";
 import {ChatType} from "../../api/types/response";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {UserEntity} from "../../User";
+import {TranslationFunction} from "../../localization";
+import {toJS} from "mobx";
+import {isDefined} from "../../utils/object-utils";
 
 interface ChatsOfCurrentUserListItemProps {
     chatId: string,
@@ -85,14 +90,19 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
             users: {
                 findById: findUser
             }
+        },
+        typingUsers: {
+            hasTypingUsers
         }
     } = useStore();
+    const {l} = useLocalization();
     const routerStore = useRouter();
     const classes = useStyles();
     const chat = findChat(chatId);
     const chatUser = chat.type === ChatType.DIALOG && chat.userId && findUser(chat.userId);
     const selected = selectedChatId === chatId;
     const linkProps = getChatLinkProps(linkGenerationStrategy, {chat, messageId});
+    const chatHasTypingUsers = hasTypingUsers(chatId);
 
     const avatar = chatUser
         ? (
@@ -130,17 +140,22 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                 >
                     <CardHeader title={
                         <div className={classes.flexWrapper}>
-                            <div className={classes.flexTruncatedTextContainer}>
-                                <Typography className={classes.flexTruncatedText}>
-                                    <strong>
-                                        {chatUser ? getUserDisplayedName(chatUser) : chat.name}
-                                    </strong>
-                                </Typography>
-                            </div>
+                            {chatHasTypingUsers
+                                ? <TypingIndicator chatId={chatId}/>
+                                : (
+                                    <div className={classes.flexTruncatedTextContainer}>
+                                        <Typography className={classes.flexTruncatedText}>
+                                            <strong>
+                                                {chatUser ? getUserDisplayedName(chatUser) : chat.name}
+                                            </strong>
+                                        </Typography>
+                                    </div>
+                                )
+                            }
                         </div>
 
                     }
-                                subheader={messageId && (
+                                subheader={messageId && !chatHasTypingUsers && (
                                     <div className={classes.flexWrapper}>
                                         <div className={classes.flexTruncatedTextContainer}>
                                             <Typography className={`${classes.flexTruncatedText} ${selected && !ignoreSelection && classes.selected}`}>

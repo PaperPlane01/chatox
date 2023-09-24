@@ -12,12 +12,12 @@ import {
     MessagesDeleted,
     PrivateChatCreated,
     UserKickedFromChat,
-    UserLeftChat,
+    UserLeftChat, UserStartedTyping,
     WebsocketEvent,
     WebsocketEventType
 } from "../../api/types/websocket";
 import {ChatBlocking, ChatParticipation, ChatRole, CurrentUser, GlobalBan, Message} from "../../api/types/response";
-import {ChatsPreferencesStore, ChatStore} from "../../Chat";
+import {ChatsPreferencesStore, ChatStore, TypingUsersStore} from "../../Chat";
 import {MarkMessageReadStore, MessagesListScrollPositionsStore} from "../../Message";
 import {BalanceStore} from "../../Balance";
 import type {ISocketIoWorker} from "../../workers";
@@ -66,7 +66,8 @@ export class WebsocketStore {
                 private readonly scrollPositionStore: MessagesListScrollPositionsStore,
                 private readonly markMessageReadStore: MarkMessageReadStore,
                 private readonly balanceStore: BalanceStore,
-                private readonly chatPreferences: ChatsPreferencesStore) {
+                private readonly chatPreferences: ChatsPreferencesStore,
+                private readonly typingUsersStore: TypingUsersStore) {
         makeAutoObservable(this);
 
         reaction(
@@ -324,6 +325,10 @@ export class WebsocketStore {
                 event.payload.currency,
                 event.payload.amount
             )
+        );
+        map.set(
+            WebsocketEventType.USER_STARTED_TYPING,
+            (event: WebsocketEvent<UserStartedTyping>) => this.typingUsersStore.onUserStartedTyping(event.payload)
         );
         
         return map;

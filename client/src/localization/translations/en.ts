@@ -640,4 +640,7 @@ export const en: Labels = {
     "username.has-already-been-taken": "This username is already taken",
     "username.too-long": "Username is too long",
     "username.too-short": "Username is too short",
+    "user.typing": "{username} is typing",
+    "user.typing.plural": "{usernames} are typing",
+    "user.typing.many": "{usernames} and {count} more are typing"
 };

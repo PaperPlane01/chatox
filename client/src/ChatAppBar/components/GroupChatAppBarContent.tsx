@@ -4,7 +4,7 @@ import {CardHeader, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
-import {ChatMenu} from "../../Chat";
+import {ChatMenu, TypingIndicator} from "../../Chat";
 import {getAvatarLabel} from "../../Chat/utils";
 import {useLocalization, useStore} from "../../store";
 import {trimString} from "../../utils/string-utils";
@@ -37,12 +37,16 @@ export const GroupChatAppBarContent: FunctionComponent<GroupChatAppBarContentPro
         },
         messagesSearch: {
             showInput
+        },
+        typingUsers: {
+            hasTypingUsers
         }
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down('lg'));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
+    const chatHasTypingUsers = hasTypingUsers(chatId);
 
     if (showInput) {
         return <ChatAppBarSearchInput/>
@@ -64,14 +68,18 @@ export const GroupChatAppBarContent: FunctionComponent<GroupChatAppBarContentPro
                             <Typography variant="body2"
                                         style={{
                                             opacity: 0.5,
-                                            cursor: "pointer"
+                                            cursor: "pointer",
+                                            display: "flex"
                                         }}
                                         onClick={() => setChatInfoDialogOpen(true)}
                             >
-                                {l(
-                                    "chat.number-of-participants",
-                                    {numberOfParticipants: chat.participantsCount, onlineParticipantsCount: `${onlineParticipantsCount}`}
-                                )}
+                                {chatHasTypingUsers
+                                    ? <TypingIndicator chatId={chatId}/>
+                                    :  l(
+                                        "chat.number-of-participants",
+                                        {numberOfParticipants: chat.participantsCount, onlineParticipantsCount: `${onlineParticipantsCount}`}
+                                    )
+                                }
                             </Typography>
                         )}
                         avatar={(

@@ -1,5 +1,6 @@
-import {action, computed, makeObservable, observable} from "mobx";
+import {action, computed, makeObservable, observable, reaction} from "mobx";
 import {RouterStore} from "mobx-router";
+import {debounce} from "lodash";
 import {AbstractMessageFormStore} from "./AbstractMessageFormStore";
 import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
 import {CreateMessageFormData} from "../types";
@@ -48,6 +49,17 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
             setReferredMessageId: action,
             sendSticker: action
         });
+
+        reaction(
+            () => this.formValues.text,
+            text => {
+                if (text.length !== 0) {
+                    this.startTyping();
+                }
+            }
+        );
+
+        this.startTyping = debounce(this.startTyping, 300);
     };
 
     setRouterStore = (routerStore: RouterStore<any>): void => {
@@ -80,6 +92,14 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
             .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
             .finally(() => this.setPending(false));
     };
+
+    startTyping = (): void => {
+        if (!this.selectedChatId) {
+            return;
+        }
+
+        ChatApi.startTyping(this.selectedChatId);
+    }
 
     submitForm = (): void => {
         if (!this.selectedChatId ) {
