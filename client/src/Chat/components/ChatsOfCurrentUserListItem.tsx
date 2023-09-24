@@ -154,7 +154,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                                                     : <ChatListMessagePreview messageId={messageId}/>
                                                 }
                                             </Typography>
-                                        </div>)
+                                        </div>
                                     </div>
                                 )}
                                 avatar={avatar}
