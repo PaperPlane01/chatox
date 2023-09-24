@@ -1,12 +1,17 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {styled} from "@mui/material/styles";
-import {keyframes} from "@mui/material/styles";
-import {ModeEdit} from "@mui/icons-material";
 import {Theme} from "@mui/material";
+import {styled, keyframes} from "@mui/material/styles";
+import {ModeEdit} from "@mui/icons-material";
 import {UserEntity} from "../../User";
 import {TranslationFunction} from "../../localization";
 import {useEntities, useLocalization, useStore} from "../../store";
+
+const TypingIndicatorContainer = styled("div")(({theme}: {theme: Theme}) => ({
+    display: "flex",
+    alignItems: "center",
+    paddingRight: theme.spacing(1)
+}));
 
 const typingAnimation = keyframes`
     0% {
@@ -21,12 +26,6 @@ const typingAnimation = keyframes`
       opacity: 0;
     }
 `;
-
-const TypingIndicatorContainer = styled("div")({
-    display: "flex",
-    alignItems: "center",
-    paddingRight: 8
-});
 
 const TypingDot = styled("div")(({theme}: {theme: Theme}) =>({
     float: "left",
@@ -66,7 +65,7 @@ const getTypingLabel = (typingUsers: UserEntity[], l: TranslationFunction): stri
 
         return l("user.typing.many", {usernames, count});
     }
-}
+};
 
 interface TypingIndicatorProps {
     chatId: string
