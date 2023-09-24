@@ -9,13 +9,9 @@ import {TypingIndicator} from "./TypingIndicator";
 import {getAvatarLabel, getChatLinkProps} from "../utils";
 import {ChatLinkPropsGenerationStrategy} from "../types";
 import {Avatar} from "../../Avatar";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useRouter, useStore} from "../../store";
 import {ChatType} from "../../api/types/response";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {UserEntity} from "../../User";
-import {TranslationFunction} from "../../localization";
-import {toJS} from "mobx";
-import {isDefined} from "../../utils/object-utils";
 
 interface ChatsOfCurrentUserListItemProps {
     chatId: string,
@@ -50,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         maxWidth: "80%"
     },
     flexWrapper: {
-        display: "flex",
+        display: "flex"
     },
     flexTruncatedTextContainer: {
         flex: 1,
@@ -59,7 +55,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     flexTruncatedText: {
         whiteSpace: "nowrap",
         textOverflow: "ellipsis",
-        overflow: "hidden"
+        overflow: "hidden",
+        display: "flex"
     },
     unreadMessagesBadgeRoot: {
         width: "100%"
@@ -95,7 +92,6 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
             hasTypingUsers
         }
     } = useStore();
-    const {l} = useLocalization();
     const routerStore = useRouter();
     const classes = useStyles();
     const chat = findChat(chatId);
@@ -140,28 +136,25 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                 >
                     <CardHeader title={
                         <div className={classes.flexWrapper}>
-                            {chatHasTypingUsers
-                                ? <TypingIndicator chatId={chatId}/>
-                                : (
-                                    <div className={classes.flexTruncatedTextContainer}>
-                                        <Typography className={classes.flexTruncatedText}>
-                                            <strong>
-                                                {chatUser ? getUserDisplayedName(chatUser) : chat.name}
-                                            </strong>
-                                        </Typography>
-                                    </div>
-                                )
-                            }
+                            <div className={classes.flexTruncatedTextContainer}>
+                                <Typography className={classes.flexTruncatedText}>
+                                    <strong>
+                                        {chatUser ? getUserDisplayedName(chatUser) : chat.name}
+                                    </strong>
+                                </Typography>
+                            </div>
                         </div>
-
                     }
-                                subheader={messageId && !chatHasTypingUsers && (
+                                subheader={messageId && (
                                     <div className={classes.flexWrapper}>
                                         <div className={classes.flexTruncatedTextContainer}>
                                             <Typography className={`${classes.flexTruncatedText} ${selected && !ignoreSelection && classes.selected}`}>
-                                                <ChatListMessagePreview messageId={messageId}/>
+                                                {chatHasTypingUsers
+                                                    ? <TypingIndicator chatId={chatId}/>
+                                                    : <ChatListMessagePreview messageId={messageId}/>
+                                                }
                                             </Typography>
-                                        </div>
+                                        </div>)
                                     </div>
                                 )}
                                 avatar={avatar}
