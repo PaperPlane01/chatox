@@ -43,6 +43,26 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
         this.chatService = chatService
     }
 
+    fun canSendTypingStatus(chatId: String): Mono<Boolean> {
+        return mono {
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
+
+            if (isUserBlocked(currentUser, chatId).awaitFirst()) {
+                return@mono false
+            }
+
+            val features = chatRoleService.getRoleOfUserInChat(
+                    userId = currentUser.id,
+                    chatId = chatId
+            )
+                    .awaitFirstOrNull()
+                    ?.features
+                    ?: return@mono false
+
+            return@mono features.sendMessages.enabled
+         }
+    }
+
     fun canCreateMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<Boolean> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
