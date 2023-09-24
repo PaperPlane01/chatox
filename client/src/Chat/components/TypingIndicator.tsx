@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Theme} from "@mui/material";
-import {styled, keyframes} from "@mui/material/styles";
+import {keyframes, styled} from "@mui/material/styles";
 import {ModeEdit} from "@mui/icons-material";
 import {UserEntity} from "../../User";
 import {TranslationFunction} from "../../localization";
