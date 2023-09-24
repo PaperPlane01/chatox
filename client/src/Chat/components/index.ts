@@ -21,3 +21,4 @@ export * from "./SpecifyChatDeletionReasonDialog";
 export * from "./ChatDeletionLabel";
 export * from "./ShowScheduledMessagesMenuItem";
 export * from "./ChatsOfCurrentUserListWrapper";
+export * from "./TypingIndicator";

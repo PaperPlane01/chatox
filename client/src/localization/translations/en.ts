@@ -534,6 +534,7 @@ export const en: Labels = {
     "settings.appearance": "Appearance",
     "settings.chat.messages.send-message-button.CTRL_ENTER": "Send message on CTRL + Enter",
     "settings.chat.messages.send-message-button.ENTER": "Send message on Enter",
+    "settings.chat.send-typing-notification": "Send typing notification",
     "settings.chat.server-connection": "Server connection",
     "settings.chat.use-shared-worker": "Share single server connection between tabs (experimental)",
     "settings.chat.use-shared-worker.explained": "This setting enables sharing single websocket connection between multiple tabs by using Shared Worker API. Requires page reload",
@@ -640,4 +641,7 @@ export const en: Labels = {
     "username.has-already-been-taken": "This username is already taken",
     "username.too-long": "Username is too long",
     "username.too-short": "Username is too short",
+    "user.typing": "{username} is typing",
+    "user.typing.plural": "{usernames} are typing",
+    "user.typing.many": "{usernames} and {count} more are typing"
 };

@@ -10,6 +10,7 @@ import chatox.chat.messaging.rabbitmq.event.ChatUpdated
 import chatox.chat.messaging.rabbitmq.event.MessageCreated
 import chatox.chat.messaging.rabbitmq.event.MessageReadEvent
 import chatox.chat.messaging.rabbitmq.event.UserLeftChat
+import chatox.chat.messaging.rabbitmq.event.UserStartedTyping
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
 
@@ -155,5 +156,11 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.events",
             "chat.message.read.#",
             messageReadEvent
+    )
+
+    fun userStartedTyping(userStartedTyping: UserStartedTyping) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.user.typing.#",
+            userStartedTyping
     )
 }

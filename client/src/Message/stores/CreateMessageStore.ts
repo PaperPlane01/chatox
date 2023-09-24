@@ -1,9 +1,10 @@
-import {action, computed, makeObservable, observable} from "mobx";
+import {action, computed, makeObservable, observable, reaction} from "mobx";
 import {RouterStore} from "mobx-router";
+import {debounce} from "lodash";
 import {AbstractMessageFormStore} from "./AbstractMessageFormStore";
 import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
 import {CreateMessageFormData} from "../types";
-import {ChatStore} from "../../Chat";
+import {ChatsPreferencesStore, ChatStore} from "../../Chat";
 import {FormErrors} from "../../utils/types";
 import {ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
@@ -36,7 +37,8 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
 
     constructor(chatStore: ChatStore,
                 messageUploads: UploadMessageAttachmentsStore,
-                entities: EntitiesStore) {
+                entities: EntitiesStore,
+                private readonly chatsPreferences: ChatsPreferencesStore) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS, chatStore, messageUploads, entities);
 
         makeObservable<CreateMessageStore>(this, {
@@ -48,6 +50,17 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
             setReferredMessageId: action,
             sendSticker: action
         });
+
+        reaction(
+            () => this.formValues.text,
+            text => {
+                if (text.length !== 0 && this.chatsPreferences.sendTypingNotification) {
+                    this.startTyping();
+                }
+            }
+        );
+
+        this.startTyping = debounce(this.startTyping, 300);
     };
 
     setRouterStore = (routerStore: RouterStore<any>): void => {
@@ -80,6 +93,14 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
             .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
             .finally(() => this.setPending(false));
     };
+
+    startTyping = (): void => {
+        if (!this.selectedChatId) {
+            return;
+        }
+
+        ChatApi.startTyping(this.selectedChatId);
+    }
 
     submitForm = (): void => {
         if (!this.selectedChatId ) {

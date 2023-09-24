@@ -18,7 +18,7 @@ import {
     ChatParticipation,
     ChatParticipationWithoutUser
 } from "../types/response";
-import {CHATS, IS_AVAILABLE, JOIN, LEAVE, MY, ONLINE, PARTICIPANTS, POPULAR, PRIVATE, SLUG} from "../endpoints";
+import {CHATS, IS_AVAILABLE, JOIN, LEAVE, MY, ONLINE, PARTICIPANTS, POPULAR, PRIVATE, SLUG, TYPING} from "../endpoints";
 
 export class ChatApi {
 
@@ -99,5 +99,9 @@ export class ChatApi {
 
     public static startPrivateChat(startPrivateChatRequest: StartPrivateChatRequest): AxiosPromise<ChatOfCurrentUser> {
         return axiosInstance.post(`/${CHATS}/${PRIVATE}`, startPrivateChatRequest);
+    }
+
+    public static startTyping(chatId: string): AxiosPromise<void> {
+        return axiosInstance.post(`/${CHATS}/${chatId}/${TYPING}`);
     }
 }

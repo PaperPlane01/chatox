@@ -28,7 +28,8 @@ import {
     ChatDeleted,
     PrivateChatCreated,
     UserKickedFromChat,
-    UserLeftChat
+    UserLeftChat,
+    UserStartedTyping
 } from "../common/types/events";
 import {ChatParticipationService} from "../chat-participation";
 import {ChatParticipation} from "../chat-participation/entities";
@@ -426,6 +427,14 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.BALANCE_UPDATED
         };
         await this.publishEventToUser(balance.userId, balanceUpdated);
+      }
+
+      public async publishUserStartedTyping(userStartedTyping: UserStartedTyping) {
+        const event: WebsocketEvent<UserStartedTyping> = {
+            payload: userStartedTyping,
+            type: EventType.USER_STARTED_TYPING
+        };
+        await this.publishEventToChatParticipants(userStartedTyping.chatId, event);
       }
 
     private async publishEventToChatParticipants(chatId: string, event: WebsocketEvent): Promise<void> {

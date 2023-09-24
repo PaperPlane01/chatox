@@ -19,7 +19,7 @@ import {
     CreateChatStore,
     DeleteChatStore,
     LeaveChatStore,
-    PopularChatsStore,
+    PopularChatsStore, TypingUsersStore,
     UpdateChatStore
 } from "../Chat";
 import {
@@ -288,5 +288,6 @@ export interface IAppState {
     selectedUserPhotos: SelectedUserProfilePhotosStore,
     deleteSelectedUserPhotos: DeleteSelectedUserProfilePhotosStore,
     setPhotoAsAvatar: SetPhotoAsAvatarStore,
-    deleteUserPhoto: DeleteUserProfilePhotoStore
+    deleteUserPhoto: DeleteUserProfilePhotoStore,
+    typingUsers: TypingUsersStore
 }

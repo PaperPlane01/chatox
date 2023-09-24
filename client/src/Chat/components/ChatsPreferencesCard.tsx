@@ -32,7 +32,9 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
             enablePartialVirtualization,
             setEnablePartialVirtualization,
             useSharedWorker,
-            setUseSharedWorker
+            setUseSharedWorker,
+            sendTypingNotification,
+            setSendTypingNotification
         }
     } = useStore();
     const {l} = useLocalization();
@@ -57,6 +59,12 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                                           value={SendMessageButton.ENTER}
                         />
                     </RadioGroup>
+                    <FormControlLabel control={
+                        <Switch checked={sendTypingNotification}
+                                onChange={() => setSendTypingNotification(!sendTypingNotification)}/>
+                    }
+                                      label={l("settings.chat.send-typing-notification")}
+                    />
                 </Fragment>
                 <Divider/>
                 <Typography variant="h6">

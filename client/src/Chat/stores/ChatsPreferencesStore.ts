@@ -12,6 +12,8 @@ export class ChatsPreferencesStore {
 
     useSharedWorker: boolean = false;
 
+    sendTypingNotification: boolean = true;
+
     constructor() {
         makeAutoObservable(this);
 
@@ -37,6 +39,10 @@ export class ChatsPreferencesStore {
 
         if (localStorage.getItem("useSharedWorker")) {
             this.useSharedWorker = localStorage.getItem("useSharedWorker") === "true";
+        }
+
+        if (localStorage.getItem("sendTypingNotification") !== null) {
+            this.sendTypingNotification = localStorage.getItem("sendTypingNotification") === "true";
         }
     }
 
@@ -66,5 +72,10 @@ export class ChatsPreferencesStore {
         this.useSharedWorker = useSharedWorker;
         localStorage.setItem("useSharedWorker", `${useSharedWorker}`);
         window.location.reload();
+    }
+
+    setSendTypingNotification = (sendTypingNotification: boolean): void => {
+        this.sendTypingNotification = sendTypingNotification;
+        localStorage.setItem("sendTypingNotification", `${sendTypingNotification}`);
     }
 }

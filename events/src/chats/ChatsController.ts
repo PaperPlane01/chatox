@@ -3,7 +3,7 @@ import {RabbitSubscribe} from "@nestjs-plus/rabbitmq";
 import {ChatsService} from "./ChatsService";
 import {WebsocketEventsPublisher} from "../websocket";
 import {Chat} from "../common/types";
-import {ChatDeleted, PrivateChatCreated} from "../common/types/events";
+import {ChatDeleted, PrivateChatCreated, UserStartedTyping} from "../common/types/events";
 import {config} from "../env-config";
 
 @Injectable()
@@ -35,8 +35,16 @@ export class ChatsController {
         queue: `events_service_private_chat_created-${config.EVENTS_SERVICE_PORT}`
     })
     public async onPrivateChatCreated(privateChatCreated: PrivateChatCreated): Promise<void> {
-        console.log(privateChatCreated);
         await this.chatsService.savePrivateChat(privateChatCreated);
         await this.websocketEventsPublisher.publishPrivateChatCreated(privateChatCreated);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        routingKey: "chat.user.typing.#",
+        queue: `events_service_user_started_typing-${config.EVENTS_SERVICE_PORT}`
+    })
+    public async onUserStartedTyping(userStartedTyping: UserStartedTyping): Promise<void> {
+        await this.websocketEventsPublisher.publishUserStartedTyping(userStartedTyping);
     }
 }

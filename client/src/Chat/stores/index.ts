@@ -9,4 +9,4 @@ export * from "./ChatsPreferencesStore";
 export * from "./LeaveChatStore";
 export * from "./PopularChatsStore";
 export * from "./DeleteChatStore";
-
+export * from "./TypingUsersStore";

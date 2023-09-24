@@ -5,6 +5,7 @@ import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {Link} from "mobx-router";
 import {ChatListMessagePreview} from "./ChatListMessagePreview";
+import {TypingIndicator} from "./TypingIndicator";
 import {getAvatarLabel, getChatLinkProps} from "../utils";
 import {ChatLinkPropsGenerationStrategy} from "../types";
 import {Avatar} from "../../Avatar";
@@ -45,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         maxWidth: "80%"
     },
     flexWrapper: {
-        display: "flex",
+        display: "flex"
     },
     flexTruncatedTextContainer: {
         flex: 1,
@@ -54,7 +55,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     flexTruncatedText: {
         whiteSpace: "nowrap",
         textOverflow: "ellipsis",
-        overflow: "hidden"
+        overflow: "hidden",
+        display: "flex"
     },
     unreadMessagesBadgeRoot: {
         width: "100%"
@@ -85,6 +87,9 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
             users: {
                 findById: findUser
             }
+        },
+        typingUsers: {
+            hasTypingUsers
         }
     } = useStore();
     const routerStore = useRouter();
@@ -93,6 +98,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
     const chatUser = chat.type === ChatType.DIALOG && chat.userId && findUser(chat.userId);
     const selected = selectedChatId === chatId;
     const linkProps = getChatLinkProps(linkGenerationStrategy, {chat, messageId});
+    const chatHasTypingUsers = hasTypingUsers(chatId);
 
     const avatar = chatUser
         ? (
@@ -138,13 +144,15 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                                 </Typography>
                             </div>
                         </div>
-
                     }
                                 subheader={messageId && (
                                     <div className={classes.flexWrapper}>
                                         <div className={classes.flexTruncatedTextContainer}>
                                             <Typography className={`${classes.flexTruncatedText} ${selected && !ignoreSelection && classes.selected}`}>
-                                                <ChatListMessagePreview messageId={messageId}/>
+                                                {chatHasTypingUsers
+                                                    ? <TypingIndicator chatId={chatId}/>
+                                                    : <ChatListMessagePreview messageId={messageId}/>
+                                                }
                                             </Typography>
                                         </div>
                                     </div>
