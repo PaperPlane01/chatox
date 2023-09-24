@@ -63,7 +63,7 @@ export class TypingUsersStore {
         setTimeout(() => this.removeTypingUser(chatId, userId), 3000);
     }
 
-    removeTypingUser = (chatId: string, userId: string): void => {
+    removeTypingUser = (chatId: string, userId: string, force: boolean = false): void => {
         if (!this.typingUsers.has(chatId)) {
             return;
         }
@@ -74,7 +74,7 @@ export class TypingUsersStore {
 
         const lastDate = this.typingUsers.get(chatId)!.get(userId)!;
 
-        if (differenceInSeconds(new Date(), lastDate) < 3) {
+        if (differenceInSeconds(new Date(), lastDate) < 3 && !force) {
             return;
         }
 

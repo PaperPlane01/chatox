@@ -180,6 +180,8 @@ export class WebsocketStore {
 
                 if (this.authorization.currentUser) {
                     if (this.authorization.currentUser.id !== message.sender.id) {
+                        this.typingUsersStore.removeTypingUser(message.chatId, message.sender.id, true);
+
                         if (this.chatStore.selectedChatId === message.chatId) {
                             if (this.scrollPositionStore.getReachedBottom(message.chatId)) {
                                 this.markMessageReadStore.markMessageRead(message.id);
