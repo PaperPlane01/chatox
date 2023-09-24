@@ -12,7 +12,8 @@ import {
     MessagesDeleted,
     PrivateChatCreated,
     UserKickedFromChat,
-    UserLeftChat, UserStartedTyping,
+    UserLeftChat,
+    UserStartedTyping,
     WebsocketEvent,
     WebsocketEventType
 } from "../../api/types/websocket";
