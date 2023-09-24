@@ -534,6 +534,7 @@ export const en: Labels = {
     "settings.appearance": "Appearance",
     "settings.chat.messages.send-message-button.CTRL_ENTER": "Send message on CTRL + Enter",
     "settings.chat.messages.send-message-button.ENTER": "Send message on Enter",
+    "settings.chat.send-typing-notification": "Send typing notification",
     "settings.chat.server-connection": "Server connection",
     "settings.chat.use-shared-worker": "Share single server connection between tabs (experimental)",
     "settings.chat.use-shared-worker.explained": "This setting enables sharing single websocket connection between multiple tabs by using Shared Worker API. Requires page reload",

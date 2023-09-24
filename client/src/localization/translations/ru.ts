@@ -534,6 +534,7 @@ export const ru: Labels = {
     "settings.appearance": "Внешний вид",
     "settings.chat.messages.send-message-button.CTRL_ENTER": "Отправлять сообщение по нажатию CTRL + Enter",
     "settings.chat.messages.send-message-button.ENTER": "Отправлять сообщение по нажатию Enter",
+    "settings.chat.send-typing-notification": "Отправлять уведомление о наборе текста",
     "settings.chat.server-connection": "Соединение с сервером",
     "settings.chat.use-shared-worker": "Использовать одно соединение для нескольких вкладок (экспериментальный фукнционал)",
     "settings.chat.use-shared-worker.explained": "Данная настройка позволяет использовать одно websocket-соединение между несколькими вкладками с помощью Shared Worker API. Требуется перезагрузка страницы",

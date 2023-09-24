@@ -4,7 +4,7 @@ import {debounce} from "lodash";
 import {AbstractMessageFormStore} from "./AbstractMessageFormStore";
 import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
 import {CreateMessageFormData} from "../types";
-import {ChatStore} from "../../Chat";
+import {ChatsPreferencesStore, ChatStore} from "../../Chat";
 import {FormErrors} from "../../utils/types";
 import {ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
@@ -37,7 +37,8 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
 
     constructor(chatStore: ChatStore,
                 messageUploads: UploadMessageAttachmentsStore,
-                entities: EntitiesStore) {
+                entities: EntitiesStore,
+                private readonly chatsPreferences: ChatsPreferencesStore) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS, chatStore, messageUploads, entities);
 
         makeObservable<CreateMessageStore>(this, {
@@ -53,7 +54,7 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
         reaction(
             () => this.formValues.text,
             text => {
-                if (text.length !== 0) {
+                if (text.length !== 0 && this.chatsPreferences.sendTypingNotification) {
                     this.startTyping();
                 }
             }
