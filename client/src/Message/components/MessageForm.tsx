@@ -1,6 +1,6 @@
-import React, {Fragment, FunctionComponent, KeyboardEvent, ReactNode, RefObject, useEffect} from "react";
+import React, {Fragment, FunctionComponent, KeyboardEvent, RefObject, useEffect} from "react";
 import {observer} from "mobx-react";
-import {Hidden, IconButton, InputAdornment, TextField, Theme, Tooltip, Typography} from "@mui/material";
+import {Hidden, IconButton, InputAdornment, TextField, Theme, Tooltip} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {KeyboardVoice} from "@mui/icons-material";
 import {EmojiData} from "emoji-mart";
