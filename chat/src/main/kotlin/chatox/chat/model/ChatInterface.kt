@@ -23,4 +23,5 @@ interface ChatInterface {
     val lastMessageDate: ZonedDateTime?
     val chatDeletion: ChatDeletion?
     val dialogDisplay: List<DialogDisplay>
+    val slowMode: SlowMode?
 }

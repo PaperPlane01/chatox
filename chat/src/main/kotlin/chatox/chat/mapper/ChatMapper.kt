@@ -38,7 +38,8 @@ class ChatMapper(
             tags = chat.tags,
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
             user = if (user != null) userMapper.toUserResponse(user) else null,
-            type = chat.type
+            type = chat.type,
+            slowMode = chat.slowMode
     )
 
     fun toChatResponse(chat: ChatInterface, currentUserId: String?, user: User? = null) = ChatResponse(
@@ -53,7 +54,8 @@ class ChatMapper(
             tags = chat.tags,
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
             type = chat.type,
-            user = if (user != null) userMapper.toUserResponse(user) else null
+            user = if (user != null) userMapper.toUserResponse(user) else null,
+            slowMode = chat.slowMode
     )
 
     fun toChatOfCurrentUserResponse(
@@ -177,7 +179,8 @@ class ChatMapper(
                     deletionReason = chat.chatDeletion?.deletionReason,
                     deletionComment = chat.chatDeletion?.comment,
                     user = user,
-                    type = chat.type
+                    type = chat.type,
+                    slowMode = chat.slowMode
             )
         }
     }
@@ -194,7 +197,8 @@ class ChatMapper(
             tags = chat.tags,
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
             createdById = chat.createdById,
-            type = chat.type
+            type = chat.type,
+            slowMode = chat.slowMode
     )
 
     fun fromCreateChatRequest(
@@ -232,6 +236,7 @@ class ChatMapper(
             createdAt = chat.createdAt,
             name = chat.name,
             slug = chat.slug,
-            tags = chat.tags
+            tags = chat.tags,
+            slowMode = chat.slowMode
     )
 }

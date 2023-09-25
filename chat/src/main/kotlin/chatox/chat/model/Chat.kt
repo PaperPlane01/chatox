@@ -36,7 +36,8 @@ data class Chat(
         override val lastMessageId: String? = null,
         override val lastMessageDate: ZonedDateTime? = null,
         override val chatDeletion: ChatDeletion? = null,
-        override val dialogDisplay: List<DialogDisplay> = listOf()
+        override val dialogDisplay: List<DialogDisplay> = listOf(),
+        override val slowMode: SlowMode? = null
 ) : ChatInterface {
-        fun toElasticsearch() = ChatElasticsearch(id, name, description, tags, avatarUri, avatar, slug, createdAt, createdById, updatedAt, deletedAt, deleted, deletedById, type, numberOfParticipants, numberOfOnlineParticipants, lastMessageId, lastMessageDate, chatDeletion, dialogDisplay)
+        fun toElasticsearch() = ChatElasticsearch(id, name, description, tags, avatarUri, avatar, slug, createdAt, createdById, updatedAt, deletedAt, deleted, deletedById, type, numberOfParticipants, numberOfOnlineParticipants, lastMessageId, lastMessageDate, chatDeletion, dialogDisplay, slowMode)
 }

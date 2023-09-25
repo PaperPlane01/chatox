@@ -10,6 +10,7 @@ import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.api.response.ChatResponseWithCreatorId
+import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.config.RedisConfig
 import chatox.chat.exception.InvalidChatDeletionCommentException
 import chatox.chat.exception.InvalidChatDeletionReasonException
@@ -32,6 +33,7 @@ import chatox.chat.model.ChatType
 import chatox.chat.model.DialogDisplay
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Message
+import chatox.chat.model.SlowMode
 import chatox.chat.model.StandardChatRole
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
@@ -78,6 +80,9 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
                       private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
                       private val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String>,
+
+                      @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+                      private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
 
                       @Qualifier(RedisConfig.CHAT_BY_SLUG_CACHE_SERVICE)
                       private val chatBySlugCacheService: ReactiveCacheService<Chat, String>,
@@ -274,7 +279,17 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             }
 
             if (slugChanged) {
-                chatBySlugCacheService.delete(chat.slug)
+                chatBySlugCacheService.delete(chat.slug).awaitFirstOrNull()
+            }
+
+            val slowMode = if (updateChatRequest.slowMode != null) {
+                SlowMode(
+                        enabled = updateChatRequest.slowMode.enabled,
+                        interval = updateChatRequest.slowMode.interval,
+                        unit = updateChatRequest.slowMode.unit
+                )
+            } else {
+                null
             }
 
             chat = chat.copy(
@@ -282,7 +297,8 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     avatar = avatar,
                     slug = updateChatRequest.slug ?: chat.id,
                     tags = updateChatRequest.tags ?: arrayListOf(),
-                    description = updateChatRequest.description
+                    description = updateChatRequest.description,
+                    slowMode = slowMode
             )
 
             return@mono updateChat(chat).awaitFirst()
@@ -409,7 +425,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             }
 
             chatParticipations.map { chatParticipation ->
-                val chat = findChatByIdInternal(chatParticipation.chatId, true).awaitFirst()
+                val chat = findChatByIdInternal(chatParticipation.chatId).awaitFirst()
                 val lastReadMessage = if (chatParticipation.lastReadMessageId != null) {
                     messageCacheWrapper.findById(chatParticipation.lastReadMessageId!!).awaitFirst()
                 } else null
@@ -495,7 +511,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     }
 
     override fun findChatEntityById(id: String): Mono<Chat> {
-        return findChatByIdInternal(id, true)
+        return findChatByIdInternal(id)
     }
 
     override fun findChatById(id: String): Mono<ChatResponseWithCreatorId> {
@@ -544,6 +560,6 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         return map
     }
 
-    private fun findChatByIdInternal(id: String, retrieveFromCache: Boolean = false) = chatRepository.findById(id)
+    private fun findChatByIdInternal(id: String) = chatCacheWrapper.findById(id)
             .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
 }
