@@ -368,6 +368,7 @@ export const ru: Labels = {
     "message.schedule-date.must-be-no-more-than-month-from-now": "Дата отправки отложенного сообщения должна быть не более месяца с настоящего времени",
     "message.scheduled-at": "Запланировано на {scheduleDate}",
     "message.send": "Отправить",
+    "message.send.wait": "Пожалуйста, подождите перед отправкой следующего сообщения",
     "message.text-is-too-long": "Текст сообщения слишком длинный",
     "message.text-must-be-present": "Напечатайте что-нибудь",
     "message.type-something": "Напишите сообщение...",
@@ -643,5 +644,15 @@ export const ru: Labels = {
     "username.too-short": "Имя пользователя слишком короткое",
     "user.typing": "{username} печатает",
     "user.typing.plural": "{usernames} печатают",
-    "user.typing.many": "{usernames} и ещё {count} печатают"
+    "user.typing.many": "{usernames} и ещё {count} печатают",
+    "common.time-unit": "Единица времени",
+    "common.time-unit.DAYS": "День",
+    "common.time-unit.HOURS": "Час",
+    "common.time-unit.MINUTES": "Минута",
+    "common.time-unit.MONTHS": "Месяц",
+    "common.time-unit.SECONDS": "Секунда",
+    "common.time-unit.WEEKS": "Неделя",
+    "common.time-unit.YEARS": "Год",
+    "chat.slow-mode.enabled": "Включить медленный режим",
+    "chat.slow-mode.interval": "Интервал между сообщениями"
 };

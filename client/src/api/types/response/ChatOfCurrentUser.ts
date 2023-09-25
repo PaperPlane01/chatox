@@ -5,6 +5,7 @@ import {ImageUploadMetadata} from "./ImageUploadMetadata";
 import {ChatDeletionReason} from "./ChatDeletionReason";
 import {ChatType} from "./ChatType";
 import {User} from "./User";
+import {SlowMode} from "./SlowMode";
 
 export interface ChatOfCurrentUser {
     id: string,
@@ -26,5 +27,6 @@ export interface ChatOfCurrentUser {
     deletionReason?: ChatDeletionReason,
     deletionComment?: string,
     type: ChatType,
-    user?: User
+    user?: User,
+    slowMode?: SlowMode
 }

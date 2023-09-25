@@ -7,7 +7,9 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    FormControlLabel,
     InputAdornment,
+    Switch,
     TextField,
     Typography
 } from "@mui/material";
@@ -15,7 +17,9 @@ import {useSnackbar} from "notistack";
 import {ChatAvatarUpload} from "./ChatAvatarUpload";
 import {ChipInput} from "../../ChipInput";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
+import {TimeUnitSelect} from "../../TimeUnitSelect";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
+import {TimeUnit} from "../../api/types/response";
 import {Language, TranslationFunction} from "../../localization";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
 import {useLocalization, useStore} from "../../store";
@@ -86,8 +90,9 @@ export const UpdateChatDialog: FunctionComponent = observer(() => {
             selectedChatId
         },
         chatUpdate: {
-            updateChatForm,
+            formValues,
             formErrors,
+            tagsErrorsMap,
             updateChatDialogOpen,
             pending,
             checkingSlugAvailability,
@@ -97,7 +102,7 @@ export const UpdateChatDialog: FunctionComponent = observer(() => {
             setShowSnackbar,
             setUpdateChatDialogOpen,
             setFormValue,
-            updateChat
+            submitForm
         },
         entities: {
             chats: {
@@ -133,7 +138,7 @@ export const UpdateChatDialog: FunctionComponent = observer(() => {
             <DialogContent>
                 <ChatAvatarUpload/>
                 <TextField label={l("chat.name")}
-                           value={updateChatForm.name}
+                           value={formValues.name}
                            fullWidth
                            margin="dense"
                            error={Boolean(formErrors.name)}
@@ -141,7 +146,7 @@ export const UpdateChatDialog: FunctionComponent = observer(() => {
                            onChange={event => setFormValue("name", event.target.value)}
                 />
                 <TextField label={l("chat.description")}
-                           value={updateChatForm.description}
+                           value={formValues.description}
                            fullWidth
                            margin="dense"
                            error={Boolean(formErrors.description)}
@@ -159,7 +164,7 @@ export const UpdateChatDialog: FunctionComponent = observer(() => {
                            maxRows={20}
                 />
                 <TextField label={l("chat.slug")}
-                           value={updateChatForm.slug}
+                           value={formValues.slug}
                            fullWidth
                            margin="dense"
                            error={Boolean(formErrors.slug)}
@@ -174,21 +179,19 @@ export const UpdateChatDialog: FunctionComponent = observer(() => {
                            }}
                 />
                 <ChipInput label={l("chat.tags")}
-                           value={updateChatForm.tags}
+                           value={formValues.tags}
                            fullWidth
                            margin="dense"
-                           error={Boolean(
-                               formErrors.tags || containsNotUndefinedValues(formErrors.tagErrorsMap)
-                           )}
+                           error={Boolean(formErrors.tags || containsNotUndefinedValues(tagsErrorsMap))}
                            helperText={
                                formErrors.tags ? l(formErrors.tags)
-                                   : containsNotUndefinedValues(formErrors.tagErrorsMap)
+                                   : containsNotUndefinedValues(tagsErrorsMap)
                                    ? (
                                        <Fragment>
-                                           {Object.keys(formErrors.tagErrorsMap).map(key => (
+                                           {Object.keys(tagsErrorsMap).map(key => (
                                                <Typography>
-                                                   {formErrors.tagErrorsMap[key]
-                                                   && l(formErrors.tagErrorsMap[key]!, {tag: key})}
+                                                   {tagsErrorsMap[key]
+                                                   && l(tagsErrorsMap[key]!, {tag: key})}
                                                </Typography>
                                            ))}
                                        </Fragment>
@@ -196,6 +199,28 @@ export const UpdateChatDialog: FunctionComponent = observer(() => {
                                    : null
                            }
                            onChange={tags => setFormValue("tags", tags as string[])}
+                />
+                <FormControlLabel control={
+                    <Switch checked={formValues.slowModeEnabled}
+                            onChange={event => setFormValue("slowModeEnabled", event.target.checked)}
+                    />
+                }
+                                  label={l("chat.slow-mode.enabled")}
+                />
+                <TextField label={l("chat.slow-mode.interval")}
+                           value={formValues.slowModeInterval}
+                           fullWidth
+                           margin="dense"
+                           error={Boolean(formErrors.slowModeInterval)}
+                           helperText={formErrors.slowModeInterval && l(formErrors.slowModeInterval)}
+                           onChange={event => setFormValue("slowModeInterval", event.target.value)}
+                />
+                <TimeUnitSelect value={formValues.slowModeUnit}
+                                onSelect={timeUnit => setFormValue("slowModeUnit", timeUnit)}
+                                onClear={() => setFormValue("slowModeUnit", undefined)}
+                                allowedUnits={[TimeUnit.SECONDS, TimeUnit.MINUTES, TimeUnit.HOURS]}
+                                error={Boolean(formErrors.slowModeUnit)}
+                                errorText={formErrors.slowModeUnit && l(formErrors.slowModeUnit)}
                 />
                 {error && getErrorNode(error, l, locale)}
             </DialogContent>
@@ -208,14 +233,14 @@ export const UpdateChatDialog: FunctionComponent = observer(() => {
                 </Button>
                 <Button variant="contained"
                         color="primary"
-                        onClick={() => updateChat()}
+                        onClick={() => submitForm()}
                         disabled={pending || avatarUploadPending || checkingSlugAvailability}
                 >
                     {pending && <CircularProgress size={25} color="primary"/>}
                     {l("chat.update.save-changes")}
                 </Button>
             </DialogActions>
-            <MarkdownPreviewDialog text={updateChatForm.description || ""}/>
+            <MarkdownPreviewDialog text={formValues.description || ""}/>
         </Dialog>
     );
 });

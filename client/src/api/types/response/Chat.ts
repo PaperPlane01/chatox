@@ -2,6 +2,7 @@ import {Upload} from "./Upload";
 import {ImageUploadMetadata} from "./ImageUploadMetadata";
 import {ChatType} from "./ChatType";
 import {User} from "./User";
+import {SlowMode} from "./SlowMode";
 
 export interface Chat {
     avatarUri?: string,
@@ -16,5 +17,6 @@ export interface Chat {
     createdAt: string,
     avatar?: Upload<ImageUploadMetadata>,
     type: ChatType,
-    user?: User
+    user?: User,
+    slowMode?: SlowMode
 }
