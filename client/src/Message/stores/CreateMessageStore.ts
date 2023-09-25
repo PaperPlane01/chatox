@@ -1,15 +1,17 @@
 import {action, computed, makeObservable, observable, reaction} from "mobx";
+import {computedFn} from "mobx-utils";
 import {RouterStore} from "mobx-router";
 import {debounce} from "lodash";
 import {AbstractMessageFormStore} from "./AbstractMessageFormStore";
 import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
 import {CreateMessageFormData} from "../types";
 import {ChatsPreferencesStore, ChatStore} from "../../Chat";
-import {FormErrors} from "../../utils/types";
 import {ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {Routes} from "../../router";
-import {createWithUndefinedValues} from "../../utils/object-utils";
+import {FormErrors} from "../../utils/types";
+import {createWithUndefinedValues, isDefined} from "../../utils/object-utils";
+import {Duration} from "../../utils/date-utils";
 
 const INITIAL_FORM_VALUES: CreateMessageFormData = {
     text: "",
@@ -35,11 +37,15 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
 
     private routerStore: RouterStore<any>;
 
+    lastMessageDates = observable.map<string, Date>();
+
     constructor(chatStore: ChatStore,
                 messageUploads: UploadMessageAttachmentsStore,
                 entities: EntitiesStore,
                 private readonly chatsPreferences: ChatsPreferencesStore) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS, chatStore, messageUploads, entities);
+
+        this.startTyping = debounce(this.startTyping, 300);
 
         makeObservable<CreateMessageStore>(this, {
             referredMessageId: observable,
@@ -48,7 +54,8 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
             submitForm: action,
             setUserId: action,
             setReferredMessageId: action,
-            sendSticker: action
+            sendSticker: action,
+            setLastMessageDateForChat: action
         });
 
         reaction(
@@ -59,8 +66,6 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
                 }
             }
         );
-
-        this.startTyping = debounce(this.startTyping, 300);
     };
 
     setRouterStore = (routerStore: RouterStore<any>): void => {
@@ -69,11 +74,11 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
 
     setUserId = (userId?: string): void => {
         this.userId = userId;
-    };
+    }
 
     setReferredMessageId = (referredMessageId?: string): void => {
         this.referredMessageId = referredMessageId;
-    };
+    }
 
     sendSticker = (stickerId: string): void => {
         if (!this.selectedChatId || this.pending) {
@@ -89,10 +94,13 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
             uploadAttachments: [],
             stickerId
         })
-            .then(({data}) => this.entities.messages.insert(data))
+            .then(({data}) => {
+                const message = this.entities.messages.insert(data);
+                this.setLastMessageDateForChat(data.chatId, message.createdAt);
+            })
             .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
             .finally(() => this.setPending(false));
-    };
+    }
 
     startTyping = (): void => {
         if (!this.selectedChatId) {
@@ -126,7 +134,8 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
             })
                 .then(({data}) => {
                     if (!this.formValues.scheduledAt) {
-                        this.entities.messages.insert(data);
+                        const message = this.entities.messages.insert(data);
+                        this.setLastMessageDateForChat(data.chatId, message.createdAt);
                     } else {
                         if (this.routerStore) {
                             const chat = this.entities.chats.findById(chatId);
@@ -163,5 +172,32 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
                 .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
                 .finally(() => this.setPending(false))
         }
-    };
+    }
+
+    getNextMessageDate = computedFn((chatId: string) => {
+        const lastMessageDate = this.lastMessageDates.get(chatId);
+
+        if (!isDefined(lastMessageDate)) {
+            return undefined;
+        }
+
+        const chat = this.entities.chats.findByIdOptional(chatId);
+
+        if (!isDefined(chat) || !isDefined(chat.slowMode) || !chat.slowMode.enabled) {
+            return undefined;
+        }
+
+        return Duration.of(chat.slowMode.interval, chat.slowMode.unit)
+            .addToDate(lastMessageDate);
+    })
+
+    setLastMessageDateForChat = (chatId: string, date: Date): void => {
+        const chat = this.entities.chats.findByIdOptional(chatId);
+
+        if (!chat || !isDefined(chat.slowMode) || !chat.slowMode.enabled) {
+            return;
+        }
+
+        this.lastMessageDates.set(chatId, date);
+    }
 }

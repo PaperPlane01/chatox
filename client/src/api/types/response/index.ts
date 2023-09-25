@@ -53,3 +53,4 @@ export * from "./UserInteractionType";
 export * from "./UserInteractionCost";
 export * from "./UserInteraction";
 export * from "./UserProfilePhoto";
+export * from "./SlowMode";

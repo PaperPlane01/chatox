@@ -3,6 +3,7 @@ package chatox.chat.api.response
 import chatox.chat.model.ChatDeletionReason
 import chatox.chat.model.ChatType
 import chatox.chat.model.ImageUploadMetadata
+import chatox.chat.model.SlowMode
 import java.time.ZonedDateTime
 
 data class ChatOfCurrentUserResponse(
@@ -25,5 +26,6 @@ data class ChatOfCurrentUserResponse(
         val type: ChatType,
         val deletionReason: ChatDeletionReason?,
         val deletionComment: String?,
-        val user: UserResponse?
+        val user: UserResponse?,
+        val slowMode: SlowMode? = null
 )

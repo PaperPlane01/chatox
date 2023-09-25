@@ -7,6 +7,7 @@ import chatox.chat.model.MessageUploadsCount
 import chatox.chat.model.SendMessagesFeatureAdditionalData
 import chatox.chat.model.UploadType
 import chatox.chat.model.User
+import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatRoleService
@@ -23,13 +24,15 @@ import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
+import java.time.Duration
 import java.time.ZonedDateTime
 
 @Component
 class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                          private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                          private val chatRoleService: ChatRoleService,
-                         private val uploadRepository: UploadRepository) {
+                         private val uploadRepository: UploadRepository,
+                         private val messageRepository: MessageMongoRepository) {
     private lateinit var messageService: MessageService
     private lateinit var chatService: ChatService
 
@@ -84,9 +87,31 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 true
             }
 
-           return@mono scheduledMessageCheck && checkUploadsPermissions(createMessageRequest, features.sendMessages.additional).awaitFirst()
+           return@mono scheduledMessageCheck
+                   && checkUploadsPermissions(createMessageRequest, features.sendMessages.additional).awaitFirst()
+                   && checkSlowMode(chatId, currentUser).awaitFirst()
         }
     }
+
+    private fun checkSlowMode(chatId: String, user: JwtPayload): Mono<Boolean> {
+        return mono {
+            val chat = chatService.findChatEntityById(chatId).awaitFirst()
+
+            if (chat.slowMode == null || !chat.slowMode.enabled) {
+                return@mono true
+            }
+
+            val lastMessage = messageRepository.findFirstByChatIdAndSenderIdOrderByCreatedAtDesc(
+                    chatId = chatId,
+                    senderId = user.id
+            )
+                    .awaitFirstOrNull() ?: return@mono true
+            val nextDate = lastMessage.createdAt.plus(Duration.of(chat.slowMode.interval, chat.slowMode.unit))
+
+            return@mono nextDate.isBefore(ZonedDateTime.now())
+        }
+    }
+
 
     fun canPublishScheduledMessage(chatId: String): Mono<Boolean> {
         return mono {

@@ -364,7 +364,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
             deletionReason: denormalizedEntity.deletionReason,
             scheduledMessages: [],
             userId: denormalizedEntity.user ? denormalizedEntity.user.id : undefined,
-            type: denormalizedEntity.type
+            type: denormalizedEntity.type,
+            slowMode: denormalizedEntity.slowMode
         }
     }
 }

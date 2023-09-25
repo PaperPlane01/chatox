@@ -1,6 +1,6 @@
-import React, {Fragment, FunctionComponent, KeyboardEvent, RefObject, useEffect} from "react";
+import React, {Fragment, FunctionComponent, KeyboardEvent, ReactNode, RefObject, useEffect} from "react";
 import {observer} from "mobx-react";
-import {Hidden, IconButton, InputAdornment, TextField, Theme, Tooltip} from "@mui/material";
+import {Hidden, IconButton, InputAdornment, TextField, Theme, Tooltip, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {KeyboardVoice} from "@mui/icons-material";
 import {EmojiData} from "emoji-mart";
@@ -12,9 +12,10 @@ import {EmojiPickerContainer} from "./EmojiPickerContainer";
 import {SendMessageButton} from "./SendMessageButton";
 import {MessageFormData} from "../types";
 import {MarkdownPreviewDialog} from "../../Markdown";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store";
 import {SendMessageButton as SendMessageButtonType} from "../../Chat";
 import {ClaimRewardButton} from "../../Reward";
+import {Countdown} from "../../Countdown";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     textField: {
@@ -37,6 +38,7 @@ interface MessageFormProps {
     allowScheduled?: boolean,
     inputRef: RefObject<HTMLInputElement>,
     scheduledAt?: Date,
+    nextMessageDate?: Date,
     setFormValue: <Key extends keyof MessageFormData>(key: Key, value: MessageFormData[Key]) => void,
     submitForm: () => void,
     setEmojiPickerExpanded: (emojiPickerExpended: boolean) => void
@@ -50,6 +52,7 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
     inputRef,
     attachmentsIds,
     scheduledAt,
+    nextMessageDate,
     setFormValue,
     setEmojiPickerExpanded,
     submitForm
@@ -67,7 +70,6 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
-    const router = useRouter();
 
     useEffect(() => {
         if (inputRef && inputRef.current) {
@@ -161,28 +163,30 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
                                <InputAdornment position="end"
                                                className={classes.inputAdornment}
                                >
-                                   <div style={{display: "flex"}}>
+                                   <div style={{display: "flex", alignItems: "center"}}>
                                        <Fragment>
                                            {allowScheduled && scheduledAt && <OpenScheduleMessageDialogButton/>}
                                            <EmojiPickerContainer onEmojiSelected={handleEmojiSelect}/>
                                        </Fragment>
-                                       {formValues.text.length !== 0 || attachmentsIds.length !== 0
-                                           ? (
-                                              <SendMessageButton onClick={submitForm}
-                                                                 onOpenPreviewClick={() => setMarkdownPreviewDialogOpen(true)}
-                                                                 disabled={pending}
-                                              />
-                                           )
-                                           : (
-                                               <Tooltip title={l("feature.not-available")}>
-                                                   <div>
-                                                       <IconButton disabled size="large">
-                                                           <KeyboardVoice/>
-                                                       </IconButton>
-                                                   </div>
-                                               </Tooltip>
-                                           )
-                                       }
+                                       <Countdown date={nextMessageDate}>
+                                           {formValues.text.length !== 0 || attachmentsIds.length !== 0
+                                               ? (
+                                                   <SendMessageButton onClick={submitForm}
+                                                                      onOpenPreviewClick={() => setMarkdownPreviewDialogOpen(true)}
+                                                                      disabled={pending}
+                                                   />
+                                               )
+                                               : (
+                                                   <Tooltip title={l("feature.not-available")}>
+                                                       <div>
+                                                           <IconButton disabled size="large">
+                                                               <KeyboardVoice/>
+                                                           </IconButton>
+                                                       </div>
+                                                   </Tooltip>
+                                               )
+                                           }
+                                       </Countdown>
                                    </div>
                                </InputAdornment>
                            )

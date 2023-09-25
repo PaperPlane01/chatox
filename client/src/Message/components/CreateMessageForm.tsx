@@ -5,6 +5,7 @@ import {Reply} from "@mui/icons-material";
 import {MessageFormMessageCard} from "./MessageFormMessageCard";
 import {MessageForm} from "./MessageForm";
 import {useStore} from "../../store";
+import {isDefined} from "../../utils/object-utils";
 
 export const CreateMessageForm: FunctionComponent = observer(() => {
     const {
@@ -14,10 +15,12 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             emojiPickerExpanded,
             referredMessageId,
             attachmentsIds,
+            selectedChatId,
             setFormValue,
             submitForm,
             setEmojiPickerExpanded,
-            setReferredMessageId
+            setReferredMessageId,
+            getNextMessageDate
         },
     } = useStore();
 
@@ -36,6 +39,8 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             inputRef.current.focus();
         }
     }, [referredMessageId]);
+
+    const nextMessageDate = isDefined(selectedChatId) ? getNextMessageDate(selectedChatId) : undefined;
 
     return (
         <Fragment>
@@ -57,6 +62,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                          inputRef={inputRef}
                          attachmentsIds={attachmentsIds}
                          scheduledAt={formValues.scheduledAt}
+                         nextMessageDate={nextMessageDate}
                          setFormValue={setFormValue}
                          setEmojiPickerExpanded={setEmojiPickerExpanded}
                          submitForm={submitForm}

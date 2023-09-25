@@ -368,6 +368,7 @@ export const en: Labels = {
     "message.schedule-date.must-be-no-more-than-month-from-now": "Schedule date must be no more than 1 month from now",
     "message.scheduled-at": "Scheduled at {scheduleDate}",
     "message.send": "Send",
+    "message.send.wait": "Please wait before sending next message",
     "message.text-is-too-long": "Message text is too long",
     "message.text-must-be-present": "Please type some text",
     "message.type-something": "Type something...",
@@ -643,5 +644,15 @@ export const en: Labels = {
     "username.too-short": "Username is too short",
     "user.typing": "{username} is typing",
     "user.typing.plural": "{usernames} are typing",
-    "user.typing.many": "{usernames} and {count} more are typing"
+    "user.typing.many": "{usernames} and {count} more are typing",
+    "common.time-unit": "Time unit",
+    "common.time-unit.DAYS": "Day",
+    "common.time-unit.HOURS": "Hour",
+    "common.time-unit.MINUTES": "Minute",
+    "common.time-unit.MONTHS": "Month",
+    "common.time-unit.SECONDS": "Second",
+    "common.time-unit.WEEKS": "Week",
+    "common.time-unit.YEARS": "Year",
+    "chat.slow-mode.enabled": "Enable slow mode",
+    "chat.slow-mode.interval": "Interval between messages"
 };
