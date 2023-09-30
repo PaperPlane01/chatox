@@ -22,9 +22,9 @@ data class Message(
         @Indexed
         override val chatId: String,
         override val createdAt: ZonedDateTime,
-        override val updatedAt: ZonedDateTime?,
-        override val deleted: Boolean,
-        override val deletedAt: ZonedDateTime?,
+        override val updatedAt: ZonedDateTime? = null,
+        override val deleted: Boolean = false,
+        override val deletedAt: ZonedDateTime? = null,
 
         @Indexed
         override val deletedById: String? = null,

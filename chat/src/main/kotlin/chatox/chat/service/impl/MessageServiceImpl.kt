@@ -1,48 +1,32 @@
 package chatox.chat.service.impl
 
-import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.DeleteMultipleMessagesRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
-import chatox.chat.api.response.UserResponse
 import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.exception.ChatAlreadyHasPinnedMessageException
 import chatox.chat.exception.MessageNotFoundException
-import chatox.chat.exception.MessageValidationException
 import chatox.chat.exception.NoPinnedMessageException
-import chatox.chat.exception.ScheduledMessageNotFoundException
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
-import chatox.chat.exception.metadata.LimitOfScheduledMessagesReachedException
-import chatox.chat.exception.metadata.ScheduledMessageIsTooCloseToAnotherScheduledMessageException
-import chatox.chat.exception.metadata.StickerNotFoundException
 import chatox.chat.mapper.MessageMapper
 import chatox.chat.messaging.rabbitmq.event.MessageReadEvent
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
-import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatUploadAttachment
-import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.MessageRead
-import chatox.chat.model.ScheduledMessage
-import chatox.chat.model.Sticker
-import chatox.chat.model.Upload
 import chatox.chat.model.User
-import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.MessageReadRepository
-import chatox.chat.repository.mongodb.ScheduledMessageRepository
-import chatox.chat.repository.mongodb.StickerRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatUploadAttachmentEntityService
 import chatox.chat.service.EmojiParserService
 import chatox.chat.service.MessageEntityService
 import chatox.chat.service.MessageService
 import chatox.chat.util.NTuple2
-import chatox.chat.util.NTuple7
 import chatox.chat.util.isDateBeforeOrEquals
 import chatox.chat.util.mapTo2Lists
 import chatox.platform.cache.ReactiveCacheService
@@ -69,12 +53,10 @@ class MessageServiceImpl(
         private val chatParticipationRepository: ChatParticipationRepository,
         private val uploadRepository: UploadRepository,
         private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
-        private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
-        private val scheduledMessageRepository: ScheduledMessageRepository,
-        private val stickerRepository: StickerRepository,
         private val authenticationHolder: ReactiveAuthenticationHolder<User>,
         private val emojiParserService: EmojiParserService,
         private val messageCacheService: ReactiveCacheService<Message, String>,
+        private val chatUploadAttachmentsEntityService: ChatUploadAttachmentEntityService,
 
         @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
@@ -83,233 +65,6 @@ class MessageServiceImpl(
         private val messageEntityService: MessageEntityService,
         private val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService
 ) : MessageService {
-    private companion object {
-        const val ALLOWED_NUMBER_OF_SCHEDULED_MESSAGES = 50
-    }
-
-    override fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse> {
-        return mono {
-            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-
-            if (createMessageRequest.scheduledAt == null) {
-                return@mono createNormalMessage(chatId, createMessageRequest, currentUser).awaitFirst()
-            } else {
-                return@mono createScheduledMessage(chatId, createMessageRequest, currentUser).awaitFirst()
-            }
-        }
-    }
-
-    private fun createNormalMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: JwtPayload): Mono<MessageResponse> {
-        return mono {
-            val (
-                    chat,
-                    sticker,
-                    referredMessage,
-                    emoji,
-                    uploadAttachments,
-                    uploads,
-                    chatParticipation
-            ) = prepareDataForSavingMessage(chatId, createMessageRequest, currentUser).awaitFirst()
-
-            val messageIndex = chatMessagesCounterRepository.getNextCounterValue(chat).awaitFirst()
-            var message = messageMapper.fromCreateMessageRequest(
-                    createMessageRequest = createMessageRequest,
-                    sender = currentUser,
-                    referredMessage = referredMessage,
-                    chat = chat,
-                    emoji = emoji,
-                    attachments = uploads,
-                    chatAttachmentsIds = uploadAttachments.map { attachment -> attachment.id },
-                    index = messageIndex,
-                    sticker = sticker,
-                    chatParticipation = chatParticipation
-            )
-            message = messageRepository.save(message).awaitFirst()
-            linkChatUploadAttachmentsToMessage(uploadAttachments, message).collectList().awaitFirst()
-
-            val response = messageMapper.toMessageCreated(
-                    message = message,
-                    readByCurrentUser = true,
-                    mapReferredMessage = true
-            )
-                    .awaitFirst()
-
-            Mono.fromRunnable<Void>{ chatEventsPublisher.messageCreated(response) }.subscribe()
-
-            return@mono response.toMessageResponse()
-        }
-    }
-
-    private fun linkChatUploadAttachmentsToMessage(uploadAttachments: List<ChatUploadAttachment<*>>, message: Message): Flux<ChatUploadAttachment<*>> {
-        return mono {
-            var result = uploadAttachments
-
-            if (uploadAttachments.isNotEmpty()) {
-                result = uploadAttachments.map { uploadAttachment ->
-                    uploadAttachment.copy(messageId = message.id, createdAt = message.createdAt)
-                }
-                chatUploadAttachmentRepository.saveAll(result)
-                        .collectList()
-                        .awaitFirst()
-            }
-
-            return@mono Flux.fromIterable(result)
-        }.flatMapMany { it }
-    }
-
-    private fun createScheduledMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: JwtPayload): Mono<MessageResponse> {
-        return mono {
-            val chat = findChatById(chatId).awaitFirst()
-            val numberOfScheduledMessagesInChat = scheduledMessageRepository.countByChatId(chat.id).awaitFirst()
-
-            if (numberOfScheduledMessagesInChat >= ALLOWED_NUMBER_OF_SCHEDULED_MESSAGES) {
-                throw LimitOfScheduledMessagesReachedException("Limit of scheduled messages is reached", ALLOWED_NUMBER_OF_SCHEDULED_MESSAGES)
-            }
-
-            val (
-                    _,
-                    sticker,
-                    referredMessage,
-                    emoji,
-                    uploadAttachments,
-                    uploads,
-                    chatParticipation
-            ) = prepareDataForSavingMessage(chatId, createMessageRequest, currentUser).awaitFirst()
-
-            val numberOfMessagesScheduledCloseToThisMessage = scheduledMessageRepository.countByChatIdAndScheduledAtBetween(
-                    chatId = chat.id,
-                    scheduledAtFrom = createMessageRequest.scheduledAt!!.minusMinutes(10L),
-                    scheduledAtTo = createMessageRequest.scheduledAt!!.plusMinutes(10L)
-            )
-                    .awaitFirst()
-
-            if (numberOfMessagesScheduledCloseToThisMessage != 0L) {
-                throw ScheduledMessageIsTooCloseToAnotherScheduledMessageException("This scheduled message is too close to another scheduled message. Scheduled messages must be at least 10 minutes from each other")
-            }
-
-            val scheduledMessage = messageMapper.scheduledMessageFromCreateMessageRequest(
-                    createMessageRequest = createMessageRequest,
-                    sender = currentUser,
-                    referredMessage = referredMessage,
-                    chat = chat,
-                    emoji = emoji,
-                    attachments = uploads,
-                    chatAttachmentsIds = uploadAttachments.map { attachment -> attachment.id },
-                    sticker = sticker,
-                    chatParticipation = chatParticipation
-            )
-            scheduledMessageRepository.save(scheduledMessage).awaitFirst()
-
-            val messageResponse = messageMapper.toMessageResponse(
-                    message = scheduledMessage,
-                    mapReferredMessage = true,
-                    readByCurrentUser = true
-            )
-                    .awaitFirst()
-            chatEventsPublisher.scheduledMessageCreated(messageResponse)
-
-            return@mono messageResponse
-        }
-    }
-
-    override fun createFirstMessageForPrivateChat(chatId: String, createMessageRequest: CreateMessageRequest, chatParticipation: ChatParticipation): Mono<MessageResponse> {
-        return mono {
-            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            val (
-                    chat,
-                    sticker,
-                    referredMessage,
-                    emoji,
-                    uploadAttachments,
-                    uploads
-            ) = prepareDataForSavingMessage(chatId, createMessageRequest, currentUser).awaitFirst()
-            val messageIndex = chatMessagesCounterRepository.getNextCounterValue(chat).awaitFirst()
-            var message = messageMapper.fromCreateMessageRequest(
-                    createMessageRequest = createMessageRequest,
-                    sender = currentUser,
-                    referredMessage = referredMessage,
-                    chat = chat,
-                    emoji = emoji,
-                    attachments = uploads,
-                    chatAttachmentsIds = uploadAttachments.map { attachment -> attachment.id },
-                    index = messageIndex,
-                    sticker = sticker,
-                    chatParticipation = chatParticipation
-            )
-            message = messageRepository.save(message).awaitFirst()
-            linkChatUploadAttachmentsToMessage(uploadAttachments, message).collectList().awaitFirst()
-
-            return@mono messageMapper.toMessageResponse(
-                    message = message,
-                    mapReferredMessage = true,
-                    readByCurrentUser = true
-            )
-                    .awaitFirst()
-        }
-    }
-
-    private fun prepareDataForSavingMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: JwtPayload): Mono<NTuple7<Chat, Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, ChatParticipation>> {
-        return mono {
-            val chat = findChatById(chatId).awaitFirst()
-
-            if (chat.deleted) {
-                throw ChatDeletedException(chat.chatDeletion)
-            }
-
-            var sticker: Sticker<Any>? = null
-
-            if (createMessageRequest.stickerId != null) {
-                if (createMessageRequest.text.isNotBlank() || createMessageRequest.uploadAttachments.isNotEmpty()) {
-                    throw MessageValidationException("Message cannot contain text or attachments if it has sticker")
-                }
-
-                sticker = findStickerById(createMessageRequest.stickerId).awaitFirst()
-            }
-
-            var referredMessage: Message? = null
-
-            if (createMessageRequest.referredMessageId != null) {
-                referredMessage = findMessageEntityById(createMessageRequest.referredMessageId)
-                        .awaitFirst()
-            }
-
-            val emoji = if (createMessageRequest.text.isNotBlank()) {
-                emojiParserService.parseEmoji(
-                        text = createMessageRequest.text,
-                        emojiSet = createMessageRequest.emojisSet
-                )
-                        .awaitFirst()
-            } else {
-                EmojiInfo()
-            }
-            var uploadAttachments: List<ChatUploadAttachment<Any>> = listOf()
-            var uploads: List<Upload<Any>> = listOf()
-
-            if (createMessageRequest.uploadAttachments.isNotEmpty()) {
-                uploads = uploadRepository.findAllById<Any>(createMessageRequest.uploadAttachments)
-                        .collectList()
-                        .awaitFirst()
-
-                uploadAttachments = uploads.map { upload ->
-                    ChatUploadAttachment(
-                            id = UUID.randomUUID().toString(),
-                            chatId = chat.id,
-                            upload = upload,
-                            type = upload.type,
-                            uploadCreatorId = upload.userId,
-                            uploadSenderId = currentUser.id,
-                            messageId = null,
-                            createdAt = ZonedDateTime.now(),
-                            uploadId = upload.id
-                    )
-                }
-            }
-
-            val chatParticipation = chatParticipationRepository.findByChatIdAndUserId(chatId, currentUser.id).awaitFirst()
-
-            return@mono NTuple7(chat, sticker, referredMessage, emoji, uploadAttachments, uploads, chatParticipation)
-        }
-    }
 
     override fun updateMessage(id: String, chatId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
         return mono {
@@ -383,7 +138,7 @@ class MessageServiceImpl(
             }
 
             if (newChatUploads != null) {
-                linkChatUploadAttachmentsToMessage(
+                chatUploadAttachmentsEntityService.linkChatUploadAttachmentsToMessage(
                         uploadAttachments = newChatUploads,
                         message = message
                 )
@@ -399,7 +154,7 @@ class MessageServiceImpl(
         }
     }
 
-    override fun deleteMessage(id: String, chatId: String): Mono<Void> {
+    override fun deleteMessage(id: String, chatId: String): Mono<Unit> {
         return mono {
             val message = findMessageEntityById(id).awaitFirst()
             val uploadsIds = message.attachments.map { upload -> upload.id }
@@ -415,10 +170,8 @@ class MessageServiceImpl(
                         .awaitFirstOrNull()
             }
 
-            return@mono Mono.empty<Void>()
+            return@mono
         }
-                .flatMap { it }
-
     }
 
     override fun findMessageById(id: String): Mono<MessageResponse> {
@@ -551,7 +304,7 @@ class MessageServiceImpl(
                 .flatMapMany { it }
     }
 
-    override fun markMessageRead(messageId: String): Mono<Void> {
+    override fun markMessageRead(messageId: String): Mono<Unit> {
         return mono {
             val message = findMessageEntityById(messageId = messageId, retrieveFromCache = true)
                     .awaitFirst()
@@ -583,18 +336,17 @@ class MessageServiceImpl(
                 )) }
                         .subscribe()
 
-                return@mono chatParticipationRepository.save(chatParticipation.copy(
+                chatParticipationRepository.save(chatParticipation.copy(
                         lastReadMessageAt = now,
                         lastReadMessageId = message.id,
                         lastMessageReadId = messageRead.id,
                         lastReadMessageCreatedAt = message.createdAt
                 ))
                         .awaitFirst()
-            } else {
-                return@mono chatParticipation
+
+                return@mono
             }
         }
-                .flatMap { Mono.empty() }
     }
 
     override fun pinMessage(id: String, chatId: String): Mono<MessageResponse> {
@@ -656,100 +408,6 @@ class MessageServiceImpl(
         }
     }
 
-    override fun findScheduledMessageById(messageId: String): Mono<MessageResponse> {
-        return mono {
-            val scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
-
-            return@mono messageMapper.toMessageResponse(
-                    message = scheduledMessage,
-                    mapReferredMessage = true,
-                    readByCurrentUser = false
-            )
-                    .awaitFirst()
-        }
-    }
-
-    override fun findScheduledMessagesByChat(chatId: String): Flux<MessageResponse> {
-        return mono {
-            val scheduledMessages = scheduledMessageRepository.findByChatId(chatId)
-
-            return@mono scheduledMessages.flatMap { message -> messageMapper.toMessageResponse(
-                    message = message,
-                    mapReferredMessage = true,
-                    readByCurrentUser = false,
-                    localReferredMessagesCache = hashMapOf(),
-                    localUsersCache = hashMapOf(),
-                    localChatRolesCache = hashMapOf(),
-                    localChatParticipationsCache = hashMapOf()
-            ) }
-        }
-                .flatMapMany { it }
-    }
-
-    override fun publishScheduledMessage(chatId: String, messageId: String): Mono<MessageResponse> {
-        return mono {
-            val scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
-
-            return@mono publishScheduledMessageInternal(
-                    scheduledMessage = scheduledMessage,
-                    useCurrentDateInsteadOfScheduleDate = true
-            )
-                    .awaitFirst()
-        }
-    }
-
-    override fun publishScheduledMessage(scheduledMessage: ScheduledMessage,
-                                         localUsersCache: MutableMap<String, UserResponse>?,
-                                         localReferredMessagesCache: MutableMap<String, MessageResponse>?): Mono<MessageResponse> {
-        return publishScheduledMessageInternal(
-                scheduledMessage = scheduledMessage,
-                localReferredMessagesCache = localReferredMessagesCache,
-                localUsersCache = localUsersCache
-        )
-    }
-
-    private fun publishScheduledMessageInternal(scheduledMessage: ScheduledMessage,
-                                                localUsersCache: MutableMap<String, UserResponse>? = null,
-                                                localReferredMessagesCache: MutableMap<String, MessageResponse>? = null,
-                                                useCurrentDateInsteadOfScheduleDate: Boolean = false): Mono<MessageResponse> {
-        return mono {
-            val messageIndex = chatMessagesCounterRepository.getNextCounterValue(scheduledMessage.chatId).awaitFirst()
-
-            val message = messageMapper.fromScheduledMessage(
-                    scheduledMessage = scheduledMessage,
-                    messageIndex = messageIndex,
-                    useCurrentDateInsteadOfScheduledDate = useCurrentDateInsteadOfScheduleDate
-            )
-
-            if (message.uploadAttachmentsIds.isNotEmpty()) {
-                var chatUploadAttachments = chatUploadAttachmentRepository.findAllById(message.uploadAttachmentsIds)
-                        .collectList()
-                        .awaitFirst()
-                chatUploadAttachments = chatUploadAttachments.map { attachment -> attachment.copy(messageId = message.id) }
-                chatUploadAttachmentRepository.saveAll(chatUploadAttachments).collectList().awaitFirst()
-            }
-
-            messageRepository.save(message).awaitFirst()
-            scheduledMessageRepository.delete(scheduledMessage).awaitFirstOrNull()
-
-            val messageCreated = messageMapper.toMessageCreated(
-                    message = message,
-                    localUsersCache = localUsersCache,
-                    localReferredMessagesCache = localReferredMessagesCache,
-                    readByCurrentUser = true,
-                    mapReferredMessage = true,
-                    fromScheduled = true
-            )
-                    .awaitFirst()
-            val messageResponse = messageCreated.toMessageResponse()
-
-            chatEventsPublisher.messageCreated(messageCreated)
-            chatEventsPublisher.scheduledMessagePublished(messageResponse)
-
-            return@mono messageResponse
-        }
-    }
-
     private fun findChatById(chatId: String): Mono<Chat> {
         return mono {
             val chat = chatCacheWrapper.findById(chatId).awaitFirstOrNull()
@@ -762,9 +420,6 @@ class MessageServiceImpl(
             return@mono chat
         }
     }
-
-    private fun findStickerById(stickerId: String) = stickerRepository.findById(stickerId)
-            .switchIfEmpty(Mono.error(StickerNotFoundException("Could not find sticker with id $stickerId")))
 
     private fun findMessageEntityById(messageId: String, retrieveFromCache: Boolean = false): Mono<Message> {
         return mono {
@@ -786,54 +441,7 @@ class MessageServiceImpl(
         }
     }
 
-    override fun deleteScheduledMessage(chatId: String, messageId: String): Mono<Void> {
-        return mono {
-            val scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
-
-            scheduledMessageRepository.delete(scheduledMessage).awaitFirstOrNull()
-            chatEventsPublisher.scheduledMessageDeleted(messageId = scheduledMessage.id, chatId = scheduledMessage.chatId)
-
-            return@mono Mono.empty<Void>()
-        }
-                .flatMap { it }
-    }
-
-    override fun updateScheduledMessage(chatId: String, messageId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
-        return mono {
-            val chat = findChatById(chatId).awaitFirst()
-
-            if (chat.deleted) {
-                throw ChatDeletedException(chat.chatDeletion)
-            }
-
-            var scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
-            var emoji = scheduledMessage.emoji
-
-            if (scheduledMessage.text != updateMessageRequest.text) {
-                emoji = emojiParserService.parseEmoji(updateMessageRequest.text).awaitFirst()
-            }
-
-            scheduledMessage = messageMapper.mapScheduledMessageUpdate(
-                    updateMessageRequest = updateMessageRequest,
-                    originalMessage = scheduledMessage,
-                    emoji = emoji
-            )
-
-            scheduledMessageRepository.save(scheduledMessage).awaitFirst()
-
-            val messageResponse = messageMapper.toMessageResponse(
-                    message = scheduledMessage,
-                    mapReferredMessage = true,
-                    readByCurrentUser = true
-            )
-                    .awaitFirst()
-            chatEventsPublisher.scheduledMessageUpdated(messageResponse)
-
-            return@mono messageResponse
-        }
-    }
-
-    override fun deleteMultipleMessages(deleteMultipleMessagesRequest: DeleteMultipleMessagesRequest): Mono<Void> {
+    override fun deleteMultipleMessages(deleteMultipleMessagesRequest: DeleteMultipleMessagesRequest): Mono<Unit> {
         return mono {
             val messages = messageRepository.findAllById(deleteMultipleMessagesRequest.messagesIds)
                     .collectList()
@@ -860,15 +468,7 @@ class MessageServiceImpl(
             )
                     .awaitFirstOrNull()
 
-            return@mono Mono.empty<Void>()
-        }
-                .flatMap { it }
-    }
-
-    private fun findScheduledMessageEntityById(messageId: String): Mono<ScheduledMessage> {
-        return mono {
-            return@mono scheduledMessageRepository.findById(messageId).awaitFirstOrNull()
-                    ?: throw ScheduledMessageNotFoundException("Could not find scheduled message with id $messageId")
+            return@mono
         }
     }
 }

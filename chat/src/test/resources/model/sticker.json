@@ -1,0 +1,36 @@
+{
+  "id": "61969ac255e84a1dd36fae27",
+  "_class": "chatox.chat.model.Sticker",
+  "emojis": [
+    {
+      "id": "wave",
+      "name": "Waving Hand Sign",
+      "short_names": ["wave"],
+      "colons": ":wave:",
+      "emoticons": [],
+      "unified": "1f44b",
+      "skin": "1",
+      "native": "\uD83D\uDC4B",
+      "originalSet": "apple"
+    }
+  ],
+  "image": {
+    "id": "61968e51404913462c8bd1a8",
+    "name": "61968e51404913462c8bd1a8.png",
+    "originalName": "1.png",
+    "type": "IMAGE",
+    "meta": {
+      "width": 512,
+      "height": 512,
+      "_class": "chatox.chat.model.ImageUploadMetadata"
+    },
+    "extension": "png",
+    "mimeType": "image/png",
+    "size": 160714,
+    "isPreview": false,
+    "isThumbnail": false,
+    "userId": "9d588b8f-205c-4123-afa3-2e72af7f00c8"
+  },
+  "keywords": ["привет", "хай", "хелло", "хэллоу", "прив", "hi", "hello"],
+  "stickerPackId": "61969ac255e84a1dd36fae26"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "d0303318-d58a-4280-8863-0ed95a08128f",
+  "_class": "chatox.chat.model.ChatUploadAttachment",
+  "chatId": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+  "createdAt": "2023-09-29T18:41:02.300Z",
+  "messageId": "f307b019-bd1e-49a0-9021-4155725d3a58",
+  "type": "IMAGE",
+  "upload": {
+    "id": "6515c8a0c916a5dcd540ce40",
+    "name": "6515c8a0c916a5dcd540ce40.jpg",
+    "originalName": "wallhaven-g7xkyl.jpg",
+    "type": "IMAGE",
+    "meta": {
+      "width": 2048,
+      "height": 1630,
+      "_class": "chatox.chat.model.ImageUploadMetadata"
+    },
+    "extension": "jpg",
+    "mimeType": "image/jpeg",
+    "size": 903411,
+    "isPreview": false,
+    "isThumbnail": false
+  },
+  "uploadId": "6515c8a0c916a5dcd540ce40",
+  "uploadSenderId": "9d588b8f-205c-4123-afa3-2e72af7f00c8"
+}

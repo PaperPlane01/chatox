@@ -3,22 +3,20 @@ package chatox.chat.scheduled
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.UserResponse
 import chatox.chat.repository.mongodb.ScheduledMessageRepository
-import chatox.chat.service.MessageService
+import chatox.chat.service.ScheduledMessageService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
 @Component
-@Transactional
 class ScheduledMessagesChecker(
         private val scheduledMessageRepository: ScheduledMessageRepository,
-        private val messageService: MessageService
+        private val scheduledMessageService: ScheduledMessageService
 ) {
     private companion object {
         const val MAX_NUMBER_OF_FAILED_ATTEMPTS_TO_PUBLISH_SCHEDULED_MESSAGE = 5
@@ -46,7 +44,7 @@ class ScheduledMessagesChecker(
             val localReferredMessagesCache = HashMap<String, MessageResponse>()
 
             for (message in scheduledMessages) {
-                messageService.publishScheduledMessage(message, localUsersCache, localReferredMessagesCache)
+                scheduledMessageService.publishScheduledMessage(message, localUsersCache, localReferredMessagesCache)
                         .doOnSuccess { log.trace("Scheduled message ${message.id} has been published") }
                         .doOnError {
                             val numberOfFailedAttempts = message.numberOfFailedAttemptsToPublish + 1
