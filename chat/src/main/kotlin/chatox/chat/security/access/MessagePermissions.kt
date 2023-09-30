@@ -13,6 +13,7 @@ import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatRoleService
 import chatox.chat.service.ChatService
 import chatox.chat.service.MessageService
+import chatox.chat.service.ScheduledMessageService
 import chatox.chat.util.Bound
 import chatox.chat.util.BoundMode
 import chatox.chat.util.isBetween
@@ -34,6 +35,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                          private val uploadRepository: UploadRepository,
                          private val messageRepository: MessageMongoRepository) {
     private lateinit var messageService: MessageService
+    private lateinit var scheduledMessageService: ScheduledMessageService
     private lateinit var chatService: ChatService
 
     @Autowired
@@ -44,6 +46,11 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
     @Autowired
     fun setChatService(chatService: ChatService) {
         this.chatService = chatService
+    }
+
+    @Autowired
+    fun setScheduledMessageService(scheduledMessageService: ScheduledMessageService) {
+        this.scheduledMessageService = scheduledMessageService
     }
 
     fun canSendTypingStatus(chatId: String): Mono<Boolean> {
@@ -234,7 +241,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val userRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
-            val message = messageService.findScheduledMessageById(messageId).awaitFirst()
+            val message = scheduledMessageService.findScheduledMessageById(messageId).awaitFirst()
 
             return@mono !currentUser.isBannedGlobally
                     && message.chatId == chatId
@@ -248,7 +255,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
             val currenUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val userRole = chatRoleService.getRoleOfUserInChat(userId = currenUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
-            val message = messageService.findScheduledMessageById(messageId).awaitFirst()
+            val message = scheduledMessageService.findScheduledMessageById(messageId).awaitFirst()
 
             if (message.chatId !== chatId || !userRole.features.scheduleMessages.enabled) {
                 return@mono false

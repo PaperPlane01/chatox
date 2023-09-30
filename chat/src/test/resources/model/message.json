@@ -1,0 +1,20 @@
+{
+  "id": "1c56b98c-fac9-4464-bed0-c3514d0f951e",
+  "_class": "chatox.chat.model.Message",
+  "attachments": [],
+  "chatId": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+  "chatParticipationId": "619687bb0f8068005cb46b9c",
+  "createdAt": "2023-09-29T18:40:01.379Z",
+  "deleted": false,
+  "emoji": {
+    "emojiPositions": [],
+    "emoji": {
+    }
+  },
+  "fromScheduled": false,
+  "index": 352,
+  "pinned": false,
+  "senderId": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+  "text": "Test message",
+  "uploadAttachmentsIds": []
+}

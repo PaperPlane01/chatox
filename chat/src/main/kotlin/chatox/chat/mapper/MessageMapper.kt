@@ -1,13 +1,11 @@
 package chatox.chat.mapper
 
-import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.ChatRoleResponse
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.UserResponse
 import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.messaging.rabbitmq.event.MessageCreated
-import chatox.chat.model.Chat
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.EmojiInfo
@@ -15,14 +13,11 @@ import chatox.chat.model.Message
 import chatox.chat.model.MessageInterface
 import chatox.chat.model.MessageRead
 import chatox.chat.model.ScheduledMessage
-import chatox.chat.model.Sticker
 import chatox.chat.model.Upload
 import chatox.chat.service.UserService
 import chatox.chat.util.NTuple4
-import chatox.chat.util.NTuple5
 import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
-import chatox.platform.security.jwt.JwtPayload
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -31,8 +26,6 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
-import java.util.UUID
 
 @Component
 class MessageMapper(private val userService: UserService,
@@ -302,36 +295,6 @@ class MessageMapper(private val userService: UserService,
         return item
     }
 
-    fun fromCreateMessageRequest(
-            createMessageRequest: CreateMessageRequest,
-            sender: JwtPayload,
-            chat: Chat,
-            referredMessage: Message?,
-            emoji: EmojiInfo = EmojiInfo(),
-            attachments: List<Upload<Any>>,
-            chatAttachmentsIds: List<String>,
-            index: Long,
-            sticker: Sticker<Any>? = null,
-            chatParticipation: ChatParticipation
-    ) = Message(
-            id = UUID.randomUUID().toString(),
-            createdAt = ZonedDateTime.now(),
-            deleted = false,
-            chatId = chat.id,
-            deletedById = null,
-            deletedAt = null,
-            updatedAt = null,
-            referredMessageId = referredMessage?.id,
-            text = createMessageRequest.text,
-            senderId = sender.id,
-            emoji = emoji,
-            attachments = attachments,
-            uploadAttachmentsIds = chatAttachmentsIds,
-            index = index,
-            sticker = sticker,
-            chatParticipationId = chatParticipation.id
-    )
-
     fun fromScheduledMessage(
             scheduledMessage: ScheduledMessage,
             messageIndex: Long,
@@ -354,35 +317,6 @@ class MessageMapper(private val userService: UserService,
             fromScheduled = true,
             sticker = scheduledMessage.sticker,
             chatParticipationId = scheduledMessage.chatParticipationId
-    )
-
-    fun scheduledMessageFromCreateMessageRequest(
-            createMessageRequest: CreateMessageRequest,
-            sender: JwtPayload,
-            chat: Chat,
-            referredMessage: Message?,
-            emoji: EmojiInfo = EmojiInfo(),
-            attachments: List<Upload<Any>>,
-            chatAttachmentsIds: List<String>,
-            sticker: Sticker<Any>? = null,
-            chatParticipation: ChatParticipation
-    ) = ScheduledMessage(
-            id = UUID.randomUUID().toString(),
-            createdAt = ZonedDateTime.now(),
-            deleted = false,
-            chatId = chat.id,
-            deletedById = null,
-            deletedAt = null,
-            updatedAt = null,
-            referredMessageId = referredMessage?.id,
-            text = createMessageRequest.text,
-            senderId = sender.id,
-            emoji = emoji,
-            attachments = attachments,
-            uploadAttachmentsIds = chatAttachmentsIds,
-            scheduledAt = createMessageRequest.scheduledAt!!.truncatedTo(ChronoUnit.MINUTES),
-            sticker = sticker,
-            chatParticipationId = chatParticipation.id
     )
 
     fun mapMessageUpdate(updateMessageRequest: UpdateMessageRequest,

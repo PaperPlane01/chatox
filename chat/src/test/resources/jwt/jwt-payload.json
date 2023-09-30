@@ -1,0 +1,18 @@
+{
+  "sub": "admin",
+  "aud": "744dcae8-56a6-4d19-8e05-f626be898131",
+  "nbf": 1692855935,
+  "account_id": "092a350e-b686-4ba3-97dd-417a207b2c3c",
+  "id": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+  "scope": [
+    "all"
+  ],
+  "iss": "chatox-oauth2-service",
+  "exp": 1692856835,
+  "iat": 1692855935,
+  "email": null,
+  "authorities": [
+    "ROLE_USER",
+    "ROLE_ADMIN"
+  ]
+}

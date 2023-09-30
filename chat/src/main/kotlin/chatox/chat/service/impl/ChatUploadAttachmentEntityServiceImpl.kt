@@ -1,6 +1,7 @@
 package chatox.chat.service.impl
 
 import chatox.chat.model.ChatUploadAttachment
+import chatox.chat.model.Message
 import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.service.ChatUploadAttachmentEntityService
@@ -11,6 +12,7 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.apache.commons.lang.StringUtils
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Service
@@ -81,4 +83,20 @@ class ChatUploadAttachmentEntityServiceImpl(
             return@mono
         }
     }
+
+    override fun linkChatUploadAttachmentsToMessage(uploadAttachments: List<ChatUploadAttachment<*>>, message: Message): Flux<ChatUploadAttachment<*>> {
+        return mono {
+            var result = uploadAttachments
+
+            if (uploadAttachments.isNotEmpty()) {
+                result = uploadAttachments.map { uploadAttachment ->
+                    uploadAttachment.copy(messageId = message.id, createdAt = message.createdAt)
+                }
+                chatUploadAttachmentRepository.saveAll(result)
+                        .collectList()
+                        .awaitFirst()
+            }
+
+            return@mono Flux.fromIterable(result)
+        }.flatMapMany { it }    }
 }

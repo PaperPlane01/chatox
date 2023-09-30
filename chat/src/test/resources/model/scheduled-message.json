@@ -1,0 +1,22 @@
+{
+  "id": "67c2315f-d981-488c-a307-958b077853ec",
+  "_class": "chatox.chat.model.ScheduledMessage",
+  "attachments": [],
+  "chatId": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+  "chatParticipationId": "619687bb0f8068005cb46b9c",
+  "createdAt": "2023-09-29T19:00:00.000Z",
+  "deleted": false,
+  "emoji": {
+    "emojiPositions": [],
+    "emoji": {
+    }
+  },
+  "fromScheduled": true,
+  "index": -1,
+  "numberOfFailedAttemptsToPublish": 0,
+  "pinned": false,
+  "scheduledAt": "2023-10-05T23:00:00.000Z",
+  "senderId": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+  "text": "Test scheduled message",
+  "uploadAttachmentsIds": []
+}

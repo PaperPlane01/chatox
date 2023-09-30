@@ -45,6 +45,7 @@ import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatRoleService
 import chatox.chat.service.ChatService
+import chatox.chat.service.CreateMessageService
 import chatox.chat.service.MessageService
 import chatox.chat.support.UserDisplayedNameHelper
 import chatox.platform.cache.ReactiveCacheService
@@ -91,7 +92,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                       private val chatEventsPublisher: ChatEventsPublisher,
                       private val timeService: TimeService,
-                      private val messageService: MessageService,
+                      private val createMessageService: CreateMessageService,
                       private val chatRoleService: ChatRoleService,
                       private val userDisplayedNameHelper: UserDisplayedNameHelper) : ChatService {
     private val log = LoggerFactory.getLogger(this.javaClass)
@@ -205,7 +206,13 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     userSlug = user.slug
             )
 
-            val message = messageService.createFirstMessageForPrivateChat(chatId, createPrivateChatRequest.message, currentUserChatParticipation).awaitFirst().copy(id = messageId)
+            val message = createMessageService.createFirstMessageForPrivateChat(
+                    chatId = chatId,
+                    createMessageRequest = createPrivateChatRequest.message,
+                    chatParticipation = currentUserChatParticipation
+            )
+                    .awaitFirst()
+                    .copy(id = messageId)
 
             val chatParticipations = mutableListOf(currentUserChatParticipation, otherUserChatParticipation)
             chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
