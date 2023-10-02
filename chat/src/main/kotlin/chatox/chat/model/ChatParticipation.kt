@@ -21,7 +21,7 @@ data class ChatParticipation(
         val role: ChatRole? = null,
 
         @Indexed
-        val roleId: String = "",
+        val roleId: String,
 
         @Indexed
         val lastReadMessageId: String? = null,
