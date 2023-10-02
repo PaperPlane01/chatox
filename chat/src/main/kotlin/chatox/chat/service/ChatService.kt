@@ -19,7 +19,7 @@ interface ChatService {
     fun createPrivateChat(createPrivateChatRequest: CreatePrivateChatRequest): Mono<ChatOfCurrentUserResponse>
     fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse>
     fun updateChat(chat: Chat): Mono<ChatResponse>
-    fun deleteChat(id: String, deleteChatRequest: DeleteChatRequest?): Mono<Void>
+    fun deleteChat(id: String, deleteChatRequest: DeleteChatRequest?): Mono<Unit>
     fun findChatBySlugOrId(slugOrId: String): Mono<ChatResponse>
     fun searchChats(query: String, paginationRequest: PaginationRequest): Flux<ChatResponse>
     fun getChatsOfCurrentUser(): Flux<ChatOfCurrentUserResponse>
@@ -28,5 +28,5 @@ interface ChatService {
     fun getPopularChats(paginationRequest: PaginationRequest): Flux<ChatResponse>
     fun findChatEntityById(id: String): Mono<Chat>
     fun findChatById(id: String): Mono<ChatResponseWithCreatorId>
-    fun deleteMultipleChats(deleteMultipleChatsRequest: DeleteMultipleChatsRequest): Mono<Void>
+    fun deleteMultipleChats(deleteMultipleChatsRequest: DeleteMultipleChatsRequest): Mono<Unit>
 }
