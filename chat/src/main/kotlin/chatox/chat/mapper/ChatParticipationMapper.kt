@@ -67,10 +67,15 @@ class ChatParticipationMapper(private val userMapper: UserMapper,
         }
     }
 
-    fun toChatParticipationResponse(chatParticipation: ChatParticipation, localUsersCache: MutableMap<String, UserResponse> = mutableMapOf()): Mono<ChatParticipationResponse> {
+    fun toChatParticipationResponse(
+            chatParticipation: ChatParticipation,
+            localUsersCache: MutableMap<String, UserResponse> = mutableMapOf(),
+            chatRole: ChatRole? = null
+    ): Mono<ChatParticipationResponse> {
        return mono {
-           val chatRole = chatRoleMapper.toChatRoleResponseAsync(
-                   chatRole = chatRoleCacheWrapper.findById(chatParticipation.roleId).awaitFirst(),
+           val mappedRole = chatRole ?: chatRoleCacheWrapper.findById(chatParticipation.roleId).awaitFirst()
+           val roleResponse = chatRoleMapper.toChatRoleResponseAsync(
+                   chatRole = mappedRole,
                    localUsersCache = localUsersCache
            )
                    .awaitFirst()
@@ -79,7 +84,7 @@ class ChatParticipationMapper(private val userMapper: UserMapper,
                    id = chatParticipation.id,
                    user = userMapper.toUserResponse(chatParticipation.user),
                    chatId = chatParticipation.chatId,
-                   role = chatRole
+                   role = roleResponse
            )
        }
     }

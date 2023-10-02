@@ -1,0 +1,94 @@
+{
+  "id": "62a8e835a904df34e9cf3318",
+  "_class": "chatox.chat.model.ChatRole",
+  "chatId": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+  "createdAt": "2022-06-14T19:57:41.581Z",
+  "default": true,
+  "features": {
+    "sendMessages": {
+      "enabled": true,
+      "additional": {
+        "allowedToSendStickers": true,
+        "allowedToSendImages": true,
+        "allowedToSendAudios": true,
+        "allowedToSendVideos": true,
+        "allowedToSendFiles": true,
+        "allowedToSendVoiceMessages": true
+      }
+    },
+    "blockUsers": {
+      "enabled": false,
+      "additional": {
+        "allowPermanent": false
+      }
+    },
+    "kickUsers": {
+      "enabled": false,
+      "additional": {
+      }
+    },
+    "deleteOwnMessages": {
+      "enabled": true,
+      "additional": {
+      }
+    },
+    "deleteOtherUsersMessages": {
+      "enabled": false,
+      "additional": {
+      }
+    },
+    "scheduleMessages": {
+      "enabled": false,
+      "additional": {
+      }
+    },
+    "deleteChat": {
+      "enabled": false,
+      "additional": {
+      }
+    },
+    "changeChatSettings": {
+      "enabled": false,
+      "additional": {
+      }
+    },
+    "modifyChatRoles": {
+      "enabled": false,
+      "additional": {
+      }
+    },
+    "assignChatRole": {
+      "enabled": false,
+      "additional": {
+      }
+    },
+    "kickImmunity": {
+      "enabled": false,
+      "additional": {
+      }
+    },
+    "blockingImmunity": {
+      "enabled": false,
+      "additional": {
+      }
+    },
+    "messageDeletionsImmunity": {
+      "enabled": false,
+      "additional": {
+      }
+    },
+    "showRoleNameInMessages": {
+      "enabled": false,
+      "additional": {
+      }
+    },
+    "pinMessages": {
+      "enabled": false,
+      "additional": {
+      }
+    }
+  },
+  "level": 1,
+  "name": "USER",
+  "templateId": "62a48af910392b5b5f353b3a"
+}

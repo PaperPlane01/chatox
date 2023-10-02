@@ -201,33 +201,6 @@ class ChatMapper(
             slowMode = chat.slowMode
     )
 
-    fun fromCreateChatRequest(
-            createChatRequest: CreateChatRequest,
-            currentUser: User
-    ): Chat {
-        val id = UUID.randomUUID().toString()
-        val createdAt = ZonedDateTime.now()
-
-        return Chat(
-                id = id,
-                slug = createChatRequest.slug ?: id,
-                name = createChatRequest.name,
-                createdAt = createdAt,
-                type = ChatType.GROUP,
-                deleted = false,
-                createdById = currentUser.id,
-                tags = createChatRequest.tags,
-                avatarUri = null,
-                deletedAt = null,
-                description = createChatRequest.description,
-                updatedAt = createdAt,
-                deletedById = currentUser.id,
-                numberOfParticipants = 1,
-                lastMessageId = null,
-                lastMessageDate = createdAt
-        )
-    }
-
     fun toChatUpdated(chat: Chat) = ChatUpdated(
             id = chat.id,
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,

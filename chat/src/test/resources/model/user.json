@@ -1,0 +1,31 @@
+{
+  "id": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+  "accountId": "6db8d3de-cde5-45ab-b99b-8feb8aabbcd1",
+  "firstName": "Test",
+  "lastName": null,
+  "slug": "testuser",
+  "avatarUri": null,
+  "deleted": false,
+  "bio": "__Hello, world!__",
+  "lastSeen": "2023-09-29T19:27:05.789Z",
+  "dateOfBirth": "1900-01-14T00:00:00.000Z",
+  "createdAt": "2021-01-31T15:48:29.868Z",
+  "online": true,
+  "avatar": {
+    "id": "650c53d24601db875936da28",
+    "name": "650c53d24601db875936da28.jpg",
+    "extension": "jpg",
+    "mimeType": "image/jpeg",
+    "meta": {
+      "width": 4669,
+      "height": 3926
+    },
+    "preview": null,
+    "type": "IMAGE",
+    "originalName": "wallhaven-j3gvwq.jpg",
+    "uri": "http://localhost:8080/api/v1/uploads/images/650c53d24601db875936da28.jpg",
+    "size": 5096972
+  },
+  "anonymoys": false,
+  "externalAvatarUri": null
+}

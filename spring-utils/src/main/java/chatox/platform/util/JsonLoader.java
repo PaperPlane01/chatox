@@ -1,5 +1,6 @@
 package chatox.platform.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -24,10 +25,19 @@ public class JsonLoader {
 
     @SneakyThrows
     public static <T> T loadResource(String fileName, Class<T> targetClass) {
+        return objectMapper.readValue(loadJsonFromResource(fileName), targetClass);
+    }
+
+    @SneakyThrows
+    public static <T> T loadResource(String fileName, TypeReference<T> typeReference) {
+        return objectMapper.readValue(loadJsonFromResource(fileName), typeReference);
+    }
+
+    @SneakyThrows
+    private static String loadJsonFromResource(String fileName) {
         var classPathResource = new ClassPathResource(fileName);
         var bytes = FileCopyUtils.copyToByteArray(classPathResource.getInputStream());
-        var json = new String(bytes);
 
-        return objectMapper.readValue(json, targetClass);
+        return new String(bytes);
     }
 }

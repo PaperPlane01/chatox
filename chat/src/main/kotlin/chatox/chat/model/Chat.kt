@@ -24,7 +24,7 @@ data class Chat(
         override val createdById: String? = null,
         override val updatedAt: ZonedDateTime? = null,
         override val deletedAt: ZonedDateTime? = null,
-        override val deleted: Boolean,
+        override val deleted: Boolean = false,
 
         @Indexed
         override val deletedById: String? = null,

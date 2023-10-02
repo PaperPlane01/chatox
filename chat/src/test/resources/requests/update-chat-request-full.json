@@ -1,0 +1,12 @@
+{
+  "name": "Test chat update",
+  "slug": "test_updated_slug",
+  "slowMode": {
+    "enabled": true,
+    "interval": 5,
+    "unit": "SECONDS"
+  },
+  "description": "Test description",
+  "tags": ["First", "Second", "Third"],
+  "avatarId": "avatarId"
+}

@@ -1,0 +1,41 @@
+{
+  "id": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+  "slug": "test",
+  "name": "New chat",
+  "avatarUri": null,
+  "unreadMessagesCount": 0,
+  "createdAt": "2021-11-18T17:04:59.192Z",
+  "description": "Description",
+  "tags": [
+    "test",
+    " chat"
+  ],
+  "participantsCount": 3,
+  "onlineParticipantsCount": 0,
+  "avatar": {
+    "id": "626d6f7c2b5f2e53405aecc1",
+    "name": "626d6f7c2b5f2e53405aecc1.jpg",
+    "extension": "jpg",
+    "mimeType": "image/jpeg",
+    "meta": {
+      "width": 2560,
+      "height": 1440
+    },
+    "preview": null,
+    "type": "IMAGE",
+    "originalName": "windows_xp_original-wallpaper-2560x1440.jpg",
+    "uri": "http://localhost:8080/api/v1/uploads/images/626d6f7c2b5f2e53405aecc1.jpg",
+    "size": 891668
+  },
+  "createdByCurrentUser": true,
+  "deleted": false,
+  "type": "GROUP",
+  "deletionReason": null,
+  "deletionComment": null,
+  "user": null,
+  "slowMode": {
+    "enabled": true,
+    "interval": 1,
+    "unit": "MINUTES"
+  }
+}

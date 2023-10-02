@@ -90,6 +90,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                         chatId = chat.id,
                         createdAt = ZonedDateTime.now(),
                         role = chatRole,
+                        roleId = chatRole.id,
                         lastReadMessageId = null,
                         userDisplayedName = userDisplayedName,
                         userSlug = currentUser.slug

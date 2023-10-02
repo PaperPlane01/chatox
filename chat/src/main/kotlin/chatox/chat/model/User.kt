@@ -33,4 +33,7 @@ data class User(
         val anonymoys: Boolean = false,
         val accountRegistrationType: UserAccountRegistrationType = UserAccountRegistrationType.USERNAME_AND_PASSWORD,
         val externalAvatarUri: String? = null
-)
+) {
+        val displayedName: String
+                get() = if (lastName == null) firstName else "$firstName $lastName"
+}
