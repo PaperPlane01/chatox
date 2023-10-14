@@ -44,7 +44,7 @@ export class OauthClient {
                 this.log.verbose("Exchanging access token to JWT");
                 const exchangeTokenRequest: ExchangeTokenRequest = {accessToken};
                 const exchangeTokenResponse = await this.axios.post<ExchangeTokenResponse>(
-                    `${url}/oauth/exchangeToken`,
+                    `${url}/oauth2/exchangeToken`,
                     exchangeTokenRequest,
                     {
                         headers: {
