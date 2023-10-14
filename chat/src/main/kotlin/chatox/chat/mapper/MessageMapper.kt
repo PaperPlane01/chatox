@@ -8,6 +8,7 @@ import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.messaging.rabbitmq.event.MessageCreated
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
+import chatox.chat.model.ChatType
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.MessageInterface
@@ -15,7 +16,8 @@ import chatox.chat.model.MessageRead
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Upload
 import chatox.chat.service.UserService
-import chatox.chat.util.NTuple4
+import chatox.chat.util.NTuple5
+import chatox.chat.util.NTuple6
 import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import kotlinx.coroutines.reactive.awaitFirst
@@ -45,7 +47,7 @@ class MessageMapper(private val userService: UserService,
         val localChatRolesCache = HashMap<String, ChatRoleResponse>()
 
         if (lastMessageRead != null) {
-            return messages.flatMap { message -> toMessageResponse(
+            return messages.flatMapSequential { message -> toMessageResponse(
                     message = message,
                     readByCurrentUser = isDateBeforeOrEquals(
                             dateToCheck = message.createdAt,
@@ -59,7 +61,7 @@ class MessageMapper(private val userService: UserService,
             ) }
 
         } else {
-            return messages.flatMap { message -> toMessageResponse(
+            return messages.flatMapSequential { message -> toMessageResponse(
                     message = message,
                     readByCurrentUser = false,
                     mapReferredMessage = true,
@@ -81,7 +83,7 @@ class MessageMapper(private val userService: UserService,
             localChatRolesCache: MutableMap<String, ChatRoleResponse>? = null
     ): Mono<MessageResponse> {
         return mono {
-            val (referredMessage, sender, pinnedBy, chatRole) = getDataForMessageResponse(
+            val (referredMessage, sender, pinnedBy, chatRole, chatParticipationInSourceChat, forwardedBy) = getDataForMessageResponse(
                     message = message,
                     mapReferredMessage = mapReferredMessage,
                     readByCurrentUser = readByCurrentUser,
@@ -91,6 +93,10 @@ class MessageMapper(private val userService: UserService,
                     localChatRolesCache = localChatRolesCache
             )
                     .awaitFirst()
+
+            val messageIsForwarded = message.forwardedFromMessageId != null
+            val includeForwardedMessageIdAndChatId = messageIsForwarded
+                    && (message.forwardedFromDialogChatType == ChatType.GROUP || chatParticipationInSourceChat != null)
 
             return@mono MessageResponse(
                     id = message.id,
@@ -118,7 +124,19 @@ class MessageMapper(private val userService: UserService,
                         null
                     },
                     scheduledAt = message.scheduledAt,
-                    senderChatRole = chatRole
+                    senderChatRole = chatRole,
+                    forwarded = message.forwardedFromMessageId != null,
+                    forwardedFromMessageId = if (includeForwardedMessageIdAndChatId) {
+                        message.forwardedFromMessageId
+                    } else {
+                        null
+                    },
+                    forwardedFromChatId = if (includeForwardedMessageIdAndChatId) {
+                        message.forwardedFromChatId
+                    } else {
+                        null
+                    },
+                    forwardedBy = forwardedBy
             )
         }
     }
@@ -185,7 +203,7 @@ class MessageMapper(private val userService: UserService,
             localUsersCache: MutableMap<String, UserResponse>? = null,
             localChatParticipationsCache: MutableMap<String, ChatParticipation>? = null,
             localChatRolesCache: MutableMap<String, ChatRoleResponse>? = null
-    ): Mono<NTuple4<MessageResponse?, UserResponse, UserResponse?, ChatRoleResponse>> {
+    ): Mono<NTuple6<MessageResponse?, UserResponse, UserResponse?, ChatRoleResponse, ChatParticipation?, UserResponse?>> {
         return mono {
             val referredMessage: MessageResponse? = if (!mapReferredMessage || message.referredMessageId == null) {
                 null
@@ -197,8 +215,18 @@ class MessageMapper(private val userService: UserService,
             val chatParticipation = getChatParticipation(message.chatParticipationId!!, localChatParticipationsCache)
                     .awaitFirst()
             val chatRole = getChatRole(chatParticipation.roleId, localChatRolesCache).awaitFirst()
+            val chatParticipationInSourceChat = if (message.chatParticipationIdInSourceChat == null) {
+                null
+            } else {
+                getChatParticipation(message.chatParticipationIdInSourceChat!!, localChatParticipationsCache).awaitFirst()
+            }
+            val forwardedBy = if (message.forwardedById == null) {
+                null
+            } else {
+                getUser(message.forwardedById!!, localUsersCache).awaitFirst()
+            }
 
-            return@mono NTuple4(referredMessage, sender, pinnedBy, chatRole)
+            return@mono NTuple6(referredMessage, sender, pinnedBy, chatRole, chatParticipationInSourceChat, forwardedBy)
         }
     }
 

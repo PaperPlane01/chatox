@@ -20,4 +20,6 @@ interface MessageMongoRepository : ReactiveMongoRepository<Message, String> {
     fun findByPinnedTrueAndChatId(chatId: String): Mono<Message>
     fun findByIdAndChatId(id: String, chatId: String): Mono<Message>
     fun findFirstByChatIdAndSenderIdOrderByCreatedAtDesc(chatId: String, senderId: String): Mono<Message>
+    fun findAllByIdInOrderByCreatedAtDesc(ids: List<String>): Flux<Message>
+    fun findAllByIdInOrderByCreatedAtAsc(ids: List<String>): Flux<Message>
 }

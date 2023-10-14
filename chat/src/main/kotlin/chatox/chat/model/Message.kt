@@ -21,6 +21,8 @@ data class Message(
 
         @Indexed
         override val chatId: String,
+
+        @Indexed
         override val createdAt: ZonedDateTime,
         override val updatedAt: ZonedDateTime? = null,
         override val deleted: Boolean = false,
@@ -44,7 +46,39 @@ data class Message(
 
         override val sticker: Sticker<Any>? = null,
         override val scheduledAt: ZonedDateTime? = null,
-        override val chatParticipationId: String
+        override val chatParticipationId: String,
+        override val forwardedFromMessageId: String? = null,
+        override val forwardedFromChatId: String? = null,
+        override val forwardedFromDialogChatType: ChatType? = null,
+        override val forwardedById: String? = null,
+        override val chatParticipationIdInSourceChat: String? = null
 ) : MessageInterface {
-        fun toElasticsearch() = MessageElasticsearch(id, text, referredMessageId, senderId, chatId, createdAt, updatedAt, deleted, deletedAt, deletedById, uploadAttachmentsIds, attachments, emoji, pinned, pinnedById, pinnedAt, fromScheduled, index, sticker, scheduledAt, chatParticipationId)
+        fun toElasticsearch() = MessageElasticsearch(
+                id,
+                text,
+                referredMessageId,
+                senderId,
+                chatId,
+                createdAt,
+                updatedAt,
+                deleted,
+                deletedAt,
+                deletedById,
+                uploadAttachmentsIds,
+                attachments,
+                emoji,
+                pinned,
+                pinnedById,
+                pinnedAt,
+                fromScheduled,
+                index,
+                sticker,
+                scheduledAt,
+                chatParticipationId,
+                forwardedFromMessageId,
+                forwardedFromChatId,
+                forwardedFromDialogChatType,
+                forwardedById,
+                chatParticipationIdInSourceChat
+        )
 }

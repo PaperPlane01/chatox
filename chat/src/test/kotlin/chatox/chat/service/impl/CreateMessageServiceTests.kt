@@ -1,6 +1,7 @@
 package chatox.chat.service.impl
 
 import chatox.chat.api.request.CreateMessageRequest
+import chatox.chat.api.request.ForwardMessagesRequest
 import chatox.chat.exception.MessageValidationException
 import chatox.chat.exception.metadata.LimitOfScheduledMessagesReachedException
 import chatox.chat.exception.metadata.ScheduledMessageIsTooCloseToAnotherScheduledMessageException
@@ -13,6 +14,8 @@ import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
+import chatox.chat.repository.mongodb.ChatRepository
+import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.ScheduledMessageRepository
 import chatox.chat.repository.mongodb.StickerRepository
@@ -29,6 +32,7 @@ import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import chatox.platform.util.JsonLoader.loadResource
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -44,6 +48,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
+import java.util.Optional
 import java.util.stream.Stream
 
 @DisplayName("CreateMessageService tests")
@@ -57,6 +62,8 @@ class CreateMessageServiceTests {
     val uploadRepository: UploadRepository = mockk()
     val stickerRepository: StickerRepository = mockk()
     val chatParticipationRepository: ChatParticipationRepository = mockk()
+    val chatUploadAttachmentRepository: ChatUploadAttachmentRepository = mockk()
+    val chatRepository: ChatRepository = mockk()
     val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String> = mockk()
     val messageEntityService: MessageEntityService = mockk()
     val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService = mockk()
@@ -86,6 +93,8 @@ class CreateMessageServiceTests {
                 uploadRepository,
                 stickerRepository,
                 chatParticipationRepository,
+                chatUploadAttachmentRepository,
+                chatRepository,
                 chatCacheWrapper,
                 messageEntityService,
                 chatUploadAttachmentEntityService,
@@ -382,6 +391,58 @@ class CreateMessageServiceTests {
                         assertEquals(messageUploads, capturedSavedMessage.attachments)
                     }
                     .verifyComplete()
+        }
+    }
+
+    @DisplayName("forwardMessages() tests")
+    @Nested
+    inner class ForwardMessagesTests {
+        @BeforeEach
+        fun setUp() {
+            every { authenticationHolder.requireCurrentUserDetails() } returns Mono.just(jwtPayload)
+        }
+
+        @Test
+        fun `It forwards single message`() {
+            val chatId = "chatId"
+            val messageId = "messageId"
+            val message = TestObjects.message()
+            val chatParticipation = TestObjects.chatParticipation()
+            val returnedMessages = listOf(message)
+
+            every { chatCacheWrapper.findById(eq(chatId)) } returns Mono.just(chat)
+            every { messageRepository.findAllById(eq(listOf(messageId))) } returns Flux.fromIterable(returnedMessages)
+            every { chatParticipationRepository.findByChatIdInAndUserId(
+                    eq(mutableSetOf(message.chatId)),
+                    eq(jwtPayload.id)
+            ) } returns Flux.just(chatParticipation)
+            every {
+                chatParticipationRepository.findByChatIdAndUserId(eq(chatId), eq(jwtPayload.id))
+            } returns Mono.just(chatParticipation)
+            every {
+                chatMessagesCounterRepository.increaseCounterValue(eq(chatId), eq(1L))
+            } returns Mono.just(5)
+            every { messageRepository.saveAll(any<List<Message>>()) } returns Flux.just(message)
+            every { chatRepository.save(any()) } returns Mono.just(chat)
+            every { messageMapper.mapMessages(any<Flux<Message>>(), any()) } returns Flux.just(messageResponse)
+
+            val request = ForwardMessagesRequest(_forwardedMessagesIds = listOf(messageId))
+
+            StepVerifier
+                    .create(createMessageService.forwardMessages(chatId, request))
+                    .expectNextSequence(listOf(messageResponse))
+                    .assertNext { _ ->
+                        verify { messageRepository.saveAll(match<List<Message>> { savedMessages ->
+                            assertEquals(request.forwardedMessagesIds.size, savedMessages.size)
+
+                            val expectedChatsIds = returnedMessages.map { message -> message.forwardedFromChatId ?: chat.id }
+                            val actualChatsIds = savedMessages.map { message -> message.forwardedFromChatId }
+
+                            assertEquals(expectedChatsIds, actualChatsIds)
+
+                            return@match true
+                        }) }
+                    }
         }
     }
 

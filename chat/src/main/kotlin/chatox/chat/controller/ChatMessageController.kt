@@ -1,6 +1,7 @@
 package chatox.chat.controller
 
 import chatox.chat.api.request.CreateMessageRequest
+import chatox.chat.api.request.ForwardMessagesRequest
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.service.CreateMessageService
 import chatox.chat.service.MessageSearchService
@@ -50,6 +51,14 @@ class ChatMessageController(
                       @PathVariable messageId: String,
                       @RequestBody @Valid updateMessageRequest: UpdateMessageRequest
     ) = messageService.updateMessage(messageId, chatId,updateMessageRequest)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canCreateMessage(#chatId)")
+    @PostMapping("/{chatId}/messages/forward")
+    fun forwardMessages(@PathVariable chatId: String,
+                        @RequestBody @Valid forwardMessagesRequest: ForwardMessagesRequest
+    ) = createMessageService.forwardMessages(chatId, forwardMessagesRequest)
 
     //language=SpEL
     @ReactivePermissionCheck("@messagePermissions.canReadMessages(#chatId)")

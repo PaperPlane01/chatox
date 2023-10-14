@@ -1,8 +1,12 @@
 package chatox.chat.service.impl
 
 import chatox.chat.api.request.CreateMessageRequest
+import chatox.chat.api.request.ForwardMessagesRequest
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.config.CacheWrappersConfig
+import chatox.chat.exception.ForwardingFromDialogsIsNotAllowedException
+import chatox.chat.exception.ForwardingFromMultipleChatsIsNotAllowedException
+import chatox.chat.exception.MessageNotFoundException
 import chatox.chat.exception.MessageValidationException
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
@@ -13,6 +17,7 @@ import chatox.chat.mapper.MessageMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatParticipation
+import chatox.chat.model.ChatType
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
@@ -22,6 +27,8 @@ import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
+import chatox.chat.repository.mongodb.ChatRepository
+import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.ScheduledMessageRepository
 import chatox.chat.repository.mongodb.StickerRepository
@@ -35,11 +42,12 @@ import chatox.chat.util.NTuple7
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
-import co.elastic.clients.elasticsearch.watcher.Schedule
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -53,6 +61,8 @@ class CreateMessageServiceImpl(
         private val uploadRepository: UploadRepository,
         private val stickerRepository: StickerRepository,
         private val chatParticipationRepository: ChatParticipationRepository,
+        private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
+        private val chatRepository: ChatRepository,
 
         @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
@@ -175,6 +185,119 @@ class CreateMessageServiceImpl(
             )
                     .awaitFirst()
         }
+    }
+
+    override fun forwardMessages(chatId: String, forwardMessagesRequest: ForwardMessagesRequest): Flux<MessageResponse> {
+        return mono {
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
+            val targetChat = chatCacheWrapper.findById(chatId)
+                    .awaitFirstOrNull()
+                    ?: throw ChatNotFoundException("Could not find chat with id $chatId")
+
+            val messages = messageRepository
+                    .findAllByIdInOrderByCreatedAtAsc(forwardMessagesRequest.forwardedMessagesIds)
+                    .collectList()
+                    .awaitFirst()
+
+            if (messages.size != forwardMessagesRequest.forwardedMessagesIds.size) {
+                throw MessageNotFoundException("Some of the messages could not be found")
+            }
+
+            val chatsIds = messages.map { message -> message.chatId }.toSet()
+
+            if (chatsIds.size != 1) {
+                throw ForwardingFromMultipleChatsIsNotAllowedException("Forwarding from multiple chats is not allowed")
+            }
+
+            val forwardedFromChat = chatCacheWrapper.findById(chatsIds.first()).awaitFirst()
+
+            if (forwardedFromChat.type == ChatType.DIALOG
+                    && forwardedFromChat.dialogDisplay
+                            .find { dialogDisplay -> dialogDisplay.userId == currentUser.id } == null) {
+                throw ForwardingFromDialogsIsNotAllowedException(
+                        "Cannot forward from dialog is current user is not participant of the dialog"
+                )
+            }
+
+            val otherSourceChatsIds = messages
+                    .filter { message -> message.forwardedFromChatId != null }
+                    .map { message -> message.forwardedFromChatId!! }
+            val chatsMap = mutableMapOf(Pair(forwardedFromChat.id, forwardedFromChat))
+
+            if (otherSourceChatsIds.isNotEmpty()) {
+                val otherSourceChats = chatCacheWrapper.findByIds(otherSourceChatsIds).collectList().awaitFirst()
+                otherSourceChats.forEach { chat -> chatsMap[chat.id] = chat }
+            }
+
+            val chatParticipationsMap = chatParticipationRepository
+                    .findByChatIdInAndUserId(chatsMap.keys, currentUser.id)
+                    .collectList()
+                    .awaitFirst()
+                    .associateBy { chatParticipation -> chatParticipation.chatId }
+            val chatParticipationInCurrentChat = chatParticipationRepository.findByChatIdAndUserId(
+                    chatId = chatId,
+                    userId = currentUser.id
+            )
+                    .awaitFirst()
+
+            val nextCounterValue = chatMessagesCounterRepository
+                    .increaseCounterValue(chatId, messages.size.toLong())
+                    .awaitFirst()
+            val startCounterValue = nextCounterValue - messages.size
+            val copiedMessages = mutableListOf<Message>()
+            val copiedChatUploadAttachments = mutableListOf<ChatUploadAttachment<*>>()
+
+            messages.zip(messages.indices).forEach { (message, index) ->
+                val messageId = UUID.randomUUID().toString()
+                val chatUploadAttachments = message.attachments.map { upload -> ChatUploadAttachment(
+                        id = UUID.randomUUID().toString(),
+                        chatId = chatId,
+                        upload = upload,
+                        type = upload.type,
+                        uploadCreatorId = upload.userId,
+                        uploadSenderId = currentUser.id,
+                        messageId = messageId,
+                        createdAt = ZonedDateTime.now(),
+                        uploadId = upload.id
+                ) }
+                val sourceChatId = message.forwardedFromChatId ?: forwardedFromChat.id
+                val copiedMessage = message.copy(
+                        id = messageId,
+                        chatId = chatId,
+                        forwardedFromChatId = message.forwardedFromChatId ?: forwardedFromChat.id,
+                        forwardedFromMessageId = message.forwardedFromMessageId ?: message.id,
+                        forwardedFromDialogChatType = chatsMap[sourceChatId]?.type,
+                        chatParticipationIdInSourceChat = chatParticipationsMap[sourceChatId]?.id,
+                        forwardedById = currentUser.id,
+                        createdAt = ZonedDateTime.now(),
+                        updatedAt = null,
+                        attachments = message.attachments,
+                        uploadAttachmentsIds = chatUploadAttachments.map { attachment -> attachment.id },
+                        index = startCounterValue + index,
+                        chatParticipationId = chatParticipationInCurrentChat.id
+                )
+
+                copiedMessages.add(copiedMessage)
+                copiedChatUploadAttachments.addAll(chatUploadAttachments)
+            }
+
+            messageRepository.saveAll(copiedMessages).awaitFirst()
+
+            if (copiedChatUploadAttachments.isNotEmpty()) {
+                chatUploadAttachmentRepository.saveAll(copiedChatUploadAttachments).awaitFirst()
+            }
+
+            val lastMessage = copiedMessages.last()
+
+            chatRepository.save(targetChat.copy(
+                    lastMessageId = lastMessage.id,
+                    lastMessageDate = lastMessage.createdAt
+            ))
+                    .awaitFirst()
+
+            return@mono messageMapper.mapMessages(Flux.fromIterable(copiedMessages))
+        }
+                .flatMapMany { it }
     }
 
     private fun createMessageFromRequest(
