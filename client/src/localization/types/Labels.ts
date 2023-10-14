@@ -653,4 +653,8 @@ export interface Labels {
     "common.time-unit.YEARS": string,
     "chat.slow-mode.enabled": string,
     "chat.slow-mode.interval": string,
+    "message.forward": string,
+    "message.forward.count": string,
+    "message.forwarded": string,
+    "message.forwarded.by": string
 }

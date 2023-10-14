@@ -7,6 +7,7 @@ import {ReplyToMessageMenuItem} from "./ReplyToMessageMenuItem";
 import {EditMessageMenuItem} from "./EditMessageMenuItem";
 import {DeleteMessageMenuItem} from "./DeleteMessageMenuItem";
 import {PinMessageMenuItem} from "./PinMessageMenuItem";
+import {ForwardMessageMenuItem} from "./ForwardMessageMenuItem";
 import {useAuthorization, usePermissions, useStore} from "../../store";
 import {BanUserGloballyMenuItem} from "../../GlobalBan";
 import {ReportMessageMenuItem} from "../../Report";
@@ -20,6 +21,7 @@ export type MessageMenuItemType = "blockMessageAuthorInChat"
     | "pinMessage"
     | "reportMessage"
     | "blacklistOrRemoveFromBlacklist"
+    | "forwardMessage";
 
 interface MessageMenuProps {
     messageId: string,
@@ -34,7 +36,7 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
         entities: {
             messages: {
                 findById: findMessage
-            },
+            }
         }
     } = useStore();
     const {
@@ -75,26 +77,48 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
     }
 
     if (canCreateMessage(message.chatId)) {
-        menuItems.push(<ReplyToMessageMenuItem messageId={messageId} onClick={handleClose("replyToMessage")}/>);
+        menuItems.push(
+            <ReplyToMessageMenuItem messageId={messageId}
+                                    onClick={handleClose("replyToMessage")}
+            />
+        );
+    }
+
+    if (currentUser) {
+        menuItems.push(
+            <ForwardMessageMenuItem messageId={messageId}
+                                    onClick={handleClose("forwardMessage")}
+            />
+        )
     }
 
     if (canDeleteMessage(message)) {
-        menuItems.push(<DeleteMessageMenuItem messageId={messageId} onClick={handleClose("deleteMessage")}/>)
+        menuItems.push(
+            <DeleteMessageMenuItem messageId={messageId}
+                                   onClick={handleClose("deleteMessage")}
+            />
+        );
     }
 
     if (canBlockUserInChat(message.chatId, message.sender)) {
-        menuItems.push(<BlockMessageAuthorInChatMenuItem onClick={handleClose("blockMessageAuthorInChat")}
-                                                         messageId={messageId}/>
+        menuItems.push(
+            <BlockMessageAuthorInChatMenuItem onClick={handleClose("blockMessageAuthorInChat")}
+                                              messageId={messageId}
+            />
         );
     }
 
     if (canPinMessage(message.chatId)) {
-        menuItems.push(<PinMessageMenuItem messageId={messageId} onClick={handleClose("pinMessage")}/>)
+        menuItems.push(<PinMessageMenuItem messageId={messageId} onClick={handleClose("pinMessage")}/>);
     }
 
     if (canBanUsersGlobally) {
         menuItems.push(<Divider/>);
-        menuItems.push(<BanUserGloballyMenuItem userId={message.sender} onClick={handleClose("banUserGlobally")}/>);
+        menuItems.push(
+            <BanUserGloballyMenuItem userId={message.sender}
+                                     onClick={handleClose("banUserGlobally")}
+            />
+        );
     }
 
     if (!message.deleted) {

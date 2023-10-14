@@ -76,6 +76,10 @@ export const convertMessageToNormalizedForm = (message: Message): MessageEntity 
         stickerId: message.sticker ? message.sticker.id : undefined,
         ...uploadStats,
         ...uploadsByType,
-        senderRoleId: message.senderChatRole && message.senderChatRole.id
+        senderRoleId: message.senderChatRole && message.senderChatRole.id,
+        forwardedById: message.forwardedBy && message.forwardedBy.id,
+        forwarded: Boolean(message.forwarded),
+        forwardedFromChatId: message.forwardedFromChatId,
+        forwardedFromMessageId: message.forwardedFromMessageId
     };
 }

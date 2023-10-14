@@ -45,9 +45,7 @@ export const DialogChatAppBarContent: FunctionComponent<DialogChatAppBarContentP
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
     if (showInput) {
-        return (
-            <ChatAppBarSearchInput/>
-        );
+        return <ChatAppBarSearchInput/>;
     } else {
         const chat = findChat(chatId);
         const user = findUser(chat.userId!);

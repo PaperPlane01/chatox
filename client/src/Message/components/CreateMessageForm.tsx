@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import {Divider} from "@mui/material";
-import {Reply} from "@mui/icons-material";
+import {Forward, Reply} from "@mui/icons-material";
 import {MessageFormMessageCard} from "./MessageFormMessageCard";
 import {MessageForm} from "./MessageForm";
 import {useStore} from "../../store";
@@ -22,6 +22,11 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             setReferredMessageId,
             getNextMessageDate
         },
+        messagesForwarding: {
+            forwardModeActive,
+            forwardedMessagesIds,
+            reset
+        }
     } = useStore();
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -44,6 +49,18 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
 
     return (
         <Fragment>
+            {forwardModeActive && (
+                <MessageFormMessageCard mode="forward"
+                                        onClose={() => reset()}
+                                        messageId={forwardedMessagesIds.length === 1 ? forwardedMessagesIds[0] : undefined}
+                                        messagesCount={forwardedMessagesIds.length}
+                                        icon={(
+                                            <Forward color="primary"
+                                                     fontSize="medium"
+                                            />
+                                        )}
+                />
+            )}
             {referredMessageId && (
                 <MessageFormMessageCard messageId={referredMessageId}
                                         onClose={() => setReferredMessageId(undefined)}
@@ -52,6 +69,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                                                    fontSize="medium"
                                             />
                                         )}
+                                        mode="reply"
                 />
             )}
             <Divider/>
@@ -63,6 +81,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                          attachmentsIds={attachmentsIds}
                          scheduledAt={formValues.scheduledAt}
                          nextMessageDate={nextMessageDate}
+                         forwardedMessagesCount={forwardedMessagesIds.length}
                          setFormValue={setFormValue}
                          setEmojiPickerExpanded={setEmojiPickerExpanded}
                          submitForm={submitForm}

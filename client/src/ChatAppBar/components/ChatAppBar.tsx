@@ -14,6 +14,7 @@ import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {ChatType} from "../../api/types/response";
 import {commonStyles} from "../../style";
+import {ForwardMessagesAppBarContent} from "./ForwardMessagesAppBarContent";
 
 const useStyles = makeStyles(() => createStyles({
     undecoratedLink: commonStyles.undecoratedLink
@@ -39,7 +40,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
             pending,
             errorsMap,
             selectedChatId,
-            currentSlug
+            currentSlug,
         },
         entities: {
             chats: {
@@ -48,6 +49,10 @@ export const ChatAppBar: FunctionComponent = observer(() => {
         },
         messageCreation: {
             userId
+        },
+        messagesForwarding: {
+            forwardModeActive,
+            forwardedFromChatId
         }
     } = useStore();
     const {l} = useLocalization();
@@ -65,15 +70,19 @@ export const ChatAppBar: FunctionComponent = observer(() => {
     } else if (selectedChatId) {
         const chat = findChat(selectedChatId);
 
-        switch (chat.type) {
-            case ChatType.DIALOG:
-                appBarContent = <DialogChatAppBarContent chatId={selectedChatId}/>;
-                break;
-            case ChatType.GROUP:
-                appBarContent = <GroupChatAppBarContent chatId={selectedChatId}/>
-                break;
-            default:
-                appBarContent = <Typography>Unsupported chat type</Typography>;
+        if (forwardModeActive && forwardedFromChatId === selectedChatId) {
+            appBarContent = <ForwardMessagesAppBarContent/>
+        } else {
+            switch (chat.type) {
+                case ChatType.DIALOG:
+                    appBarContent = <DialogChatAppBarContent chatId={selectedChatId}/>;
+                    break;
+                case ChatType.GROUP:
+                    appBarContent = <GroupChatAppBarContent chatId={selectedChatId}/>
+                    break;
+                default:
+                    appBarContent = <Typography>Unsupported chat type</Typography>;
+            }
         }
     } else  if (userId) {
         appBarContent = <NewPrivateChatAppBar/>;

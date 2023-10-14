@@ -654,5 +654,9 @@ export const en: Labels = {
     "common.time-unit.WEEKS": "Week",
     "common.time-unit.YEARS": "Year",
     "chat.slow-mode.enabled": "Enable slow mode",
-    "chat.slow-mode.interval": "Interval between messages"
+    "chat.slow-mode.interval": "Interval between messages",
+    "message.forward": "Forward message",
+    "message.forward.count": "Forward {count} messages",
+    "message.forwarded": "Forwarded from",
+    "message.forwarded.by": "by"
 };

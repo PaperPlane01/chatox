@@ -1,9 +1,10 @@
 import React, {FunctionComponent, ReactNode, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, IconButton, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {createStyles, makeStyles, useTheme} from "@mui/styles";
 import {Close} from "@mui/icons-material";
 import randomColor from "randomcolor";
+import {getForwardMessagesLabel} from "../utils";
 import {useLocalization, useStore} from "../../store";
 import {useEmojiParser} from "../../Emoji";
 
@@ -29,14 +30,18 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 interface MessageFormMessageCardProps {
-    messageId: string,
+    messageId?: string,
+    mode: "reply" | "forward" | "edit",
     icon?: ReactNode,
+    messagesCount?: number,
     onClose: () => void
 }
 
 export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardProps> = observer(({
     messageId,
     icon = null,
+    mode,
+    messagesCount,
     onClose
 }) => {
     const {
@@ -58,6 +63,7 @@ export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardPro
     const {l} = useLocalization();
     const classes = useStyles();
     const {parseEmoji} = useEmojiParser();
+    const theme = useTheme<Theme>();
 
     const messagesListElement = document.getElementById("messagesList");
     const messagesListWidth = messagesListElement
@@ -80,26 +86,47 @@ export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardPro
         return () => window.removeEventListener("resize", updateWidth);
     }, []);
 
-    if (!messageId || !selectedChatId) {
+    if (mode === "reply" && !messageId) {
         return null;
     }
 
-    const message = findMessage(messageId);
+    const message = messageId ? findMessage(messageId) : undefined;
 
-    if (message.chatId !== selectedChatId) {
+    if (mode === "reply" && message && message.chatId !== selectedChatId) {
         return null;
     }
 
-    const user = findUser(message.sender);
-    const color = randomColor({seed: user.id});
+    let headerContent: ReactNode = null;
+    let headerColor = theme.palette.primary.main;
+
+    if (message) {
+        const user = findUser(message.sender);
+
+        headerContent = (
+            <strong>
+                {user.firstName} {user.lastName && user.lastName}
+            </strong>
+        );
+        headerColor = randomColor({seed: user.id});
+    } else if (mode === "forward") {
+        headerContent = getForwardMessagesLabel(messagesCount, l);
+    }
+
+    let cardContent: ReactNode = null;
+
+    if (message) {
+        cardContent = message.deleted
+                ? <i>{l("message.deleted")}</i>
+                : parseEmoji(message.text, message.emoji);
+    } else if (mode === "forward") {
+        cardContent = `[${getForwardMessagesLabel(messagesCount, l)}]`;
+    }
 
     return (
         <Card elevation={0}>
             <CardHeader title={
-                <Typography variant="body1" style={{color}}>
-                    <strong>
-                        {user.firstName} {user.lastName && user.lastName}
-                    </strong>
+                <Typography variant="body1" style={{color: headerColor}}>
+                    {headerContent}
                 </Typography>
             }
                         action={
@@ -118,10 +145,7 @@ export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardPro
                          onClick={() => setMessageDialogMessageId(messageId)}
             >
                 {icon && icon}
-                {message.deleted
-                    ? <i>{l("message.deleted")}</i>
-                    : parseEmoji(message.text, message.emoji)
-                }
+                {cardContent}
             </CardContent>
         </Card>
     );

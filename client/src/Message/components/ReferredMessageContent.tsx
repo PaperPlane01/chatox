@@ -2,13 +2,17 @@ import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CardContent, CardHeader, Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
+import {MessageEntity} from "../types";
 import {UserLink} from "../../UserLink";
 import {trimString} from "../../utils/string-utils";
 import {useLocalization, useStore} from "../../store";
 import {useEmojiParser} from "../../Emoji";
+import {UserEntity} from "../../User";
 
 interface ReferredMessageContentProps {
-    messageId?: string
+    messageId?: string,
+    findSenderFunction?: (id: string) => UserEntity,
+    findMessageFunction?: (id: string) => MessageEntity
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -27,7 +31,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     }
 }));
 
-export const ReferredMessageContent: FunctionComponent<ReferredMessageContentProps> = observer(({messageId}) => {
+export const ReferredMessageContent: FunctionComponent<ReferredMessageContentProps> = observer(({
+    messageId,
+    findMessageFunction,
+    findSenderFunction
+}) => {
     const {
         entities: {
             messages: {
@@ -49,8 +57,12 @@ export const ReferredMessageContent: FunctionComponent<ReferredMessageContentPro
         return null;
     }
 
-    const message = findMessage(messageId);
-    const user = findUser(message.sender);
+    const message = findMessageFunction
+        ? findMessageFunction(messageId)
+        : findMessage(messageId);
+    const user = findSenderFunction
+        ? findSenderFunction(message.sender)
+        : findUser(message.sender);
 
     return (
         <Fragment>

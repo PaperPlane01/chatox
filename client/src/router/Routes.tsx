@@ -236,6 +236,7 @@ export const Routes = {
         },
         onExit: () => {
             store.messageReports.reset();
+            store.reportedMessageDialog.setReportId(undefined);
         }
     }),
     reportedUsers: new Route({

@@ -654,5 +654,9 @@ export const ru: Labels = {
     "common.time-unit.WEEKS": "Неделя",
     "common.time-unit.YEARS": "Год",
     "chat.slow-mode.enabled": "Включить медленный режим",
-    "chat.slow-mode.interval": "Интервал между сообщениями"
+    "chat.slow-mode.interval": "Интервал между сообщениями",
+    "message.forward": "Переслать сообщение",
+    "message.forward.count": "Переслать {count} сообщений",
+    "message.forwarded": "Переслано от",
+    "message.forwarded.by": "пользователем"
 };

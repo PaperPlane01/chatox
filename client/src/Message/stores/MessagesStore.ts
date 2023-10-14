@@ -82,6 +82,10 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
                     this.createPatchForNormalMessages([message.referredMessage], {skipSettingLastMessage: true})
                 );
             }
+
+            if (message.forwardedBy) {
+                patches.push(this.entities.users.createPatch(message.forwardedBy));
+            }
         });
 
         return mergeWith(patch, ...patches, mergeCustomizer);
