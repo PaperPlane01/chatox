@@ -12,6 +12,7 @@ import {Avatar} from "../../Avatar";
 import {useRouter, useStore} from "../../store";
 import {ChatType} from "../../api/types/response";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {useLuminosity} from "../../utils/hooks";
 
 interface ChatsOfCurrentUserListItemProps {
     chatId: string,
@@ -99,18 +100,23 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
     const selected = selectedChatId === chatId;
     const linkProps = getChatLinkProps(linkGenerationStrategy, {chat, messageId});
     const chatHasTypingUsers = hasTypingUsers(chatId);
+    const luminosity = useLuminosity();
+    const color = randomColor({
+        seed: chatUser ? chatUser.id : chatId,
+        luminosity
+    });
 
     const avatar = chatUser
         ? (
             <Avatar avatarLetter={getUserAvatarLabel(chatUser)}
-                    avatarColor={randomColor({seed: chatUser.id})}
+                    avatarColor={color}
                     avatarUri={chatUser.externalAvatarUri}
                     avatarId={chatUser.avatarId}
             />
         )
         : (
             <Avatar avatarLetter={getAvatarLabel(chat.name)}
-                    avatarColor={randomColor({seed: chatId})}
+                    avatarColor={color}
                     avatarUri={chat.avatarUri}
                     avatarId={chat.avatarId}
             />

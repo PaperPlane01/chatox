@@ -22,5 +22,9 @@ export interface Message {
     scheduledAt?: string,
     index: number,
     sticker?: Sticker,
-    senderChatRole?: ChatRole
+    senderChatRole?: ChatRole,
+    forwarded?: boolean,
+    forwardedFromChatId?: string,
+    forwardedFromMessageId?: string,
+    forwardedBy?: User
 }

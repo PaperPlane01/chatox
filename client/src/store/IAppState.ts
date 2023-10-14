@@ -53,7 +53,7 @@ import {
     DeleteMessageStore,
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
-    EmojiPickerTabsStore,
+    EmojiPickerTabsStore, ForwardMessagesStore,
     MarkMessageReadStore,
     MessageDialogStore,
     MessagesListScrollPositionsStore,
@@ -289,5 +289,6 @@ export interface IAppState {
     deleteSelectedUserPhotos: DeleteSelectedUserProfilePhotosStore,
     setPhotoAsAvatar: SetPhotoAsAvatarStore,
     deleteUserPhoto: DeleteUserProfilePhotoStore,
-    typingUsers: TypingUsersStore
+    typingUsers: TypingUsersStore,
+    messagesForwarding: ForwardMessagesStore
 }

@@ -105,6 +105,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     tags = createChatRequest.tags,
                     createdAt = ZonedDateTime.now(),
                     createdById = currentUser.id,
+                    numberOfParticipants = 1,
                     numberOfOnlineParticipants = 1,
                     type = ChatType.GROUP
             )

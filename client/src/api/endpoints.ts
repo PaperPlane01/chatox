@@ -61,3 +61,4 @@ export const LOVE = "love";
 export const COSTS = "costs";
 export const PHOTOS = "photos";
 export const TYPING = "typing";
+export const FORWARD = "forward";

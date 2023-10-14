@@ -25,5 +25,9 @@ export interface MessageEntity {
     scheduledAt?: Date,
     index: number,
     stickerId?: string,
-    senderRoleId?: string
+    senderRoleId?: string,
+    forwarded: boolean,
+    forwardedFromChatId?: string,
+    forwardedFromMessageId?: string,
+    forwardedById?: string
 }

@@ -22,7 +22,8 @@ import {
     CreateChatStore,
     DeleteChatStore,
     LeaveChatStore,
-    PopularChatsStore, TypingUsersStore,
+    PopularChatsStore,
+    TypingUsersStore,
     UpdateChatStore
 } from "../Chat";
 import {
@@ -58,6 +59,7 @@ import {
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     EmojiPickerTabsStore,
+    ForwardMessagesStore,
     MarkMessageReadStore,
     MessageDialogStore,
     MessagesListScrollPositionsStore,
@@ -189,7 +191,14 @@ const chat = new ChatStore(entities);
 const chatParticipants = new ChatParticipantsStore(entities, chat);
 const messageUploads = new UploadMessageAttachmentsStore();
 const chatsPreferences = new ChatsPreferencesStore();
-const messageCreation = new CreateMessageStore(chat, messageUploads, entities, chatsPreferences);
+const messagesForwarding = new ForwardMessagesStore(chat, entities);
+const messageCreation = new CreateMessageStore(
+    chat,
+    messageUploads,
+    entities,
+    chatsPreferences,
+    messagesForwarding
+);
 const messagesSearch = new SearchMessagesStore(entities, chat);
 const messagesOfChat = new MessagesOfChatStore(entities, chat, messagesSearch);
 const joinChat = new JoinChatStore(entities, authorization);
@@ -564,5 +573,6 @@ export const store: IAppState = {
     deleteSelectedUserPhotos,
     setPhotoAsAvatar,
     deleteUserPhoto,
-    typingUsers
+    typingUsers,
+    messagesForwarding
 };

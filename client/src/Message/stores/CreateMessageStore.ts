@@ -4,6 +4,7 @@ import {RouterStore} from "mobx-router";
 import {debounce} from "lodash";
 import {AbstractMessageFormStore} from "./AbstractMessageFormStore";
 import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
+import {ForwardMessagesStore} from "./ForwardMessagesStore";
 import {CreateMessageFormData} from "../types";
 import {ChatsPreferencesStore, ChatStore} from "../../Chat";
 import {ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
@@ -12,6 +13,7 @@ import {Routes} from "../../router";
 import {FormErrors} from "../../utils/types";
 import {createWithUndefinedValues, isDefined} from "../../utils/object-utils";
 import {Duration} from "../../utils/date-utils";
+import {isStringEmpty} from "../../utils/string-utils";
 
 const INITIAL_FORM_VALUES: CreateMessageFormData = {
     text: "",
@@ -42,7 +44,8 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
     constructor(chatStore: ChatStore,
                 messageUploads: UploadMessageAttachmentsStore,
                 entities: EntitiesStore,
-                private readonly chatsPreferences: ChatsPreferencesStore) {
+                private readonly chatsPreferences: ChatsPreferencesStore,
+                private readonly forwardMessagesStore: ForwardMessagesStore) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS, chatStore, messageUploads, entities);
 
         this.startTyping = debounce(this.startTyping, 300);
@@ -97,6 +100,7 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
             .then(({data}) => {
                 const message = this.entities.messages.insert(data);
                 this.setLastMessageDateForChat(data.chatId, message.createdAt);
+                this.sendForwardedMessages(data.chatId);
             })
             .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
             .finally(() => this.setPending(false));
@@ -111,10 +115,16 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
     }
 
     submitForm = (): void => {
-        if (!this.selectedChatId ) {
-            if (!this.userId) {
-                return;
-            }
+        if (!this.selectedChatId && !this.userId) {
+            return;
+        }
+
+        if (this.selectedChatId
+            && this.forwardMessagesStore.forwardModeActive
+            && isStringEmpty(this.formValues.text)
+            && this.attachmentsIds.length === 0) {
+            this.sendForwardedMessages(this.selectedChatId);
+            return;
         }
 
         if (!this.validateForm()) {
@@ -136,6 +146,10 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
                     if (!this.formValues.scheduledAt) {
                         const message = this.entities.messages.insert(data);
                         this.setLastMessageDateForChat(data.chatId, message.createdAt);
+
+                        if (this.forwardMessagesStore.forwardModeActive) {
+                            this.sendForwardedMessages(chatId);
+                        }
                     } else {
                         if (this.routerStore) {
                             const chat = this.entities.chats.findById(chatId);
@@ -171,6 +185,16 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
                 })
                 .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
                 .finally(() => this.setPending(false))
+        }
+    }
+
+    private sendForwardedMessages = (chatId: string): void => {
+        if (this.forwardMessagesStore.forwardModeActive) {
+            this.forwardMessagesStore.forwardMessages().then(date => {
+                if (date) {
+                    this.setLastMessageDateForChat(chatId, date);
+                }
+            })
         }
     }
 

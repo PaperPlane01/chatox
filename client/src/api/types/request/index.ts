@@ -39,3 +39,4 @@ export * from "./RewardRequest";
 export * from "./CreateUserProfilePhotoRequest";
 export * from "./DeleteMultipleUserProfilePhotosRequest";
 export * from "./SetUserProfilePhotoAsAvatarRequest";
+export * from "./ForwardMessagesRequest";

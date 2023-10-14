@@ -73,7 +73,9 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
          }
     }
 
-    fun canCreateMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<Boolean> {
+    fun canCreateMessage(chatId: String): Mono<Boolean> = canCreateMessage(chatId, null)
+
+    fun canCreateMessage(chatId: String, createMessageRequest: CreateMessageRequest?): Mono<Boolean> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
@@ -88,14 +90,22 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 return@mono false
             }
 
-            val scheduledMessageCheck = if (createMessageRequest.scheduledAt != null) {
+            val scheduledMessageCheck = if (createMessageRequest?.scheduledAt != null) {
                 features.scheduleMessages.enabled
             } else {
                 true
             }
 
+            val uploadsCheck = if (!scheduledMessageCheck) {
+                false
+            } else if (createMessageRequest == null) {
+                true
+            } else {
+                checkUploadsPermissions(createMessageRequest, features.sendMessages.additional).awaitFirst()
+            }
+
            return@mono scheduledMessageCheck
-                   && checkUploadsPermissions(createMessageRequest, features.sendMessages.additional).awaitFirst()
+                   && uploadsCheck
                    && checkSlowMode(chatId, currentUser).awaitFirst()
         }
     }

@@ -38,6 +38,7 @@ export const UpdateMessageForm: FunctionComponent = observer(() => {
         <Fragment>
             <MessageFormMessageCard messageId={updatedMessageId}
                                     onClose={() => setUpdatedMessageId(undefined)}
+                                    mode="edit"
                                     icon={(
                                         <Edit color="primary"
                                               fontSize="medium"

@@ -39,6 +39,7 @@ interface MessageFormProps {
     inputRef: RefObject<HTMLInputElement>,
     scheduledAt?: Date,
     nextMessageDate?: Date,
+    forwardedMessagesCount?: number,
     setFormValue: <Key extends keyof MessageFormData>(key: Key, value: MessageFormData[Key]) => void,
     submitForm: () => void,
     setEmojiPickerExpanded: (emojiPickerExpended: boolean) => void
@@ -53,6 +54,7 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
     attachmentsIds,
     scheduledAt,
     nextMessageDate,
+    forwardedMessagesCount = 0,
     setFormValue,
     setEmojiPickerExpanded,
     submitForm
@@ -169,7 +171,7 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
                                            <EmojiPickerContainer onEmojiSelected={handleEmojiSelect}/>
                                        </Fragment>
                                        <Countdown date={nextMessageDate}>
-                                           {formValues.text.length !== 0 || attachmentsIds.length !== 0
+                                           {formValues.text.length !== 0 || attachmentsIds.length !== 0 || forwardedMessagesCount > 0
                                                ? (
                                                    <SendMessageButton onClick={submitForm}
                                                                       onOpenPreviewClick={() => setMarkdownPreviewDialogOpen(true)}
