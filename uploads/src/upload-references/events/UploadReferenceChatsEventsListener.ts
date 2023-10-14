@@ -2,10 +2,9 @@ import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {RabbitSubscribe} from "@golevelup/nestjs-rabbitmq";
 import {Model} from "mongoose";
-import {UploadReference, UploadReferenceDocument, UploadReferenceType} from "../entities";
+import {UploadDeletionReasonType, UploadReference, UploadReferenceDocument, UploadReferenceType} from "../entities";
 import {Chat, ChatDeleted} from "../../external/types";
 import {UploadDeletionReason} from "../entities/UploadDeletionReason";
-import {UploadDeletionReasonType} from "../entities/UploadDeletionReasonType";
 
 @Injectable()
 export class UploadReferenceChatsEventsListener {
@@ -66,11 +65,22 @@ export class UploadReferenceChatsEventsListener {
         await new this.uploadReferenceModel(uploadReference).save();
 
         if (existingUploadReference) {
-            existingUploadReference.scheduledForDeletion = true;
-            existingUploadReference.deletionReasons.push(new UploadDeletionReason({
-                deletionReasonType: UploadDeletionReasonType.CHAT_UPDATED_EVENT
-            }));
-            await existingUploadReference.updateOne();
+            this.uploadReferenceModel.updateOne(
+                {
+                    referenceObjectId: chat.id,
+                    type: UploadReferenceType.CHAT_PROFILE_IMAGE
+                },
+                {
+                    $set: {
+                        scheduledForDeletion: true
+                    },
+                    $push: {
+                        deletionReasons: new UploadDeletionReason({
+                            deletionReasonType: UploadDeletionReasonType.CHAT_UPDATED_EVENT
+                        })
+                    }
+                }
+            );
         }
     }
 
