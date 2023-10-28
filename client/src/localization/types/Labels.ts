@@ -656,5 +656,15 @@ export interface Labels {
     "message.forward": string,
     "message.forward.count": string,
     "message.forwarded": string,
-    "message.forwarded.by": string
+    "message.forwarded.by": string,
+    "chat.management.tab.INFO": string,
+    "chat.management.tab.PARTICIPANTS": string,
+    "chat.management.tab.SLOW_MODE": string,
+    "chat.management.tab.SECURITY": string,
+    "chat.management.tab.BLOCKINGS": string,
+    "chat.management.tab.ROLES": string,
+    "chat.management.tab.DELETION": string,
+    "chat.management": string,
+    "chat.management.with-name": string,
+    "common.no-access": string
 }

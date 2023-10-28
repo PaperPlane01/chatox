@@ -14,3 +14,4 @@ export * from "./CreateStickerPackPage";
 export * from "./StickerPacksPage";
 export * from "./NewPrivateChatPage";
 export * from "./RewardsManagementPage";
+export * from "./ChatManagementPage";

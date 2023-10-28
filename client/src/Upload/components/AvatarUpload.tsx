@@ -15,7 +15,9 @@ interface AvatarUploadProps {
     defaultAvatarId?: string,
     defaultAvatarLabel: string,
     avatarColor: string,
-    externalAvatarUri?: string
+    externalAvatarUri?: string,
+    width?: string | number,
+    height?: string | number
 }
 
 export const AvatarUpload: FunctionComponent<AvatarUploadProps> = ({
@@ -27,7 +29,9 @@ export const AvatarUpload: FunctionComponent<AvatarUploadProps> = ({
     defaultAvatarLabel,
     defaultAvatarId,
     avatarColor,
-    externalAvatarUri
+    externalAvatarUri,
+    width,
+    height
 }) => {
     const {l} = useLocalization();
     const avatarUri = imageContainer
@@ -38,8 +42,8 @@ export const AvatarUpload: FunctionComponent<AvatarUploadProps> = ({
         <ImageUpload onFileAttached={onFileAttached}
                      pending={pending}
                      avatarProps={{
-                         width: 80,
-                         height: 80,
+                         width: width ? width : 80,
+                         height: height ? height : 80,
                          shape: "rounded",
                          avatarId: defaultAvatarId,
                          avatarUri: avatarUri,

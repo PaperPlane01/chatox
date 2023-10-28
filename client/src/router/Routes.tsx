@@ -4,6 +4,7 @@ import {QueryParams, Route, RouteParams} from "mobx-router";
 import {store} from "../store";
 import {getSettingsTabFromString} from "../Settings";
 import {ErrorBoundary} from "../ErrorBoundary";
+import {getChatManagementTabFromString} from "../ChatManagement";
 
 const fallback = (
     <div style={{
@@ -33,6 +34,7 @@ const CreateStickerPackPage = lazy(() => import("../pages/CreateStickerPackPage"
 const StickerPacksPage = lazy(() => import("../pages/StickerPacksPage"));
 const NewPrivateChatPage = lazy(() => import("../pages/NewPrivateChatPage"));
 const RewardsManagementPage = lazy(() => import("../pages/RewardsManagementPage"));
+const ChatManagementPage = lazy(() => import("../pages/ChatManagementPage"));
 
 export const Routes = {
     home: new Route({
@@ -136,6 +138,66 @@ export const Routes = {
             store.messageDialog.setMessageId(undefined);
         }
     }),
+    scheduledMessagesPage: new Route<any, {slug?: string}>({
+        path: "/chat/:slug/scheduled-messages",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <ScheduledMessagesPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: (_, params) => {
+            store.scheduledMessagesOfChat.setReactToChatIdChange(true);
+            store.chat.setSelectedChat(params?.slug);
+            store.scheduledMessagesOfChat.fetchScheduledMessages();
+        },
+        onParamsChange: (view: any, params: any) => {
+            store.chat.setSelectedChat(params.slug);
+            store.scheduledMessagesOfChat.setReactToChatIdChange(true);
+            store.scheduledMessagesOfChat.fetchScheduledMessages();
+        },
+        onExit: () => {
+            store.scheduledMessagesOfChat.setReactToChatIdChange(false);
+            store.chat.setSelectedChat(undefined);
+        }
+    }),
+    chatManagement: new Route<any, {slug: string}>({
+        path: "/chat/:slug/management",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <ChatManagementPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: (_, params) => {
+            store.chat.setSelectedChat(params?.slug);
+            store.chatManagement.setActiveTab(undefined);
+        },
+        onParamsChange: (_, params) => {
+            store.chat.setSelectedChat(params?.slug);
+            store.chatManagement.setActiveTab(undefined);
+        }
+    }),
+    chatManagementTab: new Route<any, {slug: string, tab: string}>({
+        path: "/chat/:slug/management/:tab",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <ChatManagementPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: (_, params) => {
+            store.chat.setSelectedChat(params?.slug);
+            store.chatManagement.setActiveTab(getChatManagementTabFromString(params?.tab));
+        },
+        onParamsChange: (_, params) => {
+            store.chat.setSelectedChat(params?.slug);
+            store.chatManagement.setActiveTab(getChatManagementTabFromString(params?.tab));
+        }
+    }),
     userPage: new Route<any, {slug?: string}>({
         path: "/user/:slug",
         component: (
@@ -195,30 +257,6 @@ export const Routes = {
         },
         onExit: () => {
             store.globalBansList.reset();
-        }
-    }),
-    scheduledMessagesPage: new Route<any, {slug?: string}>({
-        path: "/chat/:slug/scheduled-messages",
-        component: (
-            <ErrorBoundary>
-                <Suspense fallback={fallback}>
-                    <ScheduledMessagesPage/>
-                </Suspense>
-            </ErrorBoundary>
-        ),
-        onEnter: (_, params) => {
-            store.scheduledMessagesOfChat.setReactToChatIdChange(true);
-            store.chat.setSelectedChat(params?.slug);
-            store.scheduledMessagesOfChat.fetchScheduledMessages();
-        },
-        onParamsChange: (view: any, params: any) => {
-            store.chat.setSelectedChat(params.slug);
-            store.scheduledMessagesOfChat.setReactToChatIdChange(true);
-            store.scheduledMessagesOfChat.fetchScheduledMessages();
-        },
-        onExit: () => {
-            store.scheduledMessagesOfChat.setReactToChatIdChange(false);
-            store.chat.setSelectedChat(undefined);
         }
     }),
     reportedMessages: new Route({

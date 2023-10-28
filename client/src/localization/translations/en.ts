@@ -658,5 +658,15 @@ export const en: Labels = {
     "message.forward": "Forward message",
     "message.forward.count": "Forward {count} messages",
     "message.forwarded": "Forwarded from",
-    "message.forwarded.by": "by"
+    "message.forwarded.by": "by",
+    "chat.management.tab.INFO": "Info",
+    "chat.management.tab.PARTICIPANTS": "Participants",
+    "chat.management.tab.SLOW_MODE": "Slow mode",
+    "chat.management.tab.SECURITY": "Security",
+    "chat.management.tab.BLOCKINGS": "Blockings",
+    "chat.management.tab.ROLES": "Roles",
+    "chat.management.tab.DELETION": "Deletion",
+    "chat.management": "Manage chat",
+    "chat.management.with-name": "Manage chat {chatName}",
+    "common.no-access": "You don't have access to this feature"
 };

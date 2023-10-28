@@ -1,7 +1,7 @@
 import {action, computed, makeObservable, observable, reaction, runInAction} from "mobx";
 import {throttle} from "lodash";
 import {ChatStore} from "./ChatStore";
-import {TagErrorsMap, UpdateChatFormData} from "../types";
+import {ChatOfCurrentUserEntity, TagErrorsMap, UpdateChatFormData} from "../types";
 import {
     validateChatDescription,
     validateChatName, validateChatSlowModeInterval, validateChatSlowModeTimeUnit,
@@ -14,10 +14,11 @@ import {ImageUploadMetadata, SlowMode} from "../../api/types/response";
 import {AbstractFormStore} from "../../form-store";
 import {UploadImageStore} from "../../Upload";
 import {EntitiesStore} from "../../entities-store";
-import {Labels} from "../../localization";
+import {Labels, LocaleStore} from "../../localization";
 import {FormErrors} from "../../utils/types";
 import {containsNotUndefinedValues, createWithUndefinedValues, isDefined} from "../../utils/object-utils";
 import {UploadedFileContainer} from "../../utils/file-utils";
+import {SnackbarService} from "../../Snackbar";
 
 const INITIAL_FORM_VALUES: UpdateChatFormData = {
     description: undefined,
@@ -29,11 +30,7 @@ const INITIAL_FORM_VALUES: UpdateChatFormData = {
 const INITIAL_FORM_ERRORS: FormErrors<UpdateChatFormData> = createWithUndefinedValues(INITIAL_FORM_VALUES);
 
 export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
-    updateChatDialogOpen: boolean = false;
-
     checkingSlugAvailability: boolean = false;
-
-    showSnackbar: boolean = false;
 
     tagsErrorsMap: TagErrorsMap = {};
 
@@ -49,34 +46,42 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
         return this.uploadChatAvatarStore.pending;
     }
 
-    get selectedChat(): string | undefined {
+    get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
+    }
+
+    get selectedChat(): ChatOfCurrentUserEntity | undefined {
+        if (!this.selectedChatId) {
+            return undefined;
+        }
+
+        return this.entities.chats.findByIdOptional(this.selectedChatId)
     }
 
     get currentChatSlug(): string | undefined {
         if (this.selectedChat) {
-            return this.entities.chats.findById(this.selectedChat).slug;
+            return this.selectedChat.slug;
         } else {
             return undefined;
         }
     }
 
     get uploadedAvatarId(): string | undefined {
-        return this.avatarFileContainer && this.avatarFileContainer.uploadedFile
-            && this.avatarFileContainer.uploadedFile.id
+        return (this.avatarFileContainer && this.avatarFileContainer.uploadedFile
+            && this.avatarFileContainer.uploadedFile.id) || this.selectedChat?.avatarId
     }
 
     constructor(private readonly uploadChatAvatarStore: UploadImageStore,
                 private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStore) {
+                private readonly entities: EntitiesStore,
+                private readonly locale: LocaleStore,
+                private readonly snackbarService: SnackbarService) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
 
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300);
 
         makeObservable<UpdateChatStore, "validateForm">(this, {
-            updateChatDialogOpen: observable,
             checkingSlugAvailability: observable,
-            showSnackbar: observable,
             tagsErrorsMap: observable,
             avatarFileContainer: computed,
             avatarValidationError: computed,
@@ -84,9 +89,7 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
             selectedChat: computed,
             currentChatSlug: computed,
             uploadedAvatarId: computed,
-            setUpdateChatDialogOpen: action,
             checkSlugAvailability: action,
-            setShowSnackbar: action,
             submitForm: action,
             validateForm: action
         });
@@ -95,15 +98,14 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
             () => this.selectedChat,
             selectedChat => {
                 if (selectedChat) {
-                    const chat = entities.chats.findById(selectedChat);
                     this.setForm({
-                        name: chat.name,
-                        description: chat.description,
-                        slug: chat.slug,
-                        tags: chat.tags,
-                        slowModeEnabled: chat.slowMode ? chat.slowMode.enabled : false,
-                        slowModeInterval: chat.slowMode?.interval.toString(),
-                        slowModeUnit: chat.slowMode?.unit
+                        name: selectedChat.name,
+                        description: selectedChat.description,
+                        slug: selectedChat.slug,
+                        tags: selectedChat.tags,
+                        slowModeEnabled: selectedChat.slowMode ? selectedChat.slowMode.enabled : false,
+                        slowModeInterval: selectedChat.slowMode?.interval.toString(),
+                        slowModeUnit: selectedChat.slowMode?.unit
                     });
                 }
             }
@@ -117,7 +119,7 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
         reaction(
             () => this.formValues.slug,
             slug => {
-                if (this.updateChatDialogOpen && slug !== this.currentChatSlug && slug !== this.selectedChat) {
+                if (slug !== this.currentChatSlug && slug !== this.selectedChat) {
                     this.setFormError("slug", validateChatSlug(slug));
 
                     if (!this.formErrors.slug) {
@@ -146,10 +148,6 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
         );
     }
 
-    setUpdateChatDialogOpen = (updateChatDialogOpen: boolean): void => {
-        this.updateChatDialogOpen = updateChatDialogOpen;
-    }
-
     checkSlugAvailability = (slug: string): void => {
         this.checkingSlugAvailability = true;
 
@@ -162,12 +160,8 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
             .finally(() => runInAction(() => this.checkingSlugAvailability = false));
     }
 
-    setShowSnackbar = (showSnackbar: boolean): void => {
-        this.showSnackbar = showSnackbar;
-    }
-
     submitForm = (): void => {
-        const chatId = this.selectedChat;
+        const chatId = this.selectedChat?.id;
 
         if (!chatId) {
             return;
@@ -190,8 +184,7 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
         })
             .then(({data}) => {
                 this.entities.chats.insert(data);
-                this.setUpdateChatDialogOpen(false);
-                this.setShowSnackbar(true);
+                this.snackbarService.enqueueSnackbar(this.locale.getCurrentLanguageLabel("chat.update.success"));
             })
             .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
             .finally(() => this.setPending(false));

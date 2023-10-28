@@ -1,5 +1,4 @@
 export * from "./CreateChatBlockingDialog";
-export * from "./ChatBlockingsDialog";
 export * from "./ChatBlockingsTable";
 export * from "./ChatBlockingsTableRow";
 export * from "./ChatBlockingInfoDialog";
@@ -9,3 +8,4 @@ export * from "./ChatBlockingsList";
 export * from "./ChatBlockingsListItem";
 export * from "./CancelChatBlockingButton";
 export * from "./BlockUserInChatByIdOrSlugDialog";
+export * from "./ChatBlockingsListWrapper";

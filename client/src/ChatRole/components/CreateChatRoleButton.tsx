@@ -21,16 +21,12 @@ export const CreateChatRoleButton: FunctionComponent = observer(() => {
     const {
         createChatRole: {
             setCreateChatRoleDialogOpen
-        },
-        rolesOfChats: {
-            closeRolesList
         }
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
 
     const handleClick = (): void => {
-        closeRolesList();
         setCreateChatRoleDialogOpen(true);
     };
 

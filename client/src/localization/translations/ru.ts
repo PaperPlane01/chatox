@@ -658,5 +658,15 @@ export const ru: Labels = {
     "message.forward": "Переслать сообщение",
     "message.forward.count": "Переслать {count} сообщений",
     "message.forwarded": "Переслано от",
-    "message.forwarded.by": "пользователем"
+    "message.forwarded.by": "пользователем",
+    "chat.management.tab.INFO": "Инфо",
+    "chat.management.tab.PARTICIPANTS": "Пользователи",
+    "chat.management.tab.SLOW_MODE": "Медленный режим",
+    "chat.management.tab.SECURITY": "Безопасность",
+    "chat.management.tab.BLOCKINGS": "Блокировки",
+    "chat.management.tab.ROLES": "Роли",
+    "chat.management.tab.DELETION": "Удаление",
+    "chat.management": "Управление чатом",
+    "chat.management.with-name": "Управление чатом {chatName}",
+    "common.no-access": "У вас нет доступа к данной функции"
 };

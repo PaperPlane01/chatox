@@ -12,6 +12,7 @@ const routerStore = rootStore.router;
 
 const injectRouterStore = (): void => {
     store.messageCreation.setRouterStore(routerStore);
+    store.chatDeletion.setRouterStore(routerStore);
 };
 
 injectRouterStore();

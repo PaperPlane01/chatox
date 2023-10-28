@@ -22,9 +22,6 @@ export const ChatRoleInfoDialog: FunctionComponent = observer(() => {
                 findById: findChatRole
             }
         },
-        rolesOfChats: {
-            setChatRolesDialogOpen
-        },
         editChatRole: {
             pending,
             setRoleId,
@@ -38,12 +35,8 @@ export const ChatRoleInfoDialog: FunctionComponent = observer(() => {
         return null;
     }
 
-    const handleClose = (openRoleList?: boolean): void => {
+    const handleClose = (): void => {
         closeDialog();
-
-        if (openRoleList) {
-            setChatRolesDialogOpen(true);
-        }
     };
 
     const chatRole = findChatRole(roleId);
@@ -52,7 +45,7 @@ export const ChatRoleInfoDialog: FunctionComponent = observer(() => {
         if (editMode) {
             setEditMode(false);
         } else {
-            handleClose(true);
+            handleClose();
         }
     };
 
@@ -66,7 +59,7 @@ export const ChatRoleInfoDialog: FunctionComponent = observer(() => {
                 fullWidth
                 maxWidth="lg"
                 fullScreen={fullScreen}
-                onClose={() => handleClose()}
+                onClose={handleClose}
         >
             <DialogTitle>
                 <IconButton onClick={handleBackClick}>
@@ -113,7 +106,7 @@ export const ChatRoleInfoDialog: FunctionComponent = observer(() => {
                         </Fragment>
                     )
                     : (
-                        <Button onClick={() => handleClose(false)}
+                        <Button onClick={handleClose}
                                 variant="outlined"
                                 color="secondary"
                         >

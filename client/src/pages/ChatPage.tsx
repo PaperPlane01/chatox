@@ -6,8 +6,7 @@ import {
     ChatInfoDialog,
     ChatsOfCurrentUserListWrapper,
     ConfirmChatDeletionDialog,
-    SpecifyChatDeletionReasonDialog,
-    UpdateChatDialog
+    SpecifyChatDeletionReasonDialog
 } from "../Chat";
 import {UpdateChatParticipantDialog} from "../ChatParticipant";
 import {ChatAppBar} from "../ChatAppBar";
@@ -19,17 +18,10 @@ import {
     ScheduleMessageDialog,
     UnpinMessageSnackbarManager
 } from "../Message";
-import {
-    BlockUserInChatByIdOrSlugDialog,
-    ChatBlockingInfoDialog,
-    ChatBlockingsDialog,
-    CreateChatBlockingDialog,
-    UpdateChatBlockingDialog
-} from "../ChatBlocking";
+import {BlockUserInChatByIdOrSlugDialog} from "../ChatBlocking";
 import {BanUserGloballyDialog} from "../GlobalBan";
 import {ReportChatDialog, ReportMessageDialog} from "../Report";
 import {StickerPackDialog} from "../Sticker";
-import {ChatRoleInfoDialog, ChatRolesDialog, CreateChatRoleDialog} from "../ChatRole";
 import {useStore} from "../store";
 import {ChatType} from "../api/types/response";
 
@@ -68,17 +60,10 @@ export const ChatPage: FunctionComponent = observer(() => {
                         </Grid>
                     </Grid>
                 </Grid>
-                <CreateChatBlockingDialog/>
-                <ChatBlockingsDialog/>
-                <ChatBlockingInfoDialog/>
-                <UpdateChatBlockingDialog/>
                 <ChatInfoDialog/>
                 <BlockUserInChatByIdOrSlugDialog/>
-                <UpdateChatDialog/>
                 <MessageDialog/>
                 <AttachedFilesDialog/>
-                <ConfirmChatDeletionDialog/>
-                <SpecifyChatDeletionReasonDialog/>
                 <BanUserGloballyDialog/>
                 <UpdateChatParticipantDialog/>
                 <PinMessageSnackbarManager/>
@@ -87,9 +72,8 @@ export const ChatPage: FunctionComponent = observer(() => {
                 <ReportMessageDialog/>
                 <ReportChatDialog/>
                 <StickerPackDialog/>
-                <ChatRolesDialog/>
-                <ChatRoleInfoDialog/>
-                <CreateChatRoleDialog/>
+                <ConfirmChatDeletionDialog/>
+                <SpecifyChatDeletionReasonDialog/>
             </Grid>
         </Fragment>
     );

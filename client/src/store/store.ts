@@ -162,6 +162,9 @@ import {
     UserInteractionsCountStore,
     UserInteractionsHistoryStore
 } from "../UserInteraction";
+import {ChatManagementTabStore} from "../ChatManagement";
+
+const snackbarService = new SnackbarService();
 
 const rawEntities = new RawEntitiesStore();
 const authorization = new AuthorizationStore();
@@ -213,7 +216,7 @@ const chatInfoDialog = new ChatInfoDialogStore();
 const blockUserInChatByIdOrSlug = new BlockUserInChatByIdOrSlugStore(entities, createChatBlocking);
 const onlineChatParticipants = new OnlineChatParticipantsStore(entities, chat);
 const chatAvatarUpload = new UploadImageStore(entities);
-const chatUpdate = new UpdateChatStore(chatAvatarUpload, chat, entities);
+const chatUpdate = new UpdateChatStore(chatAvatarUpload, chat, entities, language, snackbarService);
 const messageDialog = new MessageDialogStore(chat, entities);
 const userAvatarUpload = new UploadImageStore(entities);
 const editProfile = new EditProfileStore(authorization, userAvatarUpload, entities);
@@ -334,9 +337,8 @@ const rolesOfChats = new RolesOfChatStore(chat, entities);
 const chatFeaturesForm = ChatFeaturesFormStore.createInstance(entities);
 const updateChatParticipant = new UpdateChatParticipantStore(entities, authorization, userChatRoles);
 const chatRoleInfo = new ChatRoleInfoDialogStore();
-const snackbarService = new SnackbarService();
 const editChatRole = new EditChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chatRoleInfo);
-const createChatRole = new CreateChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chat, rolesOfChats);
+const createChatRole = new CreateChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chat);
 const chatParticipantsSearch = new ChatParticipantsSearchStore(entities, chat);
 const updateEmailDialog = new UpdateEmailDialogStore();
 const emailChangeConfirmationCode = new SendEmailChangeConfirmationCodeStore(updateEmailDialog, authorization, language);
@@ -432,6 +434,11 @@ const deleteUserPhoto = new DeleteUserProfilePhotoStore(
     authorization,
     language,
     snackbarService
+);
+const chatManagement = new ChatManagementTabStore(
+    chatParticipants,
+    rolesOfChats,
+    chatBlockingsOfChat
 );
 
 export const store: IAppState = {
@@ -574,5 +581,6 @@ export const store: IAppState = {
     setPhotoAsAvatar,
     deleteUserPhoto,
     typingUsers,
-    messagesForwarding
+    messagesForwarding,
+    chatManagement
 };

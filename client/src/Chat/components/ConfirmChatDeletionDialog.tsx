@@ -30,7 +30,7 @@ const chatDeletionWarningMap: ChatDeletionWarningMap = {
     ),
     ru: (
         <Typography>
-            Удаление чата — это одностороняя операция. <b>Оно не может быть отменено.</b>
+            Удаление чата — это необратимое действие. <b>Оно не может быть отменено.</b>
         </Typography>
     )
 };
