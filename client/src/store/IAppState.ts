@@ -19,7 +19,8 @@ import {
     CreateChatStore,
     DeleteChatStore,
     LeaveChatStore,
-    PopularChatsStore, TypingUsersStore,
+    PopularChatsStore,
+    TypingUsersStore,
     UpdateChatStore
 } from "../Chat";
 import {
@@ -53,7 +54,8 @@ import {
     DeleteMessageStore,
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
-    EmojiPickerTabsStore, ForwardMessagesStore,
+    EmojiPickerTabsStore,
+    ForwardMessagesStore,
     MarkMessageReadStore,
     MessageDialogStore,
     MessagesListScrollPositionsStore,
@@ -149,6 +151,7 @@ import {
     UserInteractionsCountStore,
     UserInteractionsHistoryStore
 } from "../UserInteraction";
+import {ChatManagementTabStore} from "../ChatManagement";
 
 export interface IAppState {
     language: LocaleStore,
@@ -290,5 +293,6 @@ export interface IAppState {
     setPhotoAsAvatar: SetPhotoAsAvatarStore,
     deleteUserPhoto: DeleteUserProfilePhotoStore,
     typingUsers: TypingUsersStore,
-    messagesForwarding: ForwardMessagesStore
+    messagesForwarding: ForwardMessagesStore,
+    chatManagement: ChatManagementTabStore
 }

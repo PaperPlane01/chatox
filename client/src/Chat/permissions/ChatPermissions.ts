@@ -4,7 +4,8 @@ import {ChatOfCurrentUserEntity} from "../types";
 import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
 import {UserChatRolesStore} from "../../ChatRole";
-import {CurrentUser, UserRole} from "../../api/types/response";
+import {ChatFeatures, CurrentUser, UserRole} from "../../api/types/response";
+import {isDefined} from "../../utils/object-utils";
 
 export class ChatPermissions {
     get currentUser(): CurrentUser | undefined {
@@ -26,15 +27,7 @@ export class ChatPermissions {
     }
 
     canUpdateChat = computedFn((chatId: string): boolean => {
-        if (!this.currentUser) {
-            return false;
-        }
-
-        if (this.authorization.isCurrentUserBannedGlobally()) {
-            return false;
-        }
-
-        if (!this.entities.chatParticipations.existsByUserAndChat({userId: this.currentUser.id, chatId})) {
+        if (!this.checkRoleExistenceAndGlobalBanAbsence(chatId, this.currentUser)) {
             return false;
         }
 
@@ -45,6 +38,38 @@ export class ChatPermissions {
 
         return chatRole.features.changeChatSettings.enabled;
     });
+
+    hasAccessToChatManagementPage = computedFn((chatId: string): boolean => {
+        if (!this.checkRoleExistenceAndGlobalBanAbsence(chatId, this.currentUser)) {
+            return false;
+        }
+
+        const chatRole = this.userChatRoles.getRoleOfUserInChat({
+            userId: this.currentUser.id,
+            chatId
+        })!;
+
+        const features: Array<keyof ChatFeatures> = [
+            "blockUsers",
+            "changeChatSettings",
+            "modifyChatRoles",
+            "deleteChat"
+        ];
+
+        return isDefined(features.find(feature => chatRole.features[feature].enabled));
+    });
+
+    private checkRoleExistenceAndGlobalBanAbsence = computedFn((chatId: string, user?: CurrentUser): user is CurrentUser => {
+        if (!user) {
+            return false;
+        }
+
+        if (this.authorization.isCurrentUserBannedGlobally()) {
+            return false;
+        }
+
+        return this.entities.chatParticipations.existsByUserAndChat({userId: user.id, chatId});
+    })
 
     canDeleteChat = computedFn((chat: ChatOfCurrentUserEntity): boolean => {
         if (!this.currentUser) {

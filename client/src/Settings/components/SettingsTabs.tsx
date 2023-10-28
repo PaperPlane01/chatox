@@ -1,7 +1,6 @@
 import React, {ChangeEvent, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ListItemIcon, ListItemText, MenuItem, Tab, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {ListItemIcon, ListItemText, MenuItem, Tab, Typography} from "@mui/material";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
 import {Block, ChatBubble, Image, Language, Palette, Person, Security} from "@mui/icons-material";
 import {SecurityTabWrapper} from "./SecurityTabWrapper";
@@ -15,26 +14,9 @@ import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {InstalledStickerPacksList} from "../../Sticker";
 import {BlacklistedUsersList} from "../../Blacklist";
+import {createTabStyles} from "../../style";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-    undecoratedLink: {
-        textDecoration: "none",
-        color: "inherit"
-    },
-    tabsContainer: {
-        display: "flex"
-    },
-    tabs: {
-        borderRight: `1px solid ${theme.palette.divider}`,
-    },
-    fullWidth: {
-        width: "80%"
-    },
-    flexContainer: {
-        display: "flex",
-        alignItems: "flex-start"
-    }
-}));
+const useStyles = createTabStyles();
 
 export const SettingsTabs: FunctionComponent = observer(() => {
     const {
@@ -56,7 +38,7 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                 <TabList orientation="vertical"
                          variant="fullWidth"
                          className={classes.tabs}
-                         onChange={(event: ChangeEvent<{}>, newValue: string) => goTo(newValue)}
+                         onChange={(_: ChangeEvent<{}>, newValue: string) => goTo(newValue)}
                          classes={{
                              flexContainer: classes.flexContainer
                          }}

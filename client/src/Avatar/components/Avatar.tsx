@@ -9,8 +9,8 @@ export interface AvatarProps {
     avatarId?: string
     avatarLetter: string,
     avatarColor: string,
-    width?: number,
-    height?: number,
+    width?: number | string,
+    height?: number | string,
     pending?: boolean,
     className?: string,
     shape?: "circular" | "rectangular" | "square" | "rounded",

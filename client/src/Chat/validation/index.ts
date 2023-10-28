@@ -65,22 +65,6 @@ export const validateChatSlug = (slug?: string): keyof Labels | undefined => {
     return undefined;
 };
 
-export const validateChatDeletionComment = (comment: string | undefined, chatDeletionReason: ChatDeletionReason): keyof Labels | undefined => {
-    if (isStringEmpty(comment)) {
-        if (chatDeletionReason === ChatDeletionReason.OTHER) {
-            return "chat.delete.comment-required-if-reason-is-other";
-        }
-
-        return undefined;
-    }
-
-    if (comment!.length > 1000) {
-        return "chat.delete.comment-is-too-long";
-    }
-
-    return undefined;
-};
-
 export const validateChatSlowModeInterval = (interval: string | undefined, acceptEmpty: boolean): keyof Labels | undefined => {
     if (isStringEmpty(interval)) {
        if (acceptEmpty) {
@@ -106,6 +90,22 @@ export const validateChatSlowModeInterval = (interval: string | undefined, accep
 export const validateChatSlowModeTimeUnit = (timeUnit: TimeUnit | undefined, acceptEmpty: boolean): keyof Labels | undefined => {
     if (!isDefined(timeUnit) && !acceptEmpty) {
         return "common.validation.error.required";
+    }
+
+    return undefined;
+};
+
+export const validateChatDeletionComment = (comment: string | undefined, chatDeletionReason: ChatDeletionReason): keyof Labels | undefined => {
+    if (isStringEmpty(comment)) {
+        if (chatDeletionReason === ChatDeletionReason.OTHER) {
+            return "chat.delete.comment-required-if-reason-is-other";
+        }
+
+        return undefined;
+    }
+
+    if (comment!.length > 1000) {
+        return "chat.delete.comment-is-too-long";
     }
 
     return undefined;
