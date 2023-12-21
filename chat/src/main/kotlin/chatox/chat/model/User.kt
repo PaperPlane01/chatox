@@ -1,5 +1,6 @@
 package chatox.chat.model
 
+import chatox.platform.security.VerificationLevel
 import org.springframework.data.annotation.Id
 import org.springframework.data.elasticsearch.annotations.DateFormat
 import org.springframework.data.elasticsearch.annotations.Field
@@ -32,7 +33,8 @@ data class User(
         val avatar: Upload<ImageUploadMetadata>? = null,
         val anonymoys: Boolean = false,
         val accountRegistrationType: UserAccountRegistrationType = UserAccountRegistrationType.USERNAME_AND_PASSWORD,
-        val externalAvatarUri: String? = null
+        val externalAvatarUri: String? = null,
+        val verificationLevel: VerificationLevel = VerificationLevel.REGISTERED
 ) {
         val displayedName: String
                 get() = if (lastName == null) firstName else "$firstName $lastName"

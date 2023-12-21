@@ -5,8 +5,10 @@ import chatox.chat.model.ChatInterface
 import chatox.chat.model.ChatType
 import chatox.chat.model.DialogDisplay
 import chatox.chat.model.ImageUploadMetadata
+import chatox.chat.model.JoinChatAllowance
 import chatox.chat.model.SlowMode
 import chatox.chat.model.Upload
+import chatox.platform.security.VerificationLevel
 import org.springframework.data.annotation.Id
 import org.springframework.data.elasticsearch.annotations.DateFormat
 import org.springframework.data.elasticsearch.annotations.Document
@@ -49,5 +51,5 @@ data class ChatElasticsearch(
         override val dialogDisplay: List<DialogDisplay>,
 
         @field:Field(type = FieldType.Nested)
-        override val slowMode: SlowMode? = null
+        override val slowMode: SlowMode? = null, override val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf()
 ) : ChatInterface

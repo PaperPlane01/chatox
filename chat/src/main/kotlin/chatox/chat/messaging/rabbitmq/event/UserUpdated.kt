@@ -16,5 +16,6 @@ data class UserUpdated(
         val avatarUri: String?,
         val dateOfBirth: ZonedDateTime?,
         val avatar: UploadResponse<ImageUploadMetadata>?,
+        val anonymous: Boolean,
         val email: String?
 )

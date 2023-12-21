@@ -2,6 +2,7 @@ package chatox.chat.config
 
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatBlocking
+import chatox.chat.model.ChatInvite
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatUploadAttachment
@@ -9,6 +10,7 @@ import chatox.chat.model.Message
 import chatox.chat.model.User
 import chatox.chat.model.UserBlacklistItem
 import chatox.chat.repository.mongodb.ChatBlockingMongoRepository
+import chatox.chat.repository.mongodb.ChatInviteRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.ChatRoleRepository
@@ -80,6 +82,12 @@ class CacheWrappersConfig {
     @Autowired
     private lateinit var chatUploadAttachmentCacheService: RedisReactiveCacheService<ChatUploadAttachment<*>>
 
+    @Autowired
+    private lateinit var chatInviteRepository: ChatInviteRepository
+
+    @Autowired
+    private lateinit var chatInviteCacheService: RedisReactiveCacheService<ChatInvite>
+
     @Bean
     @Qualifier(CHAT_BY_ID_CACHE_WRAPPER)
     fun chatByIdCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(chatByIdCacheService, chatRepository)
@@ -126,6 +134,12 @@ class CacheWrappersConfig {
             chatUploadAttachmentCacheService,
             chatUploadAttachmentRepository
     ) { chatUploadAttachment -> chatUploadAttachment.id }
+
+    @Bean
+    fun chatInviteCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(
+            chatInviteCacheService,
+            chatInviteRepository
+    ) { chatInvite -> chatInvite.id }
 
     companion object {
         const val CHAT_ROLE_CACHE_WRAPPER = "chatRoleCacheWrapper"

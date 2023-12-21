@@ -1,6 +1,5 @@
 package chatox.chat.messaging.rabbitmq.event.listener
 
-import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.config.RedisConfig
 import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.messaging.rabbitmq.event.UserCreated
@@ -20,6 +19,7 @@ import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.repository.mongodb.UserRepository
 import chatox.chat.support.UserDisplayedNameHelper
 import chatox.platform.cache.ReactiveCacheService
+import chatox.platform.security.VerificationLevel
 import com.rabbitmq.client.Channel
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -68,7 +68,8 @@ class UserEventsListener(private val userRepository: UserRepository,
                     email = userCreated.email,
                     anonymoys = userCreated.anonymous,
                     accountRegistrationType = userCreated.accountRegistrationType,
-                    externalAvatarUri = userCreated.externalAvatarUri
+                    externalAvatarUri = userCreated.externalAvatarUri,
+                    verificationLevel = VerificationLevel.getVerificationLevel(userCreated.anonymous, userCreated.email)
             )).awaitFirst()
         }
                 .doOnSuccess { channel.basicAck(tag, false) }
@@ -82,7 +83,6 @@ class UserEventsListener(private val userRepository: UserRepository,
                       @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
         mono {
             log.info("User with id ${userUpdated.id} has been updated")
-            log.debug("Updated user is $userUpdated")
             var user = userRepository.findById(userUpdated.id).awaitFirstOrNull()
 
             if (user != null) {
@@ -105,7 +105,8 @@ class UserEventsListener(private val userRepository: UserRepository,
                         dateOfBirth = userUpdated.dateOfBirth,
                         createdAt = userUpdated.createdAt,
                         avatar = avatar,
-                        email = userUpdated.email
+                        email = userUpdated.email,
+                        verificationLevel = VerificationLevel.getVerificationLevel(user.anonymoys, user.email)
                 ))
                         .awaitFirst()
                 chatParticipationRepository
@@ -158,7 +159,6 @@ class UserEventsListener(private val userRepository: UserRepository,
                          @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
         mono {
             log.info("userWentOnline event received")
-            log.debug("$userWentOnline")
             var user = userRepository.findById(userWentOnline.userId).awaitFirstOrNull()
 
             if (user != null) {
