@@ -54,3 +54,8 @@ export * from "./UserInteractionCost";
 export * from "./UserInteraction";
 export * from "./UserProfilePhoto";
 export * from "./SlowMode";
+export * from "./ChatInvite";
+export * from "./ChatInviteMinified";
+export * from "./UserVerificationLevel";
+export * from "./JoinChatAllowance";
+export * from "./JoinAllowanceMap";

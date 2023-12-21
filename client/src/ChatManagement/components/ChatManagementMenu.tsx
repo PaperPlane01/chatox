@@ -21,18 +21,21 @@ const dialogHeaders: DialogHeadersMap = {
         return <TranslatedText label="chat.blocking.list" bindings={bindings}/>;
     }, 
     DELETION(bindings?: object): ReactNode {
-        return <TranslatedText label="chat.delete"/>;
+        return <TranslatedText label="chat.delete" bindings={bindings}/>;
     },
     INFO(bindings?: object): ReactNode {
         return <TranslatedText label="chat.update" bindings={bindings}/>;
     }, 
-    PARTICIPANTS(bindings?: object): ReactNode {
+    PARTICIPANTS(): ReactNode {
         return null;
+    },
+    INVITES(bindings?: object): ReactNode {
+        return <TranslatedText label="chat.invite.list" bindings={bindings}/>
     },
     ROLES(bindings?: object): ReactNode {
         return <TranslatedText label="chat-role.list" bindings={bindings}/>
     },
-    SECURITY(bindings?: object): ReactNode {
+    SECURITY(): ReactNode {
         return null;
     },
     SLOW_MODE(bindings?: object): ReactNode {
@@ -61,6 +64,7 @@ export const ChatManagementMenu: FunctionComponent = observer(() => {
         canBlockUsersInChat,
         canCreateChatRole,
         canDeleteChat,
+        canManageInvites,
         hasAccessToChatManagementPage
     } = useChatManagementPermissions();
     const tabAccessMap = useTabAccessMap({
@@ -68,6 +72,7 @@ export const ChatManagementMenu: FunctionComponent = observer(() => {
         canBlockUsersInChat,
         canCreateChatRole,
         canDeleteChat,
+        canManageInvites,
         hasAccessToChatManagementPage
     });
 

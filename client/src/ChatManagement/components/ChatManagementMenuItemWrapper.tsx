@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
-import {Badge, Block, Delete, Info, LockClock, Security} from "@mui/icons-material";
+import {Badge, Block, Delete, Info, InsertLink, LockClock, Security} from "@mui/icons-material";
 import {ChatManagementMenuItemRenderers, ChatManagementTab} from "../types";
 import {TranslatedText} from "../../localization";
 
@@ -53,6 +53,16 @@ const chatManagementMenuItemRenderers: ChatManagementMenuItemRenderers = {
             </ListItemIcon>
             <ListItemText>
                 <TranslatedText label="chat.management.tab.ROLES"/>
+            </ListItemText>
+        </MenuItem>
+    ),
+    INVITES: (
+        <MenuItem>
+            <ListItemIcon>
+                <InsertLink/>
+            </ListItemIcon>,
+            <ListItemText>
+                <TranslatedText label="chat.invite.list"/>
             </ListItemText>
         </MenuItem>
     ),

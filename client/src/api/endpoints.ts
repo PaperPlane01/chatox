@@ -62,3 +62,7 @@ export const COSTS = "costs";
 export const PHOTOS = "photos";
 export const TYPING = "typing";
 export const FORWARD = "forward";
+export const INVITES = "invites";
+export const PENDING = "pending";
+export const APPROVE = "approve";
+export const REJECT = "reject";

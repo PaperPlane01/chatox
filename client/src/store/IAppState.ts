@@ -141,7 +141,6 @@ import {
     RewardDetailsDialogStore,
     RewardDetailsStore,
     RewardsListStore,
-    SelectUserForRewardStore,
     UpdateRewardStore
 } from "../Reward";
 import {BalanceStore} from "../Balance";
@@ -152,6 +151,8 @@ import {
     UserInteractionsHistoryStore
 } from "../UserInteraction";
 import {ChatManagementTabStore} from "../ChatManagement";
+import {SelectUserStore} from "../UserSelect";
+import {ChatInviteDialogStore, ChatInviteListStore, CreateChatInviteStore, UpdateChatInviteStore} from "../ChatInvite";
 
 export interface IAppState {
     language: LocaleStore,
@@ -273,9 +274,9 @@ export interface IAppState {
     emailUpdate: UpdateEmailStore,
     theme: ThemeStore,
     rewardCreation: CreateRewardStore,
-    rewardCreationUserSelect: SelectUserForRewardStore,
+    rewardCreationUserSelect: SelectUserStore,
     rewardUpdate: UpdateRewardStore,
-    rewardUpdateUserSelect: SelectUserForRewardStore,
+    rewardUpdateUserSelect: SelectUserStore,
     rewardsList: RewardsListStore,
     rewardDetails: RewardDetailsStore,
     rewardDetailsDialog: RewardDetailsDialogStore,
@@ -294,5 +295,11 @@ export interface IAppState {
     deleteUserPhoto: DeleteUserProfilePhotoStore,
     typingUsers: TypingUsersStore,
     messagesForwarding: ForwardMessagesStore,
-    chatManagement: ChatManagementTabStore
+    chatManagement: ChatManagementTabStore,
+    chatInviteCreation: CreateChatInviteStore,
+    chatInviteCreationUserSelect: SelectUserStore,
+    chatInviteUpdate: UpdateChatInviteStore,
+    chatInviteUpdateUserSelect: SelectUserStore,
+    chatInviteList: ChatInviteListStore,
+    chatInviteDialog: ChatInviteDialogStore
 }

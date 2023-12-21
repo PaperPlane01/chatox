@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from "@mui/material";
 import {RewardForm} from "./RewardForm";
-import {RewardedUserSelect} from "./RewardedUserSelect";
+import {UserSelect} from "../../UserSelect";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
@@ -57,14 +57,14 @@ export const CreateRewardDialog: FunctionComponent = observer(() => {
                             formErrors={formErrors}
                             setFormValue={setFormValue}
                             rewardedUserSelect={(
-                                <RewardedUserSelect formValues={userSelectFormValues}
-                                                    formErrors={userSelectFormErrors}
-                                                    pending={userPending}
-                                                    error={userError}
-                                                    selectedUser={selectedUser}
-                                                    setFormValue={setUserFormValue}
-                                                    submitForm={fetchUser}
-                                                    onClear={() => setSelectedUser(undefined)}
+                                <UserSelect formValues={userSelectFormValues}
+                                            formErrors={userSelectFormErrors}
+                                            pending={userPending}
+                                            error={userError}
+                                            selectedUser={selectedUser}
+                                            setFormValue={setUserFormValue}
+                                            submitForm={fetchUser}
+                                            onClear={() => setSelectedUser(undefined)}
                                 />
                             )}
                 />

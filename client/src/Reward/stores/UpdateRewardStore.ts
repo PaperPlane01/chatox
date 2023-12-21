@@ -1,6 +1,5 @@
 import {action, computed, makeObservable, observable, reaction} from "mobx";
 import {AxiosPromise} from "axios";
-import {SelectUserForRewardStore} from "./SelectUserForRewardStore";
 import {AbstractRewardFormStore} from "./AbstractRewardFormStore";
 import {Labels, LocaleStore} from "../../localization";
 import {EntitiesStore} from "../../entities-store";
@@ -9,6 +8,7 @@ import {isDefined} from "../../utils/object-utils";
 import {RewardApi} from "../../api";
 import {RewardRequest} from "../../api/types/request";
 import {Reward} from "../../api/types/response";
+import {SelectUserStore} from "../../UserSelect";
 
 export class UpdateRewardStore extends AbstractRewardFormStore {
     rewardId?: string = undefined;
@@ -18,7 +18,7 @@ export class UpdateRewardStore extends AbstractRewardFormStore {
     }
 
     constructor(entities: EntitiesStore,
-                selectedUser: SelectUserForRewardStore,
+                selectedUser: SelectUserStore,
                 localeStore: LocaleStore,
                 snackbarService: SnackbarService) {
         super(entities,  selectedUser, localeStore, snackbarService);

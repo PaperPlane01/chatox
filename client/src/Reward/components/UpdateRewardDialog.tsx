@@ -1,12 +1,12 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress, Typography} from "@mui/material";
+import {Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from "@mui/material";
 import {RewardForm} from "./RewardForm";
-import {RewardedUserSelect} from "./RewardedUserSelect";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
+import {UserSelect} from "../../UserSelect";
 
 const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     if (error.status === API_UNREACHABLE_STATUS) {
@@ -57,14 +57,14 @@ export const UpdateRewardDialog: FunctionComponent = observer(() => {
                             formErrors={formErrors}
                             setFormValue={setFormValue}
                             rewardedUserSelect={(
-                                <RewardedUserSelect formValues={userSelectFormValues}
-                                                    formErrors={userSelectFormErrors}
-                                                    pending={userPending}
-                                                    error={userError}
-                                                    selectedUser={selectedUser}
-                                                    setFormValue={setUserFormValue}
-                                                    submitForm={fetchUser}
-                                                    onClear={() => setSelectedUser(undefined)}
+                                <UserSelect formValues={userSelectFormValues}
+                                            formErrors={userSelectFormErrors}
+                                            pending={userPending}
+                                            error={userError}
+                                            selectedUser={selectedUser}
+                                            setFormValue={setUserFormValue}
+                                            submitForm={fetchUser}
+                                            onClear={() => setSelectedUser(undefined)}
                                 />
                             )}
                 />

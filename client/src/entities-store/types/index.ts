@@ -11,6 +11,7 @@ import {ChatRoleEntity} from "../../ChatRole/types";
 import {RequiredField} from "../../utils/types";
 import {RewardEntity, UserRewardEntity} from "../../Reward/types";
 import {UserInteractionEntity} from "../../UserInteraction/types";
+import {ChatInviteEntity} from "../../ChatInvite/types";
 
 export type Entities = "messages"
     | "chats"
@@ -33,6 +34,7 @@ export type Entities = "messages"
     | "userRewards"
     | "userInteractions"
     | "userProfilePhotos"
+    | "chatInvites";
 
 interface EntityMap<T> {
     [key: string]: T
@@ -61,6 +63,7 @@ export type GetEntityType<Key extends Entities>
     : Key extends "userRewards" ? UserRewardEntity
     : Key extends "userInteractions" ? UserInteractionEntity
     : Key extends "userProfilePhotos" ? UserProfilePhotoEntity
+    : Key extends "chatInvites" ? ChatInviteEntity
     : never;
 //@formatter:on
 

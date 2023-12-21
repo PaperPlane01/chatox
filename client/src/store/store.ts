@@ -152,7 +152,6 @@ import {
     RewardDetailsDialogStore,
     RewardDetailsStore,
     RewardsListStore,
-    SelectUserForRewardStore,
     UpdateRewardStore
 } from "../Reward";
 import {BalanceStore} from "../Balance";
@@ -163,6 +162,8 @@ import {
     UserInteractionsHistoryStore
 } from "../UserInteraction";
 import {ChatManagementTabStore} from "../ChatManagement";
+import {SelectUserStore} from "../UserSelect";
+import {ChatInviteDialogStore, ChatInviteListStore, CreateChatInviteStore, UpdateChatInviteStore} from "../ChatInvite";
 
 const snackbarService = new SnackbarService();
 
@@ -360,14 +361,14 @@ const emailUpdate = new UpdateEmailStore(
     snackbarService
 );
 const theme = new ThemeStore();
-const rewardCreationUserSelect = new SelectUserForRewardStore(entities);
+const rewardCreationUserSelect = new SelectUserStore(entities);
 const rewardCreation = new CreateRewardStore(
     entities,
     rewardCreationUserSelect,
     language,
     snackbarService
 );
-const rewardUpdateUserSelect = new SelectUserForRewardStore(entities);
+const rewardUpdateUserSelect = new SelectUserStore(entities);
 const rewardUpdate = new UpdateRewardStore(
     entities,
     rewardUpdateUserSelect,
@@ -435,10 +436,29 @@ const deleteUserPhoto = new DeleteUserProfilePhotoStore(
     language,
     snackbarService
 );
+const chatInviteCreationUserSelect = new SelectUserStore(entities);
+const chatInviteCreation = new CreateChatInviteStore(
+    chat,
+    entities,
+    chatInviteCreationUserSelect,
+    language,
+    snackbarService
+);
+const chatInviteUpdateUserSelect = new SelectUserStore(entities);
+const chatInviteUpdate = new UpdateChatInviteStore(
+    chat,
+    entities,
+    chatInviteUpdateUserSelect,
+    language,
+    snackbarService
+);
+const chatInviteList = new ChatInviteListStore(chat, entities);
+const chatInviteDialog = new ChatInviteDialogStore(chat, entities);
 const chatManagement = new ChatManagementTabStore(
     chatParticipants,
     rolesOfChats,
-    chatBlockingsOfChat
+    chatBlockingsOfChat,
+    chatInviteList
 );
 
 export const store: IAppState = {
@@ -582,5 +602,11 @@ export const store: IAppState = {
     deleteUserPhoto,
     typingUsers,
     messagesForwarding,
-    chatManagement
+    chatManagement,
+    chatInviteCreationUserSelect,
+    chatInviteCreation,
+    chatInviteUpdateUserSelect,
+    chatInviteUpdate,
+    chatInviteList,
+    chatInviteDialog
 };
