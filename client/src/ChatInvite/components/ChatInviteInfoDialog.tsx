@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {CircularProgress, Dialog, DialogContent, DialogTitle, Typography} from "@mui/material";
+import {CircularProgress, Dialog, DialogContent, DialogTitle, Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Remove} from "@mui/icons-material";
 import {format} from "date-fns";
@@ -13,8 +13,14 @@ import {UserLink} from "../../UserLink";
 import {isDefined} from "../../utils/object-utils";
 import {commonStyles} from "../../style";
 
-const useStyles = makeStyles(() => createStyles({
-    centered: commonStyles.centered
+const useStyles = makeStyles((theme: Theme) => createStyles({
+    centered: commonStyles.centered,
+    withPaddingBottom: {
+        paddingBottom: theme.spacing(2)
+    },
+    withPaddingTop: {
+        paddingTop: theme.spacing(2)
+    }
 }));
 
 export const ChatInviteInfoDialog: FunctionComponent = observer(() => {
@@ -35,7 +41,7 @@ export const ChatInviteInfoDialog: FunctionComponent = observer(() => {
             findById: findUser
         }
     } = useEntities();
-    const {l} = useLocalization();
+    const {l, dateFnsLocale} = useLocalization();
     const {fullScreen} = useMobileDialog();
     const classes = useStyles();
 
@@ -63,36 +69,36 @@ export const ChatInviteInfoDialog: FunctionComponent = observer(() => {
                         {l("chat.invite.error.refresh")}
                     </Typography>
                 )}
-                <Typography variant="h6">
-                    {l("chat.invite.created-at")}
+                <Typography>
+                    <strong>{l("chat.invite.created-at")}</strong>
                 </Typography>
                 <Typography>
-                    {format(chatInvite.createdAt, "dd MMMM yyyy HH:mm")}
-                </Typography>
-                <Typography variant="h6">
-                    {l("chat.invite.created-by")}
+                    {format(chatInvite.createdAt, "dd MMMM yyyy HH:mm", {locale: dateFnsLocale})}
                 </Typography>
                 <Typography>
+                    <strong>{l("chat.invite.created-by")}</strong>
+                </Typography>
+                <Typography className={classes.withPaddingBottom}>
                     <UserLink user={createdBy} displayAvatar/>
                 </Typography>
                 <JoinChatAllowanceInfo allowances={chatInvite.joinAllowanceSettings}
                                        wrapWithBorder
                                        label="chat.invite.usage-allowance"
                 />
-                <Typography variant="h6">
-                    {l("chat.invite.use-times")}
+                <Typography className={classes.withPaddingTop}>
+                    <strong>{l("chat.invite.use-times")}</strong>
                 </Typography>
                 <Typography>
                     {chatInvite.useTimes}
                 </Typography>
-                <Typography variant="h6">
-                    {l("chat.invite.max-use-times")}
+                <Typography>
+                    <strong>{l("chat.invite.max-use-times")}</strong>
                 </Typography>
                 <Typography>
                     {isDefined(chatInvite.maxUseTimes) ? chatInvite.maxUseTimes : <Remove/>}
                 </Typography>
-                <Typography variant="h6">
-                    {l("chat.invite.user")}
+                <Typography>
+                    <strong>{l("chat.invite.user")}</strong>
                 </Typography>
                 <Typography>
                     {user
@@ -100,17 +106,17 @@ export const ChatInviteInfoDialog: FunctionComponent = observer(() => {
                         : <Remove/>
                     }
                 </Typography>
-                <Typography variant="h6">
-                    {l("chat.invite.last-used-at")}
+                <Typography>
+                    <strong>{l("chat.invite.last-used-at")}</strong>
                 </Typography>
                 <Typography>
                     {isDefined(chatInvite.lastUsedAt)
-                        ? format(chatInvite.lastUsedAt, "dd MMMM yyyy HH:mm")
+                        ? format(chatInvite.lastUsedAt, "dd MMMM yyyy HH:mm", {locale: dateFnsLocale})
                         : <Remove/>
                     }
                 </Typography>
-                <Typography variant="h6">
-                    {l("chat.invite.last-used-by")}
+                <Typography>
+                    <strong>{l("chat.invite.last-used-by")}</strong>
                 </Typography>
                 <Typography>
                     {lastUsedBy
@@ -118,17 +124,17 @@ export const ChatInviteInfoDialog: FunctionComponent = observer(() => {
                         : <Remove/>
                     }
                 </Typography>
-                <Typography variant="h6">
-                    {l("chat.invite.updated-at")}
+                <Typography>
+                    <strong>{l("chat.invite.updated-at")}</strong>
                 </Typography>
                 <Typography>
                     {isDefined(chatInvite.updatedAt)
-                        ? format(chatInvite.updatedAt, "dd MMMM yyyy HH:mm")
+                        ? format(chatInvite.updatedAt, "dd MMMM yyyy HH:mm", {locale: dateFnsLocale})
                         : <Remove/>
                     }
                 </Typography>
-                <Typography variant="h6">
-                    {l("chat.invite.updated-by")}
+                <Typography>
+                    <strong>{l("chat.invite.updated-by")}</strong>
                 </Typography>
                 <Typography>
                     {updatedBy
