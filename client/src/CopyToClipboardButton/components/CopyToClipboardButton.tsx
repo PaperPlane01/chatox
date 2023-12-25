@@ -22,12 +22,8 @@ export const CopyToClipboardButton: FunctionComponent<CopyToClipboardButtonProps
 
     const handleClick = (event: MouseEvent<HTMLButtonElement>): void => {
         ensureEventWontPropagate(event);
-
-        copy(content, {
-            onCopy: () => {
-                enqueueSnackbar(l(successLabel));
-            }
-        });
+        copy(content);
+        enqueueSnackbar(l(successLabel));
     };
 
     return (
