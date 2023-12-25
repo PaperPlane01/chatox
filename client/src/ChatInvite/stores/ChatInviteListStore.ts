@@ -1,4 +1,4 @@
-import {makeAutoObservable, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
 import {PaginationState} from "../../utils/types";
 import {ChatStore} from "../../Chat";
@@ -18,10 +18,16 @@ export class ChatInviteListStore {
 
     chatInvitesMap: {[chatId: string]: string[]} = {};
 
+    waitingForChat = false;
+
     error?: ApiError = undefined;
 
     get selectedChatId(): string | undefined {
         return this.chat.selectedChatId;
+    }
+
+    get chatPending(): boolean {
+        return this.chat.pending;
     }
 
     get selectedChatPaginationState(): PaginationState {
@@ -43,6 +49,15 @@ export class ChatInviteListStore {
     constructor(private readonly chat: ChatStore,
                 private readonly entities: EntitiesStore) {
         makeAutoObservable(this);
+
+        reaction(
+            () => this.selectedChatId,
+            chatId => {
+                if (chatId && this.waitingForChat) {
+                    this.fetchChatInvites();
+                }
+            }
+        );
     }
 
     getPaginationState = computedFn((chatId: string): PaginationState => {
@@ -86,10 +101,17 @@ export class ChatInviteListStore {
         this.chatInvitesMap[chatId] = [];
     }
 
+    setWaitingForChat = (waitingForChat: boolean): void => {
+        this.waitingForChat = waitingForChat;
+    }
+
     fetchChatInvites = (): void => {
         if (!this.selectedChatId) {
+            this.setWaitingForChat(this.chatPending);
             return;
         }
+
+        this.setWaitingForChat(false);
 
         const chatId = this.selectedChatId;
         const paginationState = this.getPaginationState(chatId);
