@@ -53,6 +53,8 @@ data class ChatParticipation(
         val userDisplayedName: String?,
         val userSlug: String?,
         val chatDeleted: Boolean = false,
+
+        @Indexed
         val inviteId: String? = null,
         val approvedBy: String? = null
 )
