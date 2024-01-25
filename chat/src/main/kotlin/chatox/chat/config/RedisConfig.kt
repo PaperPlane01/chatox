@@ -2,7 +2,6 @@ package chatox.chat.config
 
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatBlocking
-import chatox.chat.model.ChatInvite
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatUploadAttachment
@@ -114,13 +113,6 @@ class RedisConfig {
     ) { chatUploadAttachment -> chatUploadAttachment.id }
 
     @Bean
-    fun chatInviteCacheService() = RedisReactiveCacheService(
-            chatInviteRedisTemplate(),
-            cacheKeyGenerator(),
-            ChatInvite::class.java
-    ) { chatInvite -> chatInvite.id }
-
-    @Bean
     fun cacheKeyGenerator() = DefaultCacheKeyGenerator(applicationName, CacheKeyGenerator.ClassKeyMode.SIMPLE)
 
     @Bean
@@ -149,9 +141,6 @@ class RedisConfig {
 
     @Bean
     fun chatUploadAttachmentRedisTemplate() = createRedisTemplate(ChatUploadAttachment::class)
-
-    @Bean
-    fun chatInviteRedisTemplate() = createRedisTemplate(ChatInvite::class)
 
     private fun <T: Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
         val stringRedisSerializer = StringRedisSerializer()
