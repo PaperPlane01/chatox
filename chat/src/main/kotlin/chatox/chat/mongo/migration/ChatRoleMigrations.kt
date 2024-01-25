@@ -42,7 +42,7 @@ class ChatRoleMigrations {
             query.addCriteria(Criteria.where("features.changeChatSettings.enabled").`is`(true))
 
             val update = Update()
-            update.set("features.approveJoinChatRequest.enabled", true)
+            update.set("features.approveJoinChatRequests.enabled", true)
 
             mongoTemplate.updateMulti(query, update, ChatRole::class.java).awaitFirst()
 
