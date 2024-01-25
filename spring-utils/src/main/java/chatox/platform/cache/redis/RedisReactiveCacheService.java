@@ -49,8 +49,15 @@ public class RedisReactiveCacheService<T> implements ReactiveCacheService<T, Str
     @Override
     public Mono<Void> delete(String id) {
         return redisTemplate
-                .opsForValue()
                 .delete(generateKey(id))
+                .then(Mono.empty());
+    }
+
+    @Override
+    public Mono<Void> deleteAll() {
+        var allKeysPattern = cacheKeyGenerator.getAllKeysPattern(valueClass);
+        return redisTemplate
+                .delete(allKeysPattern)
                 .then(Mono.empty());
     }
 
