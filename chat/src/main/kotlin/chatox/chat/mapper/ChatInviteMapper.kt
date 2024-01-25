@@ -2,6 +2,7 @@ package chatox.chat.mapper
 
 import chatox.chat.api.response.ChatInviteFullResponse
 import chatox.chat.api.response.ChatInviteResponse
+import chatox.chat.api.response.ChatInviteUsageResponse
 import chatox.chat.api.response.UserResponse
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatInvite
@@ -17,9 +18,11 @@ import reactor.core.publisher.Mono
 class ChatInviteMapper(private val chatMapper: ChatMapper,
                        private val userService: UserService) {
 
-    fun toChatInviteResponse(chatInvite: ChatInvite, chat: Chat): ChatInviteResponse =  ChatInviteResponse(
+    fun toChatInviteResponse(chatInvite: ChatInvite, chat: Chat, usage: ChatInviteUsageResponse): ChatInviteResponse =  ChatInviteResponse(
             id = chatInvite.id,
-            chat = chatMapper.toChatResponse(chat)
+            chat = chatMapper.toChatResponse(chat),
+            joinAllowanceSettings = chatInvite.joinAllowanceSettings,
+            usage = usage
     )
 
     fun mapChatInvites(
@@ -60,7 +63,7 @@ class ChatInviteMapper(private val chatMapper: ChatMapper,
                 maxUseTimes = chatInvite.maxUseTimes,
                 useTimes = chatInvite.useTimes,
                 active = chatInvite.active,
-                joinAllowanceSettings = chatInvite.joinAllowanceSettings
+                joinAllowanceSettings = chatInvite.joinAllowanceSettings,
         )
     }
 }

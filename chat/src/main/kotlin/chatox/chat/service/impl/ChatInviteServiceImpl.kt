@@ -4,6 +4,7 @@ import chatox.chat.api.request.CreateChatInviteRequest
 import chatox.chat.api.request.UpdateChatInviteRequest
 import chatox.chat.api.response.ChatInviteFullResponse
 import chatox.chat.api.response.ChatInviteResponse
+import chatox.chat.api.response.ChatInviteUsageResponse
 import chatox.chat.api.response.UserResponse
 import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.exception.ChatInviteNotFoundException
@@ -12,11 +13,19 @@ import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.ChatInviteMapper
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatInvite
+import chatox.chat.model.ChatParticipation
+import chatox.chat.model.JoinChatAllowance
+import chatox.chat.model.JoinChatRejectionReason
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatInviteRepository
+import chatox.chat.repository.mongodb.ChatParticipationRepository
+import chatox.chat.repository.mongodb.PendingChatParticipationRepository
 import chatox.chat.service.ChatInviteService
+import chatox.chat.util.NTuple3
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.pagination.PaginationRequest
+import chatox.platform.security.VerificationLevel
+import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -31,7 +40,8 @@ import java.time.ZonedDateTime
 @Service
 class ChatInviteServiceImpl(
         private val chatInviteRepository: ChatInviteRepository,
-        private val chatInviteCacheWrapper: ReactiveRepositoryCacheWrapper<ChatInvite, String>,
+        private val chatParticipationRepository: ChatParticipationRepository,
+        private val pendingChatParticipationRepository: PendingChatParticipationRepository,
 
         @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
@@ -45,12 +55,111 @@ class ChatInviteServiceImpl(
                     ?: throw ChatInviteNotFoundException(id)
             val chat = chatCacheWrapper.findById(chatInvite.chatId).awaitFirstOrNull()
                     ?: throw ChatInviteNotFoundException(id)
+            val usage = getChatInviteUsageInfo(chatInvite).awaitFirst()
 
             return@mono chatInviteMapper.toChatInviteResponse(
                     chatInvite = chatInvite,
-                    chat = chat
+                    chat = chat,
+                    usage = usage
             )
         }
+    }
+
+    override fun getChatInviteUsageInfo(chatInvite: ChatInvite): Mono<ChatInviteUsageResponse> {
+        return mono {
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
+
+            if (!checkUserId(chatInvite, currentUser)) {
+                return@mono ChatInviteUsageResponse(
+                        canBeUsed = false,
+                        rejectionReason = JoinChatRejectionReason.WRONG_USER_ID
+                )
+            }
+
+            if (!checkVerificationLevel(chatInvite, currentUser)) {
+                return@mono ChatInviteUsageResponse(
+                        canBeUsed = false,
+                        rejectionReason = JoinChatRejectionReason.INSUFFICIENT_VERIFICATION_LEVEL
+                )
+            }
+
+            if (!checkPendingChatParticipation(chatInvite, currentUser).awaitFirst()) {
+                return@mono ChatInviteUsageResponse(
+                        canBeUsed = false,
+                        rejectionReason = JoinChatRejectionReason.AWAITING_APPROVAL
+                )
+            }
+
+            if (!checkExistingChatParticipation(chatInvite, currentUser).awaitFirst()) {
+                return@mono ChatInviteUsageResponse(
+                        canBeUsed = false,
+                        rejectionReason = JoinChatRejectionReason.ALREADY_CHAT_PARTICIPANT
+                )
+            }
+
+            return@mono ChatInviteUsageResponse(canBeUsed = true)
+        }
+    }
+
+    override fun updateChatInviteFromApprovedChatParticipations(chatParticipations: List<ChatParticipation>): Mono<Unit> {
+        return mono {
+            val updateData = mutableMapOf<String, NTuple3<Int, ZonedDateTime, String>>()
+
+            chatParticipations.forEach { chatParticipation ->
+                if (chatParticipation.inviteId != null) {
+                    val inviteData = updateData[chatParticipation.inviteId] ?: NTuple3(
+                            0,
+                            ZonedDateTime.now(),
+                            ""
+                    )
+                    updateData[chatParticipation.inviteId] = inviteData.copy(
+                            inviteData.t1 + 1,
+                            chatParticipation.createdAt,
+                            chatParticipation.user.id
+                    )
+                }
+            }
+
+            for (inviteData in updateData) {
+                val inviteId = inviteData.key
+                val (useTimesIncrease, lastUsedAt, lastUsedBy) = inviteData.value
+
+                chatInviteRepository.updateChatInviteUsage(
+                        inviteId = inviteId,
+                        useTimesIncrease = useTimesIncrease,
+                        lastUsedAt = lastUsedAt,
+                        lastUsedBy = lastUsedBy
+                )
+                        .awaitFirst()
+            }
+        }
+    }
+
+    private fun checkUserId(chatInvite: ChatInvite, currentUser: JwtPayload): Boolean {
+        return chatInvite.userId == null || chatInvite.userId == currentUser.id
+    }
+
+    private fun checkVerificationLevel(chatInvite: ChatInvite, currentUser: JwtPayload): Boolean {
+        return JoinChatAllowance.getAllowance(
+                VerificationLevel.fromJwtPayload(currentUser),
+                chatInvite.joinAllowanceSettings,
+        ) != JoinChatAllowance.NOT_ALLOWED
+    }
+
+    private fun checkPendingChatParticipation(chatInvite: ChatInvite, currentUser: JwtPayload): Mono<Boolean> {
+        return pendingChatParticipationRepository.existsByChatIdAndUserId(
+                chatId = chatInvite.chatId,
+                userId = currentUser.id
+        )
+                .map { result -> !result }
+    }
+
+    private fun checkExistingChatParticipation(chatInvite: ChatInvite, currentUser: JwtPayload): Mono<Boolean> {
+        return chatParticipationRepository.existsByChatIdAndUserIdAndDeletedFalse(
+                chatId = chatInvite.chatId,
+                userId = currentUser.id
+        )
+                .map { result -> !result }
     }
 
     override fun findFullChatInvite(chatId: String, id: String): Mono<ChatInviteFullResponse> {
@@ -108,8 +217,8 @@ class ChatInviteServiceImpl(
 
     override fun updateChatInvite(id: String, chatId: String, updateChatInviteRequest: UpdateChatInviteRequest): Mono<ChatInviteFullResponse> {
         return mono {
-            var chatInvite = chatInviteCacheWrapper.findById(id).awaitFirstOrNull()
-                    ?: throw ChatInviteNotFoundException(id)
+            var chatInvite = chatInviteRepository.findById(id).awaitFirstOrNull()
+                    ?: throw ChatInviteNotFoundException()
 
             if (chatInvite.chatId != chatId) {
                 throw ChatInviteNotFoundException(id)
