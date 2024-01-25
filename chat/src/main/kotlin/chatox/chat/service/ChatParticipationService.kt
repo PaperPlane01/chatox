@@ -24,4 +24,6 @@ interface ChatParticipationService {
     fun findPendingChatParticipations(chatId: String, paginationRequest: PaginationRequest): Flux<PendingChatParticipationResponse>
     fun approveChatParticipants(chatId: String, pendingChatParticipantsRequest: PendingChatParticipantsRequest): Flux<ChatParticipationResponse>
     fun rejectChatParticipants(chatId: String, pendingChatParticipantsRequest: PendingChatParticipantsRequest): Mono<Unit>
+    fun findChatParticipationsByInvite(chatId: String, inviteId: String, paginationRequest: PaginationRequest): Flux<ChatParticipationResponse>
+    fun findPendingChatParticipationsByInvite(chatId: String, inviteId: String, paginationRequest: PaginationRequest): Flux<PendingChatParticipationResponse>
 }
