@@ -18,6 +18,7 @@ interface ChatRepository : ReactiveMongoRepository<Chat, String>, ChatCustomRepo
     fun findAllByDeletedFalseAndTypeIn(types: List<ChatType>, pageable: Pageable): Flux<Chat>
     fun findByDialogDisplayOtherParticipantUserId(userId: String): Flux<Chat>
     fun findByAvatarId(id: String): Flux<Chat>
+    fun findByIdInAndTypeInAndDeletedFalse(ids: List<String>, types: List<ChatType>): Flux<Chat>
 
     @Query(
             "{\n" +

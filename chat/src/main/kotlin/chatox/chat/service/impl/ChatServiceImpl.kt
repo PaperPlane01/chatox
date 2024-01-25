@@ -42,6 +42,7 @@ import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
+import chatox.chat.repository.mongodb.PendingChatParticipationRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatRoleService
 import chatox.chat.service.ChatService
@@ -71,6 +72,7 @@ import java.util.UUID
 @LogExecution
 class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationRepository: ChatParticipationRepository,
+                      private val pendingChatParticipationRepository: PendingChatParticipationRepository,
                       private val messageRepository: MessageMongoRepository,
                       private val uploadRepository: UploadRepository,
                       private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
@@ -477,6 +479,39 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             }
         }
                 .flatMapMany { Flux.fromIterable(it) }
+    }
+
+    override fun getPendingChatsOfCurrentUser(): Flux<ChatResponse> {
+        return mono {
+            val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
+            val pendingChatParticipations = pendingChatParticipationRepository.findByUserIdOrderByCreatedAtAsc(
+                    userId = currentUser.id
+            )
+                    .collectList()
+                    .awaitFirst()
+
+            val chatIdsAndDates = pendingChatParticipations.associate { pendingChatParticipation -> Pair(
+                    pendingChatParticipation.chatId,
+                    pendingChatParticipation.createdAt
+            ) }
+            val chatIds = chatIdsAndDates.keys.toList()
+            val chats = chatRepository.findByIdInAndTypeInAndDeletedFalse(
+                    ids = chatIds,
+                    types = listOf(ChatType.GROUP)
+            )
+                    .collectList()
+                    .awaitFirst()
+
+            return@mono Flux.fromIterable(
+                    chats
+                            .map { chat -> chatMapper.toChatResponse(
+                                    chat = chat,
+                                    currentUserId = currentUser.id
+                            ) }
+                            .sortedByDescending { chat -> chatIdsAndDates[chat.id] }
+            )
+        }
+                .flatMapMany { it }
     }
 
     private fun countUnreadMessages(chatParticipation: ChatParticipation): Mono<Long> {
