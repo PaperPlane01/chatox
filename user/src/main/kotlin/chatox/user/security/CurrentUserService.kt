@@ -1,5 +1,6 @@
 package chatox.user.security
 
+import chatox.platform.security.VerificationLevel
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import chatox.user.cache.UserReactiveRepositoryCacheWrapper
 import chatox.user.domain.GlobalBan
@@ -50,7 +51,8 @@ class CurrentUserService(private val globalBanRepository: GlobalBanRepository,
                             updatedBy = if (lastActiveBan.updatedById != null) userReactiveRepositoryCacheWrapper.findById(lastActiveBan.updatedById!!).awaitFirst() else null,
                             canceledBy = if (lastActiveBan.cancelledById != null) userReactiveRepositoryCacheWrapper.findById(lastActiveBan.cancelledById!!).awaitFirst() else null
                     ) else null,
-                    externalAvatarUri = user.externalAvatarUri
+                    externalAvatarUri = user.externalAvatarUri,
+                    verificationLevel = VerificationLevel.fromJwtPayload(jwtPayload)
             )
         }
     }
