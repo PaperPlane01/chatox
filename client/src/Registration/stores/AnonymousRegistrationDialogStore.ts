@@ -4,6 +4,7 @@ import {FormErrors} from "../../utils/types";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {AuthorizationStore} from "../../Authorization/stores";
 import {validateFirstName, validateLastName} from "../validation";
+import {UserVerificationLevel} from "../../api/types/response";
 
 export class AnonymousRegistrationDialogStore {
     anonymousRegistrationForm: RegisterAnonymousUserFormData = {
@@ -64,7 +65,8 @@ export class AnonymousRegistrationDialogStore {
                     lastName: data.lastName,
                     id: data.userId,
                     roles: data.roles,
-                    createdAt: data.createdAt
+                    createdAt: data.createdAt,
+                    verificationLevel: UserVerificationLevel.ANONYMOUS
                 });
                 this.authorizationStore.setTokens(data.accessToken, data.refreshToken);
             })

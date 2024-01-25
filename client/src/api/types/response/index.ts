@@ -59,3 +59,6 @@ export * from "./ChatInviteMinified";
 export * from "./UserVerificationLevel";
 export * from "./JoinChatAllowance";
 export * from "./JoinAllowanceMap";
+export * from "./JoinChatRejectionReason";
+export * from "./ChatInviteUsage";
+export * from "./PendingChatParticipant";

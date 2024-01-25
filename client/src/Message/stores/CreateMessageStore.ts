@@ -9,7 +9,7 @@ import {CreateMessageFormData} from "../types";
 import {ChatsPreferencesStore, ChatStore} from "../../Chat";
 import {ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
-import {Routes} from "../../router";
+import {RouterStoreAware, Routes} from "../../router";
 import {FormErrors} from "../../utils/types";
 import {createWithUndefinedValues, isDefined} from "../../utils/object-utils";
 import {Duration} from "../../utils/date-utils";
@@ -22,7 +22,7 @@ const INITIAL_FORM_VALUES: CreateMessageFormData = {
 };
 const INITIAL_FORM_ERRORS: FormErrors<CreateMessageFormData> = createWithUndefinedValues(INITIAL_FORM_VALUES);
 
-export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFormData> {
+export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFormData> implements RouterStoreAware {
     referredMessageId?: string = undefined;
 
     userId?: string = undefined;

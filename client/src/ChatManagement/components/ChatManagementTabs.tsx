@@ -31,6 +31,7 @@ export const ChatManagementTabs: FunctionComponent = observer(() => {
         canCreateChatRole,
         canDeleteChat,
         canManageInvites,
+        canApproveJoinChatRequests,
         hasAccessToChatManagementPage,
     } = useChatManagementPermissions();
     const tabAccessMap = useTabAccessMap({
@@ -39,6 +40,7 @@ export const ChatManagementTabs: FunctionComponent = observer(() => {
         canCreateChatRole,
         canDeleteChat,
         canManageInvites,
+        canApproveJoinChatRequests,
         hasAccessToChatManagementPage
     });
 
@@ -80,12 +82,14 @@ export const ChatManagementTabs: FunctionComponent = observer(() => {
                     {CHAT_MANAGEMENT_TABS.map(tab => tabAccessMap.get(tab) && (
                         <Tab value={tab}
                              label={<ChatManagementMenuItemWrapper tab={tab}/>}
+                             key={`${tab}_tab`}
                         />
                     ))}
                 </TabList>
                 {CHAT_MANAGEMENT_TABS.map(tab => (
                     <TabPanel value={tab}
                               className={classes.fullWidth}
+                              key={`${tab}_tabPanel`}
                     >
                         <ChatManagementTabWrapper tab={tab} accessible={Boolean(tabAccessMap.get(tab))}/>
                     </TabPanel>

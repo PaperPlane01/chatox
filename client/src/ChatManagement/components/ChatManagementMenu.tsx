@@ -32,6 +32,9 @@ const dialogHeaders: DialogHeadersMap = {
     INVITES(bindings?: object): ReactNode {
         return <TranslatedText label="chat.invite.list" bindings={bindings}/>
     },
+    JOIN_REQUESTS(): ReactNode {
+        return <TranslatedText label="chat.join.requests"/>
+    },
     ROLES(bindings?: object): ReactNode {
         return <TranslatedText label="chat-role.list" bindings={bindings}/>
     },
@@ -65,6 +68,7 @@ export const ChatManagementMenu: FunctionComponent = observer(() => {
         canCreateChatRole,
         canDeleteChat,
         canManageInvites,
+        canApproveJoinChatRequests,
         hasAccessToChatManagementPage
     } = useChatManagementPermissions();
     const tabAccessMap = useTabAccessMap({
@@ -73,6 +77,7 @@ export const ChatManagementMenu: FunctionComponent = observer(() => {
         canCreateChatRole,
         canDeleteChat,
         canManageInvites,
+        canApproveJoinChatRequests,
         hasAccessToChatManagementPage
     });
 
@@ -108,6 +113,7 @@ export const ChatManagementMenu: FunctionComponent = observer(() => {
                 <ChatManagementFullScreenDialog open={activeTab === tab}
                                                 title={renderDialogHeader(tab, {chatName: selectedChat.name})}
                                                 chatSlug={selectedChat.slug ?? selectedChat.id}
+                                                key={`${tab}_tab`}
                 >
                     <ChatManagementTabWrapper tab={tab} accessible={Boolean(tabAccessMap.get(tab))} hideHeader/>
                 </ChatManagementFullScreenDialog>

@@ -1,9 +1,9 @@
 import {AxiosPromise} from "axios";
 import {stringify} from "query-string";
 import {axiosInstance} from "../axios-instance";
-import {CHATS, PARTICIPANTS, SEARCH} from "../endpoints";
-import {PaginationRequest} from "../types/request";
-import {ChatParticipation} from "../types/response";
+import {APPROVE, CHATS, PARTICIPANTS, PENDING, REJECT, SEARCH} from "../endpoints";
+import {PaginationRequest, PendingChatParticipantsRequest} from "../types/request";
+import {ChatParticipation, PendingChatParticipant} from "../types/response";
 
 export class ChatParticipantApi {
 
@@ -14,5 +14,20 @@ export class ChatParticipantApi {
         });
 
         return axiosInstance.get(`/${CHATS}/${chatId}/${PARTICIPANTS}/${SEARCH}?${queryString}`);
+    }
+
+    public static getPendingChatParticipants(chatId: string, paginationRequest: PaginationRequest): AxiosPromise<PendingChatParticipant[]> {
+        const queryString = stringify(paginationRequest);
+        return axiosInstance.get(`/${CHATS}/${chatId}/${PARTICIPANTS}/${PENDING}?${queryString}`);
+    }
+
+    public static approvePendingChatParticipants(chatId: string, pendingChatParticipantsRequest: PendingChatParticipantsRequest): AxiosPromise<ChatParticipation[]> {
+        return axiosInstance.put(`/${CHATS}/${chatId}/${PARTICIPANTS}/${PENDING}/${APPROVE}`, pendingChatParticipantsRequest);
+    }
+
+    public static rejectPendingChatParticipants(chatId: string, pendingChatParticipantsRequest: PendingChatParticipantsRequest): AxiosPromise<void> {
+        return axiosInstance.delete(`/${CHATS}/${chatId}/${PARTICIPANTS}/${PENDING}/${REJECT}`, {
+            data: pendingChatParticipantsRequest
+        });
     }
 }

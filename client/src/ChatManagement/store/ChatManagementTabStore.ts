@@ -1,6 +1,6 @@
 import {makeAutoObservable, reaction} from "mobx";
 import {ChatManagementTab} from "../types";
-import {ChatParticipantsStore} from "../../ChatParticipant";
+import {ChatParticipantsStore, JoinChatRequestsStore} from "../../ChatParticipant";
 import {RolesOfChatStore} from "../../ChatRole";
 import {ChatBlockingsOfChatStore} from "../../ChatBlocking";
 import {ChatInviteListStore} from "../../ChatInvite";
@@ -11,7 +11,8 @@ export class ChatManagementTabStore {
     constructor(private readonly chatParticipantsStore: ChatParticipantsStore,
                 private readonly rolesOfChatStore: RolesOfChatStore,
                 private readonly chatBlockingsStore: ChatBlockingsOfChatStore,
-                private readonly chatInvitesStore: ChatInviteListStore) {
+                private readonly chatInvitesStore: ChatInviteListStore,
+                private readonly joinChatRequestsStore: JoinChatRequestsStore) {
         makeAutoObservable(this);
 
         reaction(
@@ -29,6 +30,9 @@ export class ChatManagementTabStore {
                         break;
                     case ChatManagementTab.INVITES:
                         this.chatInvitesStore.fetchChatInvites();
+                        break;
+                    case ChatManagementTab.JOIN_REQUESTS:
+                        this.joinChatRequestsStore.fetchJoinChatRequests();
                         break;
                 }
             }

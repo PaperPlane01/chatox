@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {Card, CardActions, CardContent, CardHeader, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -13,7 +13,8 @@ import {getAvatarLabel} from "../utils";
 import {useLuminosity} from "../../utils/hooks";
 
 interface PopularChatsListItemProps {
-    chatId: string
+    chatId: string,
+    action?: ReactNode
 }
 
 const useStyles = makeStyles(() => createStyles({
@@ -27,7 +28,10 @@ const useStyles = makeStyles(() => createStyles({
     }
 }))
 
-export const PopularChatsListItem: FunctionComponent<PopularChatsListItemProps> = observer(({chatId}) => {
+export const PopularChatsListItem: FunctionComponent<PopularChatsListItemProps> = observer(({
+    chatId,
+    action
+}) => {
     const {
         entities: {
             chats: {
@@ -48,7 +52,7 @@ export const PopularChatsListItem: FunctionComponent<PopularChatsListItemProps> 
             <CardHeader title={
                 <Link className={classes.undecoratedLink}
                       route={Routes.chatPage}
-                      params={{slug: chat.slug || chat.id}}
+                      params={{slug: chat.slug ?? chat.id}}
                       router={routerStore}
                 >
                     <Typography style={{color: chatColor}}>
@@ -69,21 +73,26 @@ export const PopularChatsListItem: FunctionComponent<PopularChatsListItemProps> 
             />
             <CardContent>
                 {chat.description && (
-                    <ReactMarkdown children={chat.description}
-                                   remarkPlugins={[remarkBreaks]}
-                    />
+                    <ReactMarkdown remarkPlugins={[remarkBreaks]}>
+                        {chat.description}
+                    </ReactMarkdown>
                 )}
             </CardContent>
             {chat.tags.length !== 0 && (
                 <CardActions>
                     <Typography>
                         {chat.tags.map(tag => (
-                            <Fragment>
-                                <span key={tag} className={classes.tagTypography}>#{tag}</span>
+                            <Fragment key={tag}>
+                                <span className={classes.tagTypography}>#{tag}</span>
                                 {" "}
                             </Fragment>
                         ))}
                     </Typography>
+                </CardActions>
+            )}
+            {action && (
+                <CardActions>
+                    {action}
                 </CardActions>
             )}
         </Card>

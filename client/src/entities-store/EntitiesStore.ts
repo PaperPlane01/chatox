@@ -6,7 +6,7 @@ import {UploadsStore} from "../Upload";
 import {UserProfilePhotosStore, UsersStore} from "../User";
 import {ChatRolesStore, UserChatRolesStore} from "../ChatRole";
 import {ChatBlockingsStore} from "../ChatBlocking";
-import {ChatParticipationsStore} from "../ChatParticipant";
+import {ChatParticipationsStore, PendingChatParticipationsStore} from "../ChatParticipant";
 import {AuthorizationStore} from "../Authorization";
 import {StickersStore, StickerPacksStore} from "../Sticker";
 import {ReportedChatsStore, ReportedMessagesStore, ReportsStore} from "../Report";
@@ -37,6 +37,7 @@ export class EntitiesStore {
     public userInteractions: UserInteractionsStore;
     public userProfilePhotos: UserProfilePhotosStore;
     public chatInvites: ChatInvitesStore;
+    public pendingChatParticipations: PendingChatParticipationsStore;
 
     constructor(rawEntities: RawEntitiesStore, authorization: AuthorizationStore, userChatRoles: UserChatRolesStore) {
         this.messages = new MessagesStore(rawEntities, "messages", this, userChatRoles);
@@ -60,6 +61,7 @@ export class EntitiesStore {
         this.userInteractions = new UserInteractionsStore(rawEntities, "userInteractions", this);
         this.userProfilePhotos = new UserProfilePhotosStore(rawEntities, "userProfilePhotos", this);
         this.chatInvites = new ChatInvitesStore(rawEntities, "chatInvites", this);
+        this.pendingChatParticipations = new PendingChatParticipationsStore(rawEntities, "pendingChatParticipations", this);
     }
 
     public setEntitiesStore(entitiesAwareStores: EntitiesAware[]): void {

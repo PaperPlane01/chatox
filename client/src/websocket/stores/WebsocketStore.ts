@@ -18,14 +18,23 @@ import {
     WebsocketEventType
 } from "../../api/types/websocket";
 import {ChatBlocking, ChatParticipation, ChatRole, CurrentUser, GlobalBan, Message} from "../../api/types/response";
-import {ChatsPreferencesStore, ChatStore, TypingUsersStore} from "../../Chat";
+import {
+    ChatOfCurrentUserEntity,
+    ChatsPreferencesStore,
+    ChatStore,
+    PendingChatsOfCurrentUserStore,
+    TypingUsersStore
+} from "../../Chat";
 import {MarkMessageReadStore, MessagesListScrollPositionsStore} from "../../Message";
 import {BalanceStore} from "../../Balance";
+import {LocaleStore} from "../../localization";
+import {SnackbarService} from "../../Snackbar";
 import type {ISocketIoWorker} from "../../workers";
 import {Promisify} from "../../utils/types";
 // @ts-ignore
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import WorkerModule from "@socheatsok78/sharedworker-loader!../../workers"
+import {ChatApi} from "../../api";
 
 const workerInstance = window.SharedWorker && localStorage && localStorage.getItem("useSharedWorker") === "true"
     ? new WorkerModule()
@@ -68,7 +77,10 @@ export class WebsocketStore {
                 private readonly markMessageReadStore: MarkMessageReadStore,
                 private readonly balanceStore: BalanceStore,
                 private readonly chatPreferences: ChatsPreferencesStore,
-                private readonly typingUsersStore: TypingUsersStore) {
+                private readonly typingUsersStore: TypingUsersStore,
+                private readonly pendingChats: PendingChatsOfCurrentUserStore,
+                private readonly locale: LocaleStore,
+                private readonly snackbarService: SnackbarService) {
         makeAutoObservable(this);
 
         reaction(
@@ -333,6 +345,10 @@ export class WebsocketStore {
             WebsocketEventType.USER_STARTED_TYPING,
             (event: WebsocketEvent<UserStartedTyping>) => this.typingUsersStore.onUserStartedTyping(event.payload)
         );
+        map.set(
+            WebsocketEventType.USER_JOINED_CHAT,
+            (event: WebsocketEvent<ChatParticipation>) => this.handleUserJoinChat(event.payload)
+        );
         
         return map;
     }
@@ -348,6 +364,47 @@ export class WebsocketStore {
         }
     }
 
+    private handleUserJoinChat = async (chatParticipation: ChatParticipation): Promise<void> => {
+        const chat = await this.getChat(chatParticipation.chatId);
+
+        if (!chat) {
+            return;
+        }
+
+        this.entities.chatParticipations.insert(chatParticipation, {increaseChatParticipantsCount: true});
+
+        const wasPending = this.pendingChats.chatsIds.includes(chat.id);
+
+        if (wasPending) {
+            this.pendingChats.removeChatId(chat.id);
+            this.snackbarService.enqueueSnackbar(
+                this.locale.getCurrentLanguageLabel("chat.join.request.approved", {chatName: chat.name})
+            );
+        }
+    }
+
+    private getChat = async (chatId: string): Promise<ChatOfCurrentUserEntity | undefined> => {
+        const chat = this.entities.chats.findByIdOptional(chatId);
+
+        if (chat) {
+            return chat;
+        } else {
+            try {
+                const {data} = await ChatApi.findChatByIdOrSlug(chatId);
+
+                return this.entities.chats.insert({
+                    ...data,
+                    unreadMessagesCount: 0,
+                    deleted: false
+                });
+            } catch (error) {
+                console.log("Error when retrieving chat!");
+                console.log(error);
+                return undefined;
+            }
+        }
+    }
+
     subscribeToChat = (chatId: string) => {
         this.emitWebsocketEvent(WebsocketEventType.CHAT_SUBSCRIPTION, {chatId});
     }
@@ -358,6 +415,13 @@ export class WebsocketStore {
 
     private emitWebsocketEvent = async (eventType: WebsocketEventType, args: object): Promise<void> => {
         switch (this.connectionType) {
+            case "sharedWorker":
+                if (this.socketIoWorker) {
+                    await this.socketIoWorker.emitEvent(eventType, args);
+                } else {
+                    this.addEventToQueue(eventType, args);
+                }
+                break;
             case "socketIo":
             default:
                 if (this.socketIoClient) {
@@ -367,12 +431,6 @@ export class WebsocketStore {
 
                 }
                 break;
-            case "sharedWorker":
-                if (this.socketIoWorker) {
-                    await this.socketIoWorker.emitEvent(eventType, args);
-                } else {
-                    this.addEventToQueue(eventType, args);
-                }
         }
     }
 

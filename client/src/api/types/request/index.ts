@@ -43,3 +43,4 @@ export * from "./ForwardMessagesRequest";
 export * from "./CreateChatInviteRequest";
 export * from "./UpdateChatInviteRequest";
 export * from "./ChatInviteRequest";
+export * from "./PendingChatParticipantsRequest";

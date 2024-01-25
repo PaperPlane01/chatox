@@ -19,16 +19,18 @@ import {
     CreateChatStore,
     DeleteChatStore,
     LeaveChatStore,
+    PendingChatsOfCurrentUserStore,
     PopularChatsStore,
     TypingUsersStore,
     UpdateChatStore
 } from "../Chat";
 import {
+    ApproveJoinChatRequestsStore,
     ChatParticipantsSearchStore,
-    ChatParticipantsStore,
+    ChatParticipantsStore, JoinChatRequestsStore,
     JoinChatStore,
     KickChatParticipantStore,
-    OnlineChatParticipantsStore,
+    OnlineChatParticipantsStore, RejectJoinChatRequestsStore,
     UpdateChatParticipantStore,
 } from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
@@ -152,7 +154,14 @@ import {
 } from "../UserInteraction";
 import {ChatManagementTabStore} from "../ChatManagement";
 import {SelectUserStore} from "../UserSelect";
-import {ChatInviteDialogStore, ChatInviteListStore, CreateChatInviteStore, UpdateChatInviteStore} from "../ChatInvite";
+import {
+    ChatInviteDialogStore,
+    ChatInviteInfoStore,
+    ChatInviteListStore,
+    CreateChatInviteStore,
+    JoinChatByInviteStore,
+    UpdateChatInviteStore
+} from "../ChatInvite";
 
 export interface IAppState {
     language: LocaleStore,
@@ -296,10 +305,16 @@ export interface IAppState {
     typingUsers: TypingUsersStore,
     messagesForwarding: ForwardMessagesStore,
     chatManagement: ChatManagementTabStore,
+    pendingChats: PendingChatsOfCurrentUserStore,
     chatInviteCreation: CreateChatInviteStore,
     chatInviteCreationUserSelect: SelectUserStore,
     chatInviteUpdate: UpdateChatInviteStore,
     chatInviteUpdateUserSelect: SelectUserStore,
     chatInviteList: ChatInviteListStore,
-    chatInviteDialog: ChatInviteDialogStore
+    chatInviteDialog: ChatInviteDialogStore,
+    chatInvite: ChatInviteInfoStore,
+    joinChatByInvite: JoinChatByInviteStore,
+    joinChatRequests: JoinChatRequestsStore,
+    joinChatRequestsApproval: ApproveJoinChatRequestsStore,
+    joinChatRequestsRejection: RejectJoinChatRequestsStore
 }

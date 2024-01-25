@@ -1,6 +1,6 @@
 import {MessageEntity} from "../../Message/types";
 import {ChatOfCurrentUserEntity, ChatUploadEntity} from "../../Chat";
-import {ChatParticipationEntity} from "../../ChatParticipant";
+import {ChatParticipationEntity, PendingChatParticipationEntity} from "../../ChatParticipant";
 import {UserEntity, UserProfilePhotoEntity} from "../../User";
 import {ChatBlockingEntity} from "../../ChatBlocking";
 import {Upload} from "../../api/types/response";
@@ -34,7 +34,8 @@ export type Entities = "messages"
     | "userRewards"
     | "userInteractions"
     | "userProfilePhotos"
-    | "chatInvites";
+    | "chatInvites"
+    | "pendingChatParticipations";
 
 interface EntityMap<T> {
     [key: string]: T
@@ -64,6 +65,7 @@ export type GetEntityType<Key extends Entities>
     : Key extends "userInteractions" ? UserInteractionEntity
     : Key extends "userProfilePhotos" ? UserProfilePhotoEntity
     : Key extends "chatInvites" ? ChatInviteEntity
+    : Key extends "pendingChatParticipations" ? PendingChatParticipationEntity
     : never;
 //@formatter:on
 

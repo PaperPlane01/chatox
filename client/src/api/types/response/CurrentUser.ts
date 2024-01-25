@@ -2,6 +2,7 @@ import {UserRole} from "./UserRole";
 import {Upload} from "./Upload";
 import {ImageUploadMetadata} from "./ImageUploadMetadata";
 import {GlobalBan} from "./GlobalBan";
+import {UserVerificationLevel} from "./UserVerificationLevel";
 
 export interface CurrentUser {
     id: string,
@@ -17,5 +18,6 @@ export interface CurrentUser {
     dateOfBirth?: string,
     email?: string,
     globalBan?: GlobalBan,
-    externalAvatarUri?: string
+    externalAvatarUri?: string,
+    verificationLevel: UserVerificationLevel
 }

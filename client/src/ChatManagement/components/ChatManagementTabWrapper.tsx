@@ -7,7 +7,7 @@ import {ChatDeletionCard} from "./ChatDeletionCard";
 import {ChatManagementTab, ChatManagementTabRenderers} from "../types";
 import {TranslatedTypography} from "../../localization";
 import {BaseSettingsTabProps} from "../../utils/types";
-import {ChatParticipantsCard} from "../../ChatParticipant";
+import {ChatParticipantsCard, JoinChatRequestsCard} from "../../ChatParticipant";
 import {ChatRolesCard} from "../../ChatRole";
 import {ChatInvitesCard} from "../../ChatInvite";
 
@@ -16,6 +16,7 @@ const chatManagementTabRenderers: ChatManagementTabRenderers = {
     DELETION: props => <ChatDeletionCard {...props}/>,
     INFO: props => <UpdateChatForm {...props}/>,
     PARTICIPANTS: () => <ChatParticipantsCard defaultMode="all"/>,
+    JOIN_REQUESTS: () => <JoinChatRequestsCard/>,
     INVITES: props => <ChatInvitesCard {...props}/>,
     ROLES: props => <ChatRolesCard {...props}/>,
     SECURITY: () => <TranslatedTypography label="feature.not-available"/>,

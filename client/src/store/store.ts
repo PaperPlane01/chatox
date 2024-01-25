@@ -22,16 +22,20 @@ import {
     CreateChatStore,
     DeleteChatStore,
     LeaveChatStore,
+    PendingChatsOfCurrentUserStore,
     PopularChatsStore,
     TypingUsersStore,
     UpdateChatStore
 } from "../Chat";
 import {
+    ApproveJoinChatRequestsStore,
     ChatParticipantsSearchStore,
     ChatParticipantsStore,
+    JoinChatRequestsStore,
     JoinChatStore,
     KickChatParticipantStore,
     OnlineChatParticipantsStore,
+    RejectJoinChatRequestsStore,
     UpdateChatParticipantStore,
 } from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
@@ -163,7 +167,14 @@ import {
 } from "../UserInteraction";
 import {ChatManagementTabStore} from "../ChatManagement";
 import {SelectUserStore} from "../UserSelect";
-import {ChatInviteDialogStore, ChatInviteListStore, CreateChatInviteStore, UpdateChatInviteStore} from "../ChatInvite";
+import {
+    ChatInviteDialogStore,
+    ChatInviteInfoStore,
+    ChatInviteListStore,
+    CreateChatInviteStore,
+    JoinChatByInviteStore,
+    UpdateChatInviteStore
+} from "../ChatInvite";
 
 const snackbarService = new SnackbarService();
 
@@ -309,6 +320,7 @@ const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
 const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
 const balance = new BalanceStore(authorization);
 const typingUsers = new TypingUsersStore(entities, authorization);
+const pendingChats = new PendingChatsOfCurrentUserStore(entities);
 const websocket = new WebsocketStore(
     authorization,
     entities,
@@ -317,7 +329,10 @@ const websocket = new WebsocketStore(
     markMessageRead,
     balance,
     chatsPreferences,
-    typingUsers
+    typingUsers,
+    pendingChats,
+    language,
+    snackbarService
 );
 const stickerPackCreation = new CreateStickerPackStore(entities);
 const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
@@ -454,11 +469,36 @@ const chatInviteUpdate = new UpdateChatInviteStore(
 );
 const chatInviteList = new ChatInviteListStore(chat, entities);
 const chatInviteDialog = new ChatInviteDialogStore(chat, entities);
+const joinChatRequests = new JoinChatRequestsStore(entities, chat);
 const chatManagement = new ChatManagementTabStore(
     chatParticipants,
     rolesOfChats,
     chatBlockingsOfChat,
-    chatInviteList
+    chatInviteList,
+    joinChatRequests
+);
+const chatInvite = new ChatInviteInfoStore(entities);
+const joinChatByInvite = new JoinChatByInviteStore(
+    chatInvite,
+    pendingChats,
+    entities,
+    authorization,
+    language,
+    snackbarService
+);
+const joinChatRequestsApproval = new ApproveJoinChatRequestsStore(
+    joinChatRequests,
+    chat,
+    entities,
+    language,
+    snackbarService
+);
+const joinChatRequestsRejection = new RejectJoinChatRequestsStore(
+    joinChatRequests,
+    chat,
+    entities,
+    language,
+    snackbarService
 );
 
 export const store: IAppState = {
@@ -603,10 +643,16 @@ export const store: IAppState = {
     typingUsers,
     messagesForwarding,
     chatManagement,
+    pendingChats,
     chatInviteCreationUserSelect,
     chatInviteCreation,
     chatInviteUpdateUserSelect,
     chatInviteUpdate,
     chatInviteList,
-    chatInviteDialog
+    chatInviteDialog,
+    chatInvite,
+    joinChatByInvite,
+    joinChatRequests,
+    joinChatRequestsApproval,
+    joinChatRequestsRejection
 };

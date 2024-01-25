@@ -1,6 +1,7 @@
 export enum ChatManagementTab {
     INFO = "INFO",
     PARTICIPANTS = "PARTICIPANTS",
+    JOIN_REQUESTS = "JOIN_REQUESTS",
     SLOW_MODE = "SLOW_MODE",
     ROLES = "ROLES",
     BLOCKINGS = "BLOCKINGS",
@@ -28,6 +29,7 @@ export const CHAT_MANAGEMENT_TABS: ChatManagementTab[] = [
     ChatManagementTab.SLOW_MODE,
     ChatManagementTab.PARTICIPANTS,
     ChatManagementTab.INVITES,
+    ChatManagementTab.JOIN_REQUESTS,
     ChatManagementTab.SECURITY,
     ChatManagementTab.BLOCKINGS,
     ChatManagementTab.ROLES,

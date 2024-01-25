@@ -94,12 +94,29 @@ export class ChatParticipantPermissions {
         })!;
 
         return chatRole.features.assignChatRole.enabled;
-    });
+    })
 
     getPossibleAssignedRolesRange = computedFn((chatId: string): {fromLevel?: number, upToLevel?: number} => {
         return this.userChatRoles.getRoleOfUserInChat({
             chatId,
             userId: this.currentUser!.id
-        })?.features.assignChatRole.additional || {fromLevel: undefined, upToLevel: undefined}
-    });
+        })?.features.assignChatRole.additional ?? {fromLevel: undefined, upToLevel: undefined}
+    })
+
+    canApproveJoinChatRequests = computedFn((chatId: string): boolean => {
+        if (!this.currentUser) {
+            return false;
+        }
+
+        if (!this.entities.chatParticipations.existsByUserAndChat({chatId, userId: this.currentUser.id})) {
+            return false;
+        }
+
+        const chatRole = this.userChatRoles.getRoleOfUserInChat({
+            chatId,
+            userId: this.currentUser.id
+        });
+
+        return chatRole?.features.approveJoinChatRequests.enabled || false;
+    })
 }

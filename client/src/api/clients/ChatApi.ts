@@ -18,7 +18,20 @@ import {
     ChatParticipation,
     ChatParticipationWithoutUser
 } from "../types/response";
-import {CHATS, IS_AVAILABLE, JOIN, LEAVE, MY, ONLINE, PARTICIPANTS, POPULAR, PRIVATE, SLUG, TYPING} from "../endpoints";
+import {
+    CHATS,
+    IS_AVAILABLE,
+    JOIN,
+    LEAVE,
+    MY,
+    ONLINE,
+    PARTICIPANTS,
+    PENDING,
+    POPULAR,
+    PRIVATE,
+    SLUG,
+    TYPING
+} from "../endpoints";
 
 export class ChatApi {
 
@@ -34,12 +47,20 @@ export class ChatApi {
         return axiosInstance.get(`/${CHATS}/${MY}`);
     }
 
+    public static getPendingChatsOfCurrentUser(): AxiosPromise<Chat[]> {
+        return axiosInstance.get(`/${CHATS}/${MY}/${PENDING}`);
+    }
+
     public static searchChatsOfCurrentUser(query: String): AxiosPromise<Chat[]> {
         return axiosInstance.get(`/${CHATS}/${MY}?query=${query}`);
     }
 
     public static joinChat(chatId: string): AxiosPromise<ChatParticipationWithoutUser> {
         return axiosInstance.post(`/${CHATS}/${chatId}/${JOIN}`);
+    }
+
+    public static joinChatByInvite(chatId: string, inviteId: string): AxiosPromise<ChatParticipationWithoutUser> {
+        return axiosInstance.post(`/${CHATS}/${chatId}/${JOIN}?inviteId=${inviteId}`);
     }
 
     public static leaveChat(chatId: string): AxiosPromise<void> {
@@ -82,7 +103,7 @@ export class ChatApi {
         return axiosInstance.delete(`/${CHATS}/${chatId}`, {
             // Need to send dummy request body here because otherwise Axios will not send
             // content-type header properly and the request will be rejected by Spring backend
-            data: deleteChatRequest ? deleteChatRequest : {reason: ChatDeletionReason.SPAM},
+            data: deleteChatRequest ?? {reason: ChatDeletionReason.SPAM},
             headers: {
                 "Content-Type": "application/json"
             }
