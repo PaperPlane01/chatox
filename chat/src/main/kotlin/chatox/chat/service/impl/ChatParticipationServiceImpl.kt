@@ -34,6 +34,7 @@ import chatox.chat.repository.mongodb.ChatRoleRepository
 import chatox.chat.repository.mongodb.PendingChatParticipationRepository
 import chatox.chat.service.ChatInviteService
 import chatox.chat.service.ChatParticipationService
+import chatox.chat.util.mapTo2Lists
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
@@ -88,9 +89,9 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 invite = findAndCheckInvite(chatId, inviteId).awaitFirst()
             }
 
-            val chatParticipation = chatParticipationRepository.findByChatIdAndUserAndDeletedTrue(
+            val chatParticipation = chatParticipationRepository.findByChatIdAndUserIdAndDeletedTrue(
                     chatId = chat.id,
-                    user = currentUser
+                    userId = currentUser.id
             )
                     .awaitFirstOrNull()
 
@@ -395,31 +396,54 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 )
             }
 
-            val usersIds = pendingChatParticipants.map { pendingChatParticipation -> pendingChatParticipation.userId }
+            val (usersIds, restoredChatParticipationsIdsWithNulls) = mapTo2Lists(
+                    pendingChatParticipants,
+                    { it.userId },
+                    { it.restoredChatParticipationId }
+            )
+            val restoredChatParticipationsIds = restoredChatParticipationsIdsWithNulls
+                    .filterNotNull()
+
             val users = userCacheWrapper
                     .findByIds(usersIds)
                     .collectList()
                     .awaitFirst()
                     .associateBy { user -> user.id }
-            val defaultRole = defaultRoleOfChatCacheWrapper.findByChatId(chatId).awaitFirst()
-
-            val chatParticipations = pendingChatParticipants.map { pendingChatParticipation ->
-                val user = users[pendingChatParticipation.userId]!!
-
-                return@map ChatParticipation(
-                        id = ObjectId().toHexString(),
-                        user = user,
-                        chatId = pendingChatParticipation.chatId,
-                        createdAt = ZonedDateTime.now(),
-                        role = defaultRole,
-                        roleId = defaultRole.id,
-                        lastReadMessageId = null,
-                        userDisplayedName = user.displayedName,
-                        userSlug = user.slug,
-                        inviteId = pendingChatParticipation.inviteId,
-                        approvedBy = currentUser.id
-                )
+            val restoredChatParticipations = if (restoredChatParticipationsIds.isEmpty()) {
+                listOf()
+            } else {
+                chatParticipationRepository.findAllById(restoredChatParticipationsIds)
+                        .collectList()
+                        .awaitFirst()
+                        .map { chatParticipation -> chatParticipation.copy(
+                                deleted = false,
+                                deletedAt = null,
+                                deletedById = null
+                        ) }
             }
+
+            val defaultRole = defaultRoleOfChatCacheWrapper.findByChatId(chatId).awaitFirst()
+            val chatParticipations = pendingChatParticipants
+                    .filter { pendingChatParticipation -> pendingChatParticipation.restoredChatParticipationId == null }
+                    .map { pendingChatParticipation ->
+                        val user = users[pendingChatParticipation.userId]!!
+
+                        return@map ChatParticipation(
+                                id = ObjectId().toHexString(),
+                                user = user,
+                                chatId = pendingChatParticipation.chatId,
+                                createdAt = ZonedDateTime.now(),
+                                role = defaultRole,
+                                roleId = defaultRole.id,
+                                lastReadMessageId = null,
+                                userDisplayedName = user.displayedName,
+                                userSlug = user.slug,
+                                inviteId = pendingChatParticipation.inviteId,
+                                approvedBy = currentUser.id
+                        )
+                    }
+                    .toMutableList()
+            chatParticipations.addAll(restoredChatParticipations)
 
             chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
             chatRepository.increaseNumberOfParticipants(chatId, chatParticipations.size).awaitFirst()
