@@ -325,6 +325,7 @@ const websocket = new WebsocketStore(
     authorization,
     entities,
     chat,
+    messagesOfChat,
     messagesListScrollPositions,
     markMessageRead,
     balance,
