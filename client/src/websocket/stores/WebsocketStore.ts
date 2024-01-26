@@ -25,7 +25,7 @@ import {
     PendingChatsOfCurrentUserStore,
     TypingUsersStore
 } from "../../Chat";
-import {MarkMessageReadStore, MessagesListScrollPositionsStore} from "../../Message";
+import {MarkMessageReadStore, MessagesListScrollPositionsStore, MessagesOfChatStore} from "../../Message";
 import {BalanceStore} from "../../Balance";
 import {LocaleStore} from "../../localization";
 import {SnackbarService} from "../../Snackbar";
@@ -34,7 +34,7 @@ import {Promisify} from "../../utils/types";
 // @ts-ignore
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import WorkerModule from "@socheatsok78/sharedworker-loader!../../workers"
-import {ChatApi} from "../../api";
+import {ChatApi, MessageApi} from "../../api";
 
 const workerInstance = window.SharedWorker && localStorage && localStorage.getItem("useSharedWorker") === "true"
     ? new WorkerModule()
@@ -73,6 +73,7 @@ export class WebsocketStore {
     constructor(private readonly authorization: AuthorizationStore,
                 private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
+                private readonly messagesOfChatStore: MessagesOfChatStore,
                 private readonly scrollPositionStore: MessagesListScrollPositionsStore,
                 private readonly markMessageReadStore: MarkMessageReadStore,
                 private readonly balanceStore: BalanceStore,
@@ -372,6 +373,18 @@ export class WebsocketStore {
         }
 
         this.entities.chatParticipations.insert(chatParticipation, {increaseChatParticipantsCount: true});
+        this.entities.chats.insertEntity({
+            ...chat,
+            currentUserParticipationId: chatParticipation.id
+        });
+
+        if (!chat.lastMessage) {
+            this.messagesOfChatStore.fetchMessages({
+                abortIfInitiallyFetched: true,
+                chatId: chat.id,
+                skipSettingLastMessage: false
+            });
+        }
 
         const wasPending = this.pendingChats.chatsIds.includes(chat.id);
 

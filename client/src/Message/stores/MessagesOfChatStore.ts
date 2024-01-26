@@ -10,6 +10,17 @@ import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api";
 import {Message} from "../../api/types/response";
 
+interface FetchMessagesOptions extends FetchOptions {
+    chatId?: string,
+    skipSettingLastMessage?: boolean
+}
+
+const DEFAULT_FETCH_OPTIONS: FetchMessagesOptions = {
+    chatId: undefined,
+    skipSettingLastMessage: true,
+    abortIfInitiallyFetched: true
+};
+
 export class MessagesOfChatStore {
     chatMessagesFetchingStateMap: ChatMessagesFetchingStateMap = {};
 
@@ -74,12 +85,12 @@ export class MessagesOfChatStore {
         }
     });
 
-    fetchMessages = async (options: FetchOptions = {abortIfInitiallyFetched: false}): Promise<void> => {
-        if (!this.selectedChatId || this.isInSearchMode) {
+    fetchMessages = async (options: FetchMessagesOptions = DEFAULT_FETCH_OPTIONS): Promise<void> => {
+        const chatId = options.chatId ?? this.selectedChatId;
+
+        if (!chatId || this.isInSearchMode) {
             return;
         }
-
-        const chatId = this.selectedChatId;
 
         if (!this.chatMessagesFetchingStateMap[chatId]) {
             this.chatMessagesFetchingStateMap[chatId] = {initiallyFetched: false, pending: false};
@@ -109,7 +120,9 @@ export class MessagesOfChatStore {
             .then(({data}) => {
                 runInAction(() => {
                     if (data.length !== 0) {
-                        this.entities.messages.insertAll(data, {skipSettingLastMessage: true});
+                        this.entities.messages.insertAll(data, {
+                            skipSettingLastMessage: options.skipSettingLastMessage ?? true
+                        });
 
                         if (beforeMessage) {
                             this.initialMessagesMap[chatId] = this.initialMessagesMap[chatId]
