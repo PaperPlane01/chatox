@@ -8,5 +8,10 @@
   },
   "description": "Test description",
   "tags": ["First", "Second", "Third"],
-  "avatarId": "avatarId"
+  "avatarId": "avatarId",
+  "joinAllowanceSettings": {
+    "ANONYMOUS": "ALLOWED",
+    "REGISTERED": "ALLOWED",
+    "EMAIL_VERIFIED": "ALLOWED"
+  }
 }

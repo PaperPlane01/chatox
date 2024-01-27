@@ -363,7 +363,7 @@ class ChatServiceTests {
                 every { chatRepository.existsBySlugOrId(
                         eq(request.slug!!), eq(request.slug!!)
                 ) } returns Mono.just(false)
-                every { chatBySlugCacheService.delete(eq(chat.slug!!)) } returns Mono.empty()
+                every { chatBySlugCacheService.delete(eq(chat.slug)) } returns Mono.empty()
             }
 
             val avatarChanged = request.avatarId != null && request.avatarId != chat.avatar?.id
@@ -409,6 +409,9 @@ class ChatServiceTests {
                             if (options.ensureSameAvatar) chat.avatar?.id else upload.id
                         } else null
                         assertEquals(expectedAvatarId, savedChat.avatar?.id)
+
+                        val expectedJoinAllowanceSettings = request.joinAllowanceSettings ?: mapOf()
+                        assertEquals(expectedJoinAllowanceSettings, savedChat.joinAllowanceSettings)
 
                         verify(exactly = 1) { chatEventsPublisher.chatUpdated(any()) }
 

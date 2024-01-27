@@ -256,68 +256,81 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     override fun updateChat(id: String, updateChatRequest: UpdateChatRequest): Mono<ChatResponse> {
         return mono {
             var chat = findChatByIdInternal(id).awaitFirst()
-            var slugChanged = false
 
             if (chat.deleted) {
                 throw ChatDeletedException(chat.chatDeletion)
             }
 
-            if (updateChatRequest.slug != null
-                    && updateChatRequest.slug != chat.slug
-                    && updateChatRequest.slug != chat.id) {
-                val slugAvailability = checkChatSlugAvailability(updateChatRequest.slug).awaitFirst()
-
-                if (!slugAvailability.available) {
-                    throw SlugIsAlreadyInUseException(
-                            "Slug ${updateChatRequest.slug} is already used by another chat"
-                    )
-                }
-
-                slugChanged = true
-            }
-
-            val avatar: Upload<ImageUploadMetadata>?
-
-            if (updateChatRequest.avatarId == null) {
-                avatar = null
-            } else if (updateChatRequest.avatarId == chat.avatar?.id) {
-                avatar = chat.avatar
-            } else {
-                avatar = uploadRepository.findByIdAndType<ImageUploadMetadata>(
-                        updateChatRequest.avatarId,
-                        UploadType.IMAGE
-                )
-                        .awaitFirstOrNull()
-
-                if (avatar == null) {
-                    throw UploadNotFoundException("Could not find image with id ${updateChatRequest.avatarId}")
-                }
-            }
-
-            if (slugChanged) {
-                chatBySlugCacheService.delete(chat.slug).awaitFirstOrNull()
-            }
-
-            val slowMode = if (updateChatRequest.slowMode == null) {
-               null
-            } else {
-                SlowMode(
-                        enabled = updateChatRequest.slowMode.enabled,
-                        interval = updateChatRequest.slowMode.interval,
-                        unit = updateChatRequest.slowMode.unit
-                )
-            }
+            val slug = getSlug(updateChatRequest, chat).awaitFirst()
+            val avatar = getAvatar(updateChatRequest, chat).awaitFirstOrNull()
+            val slowMode = getSlowModeSettings(updateChatRequest)
 
             chat = chat.copy(
                     name = updateChatRequest.name,
                     avatar = avatar,
-                    slug = updateChatRequest.slug ?: chat.id,
+                    slug = slug,
                     tags = updateChatRequest.tags ?: arrayListOf(),
                     description = updateChatRequest.description,
-                    slowMode = slowMode
+                    slowMode = slowMode,
+                    joinAllowanceSettings = updateChatRequest.joinAllowanceSettings ?: mapOf()
             )
 
+            if (slug != null && slug != chat.slug && slug != chat.id) {
+                println(chat.slug)
+                println(chat.id)
+                chatBySlugCacheService.delete(chat.slug).awaitFirstOrNull()
+            }
+
             return@mono updateChat(chat).awaitFirst()
+        }
+    }
+
+    private fun getSlug(updateChatRequest: UpdateChatRequest, chat: Chat): Mono<String> {
+        return mono {
+            return@mono when (updateChatRequest.slug) {
+                null -> chat.id
+                chat.slug -> chat.slug
+                else -> {
+                    val slugAvailability = checkChatSlugAvailability(updateChatRequest.slug).awaitFirst()
+
+                    if (!slugAvailability.available) {
+                        throw SlugIsAlreadyInUseException(
+                                "Slug ${updateChatRequest.slug} is already used by another chat"
+                        )
+                    }
+
+                    updateChatRequest.slug
+                }
+            }
+        }
+    }
+
+    private fun getAvatar(updateChatRequest: UpdateChatRequest, chat: Chat): Mono<Upload<ImageUploadMetadata>?> {
+        return mono {
+            return@mono when (updateChatRequest.avatarId) {
+                null -> null
+                chat.avatar?.id -> chat.avatar
+                else -> {
+                    uploadRepository.findByIdAndType<ImageUploadMetadata>(
+                            updateChatRequest.avatarId,
+                            UploadType.IMAGE
+                    )
+                            .awaitFirstOrNull<Upload<ImageUploadMetadata>?>()
+                            ?: throw UploadNotFoundException("Could not find image with id ${updateChatRequest.avatarId}")
+                }
+            }
+        }
+    }
+
+    private fun getSlowModeSettings(updateChatRequest: UpdateChatRequest): SlowMode? {
+        return if (updateChatRequest.slowMode == null) {
+            null
+        } else {
+            SlowMode(
+                    enabled = updateChatRequest.slowMode.enabled,
+                    interval = updateChatRequest.slowMode.interval,
+                    unit = updateChatRequest.slowMode.unit
+            )
         }
     }
 
