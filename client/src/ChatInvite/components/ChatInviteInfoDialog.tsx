@@ -1,8 +1,18 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {CircularProgress, Dialog, DialogContent, DialogTitle, Theme, Typography} from "@mui/material";
+import {
+    Button,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    Theme,
+    Typography
+} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
-import {Remove} from "@mui/icons-material";
+import {ArrowBack, Remove} from "@mui/icons-material";
 import {format} from "date-fns";
 import {getChatInviteLink} from "../utils";
 import {JoinChatAllowanceInfo} from "../../JoinChatAllowanceForm";
@@ -154,6 +164,9 @@ export const ChatInviteInfoDialog: FunctionComponent = observer(() => {
                 onClose={closeDialog}
         >
             <DialogTitle>
+                <IconButton onClick={closeDialog}>
+                    <ArrowBack/>
+                </IconButton>
                 {l("chat.invite.with-name", {name: chatInvite.name ?? link})}
                 <div style={{float: "right"}}>
                     <CopyToClipboardButton content={link}
@@ -164,6 +177,14 @@ export const ChatInviteInfoDialog: FunctionComponent = observer(() => {
             <DialogContent>
                 {content}
             </DialogContent>
+            <DialogActions>
+                <Button variant="outlined"
+                        color="secondary"
+                        onClick={closeDialog}
+                >
+                    {l("close")}
+                </Button>
+            </DialogActions>
         </Dialog>
     );
 });
