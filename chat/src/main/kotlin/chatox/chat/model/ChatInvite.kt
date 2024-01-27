@@ -25,7 +25,7 @@ data class ChatInvite(
         val userId: String? = null,
         val expiresAt: ZonedDateTime? = null,
         val lastUsedAt: ZonedDateTime? = null,
-        val lastUsedById: String? = null,
+        val lastUsedBy: String? = null,
         val useTimes: Long = 0,
         val maxUseTimes: Long? = null,
         val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf()

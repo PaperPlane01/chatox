@@ -45,7 +45,7 @@ class ChatInviteMapper(private val chatMapper: ChatMapper,
                 .findUserByIdAndPutInLocalCache(chatInvite.userId, localUsersCache)
                 .awaitFirstOrNull()
         val lastUsedBy = userService
-                .findUserByIdAndPutInLocalCache(chatInvite.lastUsedById, localUsersCache)
+                .findUserByIdAndPutInLocalCache(chatInvite.lastUsedBy, localUsersCache)
                 .awaitFirstOrNull()
 
         return@mono ChatInviteFullResponse(
