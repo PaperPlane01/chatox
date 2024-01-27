@@ -29,6 +29,7 @@ import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
+import chatox.chat.repository.mongodb.PendingChatParticipationRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatRoleService
 import chatox.chat.service.CreateMessageService
@@ -75,6 +76,7 @@ class ChatServiceTests {
 
     val chatRepository: ChatRepository = mockk()
     val chatParticipationRepository: ChatParticipationRepository = mockk()
+    val pendingChatParticipationRepository: PendingChatParticipationRepository = mockk()
     val messageRepository: MessageMongoRepository = mockk()
     val uploadRepository: UploadRepository = mockk()
     val chatMessagesCounterRepository: ChatMessagesCounterRepository = mockk()
@@ -103,6 +105,7 @@ class ChatServiceTests {
         chatService = ChatServiceImpl(
                 chatRepository,
                 chatParticipationRepository,
+                pendingChatParticipationRepository,
                 messageRepository,
                 uploadRepository,
                 chatMessagesCounterRepository,
