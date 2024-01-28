@@ -1,6 +1,5 @@
 package chatox.chat.mapper
 
-import chatox.chat.api.request.CreateChatRequest
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.api.response.ChatResponseWithCreatorId
@@ -10,15 +9,12 @@ import chatox.chat.messaging.rabbitmq.event.ChatUpdated
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatInterface
 import chatox.chat.model.ChatParticipation
-import chatox.chat.model.ChatType
 import chatox.chat.model.Message
 import chatox.chat.model.User
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
-import java.time.ZonedDateTime
-import java.util.UUID
 
 @Component
 class ChatMapper(
@@ -40,7 +36,8 @@ class ChatMapper(
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
             user = if (user != null) userMapper.toUserResponse(user) else null,
             type = chat.type,
-            slowMode = chat.slowMode
+            slowMode = chat.slowMode,
+            joinAllowanceSettings = chat.joinAllowanceSettings
     )
 
     fun toChatResponse(chat: ChatInterface, currentUserId: String?, user: User? = null) = ChatResponse(
@@ -56,7 +53,8 @@ class ChatMapper(
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
             type = chat.type,
             user = if (user != null) userMapper.toUserResponse(user) else null,
-            slowMode = chat.slowMode
+            slowMode = chat.slowMode,
+            joinAllowanceSettings = chat.joinAllowanceSettings
     )
 
     fun toChatOfCurrentUserResponse(
@@ -181,7 +179,8 @@ class ChatMapper(
                     deletionComment = chat.chatDeletion?.comment,
                     user = user,
                     type = chat.type,
-                    slowMode = chat.slowMode
+                    slowMode = chat.slowMode,
+                    joinAllowanceSettings = chat.joinAllowanceSettings
             )
         }
     }
