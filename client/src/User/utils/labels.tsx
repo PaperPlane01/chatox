@@ -1,7 +1,7 @@
 import React, {ReactNode} from "react";
+import {Typography, TypographyProps} from "@mui/material";
 import {format, formatDistanceStrict, isSameDay, isSameYear, Locale} from "date-fns";
 import {isStringEmpty} from "../../utils/string-utils";
-import {Typography, TypographyProps} from "@mui/material";
 import {UserEntity} from "../types";
 import {TranslationFunction} from "../../localization";
 
@@ -50,7 +50,7 @@ export const getLastSeenLabel = (lastSeen: Date, locale: Locale): string => {
 
 export const getOnlineOrLastSeenLabel = (user: UserEntity, dateFnsLocale: Locale, l: TranslationFunction, typographyProps?: TypographyProps): ReactNode => {
     let onlineOrLastSeenLabel: ReactNode;
-    const props = typographyProps ? typographyProps : {};
+    const props = typographyProps ?? {};
 
     if (user.online) {
         onlineOrLastSeenLabel = (
@@ -70,4 +70,4 @@ export const getOnlineOrLastSeenLabel = (user: UserEntity, dateFnsLocale: Locale
     }
 
     return onlineOrLastSeenLabel;
-}
+};

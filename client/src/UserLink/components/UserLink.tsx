@@ -7,7 +7,7 @@ import {Link} from "mobx-router";
 import {Avatar} from "../../Avatar";
 import {UserEntity} from "../../User";
 import {Routes} from "../../router";
-import {getUserAvatarLabel} from "../../User/utils/labels";
+import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {useRouter} from "../../store";
 
 interface UserLinkProps {
@@ -42,9 +42,9 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
 }) => {
     const routerStore = useRouter();
     const classes = useStyles();
-    const color = randomColor({seed: user.id});
+    const color = randomColor({seed: user.id, luminosity: "dark"});
     const avatarLabel = getUserAvatarLabel(user);
-    const text = `${user.firstName} ${user.lastName ? user.lastName : ""}`;
+    const text = getUserDisplayedName(user);
 
     if (displayAvatar) {
         return (
