@@ -7,13 +7,21 @@ import {useLocalization, useStore} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     createChatFloatingActionButton: {
-        position: "absolute",
+        position: "fixed",
         bottom: theme.spacing(2),
         right: theme.spacing(2)
     }
 }));
 
-export const CreateChatFloatingActionButton: FunctionComponent = observer(() => {
+interface CreateChatFloatingActionButtonProps {
+    bottom?: number,
+    right?: number
+}
+
+export const CreateChatFloatingActionButton: FunctionComponent<CreateChatFloatingActionButtonProps> = observer(({
+    bottom,
+    right
+}) => {
     const {
         chatCreation: {
             setCreateChatDialogOpen
@@ -26,6 +34,10 @@ export const CreateChatFloatingActionButton: FunctionComponent = observer(() => 
         <Tooltip title={l("chat.create-chat")}>
             <Fab onClick={() => setCreateChatDialogOpen(true)}
                  className={classes.createChatFloatingActionButton}
+                 style={{
+                     bottom,
+                     right
+                 }}
                  color="primary"
             >
                 <Add/>
