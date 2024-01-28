@@ -734,5 +734,10 @@ export interface Labels {
     "chat.join.request.reject.error.no-access": string,
     "chat.join.request.reject.error.unknown": string,
     "chat.join.request.approved": string,
-    "common.selected.count": string
+    "common.selected.count": string,
+    "join.chat.allowance": string,
+    "chat.join.pending": string,
+    "chat.join.error.INSUFFICIENT_VERIFICATION_LEVEL": string,
+    "chat.join.error.ALREADY_CHAT_PARTICIPANT": string,
+    "chat.join.error.AWAITING_APPROVAL": string
 }

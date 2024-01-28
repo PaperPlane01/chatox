@@ -736,5 +736,10 @@ export const ru: Labels = {
     "chat.join.request.reject.error.no-access": "Вы не можете отклонять заявки на участие в этом чате",
     "chat.join.request.reject.error.unknown": "Во время попытки отклонить заявки на участие произошла ошибка, сервер ответил со статусом {errorStatus}",
     "chat.join.request.approved": "Ваша заявка на вступление в чат {chatName} была одобрена",
-    "common.selected.count": "{count} выбрано"
+    "common.selected.count": "{count} выбрано",
+    "join.chat.allowance": "Кто может стать участником чата",
+    "chat.join.pending": "Ваша заявка на участие в чате была отправлена на рассмотрение",
+    "chat.join.error.INSUFFICIENT_VERIFICATION_LEVEL": "You cannot join this chat because of your verification level",
+    "chat.join.error.ALREADY_CHAT_PARTICIPANT": "You cannot join this chat because you are already a chat participant",
+    "chat.join.error.AWAITING_APPROVAL": "You cannot join this chat because your join request is waiting to be approved"
 };

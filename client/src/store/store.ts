@@ -214,9 +214,10 @@ const messageCreation = new CreateMessageStore(
     chatsPreferences,
     messagesForwarding
 );
+const pendingChats = new PendingChatsOfCurrentUserStore(entities);
 const messagesSearch = new SearchMessagesStore(entities, chat);
 const messagesOfChat = new MessagesOfChatStore(entities, chat, messagesSearch);
-const joinChat = new JoinChatStore(entities, authorization);
+const joinChat = new JoinChatStore(entities, pendingChats, language, authorization, snackbarService);
 const userProfile = new UserProfileStore(entities);
 const createChatBlocking = new CreateChatBlockingStore(chat, entities);
 const chatBlockingsOfChat = new ChatBlockingsOfChatStore(entities, chat);
@@ -320,7 +321,6 @@ const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
 const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
 const balance = new BalanceStore(authorization);
 const typingUsers = new TypingUsersStore(entities, authorization);
-const pendingChats = new PendingChatsOfCurrentUserStore(entities);
 const websocket = new WebsocketStore(
     authorization,
     entities,

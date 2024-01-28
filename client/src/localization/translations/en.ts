@@ -736,5 +736,10 @@ export const en: Labels = {
     "chat.join.request.reject.error.no-access": "You cannot reject join requests in this chat",
     "chat.join.request.reject.error.unknown": "Unknown error occurred when tried to reject join chat requests, server responded with {errorStatus} status",
     "chat.join.request.approved": "Your request to join chat {chatName} has been approved",
-    "common.selected.count": "{count} selected"
+    "common.selected.count": "{count} selected",
+    "join.chat.allowance": "Who can join chat",
+    "chat.join.pending": "Your request to join chat has been submitted",
+    "chat.join.error.INSUFFICIENT_VERIFICATION_LEVEL": "You cannot join this chat because of your verification level",
+    "chat.join.error.ALREADY_CHAT_PARTICIPANT": "You cannot join this chat because you are already a chat participant",
+    "chat.join.error.AWAITING_APPROVAL": "You cannot join this chat because your join request is waiting to be approved"
 };
