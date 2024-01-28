@@ -3,6 +3,7 @@ import {ImageUploadMetadata} from "./ImageUploadMetadata";
 import {ChatType} from "./ChatType";
 import {User} from "./User";
 import {SlowMode} from "./SlowMode";
+import {JoinAllowanceMap} from "./JoinAllowanceMap";
 
 export interface Chat {
     avatarUri?: string,
@@ -18,5 +19,6 @@ export interface Chat {
     avatar?: Upload<ImageUploadMetadata>,
     type: ChatType,
     user?: User,
-    slowMode?: SlowMode
+    slowMode?: SlowMode,
+    joinAllowanceSettings: Partial<JoinAllowanceMap>
 }

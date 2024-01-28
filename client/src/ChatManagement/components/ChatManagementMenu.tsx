@@ -39,7 +39,7 @@ const dialogHeaders: DialogHeadersMap = {
         return <TranslatedText label="chat-role.list" bindings={bindings}/>
     },
     SECURITY(): ReactNode {
-        return null;
+        return <TranslatedText label="join.chat.allowance"/>
     },
     SLOW_MODE(bindings?: object): ReactNode {
         return <TranslatedText label="chat.management.tab.SLOW_MODE" bindings={bindings}/>

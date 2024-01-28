@@ -59,7 +59,10 @@ export const JoinChatAllowanceForm: FunctionComponent<JoinChatAllowanceFormProps
                </Typography>
            )}
            {USER_VERIFICATION_LEVELS.map(verificationLevel => (
-               <FormControl fullWidth className={classes.joinChatAllowanceFormField}>
+               <FormControl fullWidth
+                            className={classes.joinChatAllowanceFormField}
+                            key={verificationLevel}
+               >
                    <InputLabel id={`verificationLevelLabel_${verificationLevel}`}>
                        {l(`user.verification.level.${verificationLevel}` as keyof Labels)}
                    </InputLabel>
@@ -69,7 +72,7 @@ export const JoinChatAllowanceForm: FunctionComponent<JoinChatAllowanceFormProps
                            onChange={event => setValue(verificationLevel, event.target.value as JoinChatAllowance)}
                    >
                        {JOIN_CHAT_ALLOWANCES.map(allowance => (
-                           <MenuItem value={allowance}>
+                           <MenuItem value={allowance} key={`${verificationLevel}_${allowance}`}>
                                {l(`join.chat.allowance.${allowance}` as keyof Labels)}
                            </MenuItem>
                        ))}

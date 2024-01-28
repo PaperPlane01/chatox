@@ -1,4 +1,4 @@
-import {TimeUnit} from "../../api/types/response";
+import {JoinAllowanceMap, TimeUnit} from "../../api/types/response";
 
 export interface UpdateChatFormData {
     name: string,
@@ -7,5 +7,6 @@ export interface UpdateChatFormData {
     slug?: string,
     slowModeEnabled: boolean,
     slowModeInterval?: string,
-    slowModeUnit?: TimeUnit
+    slowModeUnit?: TimeUnit,
+    joinAllowanceSettings: JoinAllowanceMap
 }
