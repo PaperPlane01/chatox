@@ -49,11 +49,21 @@ export class UploadReferenceChatsEventsListener {
         }
 
         if (!chat.avatar && existingUploadReference) {
-            existingUploadReference.scheduledForDeletion = true;
-            existingUploadReference.deletionReasons.push(new UploadDeletionReason({
-                deletionReasonType: UploadDeletionReasonType.CHAT_UPDATED_EVENT
-            }));
-            await existingUploadReference.updateOne();
+            await this.uploadReferenceModel.updateOne(
+                {
+                    _id: existingUploadReference.id
+                },
+                {
+                    $set: {
+                        scheduledForDeletion: true
+                    },
+                    $push: {
+                        deletionReasons: new UploadDeletionReason({
+                            deletionReasonType: UploadDeletionReasonType.CHAT_UPDATED_EVENT
+                        })
+                    }
+                }
+            );
             return;
         }
 
