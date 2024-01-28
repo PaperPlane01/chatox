@@ -83,6 +83,10 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
 
             val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
 
+            if (!checkPendingChatParticipation(chatId, currentUser.id).awaitFirst()) {
+                throw JoinChatRejectedException(JoinChatRejectionReason.AWAITING_APPROVAL)
+            }
+
             var invite: ChatInvite? = null
 
             if (inviteId != null) {
@@ -149,6 +153,14 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
 
             return@mono chatInvite
         }
+    }
+
+    private fun checkPendingChatParticipation(chatId: String, userId: String): Mono<Boolean> {
+        return this.pendingChatParticipationRepository.existsByChatIdAndUserId(
+                chatId = chatId,
+                userId = userId
+        )
+                .map { !it }
     }
 
     private fun createChatParticipation(
