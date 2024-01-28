@@ -17,13 +17,19 @@ export const Balance: FunctionComponent<BalanceProps> = observer(({
 }) => {
     const {l} = useLocalization();
 
-    return (
-        <Tooltip title={amount}
-                 hidden={amount < 1000}
-        >
+    if (amount < 1000) {
+        return (
             <Typography>
                 <strong>{shortNumber(amount)}</strong> {l(`currency.${currency}.plural` as keyof Labels)}
             </Typography>
-        </Tooltip>
-    );
+        );
+    } else {
+        return (
+            <Tooltip title={amount}>
+                <Typography>
+                    <strong>{shortNumber(amount)}</strong> {l(`currency.${currency}.plural` as keyof Labels)}
+                </Typography>
+            </Tooltip>
+        );
+    }
 });
