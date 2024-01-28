@@ -12,7 +12,7 @@ import {useRouter} from "../../store";
 
 interface UserLinkProps {
     user: UserEntity,
-    displayAvatar: boolean,
+    displayAvatar?: boolean,
     boldText?: boolean,
     avatarWidth?: number,
     avatarHeight?: number,

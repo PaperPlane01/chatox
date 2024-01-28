@@ -10,6 +10,7 @@ import {DrawerAudioControls} from "./DrawerAudioControls";
 import {GlobalBansMenuItem} from "./GlobalBansMenuItem";
 import {ReportsMenuItem} from "./ReportsMenuItem";
 import {RewardsManagementMenuItem} from "./RewardsManagementMenuItem";
+import {PendingChatsMenuItem} from "./PendingChatsMenuItem";
 import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {PasswordRecoveryDialog} from "../../PasswordRecovery";
@@ -52,6 +53,9 @@ export const NavigationalDrawer: FunctionComponent = observer(() => {
                         <MyChatsMenuItem onClick={closeDrawer}/>
                     </HasAnyRole>
                     <SettingsMenuItem onClick={closeDrawer}/>
+                    <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
+                        <PendingChatsMenuItem onClick={closeDrawer}/>
+                    </HasAnyRole>
                     <HasRole role="ROLE_ADMIN">
                         <Divider/>
                         <GlobalBansMenuItem onClick={closeDrawer}/>

@@ -1,0 +1,8 @@
+{
+  "_id": "65b3db89246b717d690474f4",
+  "_class": "chatox.chat.model.PendingChatParticipation",
+  "chatId": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+  "createdAt": "2024-01-26T16:19:21.782Z",
+  "inviteId": "65b3d575246b717d690474f1",
+  "userId": "4a6ff344-84b6-4f97-bc0b-da1f2501f323",
+}

@@ -3,7 +3,9 @@ package chatox.chat.api.response
 import chatox.chat.model.ChatDeletionReason
 import chatox.chat.model.ChatType
 import chatox.chat.model.ImageUploadMetadata
+import chatox.chat.model.JoinChatAllowance
 import chatox.chat.model.SlowMode
+import chatox.platform.security.VerificationLevel
 import java.time.ZonedDateTime
 
 data class ChatOfCurrentUserResponse(
@@ -27,5 +29,6 @@ data class ChatOfCurrentUserResponse(
         val deletionReason: ChatDeletionReason?,
         val deletionComment: String?,
         val user: UserResponse?,
-        val slowMode: SlowMode? = null
+        val slowMode: SlowMode? = null,
+        val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf()
 )

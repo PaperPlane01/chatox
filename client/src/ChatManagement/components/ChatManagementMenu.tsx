@@ -21,19 +21,25 @@ const dialogHeaders: DialogHeadersMap = {
         return <TranslatedText label="chat.blocking.list" bindings={bindings}/>;
     }, 
     DELETION(bindings?: object): ReactNode {
-        return <TranslatedText label="chat.delete"/>;
+        return <TranslatedText label="chat.delete" bindings={bindings}/>;
     },
     INFO(bindings?: object): ReactNode {
         return <TranslatedText label="chat.update" bindings={bindings}/>;
     }, 
-    PARTICIPANTS(bindings?: object): ReactNode {
+    PARTICIPANTS(): ReactNode {
         return null;
+    },
+    INVITES(bindings?: object): ReactNode {
+        return <TranslatedText label="chat.invite.list" bindings={bindings}/>
+    },
+    JOIN_REQUESTS(): ReactNode {
+        return <TranslatedText label="chat.join.requests"/>
     },
     ROLES(bindings?: object): ReactNode {
         return <TranslatedText label="chat-role.list" bindings={bindings}/>
     },
-    SECURITY(bindings?: object): ReactNode {
-        return null;
+    SECURITY(): ReactNode {
+        return <TranslatedText label="join.chat.allowance"/>
     },
     SLOW_MODE(bindings?: object): ReactNode {
         return <TranslatedText label="chat.management.tab.SLOW_MODE" bindings={bindings}/>
@@ -61,6 +67,8 @@ export const ChatManagementMenu: FunctionComponent = observer(() => {
         canBlockUsersInChat,
         canCreateChatRole,
         canDeleteChat,
+        canManageInvites,
+        canApproveJoinChatRequests,
         hasAccessToChatManagementPage
     } = useChatManagementPermissions();
     const tabAccessMap = useTabAccessMap({
@@ -68,6 +76,8 @@ export const ChatManagementMenu: FunctionComponent = observer(() => {
         canBlockUsersInChat,
         canCreateChatRole,
         canDeleteChat,
+        canManageInvites,
+        canApproveJoinChatRequests,
         hasAccessToChatManagementPage
     });
 
@@ -103,6 +113,7 @@ export const ChatManagementMenu: FunctionComponent = observer(() => {
                 <ChatManagementFullScreenDialog open={activeTab === tab}
                                                 title={renderDialogHeader(tab, {chatName: selectedChat.name})}
                                                 chatSlug={selectedChat.slug ?? selectedChat.id}
+                                                key={`${tab}_tab`}
                 >
                     <ChatManagementTabWrapper tab={tab} accessible={Boolean(tabAccessMap.get(tab))} hideHeader/>
                 </ChatManagementFullScreenDialog>

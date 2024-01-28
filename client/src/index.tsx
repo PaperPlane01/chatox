@@ -5,14 +5,18 @@ import {parse} from "query-string";
 import {startRouter} from "mobx-router";
 import {App} from "./App";
 import {store, rootStore} from "./store";
-import {Routes} from "./router";
+import {RouterStoreAware, Routes} from "./router";
 import * as serviceWorker from "./serviceWorker";
 
 const routerStore = rootStore.router;
+const routerStoreAware: RouterStoreAware[] = [
+    store.messageCreation,
+    store.chatDeletion,
+    store.joinChatByInvite
+];
 
 const injectRouterStore = (): void => {
-    store.messageCreation.setRouterStore(routerStore);
-    store.chatDeletion.setRouterStore(routerStore);
+    routerStoreAware.forEach(store => store.setRouterStore(routerStore));
 };
 
 injectRouterStore();

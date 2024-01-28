@@ -4,5 +4,6 @@ import {ChatRole} from "./ChatRole";
 export interface ChatParticipationWithoutUser {
     id: string,
     role: ChatRole,
-    activeChatBlocking?: ChatBlocking
+    activeChatBlocking?: ChatBlocking,
+    pending: boolean
 }

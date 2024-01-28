@@ -12,7 +12,7 @@ import {
 } from "../validation";
 import {RegisterUserFormData} from "../types";
 import {API_UNREACHABLE_STATUS, ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
-import {EmailConfirmationCodeResponse, RegistrationResponse} from "../../api/types/response";
+import {EmailConfirmationCodeResponse, RegistrationResponse, UserVerificationLevel} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {AuthorizationStore} from "../../Authorization";
 import {isStringEmpty} from "../../utils/string-utils";
@@ -124,6 +124,7 @@ export class UserRegistrationStore {
         this.validateForm().then(formValid => {
             if (formValid) {
                 this.pending = true;
+                const emailConfirmed = Boolean(this.emailConfirmation?.email);
 
                 UserApi.registerUser({
                     ...this.registrationForm,
@@ -141,7 +142,10 @@ export class UserRegistrationStore {
                             lastName: data.lastName,
                             roles: data.roles,
                             slug: data.slug,
-                            createdAt: data.createdAt
+                            createdAt: data.createdAt,
+                            verificationLevel: emailConfirmed
+                                ? UserVerificationLevel.EMAIL_VERIFIED
+                                : UserVerificationLevel.REGISTERED
                         });
                         this.authorizationStore.setTokens(data.accessToken, data.refreshToken);
                         this.reset();

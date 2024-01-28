@@ -44,7 +44,7 @@ export const UserPhotosGallery: FunctionComponent = observer(() => {
                        rowHeight={256}
             >
                 {uploads.map((upload, index) => (
-                    <UserProfileGalleryPhoto uri={upload.uri}
+                    <UserProfileGalleryPhoto uri={`${upload.uri}?size=512`}
                                              index={index}
                                              userProfilePhotoId={upload.profilePhotoId}
                                              key={upload.id}

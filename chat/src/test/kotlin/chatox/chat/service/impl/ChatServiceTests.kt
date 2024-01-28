@@ -29,6 +29,7 @@ import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
+import chatox.chat.repository.mongodb.PendingChatParticipationRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatRoleService
 import chatox.chat.service.CreateMessageService
@@ -75,6 +76,7 @@ class ChatServiceTests {
 
     val chatRepository: ChatRepository = mockk()
     val chatParticipationRepository: ChatParticipationRepository = mockk()
+    val pendingChatParticipationRepository: PendingChatParticipationRepository = mockk()
     val messageRepository: MessageMongoRepository = mockk()
     val uploadRepository: UploadRepository = mockk()
     val chatMessagesCounterRepository: ChatMessagesCounterRepository = mockk()
@@ -103,6 +105,7 @@ class ChatServiceTests {
         chatService = ChatServiceImpl(
                 chatRepository,
                 chatParticipationRepository,
+                pendingChatParticipationRepository,
                 messageRepository,
                 uploadRepository,
                 chatMessagesCounterRepository,
@@ -360,7 +363,7 @@ class ChatServiceTests {
                 every { chatRepository.existsBySlugOrId(
                         eq(request.slug!!), eq(request.slug!!)
                 ) } returns Mono.just(false)
-                every { chatBySlugCacheService.delete(eq(chat.slug!!)) } returns Mono.empty()
+                every { chatBySlugCacheService.delete(eq(chat.slug)) } returns Mono.empty()
             }
 
             val avatarChanged = request.avatarId != null && request.avatarId != chat.avatar?.id
@@ -406,6 +409,9 @@ class ChatServiceTests {
                             if (options.ensureSameAvatar) chat.avatar?.id else upload.id
                         } else null
                         assertEquals(expectedAvatarId, savedChat.avatar?.id)
+
+                        val expectedJoinAllowanceSettings = request.joinAllowanceSettings ?: mapOf()
+                        assertEquals(expectedJoinAllowanceSettings, savedChat.joinAllowanceSettings)
 
                         verify(exactly = 1) { chatEventsPublisher.chatUpdated(any()) }
 

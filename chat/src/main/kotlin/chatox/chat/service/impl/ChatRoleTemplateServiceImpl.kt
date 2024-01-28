@@ -181,7 +181,9 @@ class ChatRoleTemplateServiceImpl(private val chatRoleTemplateRepository: ChatRo
                                                 upToLevel = StandardChatRole.ADMIN.level
                                         )
                                 ),
-                                pinMessages = DefaultChatFeatureData(enabled = true)
+                                pinMessages = DefaultChatFeatureData(enabled = true),
+                                manageInvites = DefaultChatFeatureData(enabled = true),
+                                approveJoinChatRequests = DefaultChatFeatureData(enabled = true)
                         )
                 ),
                 Pair(
@@ -222,7 +224,9 @@ class ChatRoleTemplateServiceImpl(private val chatRoleTemplateRepository: ChatRo
                                                 upToLevel = StandardChatRole.ADMIN.level
                                         )
                                 ),
-                                pinMessages = DefaultChatFeatureData(enabled = true)
+                                pinMessages = DefaultChatFeatureData(enabled = true),
+                                manageInvites = DefaultChatFeatureData(enabled = true),
+                                approveJoinChatRequests = DefaultChatFeatureData(enabled = true)
                         )
                 ),
                 Pair(
@@ -261,7 +265,9 @@ class ChatRoleTemplateServiceImpl(private val chatRoleTemplateRepository: ChatRo
                                 changeChatSettings = DefaultChatFeatureData(enabled = true),
                                 showRoleNameInMessages = DefaultChatFeatureData(true),
                                 deleteChat = DefaultChatFeatureData(enabled = true),
-                                pinMessages = DefaultChatFeatureData(enabled = true)
+                                pinMessages = DefaultChatFeatureData(enabled = true),
+                                manageInvites = DefaultChatFeatureData(enabled = true),
+                                approveJoinChatRequests = DefaultChatFeatureData(enabled = true)
                         )
                 )
         )

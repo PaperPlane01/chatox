@@ -207,6 +207,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.USER_JOINED_CHAT,
             payload: createChatParticipationDto
         };
+        await this.publishEventToUser(createChatParticipationDto.user.id, userJoinedEvent);
         await this.publishEventToChatParticipants(createChatParticipationDto.chatId, userJoinedEvent);
         await this.publishEventToUsersSubscribedToChat(createChatParticipationDto.chatId, userJoinedEvent);
     }

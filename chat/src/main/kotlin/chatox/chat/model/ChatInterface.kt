@@ -1,5 +1,6 @@
 package chatox.chat.model
 
+import chatox.platform.security.VerificationLevel
 import java.time.ZonedDateTime
 
 interface ChatInterface {
@@ -24,4 +25,5 @@ interface ChatInterface {
     val chatDeletion: ChatDeletion?
     val dialogDisplay: List<DialogDisplay>
     val slowMode: SlowMode?
+    val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance>
 }

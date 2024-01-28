@@ -1,5 +1,6 @@
 package chatox.user.security
 
+import chatox.platform.security.VerificationLevel
 import chatox.user.api.response.GlobalBanResponse
 import chatox.user.api.response.UploadResponse
 import chatox.user.domain.ImageUploadMetadata
@@ -19,4 +20,5 @@ data class CurrentUser(
         val email: String?,
         val globalBan: GlobalBanResponse?,
         val externalAvatarUri: String?,
+        val verificationLevel: VerificationLevel
 )

@@ -8,7 +8,8 @@ import {
     ChatOfCurrentUser,
     ChatParticipation,
     ChatType,
-    CurrentUser
+    CurrentUser,
+    populateJoinAllowanceSettings
 } from "../../api/types/response";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {mergeCustomizer} from "../../utils/object-utils";
@@ -120,7 +121,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
             createdByCurrentUser: privateChatCreated.message.sender.id === this.currentUser.id,
             onlineParticipantsCount: 0,
             scheduledMessages: [],
-            tags: []
+            tags: [],
+            joinAllowanceSettings: populateJoinAllowanceSettings({})
         };
         patch.ids.chats.push(privateChatCreated.id);
 
@@ -342,8 +344,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
         return {
             id: denormalizedEntity.id,
             avatarUri: denormalizedEntity.avatarUri,
-            lastMessage: denormalizedEntity.lastMessage && denormalizedEntity.lastMessage.id,
-            lastReadMessage: denormalizedEntity.lastReadMessage && denormalizedEntity.lastReadMessage.id,
+            lastMessage: denormalizedEntity.lastMessage?.id,
+            lastReadMessage: denormalizedEntity.lastReadMessage?.id,
             name: denormalizedEntity.name,
             slug: denormalizedEntity.slug,
             createdAt: new Date(denormalizedEntity.createdAt),
@@ -352,10 +354,9 @@ export class ChatsStore extends SoftDeletableEntityStore<
             unreadMessagesCount,
             participantsCount: denormalizedEntity.participantsCount,
             participants: [],
-            currentUserParticipationId: denormalizedEntity.chatParticipation
-                && denormalizedEntity.chatParticipation.id,
+            currentUserParticipationId: denormalizedEntity.chatParticipation?.id,
             description: denormalizedEntity.description,
-            avatarId: denormalizedEntity.avatar && denormalizedEntity.avatar.id,
+            avatarId: denormalizedEntity.avatar?.id,
             createdByCurrentUser: denormalizedEntity.createdByCurrentUser,
             tags: denormalizedEntity.tags,
             onlineParticipantsCount: denormalizedEntity.onlineParticipantsCount,
@@ -365,7 +366,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
             scheduledMessages: [],
             userId: denormalizedEntity.user ? denormalizedEntity.user.id : undefined,
             type: denormalizedEntity.type,
-            slowMode: denormalizedEntity.slowMode
+            slowMode: denormalizedEntity.slowMode,
+            joinAllowanceSettings: populateJoinAllowanceSettings(denormalizedEntity.joinAllowanceSettings)
         }
     }
 }

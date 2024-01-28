@@ -8,6 +8,7 @@ import {
 import {ConfirmChatDeletionDialog, SpecifyChatDeletionReasonDialog} from "../Chat";
 import {ChatBlockingInfoDialog, UpdateChatBlockingDialog} from "../ChatBlocking";
 import {ChatRoleInfoDialog, CreateChatRoleDialog} from "../ChatRole";
+import {ChatInviteInfoDialog, CreateChatInviteDialog, UpdateChatInviteDialog} from "../ChatInvite";
 
 export const ChatManagementPage: FunctionComponent = () => (
     <Grid container>
@@ -25,6 +26,9 @@ export const ChatManagementPage: FunctionComponent = () => (
         <CreateChatRoleDialog/>
         <ConfirmChatDeletionDialog/>
         <SpecifyChatDeletionReasonDialog/>
+        <ChatInviteInfoDialog/>
+        <CreateChatInviteDialog/>
+        <UpdateChatInviteDialog/>
     </Grid>
 );
 

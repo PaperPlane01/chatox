@@ -4,13 +4,15 @@ import {ChatStore} from "./ChatStore";
 import {ChatOfCurrentUserEntity, TagErrorsMap, UpdateChatFormData} from "../types";
 import {
     validateChatDescription,
-    validateChatName, validateChatSlowModeInterval, validateChatSlowModeTimeUnit,
+    validateChatName,
+    validateChatSlowModeInterval,
+    validateChatSlowModeTimeUnit,
     validateChatSlug,
     validateChatTag,
     validateChatTags
 } from "../validation";
 import {ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {ImageUploadMetadata, SlowMode} from "../../api/types/response";
+import {ImageUploadMetadata, JoinChatAllowance, SlowMode, UserVerificationLevel} from "../../api/types/response";
 import {AbstractFormStore} from "../../form-store";
 import {UploadImageStore} from "../../Upload";
 import {EntitiesStore} from "../../entities-store";
@@ -25,7 +27,12 @@ const INITIAL_FORM_VALUES: UpdateChatFormData = {
     name: "",
     slug: undefined,
     tags: [],
-    slowModeEnabled: false
+    slowModeEnabled: false,
+    joinAllowanceSettings: {
+        [UserVerificationLevel.ANONYMOUS]: JoinChatAllowance.ALLOWED,
+        [UserVerificationLevel.REGISTERED]: JoinChatAllowance.ALLOWED,
+        [UserVerificationLevel.EMAIL_VERIFIED]: JoinChatAllowance.ALLOWED
+    }
 };
 const INITIAL_FORM_ERRORS: FormErrors<UpdateChatFormData> = createWithUndefinedValues(INITIAL_FORM_VALUES);
 
@@ -67,8 +74,7 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
     }
 
     get uploadedAvatarId(): string | undefined {
-        return (this.avatarFileContainer && this.avatarFileContainer.uploadedFile
-            && this.avatarFileContainer.uploadedFile.id) || this.selectedChat?.avatarId
+        return this.avatarFileContainer?.uploadedFile?.id ?? this.selectedChat?.avatarId
     }
 
     constructor(private readonly uploadChatAvatarStore: UploadImageStore,
@@ -105,7 +111,8 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
                         tags: selectedChat.tags,
                         slowModeEnabled: selectedChat.slowMode ? selectedChat.slowMode.enabled : false,
                         slowModeInterval: selectedChat.slowMode?.interval.toString(),
-                        slowModeUnit: selectedChat.slowMode?.unit
+                        slowModeUnit: selectedChat.slowMode?.unit,
+                        joinAllowanceSettings: selectedChat.joinAllowanceSettings
                     });
                 }
             }
@@ -160,6 +167,10 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
             .finally(() => runInAction(() => this.checkingSlugAvailability = false));
     }
 
+    setJoinAllowance = (verificationLevel: UserVerificationLevel, allowance: JoinChatAllowance): void => {
+        this.formValues.joinAllowanceSettings[verificationLevel] = allowance;
+    }
+
     submitForm = (): void => {
         const chatId = this.selectedChat?.id;
 
@@ -180,7 +191,8 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
             name: this.formValues.name,
             slug: this.formValues.slug,
             tags: this.formValues.tags,
-            slowMode: this.getSlowModeFromForm()
+            slowMode: this.getSlowModeFromForm(),
+            joinAllowanceSettings: this.formValues.joinAllowanceSettings
         })
             .then(({data}) => {
                 this.entities.chats.insert(data);
@@ -230,6 +242,6 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
 
         return !containsNotUndefinedValues(this.formErrors)
             && !containsNotUndefinedValues(this.tagsErrorsMap)
-            && !Boolean(this.avatarValidationError)
+            && !this.avatarValidationError
     }
 }

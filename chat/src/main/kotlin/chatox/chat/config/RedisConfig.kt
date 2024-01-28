@@ -144,8 +144,7 @@ class RedisConfig {
 
     private fun <T: Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
         val stringRedisSerializer = StringRedisSerializer()
-        val jackson2JsonRedisSerializer = Jackson2JsonRedisSerializer(clazz.java)
-        jackson2JsonRedisSerializer.setObjectMapper(objectMapper)
+        val jackson2JsonRedisSerializer = Jackson2JsonRedisSerializer(objectMapper, clazz.java)
         val redisSerializationContext = RedisSerializationContext.newSerializationContext<String, T>(stringRedisSerializer)
                 .value(jackson2JsonRedisSerializer)
                 .build()

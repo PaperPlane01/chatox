@@ -1,6 +1,5 @@
 package chatox.chat.messaging.rabbitmq.event.listener
 
-import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.config.RedisConfig
 import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.messaging.rabbitmq.event.UserCreated
@@ -14,12 +13,14 @@ import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
 import chatox.chat.model.User
+import chatox.chat.repository.elasticsearch.ChatElasticsearchRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.repository.mongodb.UserRepository
 import chatox.chat.support.UserDisplayedNameHelper
 import chatox.platform.cache.ReactiveCacheService
+import chatox.platform.security.VerificationLevel
 import com.rabbitmq.client.Channel
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -30,6 +31,7 @@ import org.springframework.amqp.support.AmqpHeaders
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 
 @Component
@@ -37,11 +39,15 @@ class UserEventsListener(private val userRepository: UserRepository,
                          private val chatParticipationRepository: ChatParticipationRepository,
                          private val uploadRepository: UploadRepository,
                          private val chatRepository: ChatRepository,
+                         private val chatElasticsearchRepository: ChatElasticsearchRepository,
                          private val chatParticipationMapper: ChatParticipationMapper,
                          private val chatEventsPublisher: ChatEventsPublisher,
 
                          @Qualifier(RedisConfig.CHAT_BY_ID_CACHE_SERVICE)
-                         private val chatCacheService: ReactiveCacheService<Chat, String>,
+                         private val chatByIdCacheService: ReactiveCacheService<Chat, String>,
+
+                         @Qualifier(RedisConfig.CHAT_BY_SLUG_CACHE_SERVICE)
+                         private val chatBySlugCacheService: ReactiveCacheService<Chat, String>,
                          private val userDisplayedNameHelper: UserDisplayedNameHelper) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -68,7 +74,8 @@ class UserEventsListener(private val userRepository: UserRepository,
                     email = userCreated.email,
                     anonymoys = userCreated.anonymous,
                     accountRegistrationType = userCreated.accountRegistrationType,
-                    externalAvatarUri = userCreated.externalAvatarUri
+                    externalAvatarUri = userCreated.externalAvatarUri,
+                    verificationLevel = VerificationLevel.getVerificationLevel(userCreated.anonymous, userCreated.email)
             )).awaitFirst()
         }
                 .doOnSuccess { channel.basicAck(tag, false) }
@@ -82,7 +89,6 @@ class UserEventsListener(private val userRepository: UserRepository,
                       @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
         mono {
             log.info("User with id ${userUpdated.id} has been updated")
-            log.debug("Updated user is $userUpdated")
             var user = userRepository.findById(userUpdated.id).awaitFirstOrNull()
 
             if (user != null) {
@@ -105,7 +111,8 @@ class UserEventsListener(private val userRepository: UserRepository,
                         dateOfBirth = userUpdated.dateOfBirth,
                         createdAt = userUpdated.createdAt,
                         avatar = avatar,
-                        email = userUpdated.email
+                        email = userUpdated.email,
+                        verificationLevel = VerificationLevel.getVerificationLevel(user.anonymoys, user.email)
                 ))
                         .awaitFirst()
                 chatParticipationRepository
@@ -158,7 +165,6 @@ class UserEventsListener(private val userRepository: UserRepository,
                          @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
         mono {
             log.info("userWentOnline event received")
-            log.debug("$userWentOnline")
             var user = userRepository.findById(userWentOnline.userId).awaitFirstOrNull()
 
             if (user != null) {
@@ -178,7 +184,11 @@ class UserEventsListener(private val userRepository: UserRepository,
                             .awaitFirst()
                     log.debug("Increasing number of online participants")
                     chatRepository.increaseNumberOfOnlineParticipants(chatParticipation.chatId)
-                            .flatMap { chat -> chatCacheService.put(chat) }
+                            .flatMap { chat -> Mono.zip(
+                                    chatByIdCacheService.put(chat),
+                                    chatBySlugCacheService.put(chat),
+                                    chatElasticsearchRepository.save(chat.toElasticsearch())
+                            ) }
                             .subscribe()
                 }
 
@@ -221,7 +231,11 @@ class UserEventsListener(private val userRepository: UserRepository,
 
                 for (chatParticipation in chatParticipations) {
                     chatRepository.decreaseNumberOfOnlineParticipants(chatParticipation.chatId)
-                            .flatMap { chat -> chatCacheService.put(chat) }
+                            .flatMap { chat -> Mono.zip(
+                                    chatByIdCacheService.put(chat),
+                                    chatBySlugCacheService.put(chat),
+                                    chatElasticsearchRepository.save(chat.toElasticsearch())
+                            ) }
                             .subscribe()
                 }
 

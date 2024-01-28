@@ -35,6 +35,8 @@ const StickerPacksPage = lazy(() => import("../pages/StickerPacksPage"));
 const NewPrivateChatPage = lazy(() => import("../pages/NewPrivateChatPage"));
 const RewardsManagementPage = lazy(() => import("../pages/RewardsManagementPage"));
 const ChatManagementPage = lazy(() => import("../pages/ChatManagementPage"));
+const ChatInvitePage = lazy(() => import("../pages/ChatInvitePage"));
+const PendingChatsListPage = lazy(() => import("../pages/PendingChatsListPage"));
 
 export const Routes = {
     home: new Route({
@@ -366,6 +368,38 @@ export const Routes = {
             if (!store.rewardsList.fetchingState.initiallyFetched) {
                 store.rewardsList.fetchRewards();
             }
+        }
+    }),
+    chatInvite: new Route<any, {id: string}>({
+        path: "/invites/:id",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <ChatInvitePage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: (_, {id}) => {
+            store.chatInvite.fetchChatInvite(id);
+        },
+        onParamsChange: (_, {id}) => {
+            store.chatInvite.fetchChatInvite(id);
+        },
+        onExit: () => {
+            store.chatInvite.reset();
+        }
+    }),
+    pendingChats: new Route<any>({
+        path: "/pending-chats",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <PendingChatsListPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: () => {
+            store.pendingChats.fetchPendingChats();
         }
     })
 };

@@ -64,6 +64,10 @@ class ChatController(private val chatService: ChatService,
     fun getChatsOfCurrentUser() = chatService.getChatsOfCurrentUser()
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    @GetMapping("/my/pending")
+    fun getPendingChatsOfCurrentUser() = chatService.getPendingChatsOfCurrentUser()
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @GetMapping("/my", params = ["query"])
     fun searchChatsOfCurrentUser(@RequestParam query: String) = chatSearchService.searchChatsOfCurrentUser(query)
 

@@ -1,4 +1,4 @@
-import {SlowMode} from "../response";
+import {JoinAllowanceMap, SlowMode} from "../response";
 
 export interface UpdateChatRequest {
     name: string,
@@ -6,5 +6,6 @@ export interface UpdateChatRequest {
     description?: string,
     tags: string[],
     avatarId?: string,
-    slowMode?: SlowMode
+    slowMode?: SlowMode,
+    joinAllowanceSettings?: Partial<JoinAllowanceMap>
 }

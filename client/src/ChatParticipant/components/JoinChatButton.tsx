@@ -1,7 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, CircularProgress} from "@mui/material";
-import {useSnackbar} from "notistack";
 import {useLocalization, useStore} from "../../store";
 
 export const JoinChatButton: FunctionComponent = observer(() => {
@@ -10,20 +9,11 @@ export const JoinChatButton: FunctionComponent = observer(() => {
             selectedChatId
         },
         joinChat: {
-            error,
-            showSnackbar,
             pending,
             joinChat: doJoinChat,
-            setShowSnackbar
         }
     } = useStore();
     const {l} = useLocalization();
-    const {enqueueSnackbar} = useSnackbar();
-
-    if (error && showSnackbar) {
-        enqueueSnackbar(l("chat.join.error", {variant: "error"}));
-        setShowSnackbar(false);
-    }
 
     const handleClick = (): void => {
         if (selectedChatId) {

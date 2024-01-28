@@ -8,9 +8,9 @@ import {FormErrors} from "../../utils/types";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {DeleteChatRequest} from "../../api/types/request";
-import {Routes} from "../../router";
+import {RouterStoreAware, Routes} from "../../router";
 
-export class DeleteChatStore {
+export class DeleteChatStore implements RouterStoreAware {
     deleteChatForm: DeleteChatFormData = {
         reason: ChatDeletionReason.SPAM,
         comment: undefined

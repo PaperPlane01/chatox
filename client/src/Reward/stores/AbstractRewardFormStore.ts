@@ -1,6 +1,5 @@
 import {action, makeObservable, reaction} from "mobx";
 import {AxiosPromise} from "axios";
-import {SelectUserForRewardStore} from "./SelectUserForRewardStore";
 import {RewardFormData} from "../types";
 import {
     validateMaxRewardValue,
@@ -20,6 +19,7 @@ import {containsNotUndefinedValues, createWithUndefinedValues, isDefined} from "
 import {isStringEmpty} from "../../utils/string-utils";
 import {SnackbarService} from "../../Snackbar";
 import {Labels, LocaleStore} from "../../localization";
+import {SelectUserStore} from "../../UserSelect";
 
 const INITIAL_FORM_VALUES: RewardFormData = {
     active: true,
@@ -38,7 +38,7 @@ const INITIAL_FORM_ERRORS: FormErrors<RewardFormData> = createWithUndefinedValue
 
 export abstract class AbstractRewardFormStore extends AbstractFormStore<RewardFormData> {
     protected constructor(protected readonly entities: EntitiesStore,
-                          protected readonly selectedUser: SelectUserForRewardStore,
+                          protected readonly selectedUser: SelectUserStore,
                           protected readonly localeStore: LocaleStore,
                           protected readonly snackbarService: SnackbarService) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);

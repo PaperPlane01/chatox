@@ -16,7 +16,6 @@ import chatox.chat.model.MessageRead
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Upload
 import chatox.chat.service.UserService
-import chatox.chat.util.NTuple5
 import chatox.chat.util.NTuple6
 import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
@@ -210,8 +209,12 @@ class MessageMapper(private val userService: UserService,
             } else {
                 getReferredMessage(message, readByCurrentUser, localReferredMessagesCache, localUsersCache).awaitFirst()
             }
-            val sender: UserResponse = getUser(message.senderId, localUsersCache).awaitFirst()
-            val pinnedBy: UserResponse? = getOptionalUser(message.pinnedById, localUsersCache).awaitFirstOrNull()
+            val sender: UserResponse = userService
+                    .findUserByIdAndPutInLocalCache(message.senderId, localUsersCache)
+                    .awaitFirst()
+            val pinnedBy: UserResponse? = userService
+                    .findUserByIdAndPutInLocalCache(message.pinnedById, localUsersCache)
+                    .awaitFirstOrNull()
             val chatParticipation = getChatParticipation(message.chatParticipationId!!, localChatParticipationsCache)
                     .awaitFirst()
             val chatRole = getChatRole(chatParticipation.roleId, localChatRolesCache).awaitFirst()
@@ -220,11 +223,9 @@ class MessageMapper(private val userService: UserService,
             } else {
                 getChatParticipation(message.chatParticipationIdInSourceChat!!, localChatParticipationsCache).awaitFirst()
             }
-            val forwardedBy = if (message.forwardedById == null) {
-                null
-            } else {
-                getUser(message.forwardedById!!, localUsersCache).awaitFirst()
-            }
+            val forwardedBy = userService
+                    .findUserByIdAndPutInLocalCache(message.forwardedById, localUsersCache)
+                    .awaitFirstOrNull()
 
             return@mono NTuple6(referredMessage, sender, pinnedBy, chatRole, chatParticipationInSourceChat, forwardedBy)
         }
@@ -252,34 +253,6 @@ class MessageMapper(private val userService: UserService,
 
                 return@mono putInLocalCache(referredMessage, localReferredMessagesCache) { it.id }
             }
-        }
-    }
-
-    private fun getUser(id: String, localUsersCache: MutableMap<String, UserResponse>?): Mono<UserResponse> {
-        return mono {
-            if (localUsersCache != null && localUsersCache.containsKey(id)) {
-                return@mono localUsersCache[id]!!
-            }
-
-            return@mono userService
-                    .findUserByIdAndPutInLocalCache(id, localUsersCache)
-                    .awaitFirst()
-        }
-    }
-
-    private fun getOptionalUser(id: String?, localUsersCache: MutableMap<String, UserResponse>?): Mono<UserResponse?> {
-        return mono {
-            if (id == null) {
-                return@mono null
-            }
-
-            if (localUsersCache != null && localUsersCache.containsKey(id)) {
-                return@mono localUsersCache[id]!!
-            }
-
-            return@mono userService
-                    .findUserByIdAndPutInLocalCache(id, localUsersCache)
-                    .awaitFirstOrNull()
         }
     }
 

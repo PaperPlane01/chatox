@@ -3,11 +3,13 @@ package chatox.chat.mapper
 import chatox.chat.api.response.ChatBlockingResponse
 import chatox.chat.api.response.ChatParticipationMinifiedResponse
 import chatox.chat.api.response.ChatParticipationResponse
+import chatox.chat.api.response.PendingChatParticipationResponse
 import chatox.chat.api.response.UserResponse
 import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.DialogParticipant
+import chatox.chat.model.PendingChatParticipation
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.service.ChatBlockingService
 import chatox.chat.support.UserDisplayedNameHelper
@@ -36,7 +38,10 @@ class ChatParticipationMapper(private val userMapper: UserMapper,
         this.chatBlockingService = chatBlockingService
     }
 
-    fun toMinifiedChatParticipationResponse(chatParticipation: ChatParticipation, updateChatBlockingStatusIfNecessary: Boolean = false): Mono<ChatParticipationMinifiedResponse> {
+    fun toMinifiedChatParticipationResponse(
+            chatParticipation: ChatParticipation,
+            updateChatBlockingStatusIfNecessary: Boolean = false
+    ): Mono<ChatParticipationMinifiedResponse> {
         return mono {
             var activeChatBlocking: ChatBlockingResponse? = null
             val lastChatBlockingId = chatParticipation.lastActiveChatBlockingId
@@ -67,6 +72,11 @@ class ChatParticipationMapper(private val userMapper: UserMapper,
         }
     }
 
+    fun toMinifiedChatParticipationResponse(pendingChatParticipation: PendingChatParticipation) = ChatParticipationMinifiedResponse(
+            id = pendingChatParticipation.id,
+            pending = true
+    )
+
     fun toChatParticipationResponse(
             chatParticipation: ChatParticipation,
             localUsersCache: MutableMap<String, UserResponse> = mutableMapOf(),
@@ -94,5 +104,16 @@ class ChatParticipationMapper(private val userMapper: UserMapper,
             userId = chatParticipation.user.id,
             userSlug = chatParticipation.user.slug,
             userDisplayedName = userDisplayedNameHelper.getDisplayedName(chatParticipation.user)
+    )
+
+    fun toPendingChatParticipationResponse(
+            chatParticipation: PendingChatParticipation,
+            users: Map<String, UserResponse>
+    ): PendingChatParticipationResponse = PendingChatParticipationResponse(
+            id = chatParticipation.id,
+            createdAt = chatParticipation.createdAt,
+            chatId = chatParticipation.chatId,
+            user = users[chatParticipation.userId]!!,
+            restoredChatParticipationId = chatParticipation.restoredChatParticipationId
     )
 }

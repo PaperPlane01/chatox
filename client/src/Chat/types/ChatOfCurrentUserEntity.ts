@@ -1,4 +1,4 @@
-import {ChatDeletionReason, ChatType, SlowMode} from "../../api/types/response";
+import {ChatDeletionReason, ChatType, JoinAllowanceMap, SlowMode} from "../../api/types/response";
 
 export interface ChatOfCurrentUserEntity {
     id: string,
@@ -26,5 +26,6 @@ export interface ChatOfCurrentUserEntity {
     pinnedMessageId?: string,
     type: ChatType,
     userId?: string,
-    slowMode?: SlowMode
+    slowMode?: SlowMode,
+    joinAllowanceSettings: JoinAllowanceMap
 }

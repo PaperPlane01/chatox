@@ -2,7 +2,9 @@ package chatox.chat.api.response
 
 import chatox.chat.model.ChatType
 import chatox.chat.model.ImageUploadMetadata
+import chatox.chat.model.JoinChatAllowance
 import chatox.chat.model.SlowMode
+import chatox.platform.security.VerificationLevel
 import com.fasterxml.jackson.annotation.JsonInclude
 
 data class ChatResponse(
@@ -23,5 +25,7 @@ data class ChatResponse(
         @field:JsonInclude(JsonInclude.Include.NON_NULL)
         val user: UserResponse? = null,
 
-        val slowMode: SlowMode? = null
+        val slowMode: SlowMode? = null,
+
+        val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf()
 )

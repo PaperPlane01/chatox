@@ -18,5 +18,7 @@ export interface ChatFeatures {
     blockingImmunity: LevelBasedChatFeatureData,
     messageDeletionsImmunity: LevelBasedChatFeatureData,
     showRoleNameInMessages: ChatFeatureData,
-    pinMessages: ChatFeatureData
+    pinMessages: ChatFeatureData,
+    manageInvites: ChatFeatureData,
+    approveJoinChatRequests: ChatFeatureData
 }

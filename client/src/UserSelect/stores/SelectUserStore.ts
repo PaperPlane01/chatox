@@ -1,5 +1,5 @@
 import {action, makeObservable, observable, reaction} from "mobx";
-import {SelectUserForRewardFormData} from "../types";
+import {SelectUserFormData} from "../types";
 import {validateSelectedUserIdOrSlug} from "../validation";
 import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
@@ -8,22 +8,23 @@ import {EntitiesStore} from "../../entities-store";
 import {UserEntity} from "../../User";
 import {getInitialApiErrorFromResponse, UserApi} from "../../api";
 
-const INITIAL_FORM_VALUES: SelectUserForRewardFormData = {
+const INITIAL_FORM_VALUES: SelectUserFormData = {
     userIdOrSlug: ""
 };
-const INITIAL_FOR_ERRORS: FormErrors<SelectUserForRewardFormData> = createWithUndefinedValues(INITIAL_FORM_VALUES);
+const INITIAL_FOR_ERRORS: FormErrors<SelectUserFormData> = createWithUndefinedValues(INITIAL_FORM_VALUES);
 
-export class SelectUserForRewardStore extends AbstractFormStore<SelectUserForRewardFormData> {
+export class SelectUserStore extends AbstractFormStore<SelectUserFormData> {
     selectedUser: UserEntity | undefined;
 
     constructor(private readonly entities: EntitiesStore) {
         super(INITIAL_FORM_VALUES, INITIAL_FOR_ERRORS);
 
-        makeObservable<SelectUserForRewardStore, "validateForm">(this, {
+        makeObservable<SelectUserStore, "validateForm">(this, {
             selectedUser: observable,
             setSelectedUser: action,
             submitForm: action,
-            validateForm: action
+            validateForm: action,
+            reset: action
         });
 
         reaction(
@@ -60,5 +61,10 @@ export class SelectUserForRewardStore extends AbstractFormStore<SelectUserForRew
         });
 
         return !containsNotUndefinedValues(this.formErrors);
+    }
+
+    reset = (): void => {
+        this.resetForm();
+        this.setSelectedUser(undefined);
     }
 }

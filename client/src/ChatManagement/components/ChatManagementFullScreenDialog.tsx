@@ -20,7 +20,6 @@ export const ChatManagementFullScreenDialog: FunctionComponent<ChatManagementFul
     const router = useRouter();
 
     const handleBackClick = (): void => {
-        console.log("Going back!")
         router.goTo(Routes.chatManagement, {slug: chatSlug});
     };
 
@@ -38,5 +37,5 @@ export const ChatManagementFullScreenDialog: FunctionComponent<ChatManagementFul
                {children}
            </DialogContent>
        </Dialog>
-   ) ;
+   );
 });

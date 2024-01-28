@@ -7,6 +7,7 @@ import chatox.chat.api.response.MessageResponse
 import chatox.chat.messaging.rabbitmq.event.ChatUpdated
 import chatox.chat.messaging.rabbitmq.event.MessageCreated
 import chatox.chat.model.Chat
+import chatox.chat.model.ChatInvite
 import chatox.chat.model.ChatMessagesCounter
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
@@ -14,6 +15,7 @@ import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.DialogParticipant
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
+import chatox.chat.model.PendingChatParticipation
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Sticker
 import chatox.chat.model.Upload
@@ -122,5 +124,15 @@ object TestObjects {
     fun dialogParticipant(): DialogParticipant = loadResource(
             "model/dialog-participant.json",
             DialogParticipant::class.java
+    )
+
+    fun chatInvite(): ChatInvite = loadResource(
+            "model/chat-invite.json",
+            ChatInvite::class.java
+    )
+
+    fun pendingChatParticipation(): PendingChatParticipation = loadResource(
+            "model/pending-chat-participation.json",
+            PendingChatParticipation::class.java
     )
 }

@@ -40,3 +40,7 @@ export * from "./CreateUserProfilePhotoRequest";
 export * from "./DeleteMultipleUserProfilePhotosRequest";
 export * from "./SetUserProfilePhotoAsAvatarRequest";
 export * from "./ForwardMessagesRequest";
+export * from "./CreateChatInviteRequest";
+export * from "./UpdateChatInviteRequest";
+export * from "./ChatInviteRequest";
+export * from "./PendingChatParticipantsRequest";

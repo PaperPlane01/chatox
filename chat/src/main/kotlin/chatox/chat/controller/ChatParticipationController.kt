@@ -1,5 +1,6 @@
 package chatox.chat.controller
 
+import chatox.chat.api.request.PendingChatParticipantsRequest
 import chatox.chat.api.request.UpdateChatParticipationRequest
 import chatox.chat.service.ChatParticipationService
 import chatox.platform.pagination.PaginationRequest
@@ -29,7 +30,10 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     //language=SpEL
     @ReactivePermissionCheck("@chatParticipationPermissions.canJoinChat(#chatId)")
     @PostMapping("/{chatId}/join")
-    fun joinChat(@PathVariable chatId: String) = chatParticipationService.joinChat(chatId)
+    fun joinChat(
+            @PathVariable chatId: String,
+            @RequestParam(required = false) inviteId: String?
+    ) = chatParticipationService.joinChat(chatId, inviteId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
@@ -87,4 +91,37 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
                                @RequestParam query: String = "",
                                paginationRequest: PaginationRequest
     ) = chatParticipationService.searchChatParticipants(chatId, query, paginationRequest)
+
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@chatParticipationPermissions.canApproveChatParticipants(#chatId)")
+    @PaginationConfig(
+            sortBy = SortBy(allowed = ["createdAt"], defaultValue = "createdAt"),
+            sortingDirection = SortDirection(defaultValue = "desc", allowed = ["desc"])
+    )
+    @GetMapping("/{chatId}/participants/pending")
+    fun getPendingChatParticipants(
+            @PathVariable chatId: String,
+            paginationRequest: PaginationRequest
+    ) = chatParticipationService.findPendingChatParticipations(chatId, paginationRequest)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@chatParticipationPermissions.canApproveChatParticipants(#chatId)")
+    @PutMapping("/{chatId}/participants/pending/approve")
+    fun approvePendingChatParticipants(
+            @PathVariable chatId: String,
+            @RequestBody @Valid pendingChatParticipantsRequest: PendingChatParticipantsRequest
+    ) = chatParticipationService.approveChatParticipants(chatId, pendingChatParticipantsRequest)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@chatParticipationPermissions.canApproveChatParticipants(#chatId)")
+    @DeleteMapping("/{chatId}/participants/pending/reject")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun rejectPendingChatParticipants(
+            @PathVariable chatId: String,
+            @RequestBody @Valid pendingChatParticipantsRequest: PendingChatParticipantsRequest
+    ) = chatParticipationService.rejectChatParticipants(chatId, pendingChatParticipantsRequest)
 }

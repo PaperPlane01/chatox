@@ -1,6 +1,6 @@
 import {MessageEntity} from "../../Message/types";
 import {ChatOfCurrentUserEntity, ChatUploadEntity} from "../../Chat";
-import {ChatParticipationEntity} from "../../ChatParticipant";
+import {ChatParticipationEntity, PendingChatParticipationEntity} from "../../ChatParticipant";
 import {UserEntity, UserProfilePhotoEntity} from "../../User";
 import {ChatBlockingEntity} from "../../ChatBlocking";
 import {Upload} from "../../api/types/response";
@@ -11,6 +11,7 @@ import {ChatRoleEntity} from "../../ChatRole/types";
 import {RequiredField} from "../../utils/types";
 import {RewardEntity, UserRewardEntity} from "../../Reward/types";
 import {UserInteractionEntity} from "../../UserInteraction/types";
+import {ChatInviteEntity} from "../../ChatInvite/types";
 
 export type Entities = "messages"
     | "chats"
@@ -33,6 +34,8 @@ export type Entities = "messages"
     | "userRewards"
     | "userInteractions"
     | "userProfilePhotos"
+    | "chatInvites"
+    | "pendingChatParticipations";
 
 interface EntityMap<T> {
     [key: string]: T
@@ -61,6 +64,8 @@ export type GetEntityType<Key extends Entities>
     : Key extends "userRewards" ? UserRewardEntity
     : Key extends "userInteractions" ? UserInteractionEntity
     : Key extends "userProfilePhotos" ? UserProfilePhotoEntity
+    : Key extends "chatInvites" ? ChatInviteEntity
+    : Key extends "pendingChatParticipations" ? PendingChatParticipationEntity
     : never;
 //@formatter:on
 

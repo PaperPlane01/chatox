@@ -1,18 +1,19 @@
 import {RawEntitiesStore} from "./RawEntitiesStore";
+import {EntitiesAware} from "./EntitiesAware";
 import {MessagesStore} from "../Message";
 import {ChatsStore} from "../Chat";
 import {UploadsStore} from "../Upload";
 import {UserProfilePhotosStore, UsersStore} from "../User";
 import {ChatRolesStore, UserChatRolesStore} from "../ChatRole";
 import {ChatBlockingsStore} from "../ChatBlocking";
-import {ChatParticipationsStore} from "../ChatParticipant";
+import {ChatParticipationsStore, PendingChatParticipationsStore} from "../ChatParticipant";
 import {AuthorizationStore} from "../Authorization";
 import {StickersStore, StickerPacksStore} from "../Sticker";
 import {ReportedChatsStore, ReportedMessagesStore, ReportsStore} from "../Report";
 import {GlobalBansStore} from "../GlobalBan";
 import {RewardsStore, UserRewardsStore} from "../Reward";
 import {UserInteractionsStore} from "../UserInteraction";
-import {EntitiesAware} from "./EntitiesAware";
+import {ChatInvitesStore} from "../ChatInvite";
 
 export class EntitiesStore {
     public messages: MessagesStore<"messages">;
@@ -35,6 +36,8 @@ export class EntitiesStore {
     public userRewards: UserRewardsStore;
     public userInteractions: UserInteractionsStore;
     public userProfilePhotos: UserProfilePhotosStore;
+    public chatInvites: ChatInvitesStore;
+    public pendingChatParticipations: PendingChatParticipationsStore;
 
     constructor(rawEntities: RawEntitiesStore, authorization: AuthorizationStore, userChatRoles: UserChatRolesStore) {
         this.messages = new MessagesStore(rawEntities, "messages", this, userChatRoles);
@@ -57,6 +60,8 @@ export class EntitiesStore {
         this.userRewards = new UserRewardsStore(rawEntities, "userRewards", this);
         this.userInteractions = new UserInteractionsStore(rawEntities, "userInteractions", this);
         this.userProfilePhotos = new UserProfilePhotosStore(rawEntities, "userProfilePhotos", this);
+        this.chatInvites = new ChatInvitesStore(rawEntities, "chatInvites", this);
+        this.pendingChatParticipations = new PendingChatParticipationsStore(rawEntities, "pendingChatParticipations", this);
     }
 
     public setEntitiesStore(entitiesAwareStores: EntitiesAware[]): void {
