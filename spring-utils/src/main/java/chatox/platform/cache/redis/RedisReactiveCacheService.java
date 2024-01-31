@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -27,7 +28,8 @@ public class RedisReactiveCacheService<T> implements ReactiveCacheService<T, Str
     public Mono<List<T>> find(List<String> ids) {
         return redisTemplate
                 .opsForValue()
-                .multiGet(ids.stream().map(this::generateKey).collect(Collectors.toList()));
+                .multiGet(ids.stream().map(this::generateKey).collect(Collectors.toList()))
+                .map(result -> result.stream().filter(Objects::nonNull).collect(Collectors.toList()));
     }
 
     @Override
