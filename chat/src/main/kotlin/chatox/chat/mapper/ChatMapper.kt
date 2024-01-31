@@ -8,6 +8,7 @@ import chatox.chat.api.response.UserResponse
 import chatox.chat.messaging.rabbitmq.event.ChatUpdated
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatInterface
+import chatox.chat.model.ChatParticipantsCount
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.Message
 import chatox.chat.model.User
@@ -23,14 +24,18 @@ class ChatMapper(
         private val uploadMapper: UploadMapper,
         private val userMapper: UserMapper,
 ) {
-    fun toChatResponse(chat: ChatInterface, user: User? = null) = ChatResponse(
+    fun toChatResponse(
+            chat: ChatInterface,
+            user: User? = null,
+            chatParticipantsCount: ChatParticipantsCount? = null
+    ) = ChatResponse(
             id = chat.id,
             description = chat.description,
             name = chat.name,
             slug = chat.slug,
             avatarUri = chat.avatarUri,
-            participantsCount = chat.numberOfParticipants,
-            onlineParticipantsCount = chat.numberOfOnlineParticipants,
+            participantsCount = chatParticipantsCount?.participantsCount,
+            onlineParticipantsCount = chatParticipantsCount?.onlineParticipantsCount,
             createdByCurrentUser = null,
             tags = chat.tags,
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
@@ -40,14 +45,19 @@ class ChatMapper(
             joinAllowanceSettings = chat.joinAllowanceSettings
     )
 
-    fun toChatResponse(chat: ChatInterface, currentUserId: String?, user: User? = null) = ChatResponse(
+    fun toChatResponse(
+            chat: ChatInterface,
+            currentUserId: String?,
+            user: User? = null,
+            chatParticipantsCount: ChatParticipantsCount? = null
+    ) = ChatResponse(
             id = chat.id,
             description = chat.description,
             name = chat.name,
             slug = chat.slug,
             avatarUri = chat.avatarUri,
-            participantsCount = chat.numberOfParticipants,
-            onlineParticipantsCount = chat.numberOfOnlineParticipants,
+            participantsCount = chatParticipantsCount?.participantsCount,
+            onlineParticipantsCount = chatParticipantsCount?.onlineParticipantsCount,
             createdByCurrentUser = currentUserId ?: currentUserId == chat.createdById,
             tags = chat.tags,
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
@@ -63,9 +73,9 @@ class ChatMapper(
             lastMessage: Message?,
             lastReadMessage: Message?,
             unreadMessagesCount: Long,
-            onlineParticipantsCount: Int,
             localUsersCache: MutableMap<String, UserResponse>? = null,
             user: User? = null,
+            chatParticipantsCount: ChatParticipantsCount
     ): Mono<ChatOfCurrentUserResponse> {
         return mono {
             var lastReadMessageMapped: MessageResponse? = null
@@ -103,8 +113,8 @@ class ChatMapper(
                     lastMessage = lastMessageMapped,
                     lastReadMessage = lastReadMessageMapped,
                     unreadMessagesCount = unreadMessagesCount,
-                    onlineParticipantsCount = onlineParticipantsCount,
                     localUsersCache = localUsersCache,
+                    chatParticipantsCount = chatParticipantsCount
             ).awaitFirst()
         }
     }
@@ -115,8 +125,8 @@ class ChatMapper(
             lastMessage: MessageResponse?,
             lastReadMessage: MessageResponse?,
             unreadMessagesCount: Long,
-            onlineParticipantsCount: Int,
             user: User? = null,
+            chatParticipantsCount: ChatParticipantsCount? = null
     ): Mono<ChatOfCurrentUserResponse> {
         return mono {
             val userMapped = if (user != null) {
@@ -131,8 +141,8 @@ class ChatMapper(
                     lastMessage = lastMessage,
                     lastReadMessage = lastReadMessage,
                     unreadMessagesCount = unreadMessagesCount,
-                    onlineParticipantsCount = onlineParticipantsCount,
-                    user = userMapped
+                    user = userMapped,
+                    chatParticipantsCount = chatParticipantsCount
             ).awaitFirst()
         }
     }
@@ -143,9 +153,9 @@ class ChatMapper(
             lastMessage: MessageResponse?,
             lastReadMessage: MessageResponse?,
             unreadMessagesCount: Long,
-            onlineParticipantsCount: Int,
             localUsersCache: MutableMap<String, UserResponse>? = null,
             user: UserResponse? = null,
+            chatParticipantsCount: ChatParticipantsCount? = null
     ): Mono<ChatOfCurrentUserResponse> {
         return mono {
             val avatar = if (chat.avatar != null && !chat.deleted) {
@@ -171,7 +181,8 @@ class ChatMapper(
                     createdAt = chat.createdAt,
                     description = chat.description,
                     tags = chat.tags,
-                    participantsCount = chat.numberOfParticipants,
+                    participantsCount = chatParticipantsCount?.participantsCount,
+                    onlineParticipantsCount = chatParticipantsCount?.onlineParticipantsCount,
                     avatar = avatar,
                     createdByCurrentUser = chat.createdById == chatParticipation.user.id,
                     deleted = chat.deleted,
@@ -191,8 +202,6 @@ class ChatMapper(
             name = chat.name,
             slug = chat.slug,
             avatarUri = chat.avatarUri,
-            participantsCount = chat.numberOfParticipants,
-            onlineParticipantsCount = chat.numberOfOnlineParticipants,
             createdByCurrentUser = false,
             tags = chat.tags,
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,

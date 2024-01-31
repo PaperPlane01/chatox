@@ -4,6 +4,7 @@ import chatox.chat.api.response.ChatResponse
 import chatox.chat.config.property.ElasticsearchSynchronizationProperties
 import chatox.chat.mapper.ChatMapper
 import chatox.chat.mapper.ChatParticipationMapper
+import chatox.chat.model.ChatParticipantsCount
 import chatox.chat.model.ChatType
 import chatox.chat.model.DialogDisplay
 import chatox.chat.model.User
@@ -11,6 +12,7 @@ import chatox.chat.model.elasticsearch.ChatElasticsearch
 import chatox.chat.repository.elasticsearch.ChatElasticsearchRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
+import chatox.chat.service.ChatParticipantsCountService
 import chatox.chat.service.ChatSearchService
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
@@ -29,6 +31,7 @@ class ChatsSearchServiceImpl(private val chatElasticsearchRepository: ChatElasti
                              private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                              private val chatMapper: ChatMapper,
                              private val chatParticipationMapper: ChatParticipationMapper,
+                             private val chatParticipantsCountService: ChatParticipantsCountService,
                              private val elasticsearchSync: ElasticsearchSynchronizationProperties
 ) : ChatSearchService {
     private val log = LoggerFactory.getLogger(this.javaClass)
@@ -41,13 +44,19 @@ class ChatsSearchServiceImpl(private val chatElasticsearchRepository: ChatElasti
                     .map { chatParticipation -> chatParticipation.chatId }
                     .collectList()
                     .awaitFirst()
+            val chatParticipantsCount = chatParticipantsCountService
+                    .getChatParticipantsCount(currentUserChatsIds)
+                    .awaitFirst()
 
             return@mono chatElasticsearchRepository.searchChatsOfUser(
                     query,
                     currentUserChatsIds,
                     currentUser
             )
-                    .map { chat -> chatMapper.toChatResponse(chat) }
+                    .map { chat -> chatMapper.toChatResponse(
+                            chat,
+                            chatParticipantsCount = chatParticipantsCount[chat.id] ?: ChatParticipantsCount.EMPTY
+                    ) }
         }
                 .flatMapMany { it }
     }

@@ -21,6 +21,7 @@ import chatox.chat.repository.mongodb.ChatInviteRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.PendingChatParticipationRepository
 import chatox.chat.service.ChatInviteService
+import chatox.chat.service.ChatParticipantsCountService
 import chatox.chat.util.NTuple3
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.pagination.PaginationRequest
@@ -47,6 +48,7 @@ class ChatInviteServiceImpl(
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String>,
         private val chatInviteMapper: ChatInviteMapper,
+        private val chatParticipantsCountService: ChatParticipantsCountService,
         private val authenticationHolder: ReactiveAuthenticationHolder<User>) : ChatInviteService {
 
     override fun findChatInvite(id: String): Mono<ChatInviteResponse> {
@@ -56,11 +58,15 @@ class ChatInviteServiceImpl(
             val chat = chatCacheWrapper.findById(chatInvite.chatId).awaitFirstOrNull()
                     ?: throw ChatInviteNotFoundException(id)
             val usage = getChatInviteUsageInfo(chatInvite).awaitFirst()
+            val chatParticipantsCount = chatParticipantsCountService
+                    .getChatParticipantsCount(chat.id)
+                    .awaitFirstOrNull()
 
             return@mono chatInviteMapper.toChatInviteResponse(
                     chatInvite = chatInvite,
                     chat = chat,
-                    usage = usage
+                    usage = usage,
+                    chatParticipantsCount = chatParticipantsCount
             )
         }
     }

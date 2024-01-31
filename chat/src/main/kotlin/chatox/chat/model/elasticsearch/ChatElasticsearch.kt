@@ -39,8 +39,6 @@ data class ChatElasticsearch(
         override val deleted: Boolean,
         override val deletedById: String? = null,
         override val type: ChatType,
-        override val numberOfParticipants: Int = 0,
-        override val numberOfOnlineParticipants: Int = 0,
         override val lastMessageId: String? = null,
 
         @field:Field(type = FieldType.Date, format = [DateFormat.ordinal_date_time])

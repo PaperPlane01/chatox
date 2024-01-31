@@ -2,7 +2,6 @@ package chatox.chat.repository.mongodb
 
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatType
-import chatox.chat.repository.mongodb.custom.ChatCustomRepository
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
@@ -10,7 +9,7 @@ import org.springframework.data.repository.query.Param
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-interface ChatRepository : ReactiveMongoRepository<Chat, String>, ChatCustomRepository {
+interface ChatRepository : ReactiveMongoRepository<Chat, String> {
     fun save(chat: Chat): Mono<Chat>
     override fun findById(id: String): Mono<Chat>
     fun existsBySlugOrId(slug: String, id: String): Mono<Boolean>
