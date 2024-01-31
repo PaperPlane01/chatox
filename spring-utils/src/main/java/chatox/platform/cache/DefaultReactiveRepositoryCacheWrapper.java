@@ -10,31 +10,58 @@ import reactor.core.scheduler.Schedulers;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Slf4j
-public class DefaultReactiveRepositoryCacheWrapper<T, ID, RepositoryType extends ReactiveCrudRepository<T, ID>> implements ReactiveRepositoryCacheWrapper<T, ID> {
+public class DefaultReactiveRepositoryCacheWrapper<T, ID, RepositoryType extends ReactiveCrudRepository<T, ID>>
+        implements ReactiveRepositoryCacheWrapper<T, ID> {
     private final ReactiveCacheService<T, ID> reactiveCacheService;
     private final RepositoryType reactiveCrudRepository;
-    private final BiFunction<RepositoryType, ID, Mono<T>> repositoryCall;
+    private final BiFunction<RepositoryType, ID, Mono<T>> findByIdCall;
+    private final BiFunction<RepositoryType, List<ID>, Flux<T>> findAllByIdCall;
     private final Function<T, ID> idProvider;
 
-    public DefaultReactiveRepositoryCacheWrapper(ReactiveCacheService<T, ID> reactiveCacheService, RepositoryType reactiveCrudRepository) {
+    public DefaultReactiveRepositoryCacheWrapper(
+            ReactiveCacheService<T, ID> reactiveCacheService,
+            RepositoryType reactiveCrudRepository) {
         this(reactiveCacheService, reactiveCrudRepository, ReactiveCrudRepository::findById);
     }
 
-    public DefaultReactiveRepositoryCacheWrapper(ReactiveCacheService<T, ID> reactiveCacheService, RepositoryType reactiveCrudRepository, BiFunction<RepositoryType, ID, Mono<T>> repositoryCallOverride) {
-        this(reactiveCacheService, reactiveCrudRepository, repositoryCallOverride, null);
+    public DefaultReactiveRepositoryCacheWrapper(
+            ReactiveCacheService<T, ID> reactiveCacheService,
+            RepositoryType reactiveCrudRepository,
+            BiFunction<RepositoryType, ID, Mono<T>> findByIdCall) {
+        this(
+                reactiveCacheService,
+                reactiveCrudRepository,
+                findByIdCall,
+                ReactiveCrudRepository::findAllById,
+                null
+        );
     }
 
-    public DefaultReactiveRepositoryCacheWrapper(ReactiveCacheService<T, ID> reactiveCacheService, RepositoryType reactiveCrudRepository, Function<T, ID> idProvider) {
-        this(reactiveCacheService, reactiveCrudRepository, ReactiveCrudRepository::findById, idProvider);
+    public DefaultReactiveRepositoryCacheWrapper(
+            ReactiveCacheService<T, ID> reactiveCacheService,
+            RepositoryType reactiveCrudRepository,
+            Function<T, ID> idProvider) {
+        this(
+                reactiveCacheService,
+                reactiveCrudRepository,
+                ReactiveCrudRepository::findById,
+                ReactiveCrudRepository::findAllById,
+                idProvider
+        );
     }
 
-    public DefaultReactiveRepositoryCacheWrapper(ReactiveCacheService<T, ID> reactiveCacheService, RepositoryType reactiveCrudRepository, BiFunction<RepositoryType, ID, Mono<T>> repositoryCallOverride, Function<T, ID> idProvider) {
+    public DefaultReactiveRepositoryCacheWrapper(
+            ReactiveCacheService<T, ID> reactiveCacheService,
+            RepositoryType reactiveCrudRepository,
+            BiFunction<RepositoryType, ID, Mono<T>> findByIdCall,
+            BiFunction<RepositoryType, List<ID>, Flux<T>> findAllByIdCall,
+            Function<T, ID> idProvider) {
         this.reactiveCacheService = reactiveCacheService;
         this.reactiveCrudRepository = reactiveCrudRepository;
-        this.repositoryCall = repositoryCallOverride;
+        this.findByIdCall = findByIdCall;
+        this.findAllByIdCall = findAllByIdCall;
         this.idProvider = idProvider;
     }
 
@@ -59,13 +86,12 @@ public class DefaultReactiveRepositoryCacheWrapper<T, ID, RepositoryType extends
 
                     var resultIds = result.stream()
                             .map(this::getId)
-                            .collect(Collectors.toList());
+                            .toList();
                     var notMatchedIds = ids.stream()
                             .filter(id -> !resultIds.contains(id))
-                            .collect(Collectors.toList());
+                            .toList();
 
-                    return reactiveCrudRepository
-                            .findAllById(notMatchedIds)
+                    return findAllByIdCall.apply(reactiveCrudRepository, notMatchedIds)
                             .collectList()
                             .flatMapMany(objects -> {
                                 if (objects.isEmpty()) {
@@ -115,7 +141,8 @@ public class DefaultReactiveRepositoryCacheWrapper<T, ID, RepositoryType extends
                             }
 
                             return object;
-                        })));
+                        }))
+                );
     }
 
     private Mono<T> putInCache(T value) {
@@ -124,6 +151,6 @@ public class DefaultReactiveRepositoryCacheWrapper<T, ID, RepositoryType extends
 
     private Mono<T> findInRepository(ID id) {
         log.info("Cache miss with object id {}", id);
-        return repositoryCall.apply(reactiveCrudRepository, id);
+        return findByIdCall.apply(reactiveCrudRepository, id);
     }
 }
