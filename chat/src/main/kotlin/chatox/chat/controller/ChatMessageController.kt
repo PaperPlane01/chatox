@@ -121,9 +121,11 @@ class ChatMessageController(
 
     //language=SpEL
     @ReactivePermissionCheck("@messagePermissions.canReadMessages(#chatId)")
+    //language=Kotlin
     @PaginationConfig(
             pageSize = PageSize(defaultValue = 200, max = 300),
-            sortBy = SortBy(defaultValue = "createdAt", allowed = ["createdAt"])
+            sortBy = SortBy(defaultValue = "createdAt", allowed = ["createdAt"]),
+            sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping("/{chatId}/messages", params = ["query"])
     fun searchMessages(@PathVariable chatId: String,
