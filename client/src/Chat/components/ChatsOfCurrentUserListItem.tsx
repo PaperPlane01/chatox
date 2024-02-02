@@ -53,11 +53,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         flex: 1,
         minWidth: 0
     },
-    flexTruncatedText: {
+    truncatedText: {
         whiteSpace: "nowrap",
         textOverflow: "ellipsis",
-        overflow: "hidden",
-        display: "flex"
+        overflow: "hidden"
     },
     unreadMessagesBadgeRoot: {
         width: "100%"
@@ -143,7 +142,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                     <CardHeader title={
                         <div className={classes.flexWrapper}>
                             <div className={classes.flexTruncatedTextContainer}>
-                                <Typography className={classes.flexTruncatedText}>
+                                <Typography className={classes.truncatedText}>
                                     <strong>
                                         {chatUser ? getUserDisplayedName(chatUser) : chat.name}
                                     </strong>
@@ -154,7 +153,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                                 subheader={messageId && (
                                     <div className={classes.flexWrapper}>
                                         <div className={classes.flexTruncatedTextContainer}>
-                                            <Typography className={`${classes.flexTruncatedText} ${selected && !ignoreSelection && classes.selected}`}>
+                                            <Typography className={`${classes.truncatedText} ${selected && !ignoreSelection && classes.selected}`}>
                                                 {chatHasTypingUsers
                                                     ? <TypingIndicator chatId={chatId}/>
                                                     : <ChatListMessagePreview messageId={messageId}/>
