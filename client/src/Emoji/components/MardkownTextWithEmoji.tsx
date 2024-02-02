@@ -57,15 +57,16 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
             return parseEmoji(child.value, emojiData, child.position, keyProvider);
         } else {
             return (
-                <Fragment {...props}
-                          children={props.children.filter((child: any) => typeof child !== "string")}
-                />
+                <Fragment {...props}>
+                    {props.children.filter((child: any) => typeof child !== "string")}
+                </Fragment>
             );
         }
     });
 
     return (
         <ReactMarkdown remarkPlugins={!disableRemarkBreaks ? [remarkBreaks] : []}
+                       allowElement={element => element.tagName !== "img"}
                        components={{
                            p: ({node, ...props}) => (
                                <Typography>
