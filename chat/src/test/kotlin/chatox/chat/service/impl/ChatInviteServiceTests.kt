@@ -9,6 +9,7 @@ import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatInviteRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.PendingChatParticipationRepository
+import chatox.chat.service.ChatParticipantsCountService
 import chatox.chat.test.TestObjects
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.VerificationLevel
@@ -40,6 +41,7 @@ class ChatInviteServiceTests {
     val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String> = mockk()
     val chatInviteMapper: ChatInviteMapper = mockk()
     val authenticationHolder: ReactiveAuthenticationHolder<User> = mockk()
+    val chatParticipantsCountService: ChatParticipantsCountService = mockk()
 
     val jwtPayload = TestObjects.jwtPayload()
     val chatInvite = TestObjects.chatInvite()
@@ -53,6 +55,7 @@ class ChatInviteServiceTests {
                 chatCacheWrapper,
                 userCacheWrapper,
                 chatInviteMapper,
+                chatParticipantsCountService,
                 authenticationHolder
         )
     }

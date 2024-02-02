@@ -44,5 +44,6 @@
   },
   "userDisplayedName": "Test",
   "userOnline": false,
-  "userSlug": "testuser"
+  "userSlug": "testuser",
+  "chatType": "GROUP"
 }

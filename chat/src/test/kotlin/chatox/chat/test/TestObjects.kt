@@ -9,6 +9,7 @@ import chatox.chat.messaging.rabbitmq.event.MessageCreated
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatInvite
 import chatox.chat.model.ChatMessagesCounter
+import chatox.chat.model.ChatParticipantsCount
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatUploadAttachment
@@ -134,5 +135,10 @@ object TestObjects {
     fun pendingChatParticipation(): PendingChatParticipation = loadResource(
             "model/pending-chat-participation.json",
             PendingChatParticipation::class.java
+    )
+
+    fun chatParticipantsCount(): ChatParticipantsCount = loadResource(
+            "model/chat-participants-count.json",
+            ChatParticipantsCount::class.java
     )
 }
