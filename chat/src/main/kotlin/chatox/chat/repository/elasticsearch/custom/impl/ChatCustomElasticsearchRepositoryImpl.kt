@@ -6,7 +6,6 @@ import chatox.chat.repository.elasticsearch.custom.ChatCustomElasticsearchReposi
 import co.elastic.clients.elasticsearch._types.FieldValue
 import co.elastic.clients.elasticsearch._types.query_dsl.ChildScoreMode
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders
-import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType
 import org.springframework.data.elasticsearch.client.elc.NativeQuery
 import org.springframework.data.elasticsearch.client.elc.ReactiveElasticsearchTemplate
 import org.springframework.stereotype.Repository
@@ -20,12 +19,11 @@ class ChatCustomElasticsearchRepositoryImpl(
     override fun searchChatsOfUser(query: String, chatIds: List<String>, user: User): Flux<ChatElasticsearch> {
         val chatQuery = NativeQuery.builder().withQuery(
                 QueryBuilders.multiMatch()
-                        .fields("name, slug")
-                        .type(TextQueryType.PhrasePrefix)
+                        .fields("name", "slug")
+                        .query(query)
                         .build()
                         ._toQuery()
         )
-
         val userQuery = NativeQuery.builder().withQuery(
                 QueryBuilders.nested()
                         .path("dialogDisplay")
@@ -33,7 +31,7 @@ class ChatCustomElasticsearchRepositoryImpl(
                                 QueryBuilders.bool()
                                         .must(
                                                 QueryBuilders.match()
-                                                        .field("dialogDisplay.userUd")
+                                                        .field("dialogDisplay.userId")
                                                         .query(user.id)
                                                         .build()
                                                         ._toQuery()
