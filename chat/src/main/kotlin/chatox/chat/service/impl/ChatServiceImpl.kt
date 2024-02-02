@@ -284,8 +284,6 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             )
 
             if (slug != null && slug != chat.slug && slug != chat.id) {
-                println(chat.slug)
-                println(chat.id)
                 chatBySlugCacheService.delete(chat.slug).awaitFirstOrNull()
             }
 
