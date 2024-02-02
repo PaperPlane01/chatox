@@ -117,23 +117,22 @@ export class MessagesOfChatStore {
         this.chatMessagesFetchingStateMap[chatId].pending = true;
 
         return fetchMessageFunction(chatId, beforeMessage)
-            .then(({data}) => {
-                runInAction(() => {
-                    if (data.length !== 0) {
-                        this.entities.messages.insertAll(data, {
-                            skipSettingLastMessage: options.skipSettingLastMessage ?? true
-                        });
+            .then(({data}) => runInAction(() => {
+                if (data.length !== 0) {
+                    this.entities.messages.insertAll(data, {
+                        skipSettingLastMessage: options.skipSettingLastMessage ?? true,
+                        skipUpdatingChat: false
+                    });
 
-                        if (beforeMessage) {
-                            this.initialMessagesMap[chatId] = this.initialMessagesMap[chatId]
-                                ? this.initialMessagesMap[chatId] - data.length
-                                : 0 - data.length;
-                        }
-
-                        this.chatMessagesFetchingStateMap[chatId].initiallyFetched = true;
+                    if (beforeMessage) {
+                        this.initialMessagesMap[chatId] = this.initialMessagesMap[chatId]
+                            ? this.initialMessagesMap[chatId] - data.length
+                            : 0 - data.length;
                     }
-                })
-            })
+
+                    this.chatMessagesFetchingStateMap[chatId].initiallyFetched = true;
+                }
+            }))
             .finally(() => runInAction(() => this.chatMessagesFetchingStateMap[chatId].pending = false));
     };
 }

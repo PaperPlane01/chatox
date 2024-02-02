@@ -3,7 +3,8 @@ import {axiosInstance} from "../axios-instance";
 import {Message} from "../types/response";
 import {
     CreateMessageRequest,
-    DeleteMultipleMessagesRequest, ForwardMessagesRequest,
+    DeleteMultipleMessagesRequest,
+    ForwardMessagesRequest,
     UpdateMessageRequest,
     UpdateScheduledMessageRequest
 } from "../types/request";

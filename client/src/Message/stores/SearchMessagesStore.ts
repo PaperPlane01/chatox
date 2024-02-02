@@ -49,7 +49,10 @@ export class SearchMessagesStore {
 
         MessageApi.searchMessagesInChat(this.selectedChatId, this.query)
             .then(({data}) => runInAction(() => {
-                this.entities.messages.insertAll(data, {skipSettingLastMessage: true});
+                this.entities.messages.insertAll(data, {
+                    skipSettingLastMessage: true,
+                    skipUpdatingChat: false
+                });
                 this.foundMessagesIds = data.map(message => message.id);
             }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))

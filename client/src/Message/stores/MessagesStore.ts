@@ -4,9 +4,9 @@ import {convertMessageToNormalizedForm} from "../utils";
 import {SoftDeletableEntityStore} from "../../entity-store";
 import {EntitiesPatch, EntitiesStore, GetEntityType, RawEntitiesStore} from "../../entities-store";
 import {Message} from "../../api/types/response";
-import {ChatOfCurrentUserEntity} from "../../Chat";
 import {mergeCustomizer} from "../../utils/object-utils";
 import {UserChatRolesStore} from "../../ChatRole";
+import {toJS} from "mobx";
 
 export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
     extends SoftDeletableEntityStore<MessageType, GetEntityType<MessageType>, Message, MessageInsertOptions> {
@@ -31,11 +31,6 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
     }
 
     private createPatchForNormalMessages(messages: Message[], insertOptions?: MessageInsertOptions) {
-        let chat: ChatOfCurrentUserEntity | undefined = undefined;
-        if (messages.length !== 0) {
-            chat = this.entities.chats.findByIdOptional(messages[0].chatId);
-        }
-
         const patch = this.createEmptyEntitiesPatch("messages", "chats");
         const patches: EntitiesPatch[] = [];
 
@@ -43,9 +38,17 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
             patch.entities.messages[message.id] = this.convertToNormalizedForm(message);
             patch.ids.messages.push(message.id);
 
+            const chat = insertOptions?.skipUpdatingChat
+                ? undefined
+                : this.entities.chats.findByIdOptional(message.chatId);
+
+            console.log(`Initial chat for message ${message.id}`);
+            console.log(toJS(chat));
+
             if (chat) {
                 chat.messages = uniq(chat.messages.concat(message.id));
                 chat.indexToMessageMap[message.index] = message.id;
+
                 if (!insertOptions || !insertOptions.skipSettingLastMessage) {
                     chat.lastMessage = message.id;
                 }
@@ -56,6 +59,9 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
                 if (insertOptions && insertOptions.pinnedMessageId === message.id) {
                     chat.pinnedMessageId = message.id;
                 }
+
+                console.log(`Chat patch: for message ${message.id}`)
+                console.log(toJS(patch.entities.chats[message.chatId]))
             }
 
             patches.push(this.entities.users.createPatch(message.sender));
@@ -79,7 +85,13 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
 
             if (message.referredMessage) {
                 patches.push(
-                    this.createPatchForNormalMessages([message.referredMessage], {skipSettingLastMessage: true})
+                    this.createPatchForNormalMessages(
+                        [message.referredMessage],
+                        {
+                            skipSettingLastMessage: true,
+                            skipUpdatingChat: insertOptions?.skipUpdatingChat ?? false
+                        }
+                    )
                 );
             }
 
@@ -115,7 +127,13 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
 
             if (message.referredMessage) {
                 patches.push(
-                    this.createPatchForNormalMessages([message.referredMessage], {skipSettingLastMessage: true})
+                    this.createPatchForNormalMessages(
+                        [message.referredMessage],
+                        {
+                            skipSettingLastMessage: true,
+                            skipUpdatingChat: true
+                        }
+                    )
                 );
             }
 
