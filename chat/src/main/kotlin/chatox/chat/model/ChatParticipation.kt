@@ -16,6 +16,8 @@ data class ChatParticipation(
         @Indexed
         val chatId: String,
 
+        val chatType: ChatType,
+
         val user: User,
 
         val role: ChatRole? = null,

@@ -15,8 +15,8 @@ data class ChatResponseWithCreatorId(
         @field:JsonInclude(JsonInclude.Include.NON_NULL)
         val createdByCurrentUser: Boolean?,
         @field:JsonInclude(JsonInclude.Include.NON_NULL)
-        val participantsCount: Int?,
-        val onlineParticipantsCount: Int = 0,
+        val participantsCount: Int? = null,
+        val onlineParticipantsCount: Int? = null,
         val avatar: UploadResponse<ImageUploadMetadata>?,
         val createdById: String?,
         val type: ChatType,

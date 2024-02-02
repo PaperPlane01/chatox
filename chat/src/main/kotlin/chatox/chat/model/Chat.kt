@@ -30,8 +30,6 @@ data class Chat(
         @Indexed
         override val deletedById: String? = null,
         override val type: ChatType,
-        override val numberOfParticipants: Int = 0,
-        override val numberOfOnlineParticipants: Int = 0,
 
         @Indexed
         override val lastMessageId: String? = null,
@@ -56,8 +54,6 @@ data class Chat(
                 deleted,
                 deletedById,
                 type,
-                numberOfParticipants,
-                numberOfOnlineParticipants,
                 lastMessageId,
                 lastMessageDate,
                 chatDeletion,

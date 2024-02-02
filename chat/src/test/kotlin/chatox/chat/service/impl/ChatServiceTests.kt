@@ -31,6 +31,7 @@ import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.PendingChatParticipationRepository
 import chatox.chat.repository.mongodb.UploadRepository
+import chatox.chat.service.ChatParticipantsCountService
 import chatox.chat.service.ChatRoleService
 import chatox.chat.service.CreateMessageService
 import chatox.chat.test.TestObjects
@@ -91,6 +92,7 @@ class ChatServiceTests {
     val chatEventsPublisher: ChatEventsPublisher = mockk()
     val createMessageService: CreateMessageService = mockk()
     val chatRoleService: ChatRoleService = mockk()
+    val chatParticipantsCountService: ChatParticipantsCountService = mockk()
 
     private val user = TestObjects.user()
     private val chat = TestObjects.chat()
@@ -99,7 +101,8 @@ class ChatServiceTests {
     private val chatParticipation = TestObjects.chatParticipation()
     private val chatParticipationResponse = TestObjects.chatParticipationResponse()
     private val chatOfCurrenUser = TestObjects.chatOfCurrentUser()
-    
+    private val chatParticipantsCount = TestObjects.chatParticipantsCount()
+
     @BeforeEach
     fun setUp() {
         chatService = ChatServiceImpl(
@@ -119,7 +122,8 @@ class ChatServiceTests {
                 authenticationHolder,
                 chatEventsPublisher,
                 createMessageService,
-                chatRoleService
+                chatRoleService,
+                chatParticipantsCountService
         )
     }
 
@@ -149,6 +153,11 @@ class ChatServiceTests {
                     chatRole = any()
             ) } returns Mono.just(chatParticipationResponse)
             every { chatEventsPublisher.userJoinedChat(any()) } just Runs
+            every { chatParticipantsCountService.initializeForChat(
+                    any(),
+                    any(),
+                    any()
+            ) } returns Mono.just(chatParticipantsCount)
 
             val mappedChatSlot = slot<Chat>()
             val mappedChatParticipationSlot = slot<ChatParticipation>()
@@ -159,7 +168,7 @@ class ChatServiceTests {
                         unreadMessagesCount = eq(0),
                         lastMessage = any() as Message?,
                         lastReadMessage = any() as Message?,
-                        onlineParticipantsCount = eq(1)
+                        chatParticipantsCount = eq(chatParticipantsCount)
                 )
             } returns Mono.just(chatOfCurrenUser)
 
@@ -194,6 +203,26 @@ class ChatServiceTests {
 
                             return@match true
                         }) }
+
+                        verify(exactly = 1) { chatParticipantsCountService.initializeForChat(
+                                match { chatId ->
+                                    assertEquals(capturedCreatedChat.id, chatId)
+                                    return@match true
+                                },
+                                match { participantsCount ->
+                                    assertEquals(1, participantsCount)
+                                    return@match true
+                                },
+                                match { onlineParticipantsCount ->
+                                    val expectedOnlineParticipantsCount = if (user.online ?: false) {
+                                        1
+                                    } else {
+                                        0
+                                    }
+                                    assertEquals(expectedOnlineParticipantsCount, onlineParticipantsCount)
+                                    return@match true
+                                }
+                        ) }
 
                         assertEquals(capturedCreatedChat, mappedChatSlot.captured)
                     }
@@ -249,7 +278,6 @@ class ChatServiceTests {
                     lastMessage = any<MessageResponse>(),
                     lastReadMessage = any<MessageResponse>(),
                     unreadMessagesCount =  any(),
-                    onlineParticipantsCount = any(),
                     user = any<User>()
             ) } returns Mono.just(chatOfCurrenUser)
 
@@ -289,6 +317,8 @@ class ChatServiceTests {
 
                                 return@match true
                         }) }
+
+                        verify(exactly = 0) { chatParticipantsCountService.initializeForChat(any(), any(), any()) }
 
                         val capturedChatParticipations = chatParticipationsSlot.captured
                         assertEquals(2, capturedChatParticipations.size)
@@ -377,7 +407,13 @@ class ChatServiceTests {
             val chatSlot = slot<Chat>()
             every { chatRepository.save(capture(chatSlot)) } returns Mono.just(chat)
 
-            every { chatMapper.toChatResponse(any()) } returns chatResponse
+            every {
+                chatParticipantsCountService.getChatParticipantsCount(eq(chat.id))
+            } returns Mono.just(chatParticipantsCount)
+            every { chatMapper.toChatResponse(
+                    chat = any<Chat>(),
+                    chatParticipantsCount = eq(chatParticipantsCount)
+            ) } returns chatResponse
             every { chatMapper.toChatUpdated(any()) } returns chatUpdated
             every { chatEventsPublisher.chatUpdated(any()) } just Runs
 
@@ -417,7 +453,10 @@ class ChatServiceTests {
 
                         verifySequence {
                             chatMapper.toChatUpdated(eq(savedChat))
-                            chatMapper.toChatResponse(eq(savedChat))
+                            chatMapper.toChatResponse(
+                                    chat = eq(savedChat),
+                                    chatParticipantsCount = eq(chatParticipantsCount)
+                            )
                         }
                     }
                     .verifyComplete()
@@ -665,10 +704,14 @@ class ChatServiceTests {
 
             every { chatBySlugCacheWrapper.findById(eq(slug)) } returns Mono.just(chat.copy(type = ChatType.GROUP))
             every { authenticationHolder.currentUser } returns Mono.just(user)
+            every {
+                chatParticipantsCountService.getChatParticipantsCount(any<String>())
+            } returns Mono.just(chatParticipantsCount)
             every { chatMapper.toChatResponse(
                     chat = eq(chat),
                     currentUserId = eq(user.id),
-                    user = null
+                    user = null,
+                    chatParticipantsCount = eq(chatParticipantsCount)
             ) } returns chatResponse
 
             StepVerifier
@@ -684,10 +727,14 @@ class ChatServiceTests {
             val returnedChat = chat.copy(type = ChatType.GROUP)
             every { chatBySlugCacheWrapper.findById(eq(slug)) } returns Mono.just(returnedChat)
             every { authenticationHolder.currentUser } returns Mono.empty()
+            every {
+                chatParticipantsCountService.getChatParticipantsCount(any<String>())
+            } returns Mono.just(chatParticipantsCount)
             every { chatMapper.toChatResponse(
                     chat = eq(returnedChat),
                     currentUserId = null,
-                    user = null
+                    user = null,
+                    chatParticipantsCount = eq(chatParticipantsCount)
             ) } returns chatResponse
 
             StepVerifier

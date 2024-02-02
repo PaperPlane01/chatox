@@ -18,7 +18,8 @@ data class ChatResponse(
         val createdByCurrentUser: Boolean?,
         @field:JsonInclude(JsonInclude.Include.NON_NULL)
         val participantsCount: Int?,
-        val onlineParticipantsCount: Int = 0,
+        @field:JsonInclude(JsonInclude.Include.NON_NULL)
+        val onlineParticipantsCount: Int?,
         val avatar: UploadResponse<ImageUploadMetadata>?,
         val type: ChatType,
 

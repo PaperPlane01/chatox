@@ -6,6 +6,7 @@ import chatox.chat.api.response.ChatInviteUsageResponse
 import chatox.chat.api.response.UserResponse
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatInvite
+import chatox.chat.model.ChatParticipantsCount
 import chatox.chat.service.UserService
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -18,18 +19,20 @@ import reactor.core.publisher.Mono
 class ChatInviteMapper(private val chatMapper: ChatMapper,
                        private val userService: UserService) {
 
-    fun toChatInviteResponse(chatInvite: ChatInvite, chat: Chat, usage: ChatInviteUsageResponse): ChatInviteResponse =  ChatInviteResponse(
+    fun toChatInviteResponse(
+            chatInvite: ChatInvite,
+            chat: Chat,
+            usage: ChatInviteUsageResponse,
+            chatParticipantsCount: ChatParticipantsCount? = null
+    ): ChatInviteResponse =  ChatInviteResponse(
             id = chatInvite.id,
-            chat = chatMapper.toChatResponse(chat),
+            chat = chatMapper.toChatResponse(
+                    chat = chat,
+                    chatParticipantsCount = chatParticipantsCount
+            ),
             joinAllowanceSettings = chatInvite.joinAllowanceSettings,
             usage = usage
     )
-
-    fun mapChatInvites(
-            chatInvites: Flux<ChatInvite>,
-            localUsersCache: MutableMap<String, UserResponse> = mutableMapOf()
-    ): Flux<ChatInviteFullResponse> = chatInvites
-            .flatMapSequential { chatInvite -> toChatInviteFullResponse(chatInvite, localUsersCache) }
 
     fun toChatInviteFullResponse(
             chatInvite: ChatInvite,

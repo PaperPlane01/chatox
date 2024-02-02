@@ -23,6 +23,7 @@ import chatox.chat.model.Chat
 import chatox.chat.model.ChatInvite
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
+import chatox.chat.model.ChatType
 import chatox.chat.model.JoinChatAllowance
 import chatox.chat.model.JoinChatRejectionReason
 import chatox.chat.model.PendingChatParticipation
@@ -33,6 +34,7 @@ import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.ChatRoleRepository
 import chatox.chat.repository.mongodb.PendingChatParticipationRepository
 import chatox.chat.service.ChatInviteService
+import chatox.chat.service.ChatParticipantsCountService
 import chatox.chat.service.ChatParticipationService
 import chatox.chat.util.mapTo2Lists
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
@@ -60,6 +62,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                                    private val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String>,
                                    private val defaultRoleOfChatCacheWrapper: DefaultRoleOfChatCacheWrapper,
                                    private val chatInviteService: ChatInviteService,
+                                   private val chatParticipantsCountService: ChatParticipantsCountService,
                                    private val chatEventsPublisher: ChatEventsPublisher,
                                    private val userMapper: UserMapper,
                                    private val authenticationHolder: ReactiveAuthenticationHolder<User>
@@ -182,6 +185,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                             id = ObjectId().toHexString(),
                             user = user,
                             chatId = chat.id,
+                            chatType = chat.type,
                             createdAt = ZonedDateTime.now(),
                             role = chatRole,
                             roleId = chatRole.id,
@@ -201,7 +205,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                         .awaitFirst()
             }
 
-            chatRepository.increaseNumberOfParticipants(chat.id).awaitFirst()
+            chatParticipantsCountService.increaseChatParticipantsCount(chat.id).awaitFirst()
             publishUserJoinedChat(chatParticipation, user, chatRole)
 
             return@mono chatParticipationMapper.toMinifiedChatParticipationResponse(chatParticipation).awaitFirst()
@@ -246,7 +250,13 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                     deletedById = currentUser.id
             )
             chatParticipation = chatParticipationRepository.save(chatParticipation).awaitFirst()
-            chatRepository.decreaseNumberOfOnlineParticipants(chat.id).awaitFirst()
+
+            if (chatParticipation.userOnline) {
+                chatParticipantsCountService.decreaseOnlineParticipantsCount(chatId).awaitFirst()
+            }
+
+            chatParticipantsCountService.decreaseChatParticipantsCount(chatId).awaitFirst()
+
             chatEventsPublisher.userLeftChat(
                     UserLeftChat(
                             userId = chatParticipation.user.id,
@@ -299,10 +309,10 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
             chatParticipationRepository.save(chatParticipation).awaitFirst()
 
             if (chatParticipation.userOnline) {
-                chatRepository.decreaseNumberOfOnlineParticipants(chatParticipation.chatId).awaitFirst()
+                chatParticipantsCountService.decreaseOnlineParticipantsCount(chatParticipation.chatId).awaitFirst()
             }
 
-            chatRepository.decreaseNumberOfParticipants(chatParticipation.chatId).awaitFirst()
+            chatParticipantsCountService.decreaseChatParticipantsCount(chatParticipation.chatId).awaitFirst()
 
             log.info("Publishing chatParticipationDeleted event")
             chatEventsPublisher.chatParticipationDeleted(
@@ -320,7 +330,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
     override fun findParticipantsOfChat(chatId: String, paginationRequest: PaginationRequest): Flux<ChatParticipationResponse> {
         return mono {
             val chat = findChatById(chatId).awaitFirst()
-            return@mono mapChatParticipations(chatParticipationRepository.findByChatId(chat.id))
+            return@mono mapChatParticipations(chatParticipationRepository.findByChatIdAndDeletedFalse(chat.id))
         }
                 .flatMapMany { it }
     }
@@ -444,6 +454,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                                 id = ObjectId().toHexString(),
                                 user = user,
                                 chatId = pendingChatParticipation.chatId,
+                                chatType = ChatType.GROUP,
                                 createdAt = ZonedDateTime.now(),
                                 role = defaultRole,
                                 roleId = defaultRole.id,
@@ -458,7 +469,9 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
             chatParticipations.addAll(restoredChatParticipations)
 
             chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
-            chatRepository.increaseNumberOfParticipants(chatId, chatParticipations.size).awaitFirst()
+            chatParticipantsCountService.increaseChatParticipantsCount(chatId, chatParticipations.size).awaitFirst()
+            val onlineIncrease = users.values.filter { user -> user.online ?: false }.size
+            chatParticipantsCountService.increaseOnlineParticipantsCount(chatId, onlineIncrease).awaitFirst()
             chatInviteService.updateChatInviteFromApprovedChatParticipations(chatParticipations).awaitFirstOrNull()
 
             pendingChatParticipationRepository.deleteAll(pendingChatParticipants).awaitFirstOrNull()

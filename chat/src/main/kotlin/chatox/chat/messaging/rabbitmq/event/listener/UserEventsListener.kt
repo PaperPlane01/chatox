@@ -1,6 +1,5 @@
 package chatox.chat.messaging.rabbitmq.event.listener
 
-import chatox.chat.config.RedisConfig
 import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.messaging.rabbitmq.event.UserCreated
 import chatox.chat.messaging.rabbitmq.event.UserDeleted
@@ -8,18 +7,18 @@ import chatox.chat.messaging.rabbitmq.event.UserUpdated
 import chatox.chat.messaging.rabbitmq.event.UserWentOffline
 import chatox.chat.messaging.rabbitmq.event.UserWentOnline
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
-import chatox.chat.model.Chat
+import chatox.chat.model.ChatType
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Upload
 import chatox.chat.model.UploadType
 import chatox.chat.model.User
-import chatox.chat.repository.elasticsearch.ChatElasticsearchRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.repository.mongodb.UserRepository
+import chatox.chat.service.ChatParticipantsCountService
 import chatox.chat.support.UserDisplayedNameHelper
-import chatox.platform.cache.ReactiveCacheService
+import chatox.chat.util.mapTo2Lists
 import chatox.platform.security.VerificationLevel
 import com.rabbitmq.client.Channel
 import kotlinx.coroutines.reactive.awaitFirst
@@ -28,27 +27,18 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.support.AmqpHeaders
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Mono
-import java.time.ZonedDateTime
 
 @Component
 class UserEventsListener(private val userRepository: UserRepository,
                          private val chatParticipationRepository: ChatParticipationRepository,
                          private val uploadRepository: UploadRepository,
                          private val chatRepository: ChatRepository,
-                         private val chatElasticsearchRepository: ChatElasticsearchRepository,
                          private val chatParticipationMapper: ChatParticipationMapper,
                          private val chatEventsPublisher: ChatEventsPublisher,
-
-                         @Qualifier(RedisConfig.CHAT_BY_ID_CACHE_SERVICE)
-                         private val chatByIdCacheService: ReactiveCacheService<Chat, String>,
-
-                         @Qualifier(RedisConfig.CHAT_BY_SLUG_CACHE_SERVICE)
-                         private val chatBySlugCacheService: ReactiveCacheService<Chat, String>,
-                         private val userDisplayedNameHelper: UserDisplayedNameHelper) {
+                         private val userDisplayedNameHelper: UserDisplayedNameHelper,
+                         private val chatParticipantsCountService: ChatParticipantsCountService) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     @RabbitListener(queues = ["chat_service_user_created"])
@@ -57,7 +47,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                       @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
         mono {
             log.info("User ${userCreated.id} has been created")
-            log.debug("Created user name is $userCreated")
+            log.debug("Created user name is {}", userCreated)
             userRepository.save(User(
                     id = userCreated.id,
                     deleted = false,
@@ -176,24 +166,21 @@ class UserEventsListener(private val userRepository: UserRepository,
                 val chatParticipations = chatParticipationRepository.findAllByUserIdAndDeletedFalse(user.id)
                         .collectList()
                         .awaitFirst()
-                chatParticipations.forEach { chatParticipation ->
-                    log.debug("Saving chat participation")
-                    chatParticipationRepository.save(
-                            chatParticipation.copy(userOnline = true, lastModifiedAt = ZonedDateTime.now())
-                    )
-                            .awaitFirst()
-                    log.debug("Increasing number of online participants")
-                    chatRepository.increaseNumberOfOnlineParticipants(chatParticipation.chatId)
-                            .flatMap { chat -> Mono.zip(
-                                    chatByIdCacheService.put(chat),
-                                    chatBySlugCacheService.put(chat),
-                                    chatElasticsearchRepository.save(chat.toElasticsearch())
-                            ) }
-                            .subscribe()
+                val (updatedChatParticipations, chatIds) = mapTo2Lists(
+                        chatParticipations,
+                        { it.copy(userOnline = true, user = user) },
+                        { if (it.chatType == ChatType.GROUP) it.chatId else null }
+                )
+
+                chatParticipationRepository.saveAll(updatedChatParticipations).subscribe()
+
+                chatIds.filterNotNull().forEach { chatId -> chatParticipantsCountService
+                        .increaseOnlineParticipantsCount(chatId)
+                        .subscribe()
                 }
 
                 chatEventsPublisher.chatParticipantsWentOnline(
-                        chatParticipants = chatParticipations.map { chatParticipation ->
+                        chatParticipants = updatedChatParticipations.map { chatParticipation ->
                             chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst()
                         }
                 )
@@ -210,7 +197,7 @@ class UserEventsListener(private val userRepository: UserRepository,
                           channel: Channel,
                           @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
         log.info("userWentOffline event received")
-        log.debug("$userWentOffline")
+        log.debug("{}", userWentOffline)
         mono {
             var user = userRepository.findById(userWentOffline.userId).awaitFirstOrNull()
 
@@ -221,26 +208,27 @@ class UserEventsListener(private val userRepository: UserRepository,
                 )
                 userRepository.save(user).awaitFirst()
                 log.debug("User has been updated")
-                var chatParticipations = chatParticipationRepository.findAllByUserIdAndDeletedFalse(user.id)
+                val chatParticipations = chatParticipationRepository.findAllByUserIdAndDeletedFalse(user.id)
                         .collectList()
                         .awaitFirst()
-                chatParticipations = chatParticipations.map { chatParticipation ->
-                    chatParticipation.copy(userOnline = false, lastModifiedAt = ZonedDateTime.now())
-                }
-                chatParticipations = chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
+                val (updatedChatParticipations, chatIds) = mapTo2Lists(
+                        chatParticipations,
+                        { it.copy(userOnline = false, user = user) },
+                        { if (it.chatType == ChatType.GROUP) it.chatId else null }
+                )
 
-                for (chatParticipation in chatParticipations) {
-                    chatRepository.decreaseNumberOfOnlineParticipants(chatParticipation.chatId)
-                            .flatMap { chat -> Mono.zip(
-                                    chatByIdCacheService.put(chat),
-                                    chatBySlugCacheService.put(chat),
-                                    chatElasticsearchRepository.save(chat.toElasticsearch())
-                            ) }
-                            .subscribe()
+                chatParticipationRepository
+                        .saveAll(updatedChatParticipations)
+                        .collectList()
+                        .awaitFirst()
+
+                chatIds.filterNotNull().forEach { chatId -> chatParticipantsCountService
+                        .decreaseOnlineParticipantsCount(chatId)
+                        .subscribe()
                 }
 
                 chatEventsPublisher.chatParticipantsWentOffline(
-                        chatParticipants = chatParticipations.map { chatParticipation ->
+                        chatParticipants = updatedChatParticipations.map { chatParticipation ->
                             chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst()
                         }
                 )

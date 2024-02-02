@@ -18,8 +18,6 @@ interface ChatInterface {
     val deleted: Boolean
     val deletedById: String?
     val type: ChatType
-    val numberOfParticipants: Int
-    val numberOfOnlineParticipants: Int
     val lastMessageId: String?
     val lastMessageDate: ZonedDateTime?
     val chatDeletion: ChatDeletion?
