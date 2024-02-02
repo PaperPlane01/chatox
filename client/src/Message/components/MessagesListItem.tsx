@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent, MouseEvent, ReactNode, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {Card, CardActions, CardContent, CardHeader, darken, lighten, Theme, Tooltip, Typography} from "@mui/material";
+import {Card, CardActions, CardContent, CardHeader, lighten, Theme, Tooltip, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Edit, Event, Forward} from "@mui/icons-material";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
@@ -26,6 +26,7 @@ import {UserEntity} from "../../User";
 import {getChatRoleTranslation} from "../../ChatRole/utils";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 import {useLuminosity} from "../../utils/hooks";
+import {commonStyles} from "../../style";
 
 interface MessagesListItemProps {
     messageId: string,
@@ -122,8 +123,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         float: "right"
     },
     undecoratedLink: {
-        textDecoration: "none",
-        color: "inherit"
+        ...commonStyles.undecoratedLink,
+    },
+    zeroHeight: {
+        height: 0
     },
     avatarOfCurrentUserContainer: {
         [theme.breakpoints.up("lg")]: {
@@ -170,6 +173,7 @@ let messageCardDimensionsCache: {[messageId: string]: {width: number, height: nu
 
 window.addEventListener("resize", () => messageCardDimensionsCache = {});
 
+//TODO: Refactor this mess into smaller components
 export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     messageId,
     fullWidth = false,
@@ -286,6 +290,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     });
     const userAvatarLinkClasses = clsx({
         [classes.undecoratedLink]: true,
+        [classes.zeroHeight]: true,
         [classes.avatarOfCurrentUserContainer]: sentByCurrentUser,
         [classes.avatarContainer]: !sentByCurrentUser
     });
