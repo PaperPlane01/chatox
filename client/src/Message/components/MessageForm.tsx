@@ -74,7 +74,7 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
     const classes = useStyles();
 
     useEffect(() => {
-        if (inputRef && inputRef.current) {
+        if (inputRef?.current) {
             inputRef.current.value = formValues.text;
         }
     });
@@ -84,19 +84,19 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
     };
 
     const handleEmojiSelect = (emoji: EmojiData): void => {
-        if (inputRef && inputRef.current) {
-            if (!useEmojiCodes) {
-                inputRef.current.value = `${inputRef.current.value}${(emoji as any).native}`;
-            } else {
-                if (inputRef.current.value.length !== 0) {
-                    inputRef.current.value = `${inputRef.current.value} ${emoji.colons}`;
-                } else {
-                    inputRef.current.value = `${emoji.colons}`;
-                }
-            }
-
-            updateText(inputRef!.current!.value);
+        if (!inputRef?.current) {
+            return;
         }
+
+        if (!useEmojiCodes) {
+            inputRef.current.value = `${inputRef.current.value}${(emoji as any).native}`;
+        } else if (inputRef.current.value.length !== 0) {
+            inputRef.current.value = `${inputRef.current.value} ${emoji.colons}`;
+        } else {
+            inputRef.current.value = `${emoji.colons}`;
+        }
+
+        updateText(inputRef.current.value);
     };
 
     const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
@@ -111,14 +111,13 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
                 insertNewLineOnCursorPosition();
             }
         } else if (sendMessageButton === SendMessageButtonType.ENTER) {
+            event.preventDefault();
             submitForm();
-        } else {
-            insertNewLineOnCursorPosition();
         }
     };
 
     const insertNewLineOnCursorPosition = (): void => {
-        if (!inputRef || !inputRef.current) {
+        if (!inputRef?.current) {
             return;
         }
 
@@ -131,11 +130,12 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
 
         if (end === formValues.text.length) {
             inputRef.current.value = `${inputRef.current.value}\r\n`;
+            console.log(JSON.stringify(inputRef.current.value))
         } else {
             inputRef.current.setRangeText("\r\n", start, end, "preserve");
         }
 
-        updateText(inputRef!.current!.value);
+        updateText(inputRef.current.value);
     };
 
     return (
@@ -143,8 +143,8 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
             <TextField id="messageTextField"
                        fullWidth
                        placeholder={l("message.type-something")}
-                       onChange={() => updateText(inputRef!.current!.value)}
-                       onPaste={() => updateText(inputRef!.current!.value)}
+                       onChange={() => updateText(inputRef?.current?.value ?? "")}
+                       onPaste={() => updateText(inputRef?.current?.value ?? "")}
                        onKeyDown={handleKeyDown}
                        inputRef={inputRef}
                        multiline
@@ -166,10 +166,8 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
                                                className={classes.inputAdornment}
                                >
                                    <div style={{display: "flex", alignItems: "center"}}>
-                                       <Fragment>
-                                           {allowScheduled && scheduledAt && <OpenScheduleMessageDialogButton/>}
-                                           <EmojiPickerContainer onEmojiSelected={handleEmojiSelect}/>
-                                       </Fragment>
+                                       {allowScheduled && scheduledAt && <OpenScheduleMessageDialogButton/>}
+                                       <EmojiPickerContainer onEmojiSelected={handleEmojiSelect}/>
                                        <Countdown date={nextMessageDate}>
                                            {formValues.text.length !== 0 || attachmentsIds.length !== 0 || forwardedMessagesCount > 0
                                                ? (
