@@ -1,11 +1,11 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ImageListItem, Checkbox, Theme} from "@mui/material";
+import {Checkbox, ImageListItem, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import clsx from "clsx";
 import {useLongPress} from "use-long-press";
 import {usePermissions, useStore} from "../../store";
-import {ensureEventWontPropagate} from "../../utils/event-utils";
+import {ensureEventWontPropagate, isPointerEvent} from "../../utils/event-utils";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     imageListItem: {
@@ -82,6 +82,13 @@ export const UserProfileGalleryPhoto: FunctionComponent<UserProfileGalleryPhotoP
                    openLightboxToIndex(index);
                } else {
                    handleSelection();
+               }
+           },
+           filterEvents: event => {
+               if (isPointerEvent(event)) {
+                   return event.button !== 2;
+               } else {
+                   return true;
                }
            }
        }
