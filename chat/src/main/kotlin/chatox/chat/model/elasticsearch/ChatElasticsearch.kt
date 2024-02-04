@@ -49,5 +49,6 @@ data class ChatElasticsearch(
         override val dialogDisplay: List<DialogDisplay>,
 
         @field:Field(type = FieldType.Nested)
-        override val slowMode: SlowMode? = null, override val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf()
+        override val slowMode: SlowMode? = null, override val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf(),
+        override val hideFromSearch: Boolean = false
 ) : ChatInterface
