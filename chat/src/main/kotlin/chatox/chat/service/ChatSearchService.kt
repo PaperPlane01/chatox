@@ -6,5 +6,5 @@ import reactor.core.publisher.Mono
 
 interface ChatSearchService {
     fun searchChatsOfCurrentUser(query: String): Flux<ChatResponse>
-    fun importChatsToElasticsearch(): Mono<Void>
+    fun importChatsToElasticsearch(deleteIndex: Boolean = false): Mono<Unit>
 }
