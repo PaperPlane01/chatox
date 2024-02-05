@@ -1,11 +1,13 @@
 package chatox.chat.mongo.migration
 
 import chatox.chat.model.Chat
+import chatox.chat.model.ChatParticipantsCount
 import chatox.chat.model.ChatType
 import chatox.chat.service.ChatSearchService
 import com.kuliginstepan.mongration.annotation.Changelog
 import com.kuliginstepan.mongration.annotation.Changeset
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -24,7 +26,7 @@ class ChatMigrations {
             chatSearchService: ChatSearchService
     ): Mono<Unit> {
         return mono {
-            log.info("Executing migration: set hideFromSearch for group chats")
+            log.info("Executing migration: set hideFromSearch to false for all group chats")
 
             val query = Query()
             query.addCriteria(Criteria.where("type").`is`(ChatType.GROUP))
@@ -39,7 +41,28 @@ class ChatMigrations {
             )
                     .awaitFirst()
 
-            chatSearchService.importChatsToElasticsearch(deleteIndex = true).awaitFirst()
+            chatSearchService.importChatsToElasticsearch(deleteIndex = true).awaitFirstOrNull()
+        }
+    }
+
+    @Changeset(order = 2, author = "mongration")
+    fun setHideFromSearchForChatParticipantsCount(reactiveMongoTemplate: ReactiveMongoTemplate): Mono<Unit> {
+        return mono {
+            log.info("Executing migration: set hideFromSearch to false for all chat participants count")
+
+            val update = Update()
+            update.set("hideFromSearch", false)
+
+            val query = Query()
+
+            reactiveMongoTemplate.updateMulti(
+                    query,
+                    update,
+                    ChatParticipantsCount::class.java
+            )
+                    .awaitFirst()
+
+            return@mono
         }
     }
 }
