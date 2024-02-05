@@ -41,7 +41,7 @@ class ChatParticipantsCountServiceImpl(
                     )
             )
 
-            return@mono chatParticipantsCountRepository.findAllBy(pageRequest)
+            return@mono chatParticipantsCountRepository.findByHideFromSearchFalse(pageRequest)
                     .collectList()
                     .map { result -> result.associateBy { it.chatId } }
                     .awaitFirst()

@@ -12,5 +12,5 @@ interface ChatParticipantsCountRepository : ReactiveMongoRepository<ChatParticip
         ChatParticipantsCountCustomRepository {
     fun findByChatId(chatId: String): Mono<ChatParticipantsCount>
     fun findByChatIdIn(chatIds: List<String>): Flux<ChatParticipantsCount>
-    fun findAllBy(pageable: Pageable): Flux<ChatParticipantsCount>
+    fun findByHideFromSearchFalse(pageable: Pageable): Flux<ChatParticipantsCount>
 }
