@@ -18,11 +18,11 @@ import chatox.chat.service.ChatSearchService
 import chatox.chat.util.fromTuple
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.reactive.awaitLast
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
+import org.springframework.data.elasticsearch.client.elc.ReactiveElasticsearchTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -31,6 +31,7 @@ import reactor.core.publisher.Mono
 class ChatsSearchServiceImpl(private val chatElasticsearchRepository: ChatElasticsearchRepository,
                              private val chatParticipationRepository: ChatParticipationRepository,
                              private val chatRepository: ChatRepository,
+                             private val elasticSearchTemplate: ReactiveElasticsearchTemplate,
                              private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                              private val chatMapper: ChatMapper,
                              private val chatParticipationMapper: ChatParticipationMapper,
@@ -71,7 +72,7 @@ class ChatsSearchServiceImpl(private val chatElasticsearchRepository: ChatElasti
                 .just(deleteIndex)
                 .map { isDeleteIndex ->
                     return@map if (isDeleteIndex) {
-                        chatParticipationRepository.deleteAll()
+                        elasticSearchTemplate.indexOps(ChatElasticsearch::class.java).delete()
                     } else {
                         return@map Mono.empty()
                     }
@@ -114,20 +115,25 @@ class ChatsSearchServiceImpl(private val chatElasticsearchRepository: ChatElasti
                     dialogParticipants[1]
                 }
 
-                return@map listOfNotNull(
-                        DialogDisplay(
-                                firstParticipant.user.id,
-                                chatParticipationMapper.toDialogParticipant(firstParticipant)
-                        ),
-                        if (secondParticipant == null) {
-                            null
-                        } else {
+                return@map if (secondParticipant == null) {
+                    listOf(
                             DialogDisplay(
-                                    firstParticipant.user.id,
-                                    chatParticipationMapper.toDialogParticipant(secondParticipant)
+                                    userId = firstParticipant.user.id,
+                                    otherParticipant = chatParticipationMapper.toDialogParticipant(firstParticipant)
                             )
-                        }
-                )
+                    )
+                } else {
+                    listOf(
+                            DialogDisplay(
+                                    userId = firstParticipant.user.id,
+                                    otherParticipant = chatParticipationMapper.toDialogParticipant(secondParticipant)
+                            ),
+                            DialogDisplay(
+                                    userId = secondParticipant.user.id,
+                                    otherParticipant = chatParticipationMapper.toDialogParticipant(firstParticipant)
+                            )
+                    )
+                }
             }
 
     @EventListener(ApplicationReadyEvent::class)
