@@ -13,5 +13,6 @@
     "ANONYMOUS": "ALLOWED",
     "REGISTERED": "ALLOWED",
     "EMAIL_VERIFIED": "ALLOWED"
-  }
+  },
+  "hideFromSearch": true
 }

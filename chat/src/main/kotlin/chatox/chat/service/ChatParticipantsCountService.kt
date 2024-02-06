@@ -17,4 +17,5 @@ interface ChatParticipantsCountService {
     fun decreaseOnlineParticipantsCount(chatId: String): Mono<ChatParticipantsCount>
     fun decreaseOnlineParticipantsCount(chatId: String, number: Int): Mono<ChatParticipantsCount>
     fun initializeForChat(chatId: String, participantsCount: Int, onlineParticipantsCount: Int): Mono<ChatParticipantsCount>
+    fun setHideFromSearch(chatId: String, hideFromSearch: Boolean): Mono<ChatParticipantsCount>
 }

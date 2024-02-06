@@ -272,6 +272,8 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             val slug = getSlug(updateChatRequest, chat).awaitFirst()
             val avatar = getAvatar(updateChatRequest, chat).awaitFirstOrNull()
             val slowMode = getSlowModeSettings(updateChatRequest)
+            val hideFromSearch = updateChatRequest.hideFromSearch ?: false
+            val hideFromSearchChanged = hideFromSearch != chat.hideFromSearch
 
             chat = chat.copy(
                     name = updateChatRequest.name,
@@ -280,8 +282,13 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     tags = updateChatRequest.tags ?: arrayListOf(),
                     description = updateChatRequest.description,
                     slowMode = slowMode,
-                    joinAllowanceSettings = updateChatRequest.joinAllowanceSettings ?: mapOf()
+                    joinAllowanceSettings = updateChatRequest.joinAllowanceSettings ?: mapOf(),
+                    hideFromSearch = hideFromSearch
             )
+
+            if (hideFromSearchChanged) {
+                chatParticipantsCountService.setHideFromSearch(chat.id, hideFromSearch).awaitFirst()
+            }
 
             if (slug != null && slug != chat.slug && slug != chat.id) {
                 chatBySlugCacheService.delete(chat.slug).awaitFirstOrNull()
