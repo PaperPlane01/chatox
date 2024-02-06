@@ -42,7 +42,8 @@ class ChatMapper(
             user = if (user != null) userMapper.toUserResponse(user) else null,
             type = chat.type,
             slowMode = chat.slowMode,
-            joinAllowanceSettings = chat.joinAllowanceSettings
+            joinAllowanceSettings = chat.joinAllowanceSettings,
+            hideFromSearch = chat.hideFromSearch
     )
 
     fun toChatResponse(
@@ -64,7 +65,8 @@ class ChatMapper(
             type = chat.type,
             user = if (user != null) userMapper.toUserResponse(user) else null,
             slowMode = chat.slowMode,
-            joinAllowanceSettings = chat.joinAllowanceSettings
+            joinAllowanceSettings = chat.joinAllowanceSettings,
+            hideFromSearch = chat.hideFromSearch
     )
 
     fun toChatOfCurrentUserResponse(
@@ -191,7 +193,8 @@ class ChatMapper(
                     user = user,
                     type = chat.type,
                     slowMode = chat.slowMode,
-                    joinAllowanceSettings = chat.joinAllowanceSettings
+                    joinAllowanceSettings = chat.joinAllowanceSettings,
+                    hideFromSearch = chat.hideFromSearch
             )
         }
     }
@@ -207,18 +210,20 @@ class ChatMapper(
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
             createdById = chat.createdById,
             type = chat.type,
-            slowMode = chat.slowMode
+            slowMode = chat.slowMode,
+            hideFromSearch = chat.hideFromSearch
     )
 
     fun toChatUpdated(chat: Chat) = ChatUpdated(
             id = chat.id,
-            avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
+            avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar) else null,
             description = chat.description,
             avatarUri = chat.avatarUri,
             createdAt = chat.createdAt,
             name = chat.name,
             slug = chat.slug,
             tags = chat.tags,
-            slowMode = chat.slowMode
+            slowMode = chat.slowMode,
+            hideFromSearch = chat.hideFromSearch
     )
 }

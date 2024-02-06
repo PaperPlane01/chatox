@@ -30,5 +30,6 @@ data class ChatOfCurrentUserResponse(
         val deletionComment: String?,
         val user: UserResponse?,
         val slowMode: SlowMode? = null,
-        val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf()
+        val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf(),
+        val hideFromSearch: Boolean
 )

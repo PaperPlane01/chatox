@@ -20,5 +20,6 @@ data class ChatResponseWithCreatorId(
         val avatar: UploadResponse<ImageUploadMetadata>?,
         val createdById: String?,
         val type: ChatType,
-        val slowMode: SlowMode? = null
+        val slowMode: SlowMode? = null,
+        val hideFromSearch: Boolean
 )

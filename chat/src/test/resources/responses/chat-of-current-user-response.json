@@ -511,5 +511,6 @@
     "enabled": true,
     "interval": 1,
     "unit": "MINUTES"
-  }
+  },
+  "hideFromSearch": false
 }
