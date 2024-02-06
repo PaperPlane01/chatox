@@ -32,7 +32,8 @@ const INITIAL_FORM_VALUES: UpdateChatFormData = {
         [UserVerificationLevel.ANONYMOUS]: JoinChatAllowance.ALLOWED,
         [UserVerificationLevel.REGISTERED]: JoinChatAllowance.ALLOWED,
         [UserVerificationLevel.EMAIL_VERIFIED]: JoinChatAllowance.ALLOWED
-    }
+    },
+    hideFromSearch: false
 };
 const INITIAL_FORM_ERRORS: FormErrors<UpdateChatFormData> = createWithUndefinedValues(INITIAL_FORM_VALUES);
 
@@ -112,8 +113,10 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
                         slowModeEnabled: selectedChat.slowMode ? selectedChat.slowMode.enabled : false,
                         slowModeInterval: selectedChat.slowMode?.interval.toString(),
                         slowModeUnit: selectedChat.slowMode?.unit,
-                        joinAllowanceSettings: selectedChat.joinAllowanceSettings
+                        joinAllowanceSettings: selectedChat.joinAllowanceSettings,
+                        hideFromSearch: selectedChat.hideFromSearch
                     });
+                    console.log(this.formValues.hideFromSearch);
                 }
             }
         );
@@ -192,7 +195,8 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
             slug: this.formValues.slug,
             tags: this.formValues.tags,
             slowMode: this.getSlowModeFromForm(),
-            joinAllowanceSettings: this.formValues.joinAllowanceSettings
+            joinAllowanceSettings: this.formValues.joinAllowanceSettings,
+            hideFromSearch: this.formValues.hideFromSearch
         })
             .then(({data}) => {
                 this.entities.chats.insert(data);

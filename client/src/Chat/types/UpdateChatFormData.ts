@@ -8,5 +8,6 @@ export interface UpdateChatFormData {
     slowModeEnabled: boolean,
     slowModeInterval?: string,
     slowModeUnit?: TimeUnit,
-    joinAllowanceSettings: JoinAllowanceMap
+    joinAllowanceSettings: JoinAllowanceMap,
+    hideFromSearch: boolean
 }

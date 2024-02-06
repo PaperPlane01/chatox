@@ -741,5 +741,7 @@ export const ru: Labels = {
     "chat.join.pending": "Ваша заявка на участие в чате была отправлена на рассмотрение",
     "chat.join.error.INSUFFICIENT_VERIFICATION_LEVEL": "You cannot join this chat because of your verification level",
     "chat.join.error.ALREADY_CHAT_PARTICIPANT": "You cannot join this chat because you are already a chat participant",
-    "chat.join.error.AWAITING_APPROVAL": "You cannot join this chat because your join request is waiting to be approved"
+    "chat.join.error.AWAITING_APPROVAL": "You cannot join this chat because your join request is waiting to be approved",
+    "chat.visibility": "Видимость чата",
+    "chat.visibility.hide-from-search": "Скрывать из поиска"
 };
