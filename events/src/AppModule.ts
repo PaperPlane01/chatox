@@ -24,7 +24,9 @@ import {BalanceModule} from "./balance";
       GlobalBansModule,
       ChatRoleModule,
       BalanceModule,
-      MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.EVENTS_SERVICE_DATABASE_NAME}`)
+      MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.EVENTS_SERVICE_DATABASE_NAME}`, {
+          autoIndex: true
+      })
   ]
 })
 export class AppModule {}
