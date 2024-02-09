@@ -41,24 +41,18 @@ export class ChatParticipationService {
         }
     }
 
-    public async findChatParticipationById(id: string): Promise<ChatParticipation> {
-        return this.chatParticipationModel.findOne({id});
-    }
-
-    public async findByChatId(chatId: string): Promise<ChatParticipation[]> {
+    public async findByUserId(userId: string): Promise<ChatParticipation[]> {
         return this.chatParticipationModel.find({
-            chatId,
+            userId,
             deleted: false
         });
     }
 
-    public async findByUserId(userId: string): Promise<ChatParticipation[]> {
-        return this.chatParticipationModel.find({
-            userId
-        });
-    }
-
-    public async findChatParticipationsWithEnabledFeatures(chatId: string, features: Array<keyof ChatFeatures>): Promise<ChatParticipation[]> {
+    public async findChatParticipationsByUsersWithEnabledFeatures(
+        chatId: string,
+        usersIds: string[],
+        features: Array<keyof ChatFeatures>
+    ): Promise<ChatParticipation[]> {
         const chatRoles = await this.chatRoleService.findRolesWithEnabledFeatures(chatId, features);
         const chatRolesIds = chatRoles.map(chatRole => chatRole._id.toHexString());
 
@@ -66,6 +60,9 @@ export class ChatParticipationService {
             chatId,
             roleId: {
                 $in: chatRolesIds
+            },
+            userId: {
+                $in: usersIds
             }
         });
     }
