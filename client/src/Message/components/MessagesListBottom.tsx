@@ -21,11 +21,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             width: "100%",
         },
         [theme.breakpoints.down("lg")]: {
-            position: "fixed",
+            position: "sticky",
             bottom: 0,
             width: "100%",
             backgroundColor: theme.palette.background.default,
-            maxHeight: "70vh"
+            maxHeight: "70vh",
+            minHeight: 45
         }
     }
 }));
