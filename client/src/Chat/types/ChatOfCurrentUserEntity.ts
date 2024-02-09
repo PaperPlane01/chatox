@@ -27,5 +27,6 @@ export interface ChatOfCurrentUserEntity {
     type: ChatType,
     userId?: string,
     slowMode?: SlowMode,
-    joinAllowanceSettings: JoinAllowanceMap
+    joinAllowanceSettings: JoinAllowanceMap,
+    hideFromSearch: boolean
 }

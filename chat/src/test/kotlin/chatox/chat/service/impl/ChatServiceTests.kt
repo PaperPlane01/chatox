@@ -385,6 +385,10 @@ class ChatServiceTests {
                 request = request.copy(slug = chat.slug)
             }
 
+            if (options.ensureSameHideFromSearch) {
+                request = request.copy(hideFromSearch = chat.hideFromSearch)
+            }
+
             every { chatByIdCacheWrapper.findById(chatId) } returns Mono.just(chat)
 
             val slugChanged = request.slug != null && request.slug != chat.slug && request.slug != chat.id
@@ -402,6 +406,17 @@ class ChatServiceTests {
                 every {
                     uploadRepository.findByIdAndType<Any>(eq(request.avatarId!!), eq(UploadType.IMAGE))
                 } returns Mono.just(upload)
+            }
+
+            val hideFromSearchChanged = request.hideFromSearch ?: false != chat.hideFromSearch
+
+            if (hideFromSearchChanged) {
+                every {
+                    chatParticipantsCountService.setHideFromSearch(
+                            eq(chat.id),
+                            eq(request.hideFromSearch ?: false)
+                    )
+                } returns Mono.just(chatParticipantsCount)
             }
 
             val chatSlot = slot<Chat>()
@@ -448,6 +463,9 @@ class ChatServiceTests {
 
                         val expectedJoinAllowanceSettings = request.joinAllowanceSettings ?: mapOf()
                         assertEquals(expectedJoinAllowanceSettings, savedChat.joinAllowanceSettings)
+
+                        val expectedHideFromSearch = request.hideFromSearch ?: false
+                        assertEquals(expectedHideFromSearch, savedChat.hideFromSearch)
 
                         verify(exactly = 1) { chatEventsPublisher.chatUpdated(any()) }
 
@@ -540,7 +558,11 @@ class ChatServiceTests {
         }
     }
 
-    data class UpdateChatTestOptions(val ensureSameAvatar: Boolean = false, val ensureSameSlug: Boolean = false)
+    data class UpdateChatTestOptions(
+            val ensureSameAvatar: Boolean = false,
+            val ensureSameSlug: Boolean = false,
+            val ensureSameHideFromSearch: Boolean = false
+    )
 
     @DisplayName("deleteChat() tests")
     @Nested
@@ -928,6 +950,10 @@ class ChatServiceTests {
                 Arguments.of(
                         "requests/update-chat-request-full.json",
                         UpdateChatTestOptions()
+                ),
+                Arguments.of(
+                        "requests/update-chat-request-full.json",
+                        UpdateChatTestOptions(ensureSameHideFromSearch = true)
                 )
         )
 

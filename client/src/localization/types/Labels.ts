@@ -739,5 +739,7 @@ export interface Labels {
     "chat.join.pending": string,
     "chat.join.error.INSUFFICIENT_VERIFICATION_LEVEL": string,
     "chat.join.error.ALREADY_CHAT_PARTICIPANT": string,
-    "chat.join.error.AWAITING_APPROVAL": string
+    "chat.join.error.AWAITING_APPROVAL": string,
+    "chat.visibility": string,
+    "chat.visibility.hide-from-search": string
 }

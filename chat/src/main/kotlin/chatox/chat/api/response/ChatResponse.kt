@@ -28,5 +28,7 @@ data class ChatResponse(
 
         val slowMode: SlowMode? = null,
 
-        val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf()
+        val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf(),
+
+        val hideFromSearch: Boolean
 )

@@ -14,5 +14,6 @@ data class ChatUpdated(
         val description: String?,
         val tags: List<String> = arrayListOf(),
         val avatar: UploadResponse<ImageUploadMetadata>?,
-        val slowMode: SlowMode? = null
+        val slowMode: SlowMode? = null,
+        val hideFromSearch: Boolean
 )

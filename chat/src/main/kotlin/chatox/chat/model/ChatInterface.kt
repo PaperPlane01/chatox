@@ -24,4 +24,5 @@ interface ChatInterface {
     val dialogDisplay: List<DialogDisplay>
     val slowMode: SlowMode?
     val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance>
+    val hideFromSearch: Boolean
 }

@@ -41,7 +41,7 @@ class ChatParticipantsCountServiceImpl(
                     )
             )
 
-            return@mono chatParticipantsCountRepository.findAllBy(pageRequest)
+            return@mono chatParticipantsCountRepository.findAllByHideFromSearchFalse(pageRequest)
                     .collectList()
                     .map { result -> result.associateBy { it.chatId } }
                     .awaitFirst()
@@ -116,6 +116,19 @@ class ChatParticipantsCountServiceImpl(
             chatParticipantsCountCacheService.put(chatParticipantsCount).awaitFirst()
 
             return@mono chatParticipantsCount
+        }
+    }
+
+    override fun setHideFromSearch(chatId: String, hideFromSearch: Boolean): Mono<ChatParticipantsCount> {
+        return mono {
+            val chatParticipantsCount = chatParticipantsCountRepository
+                    .findByChatId(chatId)
+                    .map { it.copy(hideFromSearch = hideFromSearch) }
+                    .awaitFirst()
+
+            chatParticipantsCountRepository.save(chatParticipantsCount).awaitFirst()
+
+            return@mono chatParticipantsCountCacheService.put(chatParticipantsCount).awaitFirst()
         }
     }
 }

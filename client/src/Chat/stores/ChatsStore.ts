@@ -122,7 +122,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
             onlineParticipantsCount: 0,
             scheduledMessages: [],
             tags: [],
-            joinAllowanceSettings: populateJoinAllowanceSettings({})
+            joinAllowanceSettings: populateJoinAllowanceSettings({}),
+            hideFromSearch: true
         };
         patch.ids.chats.push(privateChatCreated.id);
 
@@ -375,7 +376,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
             userId: denormalizedEntity.user ? denormalizedEntity.user.id : undefined,
             type: denormalizedEntity.type,
             slowMode: denormalizedEntity.slowMode,
-            joinAllowanceSettings: populateJoinAllowanceSettings(denormalizedEntity.joinAllowanceSettings)
+            joinAllowanceSettings: populateJoinAllowanceSettings(denormalizedEntity.joinAllowanceSettings),
+            hideFromSearch: denormalizedEntity.hideFromSearch
         }
     }
 }
