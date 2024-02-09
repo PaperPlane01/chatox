@@ -13,7 +13,8 @@ data class ChatParticipantsCount(
         val chatId: String,
 
         val participantsCount: Int = 0,
-        val onlineParticipantsCount: Int = 0
+        val onlineParticipantsCount: Int = 0,
+        val hideFromSearch: Boolean = false
 ) {
         companion object {
                 val EMPTY = ChatParticipantsCount("", "", 0, 0)

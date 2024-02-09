@@ -37,7 +37,8 @@ data class Chat(
         override val chatDeletion: ChatDeletion? = null,
         override val dialogDisplay: List<DialogDisplay> = listOf(),
         override val slowMode: SlowMode? = null,
-        override val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf()
+        override val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf(),
+        override val hideFromSearch: Boolean = false
 ) : ChatInterface {
         fun toElasticsearch() = ChatElasticsearch(
                 id,
@@ -59,6 +60,7 @@ data class Chat(
                 chatDeletion,
                 dialogDisplay,
                 slowMode,
-                joinAllowanceSettings
+                joinAllowanceSettings,
+                hideFromSearch
         )
 }

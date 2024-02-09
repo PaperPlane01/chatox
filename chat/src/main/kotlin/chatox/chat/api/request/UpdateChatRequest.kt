@@ -30,7 +30,9 @@ data class UpdateChatRequest(
         @field:Valid
         val slowMode: UpdateSlowModeRequest? = null,
 
-        val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance>? = null
+        val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance>? = null,
+
+        val hideFromSearch: Boolean? = null
 ) {
         val name: String
                 get() = _name!!

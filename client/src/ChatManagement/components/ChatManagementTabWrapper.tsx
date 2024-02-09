@@ -4,7 +4,7 @@ import {UpdateChatForm} from "./UpdateChatForm";
 import {ChatBlockingsCard} from "./ChatBlockingsCard";
 import {SlowModeForm} from "./SlowModeForm";
 import {ChatDeletionCard} from "./ChatDeletionCard";
-import {JoinChatAllowanceCard} from "./JoinChatAllowanceCard";
+import {ChatSecurityTabContent} from "./ChatSecurityTabContent";
 import {ChatManagementTab, ChatManagementTabRenderers} from "../types";
 import {TranslatedTypography} from "../../localization";
 import {BaseSettingsTabProps} from "../../utils/types";
@@ -20,7 +20,7 @@ const chatManagementTabRenderers: ChatManagementTabRenderers = {
     JOIN_REQUESTS: () => <JoinChatRequestsCard/>,
     INVITES: props => <ChatInvitesCard {...props}/>,
     ROLES: props => <ChatRolesCard {...props}/>,
-    SECURITY: props => <JoinChatAllowanceCard {...props}/>,
+    SECURITY: props => <ChatSecurityTabContent {...props}/>,
     SLOW_MODE: props => <SlowModeForm {...props}/>
 };
 

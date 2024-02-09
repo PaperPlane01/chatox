@@ -20,5 +20,6 @@ export interface Chat {
     type: ChatType,
     user?: User,
     slowMode?: SlowMode,
-    joinAllowanceSettings: Partial<JoinAllowanceMap>
+    joinAllowanceSettings: Partial<JoinAllowanceMap>,
+    hideFromSearch: boolean
 }

@@ -29,5 +29,6 @@
   },
   "slug": "test",
   "tags": ["test", " chat"],
-  "type": "GROUP"
+  "type": "GROUP",
+  "hideFromSearch": false
 }

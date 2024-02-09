@@ -7,5 +7,6 @@ export interface UpdateChatRequest {
     tags: string[],
     avatarId?: string,
     slowMode?: SlowMode,
-    joinAllowanceSettings?: Partial<JoinAllowanceMap>
+    joinAllowanceSettings?: Partial<JoinAllowanceMap>,
+    hideFromSearch: boolean
 }
