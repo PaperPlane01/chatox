@@ -15,7 +15,7 @@ import java.time.temporal.ChronoUnit
         otherFields = ["uploadAttachments", "stickerId"]
 )
 data class CreateMessageRequest(
-        @field:Size(max = 2000)
+        @field:Size(max = 20000)
         @field:JsonProperty("text")
         private val _text: String?,
         val referredMessageId: String?,
