@@ -27,7 +27,8 @@ interface ChatRepository : ReactiveMongoRepository<Chat, String> {
                           "{'description': {'\$regex': :#{#searchQuery}, '\$options': 'i'}},\n" +
                           "{'tags': :#{#searchQuery}}\n"+
                         "],\n" +
-                      "'deleted': false\n" +
+                      "'deleted': false,\n" +
+                      "'hideFromSearch': false,\n" +
                       "'type': {" +
                           "\$in: :#{#typesToInclude}" +
                         "}\n" +
