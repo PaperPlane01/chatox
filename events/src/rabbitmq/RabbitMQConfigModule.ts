@@ -4,7 +4,7 @@ import {config} from "../env-config";
 
 @Module({
     imports: [
-        RabbitMQModule.forRoot(RabbitMQModule,{
+        RabbitMQModule.forRoot(RabbitMQModule, {
             uri: `amqp://${config.RABBITMQ_USERNAME}:${config.RABBITMQ_PASSWORD}@${config.RABBITMQ_HOST}:${config.RABBITMQ_PORT}`,
             exchanges: [
                 {
