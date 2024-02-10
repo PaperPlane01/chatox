@@ -12,7 +12,7 @@ export class BalanceController {
     @RabbitSubscribe({
         exchange: "balance.events",
         routingKey: "balance.updated.#",
-        queue: `events_service_user_joined-${config.EVENTS_SERVICE_PORT}`
+        queue: `events_service_balance_updated-${config.EVENTS_SERVICE_PORT}`
     })
     public async onBalanceUpdated(balanceUpdated: BalanceUpdated): Promise<void> {
         await this.websocketEventsPublisher.publishBalanceUpdated(balanceUpdated);
