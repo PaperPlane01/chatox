@@ -1,5 +1,5 @@
 import {Injectable} from "@nestjs/common";
-import {RabbitSubscribe} from "@nestjs-plus/rabbitmq";
+import {RabbitSubscribe} from "@golevelup/nestjs-rabbitmq";
 import {WebsocketEventsPublisher} from "../websocket";
 import {ChatBlocking} from "../common/types";
 import {config} from "../env-config";

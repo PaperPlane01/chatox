@@ -1,5 +1,5 @@
 import {forwardRef, Inject, Injectable} from "@nestjs/common";
-import {RabbitSubscribe} from "@nestjs-plus/rabbitmq";
+import {RabbitSubscribe} from "@golevelup/nestjs-rabbitmq";
 import {ChatsService} from "./ChatsService";
 import {WebsocketEventsPublisher} from "../websocket";
 import {Chat} from "../common/types";
