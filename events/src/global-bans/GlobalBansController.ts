@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
+import {RabbitSubscribe} from "@golevelup/nestjs-rabbitmq";
 import {WebsocketEventsPublisher} from "../websocket";
 import {GlobalBan} from "../common/types";
-import {RabbitSubscribe} from "@nestjs-plus/rabbitmq";
 import {config} from "../env-config";
 
 @Injectable()

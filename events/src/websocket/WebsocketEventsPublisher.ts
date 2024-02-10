@@ -7,7 +7,7 @@ import {
     SubscribeMessage,
     WebSocketGateway
 } from "@nestjs/websockets";
-import {AmqpConnection} from "@nestjs-plus/rabbitmq";
+import {AmqpConnection} from "@golevelup/nestjs-rabbitmq";
 import {Socket} from "socket.io";
 import {
     ChatSubscription,

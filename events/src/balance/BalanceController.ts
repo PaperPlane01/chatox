@@ -1,6 +1,6 @@
 import {Injectable} from "@nestjs/common";
+import {RabbitSubscribe} from "@golevelup/nestjs-rabbitmq";
 import {WebsocketEventsPublisher} from "../websocket";
-import {RabbitSubscribe} from "@nestjs-plus/rabbitmq";
 import {config} from "../env-config";
 import {BalanceUpdated} from "../common/types/events";
 
