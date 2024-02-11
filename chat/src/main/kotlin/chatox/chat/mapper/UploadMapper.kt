@@ -59,6 +59,7 @@ class UploadMapper {
             UploadType.IMAGE -> "${imagesBaseUrl}/${upload.name}"
             UploadType.GIF -> "${imagesBaseUrl}/${upload.name}"
             UploadType.AUDIO -> "${audiosBaseUrl}/${upload.name}"
+            UploadType.VOICE_MESSAGE -> "${audiosBaseUrl}/${upload.name}"
             UploadType.VIDEO -> "${videosBaseUrl}/${upload.name}"
             UploadType.FILE -> "${filesBaseUrl}/${upload.name}"
         }
