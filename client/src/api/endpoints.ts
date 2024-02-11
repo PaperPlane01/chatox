@@ -66,3 +66,4 @@ export const INVITES = "invites";
 export const PENDING = "pending";
 export const APPROVE = "approve";
 export const REJECT = "reject";
+export const VOICE = "voice";

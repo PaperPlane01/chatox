@@ -1,7 +1,7 @@
 import {AxiosPromise, AxiosRequestConfig} from "axios";
 import {axiosInstance} from "../axios-instance";
 import {AudioUploadMetadata, ImageUploadMetadata, Upload, VideoUploadMetadata} from "../types/response";
-import {AUDIOS, FILES, IMAGES, UPLOADS, VIDEOS} from "../endpoints";
+import {AUDIOS, FILES, IMAGES, UPLOADS, VIDEOS, VOICE} from "../endpoints";
 
 export type ProgressCallback = (percentage: number) => void;
 
@@ -16,6 +16,10 @@ export class UploadApi {
 
     public static uploadAudio(file: File, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<AudioUploadMetadata>> {
         return UploadApi.doUpload<AudioUploadMetadata>(file, `/${UPLOADS}/${AUDIOS}`, onUploadProgress);
+    }
+
+    public static uploadVoiceMessage(file: File, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<AudioUploadMetadata>> {
+        return UploadApi.doUpload<AudioUploadMetadata>(file, `/${UPLOADS}/${AUDIOS}/${VOICE}`, onUploadProgress);
     }
 
     public static uploadFile(file: File, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<any>> {

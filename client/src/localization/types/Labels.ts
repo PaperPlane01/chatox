@@ -741,5 +741,7 @@ export interface Labels {
     "chat.join.error.ALREADY_CHAT_PARTICIPANT": string,
     "chat.join.error.AWAITING_APPROVAL": string,
     "chat.visibility": string,
-    "chat.visibility.hide-from-search": string
+    "chat.visibility.hide-from-search": string,
+    "message.voice.record": string,
+    "message.voice.from-file": string
 }

@@ -2,5 +2,6 @@ export interface UploadsGroupedByType {
     images: string[],
     videos: string[],
     audios: string[],
-    files: string[]
+    files: string[],
+    voiceMessages: string[]
 }

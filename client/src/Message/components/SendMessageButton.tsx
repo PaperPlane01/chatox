@@ -8,7 +8,7 @@ import {ShowPreviewMenuItem} from "./ShowPreviewMenuItem";
 
 interface SendMessageButtonProps {
     onClick: () => void,
-    onOpenPreviewClick: () => void,
+    onOpenPreviewClick?: () => void,
     disabled?: boolean
 }
 
@@ -39,6 +39,10 @@ export const SendMessageButton: FunctionComponent<SendMessageButtonProps> = obse
     };
 
     const handlePreviewClick = (): void => {
+        if (!onOpenPreviewClick) {
+            return;
+        }
+
         setLongPressed(false);
         onOpenPreviewClick();
     };

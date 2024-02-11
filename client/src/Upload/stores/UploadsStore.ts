@@ -18,6 +18,8 @@ export class UploadsStore extends AbstractEntityStore<"uploads", Upload<any>, Up
 
     findVideo = computedFn((id: string) => this.findById(id) as Upload<VideoUploadMetadata>);
 
+    findVoiceMessage = computedFn((id: string) => this.findById(id) as Upload<AudioUploadMetadata>);
+
     createPatchForArray(denormalizedEntities: Upload<any>[], options: {} = {}): EntitiesPatch {
         const patch = this.createEmptyEntitiesPatch("uploads");
 

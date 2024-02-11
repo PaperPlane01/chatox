@@ -743,5 +743,7 @@ export const ru: Labels = {
     "chat.join.error.ALREADY_CHAT_PARTICIPANT": "You cannot join this chat because you are already a chat participant",
     "chat.join.error.AWAITING_APPROVAL": "You cannot join this chat because your join request is waiting to be approved",
     "chat.visibility": "Видимость чата",
-    "chat.visibility.hide-from-search": "Скрывать из поиска"
+    "chat.visibility.hide-from-search": "Скрывать из поиска",
+    "message.voice.record": "Записать с микрофона",
+    "message.voice.from-file": "Выбрать файл"
 };

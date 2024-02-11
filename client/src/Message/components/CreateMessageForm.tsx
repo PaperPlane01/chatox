@@ -4,7 +4,7 @@ import {Divider} from "@mui/material";
 import {Forward, Reply} from "@mui/icons-material";
 import {MessageFormMessageCard} from "./MessageFormMessageCard";
 import {MessageForm} from "./MessageForm";
-import {useStore} from "../../store";
+import {usePermissions, useStore} from "../../store";
 import {isDefined} from "../../utils/object-utils";
 
 export const CreateMessageForm: FunctionComponent = observer(() => {
@@ -28,7 +28,11 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             reset
         }
     } = useStore();
-
+    const {
+        messages: {
+            canSendVoiceMessages
+        }
+    } = usePermissions();
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -46,6 +50,8 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
     }, [referredMessageId]);
 
     const nextMessageDate = isDefined(selectedChatId) ? getNextMessageDate(selectedChatId) : undefined;
+    const showVoiceMessageButton = isDefined(selectedChatId)
+        && canSendVoiceMessages(selectedChatId);
 
     return (
         <Fragment>
@@ -82,6 +88,7 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                          scheduledAt={formValues.scheduledAt}
                          nextMessageDate={nextMessageDate}
                          forwardedMessagesCount={forwardedMessagesIds.length}
+                         showVoiceMessageButton={showVoiceMessageButton}
                          setFormValue={setFormValue}
                          setEmojiPickerExpanded={setEmojiPickerExpanded}
                          submitForm={submitForm}

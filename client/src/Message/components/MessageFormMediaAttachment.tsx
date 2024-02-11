@@ -52,6 +52,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 const iconsMap = {
     [UploadType.AUDIO]: <Audiotrack fontSize="large"/>,
+    [UploadType.VOICE_MESSAGE]: <Audiotrack fontSize="large"/>,
     [UploadType.FILE]: <FileCopy/>,
     [UploadType.VIDEO]: <VideoLibrary/>
 };
@@ -111,7 +112,9 @@ export const MessageFormMediaAttachment: FunctionComponent<CreateMessageFormMedi
                          onTouchStart={() => setHovered(true)}
                          onTouchEnd={() => setHovered(false)}
                     >
-                        <div className={classes.centered} style={{position: "relative"}}>
+                        <div className={classes.centered}
+                             style={{position: "relative"}}
+                        >
                             {iconsMap[fileContainer.expectedUploadType]}
                             {fileContainer.pending && (
                                 <div className={classes.absolutePositioned}>
@@ -136,4 +139,4 @@ export const MessageFormMediaAttachment: FunctionComponent<CreateMessageFormMedi
             </IconButton>
         </ListItem>
     );
-}
+};

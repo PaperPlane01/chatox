@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {IconButton, Menu, Slider, Theme, Typography} from "@mui/material";
 import {Mark} from "@mui/base";
@@ -6,10 +6,15 @@ import {createStyles, makeStyles} from "@mui/styles";
 import {Pause, PlayArrow, VolumeDown, VolumeOff, VolumeUp} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {format} from "date-fns";
+import {WaveForm} from "./WaveForm";
+import {AudioType} from "../types";
 import {useStore} from "../../store";
+import {UploadType} from "../../api/types/response";
 
 interface AudioPlayerControlsProps {
-    audioId: string
+    audioId: string,
+    audioType: AudioType,
+    hideWaveForm?: boolean
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -51,6 +56,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             width: "90%"
         }
     },
+    playerWaveFormContainer: {
+        maxWidth: "100%"
+    },
     playerSliderContainer: {
         width: "100%"
     },
@@ -60,12 +68,15 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = observer(({
-    audioId
+    audioId,
+    audioType,
+    hideWaveForm = false
 }) => {
     const {
         entities: {
             uploads: {
-                findAudio
+                findAudio,
+                findVoiceMessage
             }
         },
         audioPlayer: {
@@ -74,6 +85,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
             currentPosition,
             volume,
             setCurrentTrackId,
+            setCurrentTrackType,
             setPlaying,
             setVolume,
             setSeekTo
@@ -85,7 +97,10 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
         variant: "popover"
     });
 
-    const audio = findAudio(audioId);
+    const voiceMessage = audioType === UploadType.VOICE_MESSAGE;
+    const audio = voiceMessage
+        ? findVoiceMessage(audioId)
+        : findAudio(audioId);
     const sliderMarks: Mark[] = [
         {
             value: 0,
@@ -108,6 +123,11 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
         }
     ];
 
+    const displayWaveForm = !hideWaveForm
+        && audio.meta
+        && audio.meta.waveForm
+        && audio.meta.waveForm.length !== 0;
+
     return (
         <div className={classes.playerControlsWrapper}>
             {playing && currentTrackId === audioId && (
@@ -119,6 +139,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                 <IconButton
                     onClick={() => {
                         setCurrentTrackId(audioId);
+                        setCurrentTrackType(audioType);
                         setPlaying(true);
                     }}
                     size="large"
@@ -127,9 +148,22 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                 </IconButton>
             )}
             <div className={classes.playerSliderContainer}>
-                <Typography variant="body2" className={classes.audioTrackTypography}>
-                    {audio.originalName.substring(0, audio.originalName.length - audio.extension.length - 1)}
-                </Typography>
+                {displayWaveForm
+                    ? (
+                        <div className={classes.playerWaveFormContainer}>
+                            <WaveForm waveForm={audio.meta!.waveForm!}
+                                      playerProgress={currentPosition}
+                                      audioId={audioId}
+                                      currentlyPlaying={audioId === currentTrackId}
+                            />
+                        </div>
+                    )
+                    : (
+                        <Typography variant="body2" className={classes.audioTrackTypography}>
+                            {audio.originalName.substring(0, audio.originalName.length - audio.extension.length - 1)}
+                        </Typography>
+                    )
+                }
                 <Slider value={currentTrackId === audioId ? currentPosition : 0}
                         max={1}
                         marks={sliderMarks}
@@ -148,41 +182,39 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                         step={0.01}
                 />
             </div>
-            <Fragment>
-                <IconButton {...bindToggle(volumePopupState)} size="large">
-                    {volume >= 0.6 && (
-                        <VolumeUp/>
-                    )}
-                    {volume < 0.6 && volume > 0 && (
-                        <VolumeDown/>
-                    )}
-                    {volume === 0 && (
-                        <VolumeOff/>
-                    )}
-                </IconButton>
-                <Menu {...bindMenu(volumePopupState)}
-                      anchorOrigin={{
-                          vertical: "center",
-                          horizontal: "right"
-                      }}
-                      classes={{
-                          paper: classes.volumeMenuPaper
-                      }}
-                >
-                    <Slider value={volume}
-                            onChange={(_, value) => setVolume(value as number)}
-                            orientation="vertical"
-                            style={{
-                                height: 100
-                            }}
-                            classes={{
-                                thumb: classes.volumeSliderThumb
-                            }}
-                            max={1}
-                            step={0.000001}
-                    />
-                </Menu>
-            </Fragment>
+            <IconButton {...bindToggle(volumePopupState)} size="large">
+                {volume >= 0.6 && (
+                    <VolumeUp/>
+                )}
+                {volume < 0.6 && volume > 0 && (
+                    <VolumeDown/>
+                )}
+                {volume === 0 && (
+                    <VolumeOff/>
+                )}
+            </IconButton>
+            <Menu {...bindMenu(volumePopupState)}
+                  anchorOrigin={{
+                      vertical: "center",
+                      horizontal: "right"
+                  }}
+                  classes={{
+                      paper: classes.volumeMenuPaper
+                  }}
+            >
+                <Slider value={volume}
+                        onChange={(_, value) => setVolume(value as number)}
+                        orientation="vertical"
+                        style={{
+                            height: 100
+                        }}
+                        classes={{
+                            thumb: classes.volumeSliderThumb
+                        }}
+                        max={1}
+                        step={0.000001}
+                />
+            </Menu>
         </div>
     );
 });

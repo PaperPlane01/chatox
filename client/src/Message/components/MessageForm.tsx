@@ -1,8 +1,7 @@
 import React, {Fragment, FunctionComponent, KeyboardEvent, RefObject, useEffect} from "react";
 import {observer} from "mobx-react";
-import {Hidden, IconButton, InputAdornment, TextField, Theme, Tooltip} from "@mui/material";
+import {Hidden, InputAdornment, TextField, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
-import {KeyboardVoice} from "@mui/icons-material";
 import {EmojiData} from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 import {AttachFilesButton} from "./AttachFilesButton";
@@ -10,6 +9,7 @@ import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton
 import {EmojiAndStickerPicker} from "./EmojiAndStickerPicker";
 import {EmojiPickerContainer} from "./EmojiPickerContainer";
 import {SendMessageButton} from "./SendMessageButton";
+import {RecordVoiceMessageButton} from "./RecordVoiceMessageButton";
 import {MessageFormData} from "../types";
 import {MarkdownPreviewDialog} from "../../Markdown";
 import {useLocalization, useStore} from "../../store";
@@ -40,6 +40,7 @@ interface MessageFormProps {
     scheduledAt?: Date,
     nextMessageDate?: Date,
     forwardedMessagesCount?: number,
+    showVoiceMessageButton?: boolean,
     setFormValue: <Key extends keyof MessageFormData>(key: Key, value: MessageFormData[Key]) => void,
     submitForm: () => void,
     setEmojiPickerExpanded: (emojiPickerExpended: boolean) => void
@@ -55,6 +56,7 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
     scheduledAt,
     nextMessageDate,
     forwardedMessagesCount = 0,
+    showVoiceMessageButton = false,
     setFormValue,
     setEmojiPickerExpanded,
     submitForm
@@ -78,6 +80,12 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
             inputRef.current.value = formValues.text;
         }
     });
+
+    const showSendMessageButton = !showVoiceMessageButton
+        || formValues.text.length !== 0
+        || attachmentsIds.length !== 0
+        || forwardedMessagesCount > 0;
+    console.log(showSendMessageButton);
 
     const updateText = (text: string): void => {
         setFormValue("text", text);
@@ -130,7 +138,6 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
 
         if (end === formValues.text.length) {
             inputRef.current.value = `${inputRef.current.value}\r\n`;
-            console.log(JSON.stringify(inputRef.current.value))
         } else {
             inputRef.current.setRangeText("\r\n", start, end, "preserve");
         }
@@ -169,22 +176,14 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
                                        {allowScheduled && scheduledAt && <OpenScheduleMessageDialogButton/>}
                                        <EmojiPickerContainer onEmojiSelected={handleEmojiSelect}/>
                                        <Countdown date={nextMessageDate}>
-                                           {formValues.text.length !== 0 || attachmentsIds.length !== 0 || forwardedMessagesCount > 0
+                                           {showSendMessageButton
                                                ? (
                                                    <SendMessageButton onClick={submitForm}
                                                                       onOpenPreviewClick={() => setMarkdownPreviewDialogOpen(true)}
                                                                       disabled={pending}
                                                    />
                                                )
-                                               : (
-                                                   <Tooltip title={l("feature.not-available")}>
-                                                       <div>
-                                                           <IconButton disabled size="large">
-                                                               <KeyboardVoice/>
-                                                           </IconButton>
-                                                       </div>
-                                                   </Tooltip>
-                                               )
+                                               : <RecordVoiceMessageButton/>
                                            }
                                        </Countdown>
                                    </div>

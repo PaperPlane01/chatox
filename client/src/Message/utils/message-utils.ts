@@ -19,23 +19,21 @@ export const convertMessageToNormalizedForm = (message: Message): MessageEntity 
         imagesCount: 0,
         audiosCount: 0,
         filesCount: 0,
-        videosCount: 0
+        videosCount: 0,
+        voiceMessagesCount: 0
     };
     const uploadsByType: UploadsGroupedByType = {
         images: [],
         audios: [],
         files: [],
-        videos: []
+        videos: [],
+        voiceMessages: []
     };
 
 
     if (message.attachments.length !== 0) {
         for (let upload of message.attachments) {
             switch (upload.type) {
-                case UploadType.FILE:
-                    uploadStats.filesCount++;
-                    uploadsByType.files.push(upload.id);
-                    break;
                 case UploadType.VIDEO:
                     uploadStats.videosCount++;
                     uploadsByType.videos.push(upload.id);
@@ -49,6 +47,11 @@ export const convertMessageToNormalizedForm = (message: Message): MessageEntity 
                     uploadStats.audiosCount++;
                     uploadsByType.audios.push(upload.id);
                     break;
+                case UploadType.VOICE_MESSAGE:
+                    uploadStats.voiceMessagesCount++;
+                    uploadsByType.voiceMessages.push(upload.id);
+                    break;
+                case UploadType.FILE:
                 default:
                     uploadStats.filesCount++;
                     uploadsByType.files.push(upload.id);
@@ -62,7 +65,7 @@ export const convertMessageToNormalizedForm = (message: Message): MessageEntity 
         createdAt: new Date(message.createdAt),
         deleted: message.deleted,
         readByCurrentUser: message.readByCurrentUser,
-        referredMessageId: message.referredMessage && message.referredMessage.id,
+        referredMessageId: message.referredMessage?.id,
         sender: message.sender.id,
         text: message.text,
         updatedAt: message.updatedAt ? new Date(message.updatedAt) : undefined,
@@ -76,8 +79,8 @@ export const convertMessageToNormalizedForm = (message: Message): MessageEntity 
         stickerId: message.sticker ? message.sticker.id : undefined,
         ...uploadStats,
         ...uploadsByType,
-        senderRoleId: message.senderChatRole && message.senderChatRole.id,
-        forwardedById: message.forwardedBy && message.forwardedBy.id,
+        senderRoleId: message.senderChatRole?.id,
+        forwardedById: message.forwardedBy?.id,
         forwarded: Boolean(message.forwarded),
         forwardedFromChatId: message.forwardedFromChatId,
         forwardedFromMessageId: message.forwardedFromMessageId

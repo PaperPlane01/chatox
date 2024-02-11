@@ -17,6 +17,7 @@ export interface MessageEntity {
     images: string[],
     videos: string[],
     audios: string[],
+    voiceMessages: string[],
     files: string[],
     imagesCount: number,
     audiosCount: number,

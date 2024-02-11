@@ -743,5 +743,7 @@ export const en: Labels = {
     "chat.join.error.ALREADY_CHAT_PARTICIPANT": "You cannot join this chat because you are already a chat participant",
     "chat.join.error.AWAITING_APPROVAL": "You cannot join this chat because your join request is waiting to be approved",
     "chat.visibility": "Chat visibility",
-    "chat.visibility.hide-from-search": "Hide from search"
+    "chat.visibility.hide-from-search": "Hide from search",
+    "message.voice.record": "Record voice",
+    "message.voice.from-file": "Select from file"
 };
