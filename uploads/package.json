@@ -29,6 +29,7 @@
     "@nestjs/passport": "^7.0.0",
     "@nestjs/platform-express": "^9.3.10",
     "@nestjs/schedule": "^2.2.0",
+    "audioform": "^0.3.0",
     "cache-manager": "^4.1.0",
     "cache-manager-redis-store": "^2.0.0",
     "class-transformer": "^0.5.1",

@@ -6,6 +6,7 @@ import {createReadStream, promises as fileSystem} from "fs";
 import path from "path";
 import {fromFile} from "file-type";
 import contentDisposition from "content-disposition";
+import audioToWaveformData from "audioform";
 import {MultipartFile} from "../common/types/request";
 import {config} from "../config";
 import {FfmpegWrapper} from "../ffmpeg";
@@ -19,6 +20,7 @@ const SUPPORTED_AUDIO_FORMATS = [
     "ogg",
     "flac"
 ];
+const VOICE_MESSAGE_FORMAT = "mp3";
 
 const isAudioFormatSupported = (format: string): boolean => SUPPORTED_AUDIO_FORMATS.includes(format);
 
@@ -30,7 +32,12 @@ export class AudiosUploadService {
 
     }
 
-    public async uploadAudio(multipartFile: MultipartFile, currentUser: User, originalName?: string): Promise<UploadResponse<AudioUploadMetadata>> {
+    public async uploadAudio(
+        multipartFile: MultipartFile,
+        currentUser: User,
+        voiceMessage = false,
+        originalName?: string,
+    ): Promise<UploadResponse<AudioUploadMetadata>> {
         const id = new Types.ObjectId();
         const temporaryFilePath = path.join(config.AUDIOS_DIRECTORY, `${id.toHexString()}.tmp`);
         const fileHandle = await fileSystem.open(temporaryFilePath, "w");
@@ -51,15 +58,19 @@ export class AudiosUploadService {
 
         const meta = await this.getAudioMetadata(permanentFilePath);
 
+        if (voiceMessage && fileInfo.ext === VOICE_MESSAGE_FORMAT) {
+            meta.waveForm = await this.generateWaveform(permanentFilePath);
+        }
+
         const audio = new Upload({
             _id: id,
             name: `${id.toHexString()}.${fileInfo.ext}`,
-            originalName: originalName ? originalName : multipartFile.originalname,
+            originalName: originalName || multipartFile.originalname,
             size: multipartFile.size,
             mimeType: fileInfo.mime,
             extension: fileInfo.ext,
             meta,
-            type: UploadType.AUDIO,
+            type: voiceMessage ? UploadType.VOICE_MESSAGE : UploadType.AUDIO,
             userId: currentUser.id
         });
         await new this.uploadModel(audio).save();
@@ -73,6 +84,7 @@ export class AudiosUploadService {
                 .ffmpeg(audioPath)
                 .ffprobe((error, data) => {
                     if (error) {
+                        console.log(error);
                         reject(error);
                     }
 
@@ -82,6 +94,11 @@ export class AudiosUploadService {
                     })
                 });
         });
+    }
+
+    private async generateWaveform(audioPath: string): Promise<number[]> {
+        const buffer = await fileSystem.readFile(audioPath);
+        return await audioToWaveformData(buffer);
     }
 
     public async getAudio(audioName: string, response: Response): Promise<void> {
@@ -134,7 +151,13 @@ export class AudiosUploadService {
 
     private async findAudioByName(audioName: string): Promise<Upload<AudioUploadMetadata>> {
         const audio = await this.uploadModel.findOne({
-            name: audioName
+            name: audioName,
+            type: {
+                $in: [
+                    UploadType.AUDIO,
+                    UploadType.VOICE_MESSAGE
+                ]
+            }
         });
 
         if (!audio) {

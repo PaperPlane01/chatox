@@ -39,6 +39,7 @@ export class Upload<UploadMetadata> {
             UploadType.GIF,
             UploadType.FILE,
             UploadType.AUDIO,
+            UploadType.VOICE_MESSAGE,
             UploadType.VIDEO
         ]
     })
@@ -89,6 +90,8 @@ const getUploadCreatedRabbitMQRoutingKey = (upload: Upload<any>): string => {
             return "upload.video.created.#";
         case UploadType.AUDIO:
             return "upload.audio.created.#";
+        case UploadType.VOICE_MESSAGE:
+            return "upload.voice.message.created.#";
         case UploadType.FILE:
             return "upload.file.created.#";
 

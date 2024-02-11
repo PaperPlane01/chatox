@@ -27,8 +27,36 @@ export class AudiosUploadController {
     @Post()
     public uploadAudio(@UploadedFile() multipartFile: MultipartFile,
                        @CurrentUser() currentUser: User,
-                       @Body("originalName") originalName?: string): Promise<UploadResponse<AudioUploadMetadata>> {
-        return this.audioUploadService.uploadAudio(multipartFile, currentUser, originalName);
+                       @Body("originalName") originalName?: string
+    ): Promise<UploadResponse<AudioUploadMetadata>> {
+        return this.audioUploadService.uploadAudio(
+            multipartFile,
+            currentUser,
+            false,
+            originalName
+        );
+    }
+
+    @HasRole("ROLE_USER", "ROLE_ANONYMOUS_USER")
+    @UseInterceptors(
+        RejectEmptyInterceptor,
+        FileInterceptor(
+            "file",
+            {
+                limits: {
+                    fileSize: config.AUDIO_MAX_SIZE_BYTES
+                }
+            })
+    )
+    @Post("voice")
+    public uploadVoiceMessage(@UploadedFile() multipartFile: MultipartFile,
+                              @CurrentUser() currentUser: User
+    ): Promise<UploadResponse<AudioUploadMetadata>> {
+        return this.audioUploadService.uploadAudio(
+            multipartFile,
+            currentUser,
+            true
+        );
     }
 
     @Get(":audioName")
