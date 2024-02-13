@@ -6,6 +6,7 @@ import {createStyles, makeStyles} from "@mui/styles";
 import {Pause, PlayArrow, VolumeDown, VolumeOff, VolumeUp} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {format} from "date-fns";
+import clsx from "clsx";
 import {WaveForm} from "./WaveForm";
 import {AudioType} from "../types";
 import {useStore} from "../../store";
@@ -14,7 +15,9 @@ import {UploadType} from "../../api/types/response";
 interface AudioPlayerControlsProps {
     audioId: string,
     audioType: AudioType,
-    hideWaveForm?: boolean
+    hideWaveForm?: boolean,
+    fullWidth?: boolean,
+    waveFormViewBox?: string
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -50,11 +53,19 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     playerControlsWrapper: {
         display: "flex",
-        width: "80%",
         alignItems: "flex-start",
         [theme.breakpoints.down("lg")]: {
             width: "90%"
         }
+    },
+    notFullWidth: {
+        width: "80%",
+        [theme.breakpoints.down("lg")]: {
+            width: "90%"
+        }
+    },
+    fullWidth: {
+      width: "100%"
     },
     playerWaveFormContainer: {
         maxWidth: "100%"
@@ -70,7 +81,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = observer(({
     audioId,
     audioType,
-    hideWaveForm = false
+    hideWaveForm = false,
+    fullWidth = false,
+    waveFormViewBox
 }) => {
     const {
         entities: {
@@ -128,8 +141,14 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
         && audio.meta.waveForm
         && audio.meta.waveForm.length !== 0;
 
+    const wrapperClasses = clsx({
+        [classes.playerControlsWrapper]: true,
+        [classes.fullWidth]: fullWidth,
+        [classes.notFullWidth]: !fullWidth
+    });
+
     return (
-        <div className={classes.playerControlsWrapper}>
+        <div className={wrapperClasses}>
             {playing && currentTrackId === audioId && (
                 <IconButton onClick={() => setPlaying(false)} size="large">
                     <Pause/>
@@ -155,6 +174,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                                       playerProgress={currentPosition}
                                       audioId={audioId}
                                       currentlyPlaying={audioId === currentTrackId}
+                                      viewBox={waveFormViewBox}
                             />
                         </div>
                     )

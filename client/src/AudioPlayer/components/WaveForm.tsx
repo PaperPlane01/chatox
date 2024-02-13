@@ -6,7 +6,8 @@ export interface WaveFormProps {
 	waveForm: number[],
 	playerProgress: number,
 	audioId: string,
-	currentlyPlaying: boolean
+	currentlyPlaying: boolean,
+	viewBox?: string
 }
 
 const MAX_HEIGHT = 10;
@@ -15,7 +16,8 @@ export const WaveForm: FunctionComponent<WaveFormProps> = observer(({
 	waveForm,
 	playerProgress,
 	audioId,
-	currentlyPlaying
+	currentlyPlaying,
+	viewBox = "0 0 100 10"
 }) => {
 	const theme = useTheme();
 	const playedColor = theme.palette.primary.main;
@@ -23,7 +25,7 @@ export const WaveForm: FunctionComponent<WaveFormProps> = observer(({
 	const chunkWidthPercentage = (1 / waveForm.length) * 100;
 
 	return (
-		<svg viewBox="0 0 100 10"
+		<svg viewBox={viewBox}
 			 transform="scale(1, -1)"
 		>
 			{waveForm.map((waveValue, index) => (
@@ -34,7 +36,7 @@ export const WaveForm: FunctionComponent<WaveFormProps> = observer(({
 						  ? playedColor
 						  : notPlayedColor
 				}
-					  key={`${audioId}-waveChunk-${index}`}
+					  key={`${audioId}-waveChunk-${waveValue}`}
 				/>
 			))}
 		</svg>
