@@ -5,6 +5,7 @@ import {getInitialApiErrorFromResponse, ProgressCallback, UploadApi} from "../..
 import {AudioUploadMetadata, Upload, UploadType} from "../../api/types/response";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {Labels} from "../../localization";
+import {EntitiesStore} from "../../entities-store";
 
 type UploadFileFunction = (file: File, onUploadProgress?: ProgressCallback) => AxiosPromise<Upload<any>>;
 
@@ -26,7 +27,7 @@ export class UploadMessageAttachmentsStore {
 
     uploadPercentageMap: UploadPercentageMap = {};
 
-    constructor() {
+    constructor(private readonly entities: EntitiesStore) {
         makeAutoObservable(this);
     }
 
@@ -75,7 +76,7 @@ export class UploadMessageAttachmentsStore {
         this.attachFiles(this.sliceFileList(audios), AUDIO_MAX_SIZE, UploadApi.uploadAudio, UploadType.AUDIO);
     }
 
-    attachVoiceMessage = (voiceMessages: FileList): void => {
+    attachVoiceMessages = (voiceMessages: FileList): void => {
         this.attachFiles(
             this.sliceFileList(voiceMessages, 1),
             AUDIO_MAX_SIZE,
@@ -88,35 +89,66 @@ export class UploadMessageAttachmentsStore {
         this.attachFiles(this.sliceFileList(files), FILE_MAX_SIZE, UploadApi.uploadFile, UploadType.FILE);
     }
 
+    attachVoiceMessage = (voiceMessage: File): void => {
+        const validationError = this.validateFile(voiceMessage, AUDIO_MAX_SIZE);
+
+        if (validationError) {
+            this.setFileValidationErrors([
+                validationError
+            ]);
+            return;
+        }
+
+        this.attachFile(voiceMessage, UploadApi.uploadVoiceMessage, UploadType.VOICE_MESSAGE);
+    }
+
     attachFiles = (files: FileList, fileMaxSize: number, uploadFile: UploadFileFunction, expectedUploadType: UploadType): void => {
         let validationErrors: ValidationError[] = [];
 
         for (let file of files) {
-            if (file.size > fileMaxSize) {
-                if (file.name && file.name.length !== 0) {
-                    validationErrors.push({
-                        label: "file.too-large.with-file-name",
-                        bindings: {
-                            fileName: file.name
-                        }
-                    });
-                } else {
-                    validationErrors.push({label: "file.too-large"});
-                }
+            const validationError = this.validateFile(file, fileMaxSize);
+
+            if (validationError) {
+                validationErrors.push(validationError);
                 continue;
             }
 
-            const fileContainer = new UploadedFileContainer(file, expectedUploadType, true);
-            this.messageAttachmentsFiles = [
-                ...this.messageAttachmentsFiles,
-                fileContainer
-            ];
-            this.uploadFile(file, fileContainer.localId, uploadFile);
+            this.attachFile(file, uploadFile, expectedUploadType);
         }
 
         if (validationErrors.length !== 0) {
             this.setFileValidationErrors(validationErrors);
         }
+    }
+
+    private attachFile = (file: File, uploadFile: UploadFileFunction, expectedUploadType: UploadType): void => {
+        const fileContainer = new UploadedFileContainer(file, expectedUploadType, true);
+        this.messageAttachmentsFiles = [
+            ...this.messageAttachmentsFiles,
+            fileContainer
+        ];
+        this.uploadFile(file, fileContainer.localId, uploadFile);
+    }
+
+    private validateFile = (file: File, fileMaxSize: number): ValidationError | undefined => {
+        let validationError: ValidationError | undefined = undefined;
+
+        if (file.size > fileMaxSize) {
+            if (file.name && file.name.length !== 0) {
+                validationError = {
+                    label: "file.too-large.with-file-name",
+                    bindings: {
+                        fileName: file.name
+                    }
+                };
+            } else {
+                validationError = {
+                    label: "file.too-large"
+                };
+            }
+        }
+
+        return validationError;
     }
 
     uploadFile = (file: File, localFileId: string, uploadFile: UploadFileFunction): void => {
@@ -133,18 +165,17 @@ export class UploadMessageAttachmentsStore {
                 [localFileId]: percentage
             };
         })
-            .then(({data}) => {
-                runInAction(() => {
-                    this.messageAttachmentsFiles = this.messageAttachmentsFiles.map(fileContainer => {
-                        if (fileContainer.localId === localFileId) {
-                            fileContainer.pending = false;
-                            fileContainer.uploadedFile = data;
-                        }
+            .then(({data}) => runInAction(() => {
+                this.entities.uploads.insert(data);
+                this.messageAttachmentsFiles = this.messageAttachmentsFiles.map(fileContainer => {
+                    if (fileContainer.localId === localFileId) {
+                        fileContainer.pending = false;
+                        fileContainer.uploadedFile = data;
+                    }
 
-                        return fileContainer;
-                    });
+                    return fileContainer;
                 });
-            })
+            }))
             .catch(error => {
                 runInAction(() => {
                     this.messageAttachmentsFiles = this.messageAttachmentsFiles.map(fileContainer => {

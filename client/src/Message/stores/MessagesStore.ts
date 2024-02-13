@@ -6,7 +6,6 @@ import {EntitiesPatch, EntitiesStore, GetEntityType, RawEntitiesStore} from "../
 import {Message} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
 import {UserChatRolesStore} from "../../ChatRole";
-import {toJS} from "mobx";
 
 export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
     extends SoftDeletableEntityStore<MessageType, GetEntityType<MessageType>, Message, MessageInsertOptions> {
@@ -42,9 +41,6 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
                 ? undefined
                 : this.entities.chats.findByIdOptional(message.chatId);
 
-            console.log(`Initial chat for message ${message.id}`);
-            console.log(toJS(chat));
-
             if (chat) {
                 chat.messages = uniq(chat.messages.concat(message.id));
                 chat.indexToMessageMap[message.index] = message.id;
@@ -59,9 +55,6 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
                 if (insertOptions && insertOptions.pinnedMessageId === message.id) {
                     chat.pinnedMessageId = message.id;
                 }
-
-                console.log(`Chat patch: for message ${message.id}`)
-                console.log(toJS(patch.entities.chats[message.chatId]))
             }
 
             patches.push(this.entities.users.createPatch(message.sender));

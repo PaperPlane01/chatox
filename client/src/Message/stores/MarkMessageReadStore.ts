@@ -1,4 +1,4 @@
-import {makeAutoObservable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction, toJS} from "mobx";
 import {computedFn} from "mobx-utils";
 import {MessagesListScrollPositionsStore} from "./MessagesListScrollPositionsStore";
 import {EntitiesStore} from "../../entities-store";
@@ -83,6 +83,8 @@ export class MarkMessageReadStore {
         }
 
         const message = this.entities.messages.findByIdOptional(messageId);
+
+        console.log(toJS(message));
 
         if (!message || message.readByCurrentUser) {
             return;

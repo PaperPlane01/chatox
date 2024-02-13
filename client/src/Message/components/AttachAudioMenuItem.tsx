@@ -20,7 +20,7 @@ export const AttachAudioMenuItem: FunctionComponent<AttachAudioMenuItemProps> = 
     const {
         messageUploads: {
             attachAudios,
-            attachVoiceMessage
+            attachVoiceMessages
         }
     } = useStore();
     const {l} = useLocalization();
@@ -34,7 +34,7 @@ export const AttachAudioMenuItem: FunctionComponent<AttachAudioMenuItemProps> = 
         if (audioType === UploadType.AUDIO) {
             attachAudios(event.target.files);
         } else {
-            attachVoiceMessage(event.target.files);
+            attachVoiceMessages(event.target.files);
         }
     };
 

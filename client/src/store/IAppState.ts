@@ -27,11 +27,13 @@ import {
 import {
     ApproveJoinChatRequestsStore,
     ChatParticipantsSearchStore,
-    ChatParticipantsStore, JoinChatRequestsStore,
+    ChatParticipantsStore,
+    JoinChatRequestsStore,
     JoinChatStore,
     KickChatParticipantStore,
-    OnlineChatParticipantsStore, RejectJoinChatRequestsStore,
-    UpdateChatParticipantStore,
+    OnlineChatParticipantsStore,
+    RejectJoinChatRequestsStore,
+    UpdateChatParticipantStore
 } from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
@@ -65,6 +67,7 @@ import {
     PinMessageStore,
     PinnedMessagesStore,
     PublishScheduledMessageStore,
+    RecordVoiceMessageStore,
     ScheduledMessagesOfChatStore,
     ScheduleMessageStore,
     SearchMessagesStore,
@@ -316,5 +319,6 @@ export interface IAppState {
     joinChatByInvite: JoinChatByInviteStore,
     joinChatRequests: JoinChatRequestsStore,
     joinChatRequestsApproval: ApproveJoinChatRequestsStore,
-    joinChatRequestsRejection: RejectJoinChatRequestsStore
+    joinChatRequestsRejection: RejectJoinChatRequestsStore,
+    voiceRecording: RecordVoiceMessageStore
 }

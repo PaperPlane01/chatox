@@ -85,7 +85,6 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
         || formValues.text.length !== 0
         || attachmentsIds.length !== 0
         || forwardedMessagesCount > 0;
-    console.log(showSendMessageButton);
 
     const updateText = (text: string): void => {
         setFormValue("text", text);

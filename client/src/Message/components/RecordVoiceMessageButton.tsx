@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Tooltip} from "@mui/material";
 import {KeyboardVoice} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
-import {useLocalization} from "../../store";
+import {useLocalization, useStore} from "../../store";
 import {AttachAudioMenuItem} from "./AttachAudioMenuItem";
 import {UploadType} from "../../api/types/response";
 import {createAttachFileButtonStyles} from "../../style";
@@ -11,6 +11,11 @@ import {createAttachFileButtonStyles} from "../../style";
 const useStyles = createAttachFileButtonStyles();
 
 export const RecordVoiceMessageButton: FunctionComponent = observer(() => {
+	const {
+		voiceRecording: {
+			startRecording
+		}
+	} = useStore();
 	const {l} = useLocalization();
 	const popupState = usePopupState({
 		popupId: "voiceMessageMenuPopup",
@@ -27,18 +32,14 @@ export const RecordVoiceMessageButton: FunctionComponent = observer(() => {
 				<KeyboardVoice/>
 			</IconButton>
 			<Menu {...bindMenu(popupState)}>
-				<Tooltip title={l("feature.not-available")}>
-					<div>
-						<MenuItem disabled>
-							<ListItemIcon>
-								<KeyboardVoice/>
-							</ListItemIcon>
-							<ListItemText>
-								{l("message.voice.record")}
-							</ListItemText>
-						</MenuItem>
-					</div>
-				</Tooltip>
+				<MenuItem onClick={startRecording}>
+					<ListItemIcon>
+						<KeyboardVoice/>
+					</ListItemIcon>
+					<ListItemText>
+						{l("message.voice.record")}
+					</ListItemText>
+				</MenuItem>
 				<AttachAudioMenuItem audioType={UploadType.VOICE_MESSAGE}
 									 buttonClassName={classes.attachFileButton}
 				/>

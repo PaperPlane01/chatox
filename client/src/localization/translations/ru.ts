@@ -339,6 +339,8 @@ export const ru: Labels = {
     "message.attachments.image.plural": "фото",
     "message.attachments.video": "видео",
     "message.attachments.video.plural": "видео",
+    "message.attachments.voice-message": "голосовое",
+    "message.attachments.voice-message.plural": "голосовых",
     "message.delayed-message.create": "Создать отложенное сообщение",
     "message.delayed-message.is-too-close-to-other-delayed-message": "Дата отправки данного отложенного сообщения слишком близка к другому отложенному сообщению. Между отложенными сообщениями должно быть не менее 10 минут",
     "message.delayed-message.limit-reached": "Limit of delayed messages for this chat has been reached",
@@ -745,5 +747,8 @@ export const ru: Labels = {
     "chat.visibility": "Видимость чата",
     "chat.visibility.hide-from-search": "Скрывать из поиска",
     "message.voice.record": "Записать с микрофона",
+    "message.voice.record.placeholder": "Запись в процессе",
+    "message.voice.record.error.not-supported": "Ваше устройство не поддерживает запись с микрофона",
+    "message.voice.record.error.unknown": "Во время записи с микрофона произошла ошибка",
     "message.voice.from-file": "Выбрать файл"
 };

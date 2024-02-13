@@ -1,9 +1,9 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CreateMessageForm} from "./CreateMessageForm";
 import {UpdateMessageForm} from "./UpdateMessageForm";
+import {VoiceRecorder} from "./VoiceRecorder";
 import {useStore} from "../../store";
-import {SendMessageButton} from "./SendMessageButton";
 
 export const MessageFormContainer: FunctionComponent = observer(() => {
     const {
@@ -13,20 +13,15 @@ export const MessageFormContainer: FunctionComponent = observer(() => {
         messageUploads: {
             voiceMessageContainer
         },
-        messageCreation: {
-            submitForm
+        voiceRecording: {
+            recording
         }
     } = useStore();
 
     if (updatedMessageId) {
         return <UpdateMessageForm/>;
-    } else if (voiceMessageContainer) {
-        return (
-            <Fragment>
-                Placeholder for voice message
-                <SendMessageButton onClick={submitForm}/>
-            </Fragment>
-        )
+    } else if (recording || voiceMessageContainer) {
+        return <VoiceRecorder/>;
     } else {
         return <CreateMessageForm/>;
     }

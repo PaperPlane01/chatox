@@ -70,7 +70,7 @@ import {
     MessagesOfChatStore,
     PinMessageStore,
     PinnedMessagesStore,
-    PublishScheduledMessageStore,
+    PublishScheduledMessageStore, RecordVoiceMessageStore,
     ScheduledMessagesOfChatStore,
     ScheduleMessageStore,
     SearchMessagesStore,
@@ -204,15 +204,21 @@ const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entities);
 const chatCreation = new CreateChatStore(entities);
 const chat = new ChatStore(entities);
 const chatParticipants = new ChatParticipantsStore(entities, chat);
-const messageUploads = new UploadMessageAttachmentsStore();
+const messageUploads = new UploadMessageAttachmentsStore(entities);
 const chatsPreferences = new ChatsPreferencesStore();
 const messagesForwarding = new ForwardMessagesStore(chat, entities);
+const voiceRecording = new RecordVoiceMessageStore(
+    messageUploads,
+    language,
+    snackbarService
+);
 const messageCreation = new CreateMessageStore(
     chat,
     messageUploads,
     entities,
     chatsPreferences,
-    messagesForwarding
+    messagesForwarding,
+    voiceRecording
 );
 const pendingChats = new PendingChatsOfCurrentUserStore(entities);
 const messagesSearch = new SearchMessagesStore(entities, chat);
@@ -655,5 +661,6 @@ export const store: IAppState = {
     joinChatByInvite,
     joinChatRequests,
     joinChatRequestsApproval,
-    joinChatRequestsRejection
+    joinChatRequestsRejection,
+    voiceRecording
 };

@@ -339,6 +339,8 @@ export const en: Labels = {
     "message.attachments.image.plural": "images",
     "message.attachments.video": "video",
     "message.attachments.video.plural": "videos",
+    "message.attachments.voice-message": "voice message",
+    "message.attachments.voice-message.plural": "voice messages",
     "message.delayed-message.create": "Schedule a message",
     "message.delayed-message.is-too-close-to-other-delayed-message": "This scheduled message is too close to another scheduled message. Scheduled message must be at least 10 minutes from each other",
     "message.delayed-message.limit-reached": "Limit of delayed messages for this chat has been reached",
@@ -745,5 +747,8 @@ export const en: Labels = {
     "chat.visibility": "Chat visibility",
     "chat.visibility.hide-from-search": "Hide from search",
     "message.voice.record": "Record voice",
+    "message.voice.record.placeholder": "Recording in process",
+    "message.voice.record.error.not-supported": "Your device does not support voice recording",
+    "message.voice.record.error.unknown": "Error occurred when tried to record voice",
     "message.voice.from-file": "Select from file"
 };
