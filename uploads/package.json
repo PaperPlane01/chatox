@@ -39,7 +39,7 @@
     "dotenv": "^8.2.0",
     "env-decorator": "^1.0.0",
     "eureka-js-client": "^4.5.0",
-    "file-type": "^14.1.4",
+    "file-type": "v16.5.3",
     "fluent-ffmpeg": "^2.1.2",
     "gify-parse": "^1.0.7",
     "gm": "^1.23.1",
