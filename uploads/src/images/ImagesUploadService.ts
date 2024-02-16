@@ -6,7 +6,7 @@ import {Model, Types} from "mongoose";
 import graphicsMagic, {Dimensions} from "gm";
 import {promises} from "fs";
 import path from "path";
-import {FileTypeResult, fromFile} from "file-type";
+import {FileTypeResult} from "file-type";
 import {getInfo} from "gify-parse";
 import {ImageSizeRequest} from "./types/request";
 import {MultipartFile} from "../common/types/request";
@@ -15,7 +15,7 @@ import {GifUploadMetadata, ImageUploadMetadata, Upload, UploadDocument, UploadTy
 import {UploadMapper} from "../uploads/mappers";
 import {UploadResponse} from "../uploads/types/responses";
 import {generateFileInfoCacheKey} from "../utils/cache-utils";
-import {streamFileToResponse} from "../utils/file-utils";
+import {getFileType, streamFileToResponse} from "../utils/file-utils";
 import {mapAsync} from "../utils/map-async";
 import {User} from "../auth";
 
@@ -65,7 +65,7 @@ export class ImagesUploadService {
             await fileSystem.writeFile(fileHandle, multipartFile.buffer);
             await fileHandle.close();
 
-            const fileInfo = await fromFile(temporaryFilePath);
+            const fileInfo = await getFileType(temporaryFilePath);
 
             if (fileInfo.mime.startsWith("image")) {
                 if (fileInfo.ext !== "gif") {
@@ -260,7 +260,7 @@ export class ImagesUploadService {
 
     private async saveThumbnailOrPreview(id: Types.ObjectId, path: string, options: {isThumbnail: boolean, isPreview: boolean}): Promise<Upload<ImageUploadMetadata>> {
         const dimensions = await this.getImageDimensions(path);
-        const fileInfo = await fromFile(path);
+        const fileInfo = await getFileType(path);
         const fileStats = await fileSystem.stat(path);
         let thumbnails: Upload<ImageUploadMetadata>[] = [];
 
@@ -358,7 +358,7 @@ export class ImagesUploadService {
             return thumbnail;
         } else {
             const imagePath = path.join(config.IMAGES_DIRECTORY, image.name);
-            const fileInfo = await fromFile(imagePath);
+            const fileInfo = await getFileType(imagePath);
 
             return this.generateThumbnail(
                 path.join(config.IMAGES_DIRECTORY, image.name),

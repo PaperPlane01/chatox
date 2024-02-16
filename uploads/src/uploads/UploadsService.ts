@@ -67,9 +67,7 @@ export class UploadsService {
     }
 
     public async scheduleUploadDocumentForDeletion(upload: UploadDocument<any>, scheduledDate?: Date): Promise<void> {
-        upload.scheduledDeletionDate = scheduledDate
-            ? scheduledDate
-            : addDays(new Date(), 1);
+        upload.scheduledDeletionDate = scheduledDate || addDays(new Date(), 1);
         await upload.save();
     }
 
@@ -115,6 +113,7 @@ export class UploadsService {
 
         switch (upload.type) {
             case UploadType.AUDIO:
+            case UploadType.VOICE_MESSAGE:
                 directory = config.AUDIOS_DIRECTORY;
                 break;
             case UploadType.IMAGE:

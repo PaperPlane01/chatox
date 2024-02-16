@@ -4,7 +4,6 @@ import {Response} from "express";
 import {Model, Types} from "mongoose";
 import {createReadStream, promises as fileSystem} from "fs";
 import path from "path";
-import {fromFile} from "file-type";
 import contentDisposition from "content-disposition";
 import {MultipartFile} from "../common/types/request";
 import {config} from "../config";
@@ -12,6 +11,7 @@ import {Upload, UploadDocument, UploadType} from "../uploads";
 import {UploadMapper} from "../uploads/mappers";
 import {UploadResponse} from "../uploads/types/responses";
 import {User} from "../auth";
+import {getFileType} from "../utils/file-utils";
 
 @Injectable()
 export class FilesUploadService {
@@ -27,7 +27,7 @@ export class FilesUploadService {
         await fileSystem.writeFile(fileHandle, multipartFile.buffer);
         await fileHandle.close();
 
-        const fileInfo = await fromFile(temporaryFilePath);
+        const fileInfo = await getFileType(temporaryFilePath);
         const permanentFilePath = path.join(config.FILES_DIRECTORY, `${id}.${fileInfo.ext}`);
         await fileSystem.rename(temporaryFilePath, permanentFilePath);
 

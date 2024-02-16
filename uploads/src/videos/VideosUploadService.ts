@@ -2,7 +2,6 @@ import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Response} from "express";
 import {Model, Types} from "mongoose";
-import {fromFile} from "file-type";
 import graphicsMagic, {Dimensions} from "gm";
 import {promises as fileSystem, createReadStream} from "fs";
 import path from "path";
@@ -13,6 +12,7 @@ import {ImageUploadMetadata, Upload, UploadDocument, UploadType, VideoUploadMeta
 import {UploadMapper} from "../uploads/mappers";
 import {UploadResponse} from "../uploads/types/responses";
 import {User} from "../auth";
+import {getFileType} from "../utils/file-utils";
 
 const gm = graphicsMagic.subClass({imageMagick: true});
 
@@ -46,7 +46,7 @@ export class VideosUploadService {
         await fileSystem.writeFile(fileHandle, multipartFile.buffer);
         await fileHandle.close();
 
-        const fileInfo = await fromFile(temporaryFilePath);
+        const fileInfo = await getFileType(temporaryFilePath);
 
         if (!isVideoFormatSupported(fileInfo.ext)) {
             throw new HttpException(
@@ -130,7 +130,7 @@ export class VideosUploadService {
                     timemarks: [0]
                 })
                 .on("end", async () => {
-                    const fileInfo = await fromFile(imagePath);
+                    const fileInfo = await getFileType(imagePath);
                     const {width, height} = await this.getImageDimensions(imagePath);
                     const fileStats = await fileSystem.stat(imagePath);
                     const meta: ImageUploadMetadata = {
@@ -175,7 +175,7 @@ export class VideosUploadService {
                 .on("end", async () => {
                     await this.resizeImageToThumbnail(imagePath);
                     const {width, height} = await this.getImageDimensions(imagePath);
-                    const fileInfo = await fromFile(imagePath);
+                    const fileInfo = await getFileType(imagePath);
                     const fileStats = await fileSystem.stat(imagePath);
                     const meta: ImageUploadMetadata = {
                         width,
