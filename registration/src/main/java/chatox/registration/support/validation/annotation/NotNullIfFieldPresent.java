@@ -1,6 +1,7 @@
 package chatox.registration.support.validation.annotation;
 
-import javax.validation.Payload;
+import com.nimbusds.jose.Payload;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

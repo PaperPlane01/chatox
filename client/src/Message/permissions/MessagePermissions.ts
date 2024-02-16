@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn, createTransformer} from "mobx-utils";
 import {differenceInDays, isBefore} from "date-fns";
 import {MessageEntity} from "../types";
 import {EntitiesStore} from "../../entities-store";
@@ -9,6 +9,7 @@ import {ChatParticipationEntity} from "../../ChatParticipant";
 import {CurrentUser} from "../../api/types/response";
 import {ChatRoleEntity} from "../../ChatRole/types";
 import {isBetween} from "../../utils/number-utils";
+import {isDefined} from "../../utils/object-utils";
 
 type SendMessagesPermission = "allowedToSendAudios" | "allowedToSendStickers" | "allowedToSendImages"
     | "allowedToSendFiles" | "allowedToSendVoiceMessages" | "allowedToSendVideos";
@@ -29,6 +30,10 @@ export class MessagePermissions {
             return false;
         }
 
+        if (message.deleted) {
+            return false;
+        }
+
         if (this.authorization.isCurrentUserBannedGlobally()) {
             return false;
         }
@@ -44,7 +49,7 @@ export class MessagePermissions {
         return this.canCurrentUserSendMessages(message.chatId);
     });
 
-    canCreateMessage = createTransformer((chatId: string): boolean => {
+    canCreateMessage = computedFn((chatId: string): boolean => {
         if (!this.currentUser) {
             return false;
         }
@@ -56,42 +61,40 @@ export class MessagePermissions {
         return this.canCurrentUserSendMessages(chatId);
     });
 
-    canSendStickers = createTransformer((chatId: string): boolean => this.checkSendMessagesFeature({
+    canSendStickers = computedFn((chatId: string): boolean => this.checkSendMessagesFeature(
         chatId,
-        feature: "allowedToSendStickers"
-    }));
+        "allowedToSendStickers"
+    ));
 
-    canSendImages = createTransformer((chatId: string): boolean => this.checkSendMessagesFeature({
+    canSendImages = computedFn((chatId: string): boolean => this.checkSendMessagesFeature(
         chatId,
-        feature: "allowedToSendImages"
-    }));
+        "allowedToSendImages"
+    ));
 
-    canSendFiles = createTransformer((chatId: string): boolean => this.checkSendMessagesFeature({
+    canSendFiles = computedFn((chatId: string): boolean => this.checkSendMessagesFeature(
         chatId,
-        feature: "allowedToSendFiles"
-    }));
+        "allowedToSendFiles"
+    ));
 
-    canSendVoiceMessages = createTransformer((chatId: string): boolean => this.checkSendMessagesFeature({
+    canSendVoiceMessages = computedFn((chatId: string): boolean => this.checkSendMessagesFeature(
         chatId,
-        feature: "allowedToSendVoiceMessages"
-    }));
+        "allowedToSendVoiceMessages"
+    ));
 
-    canSendVideos = createTransformer((chatId: string): boolean => this.checkSendMessagesFeature({
+    canSendVideos = computedFn((chatId: string): boolean => this.checkSendMessagesFeature(
         chatId,
-        feature: "allowedToSendVideos"
-    }));
+        "allowedToSendVideos"
+    ));
 
-    canSendAudios = createTransformer((chatId: string): boolean => this.checkSendMessagesFeature({
+    canSendAudios = computedFn((chatId: string): boolean => this.checkSendMessagesFeature(
         chatId,
-        feature: "allowedToSendAudios"
-    }));
+        "allowedToSendAudios"
+    ));
 
-    private checkSendMessagesFeature = createTransformer((parameters: {chatId: string, feature: SendMessagesPermission}): boolean => {
+    private checkSendMessagesFeature = computedFn((chatId: string, feature: SendMessagesPermission): boolean => {
         if (!this.currentUser || this.authorization.isCurrentUserBannedGlobally()) {
             return false;
         }
-
-        const {chatId, feature} = parameters;
 
         if (!this.canCurrentUserSendMessages(chatId)) {
             return false;
@@ -104,6 +107,10 @@ export class MessagePermissions {
 
     canDeleteMessage = createTransformer((message: MessageEntity): boolean => {
         if (!this.currentUser) {
+            return false;
+        }
+
+        if (message.deleted) {
             return false;
         }
 
@@ -148,9 +155,9 @@ export class MessagePermissions {
         }
     });
 
-    canUnpinMessage = createTransformer((chatId: string): boolean => this.canPinMessage(chatId));
+    canUnpinMessage = computedFn((chatId: string): boolean => this.canPinMessage(chatId));
 
-    canPinMessage = createTransformer((chatId: string): boolean => {
+    canPinMessage = computedFn((chatId: string): boolean => {
         if (!this.currentUser) {
             return false;
         }
@@ -164,9 +171,9 @@ export class MessagePermissions {
         return chatRole.features.pinMessages.enabled;
     });
 
-    canReadScheduledMessages = createTransformer((chatId: string): boolean => this.canScheduleMessage(chatId));
+    canReadScheduledMessages = computedFn((chatId: string): boolean => this.canScheduleMessage(chatId));
 
-    canScheduleMessage = createTransformer((chatId: string): boolean => {
+    canScheduleMessage = computedFn((chatId: string): boolean => {
         if (!this.currentUser) {
             return false;
         }
@@ -181,7 +188,7 @@ export class MessagePermissions {
 
         const chatRole = this.getRoleOfCurrentUserInChat(chatId);
 
-        return chatRole.features.scheduleMessages.enabled;
+        return isDefined(chatRole) && chatRole.features.scheduleMessages.enabled;
     });
 
     canUpdateScheduledMessage = createTransformer((message: MessageEntity): boolean => {
@@ -210,7 +217,7 @@ export class MessagePermissions {
         return currentUserRole.level > senderRole.level;
     });
 
-    private canCurrentUserSendMessages = createTransformer((chatId: string) => {
+    private canCurrentUserSendMessages = computedFn((chatId: string) => {
         const chatParticipation = this.getChatParticipationOfCurrentUser(chatId);
 
         if (!chatParticipation) {

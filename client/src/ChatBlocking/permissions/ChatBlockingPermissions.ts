@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
 import {UserChatRolesStore} from "../../ChatRole";
@@ -17,7 +17,7 @@ export class ChatBlockingPermissions {
         makeAutoObservable(this);
     }
 
-    canBlockUsersInChat = createTransformer((chatId: string): boolean => {
+    canBlockUsersInChat = computedFn((chatId: string): boolean => {
         if (!this.currentUser) {
             return false;
         }
@@ -34,8 +34,7 @@ export class ChatBlockingPermissions {
         return chatRole.features.blockUsers.enabled;
     });
 
-    canBlockUserInChat = createTransformer((parameters: {userId: string, chatId: string}): boolean => {
-        const {chatId, userId} = parameters;
+    canBlockUserInChat = computedFn((chatId: string, userId: string): boolean => {
         if (!this.canBlockUsersInChat(chatId)) {
             return false;
         }

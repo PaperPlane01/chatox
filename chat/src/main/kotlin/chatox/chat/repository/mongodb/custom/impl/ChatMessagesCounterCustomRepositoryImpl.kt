@@ -22,11 +22,15 @@ class ChatMessagesCounterCustomRepositoryImpl(
     }
 
     override fun getNextCounterValue(chatId: String): Mono<Long> {
+       return increaseCounterValue(chatId, 1)
+    }
+
+    override fun increaseCounterValue(chatId: String, number: Long): Mono<Long> {
         val query = Query()
         query.addCriteria(Criteria.where("chatId").`is`(chatId))
 
         val update = Update()
-        update.inc("messagesCount", 1)
+        update.inc("messagesCount", number)
 
         val options = FindAndModifyOptions().returnNew(true)
 

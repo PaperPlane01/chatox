@@ -8,3 +8,7 @@ export * from "./SortingDirection";
 export * from "./PartialBy";
 export * from "./field-path";
 export * from "./RequiredField";
+export * from "./Promisify";
+export * from "./BaseSettingsTabProps";
+
+

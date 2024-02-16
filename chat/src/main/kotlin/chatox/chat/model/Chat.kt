@@ -1,6 +1,7 @@
 package chatox.chat.model
 
 import chatox.chat.model.elasticsearch.ChatElasticsearch
+import chatox.platform.security.VerificationLevel
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
@@ -24,19 +25,42 @@ data class Chat(
         override val createdById: String? = null,
         override val updatedAt: ZonedDateTime? = null,
         override val deletedAt: ZonedDateTime? = null,
-        override val deleted: Boolean,
+        override val deleted: Boolean = false,
 
         @Indexed
         override val deletedById: String? = null,
         override val type: ChatType,
-        override val numberOfParticipants: Int = 0,
-        override val numberOfOnlineParticipants: Int = 0,
 
         @Indexed
         override val lastMessageId: String? = null,
         override val lastMessageDate: ZonedDateTime? = null,
         override val chatDeletion: ChatDeletion? = null,
-        override val dialogDisplay: List<DialogDisplay> = listOf()
+        override val dialogDisplay: List<DialogDisplay> = listOf(),
+        override val slowMode: SlowMode? = null,
+        override val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf(),
+        override val hideFromSearch: Boolean = false
 ) : ChatInterface {
-        fun toElasticsearch() = ChatElasticsearch(id, name, description, tags, avatarUri, avatar, slug, createdAt, createdById, updatedAt, deletedAt, deleted, deletedById, type, numberOfParticipants, numberOfOnlineParticipants, lastMessageId, lastMessageDate, chatDeletion, dialogDisplay)
+        fun toElasticsearch() = ChatElasticsearch(
+                id,
+                name,
+                description,
+                tags,
+                avatarUri,
+                avatar,
+                slug,
+                createdAt,
+                createdById,
+                updatedAt,
+                deletedAt,
+                deleted,
+                deletedById,
+                type,
+                lastMessageId,
+                lastMessageDate,
+                chatDeletion,
+                dialogDisplay,
+                slowMode,
+                joinAllowanceSettings,
+                hideFromSearch
+        )
 }

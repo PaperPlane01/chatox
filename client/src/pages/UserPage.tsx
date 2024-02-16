@@ -1,11 +1,11 @@
-import React, {FunctionComponent} from "react";
-import { Grid } from "@mui/material";
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
+import React, {Fragment, FunctionComponent} from "react";
+import {Grid} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {AppBar} from "../AppBar";
 import {Layout} from "../Layout";
-import {UserProfileInfo} from "../User";
+import {CreateUserProfilePhotoDialog, UserPhotosDialog, UserPhotosLightbox, UserProfileInfo} from "../User";
 import {ReportUserDialog} from "../Report";
+import {UserInteractionsHistoryDialog} from "../UserInteraction";
 
 const useStyles = makeStyles(() => createStyles({
     centered: {
@@ -21,20 +21,26 @@ export const UserPage: FunctionComponent = () => {
     const classes = useStyles();
 
     return (
-        <Grid container>
-            <Grid item xs={12}>
-                <AppBar/>
-            </Grid>
-            <Grid item xs={12}>
-                <Layout>
-                    <div className={classes.centered}>
-                        <UserProfileInfo/>
-                    </div>
-                </Layout>
-            </Grid>
-            <ReportUserDialog/>
-        </Grid>
-    )
+       <Fragment>
+           <Grid container>
+               <Grid item xs={12}>
+                   <AppBar/>
+               </Grid>
+               <Grid item xs={12}>
+                   <Layout>
+                       <div className={classes.centered}>
+                           <UserProfileInfo/>
+                       </div>
+                   </Layout>
+               </Grid>
+               <ReportUserDialog/>
+           </Grid>
+           <UserInteractionsHistoryDialog/>
+           <UserPhotosDialog/>
+           <UserPhotosLightbox/>
+           <CreateUserProfilePhotoDialog/>
+       </Fragment>
+    );
 };
 
 export default UserPage;

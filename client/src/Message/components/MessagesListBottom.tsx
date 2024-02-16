@@ -3,8 +3,8 @@ import {observer} from "mobx-react";
 import {Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {format} from "date-fns";
-import {CreateMessageForm} from "./CreateMessageForm";
-import {JoinChatButton, ChatParticipationEntity} from "../../ChatParticipant";
+import {MessageFormContainer} from "./MessageFormContainer";
+import {ChatParticipationEntity, JoinChatButton} from "../../ChatParticipant";
 import {useAuthorization, useLocalization, useStore} from "../../store";
 import {ChatBlockingEntity} from "../../ChatBlocking";
 import {isChatBlockingActive} from "../../ChatBlocking/utils";
@@ -21,11 +21,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             width: "100%",
         },
         [theme.breakpoints.down("lg")]: {
-            position: "fixed",
+            position: "sticky",
             bottom: 0,
             width: "100%",
             backgroundColor: theme.palette.background.default,
-            maxHeight: "70vh"
+            maxHeight: "70vh",
+            minHeight: 45
         }
     }
 }));
@@ -146,14 +147,14 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {style?: CSSProperties}>(
                         </Typography>
                     );
                 } else {
-                    messagesListBottomContent = <CreateMessageForm/>
+                    messagesListBottomContent = <MessageFormContainer/>;
                 }
             }
         } else {
             messagesListBottomContent = <JoinChatButton/>;
         }
     } else if (userId && currentUser) {
-        messagesListBottomContent = <CreateMessageForm/>;
+        messagesListBottomContent = <MessageFormContainer/>;
     } else {
         messagesListBottomContent = <div/>;
     }

@@ -19,3 +19,5 @@ export * from "./MarkMessageReadStore";
 export * from "./EmojiPickerTabsStore";
 export * from "./SearchMessagesStore";
 export * from "./DeleteMessageStore";
+export * from "./ForwardMessagesStore";
+export * from "./RecordVoiceMessageStore";

@@ -1,0 +1,40 @@
+{
+  "id": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+  "_class": "chatox.chat.model.Chat",
+  "avatar": {
+    "id": "626d6f7c2b5f2e53405aecc1",
+    "name": "626d6f7c2b5f2e53405aecc1.jpg",
+    "originalName": "windows_xp_original-wallpaper-2560x1440.jpg",
+    "type": "IMAGE",
+    "meta": {
+      "width": 2560,
+      "height": 1440
+    },
+    "extension": "jpg",
+    "mimeType": "image/jpeg",
+    "size": 891668,
+    "isPreview": false,
+    "isThumbnail": false,
+    "userId": "9d588b8f-205c-4123-afa3-2e72af7f00c8"
+  },
+  "createdAt": "2021-11-18T17:04:59.192Z",
+  "createdById": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+  "deleted": false,
+  "deletedById": null,
+  "description": "Description",
+  "dialogDisplay": [],
+  "lastMessageDate": "2023-09-25T20:59:35.374Z",
+  "lastMessageId": "f5998e93-6a95-430f-bbff-6d8d59743e96",
+  "name": "New chat",
+  "numberOfOnlineParticipants": 0,
+  "numberOfParticipants": 3,
+  "slowMode": {
+    "enabled": true,
+    "interval": 1,
+    "unit": "MINUTES"
+  },
+  "slug": "test",
+  "tags": ["test", " chat"],
+  "type": "GROUP",
+  "updatedAt": "2021-11-18T17:04:59.192Z"
+}

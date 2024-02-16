@@ -1,17 +1,6 @@
 import React, {Fragment, FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
-import {
-    Badge,
-    CircularProgress,
-    Divider,
-    IconButton,
-    ListItemIcon,
-    ListItemText,
-    Menu,
-    MenuItem,
-    Theme,
-} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {Badge, CircularProgress, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from "@mui/material";
 import {AttachFile, VideoLibrary} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {useSnackbar} from "notistack";
@@ -20,21 +9,13 @@ import {ShowAttachedFilesMenuItem} from "./ShowAttachedFiledMenuItem";
 import {AttachAudioMenuItem} from "./AttachAudioMenuItem";
 import {AttachFileMenuItem} from "./AttachFileMenuItem";
 import {useLocalization, useStore} from "../../store";
+import {createAttachFileButtonStyles} from "../../style";
 
 interface AttachFilesButtonProps {
     className?: string
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-    attachFileButton: {
-        padding: 0,
-        textTransform: "none",
-        "&:hover": {
-            backgroundColor: "unset"
-        },
-        color: theme.palette.text.primary
-    }
-}))
+const useStyles = createAttachFileButtonStyles();
 
 export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = observer(({
     className

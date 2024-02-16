@@ -1,15 +1,24 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {JwtModule} from "@nestjs/jwt";
+import {MongooseModule} from "@nestjs/mongoose";
 import {WebsocketController} from "./WebsocketController";
+import {PersistentWebsocketEvent, PersistentWebsocketEventSchema} from "./entities";
 import {RabbitMQConfigModule} from "../rabbitmq";
+import {WebsocketConnectionsStateHolder} from "./WebsocketConnectionsStateHolder";
 import {WebsocketEventsPublisher} from "./WebsocketEventsPublisher";
 import {ChatParticipationModule} from "../chat-participation";
 import {ChatsModule} from "../chats";
 
 @Module({
     controllers: [WebsocketController],
-    providers: [WebsocketEventsPublisher],
+    providers: [WebsocketEventsPublisher, WebsocketConnectionsStateHolder],
     imports: [
+        MongooseModule.forFeature([
+            {
+                name: PersistentWebsocketEvent.name,
+                schema: PersistentWebsocketEventSchema
+            }
+        ]),
         RabbitMQConfigModule,
         forwardRef(() => ChatParticipationModule),
         forwardRef(() => ChatsModule),

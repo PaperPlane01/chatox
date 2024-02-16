@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {ChatBlockingEntity, ChatBlockingSortableProperties} from "../types";
 import {isChatBlockingActive} from "../utils";
 import {ChatStore} from "../../Chat";
@@ -22,6 +22,18 @@ export interface ChatBlockingsOfChatStateMap {
 
 const activeOnlyFilter = (chatBlocking: ChatBlockingEntity) => isChatBlockingActive(chatBlocking);
 
+const INITIAL_PAGINATION_STATE: ChatBlockingsOfChatState  = {
+   pagination: {
+       page: 0,
+       pending: false,
+       initiallyFetched: false,
+       noMoreItems: false,
+       sortBy: "createdAt",
+       sortingDirection: "desc"
+   },
+    showActiveOnly: true
+};
+
 export class ChatBlockingsOfChatStore {
     chatBlockingsOfChatStateMap: ChatBlockingsOfChatStateMap = {};
 
@@ -33,7 +45,13 @@ export class ChatBlockingsOfChatStore {
         makeAutoObservable(this);
     }
 
-    getChatBlockingsOfChatState = createTransformer((chatId: string) => this.chatBlockingsOfChatStateMap[chatId]);
+    getChatBlockingsOfChatState = computedFn((chatId: string) => {
+        if (this.chatBlockingsOfChatStateMap[chatId]) {
+            return this.chatBlockingsOfChatStateMap[chatId];
+        } else {
+            return INITIAL_PAGINATION_STATE;
+        }
+    });
 
     setShowActiveOnly = (showActiveOnly: boolean, chatId: string | undefined = this.selectedChatId): void => {
         if (chatId) {

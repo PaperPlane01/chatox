@@ -17,7 +17,7 @@ interface EmojiAndStickerPickerProps {
 
 const useStyles = makeStyles(() => createStyles({
     pickerContainer: {
-        width: 350
+        width: "100%"
     },
     tabPanelRoot: {
         padding: 0

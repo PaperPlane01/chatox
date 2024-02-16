@@ -1,19 +1,23 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {AudioPlayerControls} from "../../AudioPlayer";
+import {AudioType} from "../../AudioPlayer/types";
 
 interface MessageAudiosProps {
-    audios: string[]
+    audios: string[],
+    audioType: AudioType
 }
 
 export const MessageAudios: FunctionComponent<MessageAudiosProps> = observer(({
-    audios
+    audios,
+    audioType
 }) => (
     <Fragment>
         {audios.map(uploadId => (
-            <Fragment key={uploadId}>
-                <AudioPlayerControls audioId={uploadId}/>
-            </Fragment>
+            <AudioPlayerControls audioId={uploadId}
+                                 audioType={audioType}
+                                 key={uploadId}
+            />
         ))}
     </Fragment>
 ));

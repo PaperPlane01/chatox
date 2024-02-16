@@ -59,7 +59,7 @@ export const ReportsMenuItem: FunctionComponent<ReportsMenuItemProps> = observer
                     </Link>
                     <Link router={routerStore}
                           className={classes.undecoratedLink}
-                          route={Routes.reportedMessages}
+                          route={Routes.reportedUsers}
                     >
                         <MenuItem onClick={handleClick}>
                             <ListItemIcon>
@@ -72,7 +72,7 @@ export const ReportsMenuItem: FunctionComponent<ReportsMenuItemProps> = observer
                     </Link>
                     <Link router={routerStore}
                           className={classes.undecoratedLink}
-                          route={Routes.reportedMessages}
+                          route={Routes.reportedChats}
                     >
                         <MenuItem onClick={handleClick}>
                             <ListItemIcon>

@@ -2,24 +2,20 @@ import {Module} from "@nestjs/common";
 import {MongooseModule} from "@nestjs/mongoose";
 import {VideosUploadController} from "./VideosUploadController";
 import {VideosUploadService} from "./VideosUploadService";
-import {UploadMapper} from "../common/mappers";
-import {uploadSchemaFactory} from "../mongoose/schemas";
 import {FfmpegModule} from "../ffmpeg";
+import {uploadSchemaFactory, UploadsModule} from "../uploads";
 
 @Module({
     controllers: [VideosUploadController],
     providers: [
-        VideosUploadService,
-        {
-            provide: UploadMapper,
-            useValue: new UploadMapper()
-        }
+        VideosUploadService
     ],
     imports: [
         MongooseModule.forFeatureAsync([
             uploadSchemaFactory
         ]),
-        FfmpegModule
+        FfmpegModule,
+        UploadsModule
     ]
 })
 export class VideosUploadModule {}

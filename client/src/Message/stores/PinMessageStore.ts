@@ -34,7 +34,10 @@ export class PinMessageStore {
         MessageApi.pinMessage(this.selectedChat.id, messageId)
             .then(({data}) => {
                 if (this.selectedChat) {
-                    this.entities.messages.insert(data, {skipSettingLastMessage: true});
+                    this.entities.messages.insert(data, {
+                        skipSettingLastMessage: true,
+                        skipUpdatingChat: true
+                    });
 
                     const chat = this.entities.chats.findById(this.selectedChat.id);
                     chat.pinnedMessageId = data.id;

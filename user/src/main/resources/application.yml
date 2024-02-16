@@ -14,6 +14,19 @@ spring:
         acknowledge-mode: manual
       simple:
         acknowledge-mode: manual
+  security:
+    oauth2:
+      client:
+        provider:
+          user-service:
+            token-uri: ${TOKEN_URL:http://localhost:8080/oauth2/token}
+        registration:
+          user-service:
+            client-id: ${REGISTRATION_SERVICE_CLIENT_ID:c4798915-9db8-4683-a01b-4bb49cbf2963}
+            client-secret: ${REGISTRATION_SERVICE_CLIENT_SECRET:secret}
+            authorization-grant-type: client_credentials
+            scope:
+              - internal_get_balance
 
 server:
   port: 8083
@@ -42,4 +55,21 @@ chatox:
     public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuIwjG7bwqv6J+JsuF2A3BRmJS4yj/q5esXzNkGCJSAzrtsOYX3wbf8uZCvSHtfCl/igPeL+HUgD+RtGkCqzn8WBadJfqVh1tuF3X3sc8DRQu/Z5RodRTmWDNkF1CYlEo5OcrQ5Quv5raUGl8TnRPJhjYF7quvDwV6EJTamm0sILN2tRg79pXhkf1kkAc5uhJOs+SWUYmkFGim2ZwMN5IA0QOCb0mzvj7XYgqW18376qCThtYk9CYjx9kCvuufUm93/G4VHWb2mvyHgJ8duzNeAWaPfTqShIBmuxdf0xQnCydozzzq0IvI8bd/YwouqrKFp9ueIRX2zC7WdOhpROGUwIDAQAB
   method:
     logging:
+      enabled: true
+  gateway:
+    url: ${GATEWAY_URL:http://localhost:8080}
+  user:
+    interaction:
+      cost:
+        create-on-application-start: true
+        user-interaction-costs:
+          dislike: ${USER_INTERACTION_LIKE_COST:100}
+          like: ${USER_INTERACTION_DISLIKE_COST:200}
+          love: ${USER_INTERACTION_LOVE_COST:500}
+        update-existing: false
+    photos:
+      max-profile-photos: ${MAX_USER_PROFILE_PHOTOS:10}
+      create-photos-from-avatars-on-application-start: ${CREATE_USER_PROFILE_PHOTOS_ON_APPLICATION_START:true}
+  pagination:
+    processing:
       enabled: true

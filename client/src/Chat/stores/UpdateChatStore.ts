@@ -1,49 +1,46 @@
-import {makeAutoObservable, reaction} from "mobx";
+import {action, computed, makeObservable, observable, reaction, runInAction} from "mobx";
 import {throttle} from "lodash";
 import {ChatStore} from "./ChatStore";
-import {TagErrorsMapContainer, UpdateChatFormData} from "../types";
-import {FormErrors} from "../../utils/types";
-import {UploadImageStore} from "../../Upload";
-import {UploadedFileContainer} from "../../utils/file-utils";
-import {ImageUploadMetadata} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
-import {Labels} from "../../localization/types";
+import {ChatOfCurrentUserEntity, TagErrorsMap, UpdateChatFormData} from "../types";
 import {
     validateChatDescription,
     validateChatName,
+    validateChatSlowModeInterval,
+    validateChatSlowModeTimeUnit,
     validateChatSlug,
     validateChatTag,
     validateChatTags
 } from "../validation";
-import {ChatApi} from "../../api/clients";
-import {containsNotUndefinedValues} from "../../utils/object-utils";
-import {ApiError, getInitialApiErrorFromResponse} from "../../api";
+import {ChatApi, getInitialApiErrorFromResponse} from "../../api";
+import {ImageUploadMetadata, JoinChatAllowance, SlowMode, UserVerificationLevel} from "../../api/types/response";
+import {AbstractFormStore} from "../../form-store";
+import {UploadImageStore} from "../../Upload";
+import {EntitiesStore} from "../../entities-store";
+import {Labels, LocaleStore} from "../../localization";
+import {FormErrors} from "../../utils/types";
+import {containsNotUndefinedValues, createWithUndefinedValues, isDefined} from "../../utils/object-utils";
+import {UploadedFileContainer} from "../../utils/file-utils";
+import {SnackbarService} from "../../Snackbar";
 
-export class UpdateChatStore {
-    updateChatForm: UpdateChatFormData = {
-        description: undefined,
-        name: "",
-        slug: undefined,
-        tags: []
-    };
+const INITIAL_FORM_VALUES: UpdateChatFormData = {
+    description: undefined,
+    name: "",
+    slug: undefined,
+    tags: [],
+    slowModeEnabled: false,
+    joinAllowanceSettings: {
+        [UserVerificationLevel.ANONYMOUS]: JoinChatAllowance.ALLOWED,
+        [UserVerificationLevel.REGISTERED]: JoinChatAllowance.ALLOWED,
+        [UserVerificationLevel.EMAIL_VERIFIED]: JoinChatAllowance.ALLOWED
+    },
+    hideFromSearch: false
+};
+const INITIAL_FORM_ERRORS: FormErrors<UpdateChatFormData> = createWithUndefinedValues(INITIAL_FORM_VALUES);
 
-    formErrors: FormErrors<UpdateChatFormData> & TagErrorsMapContainer = {
-        description: undefined,
-        tags: undefined,
-        name: undefined,
-        slug: undefined,
-        tagErrorsMap: {}
-    };
-
-    updateChatDialogOpen: boolean = false;
-
+export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
     checkingSlugAvailability: boolean = false;
 
-    pending: boolean = false;
-
-    error?: ApiError = undefined;
-
-    showSnackbar: boolean = false;
+    tagsErrorsMap: TagErrorsMap = {};
 
     get avatarFileContainer(): UploadedFileContainer<ImageUploadMetadata> | undefined {
         return this.uploadChatAvatarStore.imageContainer
@@ -57,55 +54,82 @@ export class UpdateChatStore {
         return this.uploadChatAvatarStore.pending;
     }
 
-    get selectedChat(): string | undefined {
+    get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
+    }
+
+    get selectedChat(): ChatOfCurrentUserEntity | undefined {
+        if (!this.selectedChatId) {
+            return undefined;
+        }
+
+        return this.entities.chats.findByIdOptional(this.selectedChatId)
     }
 
     get currentChatSlug(): string | undefined {
         if (this.selectedChat) {
-            return this.entities.chats.findById(this.selectedChat).slug;
+            return this.selectedChat.slug;
         } else {
             return undefined;
         }
     }
 
     get uploadedAvatarId(): string | undefined {
-        return this.avatarFileContainer && this.avatarFileContainer.uploadedFile
-            && this.avatarFileContainer.uploadedFile.id
+        return this.avatarFileContainer?.uploadedFile?.id ?? this.selectedChat?.avatarId
     }
 
     constructor(private readonly uploadChatAvatarStore: UploadImageStore,
                 private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStore) {
-        makeAutoObservable(this);
+                private readonly entities: EntitiesStore,
+                private readonly locale: LocaleStore,
+                private readonly snackbarService: SnackbarService) {
+        super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
 
         this.checkSlugAvailability = throttle(this.checkSlugAvailability, 300);
+
+        makeObservable<UpdateChatStore, "validateForm">(this, {
+            checkingSlugAvailability: observable,
+            tagsErrorsMap: observable,
+            avatarFileContainer: computed,
+            avatarValidationError: computed,
+            avatarUploadPending: computed,
+            selectedChat: computed,
+            currentChatSlug: computed,
+            uploadedAvatarId: computed,
+            checkSlugAvailability: action,
+            submitForm: action,
+            validateForm: action
+        });
 
         reaction(
             () => this.selectedChat,
             selectedChat => {
                 if (selectedChat) {
-                    const chat = entities.chats.findById(selectedChat);
-                    this.updateChatForm = {
-                        name: chat.name,
-                        description: chat.description,
-                        slug: chat.slug,
-                        tags: chat.tags
-                    }
+                    this.setForm({
+                        name: selectedChat.name,
+                        description: selectedChat.description,
+                        slug: selectedChat.slug,
+                        tags: selectedChat.tags,
+                        slowModeEnabled: selectedChat.slowMode ? selectedChat.slowMode.enabled : false,
+                        slowModeInterval: selectedChat.slowMode?.interval.toString(),
+                        slowModeUnit: selectedChat.slowMode?.unit,
+                        joinAllowanceSettings: selectedChat.joinAllowanceSettings,
+                        hideFromSearch: selectedChat.hideFromSearch
+                    });
                 }
             }
         );
 
         reaction(
-            () => this.updateChatForm.name,
-            name => this.formErrors.name = validateChatName(name)
+            () => this.formValues.name,
+            name => this.setFormError("name", validateChatName(name))
         );
 
         reaction(
-            () => this.updateChatForm.slug,
+            () => this.formValues.slug,
             slug => {
-                if (this.updateChatDialogOpen && slug !== this.currentChatSlug && slug !== this.selectedChat) {
-                    this.formErrors.slug = validateChatSlug(slug);
+                if (slug !== this.currentChatSlug && slug !== this.selectedChat) {
+                    this.setFormError("slug", validateChatSlug(slug));
 
                     if (!this.formErrors.slug) {
                         this.checkSlugAvailability(slug!);
@@ -115,18 +139,23 @@ export class UpdateChatStore {
         );
 
         reaction(
-            () => this.updateChatForm.description,
-            description => this.formErrors.description = validateChatDescription(description)
+            () => this.formValues.description,
+            description => this.setFormError("description", validateChatDescription(description))
+        );
+
+        reaction(
+            () => this.formValues.slowModeInterval,
+            interval => validateChatSlowModeInterval(
+                interval,
+                !this.formValues.slowModeEnabled
+            )
+        );
+
+        reaction(
+            () => this.formValues.slowModeUnit,
+            unit => validateChatSlowModeTimeUnit(unit, !this.formValues.slowModeEnabled)
         );
     }
-
-    setFormValue = <Key extends keyof UpdateChatFormData>(key: Key, value: UpdateChatFormData[Key]) => {
-        this.updateChatForm[key] = value;
-    };
-
-    setUpdateChatDialogOpen = (updateChatDialogOpen: boolean): void => {
-        this.updateChatDialogOpen = updateChatDialogOpen;
-    };
 
     checkSlugAvailability = (slug: string): void => {
         this.checkingSlugAvailability = true;
@@ -134,18 +163,18 @@ export class UpdateChatStore {
         ChatApi.checkChatSlugAvailability(slug)
             .then(({data}) => {
                 if (!data.available) {
-                    this.formErrors.slug = "chat.slug.has-already-been-taken";
+                    this.setFormError("slug", "chat.slug.has-already-been-taken");
                 }
             })
-            .finally(() => this.checkingSlugAvailability = false);
-    };
+            .finally(() => runInAction(() => this.checkingSlugAvailability = false));
+    }
 
-    setShowSnackbar = (showSnackbar: boolean): void => {
-        this.showSnackbar = showSnackbar;
-    };
+    setJoinAllowance = (verificationLevel: UserVerificationLevel, allowance: JoinChatAllowance): void => {
+        this.formValues.joinAllowanceSettings[verificationLevel] = allowance;
+    }
 
-    updateChat = (): void => {
-        const chatId = this.selectedChat;
+    submitForm = (): void => {
+        const chatId = this.selectedChat?.id;
 
         if (!chatId) {
             return;
@@ -159,50 +188,63 @@ export class UpdateChatStore {
         this.error = undefined;
 
         ChatApi.updateChat(chatId, {
-            description: this.updateChatForm.description,
+            description: this.formValues.description,
             avatarId: this.uploadedAvatarId,
-            name: this.updateChatForm.name,
-            slug: this.updateChatForm.slug,
-            tags: this.updateChatForm.tags
+            name: this.formValues.name,
+            slug: this.formValues.slug,
+            tags: this.formValues.tags,
+            slowMode: this.getSlowModeFromForm(),
+            joinAllowanceSettings: this.formValues.joinAllowanceSettings,
+            hideFromSearch: this.formValues.hideFromSearch
         })
             .then(({data}) => {
                 this.entities.chats.insert(data);
-                this.setUpdateChatDialogOpen(false);
-                this.setShowSnackbar(true);
+                this.snackbarService.enqueueSnackbar(this.locale.getCurrentLanguageLabel("chat.update.success"));
             })
-            .catch(error => this.error = getInitialApiErrorFromResponse(error))
-            .finally(() => this.pending = false)
-    };
+            .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
+            .finally(() => this.setPending(false));
+    }
 
-    validateForm = (): boolean => {
+    private getSlowModeFromForm = (): SlowMode | undefined => {
+        if (this.formValues.slowModeEnabled) {
+            return {
+                enabled: true,
+                unit: this.formValues.slowModeUnit!,
+                interval: Number(this.formValues.slowModeInterval!)
+            };
+        } else if (isDefined(this.formValues.slowModeInterval) && isDefined(this.formValues.slowModeUnit)) {
+            return {
+                enabled: false,
+                unit: this.formValues.slowModeUnit,
+                interval: Number(this.formValues.slowModeInterval)
+            };
+        } else {
+            return undefined;
+        }
+    }
+
+    protected validateForm = (): boolean => {
         let slugError = this.formErrors.slug;
 
         if (slugError !== "chat.slug.has-already-been-taken"
-            && this.updateChatForm.slug !== this.currentChatSlug
-            && this.updateChatForm.slug !== this.selectedChat) {
-            slugError = validateChatSlug(this.updateChatForm.slug);
+            && this.formValues.slug !== this.currentChatSlug
+            && this.formValues.slug !== this.selectedChat) {
+            slugError = validateChatSlug(this.formErrors.slug);
         }
 
-        this.formErrors = {
+        this.setFormErrors({
             ...this.formErrors,
-            name: validateChatName(this.updateChatForm.name),
-            description: validateChatDescription(this.updateChatForm.description),
+            name: validateChatName(this.formValues.name),
+            description: validateChatDescription(this.formValues.description),
             slug: slugError,
-            tags: validateChatTags(this.updateChatForm.tags)
-        };
-        this.updateChatForm.tags.forEach(tag => {
-            this.formErrors.tagErrorsMap[tag] = validateChatTag(tag)
+            tags: validateChatTags(this.formValues.tags)
+        });
+        this.formValues.tags.forEach(tag => {
+            this.tagsErrorsMap[tag] = validateChatTag(tag)
         });
 
-        const {description, name, slug, tagErrorsMap, tags} = this.formErrors;
-
-        return !Boolean(
-            description ||
-            name ||
-            slug ||
-            tags ||
-            containsNotUndefinedValues(tagErrorsMap) ||
-            this.avatarValidationError
-        )
-    };
+        return !containsNotUndefinedValues(this.formErrors)
+            && !containsNotUndefinedValues(this.tagsErrorsMap)
+            && !this.avatarValidationError
+    }
 }

@@ -1,0 +1,49 @@
+{
+  "id": "619687bb0f8068005cb46b9c",
+  "_class": "chatox.chat.model.ChatParticipation",
+  "chatDeleted": false,
+  "chatId": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+  "createdAt": "2021-11-18T17:04:59.257Z",
+  "deleted": false,
+  "lastMessageReadId": "4398e547-4df5-4061-86bb-75f9007a8169",
+  "lastModifiedAt": "2023-08-21T13:24:09.943Z",
+  "lastReadMessageAt": "2023-09-28T18:37:31.925Z",
+  "lastReadMessageCreatedAt": "2023-09-28T18:37:31.925Z",
+  "lastReadMessageId": "f5998e93-6a95-430f-bbff-6d8d59743e96",
+  "roleId": "62a8e835a904df34e9cf331c",
+  "user":  {
+    "id": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+    "accountId": "6db8d3de-cde5-45ab-b99b-8feb8aabbcd1",
+    "firstName": "Test",
+    "lastName": null,
+    "slug": "testuser",
+    "avatarUri": null,
+    "deleted": false,
+    "bio": "__Hello, world!__",
+    "lastSeen": "2023-09-29T19:27:05.789Z",
+    "dateOfBirth": "1900-01-14T00:00:00.000Z",
+    "createdAt": "2021-01-31T15:48:29.868Z",
+    "online": true,
+    "avatar": {
+      "id": "650c53d24601db875936da28",
+      "name": "650c53d24601db875936da28.jpg",
+      "extension": "jpg",
+      "mimeType": "image/jpeg",
+      "meta": {
+        "width": 4669,
+        "height": 3926
+      },
+      "preview": null,
+      "type": "IMAGE",
+      "originalName": "wallhaven-j3gvwq.jpg",
+      "uri": "http://localhost:8080/api/v1/uploads/images/650c53d24601db875936da28.jpg",
+      "size": 5096972
+    },
+    "anonymoys": false,
+    "externalAvatarUri": null
+  },
+  "userDisplayedName": "Test",
+  "userOnline": false,
+  "userSlug": "testuser",
+  "chatType": "GROUP"
+}

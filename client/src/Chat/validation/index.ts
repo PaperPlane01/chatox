@@ -1,6 +1,7 @@
-import {Labels} from "../../localization/types";
+import {Labels} from "../../localization";
 import {isStringEmpty} from "../../utils/string-utils";
-import {ChatDeletionReason} from "../../api/types/response";
+import {ChatDeletionReason, TimeUnit} from "../../api/types/response";
+import {isDefined} from "../../utils/object-utils";
 
 const SLUG_REGEXP = /^[a-zA-Z0-9_.]+$/;
 
@@ -59,6 +60,36 @@ export const validateChatSlug = (slug?: string): keyof Labels | undefined => {
 
     if (slug!.length > 25) {
         return "chat.slug.too-long";
+    }
+
+    return undefined;
+};
+
+export const validateChatSlowModeInterval = (interval: string | undefined, acceptEmpty: boolean): keyof Labels | undefined => {
+    if (isStringEmpty(interval)) {
+       if (acceptEmpty) {
+           return undefined;
+       } else {
+           return "common.validation.error.required";
+       }
+    }
+
+    const intervalNumber = Number(interval);
+
+    if (isNaN(intervalNumber) || !Number.isInteger(interval)) {
+        return "common.validation.error.must-be-integer";
+    }
+
+    if (intervalNumber < 1) {
+        return "common.validation.error.must-be-positive";
+    }
+
+    return undefined;
+};
+
+export const validateChatSlowModeTimeUnit = (timeUnit: TimeUnit | undefined, acceptEmpty: boolean): keyof Labels | undefined => {
+    if (!isDefined(timeUnit) && !acceptEmpty) {
+        return "common.validation.error.required";
     }
 
     return undefined;

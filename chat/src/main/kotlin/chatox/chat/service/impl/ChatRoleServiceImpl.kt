@@ -5,6 +5,7 @@ import chatox.chat.api.request.UpdateChatRoleRequest
 import chatox.chat.api.response.ChatRoleResponse
 import chatox.chat.cache.DefaultRoleOfChatCacheWrapper
 import chatox.chat.config.CacheWrappersConfig
+import chatox.chat.config.RedisConfig
 import chatox.chat.exception.ChatRoleNotFoundException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.exception.metadata.DefaultRoleIdMustBeSpecifiedException
@@ -20,6 +21,7 @@ import chatox.chat.repository.mongodb.ChatRoleRepository
 import chatox.chat.repository.mongodb.ChatRoleTemplateRepository
 import chatox.chat.service.ChatRoleService
 import chatox.chat.util.NTuple2
+import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
@@ -46,7 +48,13 @@ class ChatRoleServiceImpl(
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
 
         @Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
-        private val chatRoleCacheService: ReactiveRepositoryCacheWrapper<ChatRole, String>,
+        private val chatRoleCacheWrapper: ReactiveRepositoryCacheWrapper<ChatRole, String>,
+
+        @Qualifier(RedisConfig.CHAT_ROLE_CACHE_SERVICE)
+        private val chatRoleByIdCacheService: ReactiveCacheService<ChatRole, String>,
+
+        @Qualifier(RedisConfig.DEFAULT_ROLE_OF_CHAT_CACHE_SERVICE)
+        private val defaultChatRoleCacheService: ReactiveCacheService<ChatRole, String>,
         private val userCacheService: ReactiveRepositoryCacheWrapper<User, String>,
         private val chatRoleMapper: ChatRoleMapper,
         private val authenticationHolder: ReactiveAuthenticationHolder<User>,
@@ -58,11 +66,32 @@ class ChatRoleServiceImpl(
                 .map { tuple -> tuple.t1 }
     }
 
+    override fun getRolesOfUsersInChat(usersIds: List<String>, chatId: String): Mono<Map<String, ChatRole>> {
+        return mono {
+            val chatParticipations = chatParticipationRepository.findByChatIdAndUserIdInAndDeletedFalse(
+                    chatId = chatId,
+                    userIds = usersIds
+            )
+                    .collectList()
+                    .awaitFirst()
+            val chatRoles = chatRoleCacheWrapper
+                    .findByIds(chatParticipations.map { it.roleId })
+                    .collectList()
+                    .awaitFirst()
+                    .associateBy { chatRole -> chatRole.id }
+
+            return@mono chatParticipations
+                    .associate {
+                        chatParticipation -> chatParticipation.user.id to chatRoles[chatParticipation.roleId]!!
+                    }
+        }
+    }
+
     override fun getRoleAndChatParticipationOfUserInChat(userId: String, chatId: String): Mono<NTuple2<ChatRole, ChatParticipation>> {
         return mono {
             val chatParticipation = chatParticipationRepository.findByChatIdAndUserIdAndDeletedFalse(chatId, userId).awaitFirstOrNull()
                     ?: return@mono Mono.empty<NTuple2<ChatRole, ChatParticipation>>()
-            val role = chatRoleCacheService.findById(chatParticipation.roleId).awaitFirst()
+            val role = chatRoleCacheWrapper.findById(chatParticipation.roleId).awaitFirst()
 
             return@mono Mono.just(NTuple2(role, chatParticipation))
         }
@@ -71,7 +100,7 @@ class ChatRoleServiceImpl(
 
     override fun findRoleByIdAndChatId(roleId: String, chatId: String): Mono<ChatRole> {
         return mono {
-            val chatRole = chatRoleCacheService.findById(roleId).awaitFirstOrNull()
+            val chatRole = chatRoleCacheWrapper.findById(roleId).awaitFirstOrNull()
 
             if (chatRole == null || chatRole.chatId != chatId) {
                 throw ChatRoleNotFoundException("Could not find chat role $roleId in chat $chatId")
@@ -99,7 +128,14 @@ class ChatRoleServiceImpl(
                 ))
             }
 
-            chatRoleTemplateRepository.saveAll(chatRoleTemplates).collectList().awaitFirst()
+            chatRoleRepository.saveAll(roles).collectList().awaitFirst()
+            chatRoleByIdCacheService.put(roles).awaitFirst()
+
+            val defaultRole = roles.find { role -> role.default }
+
+            if (defaultRole != null) {
+                defaultChatRoleCacheService.put(defaultRole).awaitFirst()
+            }
 
             return@mono roles
         }

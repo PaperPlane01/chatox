@@ -4,38 +4,36 @@ import {Response} from "express";
 import {Model, Types} from "mongoose";
 import {createReadStream, promises as fileSystem} from "fs";
 import path from "path";
-import {fromFile} from "file-type";
 import contentDisposition from "content-disposition";
-import {Upload, UploadType} from "../mongoose/entities";
-import {UploadMapper} from "../common/mappers";
 import {MultipartFile} from "../common/types/request";
-import {UploadInfoResponse} from "../common/types/response";
 import {config} from "../config";
-import {CurrentUserHolder} from "../context/CurrentUserHolder";
+import {Upload, UploadDocument, UploadType} from "../uploads";
+import {UploadMapper} from "../uploads/mappers";
+import {UploadResponse} from "../uploads/types/responses";
+import {User} from "../auth";
+import {getFileType} from "../utils/file-utils";
 
 @Injectable()
 export class FilesUploadService {
-    constructor(@InjectModel("upload") private readonly uploadModel: Model<Upload<any>>,
-                private readonly uploadMapper: UploadMapper,
-                private readonly currentUserHolder: CurrentUserHolder) {
+    constructor(@InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<any>>,
+                private readonly uploadMapper: UploadMapper) {
 
     }
 
-    public async uploadFile(multipartFile: MultipartFile, originalName?: string): Promise<UploadInfoResponse<any>> {
-        const currentUser = this.currentUserHolder.getCurrentUser();
-        const id = new Types.ObjectId().toHexString();
-        const temporaryFilePath = path.join(config.FILES_DIRECTORY, `${id}.tmp`);
+    public async uploadFile(multipartFile: MultipartFile, currentUser: User, originalName?: string): Promise<UploadResponse<any>> {
+        const id = new Types.ObjectId();
+        const temporaryFilePath = path.join(config.FILES_DIRECTORY, `${id.toHexString()}.tmp`);
         const fileHandle = await fileSystem.open(temporaryFilePath, "w");
         await fileSystem.writeFile(fileHandle, multipartFile.buffer);
         await fileHandle.close();
 
-        const fileInfo = await fromFile(temporaryFilePath);
+        const fileInfo = await getFileType(temporaryFilePath);
         const permanentFilePath = path.join(config.FILES_DIRECTORY, `${id}.${fileInfo.ext}`);
         await fileSystem.rename(temporaryFilePath, permanentFilePath);
 
-        const file: Upload<any> = new this.uploadModel({
-            id,
-            name: `${id}.${fileInfo.ext}`,
+        const file = new Upload({
+            _id: id,
+            name: `${id.toHexString()}.${fileInfo.ext}`,
             mimeType: fileInfo.mime,
             type: UploadType.FILE,
             meta: null,
@@ -44,11 +42,11 @@ export class FilesUploadService {
             extension: fileInfo.ext,
             isPreview: false,
             isThumbnail: false,
-            userId: currentUser!.id
+            userId: currentUser.id
         });
-        await file.save();
+        await new this.uploadModel(file).save();
 
-        return this.uploadMapper.toUploadInfoResponse(file);
+        return this.uploadMapper.toUploadResponse(file);
     }
 
     public async downloadFile(fileName: string, response: Response): Promise<void> {

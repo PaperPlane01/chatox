@@ -2,8 +2,8 @@ package chatox.chat.api.request
 
 import chatox.chat.support.validation.annotation.StringIn
 import com.fasterxml.jackson.annotation.JsonProperty
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.Size
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 
 data class UpdateMessageRequest(
         @field:NotBlank
@@ -12,7 +12,10 @@ data class UpdateMessageRequest(
         private val _text: String?,
 
         @field:StringIn(["apple", "facebook", "twitter", "native"])
-        val emojisSet: String = "apple"
+        val emojisSet: String = "apple",
+
+        @field:Size(max = 10)
+        val uploadAttachments: List<String> = listOf()
 ) {
         val text: String
                 get() = _text!!

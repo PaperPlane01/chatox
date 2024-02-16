@@ -7,3 +7,4 @@ export * from "./MessageDeleted";
 export * from "./MessagesDeleted";
 export * from "./SessionActivityStatusResponse";
 export * from "./MessageRead";
+export * from "./DisconnectionResult";

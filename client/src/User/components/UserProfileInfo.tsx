@@ -1,20 +1,19 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import { Card, CardHeader, CircularProgress, Theme, Typography } from "@mui/material";
+import {Card, CardHeader, CircularProgress, Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {format} from "date-fns";
-import randomColor from "randomcolor";
 import ReactMarkdown from "react-markdown";
+import breaks from "remark-breaks";
 import {UserMenu} from "./UserMenu";
 import {DialogWithUserButton} from "./DialogWithUserButton";
+import {UserProfileAvatar} from "./UserProfileAvatar";
 import {getDateOfBirthLabel, getOnlineOrLastSeenLabel} from "../utils/labels"
-import {Avatar} from "../../Avatar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
 import {HasAnyRole} from "../../Authorization";
-
-const breaks = require("remark-breaks");
+import {UserInteractionsCount} from "../../UserInteraction";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     centered: {
@@ -61,10 +60,10 @@ export const UserProfileInfo: FunctionComponent = observer(() => {
         return <CircularProgress className={classes.centered} size={25}/>
     } else if (error) {
         return <Typography>{getErrorLabel(error, l)}</Typography>
-    } else if (userId) {
+    } else if (!userId) {
+        return null;
+    } else {
         const user = findUser(userId);
-        const avatarLetter = `${user.firstName[0]} ${user.lastName ? user.lastName[0] : ""}`;
-        const color = randomColor({seed: user.id});
 
         const onlineOrLastSeenLabel = getOnlineOrLastSeenLabel(
             user,
@@ -78,13 +77,7 @@ export const UserProfileInfo: FunctionComponent = observer(() => {
         return (
             <div>
                 <Card className={classes.userInfoCard}>
-                    <CardHeader avatar={<Avatar avatarLetter={avatarLetter}
-                                                avatarColor={color}
-                                                avatarId={user.avatarId}
-                                                width={64}
-                                                height={64}
-                                                avatarUri={user.externalAvatarUri}
-                    />}
+                    <CardHeader avatar={<UserProfileAvatar/>}
                                 title={`${user.firstName} ${user.lastName ? user.lastName : ""}`}
                                 subheader={onlineOrLastSeenLabel}
                                 action={<UserMenu userId={user.id}/>}
@@ -93,6 +86,9 @@ export const UserProfileInfo: FunctionComponent = observer(() => {
                 <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
                     <DialogWithUserButton/>
                 </HasAnyRole>
+                <Card className={classes.userInfoCard}>
+                    <UserInteractionsCount/>
+                </Card>
                 <Card className={classes.userInfoCard}>
                     {user.slug && user.slug !== user.id && (
                         <CardHeader title={
@@ -164,7 +160,5 @@ export const UserProfileInfo: FunctionComponent = observer(() => {
                 )}
             </div>
         )
-    } else {
-        return null;
     }
 });

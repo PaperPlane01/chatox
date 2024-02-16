@@ -3,11 +3,12 @@ import {observer} from "mobx-react";
 import {CardHeader, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
+import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
+import {TypingIndicator} from "../../Chat";
 import {Avatar} from "../../Avatar";
 import {getOnlineOrLastSeenLabel, getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {useLocalization, useStore} from "../../store";
 import {trimString} from "../../utils/string-utils";
-import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
 
 interface DialogChatAppBarContentProps {
     chatId: string
@@ -33,20 +34,38 @@ export const DialogChatAppBarContent: FunctionComponent<DialogChatAppBarContentP
         },
         messagesSearch: {
             showInput
+        },
+        typingUsers: {
+            hasTypingUsers
         }
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
     const classes = useStyles();
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
     if (showInput) {
-        return (
-            <ChatAppBarSearchInput/>
-        );
+        return <ChatAppBarSearchInput/>;
     } else {
         const chat = findChat(chatId);
         const user = findUser(chat.userId!);
+        const username = getUserDisplayedName(user);
+        const chatHasTypingUsers = hasTypingUsers(chatId);
+
+        const chatSubheader = chatHasTypingUsers
+            ? <TypingIndicator chatId={chatId}/>
+            : getOnlineOrLastSeenLabel(
+                user,
+                dateFnsLocale,
+                l,
+                {
+                    variant: "body2",
+                    style: {
+                        opacity: user.online ? 1 : 0.5,
+                        cursor: "pointer"
+                    }
+                }
+            )
 
         return (
             <CardHeader title={(
@@ -54,22 +73,11 @@ export const DialogChatAppBarContent: FunctionComponent<DialogChatAppBarContentP
                     <Typography variant="body1"
                                 style={{cursor: "pointer"}}
                     >
-                        {onSmallScreen ? trimString(getUserDisplayedName(user), 25) : getUserDisplayedName(user)}
+                        {onSmallScreen ? trimString(username, 25) : username}
                     </Typography>
                 </div>
             )}
-                        subheader={getOnlineOrLastSeenLabel(
-                            user,
-                            dateFnsLocale,
-                            l,
-                            {
-                                variant: "body2",
-                                style: {
-                                    opacity: user.online ? 1 : 0.5,
-                                    cursor: "pointer"
-                                }
-                            }
-                        )}
+                        subheader={chatSubheader}
                         avatar={(
                             <div>
                                 <Avatar avatarLetter={getUserAvatarLabel(user)}

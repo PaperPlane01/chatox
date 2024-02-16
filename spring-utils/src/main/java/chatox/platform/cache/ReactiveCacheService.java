@@ -10,4 +10,5 @@ public interface ReactiveCacheService<T, ID> {
     Mono<T> put(T value);
     Mono<List<T>> put(List<T> values);
     Mono<Void> delete(ID id);
+    Mono<Void> deleteAll();
 }

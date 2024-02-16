@@ -1,14 +1,25 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {AxiosPromise} from "axios";
 import {SearchMessagesStore} from "./SearchMessagesStore";
 import {createSortMessages} from "../utils";
 import {ChatMessagesFetchingStateMap, MessageEntity} from "../types";
 import {EntitiesStore} from "../../entities-store";
-import {ChatsPreferencesStore, ChatStore} from "../../Chat";
+import {ChatStore} from "../../Chat";
 import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api";
 import {Message} from "../../api/types/response";
+
+interface FetchMessagesOptions extends FetchOptions {
+    chatId?: string,
+    skipSettingLastMessage?: boolean
+}
+
+const DEFAULT_FETCH_OPTIONS: FetchMessagesOptions = {
+    chatId: undefined,
+    skipSettingLastMessage: true,
+    abortIfInitiallyFetched: true
+};
 
 export class MessagesOfChatStore {
     chatMessagesFetchingStateMap: ChatMessagesFetchingStateMap = {};
@@ -54,7 +65,6 @@ export class MessagesOfChatStore {
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
-                private readonly chatPreferencesStore: ChatsPreferencesStore,
                 private readonly searchMessagesStore: SearchMessagesStore) {
         makeAutoObservable(this);
 
@@ -64,7 +74,7 @@ export class MessagesOfChatStore {
         );
     }
 
-    getFetchingState = createTransformer((chatId: string) => {
+    getFetchingState = computedFn((chatId: string) => {
         if (this.chatMessagesFetchingStateMap[chatId]) {
             return this.chatMessagesFetchingStateMap[chatId];
         } else {
@@ -75,12 +85,12 @@ export class MessagesOfChatStore {
         }
     });
 
-    fetchMessages = async (options: FetchOptions = {abortIfInitiallyFetched: false}): Promise<void> => {
-        if (!this.selectedChatId || this.isInSearchMode) {
+    fetchMessages = async (options: FetchMessagesOptions = DEFAULT_FETCH_OPTIONS): Promise<void> => {
+        const chatId = options.chatId ?? this.selectedChatId;
+
+        if (!chatId || this.isInSearchMode) {
             return;
         }
-
-        const chatId = this.selectedChatId;
 
         if (!this.chatMessagesFetchingStateMap[chatId]) {
             this.chatMessagesFetchingStateMap[chatId] = {initiallyFetched: false, pending: false};
@@ -107,21 +117,22 @@ export class MessagesOfChatStore {
         this.chatMessagesFetchingStateMap[chatId].pending = true;
 
         return fetchMessageFunction(chatId, beforeMessage)
-            .then(({data}) => {
-                runInAction(() => {
-                    if (data.length !== 0) {
-                        this.entities.messages.insertAll(data, {skipSettingLastMessage: true});
+            .then(({data}) => runInAction(() => {
+                if (data.length !== 0) {
+                    this.entities.messages.insertAll(data, {
+                        skipSettingLastMessage: options.skipSettingLastMessage ?? true,
+                        skipUpdatingChat: false
+                    });
 
-                        if (beforeMessage) {
-                            this.initialMessagesMap[chatId] = this.initialMessagesMap[chatId]
-                                ? this.initialMessagesMap[chatId] - data.length
-                                : 0 - data.length;
-                        }
-
-                        this.chatMessagesFetchingStateMap[chatId].initiallyFetched = true;
+                    if (beforeMessage) {
+                        this.initialMessagesMap[chatId] = this.initialMessagesMap[chatId]
+                            ? this.initialMessagesMap[chatId] - data.length
+                            : 0 - data.length;
                     }
-                })
-            })
+
+                    this.chatMessagesFetchingStateMap[chatId].initiallyFetched = true;
+                }
+            }))
             .finally(() => runInAction(() => this.chatMessagesFetchingStateMap[chatId].pending = false));
     };
 }

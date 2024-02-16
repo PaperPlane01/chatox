@@ -18,14 +18,12 @@ import chatox.oauth2.respository.AuthorizedGrantTypeRepository;
 import chatox.oauth2.respository.ClientRepository;
 import chatox.oauth2.respository.ScopeRepository;
 import chatox.oauth2.security.AuthenticationFacade;
-import chatox.oauth2.security.CustomClientDetails;
 import chatox.oauth2.service.ClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.provider.ClientDetails;
-import org.springframework.security.oauth2.provider.ClientRegistrationException;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +52,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientResponse createClient(CreateClientRequest createClientRequest) {
-        var owner = findAccountById(authenticationFacade.getCurrentUserDetails().getAccountId());
+        var owner = authenticationFacade.getCurrentUserDetails().getAccount();
         var authorizedGrantTypes = createClientRequest.getAuthorizedGrantTypes()
                 .stream()
                 .map(this::findAuthorizedGrantTypeByName)
@@ -91,7 +89,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientResponse findClientById(String id) {
-        return clientMapper.toClientResponse(findById(id));
+        return clientMapper.toClientResponse(findClient(id));
     }
 
     @Override
@@ -102,15 +100,7 @@ public class ClientServiceImpl implements ClientService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
-        return new CustomClientDetails(
-                clientRepository.findById(clientId)
-                        .orElseThrow(() -> new ClientRegistrationException("Bad credentials"))
-        );
-    }
-
-    private Client findById(String clientId) {
+    private Client findClient(String clientId) {
         return clientRepository.findById(clientId)
                 .orElseThrow(() -> new ClientNotFoundException("Could not find client with id " + clientId));
     }
@@ -140,5 +130,20 @@ public class ClientServiceImpl implements ClientService {
         } else {
             throw new InvalidScopeException("Chatox does not support scope " + name);
         }
+    }
+
+    @Override
+    public void save(RegisteredClient registeredClient) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public RegisteredClient findById(String id) {
+        return findClient(id).toRegisteredClient();
+    }
+
+    @Override
+    public RegisteredClient findByClientId(String clientId) {
+        return findClient(clientId).toRegisteredClient();
     }
 }

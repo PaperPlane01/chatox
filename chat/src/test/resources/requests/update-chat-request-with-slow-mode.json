@@ -1,0 +1,8 @@
+{
+  "name": "Test chat update",
+  "slowMode": {
+    "enabled": true,
+    "interval": 5,
+    "unit": "SECONDS"
+  }
+}

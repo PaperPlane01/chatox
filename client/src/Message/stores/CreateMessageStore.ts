@@ -1,44 +1,32 @@
-import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
-import {CreateMessageFormData} from "../types";
-import {validateMessageText} from "../validation";
-import {ChatStore} from "../../Chat";
-import {FormErrors} from "../../utils/types";
-import {ApiError, ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
-import {Routes} from "../../router";
+import {action, computed, makeObservable, observable, reaction} from "mobx";
+import {computedFn} from "mobx-utils";
 import {RouterStore} from "mobx-router";
+import {debounce} from "lodash";
+import {AbstractMessageFormStore} from "./AbstractMessageFormStore";
+import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
+import {ForwardMessagesStore} from "./ForwardMessagesStore";
+import {CreateMessageFormData} from "../types";
+import {ChatsPreferencesStore, ChatStore} from "../../Chat";
+import {ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
+import {EntitiesStore} from "../../entities-store";
+import {RouterStoreAware, Routes} from "../../router";
+import {FormErrors} from "../../utils/types";
+import {createWithUndefinedValues, isDefined} from "../../utils/object-utils";
+import {Duration} from "../../utils/date-utils";
+import {isStringEmpty} from "../../utils/string-utils";
+import {RecordVoiceMessageStore} from "./RecordVoiceMessageStore";
 
-export class CreateMessageStore {
-    createMessageForm: CreateMessageFormData = {
-        text: "",
-        scheduledAt: undefined
-    };
+const INITIAL_FORM_VALUES: CreateMessageFormData = {
+    text: "",
+    scheduledAt: undefined,
+    referredMessageId: undefined
+};
+const INITIAL_FORM_ERRORS: FormErrors<CreateMessageFormData> = createWithUndefinedValues(INITIAL_FORM_VALUES);
 
-    formErrors: FormErrors<CreateMessageFormData> = {
-        text: undefined,
-        scheduledAt: undefined
-    };
-
-    pending: boolean = false;
-
-    submissionError?: ApiError = undefined;
-
+export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFormData> implements RouterStoreAware {
     referredMessageId?: string = undefined;
 
-    emojiPickerExpanded: boolean = false;
-
     userId?: string = undefined;
-
-    get selectedChatId(): string | undefined {
-        return this.chatStore.selectedChatId;
-    };
-
-    get attachmentsIds(): string[] {
-        return this.messageUploads.messageAttachmentsFiles
-            .filter(fileContainer => fileContainer.uploadedFile !== undefined && fileContainer.uploadedFile !== null)
-            .map(fileContainer => fileContainer.uploadedFile!.id!)
-    };
 
     get shouldSendReferredMessageId(): boolean {
         if (this.referredMessageId && this.selectedChatId) {
@@ -52,16 +40,36 @@ export class CreateMessageStore {
 
     private routerStore: RouterStore<any>;
 
-    constructor(private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStore,
-                private readonly messageUploads: UploadMessageAttachmentsStore) {
-        makeAutoObservable(this);
+    lastMessageDates = observable.map<string, Date>();
+
+    constructor(chatStore: ChatStore,
+                messageUploads: UploadMessageAttachmentsStore,
+                entities: EntitiesStore,
+                private readonly chatsPreferences: ChatsPreferencesStore,
+                private readonly forwardMessagesStore: ForwardMessagesStore,
+                private readonly recordVoiceMessageStore: RecordVoiceMessageStore) {
+        super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS, chatStore, messageUploads, entities);
+
+        this.startTyping = debounce(this.startTyping, 300);
+
+        makeObservable<CreateMessageStore>(this, {
+            referredMessageId: observable,
+            userId: observable,
+            shouldSendReferredMessageId: computed,
+            submitForm: action,
+            setUserId: action,
+            setReferredMessageId: action,
+            sendSticker: action,
+            setLastMessageDateForChat: action
+        });
 
         reaction(
-            () => this.createMessageForm.text,
-            text => runInAction(() => {
-                this.formErrors.text = validateMessageText(text, {acceptEmpty: this.attachmentsIds.length !== 0});
-            })
+            () => this.formValues.text,
+            text => {
+                if (text.length !== 0 && this.chatsPreferences.sendTypingNotification) {
+                    this.startTyping();
+                }
+            }
         );
     };
 
@@ -71,15 +79,11 @@ export class CreateMessageStore {
 
     setUserId = (userId?: string): void => {
         this.userId = userId;
-    };
+    }
 
     setReferredMessageId = (referredMessageId?: string): void => {
         this.referredMessageId = referredMessageId;
-    };
-
-    setFormValue = <Key extends keyof CreateMessageFormData>(key: Key, value: CreateMessageFormData[Key]): void => {
-        this.createMessageForm[key] = value;
-    };
+    }
 
     sendSticker = (stickerId: string): void => {
         if (!this.selectedChatId || this.pending) {
@@ -87,7 +91,7 @@ export class CreateMessageStore {
         }
 
         this.pending = true;
-        this.submissionError = undefined;
+        this.error = undefined;
 
         MessageApi.createMessage(this.selectedChatId, {
             text: "",
@@ -95,16 +99,34 @@ export class CreateMessageStore {
             uploadAttachments: [],
             stickerId
         })
-            .then(({data}) => this.entities.messages.insert(data))
-            .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
-            .finally(() => runInAction(() => this.pending = false));
-    };
+            .then(({data}) => {
+                const message = this.entities.messages.insert(data);
+                this.setLastMessageDateForChat(data.chatId, message.createdAt);
+                this.sendForwardedMessages(data.chatId);
+            })
+            .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
+            .finally(() => this.setPending(false));
+    }
 
-    createMessage = (): void => {
-        if (!this.selectedChatId ) {
-            if (!this.userId) {
-                return;
-            }
+    startTyping = (): void => {
+        if (!this.selectedChatId) {
+            return;
+        }
+
+        ChatApi.startTyping(this.selectedChatId);
+    }
+
+    submitForm = (): void => {
+        if (!this.selectedChatId && !this.userId) {
+            return;
+        }
+
+        if (this.selectedChatId
+            && this.forwardMessagesStore.forwardModeActive
+            && isStringEmpty(this.formValues.text)
+            && this.attachmentsIds.length === 0) {
+            this.sendForwardedMessages(this.selectedChatId);
+            return;
         }
 
         if (!this.validateForm()) {
@@ -112,19 +134,26 @@ export class CreateMessageStore {
         }
 
         this.pending = true;
-        this.submissionError = undefined;
+        this.error = undefined;
 
         if (this.selectedChatId) {
             const chatId = this.selectedChatId;
             MessageApi.createMessage(chatId, {
-                text: this.createMessageForm.text,
+                text: this.formValues.text,
                 referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined,
                 uploadAttachments: this.attachmentsIds,
-                scheduledAt: this.createMessageForm.scheduledAt ? this.createMessageForm.scheduledAt.toISOString() : undefined
+                scheduledAt: this.formValues.scheduledAt ? this.formValues.scheduledAt.toISOString() : undefined
             })
                 .then(({data}) => {
-                    if (!this.createMessageForm.scheduledAt) {
-                        this.entities.messages.insert(data);
+                    this.recordVoiceMessageStore.cleanRecording();
+
+                    if (!this.formValues.scheduledAt) {
+                        const message = this.entities.messages.insert(data);
+                        this.setLastMessageDateForChat(data.chatId, message.createdAt);
+
+                        if (this.forwardMessagesStore.forwardModeActive) {
+                            this.sendForwardedMessages(chatId);
+                        }
                     } else {
                         if (this.routerStore) {
                             const chat = this.entities.chats.findById(chatId);
@@ -134,19 +163,19 @@ export class CreateMessageStore {
                         }
                     }
 
-                    this.resetForm();
+                    this.reset();
                 })
-                .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
-                .finally(() => runInAction(() => this.pending = false))
+                .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
+                .finally(() => this.setPending(false))
         } else if (this.userId) {
             const userId = this.userId;
             ChatApi.startPrivateChat({
                 userId,
                 message: {
-                    text: this.createMessageForm.text,
+                    text: this.formValues.text,
                     referredMessageId: this.shouldSendReferredMessageId ? this.referredMessageId : undefined,
                     uploadAttachments: this.attachmentsIds,
-                    scheduledAt: this.createMessageForm.scheduledAt ? this.createMessageForm.scheduledAt.toISOString() : undefined
+                    scheduledAt: this.formValues.scheduledAt ? this.formValues.scheduledAt.toISOString() : undefined
                 }
             })
                 .then(({data}) => {
@@ -158,36 +187,45 @@ export class CreateMessageStore {
                         }, {});
                     }
                 })
-                .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
-                .finally(() => runInAction(() => this.pending = false))
+                .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
+                .finally(() => this.setPending(false))
         }
-    };
+    }
 
-    validateForm = (): boolean => {
-        this.formErrors = {
-            ...this.formErrors,
-            text: validateMessageText(this.createMessageForm.text, {
-                acceptEmpty: this.attachmentsIds.length !== 0
+    private sendForwardedMessages = (chatId: string): void => {
+        if (this.forwardMessagesStore.forwardModeActive) {
+            this.forwardMessagesStore.forwardMessages().then(date => {
+                if (date) {
+                    this.setLastMessageDateForChat(chatId, date);
+                }
             })
-        };
+        }
+    }
 
-        return !this.formErrors.text;
-    };
+    getNextMessageDate = computedFn((chatId: string) => {
+        const lastMessageDate = this.lastMessageDates.get(chatId);
 
-    resetForm = (): void => {
-        this.createMessageForm = {
-            text: ""
-        };
-        this.referredMessageId = undefined;
-        this.messageUploads.reset();
-        setTimeout(() => {
-            this.formErrors = {
-                text: undefined
-            }
-        })
-    };
+        if (!isDefined(lastMessageDate)) {
+            return undefined;
+        }
 
-    setEmojiPickerExpanded = (emojiPickerExpanded: boolean): void => {
-        this.emojiPickerExpanded = emojiPickerExpanded;
-    };
+        const chat = this.entities.chats.findByIdOptional(chatId);
+
+        if (!isDefined(chat) || !isDefined(chat.slowMode) || !chat.slowMode.enabled) {
+            return undefined;
+        }
+
+        return Duration.of(chat.slowMode.interval, chat.slowMode.unit)
+            .addToDate(lastMessageDate);
+    })
+
+    setLastMessageDateForChat = (chatId: string, date: Date): void => {
+        const chat = this.entities.chats.findByIdOptional(chatId);
+
+        if (!chat || !isDefined(chat.slowMode) || !chat.slowMode.enabled) {
+            return;
+        }
+
+        this.lastMessageDates.set(chatId, date);
+    }
 }

@@ -1,14 +1,9 @@
 import {makeAutoObservable} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {UserChatRolesStore} from "../stores";
 import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
 import {ChatFeatures, CurrentUser} from "../../api/types/response";
-
-interface CanEnableFeature {
-    feature: keyof ChatFeatures,
-    chatId: string
-}
 
 export class ChatRolePermissions {
     get currentUser(): CurrentUser | undefined {
@@ -21,7 +16,7 @@ export class ChatRolePermissions {
         makeAutoObservable(this);
     }
 
-    canCreateChatRole = createTransformer((chatId: string): boolean => {
+    canCreateChatRole = computedFn((chatId: string): boolean => {
         if (!this.currentUser) {
             return false;
         }
@@ -38,11 +33,11 @@ export class ChatRolePermissions {
         return chatRole.features.modifyChatRoles.enabled;
     })
 
-    canEnableFeature = createTransformer(({chatId, feature}: CanEnableFeature): boolean => {
+    canEnableFeature = computedFn((chatId: string, feature: keyof ChatFeatures): boolean => {
         return this.getFeaturesWhichCanBeEnabled(chatId).includes(feature);
     });
 
-    getFeaturesWhichCanBeEnabled = createTransformer((chatId: string): Array<keyof ChatFeatures> => {
+    getFeaturesWhichCanBeEnabled = computedFn((chatId: string): Array<keyof ChatFeatures> => {
         if (!this.currentUser) {
             return [];
         }

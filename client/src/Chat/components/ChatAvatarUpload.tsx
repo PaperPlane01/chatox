@@ -51,6 +51,8 @@ export const ChatAvatarUpload: FunctionComponent = observer(() => {
                           validationError={validationError}
                           submissionError={submissionError}
                           defaultAvatarId={chat.avatarId}
+                          width="100%"
+                          height={160}
             />
         </div>
     );

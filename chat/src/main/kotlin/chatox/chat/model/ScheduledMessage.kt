@@ -20,15 +20,15 @@ data class ScheduledMessage(
         @Indexed
         override val chatId: String,
         override val createdAt: ZonedDateTime,
-        override val updatedAt: ZonedDateTime?,
-        override val deleted: Boolean,
-        override val deletedAt: ZonedDateTime?,
+        override val updatedAt: ZonedDateTime? = null,
+        override val deleted: Boolean = false,
+        override val deletedAt: ZonedDateTime? = null,
 
         @Indexed
         override val deletedById: String? = null,
 
         override val uploadAttachmentsIds: List<String> = listOf(),
-        override val attachments: List<Upload<Any>> = listOf(),
+        override val attachments: List<Upload<*>> = listOf(),
         override val emoji: EmojiInfo = EmojiInfo(),
         override val scheduledAt: ZonedDateTime,
         override val sticker: Sticker<Any>? = null,
@@ -38,5 +38,10 @@ data class ScheduledMessage(
         override val fromScheduled: Boolean = true,
         override val index: Long = -1,
         override val chatParticipationId: String,
-        val numberOfFailedAttemptsToPublish: Int = 0,
+        override val chatParticipationIdInSourceChat: String? = null,
+        override val forwardedFromMessageId: String? = null,
+        override val forwardedFromChatId: String? = null,
+        override val forwardedFromDialogChatType: ChatType? = null,
+        override val forwardedById: String? = null,
+        val numberOfFailedAttemptsToPublish: Int = 0
 ) : MessageInterface

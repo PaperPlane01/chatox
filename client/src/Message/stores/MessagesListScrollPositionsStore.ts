@@ -1,5 +1,5 @@
 import {makeAutoObservable, reaction} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {ChatStore} from "../../Chat";
 
 export class MessagesListScrollPositionsStore {
@@ -33,7 +33,7 @@ export class MessagesListScrollPositionsStore {
         this.reachedBottomMap[chatId] = reachedBottom;
     };
 
-    getScrollPosition = createTransformer((chatId: string) => this.scrollPositionsMap[chatId]);
+    getScrollPosition = computedFn((chatId: string) => this.scrollPositionsMap[chatId]);
 
-    getReachedBottom = createTransformer((chatId: string) => this.reachedBottomMap[chatId]);
+    getReachedBottom = computedFn((chatId: string) => this.reachedBottomMap[chatId]);
 }

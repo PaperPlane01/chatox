@@ -12,6 +12,7 @@ import chatox.oauth2.respository.AccountRepository;
 import chatox.oauth2.respository.UserRoleRepository;
 import chatox.oauth2.security.CustomUserDetails;
 import chatox.oauth2.security.token.TokenGeneratorHelper;
+import chatox.oauth2.service.ClientService;
 import chatox.oauth2.service.GoogleRegistrationService;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -22,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +36,7 @@ import java.util.List;
 public class GoogleRegistrationServiceImpl implements GoogleRegistrationService {
     private final AccountRepository accountRepository;
     private final UserRoleRepository userRoleRepository;
-    private final ClientDetailsService clientDetailsService;
+    private final ClientService clientService;
     private final PasswordEncoder passwordEncoder;
     private final TokenGeneratorHelper tokenGeneratorHelper;
     private final AccountMapper accountMapper;
@@ -44,7 +44,7 @@ public class GoogleRegistrationServiceImpl implements GoogleRegistrationService 
     @Override
     public LoginWithGoogleResponse loginWithGoogle(LoginWithGoogleRequest loginWithGoogleRequest) {
         log.debug("Registerring user with google account");
-        var clientDetails = clientDetailsService.loadClientByClientId(loginWithGoogleRequest.getClientId());
+        var clientDetails = clientService.findById(loginWithGoogleRequest.getClientId());
 
         if (!passwordEncoder.matches(loginWithGoogleRequest.getClientSecret(), clientDetails.getClientSecret())) {
             log.debug("Client credentials are invalid");
@@ -93,9 +93,7 @@ public class GoogleRegistrationServiceImpl implements GoogleRegistrationService 
                     .userId(userId)
                     .build();
         } catch (IOException exception) {
-            log.error("Error occurred when tried to log in with Google account");
-            exception.printStackTrace();
-
+            log.error("Error occurred when tried to log in with Google account", exception);
             throw new GoogleAccountRetrievalException("Failed to retrieve google account");
         }
     }

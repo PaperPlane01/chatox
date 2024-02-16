@@ -1,4 +1,4 @@
-import {makeAutoObservable, reaction, runInAction} from "mobx";
+import {makeAutoObservable, runInAction} from "mobx";
 import {ChatStore} from "../../Chat";
 import {FetchingState} from "../../utils/types";
 import {ChatRoleApi} from "../../api";
@@ -8,8 +8,6 @@ export class RolesOfChatStore {
     pendingRolesMap: {
         [chatId: string]: FetchingState
     } = {};
-
-    chatRolesDialogOpen: boolean = false;
 
     get selectedChatId(): string | undefined {
         return this.chatStore.selectedChatId;
@@ -37,15 +35,6 @@ export class RolesOfChatStore {
     constructor(private readonly chatStore: ChatStore,
                 private readonly entities: EntitiesStore) {
         makeAutoObservable(this);
-
-        reaction(
-            () => this.chatRolesDialogOpen,
-            dialogOpen => {
-                if (dialogOpen) {
-                    this.fetchRolesOfChat();
-                }
-            }
-        )
     }
 
     fetchRolesOfChat = (): void => {
@@ -71,12 +60,4 @@ export class RolesOfChatStore {
             }))
             .finally(() => runInAction(() => this.pendingRolesMap[chatId].pending = false));
     };
-
-    setChatRolesDialogOpen = (chatRolesDialogOpen: boolean): void => {
-        this.chatRolesDialogOpen = chatRolesDialogOpen;
-    };
-
-    openRolesList = (): void => this.setChatRolesDialogOpen(true);
-
-    closeRolesList = (): void => this.setChatRolesDialogOpen(false);
 }

@@ -3,8 +3,11 @@ import {observer} from "mobx-react";
 import {Tab, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
+import {useSnackbar} from "notistack";
+import {isAfter} from "date-fns";
 import {StickersGridList} from "./StickersGridList";
-import {useStore} from "../../store";
+import {useLocalization, useStore} from "../../store";
+import {isDefined} from "../../utils/object-utils";
 
 interface StickerPickerProps {
     onStickerPicked?: () => void
@@ -59,16 +62,31 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
             setSelectedStickerPackId
         },
         messageCreation: {
+            selectedChatId,
+            getNextMessageDate,
             sendSticker
         }
     } = useStore();
+    const {l} = useLocalization();
     const classes = useStyles();
+    const {enqueueSnackbar} = useSnackbar();
 
     if (installedStickerPacksIds.length === 0) {
         return null;
     }
 
     const handleStickerSelection = (stickerId: string): void => {
+        if (!selectedChatId) {
+            return;
+        }
+
+        const nextDate = getNextMessageDate(selectedChatId);
+
+        if (isDefined(nextDate) && isAfter(nextDate, new Date())) {
+            enqueueSnackbar(l("message.send.wait"), {variant: "error"});
+            return;
+        }
+
         sendSticker(stickerId);
 
         if (onStickerPicked) {

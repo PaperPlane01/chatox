@@ -10,4 +10,5 @@ interface UserBlacklistService {
     fun removeUserFromBlackList(userId: String): Flux<UserResponse>
     fun getBlacklistOfCurrentUser(): Flux<UserResponse>
     fun getBlacklistStatus(userId: String): Mono<BlacklistStatusResponse>
+    fun isUserBlacklisted(checkedUserId: String, blacklistOwnerId: String): Mono<Boolean>
 }

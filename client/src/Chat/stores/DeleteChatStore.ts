@@ -1,4 +1,5 @@
 import {makeAutoObservable, reaction} from "mobx";
+import {RouterStore} from "mobx-router";
 import {ChatStore} from "./ChatStore";
 import {ChatDeletionStep, ChatOfCurrentUserEntity, DeleteChatFormData} from "../types";
 import {validateChatDeletionComment} from "../validation";
@@ -7,8 +8,9 @@ import {FormErrors} from "../../utils/types";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {DeleteChatRequest} from "../../api/types/request";
+import {RouterStoreAware, Routes} from "../../router";
 
-export class DeleteChatStore {
+export class DeleteChatStore implements RouterStoreAware {
     deleteChatForm: DeleteChatFormData = {
         reason: ChatDeletionReason.SPAM,
         comment: undefined
@@ -27,6 +29,8 @@ export class DeleteChatStore {
 
     showSnackbar: boolean = false;
 
+    routerStore?: RouterStore<any>;
+
     get selectedChat(): ChatOfCurrentUserEntity | undefined {
         if (this.chatStore.selectedChatId) {
             return this.entities.chats.findById(this.chatStore.selectedChatId);
@@ -37,10 +41,6 @@ export class DeleteChatStore {
 
     get deletionReasonRequired(): boolean {
         return Boolean(this.selectedChat) && !Boolean(this.selectedChat?.createdByCurrentUser)
-    }
-
-    get chatDeletionDialogOpen(): boolean {
-        return this.currentStep !== ChatDeletionStep.NONE;
     }
 
     constructor(private readonly entities: EntitiesStore,
@@ -63,6 +63,10 @@ export class DeleteChatStore {
             )
         );
     }
+
+    setRouterStore = (routerStore: RouterStore<any>): void => {
+        this.routerStore = routerStore;
+    };
 
     setCurrentStep = (step: ChatDeletionStep): void => {
         this.currentStep = step;
@@ -97,6 +101,10 @@ export class DeleteChatStore {
 
         ChatApi.deleteChat(chatId, requestData)
             .then(() => {
+                if (this.routerStore) {
+                    this.routerStore.goTo(Routes.myChats);
+                }
+
                 this.entities.chats.deleteById(chatId);
 
                 if (requestData) {

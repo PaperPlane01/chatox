@@ -10,11 +10,9 @@ import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Mono
 
 @Service
-@Transactional
 class UserServiceImpl(private val userRepository: UserRepository,
                       private val userCacheService: ReactiveCacheService<User, String>,
                       private val userMapper: UserMapper) : UserService {
@@ -28,14 +26,18 @@ class UserServiceImpl(private val userRepository: UserRepository,
                 userCacheService.put(user).subscribe()
             }
 
-            userMapper.toUserResponse(user!!)
+            return@mono userMapper.toUserResponse(user!!)
         }
     }
 
-    override fun findUserByIdAndPutInLocalCache(id: String, localCache: MutableMap<String, UserResponse>?): Mono<UserResponse> {
+    override fun findUserByIdAndPutInLocalCache(id: String?, localCache: MutableMap<String, UserResponse>?): Mono<UserResponse> {
         return mono {
+            if (id == null) {
+                return@mono null
+            }
+
             if (localCache != null && localCache.containsKey(id)) {
-                localCache[id]!!
+                return@mono localCache[id]!!
             } else {
                 val user = findUserById(id).awaitFirst()
 
@@ -43,9 +45,8 @@ class UserServiceImpl(private val userRepository: UserRepository,
                     localCache[id] = user
                 }
 
-                user
+                return@mono user
             }
         }
     }
-
 }

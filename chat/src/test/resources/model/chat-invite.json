@@ -1,0 +1,15 @@
+{
+  "id": "65b3d575246b717d690474f1",
+  "_class": "chatox.chat.model.ChatInvite",
+  "active": true,
+  "chatId": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+  "createdAt": "2024-01-26T22:53:25.004Z",
+  "createdBy": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+  "joinAllowanceSettings": {
+    "ANONYMOUS": "ALLOWED",
+    "REGISTERED": "ALLOWED",
+    "EMAIL_VERIFIED": "ALLOWED"
+  },
+  "name": "Test invite",
+  "useTimes": 0
+}

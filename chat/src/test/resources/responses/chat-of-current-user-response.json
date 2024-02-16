@@ -1,0 +1,516 @@
+{
+  "id": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+  "slug": "test",
+  "lastReadMessage": {
+    "id": "5d823b22-3945-40e0-a17e-05be50ade5a3",
+    "text": "",
+    "referredMessage": null,
+    "sender": {
+      "id": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+      "firstName": "Test",
+      "lastName": null,
+      "slug": "testuser",
+      "avatarUri": null,
+      "deleted": false,
+      "bio": "__Hello, world!__",
+      "lastSeen": "2023-09-29T19:27:05.789Z",
+      "dateOfBirth": "1900-01-14T00:00:00.000Z",
+      "createdAt": "2021-01-31T15:48:29.868Z",
+      "online": true,
+      "avatar": {
+        "id": "650c53d24601db875936da28",
+        "name": "650c53d24601db875936da28.jpg",
+        "extension": "jpg",
+        "mimeType": "image/jpeg",
+        "meta": {
+          "width": 4669,
+          "height": 3926
+        },
+        "preview": null,
+        "type": "IMAGE",
+        "originalName": "wallhaven-j3gvwq.jpg",
+        "uri": "http://localhost:8080/api/v1/uploads/images/650c53d24601db875936da28.jpg",
+        "size": 5096972
+      },
+      "anonymous": false,
+      "externalAvatarUri": null
+    },
+    "deleted": false,
+    "createdAt": "2023-09-28T18:42:25.0258608Z",
+    "updatedAt": null,
+    "readByCurrentUser": true,
+    "chatId": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+    "emoji": {
+      "emojiPositions": [],
+      "emoji": {}
+    },
+    "attachments": [],
+    "index": 354,
+    "pinned": false,
+    "pinnedAt": null,
+    "pinnedBy": null,
+    "scheduledAt": null,
+    "sticker": {
+      "id": "61969ac255e84a1dd36fae28",
+      "stickerPackId": "61969ac255e84a1dd36fae26",
+      "image": {
+        "id": "61968e77404913462c8bd1b4",
+        "name": "61968e77404913462c8bd1b4.png",
+        "extension": "png",
+        "mimeType": "image/png",
+        "meta": {
+          "width": 512,
+          "height": 512
+        },
+        "preview": null,
+        "type": "IMAGE",
+        "originalName": "2.png",
+        "uri": "http://localhost:8080/api/v1/uploads/images/61968e77404913462c8bd1b4.png",
+        "size": 149813
+      },
+      "keywords": [
+        "мило",
+        "cute"
+      ],
+      "emojis": [
+        {
+          "id": "relaxed",
+          "name": "White Smiling Face",
+          "short_names": [
+            "relaxed"
+          ],
+          "colons": ":relaxed:",
+          "emoticons": [],
+          "unified": "263a-fe0f",
+          "skin": null,
+          "native": "☺️",
+          "originalSet": "apple"
+        }
+      ]
+    },
+    "senderChatRole": {
+      "id": "62a8e835a904df34e9cf331c",
+      "name": "OWNER",
+      "chatId": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+      "default": false,
+      "templateId": "62a48d50c26d2e19f3c80a9f",
+      "features": {
+        "sendMessages": {
+          "enabled": true,
+          "additional": {
+            "allowedToSendStickers": true,
+            "allowedToSendImages": true,
+            "allowedToSendAudios": true,
+            "allowedToSendVideos": true,
+            "allowedToSendFiles": true,
+            "allowedToSendVoiceMessages": true
+          }
+        },
+        "blockUsers": {
+          "enabled": true,
+          "additional": {
+            "allowPermanent": true
+          }
+        },
+        "kickUsers": {
+          "enabled": true,
+          "additional": {}
+        },
+        "deleteOwnMessages": {
+          "enabled": true,
+          "additional": {}
+        },
+        "deleteOtherUsersMessages": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": 4,
+            "fromLevel": null
+          }
+        },
+        "scheduleMessages": {
+          "enabled": true,
+          "additional": {}
+        },
+        "deleteChat": {
+          "enabled": true,
+          "additional": {}
+        },
+        "changeChatSettings": {
+          "enabled": true,
+          "additional": {}
+        },
+        "modifyChatRoles": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": null,
+            "fromLevel": null
+          }
+        },
+        "assignChatRole": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": null,
+            "fromLevel": null
+          }
+        },
+        "kickImmunity": {
+          "enabled": true,
+          "additional": {}
+        },
+        "blockingImmunity": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": null,
+            "fromLevel": null
+          }
+        },
+        "messageDeletionsImmunity": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": null,
+            "fromLevel": null
+          }
+        },
+        "showRoleNameInMessages": {
+          "enabled": true,
+          "additional": {}
+        },
+        "pinMessages": {
+          "enabled": true,
+          "additional": {}
+        }
+      },
+      "createdAt": "2022-06-14T19:57:41.73Z",
+      "createdBy": null,
+      "updatedAt": "2023-08-05T10:05:28.3110553Z",
+      "updatedBy": null,
+      "level": 5
+    }
+  },
+  "name": "New chat",
+  "avatarUri": null,
+  "chatParticipation": {
+    "id": "619687bb0f8068005cb46b9c",
+    "role": {
+      "id": "62a8e835a904df34e9cf331c",
+      "name": "OWNER",
+      "chatId": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+      "default": false,
+      "templateId": "62a48d50c26d2e19f3c80a9f",
+      "features": {
+        "sendMessages": {
+          "enabled": true,
+          "additional": {
+            "allowedToSendStickers": true,
+            "allowedToSendImages": true,
+            "allowedToSendAudios": true,
+            "allowedToSendVideos": true,
+            "allowedToSendFiles": true,
+            "allowedToSendVoiceMessages": true
+          }
+        },
+        "blockUsers": {
+          "enabled": true,
+          "additional": {
+            "allowPermanent": true
+          }
+        },
+        "kickUsers": {
+          "enabled": true,
+          "additional": {}
+        },
+        "deleteOwnMessages": {
+          "enabled": true,
+          "additional": {}
+        },
+        "deleteOtherUsersMessages": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": 4,
+            "fromLevel": null
+          }
+        },
+        "scheduleMessages": {
+          "enabled": true,
+          "additional": {}
+        },
+        "deleteChat": {
+          "enabled": true,
+          "additional": {}
+        },
+        "changeChatSettings": {
+          "enabled": true,
+          "additional": {}
+        },
+        "modifyChatRoles": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": null,
+            "fromLevel": null
+          }
+        },
+        "assignChatRole": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": null,
+            "fromLevel": null
+          }
+        },
+        "kickImmunity": {
+          "enabled": true,
+          "additional": {}
+        },
+        "blockingImmunity": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": null,
+            "fromLevel": null
+          }
+        },
+        "messageDeletionsImmunity": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": null,
+            "fromLevel": null
+          }
+        },
+        "showRoleNameInMessages": {
+          "enabled": true,
+          "additional": {}
+        },
+        "pinMessages": {
+          "enabled": true,
+          "additional": {}
+        }
+      },
+      "createdAt": "2022-06-14T19:57:41.73Z",
+      "createdBy": null,
+      "updatedAt": "2023-08-05T10:05:28.3110553Z",
+      "updatedBy": null,
+      "level": 5
+    },
+    "activeChatBlocking": null
+  },
+  "unreadMessagesCount": 0,
+  "lastMessage": {
+    "id": "5d823b22-3945-40e0-a17e-05be50ade5a3",
+    "text": "",
+    "referredMessage": null,
+    "sender": {
+      "id": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+      "firstName": "Test",
+      "lastName": null,
+      "slug": "testuser",
+      "avatarUri": null,
+      "deleted": false,
+      "bio": "__Hello, world!__",
+      "lastSeen": "2023-09-29T19:27:05.789Z",
+      "dateOfBirth": "1900-01-14T00:00:00.000Z",
+      "createdAt": "2021-01-31T15:48:29.868Z",
+      "online": true,
+      "avatar": {
+        "id": "650c53d24601db875936da28",
+        "name": "650c53d24601db875936da28.jpg",
+        "extension": "jpg",
+        "mimeType": "image/jpeg",
+        "meta": {
+          "width": 4669,
+          "height": 3926
+        },
+        "preview": null,
+        "type": "IMAGE",
+        "originalName": "wallhaven-j3gvwq.jpg",
+        "uri": "http://localhost:8080/api/v1/uploads/images/650c53d24601db875936da28.jpg",
+        "size": 5096972
+      },
+      "anonymous": false,
+      "externalAvatarUri": null
+    },
+    "deleted": false,
+    "createdAt": "2023-09-28T18:42:25.0258608Z",
+    "updatedAt": null,
+    "readByCurrentUser": false,
+    "chatId": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+    "emoji": {
+      "emojiPositions": [],
+      "emoji": {}
+    },
+    "attachments": [],
+    "index": 354,
+    "pinned": false,
+    "pinnedAt": null,
+    "pinnedBy": null,
+    "scheduledAt": null,
+    "sticker": {
+      "id": "61969ac255e84a1dd36fae28",
+      "stickerPackId": "61969ac255e84a1dd36fae26",
+      "image": {
+        "id": "61968e77404913462c8bd1b4",
+        "name": "61968e77404913462c8bd1b4.png",
+        "extension": "png",
+        "mimeType": "image/png",
+        "meta": {
+          "width": 512,
+          "height": 512
+        },
+        "preview": null,
+        "type": "IMAGE",
+        "originalName": "2.png",
+        "uri": "http://localhost:8080/api/v1/uploads/images/61968e77404913462c8bd1b4.png",
+        "size": 149813
+      },
+      "keywords": [
+        "мило",
+        "cute"
+      ],
+      "emojis": [
+        {
+          "id": "relaxed",
+          "name": "White Smiling Face",
+          "short_names": [
+            "relaxed"
+          ],
+          "colons": ":relaxed:",
+          "emoticons": [],
+          "unified": "263a-fe0f",
+          "skin": null,
+          "native": "☺️",
+          "originalSet": "apple"
+        }
+      ]
+    },
+    "senderChatRole": {
+      "id": "62a8e835a904df34e9cf331c",
+      "name": "OWNER",
+      "chatId": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+      "default": false,
+      "templateId": "62a48d50c26d2e19f3c80a9f",
+      "features": {
+        "sendMessages": {
+          "enabled": true,
+          "additional": {
+            "allowedToSendStickers": true,
+            "allowedToSendImages": true,
+            "allowedToSendAudios": true,
+            "allowedToSendVideos": true,
+            "allowedToSendFiles": true,
+            "allowedToSendVoiceMessages": true
+          }
+        },
+        "blockUsers": {
+          "enabled": true,
+          "additional": {
+            "allowPermanent": true
+          }
+        },
+        "kickUsers": {
+          "enabled": true,
+          "additional": {}
+        },
+        "deleteOwnMessages": {
+          "enabled": true,
+          "additional": {}
+        },
+        "deleteOtherUsersMessages": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": 4,
+            "fromLevel": null
+          }
+        },
+        "scheduleMessages": {
+          "enabled": true,
+          "additional": {}
+        },
+        "deleteChat": {
+          "enabled": true,
+          "additional": {}
+        },
+        "changeChatSettings": {
+          "enabled": true,
+          "additional": {}
+        },
+        "modifyChatRoles": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": null,
+            "fromLevel": null
+          }
+        },
+        "assignChatRole": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": null,
+            "fromLevel": null
+          }
+        },
+        "kickImmunity": {
+          "enabled": true,
+          "additional": {}
+        },
+        "blockingImmunity": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": null,
+            "fromLevel": null
+          }
+        },
+        "messageDeletionsImmunity": {
+          "enabled": true,
+          "additional": {
+            "upToLevel": null,
+            "fromLevel": null
+          }
+        },
+        "showRoleNameInMessages": {
+          "enabled": true,
+          "additional": {}
+        },
+        "pinMessages": {
+          "enabled": true,
+          "additional": {}
+        }
+      },
+      "createdAt": "2022-06-14T19:57:41.73Z",
+      "createdBy": null,
+      "updatedAt": "2023-08-05T10:05:28.3110553Z",
+      "updatedBy": null,
+      "level": 5
+    }
+  },
+  "createdAt": "2021-11-18T17:04:59.192Z",
+  "description": "Description",
+  "tags": [
+    "test",
+    " chat"
+  ],
+  "participantsCount": 3,
+  "onlineParticipantsCount": 0,
+  "avatar": {
+    "id": "626d6f7c2b5f2e53405aecc1",
+    "name": "626d6f7c2b5f2e53405aecc1.jpg",
+    "extension": "jpg",
+    "mimeType": "image/jpeg",
+    "meta": {
+      "width": 2560,
+      "height": 1440
+    },
+    "preview": null,
+    "type": "IMAGE",
+    "originalName": "windows_xp_original-wallpaper-2560x1440.jpg",
+    "uri": "http://localhost:8080/api/v1/uploads/images/626d6f7c2b5f2e53405aecc1.jpg",
+    "size": 891668
+  },
+  "createdByCurrentUser": true,
+  "deleted": false,
+  "type": "GROUP",
+  "deletionReason": null,
+  "deletionComment": null,
+  "user": null,
+  "slowMode": {
+    "enabled": true,
+    "interval": 1,
+    "unit": "MINUTES"
+  },
+  "hideFromSearch": false
+}

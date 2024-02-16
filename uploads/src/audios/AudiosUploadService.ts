@@ -1,75 +1,98 @@
-import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
+import {HttpException, HttpStatus, Injectable, InternalServerErrorException, Logger} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Request, Response} from "express";
 import {Model, Types} from "mongoose";
 import {createReadStream, promises as fileSystem} from "fs";
 import path from "path";
-import {fromFile} from "file-type";
 import contentDisposition from "content-disposition";
-import {AudioUploadMetadata, Upload, UploadType} from "../mongoose/entities";
-import {UploadMapper} from "../common/mappers";
+import audioToWaveformData from "audioform";
 import {MultipartFile} from "../common/types/request";
-import {UploadInfoResponse} from "../common/types/response";
 import {config} from "../config";
-import {CurrentUserHolder} from "../context/CurrentUserHolder";
 import {FfmpegWrapper} from "../ffmpeg";
+import {AudioUploadMetadata, Upload, UploadDocument, UploadType} from "../uploads";
+import {UploadMapper} from "../uploads/mappers";
+import {UploadResponse} from "../uploads/types/responses";
+import {User} from "../auth";
+import {getFileType} from "../utils/file-utils";
 
 const SUPPORTED_AUDIO_FORMATS = [
     "mp3",
     "ogg",
-    "flac"
+    "flac",
+    "webm"
 ];
+const VOICE_MESSAGE_FORMAT = "mp3";
 
 const isAudioFormatSupported = (format: string): boolean => SUPPORTED_AUDIO_FORMATS.includes(format);
 
 @Injectable()
 export class AudiosUploadService {
-    constructor(@InjectModel("upload") private readonly uploadModel: Model<Upload<AudioUploadMetadata>>,
+    private readonly log = new Logger(AudiosUploadService.name);
+
+    constructor(@InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<AudioUploadMetadata>>,
                 private readonly uploadMapper: UploadMapper,
-                private readonly currentUserHolder: CurrentUserHolder,
                 private readonly ffmpegFactory: FfmpegWrapper) {
 
     }
 
-    public async uploadAudio(multipartFile: MultipartFile, originalName?: string): Promise<UploadInfoResponse<AudioUploadMetadata>> {
-        return new Promise<UploadInfoResponse<AudioUploadMetadata>>(async (resolve, reject) => {
-            const currentUser = this.currentUserHolder.getCurrentUser();
-            const id = new Types.ObjectId().toHexString();
-            const temporaryFilePath = path.join(config.AUDIOS_DIRECTORY, `${id}.tmp`);
-            const fileHandle = await fileSystem.open(temporaryFilePath, "w");
-            await fileSystem.writeFile(fileHandle, multipartFile.buffer);
-            await fileHandle.close();
+    public async uploadAudio(
+        multipartFile: MultipartFile,
+        currentUser: User,
+        voiceMessage = false,
+        originalName?: string,
+    ): Promise<UploadResponse<AudioUploadMetadata>> {
+        const id = new Types.ObjectId();
+        let temporaryFilePath = path.join(config.AUDIOS_DIRECTORY, `${id.toHexString()}.tmp`);
+        const fileHandle = await fileSystem.open(temporaryFilePath, "w");
+        await fileSystem.writeFile(fileHandle, multipartFile.buffer);
+        await fileHandle.close();
 
-            const fileInfo = await fromFile(temporaryFilePath);
+        const fileInfo = await getFileType(temporaryFilePath);
 
-            if (!isAudioFormatSupported(fileInfo.ext)) {
-                reject(new HttpException(
-                    `Audio format ${fileInfo.ext} is not supported`,
-                    HttpStatus.BAD_REQUEST
-                ));
-            }
+        if (!isAudioFormatSupported(fileInfo.ext)) {
+            throw new HttpException(
+                `Audio format ${fileInfo.ext} is not supported`,
+                HttpStatus.BAD_REQUEST
+            );
+        }
 
-            const permanentFilePath = path.join(config.AUDIOS_DIRECTORY, `${id}.${fileInfo.ext}`);
-            await fileSystem.rename(temporaryFilePath, permanentFilePath);
+        let converted = false;
+        let size = multipartFile.size;
+        let mimeType = fileInfo.mime;
 
-            const meta = await this.getAudioMetadata(permanentFilePath);
+        if (fileInfo.ext === "webm" && voiceMessage) {
+            const oldPath = temporaryFilePath;
+            temporaryFilePath = await this.convertWebmToMp3(temporaryFilePath);
+            await fileSystem.unlink(oldPath);
+            size = (await fileSystem.stat(temporaryFilePath)).size;
+            mimeType = "audio/mpeg";
+            converted = true;
+        }
 
-            const audio: Upload<AudioUploadMetadata> = new this.uploadModel({
-                id,
-                name: `${id}.${fileInfo.ext}`,
-                originalName: originalName ? originalName : multipartFile.originalname,
-                size: multipartFile.size,
-                mimeType: fileInfo.mime,
-                extension: fileInfo.ext,
-                isThumbnail: false,
-                isPreview: false,
-                meta,
-                type: UploadType.AUDIO,
-                userId: currentUser!.id
-            });
-            await audio.save();
-            resolve(this.uploadMapper.toUploadInfoResponse(audio));
-        })
+        const extension = converted ? VOICE_MESSAGE_FORMAT : fileInfo.ext;
+        const permanentFilePath = path.join(config.AUDIOS_DIRECTORY, `${id}.${extension}`);
+        await fileSystem.rename(temporaryFilePath, permanentFilePath);
+
+        const meta = await this.getAudioMetadata(permanentFilePath);
+
+        if (voiceMessage && extension === VOICE_MESSAGE_FORMAT) {
+            meta.waveForm = await this.generateWaveform(permanentFilePath);
+        }
+
+        const audio = new Upload({
+            _id: id,
+            name: `${id.toHexString()}.${extension}`,
+            originalName: originalName || multipartFile.originalname,
+            size,
+            mimeType,
+            extension,
+            meta,
+            type: voiceMessage ? UploadType.VOICE_MESSAGE : UploadType.AUDIO,
+            userId: currentUser.id
+        });
+        await new this.uploadModel(audio).save();
+
+        return this.uploadMapper.toUploadResponse(audio);
     }
 
     private getAudioMetadata(audioPath: string): Promise<AudioUploadMetadata> {
@@ -78,6 +101,7 @@ export class AudiosUploadService {
                 .ffmpeg(audioPath)
                 .ffprobe((error, data) => {
                     if (error) {
+                        console.log(error);
                         reject(error);
                     }
 
@@ -85,8 +109,31 @@ export class AudiosUploadService {
                         duration: data.format.duration * 1000,
                         bitrate: Number(data.format.bit_rate)
                     })
-                })
+                });
+        });
+    }
+
+    private convertWebmToMp3(path: string): Promise<string> {
+        const resultPath = `${path}.mp3`;
+
+        return new Promise((resolve, reject) => {
+            this.ffmpegFactory
+                .ffmpeg(path)
+                .noVideo()
+                .audioCodec("libmp3lame")
+                .audioBitrate(192)
+                .save(resultPath)
+                .on("end", () => resolve(resultPath))
+                .on("error", error => {
+                    this.log.error("Error occurred when tried to convert webm to mp3", error);
+                    reject(new InternalServerErrorException("Could not convert file"));
+                });
         })
+    }
+
+    private async generateWaveform(audioPath: string): Promise<number[]> {
+        const buffer = await fileSystem.readFile(audioPath);
+        return await audioToWaveformData(buffer);
     }
 
     public async getAudio(audioName: string, response: Response): Promise<void> {
@@ -139,7 +186,13 @@ export class AudiosUploadService {
 
     private async findAudioByName(audioName: string): Promise<Upload<AudioUploadMetadata>> {
         const audio = await this.uploadModel.findOne({
-            name: audioName
+            name: audioName,
+            type: {
+                $in: [
+                    UploadType.AUDIO,
+                    UploadType.VOICE_MESSAGE
+                ]
+            }
         });
 
         if (!audio) {

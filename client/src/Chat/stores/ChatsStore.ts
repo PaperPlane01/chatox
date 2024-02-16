@@ -1,6 +1,6 @@
-import {action, computed, observable, makeObservable, override} from "mobx";
-import {createTransformer} from "mobx-utils";
-import {mergeWith} from "lodash";
+import {action, computed, makeObservable, observable, override} from "mobx";
+import {computedFn} from "mobx-utils";
+import {mergeWith, uniq} from "lodash";
 import {ChatOfCurrentUserEntity} from "../types";
 import {SoftDeletableEntityStore} from "../../entity-store";
 import {
@@ -8,7 +8,8 @@ import {
     ChatOfCurrentUser,
     ChatParticipation,
     ChatType,
-    CurrentUser
+    CurrentUser,
+    populateJoinAllowanceSettings
 } from "../../api/types/response";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {mergeCustomizer} from "../../utils/object-utils";
@@ -61,10 +62,10 @@ export class ChatsStore extends SoftDeletableEntityStore<
         });
     }
 
-    findBySlug = createTransformer((slug: string) => {
+    findBySlug = computedFn((slug: string) => {
         const chats = this.ids.map(id => this.findById(id));
         return chats.find(chat => chat.slug === slug);
-    });
+    })
 
     onChatUpdated = (chatUpdated: ChatUpdated): void => {
         const chat = this.findByIdOptional(chatUpdated.id);
@@ -79,7 +80,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
         chat.description = chatUpdated.description;
 
         this.insertEntity(chat);
-    };
+    }
 
     onPrivateChatCreated = (privateChatCreated: PrivateChatCreated): void => {
         if (!this.currentUser) {
@@ -120,7 +121,9 @@ export class ChatsStore extends SoftDeletableEntityStore<
             createdByCurrentUser: privateChatCreated.message.sender.id === this.currentUser.id,
             onlineParticipantsCount: 0,
             scheduledMessages: [],
-            tags: []
+            tags: [],
+            joinAllowanceSettings: populateJoinAllowanceSettings({}),
+            hideFromSearch: true
         };
         patch.ids.chats.push(privateChatCreated.id);
 
@@ -131,13 +134,13 @@ export class ChatsStore extends SoftDeletableEntityStore<
             ...patches,
             mergeCustomizer
         ));
-    };
+    }
 
     setLastMessageOfChat = (chatId: string, messageId: string): void => {
         const chat = this.findById(chatId);
         chat.lastMessage = messageId;
         this.insertEntity(chat);
-    };
+    }
 
     setLastReadMessageOfChat = (chatId: string, messageId: string): void => {
         const chat = this.findById(chatId);
@@ -154,7 +157,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
 
         chat.unreadMessagesCount = chat.unreadMessagesCount + 1;
         this.insertEntity(chat);
-    };
+    }
 
     decreaseUnreadMessagesCountOfChat = (chatId: string): void => {
         const chat = this.findByIdOptional(chatId);
@@ -167,13 +170,13 @@ export class ChatsStore extends SoftDeletableEntityStore<
             chat.unreadMessagesCount = chat.unreadMessagesCount - 1;
             this.insertEntity(chat);
         }
-    };
+    }
 
     setUnreadMessagesCountOfChat = (chatId: string, unreadMessagesCount: number): void => {
         const chat = this.findById(chatId);
         chat.unreadMessagesCount = unreadMessagesCount;
         this.insertEntity(chat);
-    };
+    }
 
     addMessageToChat = (chatId: string, messageId: string, messageIndex: number, skipSettingLastMessage: boolean = false): void => {
         const chat = this.findByIdOptional(chatId);
@@ -190,7 +193,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
         }
 
         this.insertEntity(chat);
-    };
+    }
 
     addScheduledMessageToChat = (chatId: string, messageId: string): void => {
         const chat = this.findByIdOptional(chatId);
@@ -201,17 +204,17 @@ export class ChatsStore extends SoftDeletableEntityStore<
 
         chat.scheduledMessages = Array.from(new Set([...chat.scheduledMessages, messageId]));
         this.insertEntity(chat);
-    };
+    }
 
     addScheduledMessagesToChat = (chatId: string, messageIds: string[]): void => {
         messageIds.forEach(messageId => this.addScheduledMessageToChat(chatId, messageId));
-    };
+    }
 
     removeScheduledMessageFromChat = (chatId: string, messageIdToDelete: string): void => {
         const chat = this.findById(chatId);
         chat.scheduledMessages = chat.scheduledMessages.filter(messageId => messageId !== messageIdToDelete);
         this.insertEntity(chat);
-    };
+    }
 
     increaseChatParticipantsCount = (chatId: string): void => {
         const chat = this.findByIdOptional(chatId);
@@ -220,7 +223,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
             chat.participantsCount++;
             this.insertEntity(chat);
         }
-    };
+    }
 
     decreaseChatParticipantsCount = (chatId: string): void => {
         const chat = this.findByIdOptional(chatId);
@@ -229,7 +232,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
             chat.participantsCount--;
             this.insertEntity(chat);
         }
-    };
+    }
 
     deleteById(id: string, options?: DeleteChatOptions): void {
         if (!options) {
@@ -297,14 +300,20 @@ export class ChatsStore extends SoftDeletableEntityStore<
 
             if (denormalizedEntity.lastReadMessage) {
                 patches.push(
-                    this.entities.messages.createPatch(denormalizedEntity.lastReadMessage, {skipSettingLastMessage: true})
+                    this.entities.messages.createPatch(denormalizedEntity.lastReadMessage, {
+                        skipSettingLastMessage: true,
+                        skipUpdatingChat: true
+                    })
                 );
                 chat.lastReadMessage = denormalizedEntity.lastReadMessage.id;
                 chat.messages.push(denormalizedEntity.lastReadMessage.id);
             }
 
             if (denormalizedEntity.lastMessage) {
-                patches.push(this.entities.messages.createPatch(denormalizedEntity.lastMessage, {skipSettingLastMessage: true}));
+                patches.push(this.entities.messages.createPatch(denormalizedEntity.lastMessage, {
+                    skipSettingLastMessage: true,
+                    skipUpdatingChat: true
+                }));
                 chat.lastMessage = denormalizedEntity.lastMessage.id;
                 chat.messages.push(denormalizedEntity.lastMessage.id);
             }
@@ -312,6 +321,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
             if (denormalizedEntity.avatar) {
                 patches.push(this.entities.uploads.createPatch(denormalizedEntity.avatar));
             }
+
+            chat.messages = uniq(chat.messages);
 
             patch.entities.chats[denormalizedEntity.id] = chat;
             patch.ids.chats.push(chat.id);
@@ -342,8 +353,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
         return {
             id: denormalizedEntity.id,
             avatarUri: denormalizedEntity.avatarUri,
-            lastMessage: denormalizedEntity.lastMessage && denormalizedEntity.lastMessage.id,
-            lastReadMessage: denormalizedEntity.lastReadMessage && denormalizedEntity.lastReadMessage.id,
+            lastMessage: denormalizedEntity.lastMessage?.id,
+            lastReadMessage: denormalizedEntity.lastReadMessage?.id,
             name: denormalizedEntity.name,
             slug: denormalizedEntity.slug,
             createdAt: new Date(denormalizedEntity.createdAt),
@@ -352,10 +363,9 @@ export class ChatsStore extends SoftDeletableEntityStore<
             unreadMessagesCount,
             participantsCount: denormalizedEntity.participantsCount,
             participants: [],
-            currentUserParticipationId: denormalizedEntity.chatParticipation
-                && denormalizedEntity.chatParticipation.id,
+            currentUserParticipationId: denormalizedEntity.chatParticipation?.id,
             description: denormalizedEntity.description,
-            avatarId: denormalizedEntity.avatar && denormalizedEntity.avatar.id,
+            avatarId: denormalizedEntity.avatar?.id,
             createdByCurrentUser: denormalizedEntity.createdByCurrentUser,
             tags: denormalizedEntity.tags,
             onlineParticipantsCount: denormalizedEntity.onlineParticipantsCount,
@@ -364,7 +374,10 @@ export class ChatsStore extends SoftDeletableEntityStore<
             deletionReason: denormalizedEntity.deletionReason,
             scheduledMessages: [],
             userId: denormalizedEntity.user ? denormalizedEntity.user.id : undefined,
-            type: denormalizedEntity.type
+            type: denormalizedEntity.type,
+            slowMode: denormalizedEntity.slowMode,
+            joinAllowanceSettings: populateJoinAllowanceSettings(denormalizedEntity.joinAllowanceSettings),
+            hideFromSearch: denormalizedEntity.hideFromSearch
         }
     }
 }

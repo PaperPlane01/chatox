@@ -1,25 +1,42 @@
-import React, {FunctionComponent, useState} from "react";
+import React, {ChangeEvent, FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
-import {Button, MenuItem, ListItemIcon, ListItemText} from "@mui/material";
-import {Audiotrack} from "@mui/icons-material";
+import {Button, ListItemIcon, ListItemText, MenuItem} from "@mui/material";
+import {AudioFile, Audiotrack} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
+import {AudioType} from "../../AudioPlayer";
+import {UploadType} from "../../api/types/response";
 
 interface AttachAudioMenuItemProps {
     buttonClassName?: string,
+    audioType?: AudioType,
     onClick?: () => void
 }
 
 export const AttachAudioMenuItem: FunctionComponent<AttachAudioMenuItemProps> = observer(({
     buttonClassName,
-    onClick
+    onClick,
+    audioType = UploadType.AUDIO
 }) => {
     const {
         messageUploads: {
-            attachAudios
+            attachAudios,
+            attachVoiceMessages
         }
     } = useStore();
     const {l} = useLocalization();
     const [dummyInputValue, setDummyInputValue] = useState("");
+
+    const handleSelect = (event: ChangeEvent<HTMLInputElement>): void => {
+        if (!event.target.files) {
+            return;
+        }
+
+        if (audioType === UploadType.AUDIO) {
+            attachAudios(event.target.files);
+        } else {
+            attachVoiceMessages(event.target.files);
+        }
+    };
 
     return (
         <MenuItem onClick={onClick}
@@ -32,10 +49,13 @@ export const AttachAudioMenuItem: FunctionComponent<AttachAudioMenuItemProps> = 
                     className={buttonClassName}
             >
                 <ListItemIcon>
-                    <Audiotrack/>
+                    {audioType === UploadType.AUDIO ? <Audiotrack/> : <AudioFile/>}
                 </ListItemIcon>
                 <ListItemText>
-                    {l("file.audio")}
+                    {audioType === UploadType.AUDIO
+                        ? l("file.audio")
+                        : l("message.voice.from-file")
+                    }
                 </ListItemText>
                 <input type="file"
                        multiple
@@ -43,9 +63,7 @@ export const AttachAudioMenuItem: FunctionComponent<AttachAudioMenuItemProps> = 
                        style={{display: "none"}}
                        accept=".mp3"
                        onClick={() => setDummyInputValue("")}
-                       onChange={event => {
-                           event.target.files && attachAudios(event.target.files);
-                       }}
+                       onChange={handleSelect}
                 />
             </Button>
         </MenuItem>

@@ -4,10 +4,11 @@ import {Message} from "../types/response";
 import {
     CreateMessageRequest,
     DeleteMultipleMessagesRequest,
+    ForwardMessagesRequest,
     UpdateMessageRequest,
     UpdateScheduledMessageRequest
 } from "../types/request";
-import {CHATS, MESSAGES, MY, PIN, PINNED, PUBLISH, READ, SCHEDULED, UNPIN} from "../endpoints";
+import {CHATS, FORWARD, MESSAGES, MY, PIN, PINNED, PUBLISH, READ, SCHEDULED, UNPIN} from "../endpoints";
 
 export class MessageApi {
     public static getMessagesByChat(chatId: string): AxiosPromise<Message[]> {
@@ -80,5 +81,9 @@ export class MessageApi {
 
     public static searchMessagesInChatsOfCurrentUser(query: string): AxiosPromise<Message[]> {
         return axiosInstance.get(`/${CHATS}/${MY}/${MESSAGES}?query=${query}`);
+    }
+
+    public static forwardMessages(chatId: string, forwardMessagesRequest: ForwardMessagesRequest): AxiosPromise<Message[]> {
+        return axiosInstance.post(`/${CHATS}/${chatId}/${MESSAGES}/${FORWARD}`, forwardMessagesRequest);
     }
 }

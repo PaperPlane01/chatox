@@ -35,8 +35,6 @@ export const _RepostsActions = forwardRef<HTMLDivElement, ReportsActionsProps>((
     const {l} = useLocalization();
     const classes = useStyles();
 
-    console.log(ref)
-
     if (props.children.length === 0) {
         return null;
     }

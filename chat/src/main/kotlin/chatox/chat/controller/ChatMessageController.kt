@@ -1,15 +1,19 @@
 package chatox.chat.controller
 
 import chatox.chat.api.request.CreateMessageRequest
+import chatox.chat.api.request.ForwardMessagesRequest
 import chatox.chat.api.request.UpdateMessageRequest
+import chatox.chat.service.CreateMessageService
 import chatox.chat.service.MessageSearchService
 import chatox.chat.service.MessageService
+import chatox.chat.service.ScheduledMessageService
 import chatox.platform.pagination.PaginationRequest
 import chatox.platform.pagination.annotation.PageSize
 import chatox.platform.pagination.annotation.PaginationConfig
 import chatox.platform.pagination.annotation.SortBy
 import chatox.platform.pagination.annotation.SortDirection
 import chatox.platform.security.reactive.annotation.ReactivePermissionCheck
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -22,12 +26,14 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/chats")
-class ChatMessageController(private val messageService: MessageService,
-                            private val messageSearchService: MessageSearchService) {
+class ChatMessageController(
+        private val messageService: MessageService,
+        private val createMessageService: CreateMessageService,
+        private val messageSearchService: MessageSearchService,
+        private val scheduledMessageService: ScheduledMessageService) {
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
@@ -35,7 +41,7 @@ class ChatMessageController(private val messageService: MessageService,
     @PostMapping("/{chatId}/messages")
     fun createMessage(@PathVariable chatId: String,
                       @RequestBody @Valid createMessageRequest: CreateMessageRequest
-    ) = messageService.createMessage(chatId, createMessageRequest)
+    ) = createMessageService.createMessage(chatId, createMessageRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
@@ -45,6 +51,14 @@ class ChatMessageController(private val messageService: MessageService,
                       @PathVariable messageId: String,
                       @RequestBody @Valid updateMessageRequest: UpdateMessageRequest
     ) = messageService.updateMessage(messageId, chatId,updateMessageRequest)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canCreateMessage(#chatId)")
+    @PostMapping("/{chatId}/messages/forward")
+    fun forwardMessages(@PathVariable chatId: String,
+                        @RequestBody @Valid forwardMessagesRequest: ForwardMessagesRequest
+    ) = createMessageService.forwardMessages(chatId, forwardMessagesRequest)
 
     //language=SpEL
     @ReactivePermissionCheck("@messagePermissions.canReadMessages(#chatId)")
@@ -107,9 +121,11 @@ class ChatMessageController(private val messageService: MessageService,
 
     //language=SpEL
     @ReactivePermissionCheck("@messagePermissions.canReadMessages(#chatId)")
+    //language=Kotlin
     @PaginationConfig(
             pageSize = PageSize(defaultValue = 200, max = 300),
-            sortBy = SortBy(defaultValue = "createdAt", allowed = ["createdAt"])
+            sortBy = SortBy(defaultValue = "createdAt", allowed = ["createdAt"]),
+            sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping("/{chatId}/messages", params = ["query"])
     fun searchMessages(@PathVariable chatId: String,
@@ -131,7 +147,7 @@ class ChatMessageController(private val messageService: MessageService,
     //language=SpEL
     @ReactivePermissionCheck("@messagePermissions.canSeeScheduledMessages(#chatId)")
     @GetMapping("/{chatId}/messages/scheduled")
-    fun findScheduledMessagesBuChat(@PathVariable("chatId") chatId: String) = messageService.findScheduledMessagesByChat(chatId)
+    fun findScheduledMessagesBuChat(@PathVariable("chatId") chatId: String) = scheduledMessageService.findScheduledMessagesByChat(chatId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
@@ -139,7 +155,7 @@ class ChatMessageController(private val messageService: MessageService,
     @DeleteMapping("/{chatId}/messages/scheduled/{messageId}")
     fun deleteScheduledMessage(@PathVariable chatId: String,
                                @PathVariable messageId: String
-    ) = messageService.deleteScheduledMessage(chatId, messageId)
+    ) = scheduledMessageService.deleteScheduledMessage(chatId, messageId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
@@ -148,7 +164,7 @@ class ChatMessageController(private val messageService: MessageService,
     fun updateScheduledMessage(@PathVariable chatId: String,
                                @PathVariable messageId: String,
                                @RequestBody updateMessageRequest: UpdateMessageRequest
-    ) = messageService.updateScheduledMessage(chatId, messageId, updateMessageRequest)
+    ) = scheduledMessageService.updateScheduledMessage(chatId, messageId, updateMessageRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
@@ -156,7 +172,7 @@ class ChatMessageController(private val messageService: MessageService,
     @PostMapping("/{chatId}/messages/scheduled/{messageId}/publish")
     fun publishScheduledMessage(@PathVariable chatId: String,
                                 @PathVariable messageId: String
-    ) = messageService.publishScheduledMessage(chatId, messageId)
+    ) = scheduledMessageService.publishScheduledMessage(chatId, messageId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @PostMapping("/{chatId}/messages/{messageId}/read")

@@ -2,18 +2,17 @@ import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Response} from "express";
 import {Model, Types} from "mongoose";
-import ffmpeg from "fluent-ffmpeg";
-import {fromFile} from "file-type";
 import graphicsMagic, {Dimensions} from "gm";
 import {promises as fileSystem, createReadStream} from "fs";
 import path from "path";
-import {ImageUploadMetadata, Upload, UploadType, VideoUploadMetadata} from "../mongoose/entities";
-import {UploadMapper} from "../common/mappers";
 import {MultipartFile} from "../common/types/request";
-import {UploadInfoResponse} from "../common/types/response";
 import {config} from "../config";
-import {CurrentUserHolder} from "../context/CurrentUserHolder";
 import {FfmpegWrapper} from "../ffmpeg";
+import {ImageUploadMetadata, Upload, UploadDocument, UploadType, VideoUploadMetadata} from "../uploads";
+import {UploadMapper} from "../uploads/mappers";
+import {UploadResponse} from "../uploads/types/responses";
+import {User} from "../auth";
+import {getFileType} from "../utils/file-utils";
 
 const gm = graphicsMagic.subClass({imageMagick: true});
 
@@ -34,55 +33,52 @@ const isVideoFormatSupported = (format: string): boolean => SUPPORTED_VIDEO_FORM
 
 @Injectable()
 export class VideosUploadService {
-    constructor(@InjectModel("upload") private readonly uploadModel: Model<Upload<VideoUploadMetadata | ImageUploadMetadata>>,
+    constructor(@InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<VideoUploadMetadata | ImageUploadMetadata>>,
                 private readonly uploadMapper: UploadMapper,
-                private readonly currentUserHolder: CurrentUserHolder,
                 private readonly ffmpegWrapper: FfmpegWrapper) {
 
     }
 
-    public uploadVideo(multipartFile: MultipartFile): Promise<UploadInfoResponse<VideoUploadMetadata>> {
-        return new Promise<UploadInfoResponse<VideoUploadMetadata>>(async (resolve, reject) => {
-            const currentUser = this.currentUserHolder.getCurrentUser();
-            const id = new Types.ObjectId().toHexString();
-            const temporaryFilePath = path.join(config.VIDEOS_DIRECTORY, `${id}.tmp`);
-            const fileHandle = await fileSystem.open(temporaryFilePath, "w");
-            await fileSystem.writeFile(fileHandle, multipartFile.buffer);
-            await fileHandle.close();
+    public async uploadVideo(multipartFile: MultipartFile, currentUser: User): Promise<UploadResponse<VideoUploadMetadata>> {
+        const id = new Types.ObjectId();
+        const temporaryFilePath = path.join(config.VIDEOS_DIRECTORY, `${id.toHexString()}.tmp`);
+        const fileHandle = await fileSystem.open(temporaryFilePath, "w");
+        await fileSystem.writeFile(fileHandle, multipartFile.buffer);
+        await fileHandle.close();
 
-            const fileInfo = await fromFile(temporaryFilePath);
+        const fileInfo = await getFileType(temporaryFilePath);
 
-            if (isVideoFormatSupported(fileInfo.ext)) {
-                const permanentFilePath = path.join(config.VIDEOS_DIRECTORY, `${id}.${fileInfo.ext}`);
-                await fileSystem.rename(temporaryFilePath, permanentFilePath);
-                const meta = await this.getVideoMetadata(permanentFilePath);
-                const previewImage = await this.saveVideoPreview(permanentFilePath);
-                const thumbnail = await this.saveVideoThumbnail(permanentFilePath);
+        if (!isVideoFormatSupported(fileInfo.ext)) {
+            throw new HttpException(
+                `Video format ${fileInfo.ext} is not supported`,
+                HttpStatus.BAD_REQUEST
+            );
+        } else {
+            const permanentFilePath = path.join(config.VIDEOS_DIRECTORY, `${id.toHexString()}.${fileInfo.ext}`);
+            await fileSystem.rename(temporaryFilePath, permanentFilePath);
+            const meta = await this.getVideoMetadata(permanentFilePath);
+            const previewImage = await this.saveVideoPreview(permanentFilePath);
+            const thumbnail = await this.saveVideoThumbnail(permanentFilePath);
 
-                const video: Upload<VideoUploadMetadata> = new this.uploadModel({
-                    id,
-                    name: `${id}.${fileInfo.ext}`,
-                    mimeType: fileInfo.mime,
-                    meta,
-                    previewImage,
-                    thumbnail,
-                    type: UploadType.VIDEO,
-                    isPreview: false,
-                    isThumbnail: false,
-                    originalName: multipartFile.originalname,
-                    size: multipartFile.size,
-                    extension: fileInfo.ext,
-                    userId: currentUser!.id
-                }) as Upload<VideoUploadMetadata>;
-                await video.save();
-                resolve(this.uploadMapper.toUploadInfoResponse(video));
-            } else {
-                reject(new HttpException(
-                    `Video format ${fileInfo.ext} is not supported`,
-                    HttpStatus.BAD_REQUEST
-                ));
-            }
-        })
+            const video = new Upload({
+                _id: id,
+                name: `${id}.${fileInfo.ext}`,
+                mimeType: fileInfo.mime,
+                meta,
+                previewImage,
+                thumbnails: [thumbnail],
+                type: UploadType.VIDEO,
+                isPreview: false,
+                isThumbnail: false,
+                originalName: multipartFile.originalname,
+                size: multipartFile.size,
+                extension: fileInfo.ext,
+                userId: currentUser!.id
+            });
+            await new this.uploadModel(video).save();
+
+            return this.uploadMapper.toUploadResponse(video);
+        }
     }
 
     private getVideoMetadata(videoPath: string): Promise<VideoUploadMetadata> {
@@ -121,8 +117,8 @@ export class VideosUploadService {
 
     private saveVideoPreview(videoPath: string): Promise<Upload<ImageUploadMetadata>> {
         return new Promise<Upload<ImageUploadMetadata>>((resolve, reject) => {
-            const imageId = new Types.ObjectId().toHexString();
-            const imageName = `${imageId}.jpg`;
+            const imageId = new Types.ObjectId();
+            const imageName = `${imageId.toHexString()}.jpg`;
             const imagePath = path.join(config.IMAGES_DIRECTORY, imageName);
 
             this.ffmpegWrapper
@@ -134,15 +130,15 @@ export class VideosUploadService {
                     timemarks: [0]
                 })
                 .on("end", async () => {
-                    const fileInfo = await fromFile(imagePath);
+                    const fileInfo = await getFileType(imagePath);
                     const {width, height} = await this.getImageDimensions(imagePath);
                     const fileStats = await fileSystem.stat(imagePath);
                     const meta: ImageUploadMetadata = {
                         width,
                         height
                     };
-                    const videoPreview: Upload<ImageUploadMetadata> = new this.uploadModel({
-                        id: imageId,
+                    const videoPreview = new Upload({
+                        _id: imageId,
                         name: imageName,
                         mimeType: fileInfo.mime,
                         extension: fileInfo.ext,
@@ -153,7 +149,7 @@ export class VideosUploadService {
                         isThumbnail: false,
                         isPreview: true
                     });
-                    await videoPreview.save();
+                    await new this.uploadModel(videoPreview).save();
                     resolve(videoPreview);
                 })
                 .on("error", error => {
@@ -164,8 +160,8 @@ export class VideosUploadService {
 
     private saveVideoThumbnail(videoPath: string): Promise<Upload<ImageUploadMetadata>> {
         return new Promise<Upload<ImageUploadMetadata>>((resolve, reject) => {
-            const imageId = new Types.ObjectId().toHexString();
-            const imageName = `${imageId}.jpg`;
+            const imageId = new Types.ObjectId();
+            const imageName = `${imageId.toHexString()}.jpg`;
             const imagePath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, imageName);
 
             this.ffmpegWrapper
@@ -179,14 +175,14 @@ export class VideosUploadService {
                 .on("end", async () => {
                     await this.resizeImageToThumbnail(imagePath);
                     const {width, height} = await this.getImageDimensions(imagePath);
-                    const fileInfo = await fromFile(imagePath);
+                    const fileInfo = await getFileType(imagePath);
                     const fileStats = await fileSystem.stat(imagePath);
                     const meta: ImageUploadMetadata = {
                         width,
                         height
                     };
-                    const videoThumbnail: Upload<ImageUploadMetadata> = new this.uploadModel({
-                        id: imageId,
+                    const videoThumbnail = new Upload({
+                        _id: imageId,
                         name: imageName,
                         mimeType: fileInfo.mime,
                         extension: fileInfo.ext,
@@ -197,9 +193,10 @@ export class VideosUploadService {
                         isThumbnail: true,
                         isPreview: false
                     });
-                    await videoThumbnail.save();
+                    await new this.uploadModel(videoThumbnail).save();
                     resolve(videoThumbnail);
                 })
+                .on("error", error => reject(error));
         })
     }
 

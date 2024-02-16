@@ -87,7 +87,6 @@ class ChatParticipationPermissions(private val chatBlockingService: ChatBlocking
             )
                     .awaitFirstOrNull() ?: return@mono false;
 
-            val chatRole = chatRoleService.findRoleByIdAndChatId(roleId = updateChatParticipantRequest.roleId, chatId = chatId).awaitFirst()
             val chatParticipation = chatParticipationService.findChatParticipationById(chatParticipationId).awaitFirst()
 
             if (currentUserChatParticipation.id === chatParticipation.id) {
@@ -108,7 +107,27 @@ class ChatParticipationPermissions(private val chatBlockingService: ChatBlocking
                 return@mono true
             }
 
+            val chatRole = chatRoleService.findRoleByIdAndChatId(
+                    roleId = updateChatParticipantRequest.roleId,
+                    chatId = chatId
+            )
+                    .awaitFirst()
+
             return@mono assignRoleFeature.additional.upToLevel <= chatRole.level
+        }
+    }
+
+    fun canApproveChatParticipants(chatId: String): Mono<Boolean> {
+        return mono {
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
+
+            val (currentUserRole, _) = chatRoleService.getRoleAndChatParticipationOfUserInChat(
+                    userId = currentUser.id,
+                    chatId = chatId
+            )
+                    .awaitFirstOrNull() ?: return@mono false;
+
+            return@mono currentUserRole.features.approveJoinChatRequests.enabled
         }
     }
 }

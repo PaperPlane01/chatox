@@ -6,6 +6,7 @@ import {
     CardHeader,
     Divider,
     FormControlLabel,
+    FormHelperText,
     Radio,
     RadioGroup,
     Switch,
@@ -29,7 +30,11 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
             sendMessageButton,
             setSendMessageButton,
             enablePartialVirtualization,
-            setEnablePartialVirtualization
+            setEnablePartialVirtualization,
+            useSharedWorker,
+            setUseSharedWorker,
+            sendTypingNotification,
+            setSendTypingNotification
         }
     } = useStore();
     const {l} = useLocalization();
@@ -54,6 +59,12 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                                           value={SendMessageButton.ENTER}
                         />
                     </RadioGroup>
+                    <FormControlLabel control={
+                        <Switch checked={sendTypingNotification}
+                                onChange={() => setSendTypingNotification(!sendTypingNotification)}/>
+                    }
+                                      label={l("settings.chat.send-typing-notification")}
+                    />
                 </Fragment>
                 <Divider/>
                 <Typography variant="h6">
@@ -85,6 +96,22 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                                       label={l("settings.chat.virtual-scroll.enable-partial-virtualization")}
                     />
                 )}
+                <Divider/>
+                <Typography variant="h6">
+                    {l("settings.chat.server-connection")}
+                </Typography>
+                <Fragment>
+                    <FormControlLabel control={
+                        <Switch checked={useSharedWorker}
+                                onChange={() => setUseSharedWorker(!useSharedWorker)}
+                        />
+                    }
+                                      label={l("settings.chat.use-shared-worker")}
+                    />
+                    <FormHelperText>
+                        {l("settings.chat.use-shared-worker.explained")}
+                    </FormHelperText>
+                </Fragment>
             </CardContent>
         </Card>
     );

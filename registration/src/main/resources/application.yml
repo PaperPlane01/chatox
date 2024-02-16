@@ -6,12 +6,16 @@ spring:
       client:
         provider:
           registration-service:
-            token-uri: ${TOKEN_URL:http://localhost:8080/oauth/token}
+            token-uri: ${TOKEN_URL:http://localhost:8080/oauth2/token}
         registration:
           registration-service:
             client-id: ${REGISTRATION_SERVICE_CLIENT_ID:9e6f556f-0321-4b11-b6b0-ddb7da2ead16}
             client-secret: ${REGISTRATION_SERVICE_CLIENT_SECRET:secret}
             authorization-grant-type: client_credentials
+            scope:
+              - internal_create_user
+              - internal_create_account
+              - internal_update_account
 server:
   port: 8084
 eureka:

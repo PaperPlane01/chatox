@@ -29,7 +29,9 @@ data class ChatFeatures(
         val blockingImmunity: LevelBasedFeatureData = LevelBasedFeatureData(enabled = false),
         val messageDeletionsImmunity: LevelBasedFeatureData = LevelBasedFeatureData(enabled = false),
         val showRoleNameInMessages: DefaultChatFeatureData = DefaultChatFeatureData(enabled = false),
-        val pinMessages: DefaultChatFeatureData = DefaultChatFeatureData(enabled = false)
+        val pinMessages: DefaultChatFeatureData = DefaultChatFeatureData(enabled = false),
+        val manageInvites: DefaultChatFeatureData = DefaultChatFeatureData(enabled = false),
+        val approveJoinChatRequests: DefaultChatFeatureData = DefaultChatFeatureData(enabled = false)
 ) {
     @get:JsonIgnore
     val enabled: List<ChatFeatureData<*>>
@@ -50,6 +52,8 @@ data class ChatFeatures(
             blockingImmunity,
             messageDeletionsImmunity,
             showRoleNameInMessages,
-            pinMessages
+            pinMessages,
+            manageInvites,
+            approveJoinChatRequests
     )
 }

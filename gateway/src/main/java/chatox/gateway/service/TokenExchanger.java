@@ -21,7 +21,7 @@ public class TokenExchanger {
     private final WebClient.Builder loadBalancedWebClientBuilder;
 
     private static final String OAUTH2_SERVICE_ID = "oauth2-service";
-    private static final String EXCHANGE_TOKEN = "oauth/exchangeToken";
+    private static final String EXCHANGE_TOKEN = "oauth2/exchangeToken";
 
     public Mono<String> exchangeAccessTokenToJwtToken(String accessToken) {
         var exchangeTokenRequest = new ExchangeTokenRequest(accessToken);
@@ -32,8 +32,7 @@ public class TokenExchanger {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(exchangeTokenRequest), ExchangeTokenRequest.class)
-                .exchange()
-                .doOnNext(clientResponse -> {
+                .exchangeToMono(clientResponse -> {
                     if (clientResponse.statusCode().isError()) {
                         if (clientResponse.statusCode().equals(HttpStatus.UNAUTHORIZED)) {
                             throw new AccessTokenExpiredException("Access token is either expired or invalid");
@@ -46,8 +45,9 @@ public class TokenExchanger {
 
                         throw new InternalServerErrorException();
                     }
+
+                    return clientResponse.bodyToMono(ExchangeTokenResponse.class);
                 })
-                .flatMap(clientResponse -> clientResponse.bodyToMono(ExchangeTokenResponse.class))
                 .map(ExchangeTokenResponse::getJwt);
 
     }

@@ -10,3 +10,7 @@ export * from "./StickerApi";
 export * from "./BlacklistApi";
 export * from "./ChatRoleApi";
 export * from "./ChatParticipantApi";
+export * from "./RewardApi";
+export * from "./WalletApi";
+export * from "./UserInteractionsApi";
+export * from "./ChatInviteApi";

@@ -1,7 +1,10 @@
-import {EntitiesStore, RawEntitiesStore} from "../entities-store";
-import {LocaleStore} from "../localization";
 import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore, LoginWithGoogleStore} from "../Authorization";
+import {AuthorizationStore, LoginStore, LoginWithGoogleStore} from "../Authorization/stores";
+import {
+    PasswordRecoveryDialogStore,
+    RecoverPasswordStore,
+    SendPasswordRecoveryEmailConfirmationCodeStore
+} from "../PasswordRecovery";
 import {
     AnonymousRegistrationDialogStore,
     RegistrationDialogStore,
@@ -16,24 +19,47 @@ import {
     CreateChatStore,
     DeleteChatStore,
     LeaveChatStore,
+    PendingChatsOfCurrentUserStore,
     PopularChatsStore,
+    TypingUsersStore,
     UpdateChatStore
 } from "../Chat";
 import {
+    ApproveJoinChatRequestsStore,
     ChatParticipantsSearchStore,
     ChatParticipantsStore,
+    JoinChatRequestsStore,
     JoinChatStore,
     KickChatParticipantStore,
     OnlineChatParticipantsStore,
-    UpdateChatParticipantStore,
+    RejectJoinChatRequestsStore,
+    UpdateChatParticipantStore
 } from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
+import {LocaleStore} from "../localization";
+import {EntitiesStore, RawEntitiesStore} from "../entities-store";
+import {
+    CreateUserProfilePhotoStore,
+    DeleteSelectedUserProfilePhotosStore,
+    DeleteUserProfilePhotoStore,
+    EditProfileStore,
+    PasswordChangeFormSubmissionStore,
+    PasswordChangeStepStore,
+    PasswordChangeStore,
+    SelectedUserProfilePhotosStore,
+    SendPasswordChangeEmailConfirmationCodeStore,
+    SetPhotoAsAvatarStore,
+    UserProfilePhotosGalleryStore,
+    UserProfileStore
+} from "../User";
 import {
     ClosedPinnedMessagesStore,
     CreateMessageStore,
+    DeleteMessageStore,
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     EmojiPickerTabsStore,
+    ForwardMessagesStore,
     MarkMessageReadStore,
     MessageDialogStore,
     MessagesListScrollPositionsStore,
@@ -41,6 +67,7 @@ import {
     PinMessageStore,
     PinnedMessagesStore,
     PublishScheduledMessageStore,
+    RecordVoiceMessageStore,
     ScheduledMessagesOfChatStore,
     ScheduleMessageStore,
     SearchMessagesStore,
@@ -51,14 +78,6 @@ import {
 } from "../Message";
 import {WebsocketStore} from "../websocket";
 import {
-    EditProfileStore,
-    PasswordChangeFormSubmissionStore,
-    PasswordChangeStepStore,
-    PasswordChangeStore,
-    SendPasswordChangeEmailConfirmationCodeStore,
-    UserProfileStore
-} from "../User";
-import {
     BlockUserInChatByIdOrSlugStore,
     CancelChatBlockingStore,
     ChatBlockingInfoDialogStore,
@@ -68,33 +87,27 @@ import {
     UpdateChatBlockingStore
 } from "../ChatBlocking";
 import {UploadImageStore} from "../Upload";
-import {SettingsTabsStore} from "../Settings/stores";
+import {SettingsTabsStore} from "../Settings";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
-import {EmojiSettingsStore} from "../Emoji/stores";
-import {AudioPlayerStore} from "../AudioPlayer/stores";
-import {
-    PasswordRecoveryDialogStore,
-    RecoverPasswordStore,
-    SendPasswordRecoveryEmailConfirmationCodeStore
-} from "../PasswordRecovery";
-import {DeleteMessageStore} from "../Message/stores/DeleteMessageStore";
+import {EmojiSettingsStore} from "../Emoji";
+import {AudioPlayerStore} from "../AudioPlayer";
 import {
     BanUserStore,
     CancelGlobalBanStore,
     GlobalBanDetailsDialogStore,
     GlobalBansListStore,
     UpdateGlobalBanStore
-} from "../GlobalBan/stores";
+} from "../GlobalBan";
 import {
     BanUsersRelatedToSelectedReportsStore,
     CreateReportStore,
     CurrentReportsListStore,
     DeclineSelectedReportsStore,
+    DeleteSelectedReportedMessagesStore,
     ReportedMessageDialogStore,
     ReportsListStore,
     UpdateSelectedReportsStore
-} from "../Report/stores";
-import {DeleteSelectedReportedMessagesStore} from "../Report/stores/DeleteSelectedReportedMessagesStore";
+} from "../Report";
 import {
     CreateStickerPackStore,
     InstalledStickerPacksStore,
@@ -126,6 +139,32 @@ import {
     UpdateEmailStore
 } from "../EmailUpdate";
 import {ThemeStore} from "../Theme";
+import {
+    ClaimableRewardsStore,
+    CreateRewardStore,
+    RewardClaimStore,
+    RewardDetailsDialogStore,
+    RewardDetailsStore,
+    RewardsListStore,
+    UpdateRewardStore
+} from "../Reward";
+import {BalanceStore} from "../Balance";
+import {
+    CreateUserInteractionStore,
+    UserInteractionCostsStore,
+    UserInteractionsCountStore,
+    UserInteractionsHistoryStore
+} from "../UserInteraction";
+import {ChatManagementTabStore} from "../ChatManagement";
+import {SelectUserStore} from "../UserSelect";
+import {
+    ChatInviteDialogStore,
+    ChatInviteInfoStore,
+    ChatInviteListStore,
+    CreateChatInviteStore,
+    JoinChatByInviteStore,
+    UpdateChatInviteStore
+} from "../ChatInvite";
 
 export interface IAppState {
     language: LocaleStore,
@@ -245,5 +284,41 @@ export interface IAppState {
     newEmailConfirmationCode: SendNewEmailConfirmationCodeStore,
     newEmailConfirmationCodeCheck: CheckEmailConfirmationCodeStore,
     emailUpdate: UpdateEmailStore,
-    theme: ThemeStore
+    theme: ThemeStore,
+    rewardCreation: CreateRewardStore,
+    rewardCreationUserSelect: SelectUserStore,
+    rewardUpdate: UpdateRewardStore,
+    rewardUpdateUserSelect: SelectUserStore,
+    rewardsList: RewardsListStore,
+    rewardDetails: RewardDetailsStore,
+    rewardDetailsDialog: RewardDetailsDialogStore,
+    claimableRewards: ClaimableRewardsStore,
+    rewardClaim: RewardClaimStore,
+    balance: BalanceStore,
+    userInteractionsCount: UserInteractionsCountStore,
+    userInteractionCosts: UserInteractionCostsStore,
+    userInteractionCreation: CreateUserInteractionStore,
+    userInteractionsHistory: UserInteractionsHistoryStore,
+    userProfilePhotosGallery: UserProfilePhotosGalleryStore,
+    userProfilePhotoCreation: CreateUserProfilePhotoStore,
+    selectedUserPhotos: SelectedUserProfilePhotosStore,
+    deleteSelectedUserPhotos: DeleteSelectedUserProfilePhotosStore,
+    setPhotoAsAvatar: SetPhotoAsAvatarStore,
+    deleteUserPhoto: DeleteUserProfilePhotoStore,
+    typingUsers: TypingUsersStore,
+    messagesForwarding: ForwardMessagesStore,
+    chatManagement: ChatManagementTabStore,
+    pendingChats: PendingChatsOfCurrentUserStore,
+    chatInviteCreation: CreateChatInviteStore,
+    chatInviteCreationUserSelect: SelectUserStore,
+    chatInviteUpdate: UpdateChatInviteStore,
+    chatInviteUpdateUserSelect: SelectUserStore,
+    chatInviteList: ChatInviteListStore,
+    chatInviteDialog: ChatInviteDialogStore,
+    chatInvite: ChatInviteInfoStore,
+    joinChatByInvite: JoinChatByInviteStore,
+    joinChatRequests: JoinChatRequestsStore,
+    joinChatRequestsApproval: ApproveJoinChatRequestsStore,
+    joinChatRequestsRejection: RejectJoinChatRequestsStore,
+    voiceRecording: RecordVoiceMessageStore
 }

@@ -1,51 +1,82 @@
 package chatox.chat.service.impl
 
+import chatox.chat.api.request.PendingChatParticipantsRequest
 import chatox.chat.api.request.UpdateChatParticipationRequest
 import chatox.chat.api.response.ChatParticipationMinifiedResponse
 import chatox.chat.api.response.ChatParticipationResponse
+import chatox.chat.api.response.PendingChatParticipationResponse
 import chatox.chat.api.response.UserResponse
+import chatox.chat.cache.DefaultRoleOfChatCacheWrapper
+import chatox.chat.exception.ChatInviteNotFoundException
 import chatox.chat.exception.ChatParticipationNotFoundException
 import chatox.chat.exception.ChatRoleNotFoundException
+import chatox.chat.exception.PendingChatParticipationNotFoundException
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
+import chatox.chat.exception.metadata.JoinChatRejectedException
 import chatox.chat.mapper.ChatParticipationMapper
+import chatox.chat.mapper.UserMapper
 import chatox.chat.messaging.rabbitmq.event.ChatParticipationDeleted
 import chatox.chat.messaging.rabbitmq.event.UserLeftChat
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
+import chatox.chat.model.ChatInvite
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
+import chatox.chat.model.ChatType
+import chatox.chat.model.JoinChatAllowance
+import chatox.chat.model.JoinChatRejectionReason
+import chatox.chat.model.PendingChatParticipation
 import chatox.chat.model.User
+import chatox.chat.repository.mongodb.ChatInviteRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.ChatRoleRepository
+import chatox.chat.repository.mongodb.PendingChatParticipationRepository
+import chatox.chat.service.ChatInviteService
+import chatox.chat.service.ChatParticipantsCountService
 import chatox.chat.service.ChatParticipationService
+import chatox.chat.util.mapTo2Lists
+import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
+import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
-import java.util.UUID
 
 @Service
-@Transactional
 @LogExecution
 class ChatParticipationServiceImpl(private val chatParticipationRepository: ChatParticipationRepository,
                                    private val chatRoleRepository: ChatRoleRepository,
                                    private val chatRepository: ChatRepository,
-                                   private val chatParticipationMapper: ChatParticipationMapper,
+                                   private val chatInviteRepository: ChatInviteRepository,
+                                   private val pendingChatParticipationRepository: PendingChatParticipationRepository,
+                                   private val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String>,
+                                   private val defaultRoleOfChatCacheWrapper: DefaultRoleOfChatCacheWrapper,
+                                   private val chatInviteService: ChatInviteService,
+                                   private val chatParticipantsCountService: ChatParticipantsCountService,
                                    private val chatEventsPublisher: ChatEventsPublisher,
-                                   private val authenticationHolder: ReactiveAuthenticationHolder<User>): ChatParticipationService {
+                                   private val userMapper: UserMapper,
+                                   private val authenticationHolder: ReactiveAuthenticationHolder<User>
+): ChatParticipationService {
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    override fun joinChat(chatId: String): Mono<ChatParticipationMinifiedResponse> {
+    private lateinit var chatParticipationMapper: ChatParticipationMapper
+
+    @Autowired
+    fun setChatParticipationMapper(chatParticipationMapper: ChatParticipationMapper) {
+        this.chatParticipationMapper = chatParticipationMapper
+    }
+
+    override fun joinChat(chatId: String, inviteId: String?): Mono<ChatParticipationMinifiedResponse> {
         return mono {
             val chat = chatRepository.findById(chatId).awaitFirst()
 
@@ -55,49 +86,154 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
 
             val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
 
-            var chatParticipation = chatParticipationRepository.findByChatIdAndUserAndDeletedTrue(
+            if (!checkPendingChatParticipation(chatId, currentUser.id).awaitFirst()) {
+                throw JoinChatRejectedException(JoinChatRejectionReason.AWAITING_APPROVAL)
+            }
+
+            var invite: ChatInvite? = null
+
+            if (inviteId != null) {
+                invite = findAndCheckInvite(chatId, inviteId).awaitFirst()
+            }
+
+            val chatParticipation = chatParticipationRepository.findByChatIdAndUserIdAndDeletedTrue(
                     chatId = chat.id,
-                    user = currentUser
+                    userId = currentUser.id
             )
                     .awaitFirstOrNull()
 
-            if (chatParticipation !== null) {
-                chatParticipation = chatParticipation.copy(
-                        deleted = false,
-                        deletedAt = null,
-                        deletedById = null
-                )
-                chatParticipation = chatParticipationRepository.save(chatParticipation).awaitFirst()
+            val allowance = if (invite != null) {
+                JoinChatAllowance.getAllowance(currentUser.verificationLevel, invite.joinAllowanceSettings)
             } else {
-                val chatRole = chatRoleRepository.findByChatIdAndDefaultTrue(chatId).awaitFirst()
-
-                var userDisplayedName = currentUser.firstName
-
-                if (currentUser.lastName != null) {
-                    userDisplayedName = "${currentUser.firstName} ${currentUser.lastName}"
-                }
-
-                chatParticipation = ChatParticipation(
-                        id = UUID.randomUUID().toString(),
-                        user = currentUser,
-                        chatId = chat.id,
-                        createdAt = ZonedDateTime.now(),
-                        role = chatRole,
-                        lastReadMessageId = null,
-                        userDisplayedName = userDisplayedName,
-                        userSlug = currentUser.slug
-                )
-                chatParticipation = chatParticipationRepository.save(chatParticipation).awaitFirst()
+                JoinChatAllowance.getAllowance(currentUser.verificationLevel, chat.joinAllowanceSettings)
             }
 
-            chatRepository.increaseNumberOfParticipants(chat.id).awaitFirst()
-            chatEventsPublisher.userJoinedChat(chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst())
+            when (allowance) {
+                JoinChatAllowance.ALLOWED -> return@mono createChatParticipation(
+                        chat = chat,
+                        user = currentUser,
+                        invite = invite,
+                        restoredChatParticipation = chatParticipation
+                )
+                        .awaitFirst()
+                JoinChatAllowance.INVITE_ONLY -> if (invite == null) {
+                    throw JoinChatRejectedException(JoinChatRejectionReason.INSUFFICIENT_VERIFICATION_LEVEL)
+                } else {
+                    return@mono createChatParticipation(
+                            chat = chat,
+                            user = currentUser,
+                            invite = invite,
+                            restoredChatParticipation = chatParticipation
+                    )
+                            .awaitFirst()
+                }
+                JoinChatAllowance.REQUIRES_APPROVAL -> return@mono createPendingChatParticipation(
+                        chat = chat,
+                        user = currentUser,
+                        invite = invite,
+                        restoredChatParticipation = chatParticipation
+                )
+                        .awaitFirst()
+                JoinChatAllowance.NOT_ALLOWED ->
+                    throw JoinChatRejectedException(JoinChatRejectionReason.INSUFFICIENT_VERIFICATION_LEVEL)
+            }
+        }
+    }
+
+    private fun findAndCheckInvite(chatId: String, inviteId: String): Mono<ChatInvite> {
+        return mono {
+            val chatInvite = chatInviteRepository.findByIdAndChatId(
+                    id = inviteId,
+                    chatId = chatId,
+                    activeOnly = true
+            )
+                    .awaitFirstOrNull() ?: throw ChatInviteNotFoundException(inviteId)
+            val chatInviteUsage = chatInviteService.getChatInviteUsageInfo(chatInvite).awaitFirst()
+
+            if (!chatInviteUsage.canBeUsed) {
+                throw JoinChatRejectedException(chatInviteUsage.rejectionReason!!)
+            }
+
+            return@mono chatInvite
+        }
+    }
+
+    private fun checkPendingChatParticipation(chatId: String, userId: String): Mono<Boolean> {
+        return this.pendingChatParticipationRepository.existsByChatIdAndUserId(
+                chatId = chatId,
+                userId = userId
+        )
+                .map { !it }
+    }
+
+    private fun createChatParticipation(
+            chat: Chat,
+            user: User,
+            invite: ChatInvite?,
+            restoredChatParticipation: ChatParticipation?
+    ): Mono<ChatParticipationMinifiedResponse> {
+        return mono {
+            val chatRole = chatRoleRepository.findByChatIdAndDefaultTrue(chat.id).awaitFirst()
+            val userDisplayedName = user.displayedName
+
+            val chatParticipation = restoredChatParticipation?.copy(
+                    deleted = false,
+                    deletedAt = null,
+                    deletedById = null
+            )
+                    ?: ChatParticipation(
+                            id = ObjectId().toHexString(),
+                            user = user,
+                            chatId = chat.id,
+                            chatType = chat.type,
+                            createdAt = ZonedDateTime.now(),
+                            role = chatRole,
+                            roleId = chatRole.id,
+                            lastReadMessageId = null,
+                            userDisplayedName = userDisplayedName,
+                            userSlug = user.slug,
+                            inviteId = invite?.id
+                    )
+            chatParticipationRepository.save(chatParticipation).awaitFirst()
+
+            if (invite != null) {
+                chatInviteRepository.updateChatInviteUsage(
+                        chatInvite = invite,
+                        lastUsedAt = chatParticipation.createdAt,
+                        lastUsedBy = user.id
+                )
+                        .awaitFirst()
+            }
+
+            chatParticipantsCountService.increaseChatParticipantsCount(chat.id).awaitFirst()
+            publishUserJoinedChat(chatParticipation, user, chatRole)
 
             return@mono chatParticipationMapper.toMinifiedChatParticipationResponse(chatParticipation).awaitFirst()
         }
     }
 
-    override fun leaveChat(chatId: String): Mono<Void> {
+    private fun createPendingChatParticipation(
+            chat: Chat,
+            user: User,
+            invite: ChatInvite?,
+            restoredChatParticipation: ChatParticipation? = null
+    ): Mono<ChatParticipationMinifiedResponse> {
+        return mono {
+            val pendingChatParticipation = PendingChatParticipation(
+                    id = ObjectId().toHexString(),
+                    createdAt = ZonedDateTime.now(),
+                    userId = user.id,
+                    inviteId = invite?.id,
+                    restoredChatParticipationId = restoredChatParticipation?.id,
+                    chatId = chat.id
+            )
+            pendingChatParticipationRepository.save(pendingChatParticipation).awaitFirst()
+
+            return@mono chatParticipationMapper.toMinifiedChatParticipationResponse(pendingChatParticipation)
+        }
+    }
+
+    override fun leaveChat(chatId: String): Mono<Unit> {
         return mono {
             val chat = chatRepository.findById(chatId).awaitFirst()
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
@@ -114,18 +250,23 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                     deletedById = currentUser.id
             )
             chatParticipation = chatParticipationRepository.save(chatParticipation).awaitFirst()
-            chatRepository.decreaseNumberOfOnlineParticipants(chat.id).awaitFirst()
+
+            if (chatParticipation.userOnline) {
+                chatParticipantsCountService.decreaseOnlineParticipantsCount(chatId).awaitFirst()
+            }
+
+            chatParticipantsCountService.decreaseChatParticipantsCount(chatId).awaitFirst()
+
             chatEventsPublisher.userLeftChat(
                     UserLeftChat(
                             userId = chatParticipation.user.id,
                             chatId = chatParticipation.chatId,
-                            chatParticipationId = chatParticipation.id!!
+                            chatParticipationId = chatParticipation.id
                     )
             )
 
-            return@mono Mono.empty<Void>()
+            return@mono
         }
-                .flatMap { it }
     }
 
     override fun updateChatParticipation(
@@ -151,7 +292,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 .switchIfEmpty(Mono.error(ChatParticipationNotFoundException("Could not find chat participation with id $id and chatId $chatId")))
     }
 
-    override fun deleteChatParticipation(id: String, chatId: String): Mono<Void> {
+    override fun deleteChatParticipation(id: String, chatId: String): Mono<Unit> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
 
@@ -168,29 +309,28 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
             chatParticipationRepository.save(chatParticipation).awaitFirst()
 
             if (chatParticipation.userOnline) {
-                chatRepository.decreaseNumberOfOnlineParticipants(chatParticipation.chatId).awaitFirst()
+                chatParticipantsCountService.decreaseOnlineParticipantsCount(chatParticipation.chatId).awaitFirst()
             }
 
-            chatRepository.decreaseNumberOfParticipants(chatParticipation.chatId).awaitFirst()
+            chatParticipantsCountService.decreaseChatParticipantsCount(chatParticipation.chatId).awaitFirst()
 
             log.info("Publishing chatParticipationDeleted event")
             chatEventsPublisher.chatParticipationDeleted(
                     ChatParticipationDeleted(
                             userId = chatParticipation.user.id,
                             chatId = chatParticipation.chatId,
-                            chatParticipationId = chatParticipation.id!!
+                            chatParticipationId = chatParticipation.id
                     )
             )
 
-            return@mono Mono.empty<Void>()
+            return@mono
         }
-                .flatMap { it }
     }
 
     override fun findParticipantsOfChat(chatId: String, paginationRequest: PaginationRequest): Flux<ChatParticipationResponse> {
         return mono {
             val chat = findChatById(chatId).awaitFirst()
-            return@mono mapChatParticipations(chatParticipationRepository.findByChatId(chat.id))
+            return@mono mapChatParticipations(chatParticipationRepository.findByChatIdAndDeletedFalse(chat.id))
         }
                 .flatMapMany { it }
     }
@@ -248,13 +388,209 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                 .flatMapMany { it }
     }
 
+    override fun findPendingChatParticipations(chatId: String, paginationRequest: PaginationRequest): Flux<PendingChatParticipationResponse> {
+        return mono {
+            val pendingChatParticipations = pendingChatParticipationRepository.findByChatIdOrderByCreatedAtAsc(
+                    chatId,
+                    paginationRequest.toPageRequest()
+            )
+                    .collectList()
+                    .awaitFirst()
 
-    private fun mapChatParticipations(chatParticipations: Flux<ChatParticipation>): Flux<ChatParticipationResponse> {
-        val usersCache = mutableMapOf<String, UserResponse>()
+            return@mono mapPendingChatParticipations(pendingChatParticipations)
+        }
+                .flatMapMany{ it }
+    }
 
+    override fun approveChatParticipants(chatId: String, pendingChatParticipantsRequest: PendingChatParticipantsRequest): Flux<ChatParticipationResponse> {
+        return mono {
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
+            val pendingChatParticipants = pendingChatParticipationRepository.findByChatIdAndIdIn(
+                    chatId = chatId,
+                    ids = pendingChatParticipantsRequest.pendingChatParticipantsIds
+            )
+                    .collectList()
+                    .awaitFirst()
+
+            if (pendingChatParticipantsRequest.pendingChatParticipantsIds.size != pendingChatParticipants.size) {
+                throw PendingChatParticipationNotFoundException(
+                        "Could not find some of the specified pending chat participations"
+                )
+            }
+
+            val (usersIds, restoredChatParticipationsIdsWithNulls) = mapTo2Lists(
+                    pendingChatParticipants,
+                    { it.userId },
+                    { it.restoredChatParticipationId }
+            )
+            val restoredChatParticipationsIds = restoredChatParticipationsIdsWithNulls
+                    .filterNotNull()
+
+            val users = userCacheWrapper
+                    .findByIds(usersIds)
+                    .collectList()
+                    .awaitFirst()
+                    .associateBy { user -> user.id }
+            val restoredChatParticipations = if (restoredChatParticipationsIds.isEmpty()) {
+                listOf()
+            } else {
+                chatParticipationRepository.findAllById(restoredChatParticipationsIds)
+                        .collectList()
+                        .awaitFirst()
+                        .map { chatParticipation -> chatParticipation.copy(
+                                deleted = false,
+                                deletedAt = null,
+                                deletedById = null
+                        ) }
+            }
+
+            val defaultRole = defaultRoleOfChatCacheWrapper.findByChatId(chatId).awaitFirst()
+            val chatParticipations = pendingChatParticipants
+                    .filter { pendingChatParticipation -> pendingChatParticipation.restoredChatParticipationId == null }
+                    .map { pendingChatParticipation ->
+                        val user = users[pendingChatParticipation.userId]!!
+
+                        return@map ChatParticipation(
+                                id = ObjectId().toHexString(),
+                                user = user,
+                                chatId = pendingChatParticipation.chatId,
+                                chatType = ChatType.GROUP,
+                                createdAt = ZonedDateTime.now(),
+                                role = defaultRole,
+                                roleId = defaultRole.id,
+                                lastReadMessageId = null,
+                                userDisplayedName = user.displayedName,
+                                userSlug = user.slug,
+                                inviteId = pendingChatParticipation.inviteId,
+                                approvedBy = currentUser.id
+                        )
+                    }
+                    .toMutableList()
+            chatParticipations.addAll(restoredChatParticipations)
+
+            chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
+            chatParticipantsCountService.increaseChatParticipantsCount(chatId, chatParticipations.size).awaitFirst()
+            val onlineIncrease = users.values.filter { user -> user.online ?: false }.size
+            chatParticipantsCountService.increaseOnlineParticipantsCount(chatId, onlineIncrease).awaitFirst()
+            chatInviteService.updateChatInviteFromApprovedChatParticipations(chatParticipations).awaitFirstOrNull()
+
+            pendingChatParticipationRepository.deleteAll(pendingChatParticipants).awaitFirstOrNull()
+
+            val usersCache = users
+                    .map { (id, user) -> Pair(id, userMapper.toUserResponse(user)) }
+                    .toMap()
+                    .toMutableMap()
+
+            val response = mapChatParticipations(
+                    chatParticipations = Flux.fromIterable(chatParticipations),
+                    usersCache = usersCache,
+                    chatRole = defaultRole
+            )
+                    .collectList()
+                    .awaitFirst()
+
+            response.forEach { chatParticipationResponse -> publishUserJoinedChat(chatParticipationResponse) }
+
+            return@mono response
+        }
+                .flatMapMany { Flux.fromIterable(it) }
+    }
+
+    private fun publishUserJoinedChat(chatParticipation: ChatParticipation, user: User, role: ChatRole? = null) {
+        mono {
+            val userResponse = userMapper.toUserResponse(user)
+            val usersCache = mutableMapOf(
+                    Pair(user.id, userResponse)
+            )
+            return@mono chatParticipationMapper.toChatParticipationResponse(
+                    chatParticipation = chatParticipation,
+                    localUsersCache = usersCache,
+                    chatRole = role
+            )
+                    .awaitFirst()
+        }
+                .map { chatParticipationResponse -> publishUserJoinedChat(chatParticipationResponse) }
+                .subscribe()
+    }
+
+    private fun publishUserJoinedChat(chatParticipation: ChatParticipationResponse) = Mono.fromRunnable<Unit> {
+        chatEventsPublisher.userJoinedChat(chatParticipation)
+    }
+            .subscribe()
+
+    override fun rejectChatParticipants(chatId: String, pendingChatParticipantsRequest: PendingChatParticipantsRequest): Mono<Unit> {
+        return mono {
+            val pendingChatParticipations = pendingChatParticipationRepository.findByChatIdAndIdIn(
+                    chatId = chatId,
+                    ids = pendingChatParticipantsRequest.pendingChatParticipantsIds
+            )
+                    .collectList()
+                    .awaitFirst()
+
+            if (pendingChatParticipantsRequest.pendingChatParticipantsIds.size != pendingChatParticipations.size) {
+                throw PendingChatParticipationNotFoundException(
+                        "Could not find some of the specified pending chat participations"
+                )
+            }
+
+            pendingChatParticipationRepository.deleteAll(pendingChatParticipations).awaitFirstOrNull()
+
+            return@mono
+        }
+    }
+
+    override fun findChatParticipationsByInvite(chatId: String, inviteId: String, paginationRequest: PaginationRequest): Flux<ChatParticipationResponse> {
+        return mapChatParticipations(chatParticipationRepository.findByChatIdAndInviteIdAndDeletedFalse(
+                chatId = chatId,
+                inviteId = inviteId,
+                pageable = paginationRequest.toPageRequest()
+        ))
+    }
+
+    override fun findPendingChatParticipationsByInvite(chatId: String, inviteId: String, paginationRequest: PaginationRequest): Flux<PendingChatParticipationResponse> {
+        return mono {
+            val pendingChatParticipations = pendingChatParticipationRepository.findByChatIdAndInviteId(
+                    chatId = chatId,
+                    inviteId = inviteId,
+                    pageable = paginationRequest.toPageRequest()
+            )
+                    .collectList()
+                    .awaitFirst()
+
+            return@mono mapPendingChatParticipations(pendingChatParticipations)
+        }
+                .flatMapMany { it }
+    }
+
+    private fun mapChatParticipations(
+            chatParticipations: Flux<ChatParticipation>,
+            usersCache: MutableMap<String, UserResponse> = mutableMapOf(),
+            chatRole: ChatRole? = null
+    ): Flux<ChatParticipationResponse> {
         return chatParticipations
-                .map { chatParticipation -> chatParticipationMapper.toChatParticipationResponse(chatParticipation, usersCache) }
-                .flatMap { it }
+                .flatMapSequential{ chatParticipation -> chatParticipationMapper.toChatParticipationResponse(
+                        chatParticipation,
+                        usersCache,
+                        chatRole
+                ) }
+    }
+
+    private fun mapPendingChatParticipations(pendingChatParticipations: List<PendingChatParticipation>): Flux<PendingChatParticipationResponse> {
+        return mono {
+            val usersIds = pendingChatParticipations.map { chatParticipation -> chatParticipation.userId }
+
+            if (usersIds.isEmpty()) {
+                return@mono Flux.empty()
+            }
+
+            val users = userCacheWrapper.findByIds(usersIds).collectList().awaitFirst()
+            val usersCache = users.associate { user -> Pair(user.id, userMapper.toUserResponse(user)) }
+
+            return@mono Flux.fromIterable(pendingChatParticipations.map { pendingChatParticipation ->
+                chatParticipationMapper.toPendingChatParticipationResponse(pendingChatParticipation, usersCache)
+            })
+        }
+                .flatMapMany { it }
     }
 
     private fun findChatById(chatId: String): Mono<Chat> {

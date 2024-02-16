@@ -20,7 +20,13 @@ export class RawEntitiesStore {
         reportedChats: {},
         stickers: {},
         stickerPacks: {},
-        chatRoles: {}
+        chatRoles: {},
+        rewards: {},
+        userRewards: {},
+        userInteractions: {},
+        userProfilePhotos: {},
+        chatInvites: {},
+        pendingChatParticipations: {}
     };
 
     ids: EntitiesIds = {
@@ -40,7 +46,13 @@ export class RawEntitiesStore {
         reportedChats: [],
         stickers: [],
         stickerPacks: [],
-        chatRoles: []
+        chatRoles: [],
+        rewards: [],
+        userRewards: [],
+        userInteractions: [],
+        userProfilePhotos: [],
+        chatInvites: [],
+        pendingChatParticipations: []
     };
 
     constructor() {
@@ -54,10 +66,10 @@ export class RawEntitiesStore {
             const entity = key as Entities;
             this.ids[entity] = union(this.ids[entity], patch.ids[entity]);
         });
-    };
+    }
 
     deleteEntity = (entityName: Entities, id: string): void => {
         this.ids[entityName] = this.ids[entityName].filter(entityId => entityId !== id);
         delete this.entities[entityName][id];
-    };
+    }
 }

@@ -18,6 +18,10 @@ export class AllChatsMessagesSearchStore {
         return this.chatsAndMessagesSearchQuery.query;
     }
 
+    get searchModeActive(): boolean {
+        return this.chatsAndMessagesSearchQuery.searchModeActive;
+    }
+
     constructor(private readonly chatsAndMessagesSearchQuery: ChatsAndMessagesSearchQueryStore,
                 private readonly entities: EntitiesStore) {
         makeAutoObservable(this);
@@ -33,11 +37,20 @@ export class AllChatsMessagesSearchStore {
             () => this.collapsed,
             () => this.searchMessages()
         );
+
+        reaction(
+            () => this.searchModeActive,
+            searchModeActive => {
+                if (!searchModeActive) {
+                    this.reset(false);
+                }
+            }
+        );
     }
 
     setCollapsed = (collapsed: boolean): void => {
         this.collapsed = collapsed;
-    };
+    }
 
     searchMessages = (): void => {
         if (this.collapsed) {
@@ -52,19 +65,22 @@ export class AllChatsMessagesSearchStore {
 
         MessageApi.searchMessagesInChatsOfCurrentUser(this.query)
             .then(({data}) => runInAction(() => {
-                this.entities.messages.insertAll(data, {skipSettingLastMessage: true});
+                this.entities.messages.insertAll(data, {
+                    skipSettingLastMessage: true,
+                    skipUpdatingChat: true
+                });
                 this.foundMessages = data.map(message => ({
                     chatId: message.chatId,
                     messageId: message.id
                 }));
             }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
-            .finally(() => this.pending = false);
-    };
+            .finally(() => runInAction(() => this.pending = false));
+    }
 
     reset = (pending: boolean = false): void => {
         this.error = undefined;
         this.pending = pending;
         this.foundMessages = [];
-    };
+    }
 }

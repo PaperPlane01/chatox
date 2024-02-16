@@ -1,7 +1,5 @@
-export * from "./ChatRolesDialog";
 export * from "./ChatRolesList";
 export * from "./ChatRolesListItem";
-export * from "./ChatRolesMenuItem";
 export * from "./BlockUsersInChatFeature";
 export * from "./ChatRoleFeatures";
 export * from "./ChatRoleInfoDialog";
@@ -12,3 +10,4 @@ export * from "./ChatRoleSelect";
 export * from "./CreateChatRoleDialog";
 export * from "./CreateChatRoleForm";
 export * from "./CreateChatRoleButton";
+export * from "./ChatRolesCard";

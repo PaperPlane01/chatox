@@ -1,14 +1,16 @@
 package chatox.oauth2.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
 @Entity
 @Data
@@ -17,8 +19,13 @@ import javax.persistence.Id;
 @Builder
 public class AuthorizedGrantType {
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    private String name;
+
+    @Enumerated(EnumType.STRING)
+    private GrantType name;
+
+    public AuthorizationGrantType toAuthorizationGrantType() {
+        return name.toAuthorizationGrantType();
+    }
 }

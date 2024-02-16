@@ -22,15 +22,20 @@ import {
     CreateChatStore,
     DeleteChatStore,
     LeaveChatStore,
+    PendingChatsOfCurrentUserStore,
     PopularChatsStore,
+    TypingUsersStore,
     UpdateChatStore
 } from "../Chat";
 import {
+    ApproveJoinChatRequestsStore,
     ChatParticipantsSearchStore,
     ChatParticipantsStore,
+    JoinChatRequestsStore,
     JoinChatStore,
     KickChatParticipantStore,
     OnlineChatParticipantsStore,
+    RejectJoinChatRequestsStore,
     UpdateChatParticipantStore,
 } from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
@@ -38,11 +43,17 @@ import {LocaleStore} from "../localization";
 import {EntitiesStore, RawEntitiesStore} from "../entities-store";
 import {
     createSetChangePasswordStepCallback,
+    CreateUserProfilePhotoStore,
+    DeleteSelectedUserProfilePhotosStore,
+    DeleteUserProfilePhotoStore,
     EditProfileStore,
     PasswordChangeFormSubmissionStore,
     PasswordChangeStepStore,
     PasswordChangeStore,
+    SelectedUserProfilePhotosStore,
     SendPasswordChangeEmailConfirmationCodeStore,
+    SetPhotoAsAvatarStore,
+    UserProfilePhotosGalleryStore,
     UserProfileStore
 } from "../User";
 import {
@@ -52,13 +63,14 @@ import {
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
     EmojiPickerTabsStore,
+    ForwardMessagesStore,
     MarkMessageReadStore,
     MessageDialogStore,
     MessagesListScrollPositionsStore,
     MessagesOfChatStore,
     PinMessageStore,
     PinnedMessagesStore,
-    PublishScheduledMessageStore,
+    PublishScheduledMessageStore, RecordVoiceMessageStore,
     ScheduledMessagesOfChatStore,
     ScheduleMessageStore,
     SearchMessagesStore,
@@ -137,11 +149,41 @@ import {
     UpdateEmailStore
 } from "../EmailUpdate";
 import {ThemeStore} from "../Theme";
+import {
+    ClaimableRewardsStore,
+    CreateRewardStore,
+    RewardClaimStore,
+    RewardDetailsDialogStore,
+    RewardDetailsStore,
+    RewardsListStore,
+    UpdateRewardStore
+} from "../Reward";
+import {BalanceStore} from "../Balance";
+import {
+    CreateUserInteractionStore,
+    UserInteractionCostsStore,
+    UserInteractionsCountStore,
+    UserInteractionsHistoryStore
+} from "../UserInteraction";
+import {ChatManagementTabStore} from "../ChatManagement";
+import {SelectUserStore} from "../UserSelect";
+import {
+    ChatInviteDialogStore,
+    ChatInviteInfoStore,
+    ChatInviteListStore,
+    CreateChatInviteStore,
+    JoinChatByInviteStore,
+    UpdateChatInviteStore
+} from "../ChatInvite";
+
+const snackbarService = new SnackbarService();
 
 const rawEntities = new RawEntitiesStore();
 const authorization = new AuthorizationStore();
-const entities = new EntitiesStore(rawEntities, authorization);
-authorization.setEntities(entities);
+const userChatRoles = new UserChatRolesStore();
+const entities = new EntitiesStore(rawEntities, authorization, userChatRoles);
+
+entities.setEntitiesStore([userChatRoles, authorization]);
 
 const login = new LoginStore(authorization);
 const registrationDialog = new RegistrationDialogStore();
@@ -162,12 +204,26 @@ const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entities);
 const chatCreation = new CreateChatStore(entities);
 const chat = new ChatStore(entities);
 const chatParticipants = new ChatParticipantsStore(entities, chat);
-const messageUploads = new UploadMessageAttachmentsStore();
-const messageCreation = new CreateMessageStore(chat, entities, messageUploads);
+const messageUploads = new UploadMessageAttachmentsStore(entities);
 const chatsPreferences = new ChatsPreferencesStore();
+const messagesForwarding = new ForwardMessagesStore(chat, entities);
+const voiceRecording = new RecordVoiceMessageStore(
+    messageUploads,
+    language,
+    snackbarService
+);
+const messageCreation = new CreateMessageStore(
+    chat,
+    messageUploads,
+    entities,
+    chatsPreferences,
+    messagesForwarding,
+    voiceRecording
+);
+const pendingChats = new PendingChatsOfCurrentUserStore(entities);
 const messagesSearch = new SearchMessagesStore(entities, chat);
-const messagesOfChat = new MessagesOfChatStore(entities, chat, chatsPreferences, messagesSearch);
-const joinChat = new JoinChatStore(entities, authorization);
+const messagesOfChat = new MessagesOfChatStore(entities, chat, messagesSearch);
+const joinChat = new JoinChatStore(entities, pendingChats, language, authorization, snackbarService);
 const userProfile = new UserProfileStore(entities);
 const createChatBlocking = new CreateChatBlockingStore(chat, entities);
 const chatBlockingsOfChat = new ChatBlockingsOfChatStore(entities, chat);
@@ -179,12 +235,12 @@ const chatInfoDialog = new ChatInfoDialogStore();
 const blockUserInChatByIdOrSlug = new BlockUserInChatByIdOrSlugStore(entities, createChatBlocking);
 const onlineChatParticipants = new OnlineChatParticipantsStore(entities, chat);
 const chatAvatarUpload = new UploadImageStore(entities);
-const chatUpdate = new UpdateChatStore(chatAvatarUpload, chat, entities);
+const chatUpdate = new UpdateChatStore(chatAvatarUpload, chat, entities, language, snackbarService);
 const messageDialog = new MessageDialogStore(chat, entities);
 const userAvatarUpload = new UploadImageStore(entities);
 const editProfile = new EditProfileStore(authorization, userAvatarUpload, entities);
 const settingsTabs = new SettingsTabsStore();
-const messageUpdate = new UpdateMessageStore(chat, entities);
+const messageUpdate = new UpdateMessageStore(chat, messageUploads, entities);
 const passwordChangeStep = new PasswordChangeStepStore();
 const passwordChangeForm = new PasswordChangeFormSubmissionStore(passwordChangeStep);
 const passwordChangeEmailConfirmationCodeSending = new SendPasswordChangeEmailConfirmationCodeStore(
@@ -269,7 +325,22 @@ const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsSto
 const googleLogin = new LoginWithGoogleStore(authorization);
 const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
 const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
-const websocket = new WebsocketStore(authorization, entities, chat, messagesListScrollPositions, markMessageRead);
+const balance = new BalanceStore(authorization);
+const typingUsers = new TypingUsersStore(entities, authorization);
+const websocket = new WebsocketStore(
+    authorization,
+    entities,
+    chat,
+    messagesOfChat,
+    messagesListScrollPositions,
+    markMessageRead,
+    balance,
+    chatsPreferences,
+    typingUsers,
+    pendingChats,
+    language,
+    snackbarService
+);
 const stickerPackCreation = new CreateStickerPackStore(entities);
 const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
 const installedStickerPacks = new InstalledStickerPacksStore(authorization, entities);
@@ -286,13 +357,11 @@ const chatsAndMessagesSearchQuery = new ChatsAndMessagesSearchQueryStore();
 const allChatsMessagesSearch = new AllChatsMessagesSearchStore(chatsAndMessagesSearchQuery, entities);
 const chatsOfCurrentUserSearch = new ChatsOfCurrentUserSearchStore(chatsAndMessagesSearchQuery, entities);
 const rolesOfChats = new RolesOfChatStore(chat, entities);
-const userChatRoles = new UserChatRolesStore(entities);
 const chatFeaturesForm = ChatFeaturesFormStore.createInstance(entities);
 const updateChatParticipant = new UpdateChatParticipantStore(entities, authorization, userChatRoles);
 const chatRoleInfo = new ChatRoleInfoDialogStore();
-const snackbarService = new SnackbarService();
 const editChatRole = new EditChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chatRoleInfo);
-const createChatRole = new CreateChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chat, rolesOfChats);
+const createChatRole = new CreateChatRoleStore(chatFeaturesForm, entities, language, snackbarService, chat);
 const chatParticipantsSearch = new ChatParticipantsSearchStore(entities, chat);
 const updateEmailDialog = new UpdateEmailDialogStore();
 const emailChangeConfirmationCode = new SendEmailChangeConfirmationCodeStore(updateEmailDialog, authorization, language);
@@ -314,6 +383,130 @@ const emailUpdate = new UpdateEmailStore(
     snackbarService
 );
 const theme = new ThemeStore();
+const rewardCreationUserSelect = new SelectUserStore(entities);
+const rewardCreation = new CreateRewardStore(
+    entities,
+    rewardCreationUserSelect,
+    language,
+    snackbarService
+);
+const rewardUpdateUserSelect = new SelectUserStore(entities);
+const rewardUpdate = new UpdateRewardStore(
+    entities,
+    rewardUpdateUserSelect,
+    language,
+    snackbarService
+);
+const rewardsList = new RewardsListStore(entities);
+const rewardDetails = new RewardDetailsStore();
+const rewardDetailsDialog = new RewardDetailsDialogStore();
+const claimableRewards = new ClaimableRewardsStore(entities, authorization);
+const rewardClaim = new RewardClaimStore(claimableRewards, entities);
+const userInteractionsCount = new UserInteractionsCountStore(
+    userProfile,
+    snackbarService,
+    language
+);
+const userInteractionCosts = new UserInteractionCostsStore(userProfile);
+const userInteractionsHistory = new UserInteractionsHistoryStore(
+    userProfile,
+    authorization,
+    entities
+);
+const userInteractionCreation = new CreateUserInteractionStore(
+    userInteractionsCount,
+    userInteractionCosts,
+    userInteractionsHistory,
+    balance,
+    userProfile,
+    authorization,
+    language,
+    snackbarService
+);
+const userProfilePhotosGallery = new UserProfilePhotosGalleryStore(
+    userProfile,
+    entities
+);
+const userProfilePhotoCreation = new CreateUserProfilePhotoStore(
+    new UploadImageStore(entities),
+    authorization,
+    entities,
+    userProfilePhotosGallery
+)
+const selectedUserPhotos = new SelectedUserProfilePhotosStore();
+const deleteSelectedUserPhotos = new DeleteSelectedUserProfilePhotosStore(
+    userProfilePhotosGallery,
+    selectedUserPhotos,
+    entities,
+    userProfile,
+    language,
+    authorization,
+    snackbarService
+);
+const setPhotoAsAvatar = new SetPhotoAsAvatarStore(
+    userProfile,
+    entities,
+    authorization,
+    language,
+    snackbarService
+);
+const deleteUserPhoto = new DeleteUserProfilePhotoStore(
+    userProfilePhotosGallery,
+    userProfile,
+    entities,
+    authorization,
+    language,
+    snackbarService
+);
+const chatInviteCreationUserSelect = new SelectUserStore(entities);
+const chatInviteCreation = new CreateChatInviteStore(
+    chat,
+    entities,
+    chatInviteCreationUserSelect,
+    language,
+    snackbarService
+);
+const chatInviteUpdateUserSelect = new SelectUserStore(entities);
+const chatInviteUpdate = new UpdateChatInviteStore(
+    chat,
+    entities,
+    chatInviteUpdateUserSelect,
+    language,
+    snackbarService
+);
+const chatInviteList = new ChatInviteListStore(chat, entities);
+const chatInviteDialog = new ChatInviteDialogStore(chat, entities);
+const joinChatRequests = new JoinChatRequestsStore(entities, chat);
+const chatManagement = new ChatManagementTabStore(
+    chatParticipants,
+    rolesOfChats,
+    chatBlockingsOfChat,
+    chatInviteList,
+    joinChatRequests
+);
+const chatInvite = new ChatInviteInfoStore(entities);
+const joinChatByInvite = new JoinChatByInviteStore(
+    chatInvite,
+    pendingChats,
+    entities,
+    authorization,
+    language,
+    snackbarService
+);
+const joinChatRequestsApproval = new ApproveJoinChatRequestsStore(
+    joinChatRequests,
+    chat,
+    entities,
+    language,
+    snackbarService
+);
+const joinChatRequestsRejection = new RejectJoinChatRequestsStore(
+    joinChatRequests,
+    chat,
+    entities,
+    language,
+    snackbarService
+);
 
 export const store: IAppState = {
     authorization,
@@ -433,5 +626,41 @@ export const store: IAppState = {
     newEmailConfirmationCode,
     newEmailConfirmationCodeCheck,
     emailUpdate,
-    theme
+    theme,
+    rewardCreation,
+    rewardCreationUserSelect,
+    rewardUpdate,
+    rewardUpdateUserSelect,
+    rewardsList,
+    rewardDetails,
+    rewardDetailsDialog,
+    claimableRewards,
+    rewardClaim,
+    balance,
+    userInteractionCosts,
+    userInteractionsCount,
+    userInteractionCreation,
+    userInteractionsHistory,
+    userProfilePhotosGallery,
+    userProfilePhotoCreation,
+    selectedUserPhotos,
+    deleteSelectedUserPhotos,
+    setPhotoAsAvatar,
+    deleteUserPhoto,
+    typingUsers,
+    messagesForwarding,
+    chatManagement,
+    pendingChats,
+    chatInviteCreationUserSelect,
+    chatInviteCreation,
+    chatInviteUpdateUserSelect,
+    chatInviteUpdate,
+    chatInviteList,
+    chatInviteDialog,
+    chatInvite,
+    joinChatByInvite,
+    joinChatRequests,
+    joinChatRequestsApproval,
+    joinChatRequestsRejection,
+    voiceRecording
 };

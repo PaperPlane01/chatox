@@ -6,6 +6,7 @@ import chatox.platform.pagination.annotation.SortBy
 import chatox.platform.pagination.annotation.SortDirection
 import chatox.sticker.api.request.CreateStickerPackRequest
 import chatox.sticker.service.StickerPackService
+import jakarta.validation.Valid
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/stickers-packs")

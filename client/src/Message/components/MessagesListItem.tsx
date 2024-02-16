@@ -1,8 +1,8 @@
-import React, {Fragment, FunctionComponent, ReactNode, useEffect, useRef, useState} from "react";
+import React, {Fragment, FunctionComponent, MouseEvent, ReactNode, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {Card, CardActions, CardContent, CardHeader, Theme, Tooltip, Typography} from "@mui/material";
+import {Card, CardActions, CardContent, CardHeader, lighten, Theme, Tooltip, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
-import {Edit, Event} from "@mui/icons-material";
+import {Edit, Event, Forward} from "@mui/icons-material";
 import {format, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactVisibilitySensor from "react-visibility-sensor";
@@ -15,6 +15,7 @@ import {ReferredMessageContent} from "./ReferredMessageContent";
 import {MessageAudios} from "./MessageAudios";
 import {MessageFiles} from "./MessageFiles";
 import {MessageSticker} from "./MessageSticker";
+import {SelectMessageForForwardingRadioButton} from "./SelectMessageForForwardingRadioButton";
 import {MessageEntity} from "../types";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useEntities, useLocalization, useRouter, useStore} from "../../store";
@@ -23,6 +24,10 @@ import {MarkdownTextWithEmoji} from "../../Emoji";
 import {TranslationFunction} from "../../localization";
 import {UserEntity} from "../../User";
 import {getChatRoleTranslation} from "../../ChatRole/utils";
+import {ensureEventWontPropagate} from "../../utils/event-utils";
+import {useLuminosity} from "../../utils/hooks";
+import {commonStyles} from "../../style";
+import {UploadType} from "../../api/types/response";
 
 interface MessagesListItemProps {
     messageId: string,
@@ -119,8 +124,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         float: "right"
     },
     undecoratedLink: {
-        textDecoration: "none",
-        color: "inherit"
+        ...commonStyles.undecoratedLink,
+    },
+    zeroHeight: {
+        height: 0
     },
     avatarOfCurrentUserContainer: {
         [theme.breakpoints.up("lg")]: {
@@ -157,6 +164,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     partiallyVirtualized: {
         contentVisibility: "auto",
         containIntrinsicSize: "auto 160px"
+    },
+    selectedForForwarding: {
+        backgroundColor: lighten(theme.palette.primary.light, 0.5)
     }
 }));
 
@@ -164,6 +174,7 @@ let messageCardDimensionsCache: {[messageId: string]: {width: number, height: nu
 
 window.addEventListener("resize", () => messageCardDimensionsCache = {});
 
+//TODO: Refactor this mess into smaller components
 export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     messageId,
     fullWidth = false,
@@ -183,6 +194,13 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
         chatsPreferences: {
             enableVirtualScroll,
             enablePartialVirtualization
+        },
+        messagesForwarding: {
+            forwardModeActive,
+            isMessageForwarded,
+            forwardedFromChatId,
+            addMessage,
+            removeMessage
         }
     } = useStore();
     const {
@@ -213,6 +231,8 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const [allImagesLoaded, setAllImagesLoaded] = useState(message.images.length === 0);
     const [stickerLoaded, setStickerLoaded] = useState(message.stickerId === undefined);
     const messagesListItemRef = useRef<HTMLDivElement>(null)
+    const messageSelectedForForwarding = !scheduledMessage && forwardModeActive && isMessageForwarded(messageId);
+    const luminosity = useLuminosity();
 
     useEffect(
         () => {
@@ -243,15 +263,19 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const sender = findMessageSenderFunction
         ? findMessageSenderFunction(message.sender)
         : findUser(message.sender);
+    const forwardedBy = message.forwardedById
+        ? findMessageSenderFunction ? findMessageSenderFunction(message.forwardedById) : findUser(message.forwardedById)
+        : undefined;
     const createAtLabel = !scheduledMessage
         ? getCreatedAtLabel(message.createdAt, dateFnsLocale)
         : getScheduledAtLabel(message.scheduledAt!, dateFnsLocale, l);
     const senderChatRole = message.senderRoleId && findChatRole(message.senderRoleId);
-    const color = randomColor({seed: sender.id});
+    const color = randomColor({seed: sender.id, luminosity});
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
-    const sentByCurrentUser = currentUser && currentUser.id === sender.id;
+    const sentByCurrentUser = currentUser && (currentUser.id === sender.id || currentUser.id === message.forwardedById);
     const containsCode = message.text.includes("`");
-    const withAudio = message.audios.length !== 0;
+    const withAudio = message.audios.length !== 0
+        || message.voiceMessages.length !== 0;
 
     const cardClasses = clsx({
         [classes.messageCardFullWidth]: fullWidth,
@@ -263,10 +287,12 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const wrapperClasses = clsx({
         [classes.messageListItemWrapper]: true,
         [classes.messageOfCurrentUserListItemWrapper]: sentByCurrentUser && !fullWidth,
-        [classes.partiallyVirtualized]: !enableVirtualScroll && enablePartialVirtualization
+        [classes.partiallyVirtualized]: !enableVirtualScroll && enablePartialVirtualization,
+        [classes.selectedForForwarding]: messageSelectedForForwarding
     });
     const userAvatarLinkClasses = clsx({
         [classes.undecoratedLink]: true,
+        [classes.zeroHeight]: true,
         [classes.avatarOfCurrentUserContainer]: sentByCurrentUser,
         [classes.avatarContainer]: !sentByCurrentUser
     });
@@ -287,24 +313,49 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
         }
     };
 
+    const handleClick = (event: MouseEvent<HTMLDivElement>): void => {
+        if (!forwardModeActive) {
+            return;
+        }
+
+        ensureEventWontPropagate(event);
+
+        if (isMessageForwarded(messageId)) {
+            removeMessage(messageId);
+        } else {
+            addMessage(messageId);
+        }
+    };
+
     return (
         <ReactVisibilitySensor onChange={handleVisibilityChange}
                                partialVisibility={Boolean(messagesListHeight && height && height > messagesListHeight)}
         >
             <div className={wrapperClasses}
                  id={`message-${messageId}`}
+                 onClick={handleClick}
             >
-                <Link router={routerStore}
-                      className={userAvatarLinkClasses}
-                      route={Routes.userPage}
-                      params={{slug: sender.slug || sender.id}}
-                >
-                    <Avatar avatarLetter={avatarLetter}
-                            avatarColor={color}
-                            avatarId={sender.avatarId}
-                            avatarUri={sender.externalAvatarUri}
-                    />
-                </Link>
+                {(forwardModeActive && forwardedFromChatId === message.chatId)
+                    ? (
+                        <SelectMessageForForwardingRadioButton selected={messageSelectedForForwarding}
+                                                               messageId={messageId}
+                                                               className={userAvatarLinkClasses}
+                        />
+                    )
+                    : (
+                        <Link router={routerStore}
+                              className={userAvatarLinkClasses}
+                              route={Routes.userPage}
+                              params={{slug: sender.slug || sender.id}}
+                        >
+                            <Avatar avatarLetter={avatarLetter}
+                                    avatarColor={color}
+                                    avatarId={sender.avatarId}
+                                    avatarUri={sender.externalAvatarUri}
+                            />
+                        </Link>
+                    )
+                }
                 <Card className={cardClasses}>
                     <CardHeader title={
                        <div className={classes.messageSender}>
@@ -313,8 +364,27 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                                  route={Routes.userPage}
                                  params={{slug: sender.slug || sender.id}}
                            >
+                               {message.forwarded && (
+                                   <Typography variant="body1"
+                                               style={{
+                                                   color,
+                                                   paddingBottom: 0,
+                                                   display: "flex"
+                                               }}
+                                   >
+                                       <Forward/>
+                                       {l("message.forwarded")}:
+                                   </Typography>
+                               )}
                                <Typography variant="body1" style={{color}}>
                                    <strong>{sender.firstName} {sender.lastName && sender.lastName}</strong>
+                                   {forwardedBy && (
+                                       <strong>
+                                           {l("message.forwarded.by")}
+                                           {" "}
+                                           {forwardedBy.firstName} {forwardedBy.lastName && forwardedBy.lastName}
+                                       </strong>
+                                   )}
                                </Typography>
                            </Link>
                            {senderChatRole && senderChatRole.features.showRoleNameInMessages.enabled && (
@@ -342,7 +412,10 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                                  ref={messagesListItemRef}
                                  style={messageCardDimensionsCache[messageId] && messageCardDimensionsCache[messageId]}
                     >
-                        <ReferredMessageContent messageId={message.referredMessageId}/>
+                        <ReferredMessageContent messageId={message.referredMessageId}
+                                                findMessageFunction={findMessageFunction}
+                                                findSenderFunction={findMessageSenderFunction}
+                        />
                         {message.deleted
                             ? (
                                 <div className={classes.cardContentWithPadding}>
@@ -371,7 +444,14 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                                         />
                                     )}
                                     {!hideAttachments && message.audios.length !== 0 && (
-                                        <MessageAudios audios={message.audios}/>
+                                        <MessageAudios audios={message.audios}
+                                                       audioType={UploadType.AUDIO}
+                                        />
+                                    )}
+                                    {!hideAttachments && message.voiceMessages.length !== 0 && (
+                                        <MessageAudios audios={message.voiceMessages}
+                                                       audioType={UploadType.VOICE_MESSAGE}
+                                        />
                                     )}
                                     {!hideAttachments && message.files.length !== 0 && (
                                         <MessageFiles chatUploadIds={message.files}/>

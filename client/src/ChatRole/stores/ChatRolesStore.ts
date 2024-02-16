@@ -1,4 +1,4 @@
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {mergeWith} from "lodash";
 import {ChatRoleEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
@@ -8,7 +8,7 @@ import {mergeCustomizer} from "../../utils/object-utils";
 
 export class ChatRolesStore extends AbstractEntityStore<"chatRoles", ChatRoleEntity, ChatRole> {
 
-    findAllByChat = createTransformer((chatId: string): ChatRoleEntity[] => {
+    findAllByChat = computedFn((chatId: string): ChatRoleEntity[] => {
         return this.findAll().filter(chatRole => chatRole.chatId === chatId);
     })
 

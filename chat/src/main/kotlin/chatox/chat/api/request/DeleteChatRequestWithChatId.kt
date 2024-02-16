@@ -2,9 +2,8 @@ package chatox.chat.api.request
 
 import chatox.chat.model.ChatDeletionReason
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.springframework.data.mongodb.core.mapping.Field
-import javax.validation.constraints.NotNull
-import javax.validation.constraints.Size
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Size
 
 data class DeleteChatRequestWithChatId(
         @field:NotNull

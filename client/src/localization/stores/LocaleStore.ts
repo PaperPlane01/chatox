@@ -5,6 +5,7 @@ import enDateFnsLocale from "date-fns/locale/en-US";
 import ruDateFnsLocale from "date-fns/locale/ru";
 import {en, ru} from "../translations";
 import {Labels, Language} from "../types";
+import {replacePlaceholder} from "../utils";
 
 export class LocaleStore {
     selectedLanguage: Language = localStorage && ["en", "ru"].includes(localStorage.getItem("language") || "")
@@ -40,9 +41,15 @@ export class LocaleStore {
     setLanguage = (language: Language): void => {
         localStorage.setItem("language", language);
         this.selectedLanguage = language;
-    };
+    }
 
-    getCurrentLanguageLabel = computedFn((label: keyof Labels): string => {
-        return this.currentLanguageLabels[label];
-    });
+    getCurrentLanguageLabel = computedFn((labelKey: keyof Labels, bindings?: any): string => {
+        let label = this.currentLanguageLabels[labelKey];
+
+        if (bindings) {
+            label = replacePlaceholder(label, bindings);
+        }
+
+        return label;
+    })
 }

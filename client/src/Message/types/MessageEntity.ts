@@ -17,13 +17,19 @@ export interface MessageEntity {
     images: string[],
     videos: string[],
     audios: string[],
+    voiceMessages: string[],
     files: string[],
     imagesCount: number,
     audiosCount: number,
     videosCount: number,
+    voiceMessagesCount: number,
     filesCount: number,
     scheduledAt?: Date,
     index: number,
     stickerId?: string,
-    senderRoleId?: string
+    senderRoleId?: string,
+    forwarded: boolean,
+    forwardedFromChatId?: string,
+    forwardedFromMessageId?: string,
+    forwardedById?: string
 }

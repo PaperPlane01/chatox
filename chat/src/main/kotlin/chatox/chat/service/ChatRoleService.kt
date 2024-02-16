@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono
 
 interface ChatRoleService {
     fun getRoleOfUserInChat(userId: String, chatId: String): Mono<ChatRole>
+    fun getRolesOfUsersInChat(usersIds: List<String>, chatId: String): Mono<Map<String, ChatRole>>
     fun getRoleAndChatParticipationOfUserInChat(userId: String, chatId: String): Mono<NTuple2<ChatRole, ChatParticipation>>
     fun findRoleByIdAndChatId(roleId: String, chatId: String): Mono<ChatRole>
     fun createRolesForChat(chat: Chat): Flux<ChatRole>

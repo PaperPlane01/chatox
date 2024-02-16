@@ -1,5 +1,5 @@
-import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {makeAutoObservable, reaction, runInAction, toJS} from "mobx";
+import {computedFn} from "mobx-utils";
 import {MessagesListScrollPositionsStore} from "./MessagesListScrollPositionsStore";
 import {EntitiesStore} from "../../entities-store";
 import {MessageApi} from "../../api";
@@ -42,7 +42,7 @@ export class MarkMessageReadStore {
         )
     }
 
-    getLatestMessage = createTransformer((chatId: string) => {
+    getLatestMessage = computedFn((chatId: string) => {
         const messages = this.entities.messages.findAllById(this.queues[chatId]);
 
         return messages.slice()

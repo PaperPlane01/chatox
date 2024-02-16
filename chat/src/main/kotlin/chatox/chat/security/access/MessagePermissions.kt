@@ -1,16 +1,22 @@
 package chatox.chat.security.access
 
 import chatox.chat.api.request.CreateMessageRequest
+import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatType
 import chatox.chat.model.MessageUploadsCount
 import chatox.chat.model.SendMessagesFeatureAdditionalData
 import chatox.chat.model.UploadType
 import chatox.chat.model.User
+import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatBlockingService
 import chatox.chat.service.ChatRoleService
 import chatox.chat.service.ChatService
 import chatox.chat.service.MessageService
+import chatox.chat.service.ScheduledMessageService
+import chatox.chat.util.Bound
+import chatox.chat.util.BoundMode
+import chatox.chat.util.isBetween
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
@@ -19,14 +25,17 @@ import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
+import java.time.Duration
 import java.time.ZonedDateTime
 
 @Component
 class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                          private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                          private val chatRoleService: ChatRoleService,
-                         private val uploadRepository: UploadRepository) {
+                         private val uploadRepository: UploadRepository,
+                         private val messageRepository: MessageMongoRepository) {
     private lateinit var messageService: MessageService
+    private lateinit var scheduledMessageService: ScheduledMessageService
     private lateinit var chatService: ChatService
 
     @Autowired
@@ -39,7 +48,34 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
         this.chatService = chatService
     }
 
-    fun canCreateMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<Boolean> {
+    @Autowired
+    fun setScheduledMessageService(scheduledMessageService: ScheduledMessageService) {
+        this.scheduledMessageService = scheduledMessageService
+    }
+
+    fun canSendTypingStatus(chatId: String): Mono<Boolean> {
+        return mono {
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
+
+            if (isUserBlocked(currentUser, chatId).awaitFirst()) {
+                return@mono false
+            }
+
+            val features = chatRoleService.getRoleOfUserInChat(
+                    userId = currentUser.id,
+                    chatId = chatId
+            )
+                    .awaitFirstOrNull()
+                    ?.features
+                    ?: return@mono false
+
+            return@mono features.sendMessages.enabled
+         }
+    }
+
+    fun canCreateMessage(chatId: String): Mono<Boolean> = canCreateMessage(chatId, null)
+
+    fun canCreateMessage(chatId: String, createMessageRequest: CreateMessageRequest?): Mono<Boolean> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
@@ -54,15 +90,45 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 return@mono false
             }
 
-            val scheduledMessageCheck = if (createMessageRequest.scheduledAt != null) {
+            val scheduledMessageCheck = if (createMessageRequest?.scheduledAt != null) {
                 features.scheduleMessages.enabled
             } else {
                 true
             }
 
-           return@mono scheduledMessageCheck && checkUploadsPermissions(createMessageRequest, features.sendMessages.additional).awaitFirst()
+            val uploadsCheck = if (!scheduledMessageCheck) {
+                false
+            } else if (createMessageRequest == null) {
+                true
+            } else {
+                checkUploadsPermissions(createMessageRequest, features.sendMessages.additional).awaitFirst()
+            }
+
+           return@mono scheduledMessageCheck
+                   && uploadsCheck
+                   && checkSlowMode(chatId, currentUser).awaitFirst()
         }
     }
+
+    private fun checkSlowMode(chatId: String, user: JwtPayload): Mono<Boolean> {
+        return mono {
+            val chat = chatService.findChatEntityById(chatId).awaitFirst()
+
+            if (chat.slowMode == null || !chat.slowMode.enabled) {
+                return@mono true
+            }
+
+            val lastMessage = messageRepository.findFirstByChatIdAndSenderIdOrderByCreatedAtDesc(
+                    chatId = chatId,
+                    senderId = user.id
+            )
+                    .awaitFirstOrNull() ?: return@mono true
+            val nextDate = lastMessage.createdAt.plus(Duration.of(chat.slowMode.interval, chat.slowMode.unit))
+
+            return@mono nextDate.isBefore(ZonedDateTime.now())
+        }
+    }
+
 
     fun canPublishScheduledMessage(chatId: String): Mono<Boolean> {
         return mono {
@@ -105,15 +171,37 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 return@mono true
             }
 
-            val features = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()?.features
+            val chatRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
 
             if (message.sender.id == currentUser.id) {
-                return@mono features.deleteOwnMessages.enabled
+                return@mono chatRole.features.deleteOwnMessages.enabled
             } else {
-                return@mono false
+                val otherUserRole = chatRoleService.getRoleOfUserInChat(
+                        userId = message.sender.id,
+                        chatId = chatId
+                )
+                        .awaitFirstOrNull() ?: return@mono true
+
+                return@mono canDeleteOtherUserMessage(chatRole, otherUserRole)
             }
         }
+    }
+
+    fun canDeleteOtherUserMessage(currentUserRole: ChatRole, otherUserRole: ChatRole): Boolean {
+        if (!currentUserRole.features.deleteOtherUsersMessages.enabled) {
+            return false
+        }
+
+        if (!otherUserRole.features.messageDeletionsImmunity.enabled) {
+            return true
+        }
+
+        return isBetween(
+                currentUserRole.level,
+                Bound(otherUserRole.features.messageDeletionsImmunity.additional.fromLevel, BoundMode.INCLUSIVE),
+                Bound(otherUserRole.features.messageDeletionsImmunity.additional.upToLevel, BoundMode.INCLUSIVE)
+        )
     }
 
     fun canPinMessage(messageId: String, chatId: String): Mono<Boolean> {
@@ -163,7 +251,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val userRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
-            val message = messageService.findScheduledMessageById(messageId).awaitFirst()
+            val message = scheduledMessageService.findScheduledMessageById(messageId).awaitFirst()
 
             return@mono !currentUser.isBannedGlobally
                     && message.chatId == chatId
@@ -177,7 +265,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
             val currenUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val userRole = chatRoleService.getRoleOfUserInChat(userId = currenUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
-            val message = messageService.findScheduledMessageById(messageId).awaitFirst()
+            val message = scheduledMessageService.findScheduledMessageById(messageId).awaitFirst()
 
             if (message.chatId !== chatId || !userRole.features.scheduleMessages.enabled) {
                 return@mono false
@@ -244,6 +332,11 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
             } else {
                 true
             }
+            val voiceMessageCheck = if (uploadsCount.voiceMessages != 0) {
+                messageFeatures.allowedToSendVoiceMessages
+            } else {
+                true
+            }
             val fileCheck = if (uploadsCount.files != 0) {
                 messageFeatures.allowedToSendFiles
             } else {
@@ -255,7 +348,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 true
             }
 
-            return@mono stickerCheck && imageCheck && audioCheck && fileCheck && videoCheck
+            return@mono stickerCheck && imageCheck && audioCheck && voiceMessageCheck && fileCheck && videoCheck
         }
     }
 
@@ -270,7 +363,8 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                     Pair(UploadType.IMAGE, 0),
                     Pair(UploadType.AUDIO, 0),
                     Pair(UploadType.FILE, 0),
-                    Pair(UploadType.VIDEO, 0)
+                    Pair(UploadType.VIDEO, 0),
+                    Pair(UploadType.VOICE_MESSAGE, 0)
             )
 
             for (upload in uploads) {

@@ -16,12 +16,14 @@ data class ChatParticipation(
         @Indexed
         val chatId: String,
 
+        val chatType: ChatType,
+
         val user: User,
 
         val role: ChatRole? = null,
 
         @Indexed
-        val roleId: String = "",
+        val roleId: String,
 
         @Indexed
         val lastReadMessageId: String? = null,
@@ -34,10 +36,10 @@ data class ChatParticipation(
         @Indexed
         val lastMessageReadId: String? = null,
 
-        @field:Field(type = FieldType.Date, format = DateFormat.ordinal_date_time)
+        @field:Field(type = FieldType.Date, format = [DateFormat.ordinal_date_time])
         val createdAt: ZonedDateTime,
 
-        @field:Field(type = FieldType.Date, format = DateFormat.ordinal_date_time)
+        @field:Field(type = FieldType.Date, format = [DateFormat.ordinal_date_time])
         val lastModifiedAt: ZonedDateTime? = null,
 
         @Indexed
@@ -45,12 +47,16 @@ data class ChatParticipation(
         val userOnline: Boolean = false,
         val deleted: Boolean = false,
 
-        @field:Field(type = FieldType.Date, format = DateFormat.ordinal_date_time)
+        @field:Field(type = FieldType.Date, format = [DateFormat.ordinal_date_time])
         val deletedAt: ZonedDateTime? = null,
 
         @Indexed
         val deletedById: String? = null,
         val userDisplayedName: String?,
         val userSlug: String?,
-        val chatDeleted: Boolean = false
+        val chatDeleted: Boolean = false,
+
+        @Indexed
+        val inviteId: String? = null,
+        val approvedBy: String? = null
 )

@@ -11,10 +11,10 @@ export const parseSendMessageButton = (sendMessageButtonString: string | null | 
     }
 
     switch (sendMessageButtonString.trim().toUpperCase()) {
-        default:
-        case "CTRL_ENTER":
-            return SendMessageButton.CTRL_ENTER;
         case "ENTER":
             return SendMessageButton.ENTER;
+        case "CTRL_ENTER":
+        default:
+            return SendMessageButton.CTRL_ENTER;
     }
-}
+};

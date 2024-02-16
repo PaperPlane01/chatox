@@ -1,17 +1,19 @@
-import { action, computed, makeObservable } from "mobx";
-import {createTransformer} from "mobx-utils";
+import {action, computed, makeObservable, observable} from "mobx";
+import {computedFn} from "mobx-utils";
+import {orderBy} from "lodash";
 import {BaseEntity, EntityStore} from "./EntityStore";
 import {
-    Entities,
     EntitiesPatch,
     EntitiesStore,
     GetEntityType,
     PopulatedEntitiesPatch,
-    RawEntitiesStore
+    RawEntitiesStore,
+    RawEntityKey
 } from "../entities-store";
+import {SortingDirection} from "../utils/types";
 
 export abstract class AbstractEntityStore<
-    EntityName extends Entities,
+    EntityName extends RawEntityKey,
     Entity extends GetEntityType<EntityName>,
     DenormalizedEntity extends BaseEntity,
     InsertOptions extends object = {},
@@ -23,18 +25,36 @@ export abstract class AbstractEntityStore<
         return this.rawEntities.ids[this.entityName];
     }
 
+    get sortedIds(): string[] {
+        if (this.sortBy.length === 0) {
+            return this.ids;
+        } else {
+            const entities = this.ids.map(id => this.findById(id));
+
+            return orderBy(entities, this.sortBy, this.sortingDirection).map(entity => entity.id);
+        }
+    }
+
+    protected sortBy: Array<keyof Entity> = [];
+    protected sortingDirection: SortingDirection = "desc";
+
     public constructor(protected readonly rawEntities: RawEntitiesStore,
-                       protected readonly entityName: EntityName,
+                       protected readonly entityName: RawEntityKey,
                        protected readonly entities: EntitiesStore) {
-        makeObservable(this, {
+        makeObservable<AbstractEntityStore<EntityName, Entity, DenormalizedEntity, InsertOptions, DeleteOptions>, "sortingDirection" | "setSortingDirection" | "sortBy" | "setSortBy">(this, {
             ids: computed,
+            sortedIds: computed,
+            sortBy: observable,
+            sortingDirection: observable,
             deleteAll: action.bound,
             deleteAllById: action.bound,
             deleteById: action.bound,
             insert: action.bound,
             insertAll: action.bound,
             insertAllEntities: action.bound,
-            insertEntity: action.bound
+            insertEntity: action.bound,
+            setSortingDirection: action.bound,
+            setSortBy: action.bound
         });
     }
 
@@ -54,19 +74,24 @@ export abstract class AbstractEntityStore<
         return this.findAllById(this.ids);
     }
 
-    findAllById = createTransformer((ids: Iterable<string>): Entity[] => {
+    findAllById = computedFn((ids: Iterable<string>): Entity[] => {
         const entities: Entity[] = [];
         for (const id of ids) {
             entities.push(this.findById(id));
         }
-        return entities;
+
+        if (this.sortBy.length === 0) {
+            return entities;
+        } else {
+            return orderBy(entities, this.sortBy, this.sortingDirection);
+        }
     });
 
-    findById = createTransformer((id: string): Entity => {
+    findById = computedFn((id: string): Entity => {
         return this.findByIdOptional(id)!
     });
 
-    findByIdOptional = createTransformer((id: string): Entity | undefined => {
+    findByIdOptional = computedFn((id: string): Entity | undefined => {
         return this.rawEntities.entities[this.entityName][id] as Entity | undefined;
     });
 
@@ -96,22 +121,43 @@ export abstract class AbstractEntityStore<
         return entity;
     }
 
-    protected createEmptyPatch() {
-        return this.createEmptyEntitiesPatch(this.entityName as Entities);
+    protected setSortingDirection(sortingDirection: SortingDirection): void {
+        this.sortingDirection = sortingDirection;
     }
 
-    protected createEmptyEntitiesPatch<T extends Entities>(...entities: T[]): PopulatedEntitiesPatch<T> {
-        const patch = {
+    protected setSortBy(properties: Array<keyof Entity>): void {
+        this.sortBy = properties;
+    }
+
+    protected createEmptyPatch(): PopulatedEntitiesPatch<RawEntityKey> {
+        return this.createEmptyEntitiesPatch(this.entityName);
+    }
+
+    protected createEmptyEntitiesPatch<T extends RawEntityKey>(...entities: T[]): PopulatedEntitiesPatch<T> {
+        const patch: EntitiesPatch = {
             entities: {},
             ids: {}
         };
 
         entities.forEach(entityType => {
-            (patch.entities as any)[entityType] = {};
-            (patch.ids as any)[entityType] = [];
+            patch.entities[entityType] = {};
+            patch.ids[entityType] = [];
         });
 
         return patch as unknown as PopulatedEntitiesPatch<T>;
+    }
+
+    protected isPatchPopulated<T extends RawEntityKey>(
+        patch: EntitiesPatch,
+        ...entities: T[]
+    ): patch is PopulatedEntitiesPatch<T> {
+        for (const entity of entities) {
+            if (!patch.ids[entity] || !patch.entities[entity]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public createPatch(denormalizedEntity: DenormalizedEntity, options?: InsertOptions): EntitiesPatch {

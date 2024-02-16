@@ -1,22 +1,19 @@
-import {Body, Controller, Get, Param, Post, Req, Res, UploadedFile, UseGuards, UseInterceptors} from "@nestjs/common";
+import {Body, Controller, Get, Param, Post, Req, Res, UploadedFile, UseInterceptors} from "@nestjs/common";
 import {FileInterceptor} from "@nestjs/platform-express";
-import {AuthGuard} from "@nestjs/passport";
 import {Request, Response} from "express";
 import {AudiosUploadService} from "./AudiosUploadService";
 import {MultipartFile} from "../common/types/request";
-import {UploadInfoResponse} from "../common/types/response";
-import {AudioUploadMetadata} from "../mongoose/entities";
 import {config} from "../config";
-import {RolesGuard} from "../auth";
-import {HasAnyRole} from "../common/security";
+import {CurrentUser, HasRole, User} from "../auth";
 import {RejectEmptyInterceptor} from "../common/interceptors";
+import {UploadResponse} from "../uploads/types/responses";
+import {AudioUploadMetadata} from "../uploads";
 
 @Controller("api/v1/uploads/audios")
 export class AudiosUploadController {
     constructor(private readonly audioUploadService: AudiosUploadService) {}
 
-    @UseGuards(AuthGuard("jwt"), RolesGuard)
-    @HasAnyRole("ROLE_USER", "ROLE_ANONYMOUS_USER")
+    @HasRole("ROLE_USER", "ROLE_ANONYMOUS_USER")
     @UseInterceptors(
         RejectEmptyInterceptor,
         FileInterceptor(
@@ -29,8 +26,37 @@ export class AudiosUploadController {
     )
     @Post()
     public uploadAudio(@UploadedFile() multipartFile: MultipartFile,
-                       @Body("originalName") originalName?: string): Promise<UploadInfoResponse<AudioUploadMetadata>> {
-        return this.audioUploadService.uploadAudio(multipartFile, originalName);
+                       @CurrentUser() currentUser: User,
+                       @Body("originalName") originalName?: string
+    ): Promise<UploadResponse<AudioUploadMetadata>> {
+        return this.audioUploadService.uploadAudio(
+            multipartFile,
+            currentUser,
+            false,
+            originalName
+        );
+    }
+
+    @HasRole("ROLE_USER", "ROLE_ANONYMOUS_USER")
+    @UseInterceptors(
+        RejectEmptyInterceptor,
+        FileInterceptor(
+            "file",
+            {
+                limits: {
+                    fileSize: config.AUDIO_MAX_SIZE_BYTES
+                }
+            })
+    )
+    @Post("voice")
+    public uploadVoiceMessage(@UploadedFile() multipartFile: MultipartFile,
+                              @CurrentUser() currentUser: User
+    ): Promise<UploadResponse<AudioUploadMetadata>> {
+        return this.audioUploadService.uploadAudio(
+            multipartFile,
+            currentUser,
+            true
+        );
     }
 
     @Get(":audioName")

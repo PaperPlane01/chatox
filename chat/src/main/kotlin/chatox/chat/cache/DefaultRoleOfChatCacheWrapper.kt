@@ -7,11 +7,13 @@ import chatox.chat.model.ChatRole
 import chatox.chat.repository.mongodb.ChatRoleRepository
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
+import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.function.Function
 
@@ -68,5 +70,32 @@ class DefaultRoleOfChatCacheWrapper @Autowired constructor(
                 return@mono role
             }
         }
+    }
+
+    override fun findByIds(ids: MutableList<String>): Flux<ChatRole> {
+        return findByIds(ids, true)
+    }
+
+    override fun findByIds(ids: MutableList<String>, putInCacheIfAbsent: Boolean): Flux<ChatRole> {
+        return mono {
+            val roles = cacheService.find(ids).awaitFirst()
+
+            if (roles.size == ids.size) {
+                return@mono roles
+            }
+
+            val foundChatIds = roles.map { role -> role.chatId }
+            val missingChatIds = ids.filter { chatId -> !foundChatIds.contains(chatId) }
+            val missingRoles = chatRoleRepository.findByChatIdIn(missingChatIds).collectList().awaitFirst()
+
+            if (putInCacheIfAbsent) {
+                cacheService.put(missingRoles).awaitFirst()
+            }
+
+            roles.addAll(missingRoles)
+
+            return@mono roles
+        }
+                .flatMapMany { Flux.fromIterable(it) }
     }
 }

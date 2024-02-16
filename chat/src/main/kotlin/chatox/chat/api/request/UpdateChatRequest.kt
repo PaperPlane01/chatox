@@ -1,10 +1,13 @@
 package chatox.chat.api.request
 
+import chatox.chat.model.JoinChatAllowance
 import chatox.chat.support.validation.annotation.StringNotIn
+import chatox.platform.security.VerificationLevel
 import com.fasterxml.jackson.annotation.JsonProperty
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.Pattern
-import javax.validation.constraints.Size
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 
 data class UpdateChatRequest(
         @field:NotBlank
@@ -15,14 +18,21 @@ data class UpdateChatRequest(
 
         @field:Size(max = 25)
         @field:Pattern(regexp = "^[a-zA-Z0-9_.]+$")
-        @field:StringNotIn(["my", "popular"])
+        @field:StringNotIn(["my", "popular", "invites"])
         val slug: String? = null,
 
         @field:Size(max = 1000)
         val description: String? = null,
 
         @field:Size(max = 15)
-        val tags: List<@NotBlank @Size(max = 15) String>? = null
+        val tags: List<@NotBlank @Size(max = 15) String>? = null,
+
+        @field:Valid
+        val slowMode: UpdateSlowModeRequest? = null,
+
+        val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance>? = null,
+
+        val hideFromSearch: Boolean? = null
 ) {
         val name: String
                 get() = _name!!

@@ -64,7 +64,7 @@ export abstract class AbstractFormStore<FormType extends object> implements Form
 
     protected resetForm(): void {
         this.formValues = this.initialFormValues;
-        setTimeout(() => this.formErrors = this.initialFormErrors);
+        setTimeout(() => this.setFormErrors(this.initialFormErrors));
         this.pending = false;
         this.error = undefined;
     }

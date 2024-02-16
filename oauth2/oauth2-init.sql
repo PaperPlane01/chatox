@@ -1,38 +1,38 @@
-create table if not exists oauth_client_token (
-  token_id VARCHAR(256),
-  token bytea,
-  authentication_id VARCHAR(256),
-  user_name VARCHAR(256),
-  client_id VARCHAR(256)
-);
-
-create table if not exists oauth_access_token (
-  token_id VARCHAR(256),
-  token bytea,
-  authentication_id VARCHAR(256),
-  user_name VARCHAR(256),
-  client_id VARCHAR(256),
-  authentication bytea,
-  refresh_token VARCHAR(256)
-);
-
-create table if not exists oauth_refresh_token (
-  token_id VARCHAR(256),
-  token bytea,
-  authentication bytea
-);
-
-create table if not exists oauth_code (
-  code VARCHAR(256), authentication bytea
-);
-
-create table if not exists oauth_approvals (
-  userId VARCHAR(256),
-  clientId VARCHAR(256),
-  scope VARCHAR(256),
-  status VARCHAR(10),
-  expiresAt TIMESTAMP,
-  lastModifiedAt TIMESTAMP
+CREATE TABLE oauth2_authorization (
+                                      id varchar(100) NOT NULL,
+                                      registered_client_id varchar(100) NOT NULL,
+                                      principal_name varchar(200) NOT NULL,
+                                      authorization_grant_type varchar(100) NOT NULL,
+                                      authorized_scopes varchar(1000) DEFAULT NULL,
+                                      attributes text DEFAULT NULL,
+                                      state varchar(500) DEFAULT NULL,
+                                      authorization_code_value text DEFAULT NULL,
+                                      authorization_code_issued_at timestamp DEFAULT NULL,
+                                      authorization_code_expires_at timestamp DEFAULT NULL,
+                                      authorization_code_metadata text DEFAULT NULL,
+                                      access_token_value text DEFAULT NULL,
+                                      access_token_issued_at timestamp DEFAULT NULL,
+                                      access_token_expires_at timestamp DEFAULT NULL,
+                                      access_token_metadata text DEFAULT NULL,
+                                      access_token_type varchar(100) DEFAULT NULL,
+                                      access_token_scopes varchar(1000) DEFAULT NULL,
+                                      oidc_id_token_value text DEFAULT NULL,
+                                      oidc_id_token_issued_at timestamp DEFAULT NULL,
+                                      oidc_id_token_expires_at timestamp DEFAULT NULL,
+                                      oidc_id_token_metadata text DEFAULT NULL,
+                                      refresh_token_value text DEFAULT NULL,
+                                      refresh_token_issued_at timestamp DEFAULT NULL,
+                                      refresh_token_expires_at timestamp DEFAULT NULL,
+                                      refresh_token_metadata text DEFAULT NULL,
+                                      user_code_value text DEFAULT NULL,
+                                      user_code_issued_at timestamp DEFAULT NULL,
+                                      user_code_expires_at timestamp DEFAULT NULL,
+                                      user_code_metadata text DEFAULT NULL,
+                                      device_code_value text DEFAULT NULL,
+                                      device_code_issued_at timestamp DEFAULT NULL,
+                                      device_code_expires_at timestamp DEFAULT NULL,
+                                      device_code_metadata text DEFAULT NULL,
+                                      PRIMARY KEY (id)
 );
 
 INSERT INTO public.account(id, enabled, locked, password_hash, type, username, user_ids) VALUES ('092a350e-b686-4ba3-97dd-417a207b2c3c', true, false, '$2a$12$TNbUx13Y7lMHfZ09cwXCHOfi7oDKUET8ZBstH8VGjqCHVB5ne5wuC', 'USERNAME_AND_PASSWORD', 'admin', '["17d6b568-af13-470d-88fb-8b982a5dcadf"]');

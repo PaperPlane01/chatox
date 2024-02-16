@@ -31,6 +31,18 @@ class EnvConfig {
     @Env({required: false, type: "string"})
     API_HOST: string = "http://localhost:8080";
 
+    @Env({required: true, type: "string"})
+    RABBITMQ_USERNAME: string;
+
+    @Env({required: true, type: "string"})
+    RABBITMQ_PASSWORD: string;
+
+    @Env({required: true, type: "string"})
+    RABBITMQ_HOST: string;
+
+    @Env({required: true, type: "number"})
+    RABBITMQ_PORT: number;
+
     @Env({required: false, type: "string"})
     JWT_PUBLIC_KEY: string = `-----BEGIN CERTIFICATE-----
 MIIDdTCCAl2gAwIBAgIEaWzSsDANBgkqhkiG9w0BAQsFADBrMRAwDgYDVQQGEwdV
@@ -52,7 +64,7 @@ IPaa2Uit2gOySFIHFiD4i75O76rYwSjhTavCwQA4tOwCuF8EnopTfi0dBVDKWK1T
 uoP2v55gv3Xw79kD0wAnUlPdpMH8GT1OyPKKHkH+/hcanEO4W4goswEwLj2s7VYw
 PsT6edytR9T/+rob9cvuoz2owBBTGYYAwxvscuVqM5OvXD+pNaeCwT77XoO8pCyS
 WE1lrebeBEpZdw79ygRL6UuFvUg9OCW88Q==
------END CERTIFICATE-----`
+-----END CERTIFICATE-----`;
 }
 
 export const config = loadConfig(EnvConfig);

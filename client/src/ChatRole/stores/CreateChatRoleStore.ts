@@ -1,7 +1,6 @@
 import {action, computed, makeObservable, observable} from "mobx";
 import {AbstractChatRoleFormStore} from "./AbstractChatRoleFormStore";
 import {ChatFeaturesFormStore} from "./ChatFeaturesFormStore";
-import {RolesOfChatStore} from "./RolesOfChatStore";
 import {EntitiesStore} from "../../entities-store";
 import {ChatRoleApi, getInitialApiErrorFromResponse} from "../../api";
 import {ChatOfCurrentUserEntity, ChatStore} from "../../Chat";
@@ -27,8 +26,7 @@ export class CreateChatRoleStore extends AbstractChatRoleFormStore {
                 entities: EntitiesStore,
                 localeStore: LocaleStore,
                 snackbarService: SnackbarService,
-                private readonly chatStore: ChatStore,
-                private readonly rolesOfChatStore: RolesOfChatStore,) {
+                private readonly chatStore: ChatStore) {
         super(chatFeaturesForm, entities, localeStore, snackbarService);
 
         makeObservable(this, {
@@ -48,7 +46,6 @@ export class CreateChatRoleStore extends AbstractChatRoleFormStore {
 
     openRolesList = (): void => {
         this.setCreateChatRoleDialogOpen(false);
-        this.rolesOfChatStore.openRolesList();
     };
 
     submitForm = (): void => {

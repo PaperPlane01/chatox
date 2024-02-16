@@ -5,12 +5,14 @@ import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {Link} from "mobx-router";
 import {ChatListMessagePreview} from "./ChatListMessagePreview";
+import {TypingIndicator} from "./TypingIndicator";
 import {getAvatarLabel, getChatLinkProps} from "../utils";
 import {ChatLinkPropsGenerationStrategy} from "../types";
 import {Avatar} from "../../Avatar";
 import {useRouter, useStore} from "../../store";
 import {ChatType} from "../../api/types/response";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {useLuminosity} from "../../utils/hooks";
 
 interface ChatsOfCurrentUserListItemProps {
     chatId: string,
@@ -45,13 +47,13 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         maxWidth: "80%"
     },
     flexWrapper: {
-        display: "flex",
+        display: "flex"
     },
     flexTruncatedTextContainer: {
         flex: 1,
         minWidth: 0
     },
-    flexTruncatedText: {
+    truncatedText: {
         whiteSpace: "nowrap",
         textOverflow: "ellipsis",
         overflow: "hidden"
@@ -85,6 +87,9 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
             users: {
                 findById: findUser
             }
+        },
+        typingUsers: {
+            hasTypingUsers
         }
     } = useStore();
     const routerStore = useRouter();
@@ -93,18 +98,24 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
     const chatUser = chat.type === ChatType.DIALOG && chat.userId && findUser(chat.userId);
     const selected = selectedChatId === chatId;
     const linkProps = getChatLinkProps(linkGenerationStrategy, {chat, messageId});
+    const chatHasTypingUsers = hasTypingUsers(chatId);
+    const luminosity = useLuminosity();
+    const color = randomColor({
+        seed: chatUser ? chatUser.id : chatId,
+        luminosity
+    });
 
     const avatar = chatUser
         ? (
             <Avatar avatarLetter={getUserAvatarLabel(chatUser)}
-                    avatarColor={randomColor({seed: chatUser.id})}
+                    avatarColor={color}
                     avatarUri={chatUser.externalAvatarUri}
                     avatarId={chatUser.avatarId}
             />
         )
         : (
             <Avatar avatarLetter={getAvatarLabel(chat.name)}
-                    avatarColor={randomColor({seed: chatId})}
+                    avatarColor={color}
                     avatarUri={chat.avatarUri}
                     avatarId={chat.avatarId}
             />
@@ -131,20 +142,22 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                     <CardHeader title={
                         <div className={classes.flexWrapper}>
                             <div className={classes.flexTruncatedTextContainer}>
-                                <Typography className={classes.flexTruncatedText}>
+                                <Typography className={classes.truncatedText}>
                                     <strong>
                                         {chatUser ? getUserDisplayedName(chatUser) : chat.name}
                                     </strong>
                                 </Typography>
                             </div>
                         </div>
-
                     }
                                 subheader={messageId && (
                                     <div className={classes.flexWrapper}>
                                         <div className={classes.flexTruncatedTextContainer}>
-                                            <Typography className={`${classes.flexTruncatedText} ${selected && !ignoreSelection && classes.selected}`}>
-                                                <ChatListMessagePreview messageId={messageId}/>
+                                            <Typography className={`${classes.truncatedText} ${selected && !ignoreSelection && classes.selected}`}>
+                                                {chatHasTypingUsers
+                                                    ? <TypingIndicator chatId={chatId}/>
+                                                    : <ChatListMessagePreview messageId={messageId}/>
+                                                }
                                             </Typography>
                                         </div>
                                     </div>

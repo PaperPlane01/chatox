@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {createTransformer} from "mobx-utils";
+import {computedFn} from "mobx-utils";
 import {v4} from "uuid";
 import {EmojiData} from "emoji-mart";
 import {validateStickerEmojis, validateStickerKeywords} from "../validation";
@@ -31,7 +31,7 @@ export class StickerContainer {
         makeAutoObservable(this);
     }
 
-    getEmojiByIndex = createTransformer((index: number) => this.emojis[index]);
+    getEmojiByIndex = computedFn((index: number) => this.emojis[index]);
 
     uploadFile = (file: File): void => {
         this.uploadImageStore.uploadFile(file);

@@ -15,7 +15,7 @@ import {ReportNotFoundException} from "./exceptions/report-not-found.exception";
 import {UpdateMultipleReportsRequest} from "./types/requests/update-multiple-reports.request";
 import {UserResponse} from "../users/types/responses/user.response";
 import {config} from "../config/env.config";
-import {UploadResponse} from "../common/types";
+import {UploadResponse} from "../uploads/types";
 import {UsersService} from "../users/users.service";
 import {UnsupportedReportTypeException} from "./exceptions/unsupported-report-type.exception";
 import {ChatsService} from "../chats/chats.service";
@@ -103,7 +103,7 @@ export class ReportsService {
         await new this.reportsModel(report).save();
     }
 
-    public async findReports(filters: FilterReportsRequest): Promise<Array<ReportResponse<any>>> {
+    public async findReports<T>(filters: FilterReportsRequest): Promise<Array<ReportResponse<T>>> {
         const filterQuery: FilterQuery<Report<any>> = {};
 
         if (filters.type.length !== 0) {
@@ -158,7 +158,7 @@ export class ReportsService {
         })
             .exec();
 
-        for (let report of reports) {
+        for (const report of reports) {
             const updates = updateMultipleReportsRequest.updates.find(update => update.id === report._id.toHexString());
 
             if (updates) {
@@ -172,7 +172,7 @@ export class ReportsService {
         return reports.map(report => this.mapToReportResponse(report));
     }
     
-    private mapToReportResponse<ReportedObject>(report: Report<ReportedObject>): ReportResponse<ReportedObject> {
+    private mapToReportResponse<T>(report: Report<T>): ReportResponse<T> {
         return new ReportResponse({
             id: report._id.toHexString(),
             createdAt: report.createdAt.toISOString(),

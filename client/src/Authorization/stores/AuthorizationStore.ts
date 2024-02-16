@@ -1,11 +1,11 @@
 import {makeAutoObservable} from "mobx";
 import {UserApi} from "../../api";
 import {CurrentUser, UserRole} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesAware, EntitiesStore} from "../../entities-store";
 import {tokenRefreshState} from "../../api/axios-instance";
 import {isGlobalBanActive} from "../../GlobalBan/utils";
 
-export class AuthorizationStore {
+export class AuthorizationStore implements EntitiesAware {
     currentUser?: CurrentUser = undefined;
 
     fetchingCurrentUser: boolean = false;
@@ -31,9 +31,13 @@ export class AuthorizationStore {
             this.entities.globalBans.insert(currentUser.globalBan);
         }
 
+        const avatarId = currentUser.avatarId
+            ? currentUser.avatarId
+            : currentUser.avatar ? currentUser.avatar.id : undefined;
+
         this.currentUser = {
             ...currentUser,
-            avatarId: currentUser.avatar ? currentUser.avatar.id : undefined
+            avatarId
         };
         this.entities.users.insert({
             ...currentUser,

@@ -61,7 +61,10 @@ export class MessageDialogStore {
         this.messagePending = true;
 
         MessageApi.getMessage(this.selectedChatId, this.messageId)
-            .then(({data}) => this.entities.messages.insert(data, {skipSettingLastMessage: true}))
+            .then(({data}) => this.entities.messages.insert(data, {
+                skipSettingLastMessage: true,
+                skipUpdatingChat: false
+            }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.messagePending = false));
     };

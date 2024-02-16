@@ -2,11 +2,10 @@ package chatox.user.support.validation.globalban.validator
 
 import chatox.user.domain.GlobalBanReason
 import chatox.user.support.validation.globalban.annotation.RequireCommentIfGlobalBanReasonIs
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
 import org.springframework.beans.PropertyAccessorFactory
 import org.springframework.util.ObjectUtils
-import javax.validation.ConstraintValidator
-import javax.validation.ConstraintValidatorContext
-
 
 class RequireCommentIfGlobalBanReasonIsValidator
     : ConstraintValidator<RequireCommentIfGlobalBanReasonIs, Any> {

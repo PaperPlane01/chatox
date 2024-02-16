@@ -65,7 +65,11 @@ export class PinnedMessagesStore {
 
         MessageApi.getPinnedMessageByChat(chatId)
             .then(({data}) => runInAction(() => {
-                this.entities.messages.insert(data, {skipSettingLastMessage: true, pinnedMessageId: data.id});
+                this.entities.messages.insert(data, {
+                    skipSettingLastMessage: true,
+                    skipUpdatingChat: false,
+                    pinnedMessageId: data.id
+                });
 
                 this.pinnedMessagesStateMap[chatId] = {
                     initiallyFetched: true,

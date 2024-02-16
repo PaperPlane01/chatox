@@ -1,0 +1,33 @@
+{
+  "amount": 1568,
+  "createdAt": "2023-08-06T15:40:52.860480Z",
+  "lastChange": "2023-08-06T15:40:52.860480Z",
+  "currency": "COIN",
+  "id": "469ee3cc-2c00-4625-8451-3c918fd3857b",
+  "user": {
+    "deleted": false,
+    "createdAt": "2023-01-31T15:48:29.868Z",
+    "dateOfBirth": "1900-01-14T18:00:00.000Z",
+    "accountId": null,
+    "bio": null,
+    "email": null,
+    "externalAvatarUri": null,
+    "firstName": "Test",
+    "id": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+    "lastName": null,
+    "slug": "testuser",
+    "avatar": {
+      "id": "629273d608e4210d449ef7f5",
+      "uri": "http://localhost:8080/api/v1/uploads/images/629273d608e4210d449ef7f5.jpg",
+      "meta": {
+        "width": 800,
+        "height": 800
+      },
+      "name": "629273d608e4210d449ef7f5.jpg",
+      "type": "IMAGE",
+      "mimeType": "image/jpeg",
+      "extension": "jpg",
+      "originalName": "image.jpg"
+    }
+  }
+}

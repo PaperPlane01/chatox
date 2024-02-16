@@ -17,9 +17,6 @@ export const ChatRolesListItem: FunctionComponent<ChatRolesListItemProps> = obse
         },
         chatRoleInfo: {
             setRoleId
-        },
-        rolesOfChats: {
-            setChatRolesDialogOpen
         }
     } = useStore();
     const {l} = useLocalization();
@@ -27,7 +24,6 @@ export const ChatRolesListItem: FunctionComponent<ChatRolesListItemProps> = obse
     const chatRole = findChatRole(chatRoleId);
 
     const handleClick = (): void => {
-        setChatRolesDialogOpen(false);
         setRoleId(chatRoleId);
     };
 

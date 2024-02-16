@@ -2,9 +2,9 @@ package chatox.chat.api.request
 
 import chatox.chat.support.validation.annotation.StringNotIn
 import com.fasterxml.jackson.annotation.JsonProperty
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.Pattern
-import javax.validation.constraints.Size
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 
 data class CreateChatRequest(
         @field:NotBlank
@@ -20,7 +20,7 @@ data class CreateChatRequest(
 
         @field:Size(max = 25)
         @field:Pattern(regexp = "^[a-zA-Z0-9_.]+$")
-        @field:StringNotIn(["my", "popular", "private"])
+        @field:StringNotIn(["my", "popular", "private", "invites"])
         val slug: String?
 ) {
         val name: String

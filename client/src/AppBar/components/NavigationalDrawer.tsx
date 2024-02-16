@@ -9,9 +9,12 @@ import {SettingsMenuItem} from "./SettingsMenuItem";
 import {DrawerAudioControls} from "./DrawerAudioControls";
 import {GlobalBansMenuItem} from "./GlobalBansMenuItem";
 import {ReportsMenuItem} from "./ReportsMenuItem";
+import {RewardsManagementMenuItem} from "./RewardsManagementMenuItem";
+import {PendingChatsMenuItem} from "./PendingChatsMenuItem";
 import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {PasswordRecoveryDialog} from "../../PasswordRecovery";
+import {BalanceList} from "../../Balance";
 import {useStore} from "../../store";
 
 export const NavigationalDrawer: FunctionComponent = observer(() => {
@@ -50,21 +53,28 @@ export const NavigationalDrawer: FunctionComponent = observer(() => {
                         <MyChatsMenuItem onClick={closeDrawer}/>
                     </HasAnyRole>
                     <SettingsMenuItem onClick={closeDrawer}/>
+                    <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
+                        <PendingChatsMenuItem onClick={closeDrawer}/>
+                    </HasAnyRole>
                     <HasRole role="ROLE_ADMIN">
                         <Divider/>
                         <GlobalBansMenuItem onClick={closeDrawer}/>
                         <ReportsMenuItem onClick={closeDrawer}/>
+                        <RewardsManagementMenuItem onClick={closeDrawer}/>
                     </HasRole>
                     <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
                         <Divider/>
                         <LogOutMenuItem onClick={closeDrawer}/>
                     </HasAnyRole>
                 </List>
+                <HasRole role="ROLE_USER">
+                    <BalanceList/>
+                </HasRole>
                 <DrawerAudioControls/>
             </SwipeableDrawer>
             <LoginDialog/>
             <RegistrationDialog/>
             <PasswordRecoveryDialog/>
         </Fragment>
-    )
+    );
 });

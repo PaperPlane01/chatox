@@ -1,4 +1,4 @@
-import React, {CSSProperties, Fragment, FunctionComponent, UIEvent, useLayoutEffect, useState} from "react";
+import React, {CSSProperties, Fragment, FunctionComponent, UIEvent, useEffect, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Theme, useMediaQuery, useTheme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -38,6 +38,10 @@ export const MessagesList: FunctionComponent = observer(() => {
         },
         chat: {
             selectedChatId
+        },
+        chatsPreferences: {
+            enablePartialVirtualization,
+            enableVirtualScroll
         }
     } = useStore();
     const theme = useTheme();
@@ -45,6 +49,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     const refs = useMessagesListRefs();
     const classes = useStyles();
     const [reachedBottom, setReachedBottom] = useState(false);
+    const shouldHandleWindowScroll = onSmallScreen && (!enableVirtualScroll || enablePartialVirtualization);
 
     const calculateStyles = (): CSSProperties => calculateMessagesListStyles({
         refs,
@@ -72,6 +77,18 @@ export const MessagesList: FunctionComponent = observer(() => {
         setReachedBottom(scrolledToBottom);
     };
 
+    const handleWindowScroll = (): void => {
+        if (shouldHandleWindowScroll) {
+            const windowHeight = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
+            const body = document.body;
+            const html = document.documentElement;
+            const documentHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+            const windowBottom = windowHeight + window.pageYOffset;
+
+            setReachedBottom(documentHeight - windowBottom <= 1);
+        }
+    };
+
     const scrollToBottom = (): void => {
         setTimeout(() => {
             if (refs.phantomBottomRef && refs.phantomBottomRef.current) {
@@ -92,6 +109,11 @@ export const MessagesList: FunctionComponent = observer(() => {
         },
         [lastMessage]
     );
+    useEffect(() => {
+        window.addEventListener("scroll", handleWindowScroll);
+
+        return () => window.removeEventListener("scroll", handleWindowScroll);
+    });
 
     return (
         <Fragment>

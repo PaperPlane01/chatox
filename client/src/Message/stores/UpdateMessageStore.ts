@@ -1,48 +1,51 @@
-import {makeAutoObservable, reaction, runInAction} from "mobx";
+import {action, makeObservable, observable, reaction, runInAction} from "mobx";
+import {AbstractMessageFormStore} from "./AbstractMessageFormStore";
+import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
 import {UpdateMessageFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {EntitiesStore} from "../../entities-store";
-import {validateMessageText} from "../validation";
-import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
+import {getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {ChatStore} from "../../Chat";
+import {createWithUndefinedValues} from "../../utils/object-utils";
+import {UploadedFileContainer} from "../../utils/file-utils";
 
-export class UpdateMessageStore {
-    updateMessageForm: UpdateMessageFormData = {
-        text: ""
-    };
+const INITIAL_FORM_VALUES: UpdateMessageFormData = {
+    text: ""
+};
+const INITIAL_FORM_ERRORS: FormErrors<UpdateMessageFormData> = createWithUndefinedValues(INITIAL_FORM_VALUES);
 
-    formErrors: FormErrors<UpdateMessageFormData> = {
-        text: undefined
-    };
-
+export class UpdateMessageStore extends AbstractMessageFormStore<UpdateMessageFormData>{
     updatedMessageId?: string = undefined;
 
-    pending: boolean = false;
+    constructor(chatStore: ChatStore,
+                messageUploads: UploadMessageAttachmentsStore,
+                entities: EntitiesStore) {
+        super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS, chatStore, messageUploads, entities);
 
-    error?: ApiError = undefined;
-
-    get selectedChatId(): string | undefined {
-        return this.chatStore.selectedChatId;
-    }
-
-    constructor(private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStore) {
-        makeAutoObservable(this);
+        makeObservable<UpdateMessageStore>(this, {
+            updatedMessageId: observable,
+            setUpdatedMessageId: action,
+            submitForm: action.bound
+        });
 
         reaction(
             () => this.updatedMessageId,
             messageId => {
-                if (messageId) {
+                if (!messageId) {
+                   this.reset();
+                } else {
                     const message = this.entities.messages.findById(messageId);
                     this.setFormValue("text", message.text);
+                    const uploads = this.entities.uploads.findAllById(message.uploads);
+                    const files = uploads.map(upload => new UploadedFileContainer(
+                        undefined,
+                        upload.type,
+                        false,
+                        upload.id,
+                        upload
+                    ));
+                    this.messageUploads.setMessageAttachmentsFiles(files);
                 }
-            }
-        );
-
-        reaction(
-            () => this.updateMessageForm.text,
-            text => {
-                this.formErrors.text = validateMessageText(text);
             }
         );
     }
@@ -51,11 +54,7 @@ export class UpdateMessageStore {
         this.updatedMessageId = messageId;
     };
 
-    setFormValue = <Key extends keyof UpdateMessageFormData>(key: Key, value: UpdateMessageFormData[Key]): void => {
-        this.updateMessageForm[key] = value;
-    };
-
-    updateMessage = (): void => {
+    submitForm = (): void => {
         if (!this.selectedChatId || !this.updatedMessageId || !this.validateForm()) {
             return;
         }
@@ -66,26 +65,22 @@ export class UpdateMessageStore {
         MessageApi.updateMessage(
             this.selectedChatId,
             this.updatedMessageId,
-            {text: this.updateMessageForm.text}
+            {
+                text: this.formValues.text,
+                uploadAttachments: this.attachmentsIds
+            }
         )
             .then(({data}) => runInAction(() => {
                 this.entities.messages.insert(data);
                 this.updatedMessageId = undefined;
                 this.reset();
             }))
-            .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
-            .finally(() => runInAction(() => this.pending = false));
+            .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
+            .finally(() => this.setPending(false));
     };
 
-    validateForm = (): boolean => {
-        this.formErrors.text = validateMessageText(this.updateMessageForm.text);
-
-        return !Boolean(this.formErrors.text);
-    };
-
-    reset = () => {
-        this.updatedMessageId = undefined;
-        this.setFormValue("text", "");
-        setTimeout(() => runInAction(() => this.formErrors = {text: undefined}));
+    protected reset = (): void => {
+        super.reset();
+        this.setUpdatedMessageId(undefined);
     };
 }

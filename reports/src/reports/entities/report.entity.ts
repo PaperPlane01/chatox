@@ -6,18 +6,18 @@ import {ReportStatus} from "../enums/report-status.enum";
 import {ReportActionTaken} from "../enums/report-action-taken.enum";
 import {PartialBy} from "../../utils/types";
 
-export type ReportDocument<ReportedObject> = Report<ReportedObject> & mongoose.Document;
+export type ReportDocument<T> = mongoose.HydratedDocument<Report<T>>;
 
 @Schema()
-export class Report<ReportedObject> {
+export class Report<T> {
     @Prop({type: mongoose.Schema.Types.ObjectId})
-    _id = new mongoose.Types.ObjectId()
+    _id = new mongoose.Types.ObjectId();
 
     @Prop()
     createdAt: Date = new Date();
 
     @Prop()
-    submittedById?: string
+    submittedById?: string;
 
     @Prop()
     submittedByIpAddress: string;
@@ -61,9 +61,9 @@ export class Report<ReportedObject> {
     description: string;
 
     @Prop({type: mongoose.Schema.Types.Mixed})
-    reportedObject: ReportedObject;
+    reportedObject: T;
 
-    constructor(report?: PartialBy<Report<ReportedObject>, "_id" | "takenActions" | "status" | "createdAt">) {
+    constructor(report?: PartialBy<Report<T>, "_id" | "takenActions" | "status" | "createdAt">) {
         if (report) {
             Object.assign(this, report);
         }

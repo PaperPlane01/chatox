@@ -1,6 +1,7 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {Typography} from "@mui/material";
+import {Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import {Element} from "hast";
@@ -15,6 +16,29 @@ interface MarkdownTextWithEmojiProps {
     uniqueId?: string
 }
 
+const useStyles = makeStyles((theme: Theme) => createStyles({
+    blockquote: {
+        marginBlockStart: 0,
+        marginBlockEnd: 0,
+        marginInlineStart: 0,
+        marginInlineEnd: 0,
+        paddingLeft: theme.spacing(4),
+        borderLeft: `${theme.spacing(0.5)} ${theme.palette.primary.main} solid`,
+        position: "relative",
+        "&::before": {
+            content: "'\u201C'",
+            position: "absolute",
+            fontSize: "4em",
+            color: theme.palette.primary.main,
+            left: 10,
+            top: -20
+        },
+        "&::after": {
+            content: "''"
+        }
+    }
+}));
+
 export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps> = observer(({
     text,
     emojiData,
@@ -22,6 +46,8 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
     uniqueId
 }) => {
     const {parseEmoji} = useEmojiParser();
+    const classes = useStyles();
+
     const processEmoji = (node: Element, props: any): ReactNode | ReactNode[] => node.children.map(child => {
         if (child.type === "text") {
             const keyProvider: EmojiKeyProviderFunction | undefined = uniqueId
@@ -31,15 +57,16 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
             return parseEmoji(child.value, emojiData, child.position, keyProvider);
         } else {
             return (
-                <Fragment {...props}
-                          children={props.children.filter((child: any) => typeof child !== "string")}
-                />
+                <Fragment {...props}>
+                    {props.children.filter((child: any) => typeof child !== "string")}
+                </Fragment>
             );
         }
-    })
+    });
 
     return (
         <ReactMarkdown remarkPlugins={!disableRemarkBreaks ? [remarkBreaks] : []}
+                       allowElement={element => element.tagName !== "img"}
                        components={{
                            p: ({node, ...props}) => (
                                <Typography>
@@ -95,9 +122,15 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
                                <h4>
                                    {processEmoji(node, props)}
                                </h4>
+                           ),
+                           blockquote: ({node, ...props}) => (
+                               <blockquote className={classes.blockquote}>
+                                   {processEmoji(node, props)}
+                               </blockquote>
                            )
                        }}
-                       children={text}
-        />
+        >
+            {text}
+        </ReactMarkdown>
     );
-})
+});

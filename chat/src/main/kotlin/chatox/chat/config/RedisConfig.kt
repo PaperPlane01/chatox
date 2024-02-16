@@ -2,8 +2,10 @@ package chatox.chat.config
 
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatBlocking
+import chatox.chat.model.ChatParticipantsCount
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
+import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.Message
 import chatox.chat.model.Upload
 import chatox.chat.model.User
@@ -105,6 +107,20 @@ class RedisConfig {
     ) { chatParticipation -> chatParticipation.id }
 
     @Bean
+    fun chatUploadAttachmentCacheService() = RedisReactiveCacheService(
+            chatUploadAttachmentRedisTemplate(),
+            cacheKeyGenerator(),
+            ChatUploadAttachment::class.java
+    ) { chatUploadAttachment -> chatUploadAttachment.id }
+
+    @Bean
+    fun chatParticipantsCountCacheService() = RedisReactiveCacheService(
+            chatParticipantsCountRedisTemplate(),
+            cacheKeyGenerator(),
+            ChatParticipantsCount::class.java
+    ) { chatParticipantsCount -> chatParticipantsCount.chatId }
+
+    @Bean
     fun cacheKeyGenerator() = DefaultCacheKeyGenerator(applicationName, CacheKeyGenerator.ClassKeyMode.SIMPLE)
 
     @Bean
@@ -131,10 +147,15 @@ class RedisConfig {
     @Bean
     fun chatParticipationRedisTemplate() = createRedisTemplate(ChatParticipation::class)
 
+    @Bean
+    fun chatUploadAttachmentRedisTemplate() = createRedisTemplate(ChatUploadAttachment::class)
+
+    @Bean
+    fun chatParticipantsCountRedisTemplate() = createRedisTemplate(ChatParticipantsCount::class)
+
     private fun <T: Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
         val stringRedisSerializer = StringRedisSerializer()
-        val jackson2JsonRedisSerializer = Jackson2JsonRedisSerializer(clazz.java)
-        jackson2JsonRedisSerializer.setObjectMapper(objectMapper)
+        val jackson2JsonRedisSerializer = Jackson2JsonRedisSerializer(objectMapper, clazz.java)
         val redisSerializationContext = RedisSerializationContext.newSerializationContext<String, T>(stringRedisSerializer)
                 .value(jackson2JsonRedisSerializer)
                 .build()
