@@ -59,7 +59,7 @@ class ChatMapper(
             avatarUri = chat.avatarUri,
             participantsCount = chatParticipantsCount?.participantsCount,
             onlineParticipantsCount = chatParticipantsCount?.onlineParticipantsCount,
-            createdByCurrentUser = currentUserId ?: currentUserId == chat.createdById,
+            createdByCurrentUser = chat.createdById == currentUserId,
             tags = chat.tags,
             avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
             type = chat.type,
@@ -97,7 +97,7 @@ class ChatMapper(
             if (lastMessage != null && !chat.deleted) {
                 lastMessageMapped = messageMapper.toMessageResponse(
                         lastMessage,
-                        readByCurrentUser = lastReadMessage ?: lastReadMessage?.id == lastMessage.id,
+                        readByCurrentUser = lastReadMessage?.id == lastMessage.id,
                         mapReferredMessage = false,
                         localUsersCache = localUsersCache
                 )
