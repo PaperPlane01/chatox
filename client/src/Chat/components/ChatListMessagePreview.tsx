@@ -1,11 +1,13 @@
-import React, {Fragment, FunctionComponent, ReactNode} from "react";
+import React, {Fragment, FunctionComponent, ReactElement, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {Image, VideoLibrary, FileCopy, Audiotrack} from "@mui/icons-material";
-import {useStore, useLocalization} from "../../store";
-import {useEmojiParser} from "../../Emoji";
-import {UploadType} from "../../api/types/response";
-import {upperCaseFirstLetter} from "../../utils/string-utils";
-import {Labels} from "../../localization";
+import {Audiotrack, FileCopy, Image, KeyboardVoice, VideoLibrary} from "@mui/icons-material";
+import {useLocalization, useStore} from "../../store";
+import {ParseEmojiFunction, useEmojiParser} from "../../Emoji";
+import {Upload, UploadType} from "../../api/types/response";
+import {capitalize} from "../../utils/string-utils";
+import {Labels, TranslationFunction} from "../../localization";
+import {StickerEntity} from "../../Sticker";
+import {MessageEntity} from "../../Message/types";
 
 interface ChatListMessagePreviewProps {
     messageId: string
@@ -47,109 +49,24 @@ export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewPro
     const messageSticker = message.stickerId && findSticker(message.stickerId);
 
     if (message.deleted) {
-        return <i>{l("message.deleted")}</i>
+        return <i>{l("message.deleted")}</i>;
     }
 
     const messageSenderName = messageSender.firstName;
 
     if (messageSticker) {
-        return (
-            <Fragment>
-                {messageSenderName}
-                {": "}
-                {messageSticker.emojis.length !== 0 && parseEmoji((messageSticker.emojis[0] as any).native)}
-                {` [${l("sticker")}]`}
-            </Fragment>
-        );
+        return renderSticker(messageSenderName, messageSticker, parseEmoji, l);
     }
 
     if (message.text && message.text.length !== 0) {
-        return (
-            <Fragment>
-                {messageSenderName}
-                {": "}
-                {parseEmoji(message.text, message.emoji, undefined, emoji => `chatList-${messageId}`)}
-            </Fragment>
-        );
+        return renderText(messageSenderName, message, messageId, parseEmoji);
     }
 
     if (messageUploads.length !== 0) {
         if (messageUploads.length === 1) {
-            const upload = messageUploads[0];
-            let uploadDisplay: ReactNode;
-
-            switch (upload.type) {
-                case UploadType.IMAGE:
-                case UploadType.GIF:
-                    uploadDisplay = (
-                        <Fragment>
-                            <Image fontSize="inherit"/>
-                            {" "}
-                            {upperCaseFirstLetter(l("message.attachments.image"))}
-                        </Fragment>
-                    );
-                    break;
-                case UploadType.FILE:
-                default:
-                    uploadDisplay = (
-                        <Fragment>
-                            <FileCopy fontSize="inherit"/>
-                            {" "}
-                            {upperCaseFirstLetter(l("message.attachments.file"))}
-                        </Fragment>
-                    );
-                    break;
-                case UploadType.VIDEO:
-                    uploadDisplay = (
-                        <Fragment>
-                            <VideoLibrary fontSize="inherit"/>
-                            {" "}
-                            {upperCaseFirstLetter(l("message.attachments.video"))}
-                        </Fragment>
-                    );
-                    break;
-                case UploadType.AUDIO:
-                    uploadDisplay = (
-                        <Fragment>
-                            <Audiotrack fontSize="inherit"/>
-                            {" "}
-                            {upperCaseFirstLetter(l("message.attachments.audio"))}
-                        </Fragment>
-                    )
-            }
-
-            return (
-                <Fragment>
-                    {messageSenderName}
-                    {": "}
-                    {uploadDisplay}
-                </Fragment>
-            );
+            return renderMessageWithSingleUpload(messageSenderName, messageUploads[0], l);
         } else {
-            const imagesText = message.imagesCount !== 0
-                ? `${message.imagesCount} ${l(getSingularOrPluralLabel(message.imagesCount, "message.attachments.image"))}`
-                : "";
-            const videosText = message.videosCount !== 0
-                ? `${message.videosCount} ${l(getSingularOrPluralLabel(message.videosCount, "message.attachments.video"))}`
-                : "";
-            const audiosText = message.audiosCount !== 0
-                ? `${message.audiosCount} ${l(getSingularOrPluralLabel(message.audiosCount, "message.attachments.audio"))}`
-                : "";
-            const filesText = message.filesCount !== 0
-                ? `${message.filesCount} ${l(getSingularOrPluralLabel(message.filesCount, "message.attachments.file"))}`
-                : "";
-            let attachmentsText = [imagesText, videosText, audiosText, filesText]
-                .filter(text => text !== "")
-                .reduce((left, right) => `${left}, ${right}`)
-            attachmentsText = `[${attachmentsText}]`;
-
-            return  (
-                <Fragment>
-                    {messageSenderName}
-                    {": "}
-                    {attachmentsText}
-                </Fragment>
-            );
+            return renderMessageWithMultipleUploads(messageSenderName, message, l);
         }
     }
 
@@ -159,3 +76,113 @@ export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewPro
         </Fragment>
     );
 });
+
+const renderSticker = (senderName: string, sticker: StickerEntity, parseEmoji: ParseEmojiFunction, l: TranslationFunction): ReactElement => (
+    <Fragment>
+        {senderName}
+        {": "}
+        {sticker.emojis.length !== 0 && parseEmoji((sticker.emojis[0] as any).native)}
+        {` [${l("sticker")}]`}
+    </Fragment>
+);
+
+const renderText = (senderName: string, message: MessageEntity, messageId: string, parseEmoji: ParseEmojiFunction): ReactElement =>  (
+    <Fragment>
+        {senderName}
+        {": "}
+        {parseEmoji(message.text, message.emoji, undefined, emoji => `chatList-${messageId}`)}
+    </Fragment>
+);
+
+const renderMessageWithSingleUpload = (senderName: string, upload: Upload<any>, l: TranslationFunction): ReactElement => {
+    let uploadDisplay: ReactNode;
+
+    switch (upload.type) {
+        case UploadType.IMAGE:
+        case UploadType.GIF:
+            uploadDisplay = (
+                <Fragment>
+                    <Image fontSize="inherit"/>
+                    {" "}
+                    {capitalize(l("message.attachments.image"))}
+                </Fragment>
+            );
+            break;
+        case UploadType.VIDEO:
+            uploadDisplay = (
+                <Fragment>
+                    <VideoLibrary fontSize="inherit"/>
+                    {" "}
+                    {capitalize(l("message.attachments.video"))}
+                </Fragment>
+            );
+            break;
+        case UploadType.AUDIO:
+            uploadDisplay = (
+                <Fragment>
+                    <Audiotrack fontSize="inherit"/>
+                    {" "}
+                    {capitalize(l("message.attachments.audio"))}
+                </Fragment>
+            )
+            break;
+        case UploadType.VOICE_MESSAGE:
+            uploadDisplay = (
+                <Fragment>
+                    <KeyboardVoice fontSize="inherit"/>
+                    {" "}
+                    {capitalize(l("message.attachments.voice-message"))}
+                </Fragment>
+            );
+            break;
+        case UploadType.FILE:
+        default:
+            uploadDisplay = (
+                <Fragment>
+                    <FileCopy fontSize="inherit"/>
+                    {" "}
+                    {capitalize(l("message.attachments.file"))}
+                </Fragment>
+            );
+            break;
+    }
+
+    return (
+        <Fragment>
+            {senderName}
+            {": "}
+            {uploadDisplay}
+        </Fragment>
+    );
+};
+
+const renderMessageWithMultipleUploads = (senderName: string, message: MessageEntity, l: TranslationFunction): ReactElement => {
+    const imagesText = message.imagesCount !== 0
+        ? `${message.imagesCount} ${l(getSingularOrPluralLabel(message.imagesCount, "message.attachments.image"))}`
+        : "";
+    const videosText = message.videosCount !== 0
+        ? `${message.videosCount} ${l(getSingularOrPluralLabel(message.videosCount, "message.attachments.video"))}`
+        : "";
+    const audiosText = message.audiosCount !== 0
+        ? `${message.audiosCount} ${l(getSingularOrPluralLabel(message.audiosCount, "message.attachments.audio"))}`
+        : "";
+    const voiceMessagesText = message.voiceMessagesCount !== 0
+        ? `${message.voiceMessagesCount} ${l(getSingularOrPluralLabel(message.voiceMessagesCount, "message.attachments.voice-message"))}`
+        : "";
+    const filesText = message.filesCount !== 0
+        ? `${message.filesCount} ${l(getSingularOrPluralLabel(message.filesCount, "message.attachments.file"))}`
+        : "";
+    let attachmentsText = [imagesText, videosText, audiosText, voiceMessagesText, filesText]
+        .filter(text => text !== "")
+        .reduce((left, right) => `${left}, ${right}`)
+    attachmentsText = `[${attachmentsText}]`;
+
+    return  (
+        <Fragment>
+            {senderName}
+            {": "}
+            {attachmentsText}
+        </Fragment>
+    );
+};
+

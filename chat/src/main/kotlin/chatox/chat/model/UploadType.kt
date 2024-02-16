@@ -5,5 +5,6 @@ enum class UploadType {
     GIF,
     AUDIO,
     VIDEO,
-    FILE
+    FILE,
+    VOICE_MESSAGE
 }

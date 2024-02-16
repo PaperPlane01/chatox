@@ -14,6 +14,7 @@ import {FormErrors} from "../../utils/types";
 import {createWithUndefinedValues, isDefined} from "../../utils/object-utils";
 import {Duration} from "../../utils/date-utils";
 import {isStringEmpty} from "../../utils/string-utils";
+import {RecordVoiceMessageStore} from "./RecordVoiceMessageStore";
 
 const INITIAL_FORM_VALUES: CreateMessageFormData = {
     text: "",
@@ -45,7 +46,8 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
                 messageUploads: UploadMessageAttachmentsStore,
                 entities: EntitiesStore,
                 private readonly chatsPreferences: ChatsPreferencesStore,
-                private readonly forwardMessagesStore: ForwardMessagesStore) {
+                private readonly forwardMessagesStore: ForwardMessagesStore,
+                private readonly recordVoiceMessageStore: RecordVoiceMessageStore) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS, chatStore, messageUploads, entities);
 
         this.startTyping = debounce(this.startTyping, 300);
@@ -143,6 +145,8 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
                 scheduledAt: this.formValues.scheduledAt ? this.formValues.scheduledAt.toISOString() : undefined
             })
                 .then(({data}) => {
+                    this.recordVoiceMessageStore.cleanRecording();
+
                     if (!this.formValues.scheduledAt) {
                         const message = this.entities.messages.insert(data);
                         this.setLastMessageDateForChat(data.chatId, message.createdAt);

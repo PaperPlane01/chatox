@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {IconButton, Menu, Slider, Theme, Typography} from "@mui/material";
 import {Mark} from "@mui/base";
@@ -6,10 +6,18 @@ import {createStyles, makeStyles} from "@mui/styles";
 import {Pause, PlayArrow, VolumeDown, VolumeOff, VolumeUp} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {format} from "date-fns";
+import clsx from "clsx";
+import {WaveForm} from "./WaveForm";
+import {AudioType} from "../types";
 import {useStore} from "../../store";
+import {UploadType} from "../../api/types/response";
 
 interface AudioPlayerControlsProps {
-    audioId: string
+    audioId: string,
+    audioType: AudioType,
+    hideWaveForm?: boolean,
+    fullWidth?: boolean,
+    waveFormViewBox?: string
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -45,11 +53,22 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     playerControlsWrapper: {
         display: "flex",
-        width: "80%",
         alignItems: "flex-start",
         [theme.breakpoints.down("lg")]: {
             width: "90%"
         }
+    },
+    notFullWidth: {
+        width: "80%",
+        [theme.breakpoints.down("lg")]: {
+            width: "90%"
+        }
+    },
+    fullWidth: {
+      width: "100%"
+    },
+    playerWaveFormContainer: {
+        maxWidth: "100%"
     },
     playerSliderContainer: {
         width: "100%"
@@ -60,12 +79,17 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = observer(({
-    audioId
+    audioId,
+    audioType,
+    hideWaveForm = false,
+    fullWidth = false,
+    waveFormViewBox
 }) => {
     const {
         entities: {
             uploads: {
-                findAudio
+                findAudio,
+                findVoiceMessage
             }
         },
         audioPlayer: {
@@ -74,6 +98,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
             currentPosition,
             volume,
             setCurrentTrackId,
+            setCurrentTrackType,
             setPlaying,
             setVolume,
             setSeekTo
@@ -85,7 +110,10 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
         variant: "popover"
     });
 
-    const audio = findAudio(audioId);
+    const voiceMessage = audioType === UploadType.VOICE_MESSAGE;
+    const audio = voiceMessage
+        ? findVoiceMessage(audioId)
+        : findAudio(audioId);
     const sliderMarks: Mark[] = [
         {
             value: 0,
@@ -108,8 +136,19 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
         }
     ];
 
+    const displayWaveForm = !hideWaveForm
+        && audio.meta
+        && audio.meta.waveForm
+        && audio.meta.waveForm.length !== 0;
+
+    const wrapperClasses = clsx({
+        [classes.playerControlsWrapper]: true,
+        [classes.fullWidth]: fullWidth,
+        [classes.notFullWidth]: !fullWidth
+    });
+
     return (
-        <div className={classes.playerControlsWrapper}>
+        <div className={wrapperClasses}>
             {playing && currentTrackId === audioId && (
                 <IconButton onClick={() => setPlaying(false)} size="large">
                     <Pause/>
@@ -119,6 +158,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                 <IconButton
                     onClick={() => {
                         setCurrentTrackId(audioId);
+                        setCurrentTrackType(audioType);
                         setPlaying(true);
                     }}
                     size="large"
@@ -127,9 +167,23 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                 </IconButton>
             )}
             <div className={classes.playerSliderContainer}>
-                <Typography variant="body2" className={classes.audioTrackTypography}>
-                    {audio.originalName.substring(0, audio.originalName.length - audio.extension.length - 1)}
-                </Typography>
+                {displayWaveForm
+                    ? (
+                        <div className={classes.playerWaveFormContainer}>
+                            <WaveForm waveForm={audio.meta!.waveForm!}
+                                      playerProgress={currentPosition}
+                                      audioId={audioId}
+                                      currentlyPlaying={audioId === currentTrackId}
+                                      viewBox={waveFormViewBox}
+                            />
+                        </div>
+                    )
+                    : (
+                        <Typography variant="body2" className={classes.audioTrackTypography}>
+                            {audio.originalName.substring(0, audio.originalName.length - audio.extension.length - 1)}
+                        </Typography>
+                    )
+                }
                 <Slider value={currentTrackId === audioId ? currentPosition : 0}
                         max={1}
                         marks={sliderMarks}
@@ -148,41 +202,39 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                         step={0.01}
                 />
             </div>
-            <Fragment>
-                <IconButton {...bindToggle(volumePopupState)} size="large">
-                    {volume >= 0.6 && (
-                        <VolumeUp/>
-                    )}
-                    {volume < 0.6 && volume > 0 && (
-                        <VolumeDown/>
-                    )}
-                    {volume === 0 && (
-                        <VolumeOff/>
-                    )}
-                </IconButton>
-                <Menu {...bindMenu(volumePopupState)}
-                      anchorOrigin={{
-                          vertical: "center",
-                          horizontal: "right"
-                      }}
-                      classes={{
-                          paper: classes.volumeMenuPaper
-                      }}
-                >
-                    <Slider value={volume}
-                            onChange={(_, value) => setVolume(value as number)}
-                            orientation="vertical"
-                            style={{
-                                height: 100
-                            }}
-                            classes={{
-                                thumb: classes.volumeSliderThumb
-                            }}
-                            max={1}
-                            step={0.000001}
-                    />
-                </Menu>
-            </Fragment>
+            <IconButton {...bindToggle(volumePopupState)} size="large">
+                {volume >= 0.6 && (
+                    <VolumeUp/>
+                )}
+                {volume < 0.6 && volume > 0 && (
+                    <VolumeDown/>
+                )}
+                {volume === 0 && (
+                    <VolumeOff/>
+                )}
+            </IconButton>
+            <Menu {...bindMenu(volumePopupState)}
+                  anchorOrigin={{
+                      vertical: "center",
+                      horizontal: "right"
+                  }}
+                  classes={{
+                      paper: classes.volumeMenuPaper
+                  }}
+            >
+                <Slider value={volume}
+                        onChange={(_, value) => setVolume(value as number)}
+                        orientation="vertical"
+                        style={{
+                            height: 100
+                        }}
+                        classes={{
+                            thumb: classes.volumeSliderThumb
+                        }}
+                        max={1}
+                        step={0.000001}
+                />
+            </Menu>
         </div>
     );
 });

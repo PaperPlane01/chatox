@@ -332,6 +332,11 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
             } else {
                 true
             }
+            val voiceMessageCheck = if (uploadsCount.voiceMessages != 0) {
+                messageFeatures.allowedToSendVoiceMessages
+            } else {
+                true
+            }
             val fileCheck = if (uploadsCount.files != 0) {
                 messageFeatures.allowedToSendFiles
             } else {
@@ -343,7 +348,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 true
             }
 
-            return@mono stickerCheck && imageCheck && audioCheck && fileCheck && videoCheck
+            return@mono stickerCheck && imageCheck && audioCheck && voiceMessageCheck && fileCheck && videoCheck
         }
     }
 
@@ -358,7 +363,8 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                     Pair(UploadType.IMAGE, 0),
                     Pair(UploadType.AUDIO, 0),
                     Pair(UploadType.FILE, 0),
-                    Pair(UploadType.VIDEO, 0)
+                    Pair(UploadType.VIDEO, 0),
+                    Pair(UploadType.VOICE_MESSAGE, 0)
             )
 
             for (upload in uploads) {

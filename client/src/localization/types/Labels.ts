@@ -337,6 +337,8 @@ export interface Labels {
     "message.attachments.image.plural": string,
     "message.attachments.video": string,
     "message.attachments.video.plural": string,
+    "message.attachments.voice-message": string,
+    "message.attachments.voice-message.plural": string,
     "message.delayed-message.create": string,
     "message.delayed-message.is-too-close-to-other-delayed-message": string,
     "message.delayed-message.limit-reached": string,
@@ -741,5 +743,11 @@ export interface Labels {
     "chat.join.error.ALREADY_CHAT_PARTICIPANT": string,
     "chat.join.error.AWAITING_APPROVAL": string,
     "chat.visibility": string,
-    "chat.visibility.hide-from-search": string
+    "chat.visibility.hide-from-search": string,
+    "message.voice.record": string,
+    "message.voice.record.placeholder": string,
+    "message.voice.record.uploading": string,
+    "message.voice.record.error.not-supported": string,
+    "message.voice.record.error.unknown": string,
+    "message.voice.from-file": string
 }

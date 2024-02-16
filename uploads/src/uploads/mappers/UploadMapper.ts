@@ -33,6 +33,7 @@ export class UploadMapper {
 
         switch (upload.type) {
             case UploadType.AUDIO:
+            case UploadType.VOICE_MESSAGE:
                 return `${apiHost}/api/v1/uploads/audios/${upload.name}`;
             case UploadType.FILE:
                 return `${apiHost}/api/v1/uploads/files/${upload.name}`;

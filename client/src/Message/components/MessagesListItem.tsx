@@ -27,6 +27,7 @@ import {getChatRoleTranslation} from "../../ChatRole/utils";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 import {useLuminosity} from "../../utils/hooks";
 import {commonStyles} from "../../style";
+import {UploadType} from "../../api/types/response";
 
 interface MessagesListItemProps {
     messageId: string,
@@ -273,7 +274,8 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
     const sentByCurrentUser = currentUser && (currentUser.id === sender.id || currentUser.id === message.forwardedById);
     const containsCode = message.text.includes("`");
-    const withAudio = message.audios.length !== 0;
+    const withAudio = message.audios.length !== 0
+        || message.voiceMessages.length !== 0;
 
     const cardClasses = clsx({
         [classes.messageCardFullWidth]: fullWidth,
@@ -442,7 +444,14 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                                         />
                                     )}
                                     {!hideAttachments && message.audios.length !== 0 && (
-                                        <MessageAudios audios={message.audios}/>
+                                        <MessageAudios audios={message.audios}
+                                                       audioType={UploadType.AUDIO}
+                                        />
+                                    )}
+                                    {!hideAttachments && message.voiceMessages.length !== 0 && (
+                                        <MessageAudios audios={message.voiceMessages}
+                                                       audioType={UploadType.VOICE_MESSAGE}
+                                        />
                                     )}
                                     {!hideAttachments && message.files.length !== 0 && (
                                         <MessageFiles chatUploadIds={message.files}/>

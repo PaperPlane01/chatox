@@ -1,6 +1,7 @@
 import {HttpException, HttpStatus, Logger} from "@nestjs/common";
 import {Response} from "express";
 import {createReadStream, PathLike} from "fs";
+import {FileTypeResult, fromFile} from "file-type";
 
 export const streamFileToResponse = (path: PathLike, response: Response, logger?: Logger): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
@@ -22,4 +23,8 @@ export const streamFileToResponse = (path: PathLike, response: Response, logger?
 
         stream.on("end", () => response.status(200).send());
     });
-}
+};
+
+export const getFileType = async (path: string): Promise<FileTypeResult> => {
+    return await fromFile(path);
+};

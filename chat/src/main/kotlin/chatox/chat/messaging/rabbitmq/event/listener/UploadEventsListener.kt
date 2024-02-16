@@ -72,6 +72,16 @@ class UploadEventsListener(private val uploadService: UploadService) {
                 .subscribe()
     }
 
+    @RabbitListener(queues = ["chat_service_voice_message_created"])
+    fun onVoiceMessageCreated(uploadCreated: UploadCreated<AudioUploadMetadata>,
+                              channel: Channel,
+                              @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+        uploadService.saveUpload(uploadCreated)
+                .doOnSuccess { channel.basicAck(tag, false) }
+                .doOnError { channel.basicNack(tag, true, true) }
+                .subscribe()
+    }
+
     @RabbitListener(queues = ["chat_service_upload_deleted"])
     fun onUploadDeleted(uploadDeleted: UploadDeleted,
                         channel: Channel,

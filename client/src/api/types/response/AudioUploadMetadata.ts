@@ -1,4 +1,5 @@
 export interface AudioUploadMetadata {
     duration: number,
-    bitrate: number
+    bitrate: number,
+    waveForm?: number[]
 }
