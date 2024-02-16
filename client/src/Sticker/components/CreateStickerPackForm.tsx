@@ -43,8 +43,6 @@ export const CreateStickerPackForm: FunctionComponent = observer(() => {
         ? stickerUnderCreation
         : editedStickerId ? formValues.stickers[editedStickerId] : undefined
 
-    console.log(stickerContainerForDialog)
-
     return (
         <Fragment>
             <Card>

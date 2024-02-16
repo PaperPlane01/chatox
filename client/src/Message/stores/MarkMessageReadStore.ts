@@ -84,8 +84,6 @@ export class MarkMessageReadStore {
 
         const message = this.entities.messages.findByIdOptional(messageId);
 
-        console.log(toJS(message));
-
         if (!message || message.readByCurrentUser) {
             return;
         }

@@ -65,7 +65,6 @@ export class RecordVoiceMessageStore {
 
 	private addEventHandlers = (mediaRecorder: MediaRecorder): void => {
 		mediaRecorder.ondataavailable = event => {
-			console.log("new data!!")
 			this.chunks.push(event.data);
 		};
 		mediaRecorder.onstop = () => {

@@ -100,7 +100,6 @@ export class WebsocketStore {
 
     startListeningWithSharedWorker = async (): Promise<void> => {
         const socketIoWorker = await getSocketIoWorker();
-        console.log(socketIoWorker)
 
         if (!socketIoWorker) {
             return;

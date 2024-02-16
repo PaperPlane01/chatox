@@ -116,7 +116,6 @@ export class UpdateChatStore extends AbstractFormStore<UpdateChatFormData> {
                         joinAllowanceSettings: selectedChat.joinAllowanceSettings,
                         hideFromSearch: selectedChat.hideFromSearch
                     });
-                    console.log(this.formValues.hideFromSearch);
                 }
             }
         );
