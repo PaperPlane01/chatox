@@ -1,11 +1,13 @@
-import React, {Fragment, FunctionComponent, useEffect, useState} from "react";
+import React, {Fragment, FunctionComponent, ReactNode, useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Close, KeyboardVoice, Pause} from "@mui/icons-material";
 import {IconButton, Typography} from "@mui/material";
 import {SendMessageButton} from "./SendMessageButton";
-import {useLocalization, useStore} from "../../store";
 import {AudioPlayerControls} from "../../AudioPlayer";
+import {useLocalization, useStore} from "../../store";
 import {UploadType} from "../../api/types/response";
+
+const POSTFIX_MAX_LENGTH = 6;
 
 export const VoiceRecorder: FunctionComponent = observer(() => {
 	const {
@@ -23,13 +25,13 @@ export const VoiceRecorder: FunctionComponent = observer(() => {
 		}
 	} = useStore();
 	const {l} = useLocalization();
-	const [suffix, setSuffix] = useState("...");
+	const [postfix, setPostfix] = useState("...");
 
 	const interval = setInterval(() => {
-		if (suffix.length === 6) {
-			setSuffix("...");
+		if (postfix.length === POSTFIX_MAX_LENGTH) {
+			setPostfix("...");
 		} else {
-			setSuffix(`${suffix}.`);
+			setPostfix(`${postfix}.`);
 		}
 	}, 800);
 
@@ -45,32 +47,43 @@ export const VoiceRecorder: FunctionComponent = observer(() => {
 		}
 	};
 
+	let content: ReactNode;
+
+	if (uploadedFileId) {
+		content = (
+			<Fragment>
+				<AudioPlayerControls audioId={uploadedFileId}
+									 audioType={UploadType.VOICE_MESSAGE}
+									 fullWidth
+									 waveFormViewBox="0 0 150 5"
+				/>
+				<IconButton onClick={cleanRecording}>
+					<Close/>
+				</IconButton>
+			</Fragment>
+		);
+	} else if (uploadPending) {
+		content = (
+			<Typography style={{width: "100%"}}>
+				{l("message.voice.record.uploading")}{postfix}
+			</Typography>
+		);
+	} else {
+		content = (
+			<Fragment>
+				<IconButton onClick={handleClick}>
+					{recording ? <Pause/> : <KeyboardVoice/>}
+				</IconButton>
+				<Typography style={{width: "100%"}}>
+					{l("message.voice.record.placeholder")}{postfix}
+				</Typography>
+			</Fragment>
+		);
+	}
+
 	return (
 		<div style={{display: "flex", alignItems: "center"}}>
-			{uploadedFileId
-				? (
-					<Fragment>
-						<AudioPlayerControls audioId={uploadedFileId}
-											 audioType={UploadType.VOICE_MESSAGE}
-											 fullWidth
-											 waveFormViewBox="0 0 150 5"
-						/>
-						<IconButton onClick={cleanRecording}>
-							<Close/>
-						</IconButton>
-					</Fragment>
-				)
-				: (
-					<Fragment>
-						<IconButton onClick={handleClick}>
-							{recording ? <Pause/> : <KeyboardVoice/>}
-						</IconButton>
-						<Typography style={{width: "100%"}}>
-							{l("message.voice.record.placeholder")}{suffix}
-						</Typography>
-					</Fragment>
-				)
-			}
+			{content}
 			<SendMessageButton onClick={submitForm}
 							   disabled={recording || uploadPending || messagePending}
 			/>

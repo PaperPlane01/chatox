@@ -748,6 +748,7 @@ export const en: Labels = {
     "chat.visibility.hide-from-search": "Hide from search",
     "message.voice.record": "Record voice",
     "message.voice.record.placeholder": "Recording in process",
+    "message.voice.record.uploading": "Uploading",
     "message.voice.record.error.not-supported": "Your device does not support voice recording",
     "message.voice.record.error.unknown": "Error occurred when tried to record voice",
     "message.voice.from-file": "Select from file"

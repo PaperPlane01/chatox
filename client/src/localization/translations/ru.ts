@@ -748,6 +748,7 @@ export const ru: Labels = {
     "chat.visibility.hide-from-search": "Скрывать из поиска",
     "message.voice.record": "Записать с микрофона",
     "message.voice.record.placeholder": "Запись в процессе",
+    "message.voice.record.uploading": "Идёт загрузка",
     "message.voice.record.error.not-supported": "Ваше устройство не поддерживает запись с микрофона",
     "message.voice.record.error.unknown": "Во время записи с микрофона произошла ошибка",
     "message.voice.from-file": "Выбрать файл"

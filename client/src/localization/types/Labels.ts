@@ -746,6 +746,7 @@ export interface Labels {
     "chat.visibility.hide-from-search": string,
     "message.voice.record": string,
     "message.voice.record.placeholder": string,
+    "message.voice.record.uploading": string,
     "message.voice.record.error.not-supported": string,
     "message.voice.record.error.unknown": string,
     "message.voice.from-file": string
