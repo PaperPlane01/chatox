@@ -52,7 +52,7 @@ export class UploadReferenceDeletionChecker implements OnApplicationBootstrap {
 
         const uploadsIdsToDelete = await filterAsync(
             uploadsIds,
-            async uploadId => (await this.uploadReferenceModel.count({
+            async uploadId => (await this.uploadReferenceModel.countDocuments({
                 uploadId,
                 _id: {
                     $nin: uploadReferencesIds

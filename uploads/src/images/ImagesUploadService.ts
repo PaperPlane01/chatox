@@ -1,5 +1,6 @@
-import {CACHE_MANAGER, HttpException, HttpStatus, Inject, Injectable, Logger} from "@nestjs/common";
+import {HttpException, HttpStatus, Inject, Injectable, Logger} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
+import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import {Store} from "cache-manager";
 import {Response} from "express";
 import {Model, Types} from "mongoose";
