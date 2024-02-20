@@ -18,7 +18,7 @@ import {
     ScheduleMessageDialog,
     UnpinMessageSnackbarManager
 } from "../Message";
-import {BlockUserInChatByIdOrSlugDialog} from "../ChatBlocking";
+import {BlockUserInChatByIdOrSlugDialog, CreateChatBlockingDialog} from "../ChatBlocking";
 import {BanUserGloballyDialog} from "../GlobalBan";
 import {ReportChatDialog, ReportMessageDialog} from "../Report";
 import {StickerPackDialog} from "../Sticker";
@@ -60,21 +60,22 @@ export const ChatPage: FunctionComponent = observer(() => {
                         </Grid>
                     </Grid>
                 </Grid>
-                <ChatInfoDialog/>
-                <BlockUserInChatByIdOrSlugDialog/>
-                <MessageDialog/>
-                <AttachedFilesDialog/>
-                <BanUserGloballyDialog/>
-                <UpdateChatParticipantDialog/>
-                <PinMessageSnackbarManager/>
-                <UnpinMessageSnackbarManager/>
-                <ScheduleMessageDialog/>
-                <ReportMessageDialog/>
-                <ReportChatDialog/>
-                <StickerPackDialog/>
-                <ConfirmChatDeletionDialog/>
-                <SpecifyChatDeletionReasonDialog/>
             </Grid>
+            <ChatInfoDialog/>
+            <BlockUserInChatByIdOrSlugDialog/>
+            <MessageDialog/>
+            <AttachedFilesDialog/>
+            <BanUserGloballyDialog/>
+            <UpdateChatParticipantDialog/>
+            <PinMessageSnackbarManager/>
+            <UnpinMessageSnackbarManager/>
+            <ScheduleMessageDialog/>
+            <ReportMessageDialog/>
+            <ReportChatDialog/>
+            <StickerPackDialog/>
+            <ConfirmChatDeletionDialog/>
+            <SpecifyChatDeletionReasonDialog/>
+            <CreateChatBlockingDialog/>
         </Fragment>
     );
 });

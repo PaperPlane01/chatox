@@ -14,6 +14,7 @@ import {
     Select,
     Switch,
     TextField,
+    Theme,
     Typography,
     useTheme
 } from "@mui/material";
@@ -28,9 +29,12 @@ import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles((theme: Theme) => createStyles({
     blockedUserContainer: {
         display: "flex"
+    },
+    withPaddingTop: {
+        paddingTop: theme.spacing(1)
     }
 }));
 
@@ -129,6 +133,7 @@ export const CreateChatBlockingDialog: FunctionComponent = observer(() => {
                                 ampm={false}
                                 renderInput={props => (
                                     <TextField {...props}
+                                               fullWidth
                                                label={l("chat.blocking.blocked-until")}
                                     />
                                 )}
@@ -152,7 +157,9 @@ export const CreateChatBlockingDialog: FunctionComponent = observer(() => {
                                   }
                 />
                 {formData.deleteRecentMessages && (
-                    <FormControl fullWidth>
+                    <FormControl fullWidth
+                                 className={classes.withPaddingTop}
+                    >
                         <InputLabel>{l("chat.blocking.messages-deletion-period")}</InputLabel>
                         <Select value={formData.recentMessagesDeletionPeriod}
                                 onChange={event => setFormValue(

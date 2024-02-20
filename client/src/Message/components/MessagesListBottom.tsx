@@ -1,6 +1,6 @@
 import React, {CSSProperties, forwardRef, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {Theme, Typography} from "@mui/material";
+import {Alert, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {format} from "date-fns";
 import {MessageFormContainer} from "./MessageFormContainer";
@@ -113,7 +113,7 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {style?: CSSProperties}>(
         if (chatParticipation) {
             if (currentUser.globalBan && isGlobalBanActive(findGlobalBan(currentUser.globalBan.id))) {
                 messagesListBottomContent = (
-                    <Typography color="primary">
+                    <Alert severity="error">
                         {
                             getGlobalBanLabel(
                                 findGlobalBan(currentUser.globalBan.id),
@@ -122,7 +122,7 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {style?: CSSProperties}>(
                                 findUser
                             )
                         }
-                    </Typography>
+                    </Alert>
                 )
             } else {
                 if (chatParticipation.activeChatBlockingId) {
@@ -133,18 +133,16 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, {style?: CSSProperties}>(
                 if (activeChatBlocking) {
                     const blockedBy = findUser(activeChatBlocking.blockedById);
                     messagesListBottomContent = (
-                        <Typography>
-                            <Typography color="primary">
-                                {
-                                    getBlockingLabel(
-                                        activeChatBlocking,
-                                        blockedBy,
-                                        l,
-                                        dateFnsLocale
-                                    )
-                                }
-                            </Typography>
-                        </Typography>
+                        <Alert severity="error">
+                            {
+                                getBlockingLabel(
+                                    activeChatBlocking,
+                                    blockedBy,
+                                    l,
+                                    dateFnsLocale
+                                )
+                            }
+                        </Alert>
                     );
                 } else {
                     messagesListBottomContent = <MessageFormContainer/>;
