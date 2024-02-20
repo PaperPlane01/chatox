@@ -1,7 +1,8 @@
-import {CacheModule, Module} from "@nestjs/common";
+import {Module} from "@nestjs/common";
 import {MongooseModule} from "@nestjs/mongoose";
 import {ScheduleModule} from "@nestjs/schedule";
-import redisStore from "cache-manager-redis-store";
+import {CacheModule} from "@nestjs/cache-manager";
+import * as redisStore from "cache-manager-redis-store";
 import {ImagesUploadModule} from "./images";
 import {config} from "./config";
 import {UploadsModule} from "./uploads";
