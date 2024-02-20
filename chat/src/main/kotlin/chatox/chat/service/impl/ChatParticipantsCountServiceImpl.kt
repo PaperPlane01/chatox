@@ -63,7 +63,7 @@ class ChatParticipantsCountServiceImpl(
     }
 
     override fun decreaseChatParticipantsCount(chatId: String): Mono<ChatParticipantsCount> {
-        return decreaseOnlineParticipantsCount(chatId, 1)
+        return decreaseChatParticipantsCount(chatId, 1)
     }
 
     override fun decreaseChatParticipantsCount(chatId: String, number: Int): Mono<ChatParticipantsCount> {
