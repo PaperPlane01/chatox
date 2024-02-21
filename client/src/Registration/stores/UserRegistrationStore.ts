@@ -131,7 +131,7 @@ export class UserRegistrationStore {
                     email: this.emailConfirmation && this.emailConfirmation.email,
                     emailConfirmationCodeId: this.emailConfirmation && this.emailConfirmation.id,
                     emailConfirmationCode: this.emailVerificationCode && this.emailVerificationCode,
-                    clientId: process.env.REACT_APP_CLIENT_ID as string
+                    clientId: import.meta.env.VITE_CLIENT_ID
                 })
                     .then(({data}) => {
                         this.registrationResponse = data;

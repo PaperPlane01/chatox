@@ -55,7 +55,7 @@ export class AnonymousRegistrationDialogStore {
 
         UserApi.registerAnonymousUser({
             ...this.anonymousRegistrationForm,
-            clientId: process.env.REACT_APP_CLIENT_ID as string
+            clientId: import.meta.env.VITE_CLIENT_ID
         })
             .then(({data}) => {
                 this.reset();

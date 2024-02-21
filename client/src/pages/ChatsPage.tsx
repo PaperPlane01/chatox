@@ -2,13 +2,12 @@ import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Grid, Hidden, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
+import ScrollLock from "react-scrolllock";
 import {HasRole} from "../Authorization";
 import {AppBar} from "../AppBar";
 import {ChatsOfCurrentUserListWrapper} from "../Chat";
 import {ChatsAndMessagesSearchInputWrapper} from "../ChatsAndMessagesSearch";
 import {useLocalization, useStore} from "../store";
-
-const ScrollLock = require("react-scrolllock").default;
 
 const useStyles = makeStyles(() => createStyles({
     centered: {

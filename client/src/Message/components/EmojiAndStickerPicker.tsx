@@ -3,12 +3,9 @@ import {observer} from "mobx-react";
 import {Tab, useMediaQuery, useTheme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
-import {EmojiData} from "emoji-mart";
+import {EmojiData, Picker} from "emoji-mart";
 import {StickerPicker} from "../../Sticker";
 import {useLocalization, useStore} from "../../store";
-
-//FIXME Temporary fix due to broken type definitions
-const {Picker} = require("emoji-mart");
 
 interface EmojiAndStickerPickerProps {
     onEmojiPicked: (emoji: EmojiData) => void,

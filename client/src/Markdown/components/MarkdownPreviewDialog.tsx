@@ -3,11 +3,10 @@ import {observer} from "mobx-react";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography} from "@mui/material";
 import {Close} from "@mui/icons-material";
 import ReactMarkdown from "react-markdown";
+import breaks from "remark-breaks";
 import {useLocalization, useStore} from "../../store";
 import {MessageEmoji} from "../../api/types/response";
 import {useEmojiParser} from "../../Emoji";
-
-const breaks = require("remark-breaks");
 
 interface MarkdownPreviewDialogProps {
     text: string,

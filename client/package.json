@@ -12,7 +12,6 @@
     "@mui/styles": "^5.8.0",
     "@mui/x-date-pickers": "^5.0.0-alpha.4",
     "@react-hook/resize-observer": "^1.2.0",
-    "@socheatsok78/sharedworker-loader": "^2.0.12",
     "axios": "^1.3.3",
     "clsx": "^1.1.1",
     "comlink": "^4.4.1",
@@ -69,11 +68,13 @@
     "@types/react-headroom": "^2.2.1",
     "@types/react-helmet": "^6.1.0",
     "@types/uuid": "^8.0.0",
-    "react-scripts": "^5.0.1"
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.1.4",
+    "vite-plugin-comlink": "^4.0.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "vite",
+    "build": "tsc && vite build",
     "production": "yarn run build && node server.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
