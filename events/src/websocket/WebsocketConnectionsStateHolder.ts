@@ -239,9 +239,11 @@ export class WebsocketConnectionsStateHolder {
     }
 
     public addUserToChat(userId: string, chatId: string): void {
-        const sockets = this.usersToSockets.get(userId);
+        this.log.log(`Adding user ${userId} to chat ${chatId}`);
+        const sockets = this.usersToSockets.get(userId) ?? [];
 
-        if (sockets?.length === 0) {
+        if (sockets.length === 0) {
+            this.log.log(`User ${userId} doesn't have sockets, exiting`);
             return;
         }
 
@@ -259,9 +261,9 @@ export class WebsocketConnectionsStateHolder {
     }
 
     public removeUserFromChat(userId: string, chatId: string): void {
-        const sockets = this.usersToSockets.get(userId);
+        const sockets = this.usersToSockets.get(userId) ?? [];
 
-        if (sockets?.length === 0) {
+        if (sockets.length === 0) {
             return;
         }
 
@@ -277,10 +279,10 @@ export class WebsocketConnectionsStateHolder {
             }
         }
 
-        const chatSockets = this.chatParticipantsSubscriptions.get(chatId);
+        const chatSockets = this.chatParticipantsSubscriptions.get(chatId) ?? [];
 
-        if (chatSockets?.length !== 0) {
-            sockets.forEach(socket => this.removeSocketFromArray(socket, chatSockets));
+        if (chatSockets.length !== 0) {
+            chatSockets.forEach(socket => this.removeSocketFromArray(socket, chatSockets));
         }
     }
 

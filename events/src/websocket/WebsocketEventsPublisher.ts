@@ -175,7 +175,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             createChatParticipationDto.chatId,
             userJoinedEvent
         );
-        this.connectionsStateHolder.addUserToChat(createChatParticipationDto.chatId, createChatParticipationDto.user.id);
+        this.connectionsStateHolder.addUserToChat(createChatParticipationDto.user.id, createChatParticipationDto.chatId);
     }
 
     public async publishUserLeftChat(userLeftChat: UserLeftChat) {
