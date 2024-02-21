@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>chatox</groupId>
 	<artifactId>user</artifactId>
-	<version>0.7</version>
+	<version>0.7.1</version>
 	<name>user</name>
 	<description>Chatox user service</description>
 

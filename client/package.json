@@ -1,6 +1,6 @@
 {
   "name": "chatox-client",
-  "version": "0.7",
+  "version": "0.7.1",
   "private": true,
   "dependencies": {
     "@date-io/date-fns": "^2.14.0",
