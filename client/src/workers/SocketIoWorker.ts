@@ -1,5 +1,5 @@
 import {ManagerOptions, Socket, SocketOptions, connect} from "socket.io-client";
-import {WebsocketEvent, WebsocketEventType} from "../../api/types/websocket";
+import {WebsocketEvent, WebsocketEventType} from "../api/types/websocket";
 
 let socketIoClient: Socket | undefined = undefined;
 

@@ -1,9 +1,9 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {connect, Socket} from "socket.io-client";
 import {proxy, Remote} from "comlink";
-import type {SocketIoWorker} from "./SocketIoWorker";
 import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
+import {ChatApi} from "../../api";
 import {
     BalanceUpdated,
     ChatDeleted,
@@ -30,29 +30,7 @@ import {MarkMessageReadStore, MessagesListScrollPositionsStore, MessagesOfChatSt
 import {BalanceStore} from "../../Balance";
 import {LocaleStore} from "../../localization";
 import {SnackbarService} from "../../Snackbar";
-import {ChatApi} from "../../api";
-
-const WorkerModule = window.SharedWorker && localStorage && localStorage.getItem("useSharedWorker") === "true"
-    ? new ComlinkSharedWorker<typeof import("./SocketIoWorker")>(
-        new URL("./SocketIoWorker", import.meta.url),
-        {type: "module"}
-    )
-    : undefined;
-
-let socketIoWorkerInstance: Remote<SocketIoWorker> | undefined;
-
-const getSocketIoWorker = async (): Promise<Remote<SocketIoWorker> | undefined> => {
-    if (socketIoWorkerInstance) {
-        return socketIoWorkerInstance;
-    }
-
-    if (WorkerModule) {
-        socketIoWorkerInstance = await new WorkerModule.SocketIoWorker();
-        return socketIoWorkerInstance;
-    } else {
-        return undefined;
-    }
-};
+import {getSocketIoWorker, SocketIoWorker} from "../../workers";
 
 type ConnectionType = "socketIo" | "sharedWorker";
 
@@ -91,18 +69,23 @@ export class WebsocketStore {
 
     startListening = (): void => {
         if (this.chatPreferences.useSharedWorker && window.SharedWorker) {
-            this.startListeningWithSharedWorker();
+            this.startListeningWithSharedWorker().then(success => {
+                if (!success) {
+                    console.log("Falling back to default socket io connection");
+                    this.startListeningWithSocketIo();
+                }
+            })
         } else {
             this.startListeningWithSocketIo();
         }
     }
 
-    startListeningWithSharedWorker = async (): Promise<void> => {
+    startListeningWithSharedWorker = async (): Promise<boolean> => {
         const socketIoWorker = await getSocketIoWorker();
-        console.log(socketIoWorker);
 
         if (!socketIoWorker) {
-            return;
+            console.error("Unable to initialize socket io worker")
+            return false;
         }
 
         if (!await socketIoWorker.isConnected()) {
@@ -131,6 +114,8 @@ export class WebsocketStore {
         });
 
         await this.emitPendingEvents();
+
+        return true;
     }
 
     startListeningWithSocketIo = (): void => {
