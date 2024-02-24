@@ -81,14 +81,19 @@ export class WebsocketStore {
     }
 
     startListeningWithSharedWorker = async (): Promise<boolean> => {
-        const socketIoWorker = await getSocketIoWorker();
+        if (this.socketIoWorker) {
+            await this.socketIoWorker.disconnect();
+        } else {
+            const worker = await getSocketIoWorker();
+            runInAction(() => this.socketIoWorker = worker);
+        }
 
-        if (!socketIoWorker) {
+        if (!this.socketIoWorker) {
             console.error("Unable to initialize socket io worker")
             return false;
         }
 
-        if (!await socketIoWorker.isConnected()) {
+        if (!await this.socketIoWorker.isConnected()) {
             const accessToken = localStorage.getItem("accessToken");
             const url = accessToken
                 ? `${import.meta.env.VITE_API_BASE_URL}?accessToken=${accessToken}`
@@ -96,7 +101,7 @@ export class WebsocketStore {
 
             console.log("Connecting to socket io with worker");
 
-            await socketIoWorker.connect(url, {
+            await this.socketIoWorker.connect(url, {
                 path: "/api/v1/events",
                 transports: ["websocket"]
             });
@@ -105,17 +110,18 @@ export class WebsocketStore {
         const handlers = this.createHandlers();
 
         for (const [eventType, handler] of handlers) {
-            await socketIoWorker.registerEventHandler(eventType, proxy(handler))
+            await this.socketIoWorker.registerEventHandler(eventType, proxy(handler))
         }
 
-        runInAction(() => {
-            this.socketIoWorker = socketIoWorker;
-            this.connectionType = "sharedWorker";
-        });
+        this.setConnectionType("sharedWorker");
 
         await this.emitPendingEvents();
 
         return true;
+    }
+
+    private setConnectionType = (connectionType: ConnectionType): void => {
+        this.connectionType = connectionType;
     }
 
     startListeningWithSocketIo = (): void => {
@@ -136,6 +142,8 @@ export class WebsocketStore {
         }
 
         this.subscribeSocketIoToEvents();
+
+        this.setConnectionType("socketIo");
 
         this.emitPendingEvents();
     }
@@ -425,7 +433,6 @@ export class WebsocketStore {
                     this.socketIoClient.emit(eventType, args);
                 } else {
                     this.addEventToQueue(eventType, args);
-
                 }
                 break;
         }
