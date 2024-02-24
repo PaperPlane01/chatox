@@ -1,17 +1,19 @@
-const {config} = require("dotenv");
+import {config} from "dotenv";
 
 config();
-const express = require("express");
-const path = require("path");
+
+import express from "express";
+import * as path from "path";
 
 const BUILD_DIRECTORY = "dist";
+const staticDirectory = path.join(process.cwd(), BUILD_DIRECTORY);
 
 const expressServer = express();
 
-expressServer.use(express.static(path.join(__dirname, BUILD_DIRECTORY)));
+expressServer.use(express.static(staticDirectory));
 
 expressServer.get("/*", (request, response) => {
-    response.sendFile(path.resolve(__dirname, `${BUILD_DIRECTORY}/index.html`));
+    response.sendFile(path.resolve(staticDirectory, "index.html"));
 });
 
 expressServer.listen(process.env.PRODUCTION_PORT, () => {
