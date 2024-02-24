@@ -1,8 +1,9 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {connect, Socket} from "socket.io-client"
-import {proxy} from "comlink";
+import {connect, Socket} from "socket.io-client";
+import {proxy, Remote} from "comlink";
 import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
+import {ChatApi} from "../../api";
 import {
     BalanceUpdated,
     ChatDeleted,
@@ -29,31 +30,7 @@ import {MarkMessageReadStore, MessagesListScrollPositionsStore, MessagesOfChatSt
 import {BalanceStore} from "../../Balance";
 import {LocaleStore} from "../../localization";
 import {SnackbarService} from "../../Snackbar";
-import type {ISocketIoWorker} from "../../workers";
-import {Promisify} from "../../utils/types";
-// @ts-ignore
-// eslint-disable-next-line import/no-webpack-loader-syntax
-import WorkerModule from "@socheatsok78/sharedworker-loader!../../workers"
-import {ChatApi, MessageApi} from "../../api";
-
-const workerInstance = window.SharedWorker && localStorage && localStorage.getItem("useSharedWorker") === "true"
-    ? new WorkerModule()
-    : undefined;
-
-let socketIoWorkerInstance: Promisify<ISocketIoWorker> | undefined = undefined;
-
-const getSocketIoWorker = async (): Promise<Promisify<ISocketIoWorker> | undefined> => {
-    if (socketIoWorkerInstance) {
-        return socketIoWorkerInstance;
-    }
-
-    if (workerInstance) {
-        socketIoWorkerInstance = await new workerInstance.SocketIoWorker();
-        return socketIoWorkerInstance;
-    } else {
-        return undefined;
-    }
-};
+import {getSocketIoWorker, SocketIoWorker} from "../../workers";
 
 type ConnectionType = "socketIo" | "sharedWorker";
 
@@ -62,7 +39,7 @@ let pendingEvents: Array<[WebsocketEventType, object]> = [];
 export class WebsocketStore {
     socketIoClient?: Socket = undefined;
 
-    socketIoWorker?: Promisify<ISocketIoWorker> = undefined;
+    socketIoWorker?: Remote<SocketIoWorker> = undefined;
 
     connectionType: ConnectionType = "socketIo";
 
@@ -92,28 +69,39 @@ export class WebsocketStore {
 
     startListening = (): void => {
         if (this.chatPreferences.useSharedWorker && window.SharedWorker) {
-            this.startListeningWithSharedWorker();
+            this.startListeningWithSharedWorker().then(success => {
+                if (!success) {
+                    console.log("Falling back to default socket io connection");
+                    this.startListeningWithSocketIo();
+                }
+            })
         } else {
             this.startListeningWithSocketIo();
         }
     }
 
-    startListeningWithSharedWorker = async (): Promise<void> => {
-        const socketIoWorker = await getSocketIoWorker();
-
-        if (!socketIoWorker) {
-            return;
+    startListeningWithSharedWorker = async (): Promise<boolean> => {
+        if (this.socketIoWorker) {
+            await this.socketIoWorker.disconnect();
+        } else {
+            const worker = await getSocketIoWorker();
+            runInAction(() => this.socketIoWorker = worker);
         }
 
-        if (!await socketIoWorker.isConnected()) {
+        if (!this.socketIoWorker) {
+            console.error("Unable to initialize socket io worker")
+            return false;
+        }
+
+        if (!await this.socketIoWorker.isConnected()) {
             const accessToken = localStorage.getItem("accessToken");
             const url = accessToken
-                ? `${process.env.REACT_APP_API_BASE_URL}?accessToken=${accessToken}`
-                : process.env.REACT_APP_BASE_URL + "";
+                ? `${import.meta.env.VITE_API_BASE_URL}?accessToken=${accessToken}`
+                : import.meta.env.VITE_API_BASE_URL;
 
             console.log("Connecting to socket io with worker");
 
-            await socketIoWorker.connect(url, {
+            await this.socketIoWorker.connect(url, {
                 path: "/api/v1/events",
                 transports: ["websocket"]
             });
@@ -122,15 +110,18 @@ export class WebsocketStore {
         const handlers = this.createHandlers();
 
         for (const [eventType, handler] of handlers) {
-            await socketIoWorker.registerEventHandler(eventType, proxy(handler))
+            await this.socketIoWorker.registerEventHandler(eventType, proxy(handler))
         }
 
-        runInAction(() => {
-            this.socketIoWorker = socketIoWorker;
-            this.connectionType = "sharedWorker";
-        });
+        this.setConnectionType("sharedWorker");
 
         await this.emitPendingEvents();
+
+        return true;
+    }
+
+    private setConnectionType = (connectionType: ConnectionType): void => {
+        this.connectionType = connectionType;
     }
 
     startListeningWithSocketIo = (): void => {
@@ -139,18 +130,20 @@ export class WebsocketStore {
         }
 
         if (localStorage.getItem("accessToken")) {
-            this.socketIoClient = connect(`${process.env.REACT_APP_API_BASE_URL}?accessToken=${localStorage.getItem("accessToken")}`, {
+            this.socketIoClient = connect(`${import.meta.env.VITE_API_BASE_URL}?accessToken=${localStorage.getItem("accessToken")}`, {
                 path: "/api/v1/events",
                 transports: ["websocket"]
             });
         } else {
-            this.socketIoClient = connect(`${process.env.REACT_APP_API_BASE_URL}`, {
+            this.socketIoClient = connect(import.meta.env.VITE_API_BASE_URL, {
                 path: "/api/v1/events",
                 transports: ["websocket"]
             });
         }
 
         this.subscribeSocketIoToEvents();
+
+        this.setConnectionType("socketIo");
 
         this.emitPendingEvents();
     }
@@ -440,7 +433,6 @@ export class WebsocketStore {
                     this.socketIoClient.emit(eventType, args);
                 } else {
                     this.addEventToQueue(eventType, args);
-
                 }
                 break;
         }

@@ -38,9 +38,9 @@ export const LoginWithGoogleButton: FunctionComponent = observer(() => {
         currentParams && setOriginalParams(currentParams);
         queryParams && setOriginalQueryParams(queryParams);
 
-        const client_id = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-        const scope = process.env.REACT_APP_GOOGLE_CLIENT_SCOPE;
-        const redirect_uri = process.env.REACT_APP_GOOGLE_CLIENT_REDIRECT_URI;
+        const client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+        const scope = import.meta.env.VITE_GOOGLE_CLIENT_SCOPE;
+        const redirect_uri = import.meta.env.VITE_GOOGLE_CLIENT_REDIRECT_URI;
 
         const queryString = stringify({client_id, scope, redirect_uri, response_type: "token"});
 

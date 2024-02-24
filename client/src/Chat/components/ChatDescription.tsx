@@ -4,9 +4,8 @@ import {Card, CardContent, Skeleton} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Info} from "@mui/icons-material";
 import ReactMarkdown from "react-markdown";
+import breaks from "remark-breaks";
 import {useLocalization, useStore} from "../../store";
-
-const breaks = require("remark-breaks");
 
 const useStyles = makeStyles(() => createStyles({
     root: {

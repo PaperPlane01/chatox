@@ -1,11 +1,28 @@
-import {_SocketIoWorker} from "./internal";
+import {Remote} from "comlink";
+import {SocketIoWorker as InternalSocketIoWorker} from "./SocketIoWorker";
 
-export type {ISocketIoWorker} from "./internal";
+export type SocketIoWorker = InternalSocketIoWorker;
 
-const SocketIoWorker = _SocketIoWorker;
+let socketIoWorkerInstance: Remote<SocketIoWorker> | undefined;
 
-// Hack for Webpack.
-// Classes exported by this module are never imported by Webpack loader anywhere (we use custom loader),
-// so technically they are never used, which triggers Webpack tree shaking.
-// @ts-ignore
-__webpack_exports__ = { SocketIoWorker };
+export const getSocketIoWorker = async (): Promise<Remote<SocketIoWorker> | undefined> => {
+	if (socketIoWorkerInstance) {
+		return socketIoWorkerInstance;
+	}
+
+	if (!window?.SharedWorker) {
+		return undefined;
+	}
+
+	const WorkerModule = new ComlinkSharedWorker<typeof import("./SocketIoWorker")>(
+		new URL("./SocketIoWorker", import.meta.url),
+		{
+			type: "module",
+			name: "chatox-socket-io-worker"
+		}
+	);
+
+	socketIoWorkerInstance = await new WorkerModule.SocketIoWorker();
+
+	return socketIoWorkerInstance;
+};

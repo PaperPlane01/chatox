@@ -23,8 +23,10 @@ injectRouterStore();
 
 startRouter(Routes, rootStore, {
     notfound: () => {
-        if (window.location.href.includes(`${process.env.REACT_APP_PUBLIC_URL}/oauth/google/`)) {
-            const queryStringParameters = parse(window.location.href.substring(`${process.env.REACT_APP_PUBLIC_URL}/oauth/google/`.length));
+        if (window.location.href.includes(`${import.meta.env.VITE_PUBLIC_URL}/oauth/google/`)) {
+            const queryStringParameters = parse(
+                window.location.href.substring(`${import.meta.env.VITE_PUBLIC_URL}/oauth/google/`.length)
+            );
             const access_token = queryStringParameters.access_token ? `${queryStringParameters.access_token}` : "";
             routerStore.goTo(Routes.googleAuthentication, {}, {access_token});
         } else {

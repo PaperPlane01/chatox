@@ -12,7 +12,7 @@ export class EmailConfirmationCodeApi {
     public static createEmailConfirmationCode(createEmailVerificationRequest: CreateEmailConfirmationCodeRequest): AxiosPromise<EmailConfirmationCodeResponse> {
         return axiosInstance({
             method: "POST",
-            url: `${process.env.REACT_APP_API_BASE_URL}/${OAUTH}/${EMAIL_CONFIRMATION_CODES}`,
+            url: `${import.meta.env.VITE_API_BASE_URL}/${OAUTH}/${EMAIL_CONFIRMATION_CODES}`,
             data: createEmailVerificationRequest
         });
     }
@@ -20,14 +20,14 @@ export class EmailConfirmationCodeApi {
     public static checkEmailAvailability(email: string): AxiosPromise<EmailAvailabilityResponse> {
         return axiosInstance({
             method: "GET",
-            url: `${process.env.REACT_APP_API_BASE_URL}/${OAUTH}/${ACCOUNTS}/${EMAIL}/${email}/${IS_AVAILABLE}`
+            url: `${import.meta.env.VITE_API_BASE_URL}/${OAUTH}/${ACCOUNTS}/${EMAIL}/${email}/${IS_AVAILABLE}`
         });
     }
 
     public static checkEmailConfirmationCode(id: string, checkEmailConfirmationCodeValidityRequest: CheckEmailConfirmationCodeValidityRequest): AxiosPromise<EmailConfirmationCodeValidityResponse> {
         return axiosInstance({
             method: "POST",
-            url: `${process.env.REACT_APP_API_BASE_URL}/${OAUTH}/${EMAIL_CONFIRMATION_CODES}/${id}/${IS_VALID}`,
+            url: `${import.meta.env.VITE_API_BASE_URL}/${OAUTH}/${EMAIL_CONFIRMATION_CODES}/${id}/${IS_VALID}`,
             data: checkEmailConfirmationCodeValidityRequest
         });
     }

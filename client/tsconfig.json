@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "esnext",
     "lib": [
       "dom",
       "dom.iterable",
@@ -18,11 +18,13 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react",
-    "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "downlevelIteration": true
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "server.js"
   ]
 }

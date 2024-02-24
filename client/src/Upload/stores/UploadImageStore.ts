@@ -5,7 +5,7 @@ import {ImageUploadMetadata, UploadType} from "../../api/types/response";
 import {EntitiesStore} from "../../entities-store";
 import {Labels} from "../../localization";
 
-const IMAGE_MAX_SIZE = Number(process.env.REACT_APP_IMAGE_MAX_SIZE);
+const IMAGE_MAX_SIZE = import.meta.env.VITE_IMAGE_MAX_SIZE;
 
 export class UploadImageStore {
     imageContainer?: UploadedFileContainer<ImageUploadMetadata> = undefined;

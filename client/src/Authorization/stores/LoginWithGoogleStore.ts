@@ -47,8 +47,8 @@ export class LoginWithGoogleStore {
 
         UserApi.registerWithGoogle({
             googleAccessToken: this.googleAccessToken,
-            clientId: `${process.env.REACT_APP_CLIENT_ID}`,
-            clientSecret: `${process.env.REACT_APP_CLIENT_SECRET}`
+            clientId: import.meta.env.VITE_CLIENT_ID,
+            clientSecret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET
         })
             .then(({data}) => {
                 this.authorizationStore.setTokens(data.accessToken, data.refreshToken);

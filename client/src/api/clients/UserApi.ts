@@ -53,7 +53,7 @@ export class UserApi {
     public static isUsernameAvailable(username: string): AxiosPromise<AvailabilityResponse> {
         return axiosInstance({
             method: "GET",
-            baseURL: process.env.REACT_APP_API_BASE_URL,
+            baseURL: import.meta.env.VITE_API_BASE_URL,
             url: `/${OAUTH}/${ACCOUNTS}/${USERNAME}/${username}/${IS_AVAILABLE}`,
             headers: {
                 Accept: "application/json"
@@ -76,7 +76,7 @@ export class UserApi {
     public static doLogin(username: string, password: string): AxiosPromise<OAuth2Response> {
         return axiosInstance({
             method: "POST",
-            baseURL: process.env.REACT_APP_API_BASE_URL,
+            baseURL: import.meta.env.VITE_API_BASE_URL,
             url: `/${OAUTH}/${TOKEN}`,
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -84,8 +84,8 @@ export class UserApi {
             },
             data: stringify({
                 grant_type: "password",
-                client_id: process.env.REACT_APP_CLIENT_ID,
-                client_secret: process.env.REACT_APP_CLIENT_SECRET,
+                client_id: import.meta.env.VITE_CLIENT_ID,
+                client_secret: import.meta.env.VITE_CLIENT_SECRET,
                 username,
                 password
             })
@@ -95,7 +95,7 @@ export class UserApi {
     public static revokeToken(revokeTokenRequest: RevokeTokenRequest): AxiosPromise<void> {
         return axiosInstance({
             method: "DELETE",
-            baseURL: process.env.REACT_APP_API_BASE_URL,
+            baseURL: import.meta.env.VITE_API_BASE_URL,
             url: `/${OAUTH}/${TOKEN}/${REVOKE}`,
             headers: {
                 "Content-Type": "application/json",
@@ -114,7 +114,7 @@ export class UserApi {
     public static updatePassword(updatePasswordRequest: UpdatePasswordRequest): AxiosPromise<void> {
         return axiosInstance({
             method: "PUT",
-            baseURL: process.env.REACT_APP_API_BASE_URL,
+            baseURL: import.meta.env.VITE_API_BASE_URL,
             url: `/${OAUTH}/${ACCOUNTS}/${PASSWORD}`,
             headers: {
                 "Content-Type": "application/json",
@@ -129,7 +129,7 @@ export class UserApi {
     public static updateEmail(updateEmailRequest: UpdateEmailRequest): AxiosPromise<void> {
         return axiosInstance({
             method: "PUT",
-            baseURL: process.env.REACT_APP_API_BASE_URL,
+            baseURL: import.meta.env.VITE_API_BASE_URL,
             url: `/${OAUTH}/${ACCOUNTS}/${EMAIL}`,
             headers: {
                 "Content-Type": "application/json",
@@ -144,7 +144,7 @@ export class UserApi {
     public static checkEmailAvailability(email: string): AxiosPromise<AvailabilityResponse> {
         return axiosInstance({
             method: "GET",
-            baseURL: process.env.REACT_APP_API_BASE_URL,
+            baseURL: import.meta.env.VITE_API_BASE_URL,
             url: `/${OAUTH}/${ACCOUNTS}/${EMAIL}/${email}/${IS_AVAILABLE}`,
             headers: {
                 "Content-Type": "application/json",
@@ -156,7 +156,7 @@ export class UserApi {
     public static recoverPassword(recoverPasswordRequest: RecoverPasswordRequest): AxiosPromise<void> {
         return axiosInstance({
             method: "PUT",
-            baseURL: process.env.REACT_APP_API_BASE_URL,
+            baseURL: import.meta.env.VITE_API_BASE_URL,
             url: `/${OAUTH}/${ACCOUNTS}/${PASSWORD}/${RECOVERY}`,
             headers: {
                 "Content-Type": "application/json",

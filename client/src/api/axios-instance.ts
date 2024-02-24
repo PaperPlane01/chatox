@@ -16,7 +16,7 @@ const onTokenRefreshed = (token?: string) => subscribers.map(callback => callbac
 const addRefreshTokenSubscriber = (subscriber: RefreshTokenCallbackFunction) => subscribers.push(subscriber);
 
 const _axiosInstance = axios.create({
-    baseURL: `${process.env.REACT_APP_API_BASE_URL}/${API_ROOT}`,
+    baseURL: `${import.meta.env.VITE_API_BASE_URL}/${API_ROOT}`,
     headers: {
         "Content-Type": "application/json"
     }
@@ -46,12 +46,12 @@ const refreshAccessToken = (originalRequest: AxiosRequestConfig): Promise<any> =
         if (!tokenRefreshState.refreshingToken) {
             tokenRefreshState.refreshingToken = true;
             axios({
-                baseURL: process.env.REACT_APP_API_BASE_URL,
+                baseURL: import.meta.env.VITE_API_BASE_URL,
                 url: `/${OAUTH}/${TOKEN}?${queryString.stringify({
                     grant_type: "refresh_token",
                     refresh_token: localStorage.getItem("refreshToken"),
-                    client_id: process.env.REACT_APP_CLIENT_ID,
-                    client_secret: process.env.REACT_APP_CLIENT_SECRET
+                    client_id: import.meta.env.VITE_CLIENT_ID,
+                    client_secret: import.meta.env.VITE_CLIENT_SECRET
                 })}`,
                 headers: {
                     "Content-type": "application/x-www-form-urlencoded",
