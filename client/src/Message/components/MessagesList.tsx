@@ -37,7 +37,8 @@ export const MessagesList: FunctionComponent = observer(() => {
             currentPinnedMessageIsClosed
         },
         chat: {
-            selectedChatId
+            selectedChatId,
+            selectedChat
         },
         chatsPreferences: {
             enablePartialVirtualization,
@@ -131,6 +132,7 @@ export const MessagesList: FunctionComponent = observer(() => {
             >
                 {messagesOfChat.map(messageId => (
                     <MessagesListItem messageId={messageId}
+                                      lastMessageReadByAnyoneCreatedAt={selectedChat?.lastMessageReadByAnyoneCreatedAt}
                                       key={messageId}
                     />
                 ))}
