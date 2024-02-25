@@ -8,7 +8,7 @@ import {
     UpdateMessageRequest,
     UpdateScheduledMessageRequest
 } from "../types/request";
-import {ALL, CHATS, FORWARD, MESSAGES, MY, PIN, PINNED, PUBLISH, READ, SCHEDULED, UNPIN} from "../endpoints";
+import {CHATS, FORWARD, MESSAGES, MY, PIN, PINNED, PUBLISH, READ, SCHEDULED, UNPIN} from "../endpoints";
 
 export class MessageApi {
     public static getMessagesByChat(chatId: string): AxiosPromise<Message[]> {
