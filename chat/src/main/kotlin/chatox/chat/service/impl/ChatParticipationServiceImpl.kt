@@ -36,6 +36,7 @@ import chatox.chat.repository.mongodb.PendingChatParticipationRepository
 import chatox.chat.service.ChatInviteService
 import chatox.chat.service.ChatParticipantsCountService
 import chatox.chat.service.ChatParticipationService
+import chatox.chat.service.MessageReadService
 import chatox.chat.util.mapTo2Lists
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
@@ -63,6 +64,7 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                                    private val defaultRoleOfChatCacheWrapper: DefaultRoleOfChatCacheWrapper,
                                    private val chatInviteService: ChatInviteService,
                                    private val chatParticipantsCountService: ChatParticipantsCountService,
+                                   private val messageReadService: MessageReadService,
                                    private val chatEventsPublisher: ChatEventsPublisher,
                                    private val userMapper: UserMapper,
                                    private val authenticationHolder: ReactiveAuthenticationHolder<User>
@@ -195,6 +197,10 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
                             inviteId = invite?.id
                     )
             chatParticipationRepository.save(chatParticipation).awaitFirst()
+
+            if (restoredChatParticipation == null) {
+                messageReadService.initializeUnreadMessagesCount(chatParticipation, chat.lastMessageId).awaitFirst()
+            }
 
             if (invite != null) {
                 chatInviteRepository.updateChatInviteUsage(

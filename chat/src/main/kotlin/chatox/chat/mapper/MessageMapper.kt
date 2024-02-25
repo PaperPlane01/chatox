@@ -12,10 +12,11 @@ import chatox.chat.model.ChatType
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.MessageInterface
-import chatox.chat.model.MessageRead
 import chatox.chat.model.ScheduledMessage
+import chatox.chat.model.UnreadMessagesCount
 import chatox.chat.model.Upload
 import chatox.chat.service.UserService
+import chatox.chat.support.cache.MessageDataLocalCache
 import chatox.chat.util.NTuple6
 import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
@@ -39,35 +40,48 @@ class MessageMapper(private val userService: UserService,
                     private val chatParticipationCacheWrapper: ReactiveRepositoryCacheWrapper<ChatParticipation, String>,
                     private val chatRoleMapper: ChatRoleMapper) {
 
-    fun <T: MessageInterface> mapMessages(messages: Flux<T>, lastMessageRead: MessageRead? = null): Flux<MessageResponse> {
-        val localUsersCache = HashMap<String, UserResponse>()
-        val localReferredMessagesCache = HashMap<String, MessageResponse>()
-        val localChatParticipationsCache = HashMap<String, ChatParticipation>()
-        val localChatRolesCache = HashMap<String, ChatRoleResponse>()
+    fun <T: MessageInterface> mapMessages(
+            messages: Flux<T>,
+            unreadMessagesCount: UnreadMessagesCount? = null,
+            lastReadMessageCreatedAt: ZonedDateTime? = null
+    ): Flux<MessageResponse> {
+        val cache = MessageDataLocalCache()
 
-        if (lastMessageRead != null) {
-            return messages.flatMapSequential { message -> toMessageResponse(
+        return if (unreadMessagesCount?.lastMessageReadAt != null) {
+            messages.flatMapSequential { message ->
+                toMessageResponse(
                     message = message,
                     readByCurrentUser = isDateBeforeOrEquals(
                             dateToCheck = message.createdAt,
-                            dateToCompareWith = lastMessageRead.date
+                            dateToCompareWith = unreadMessagesCount.lastMessageReadAt
                     ),
+                    readByAnyone = if (lastReadMessageCreatedAt == null) {
+                        false
+                    } else {
+                        isDateBeforeOrEquals(
+                                dateToCheck = message.createdAt,
+                                dateToCompareWith = lastReadMessageCreatedAt
+                        )
+                    },
                     mapReferredMessage = true,
-                    localUsersCache = localUsersCache,
-                    localReferredMessagesCache = localReferredMessagesCache,
-                    localChatParticipationsCache = localChatParticipationsCache,
-                    localChatRolesCache = localChatRolesCache
+                    lastReadMessageCreatedAt = lastReadMessageCreatedAt,
+                    cache = cache
             ) }
-
         } else {
-            return messages.flatMapSequential { message -> toMessageResponse(
+            messages.flatMapSequential { message -> toMessageResponse(
                     message = message,
                     readByCurrentUser = false,
+                    readByAnyone = if (lastReadMessageCreatedAt == null) {
+                        false
+                    } else {
+                        isDateBeforeOrEquals(
+                                dateToCheck = message.createdAt,
+                                dateToCompareWith = lastReadMessageCreatedAt
+                        )
+                    },
                     mapReferredMessage = true,
-                    localReferredMessagesCache = localReferredMessagesCache,
-                    localUsersCache = localUsersCache,
-                    localChatParticipationsCache = localChatParticipationsCache,
-                    localChatRolesCache = localChatRolesCache
+                    lastReadMessageCreatedAt = lastReadMessageCreatedAt,
+                    cache = cache
             ) }
         }
     }
@@ -76,20 +90,19 @@ class MessageMapper(private val userService: UserService,
             message: T,
             mapReferredMessage: Boolean,
             readByCurrentUser: Boolean,
-            localReferredMessagesCache: MutableMap<String, MessageResponse>? = null,
-            localUsersCache: MutableMap<String, UserResponse>? = null,
-            localChatParticipationsCache: MutableMap<String, ChatParticipation>? = null,
-            localChatRolesCache: MutableMap<String, ChatRoleResponse>? = null
+            readByAnyone: Boolean = false,
+            lastReadMessageCreatedAt: ZonedDateTime? = null,
+            cache: MessageDataLocalCache? = null
     ): Mono<MessageResponse> {
         return mono {
             val (referredMessage, sender, pinnedBy, chatRole, chatParticipationInSourceChat, forwardedBy) = getDataForMessageResponse(
                     message = message,
                     mapReferredMessage = mapReferredMessage,
                     readByCurrentUser = readByCurrentUser,
-                    localReferredMessagesCache = localReferredMessagesCache,
-                    localUsersCache = localUsersCache,
-                    localChatParticipationsCache = localChatParticipationsCache,
-                    localChatRolesCache = localChatRolesCache
+                    localReferredMessagesCache = cache?.referredMessagesCache,
+                    localUsersCache = cache?.usersCache,
+                    localChatParticipationsCache = cache?.chatParticipationsCache,
+                    localChatRolesCache = cache?.chatRolesCache
             )
                     .awaitFirst()
 
@@ -135,7 +148,8 @@ class MessageMapper(private val userService: UserService,
                     } else {
                         null
                     },
-                    forwardedBy = forwardedBy
+                    forwardedBy = forwardedBy,
+                    readByAnyone = readByAnyone
             )
         }
     }
@@ -198,6 +212,7 @@ class MessageMapper(private val userService: UserService,
             message: T,
             mapReferredMessage: Boolean,
             readByCurrentUser: Boolean,
+            lastReadMessageCreatedAt: ZonedDateTime? = null,
             localReferredMessagesCache: MutableMap<String, MessageResponse>? = null,
             localUsersCache: MutableMap<String, UserResponse>? = null,
             localChatParticipationsCache: MutableMap<String, ChatParticipation>? = null,
@@ -207,7 +222,13 @@ class MessageMapper(private val userService: UserService,
             val referredMessage: MessageResponse? = if (!mapReferredMessage || message.referredMessageId == null) {
                 null
             } else {
-                getReferredMessage(message, readByCurrentUser, localReferredMessagesCache, localUsersCache).awaitFirst()
+                getReferredMessage(
+                        message,
+                        readByCurrentUser,
+                        lastReadMessageCreatedAt,
+                        localReferredMessagesCache,
+                        localUsersCache
+                ).awaitFirst()
             }
             val sender: UserResponse = userService
                     .findUserByIdAndPutInLocalCache(message.senderId, localUsersCache)
@@ -234,24 +255,28 @@ class MessageMapper(private val userService: UserService,
     private fun <T: MessageInterface> getReferredMessage(
             message: T,
             readByCurrentUser: Boolean,
+            lastReadMessageCreatedAt: ZonedDateTime? = null,
             localReferredMessagesCache: MutableMap<String, MessageResponse>?,
             localUsersCache: MutableMap<String, UserResponse>?,
     ): Mono<MessageResponse> {
         return mono {
-            if (localReferredMessagesCache != null && localReferredMessagesCache[message.referredMessageId!!] != null) {
-                return@mono localReferredMessagesCache[message.referredMessageId!!]!!
+            return@mono if (localReferredMessagesCache != null && localReferredMessagesCache[message.referredMessageId!!] != null) {
+                localReferredMessagesCache[message.referredMessageId!!]!!
             } else {
                 val referredMessageEntity = messageCacheWrapper.findById(message.referredMessageId!!).awaitFirst()
                 val referredMessage = toMessageResponse(
                         message = referredMessageEntity,
-                        localUsersCache = localUsersCache,
-                        localReferredMessagesCache = null,
+                        cache = MessageDataLocalCache(
+                                usersCache = localUsersCache ?: mutableMapOf(),
+                                referredMessagesCache = localReferredMessagesCache ?: mutableMapOf()
+                        ),
                         readByCurrentUser = readByCurrentUser,
-                        mapReferredMessage = false
+                        mapReferredMessage = false,
+                        lastReadMessageCreatedAt = lastReadMessageCreatedAt
                 )
                         .awaitFirst()
 
-                return@mono putInLocalCache(referredMessage, localReferredMessagesCache) { it.id }
+                putInLocalCache(referredMessage, localReferredMessagesCache) { it.id }
             }
         }
     }

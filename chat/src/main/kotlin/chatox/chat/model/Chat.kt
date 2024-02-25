@@ -34,6 +34,8 @@ data class Chat(
         @Indexed
         override val lastMessageId: String? = null,
         override val lastMessageDate: ZonedDateTime? = null,
+        override val lastMessageReadByAnyoneId: String? = null,
+        override val lastMessageReadByAnyoneCreatedAt: ZonedDateTime? = null,
         override val chatDeletion: ChatDeletion? = null,
         override val dialogDisplay: List<DialogDisplay> = listOf(),
         override val slowMode: SlowMode? = null,
@@ -57,6 +59,8 @@ data class Chat(
                 type,
                 lastMessageId,
                 lastMessageDate,
+                lastMessageReadByAnyoneId,
+                lastMessageReadByAnyoneCreatedAt,
                 chatDeletion,
                 dialogDisplay,
                 slowMode,

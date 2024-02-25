@@ -17,6 +17,7 @@ import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.ScheduledMessageRepository
 import chatox.chat.service.EmojiParserService
 import chatox.chat.service.ScheduledMessageService
+import chatox.chat.support.cache.MessageDataLocalCache
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -61,10 +62,7 @@ class ScheduledMessageServiceImpl(
                     message = message,
                     mapReferredMessage = true,
                     readByCurrentUser = false,
-                    localReferredMessagesCache = hashMapOf(),
-                    localUsersCache = hashMapOf(),
-                    localChatRolesCache = hashMapOf(),
-                    localChatParticipationsCache = hashMapOf()
+                    cache = MessageDataLocalCache()
             ) }
         }
                 .flatMapMany { it }

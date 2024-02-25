@@ -5,7 +5,7 @@ import java.time.ZonedDateTime
 data class MessageReadEvent(
       val messageId: String,
       val chatId: String,
-      val userId: String,
+      val messageSenderId: String,
       val messageCreatedAt: ZonedDateTime,
       val messageReadAt: ZonedDateTime
 )

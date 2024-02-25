@@ -12,6 +12,7 @@ import chatox.chat.model.ChatParticipantsCount
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.Message
 import chatox.chat.model.User
+import chatox.chat.support.cache.MessageDataLocalCache
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Component
@@ -89,7 +90,8 @@ class ChatMapper(
                         lastReadMessage,
                         readByCurrentUser = true,
                         mapReferredMessage = false,
-                        localUsersCache = localUsersCache
+                        cache = MessageDataLocalCache(usersCache = localUsersCache ?: mutableMapOf()),
+                        readByAnyone = true
                 )
                         .awaitFirst()
             }
@@ -99,7 +101,8 @@ class ChatMapper(
                         lastMessage,
                         readByCurrentUser = lastReadMessage?.id == lastMessage.id,
                         mapReferredMessage = false,
-                        localUsersCache = localUsersCache
+                        cache = MessageDataLocalCache(usersCache = localUsersCache ?: mutableMapOf()),
+                        readByAnyone = chat.lastMessageReadByAnyoneId == lastMessage.id
                 )
                         .awaitFirst()
             }

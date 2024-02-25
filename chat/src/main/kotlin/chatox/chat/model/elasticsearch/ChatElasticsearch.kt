@@ -43,6 +43,10 @@ data class ChatElasticsearch(
 
         @field:Field(type = FieldType.Date, format = [DateFormat.ordinal_date_time])
         override val lastMessageDate: ZonedDateTime? = null,
+        override val lastMessageReadByAnyoneId: String? = null,
+
+        @field:Field(type = FieldType.Date, format = [DateFormat.ordinal_date_time])
+        override val lastMessageReadByAnyoneCreatedAt: ZonedDateTime? = null,
         override val chatDeletion: ChatDeletion? = null,
 
         @field:Field(type = FieldType.Nested)
