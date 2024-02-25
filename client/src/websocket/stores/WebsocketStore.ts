@@ -31,6 +31,8 @@ import {BalanceStore} from "../../Balance";
 import {LocaleStore} from "../../localization";
 import {SnackbarService} from "../../Snackbar";
 import {getSocketIoWorker, SocketIoWorker} from "../../workers";
+import {isDefined} from "../../utils/object-utils";
+import {isBefore} from "date-fns";
 
 type ConnectionType = "socketIo" | "sharedWorker";
 
@@ -309,7 +311,7 @@ export class WebsocketStore {
         );
         map.set(
             WebsocketEventType.MESSAGE_READ,
-            (event: WebsocketEvent<MessageRead>) => this.entities.chats.decreaseUnreadMessagesCountOfChat(event.payload.chatId)
+            (event: WebsocketEvent<MessageRead>) => this.handleMessageRead(event.payload)
         );
         map.set(
             WebsocketEventType.PRIVATE_CHAT_CREATED,
@@ -407,6 +409,23 @@ export class WebsocketStore {
                 console.log(error);
                 return undefined;
             }
+        }
+    }
+
+    private handleMessageRead = (messageRead: MessageRead): void => {
+        const message = this.entities.messages.findByIdOptional(messageRead.messageId);
+        const chat = this.entities.chats.findByIdOptional(messageRead.chatId);
+
+        if (!message || !chat) {
+            return;
+        }
+
+        message.readByAnyone = true;
+        this.entities.messages.insertEntity(message);
+
+        if (!isDefined(chat.lastMessageReadByAnyoneCreatedAt) || isBefore(chat.lastMessageReadByAnyoneCreatedAt, message.createdAt)) {
+            chat.lastMessageReadByAnyoneCreatedAt = message.createdAt;
+            this.entities.chats.insertEntity(chat);
         }
     }
 

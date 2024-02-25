@@ -83,6 +83,7 @@ export const convertMessageToNormalizedForm = (message: Message): MessageEntity 
         forwardedById: message.forwardedBy?.id,
         forwarded: Boolean(message.forwarded),
         forwardedFromChatId: message.forwardedFromChatId,
-        forwardedFromMessageId: message.forwardedFromMessageId
+        forwardedFromMessageId: message.forwardedFromMessageId,
+        readByAnyone: message.readByAnyone
     };
 }

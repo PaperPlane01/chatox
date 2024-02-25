@@ -31,5 +31,6 @@ export interface MessageEntity {
     forwarded: boolean,
     forwardedFromChatId?: string,
     forwardedFromMessageId?: string,
-    forwardedById?: string
+    forwardedById?: string,
+    readByAnyone: boolean
 }
