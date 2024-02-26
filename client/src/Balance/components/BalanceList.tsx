@@ -31,7 +31,7 @@ export const BalanceList: FunctionComponent = observer(() => {
                 {l("balance.your-balance")}
             </Typography>
             {entries(balances).map(([currency, amount]) => (
-                <Balance currency={currency} amount={amount}/>
+                <Balance currency={currency} amount={amount} key={currency}/>
             ))}
         </div>
     );
