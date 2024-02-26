@@ -552,6 +552,9 @@ export interface Labels {
     "settings.chat.virtual-scroll.scrollable-element.MESSAGES_LIST": string,
     "settings.chat.virtual-scroll.scrollable-element.WINDOW": string,
     "settings.chat.virtual-scroll.use-simplified-gallery": string,
+    "settings.chat.notifications": string,
+    "settings.chat.display-unread-messages-count": string,
+    "settings.chat.display-unread-chats-count": string,
     "settings.chats": string,
     "settings.chats.virtual-scroll.enable-virtual-scroll": string
     "settings.language": string,

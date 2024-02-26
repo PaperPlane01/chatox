@@ -25,5 +25,6 @@ data class MessageResponse(
         val forwarded: Boolean = false,
         val forwardedBy: UserResponse? = null,
         val forwardedFromMessageId: String? = null,
-        val forwardedFromChatId: String? = null
+        val forwardedFromChatId: String? = null,
+        val readByAnyone: Boolean = false
 )

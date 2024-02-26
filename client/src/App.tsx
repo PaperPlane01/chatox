@@ -10,11 +10,12 @@ import {SnackbarProvider} from "notistack";
 import {MobxRouter} from "mobx-router";
 import {themes} from "./themes";
 import {LoadingCurrentUserProgressIndicator} from "./Authorization";
-import {useLocalization, rootStore, useStore} from "./store";
+import {rootStore, useLocalization, useStore} from "./store";
 import {AudioPlayerContainer} from "./AudioPlayer";
 import {ErrorBoundary} from "./ErrorBoundary";
 import {AnonymousRegistrationDialog} from "./Registration";
 import {SnackbarManager} from "./Snackbar";
+import {useTitle} from "./utils/hooks";
 
 export const App: FunctionComponent = observer(() => {
     const {dateFnsLocale} = useLocalization();
@@ -23,6 +24,7 @@ export const App: FunctionComponent = observer(() => {
             currentTheme
         }
     } = useStore();
+    const title = useTitle();
     const theme = themes[currentTheme];
     const headerColor = theme.palette.primary.main.startsWith("#")
         ? theme.palette.primary.main
@@ -36,6 +38,7 @@ export const App: FunctionComponent = observer(() => {
                >
                    <Helmet>
                        <meta name="theme-color" content={headerColor}/>
+                       <title>{title}</title>
                    </Helmet>
                    <SnackbarProvider maxSnack={3}>
                        <StyledEngineProvider injectFirst>

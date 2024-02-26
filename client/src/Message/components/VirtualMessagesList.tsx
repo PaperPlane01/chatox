@@ -25,6 +25,9 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
         },
         chatsPreferences: {
             virtualScrollOverscan
+        },
+        chat: {
+            selectedChat
         }
     } = useStore();
     const virtuosoRef = useRef<VirtuosoHandle>() as RefObject<VirtuosoHandle>;
@@ -69,6 +72,7 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
                           data={messagesOfChat}
                           itemContent={(_, messageId) => (
                               <MessagesListItem messageId={messageId}
+                                                lastMessageReadByAnyoneCreatedAt={selectedChat?.lastMessageReadByAnyoneCreatedAt}
                                                 messagesListHeight={typeof style.height === "number"
                                                     ? style.height
                                                     : undefined

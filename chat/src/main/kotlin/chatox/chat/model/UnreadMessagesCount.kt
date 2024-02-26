@@ -6,14 +6,21 @@ import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
 
 @Document
-data class MessageRead(
+data class UnreadMessagesCount(
         @Id
         val id: String,
+
+        @Indexed
+        val chatParticipationId: String,
+
         @Indexed
         val userId: String,
-        @Indexed
-        val messageId: String,
+
         @Indexed
         val chatId: String,
-        val date: ZonedDateTime
+
+        val unreadMessagesCount: Long = 0,
+        val lastReadMessageId: String? = null,
+        val lastReadMessageCreatedAt: ZonedDateTime? = null,
+        val lastMessageReadAt: ZonedDateTime? = null
 )

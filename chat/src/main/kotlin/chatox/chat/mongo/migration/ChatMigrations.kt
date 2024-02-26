@@ -11,6 +11,7 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
@@ -59,6 +60,29 @@ class ChatMigrations {
                     query,
                     update,
                     ChatParticipantsCount::class.java
+            )
+                    .awaitFirst()
+
+            return@mono
+        }
+    }
+
+    @Changeset(order = 3, author = "mongration")
+    fun setLastReadMessageIdAndLastReadMessageCreatedAt(reactiveMongoTemplate: ReactiveMongoTemplate): Mono<Unit> {
+        return mono {
+            log.info("Executing migration: set lastReadMessageId and lastReadMessageCreatedAt")
+
+            val updateAggregation = Aggregation.newUpdate(
+                    Aggregation.addFields()
+                            .addFieldWithValue("lastMessageReadByAnyoneId", "\$lastMessageId")
+                            .addFieldWithValue("lastMessageReadByAnyoneCreatedAt", "\$lastMessageDate")
+                            .build()
+            )
+
+            reactiveMongoTemplate.updateMulti(
+                    Query(),
+                    updateAggregation,
+                    Chat::class.java
             )
                     .awaitFirst()
 

@@ -37,6 +37,7 @@ import chatox.chat.service.ChatUploadAttachmentEntityService
 import chatox.chat.service.CreateMessageService
 import chatox.chat.service.EmojiParserService
 import chatox.chat.service.MessageEntityService
+import chatox.chat.service.MessageReadService
 import chatox.chat.util.NTuple6
 import chatox.chat.util.NTuple7
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
@@ -69,6 +70,7 @@ class CreateMessageServiceImpl(
         private val messageEntityService: MessageEntityService,
         private val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService,
         private val emojiParserService: EmojiParserService,
+        private val messageReadService: MessageReadService,
         private val authenticationHolder: ReactiveAuthenticationHolder<User>,
         private val messageMapper: MessageMapper,
         private val chatEventsPublisher: ChatEventsPublisher
@@ -81,10 +83,10 @@ class CreateMessageServiceImpl(
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
-            if (createMessageRequest.scheduledAt == null) {
-                return@mono createNormalMessage(chatId, createMessageRequest, currentUser).awaitFirst()
+            return@mono if (createMessageRequest.scheduledAt == null) {
+                createNormalMessage(chatId, createMessageRequest, currentUser).awaitFirst()
             } else {
-                return@mono createScheduledMessage(chatId, createMessageRequest, currentUser).awaitFirst()
+                createScheduledMessage(chatId, createMessageRequest, currentUser).awaitFirst()
             }
         }
     }
@@ -213,7 +215,7 @@ class CreateMessageServiceImpl(
 
             if (forwardedFromChat.type == ChatType.DIALOG
                     && forwardedFromChat.dialogDisplay
-                            .find { dialogDisplay -> dialogDisplay.userId == currentUser.id } == null) {
+                            .none { dialogDisplay -> dialogDisplay.userId == currentUser.id }) {
                 throw ForwardingFromDialogsIsNotAllowedException(
                         "Cannot forward from dialog is current user is not participant of the dialog"
                 )
@@ -295,6 +297,11 @@ class CreateMessageServiceImpl(
             ))
                     .awaitFirst()
 
+            messageReadService
+                    .increaseUnreadMessagesCountForChat(chatId, copiedMessages.size.toLong(), listOf(chatParticipationInCurrentChat.id))
+                    .awaitFirst()
+            messageReadService.readAllMessagesForCurrentUser(chatParticipationInCurrentChat, lastMessage).awaitFirst()
+
             return@mono messageMapper.mapMessages(Flux.fromIterable(copiedMessages))
         }
                 .flatMapMany { it }
@@ -334,6 +341,8 @@ class CreateMessageServiceImpl(
             )
 
             messageRepository.save(message).awaitFirst()
+            messageReadService.increaseUnreadMessagesCountForChat(chat.id, listOf(chatParticipation.id)).awaitFirst()
+            messageReadService.readAllMessagesForCurrentUser(chatParticipation, message).awaitFirst()
 
             if (uploadAttachments.isNotEmpty()) {
                 chatUploadAttachmentEntityService.linkChatUploadAttachmentsToMessage(uploadAttachments, message)

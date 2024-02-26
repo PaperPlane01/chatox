@@ -20,6 +20,8 @@ interface ChatInterface {
     val type: ChatType
     val lastMessageId: String?
     val lastMessageDate: ZonedDateTime?
+    val lastMessageReadByAnyoneId: String?
+    val lastMessageReadByAnyoneCreatedAt: ZonedDateTime?
     val chatDeletion: ChatDeletion?
     val dialogDisplay: List<DialogDisplay>
     val slowMode: SlowMode?

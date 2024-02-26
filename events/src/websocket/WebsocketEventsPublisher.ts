@@ -389,7 +389,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: messageRead,
             type: EventType.MESSAGE_READ
         };
-        await this.connectionsStateHolder.publishEventToUsers([messageRead.userId], messageReadEvent);
+        await this.connectionsStateHolder.publishEventToUsers([messageRead.messageSenderId], messageReadEvent);
     }
 
     public async publishPrivateChatCreated(privateChatCreated: PrivateChatCreated) {

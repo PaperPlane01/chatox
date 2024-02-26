@@ -42,13 +42,13 @@ import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
-import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.PendingChatParticipationRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatParticipantsCountService
 import chatox.chat.service.ChatRoleService
 import chatox.chat.service.ChatService
 import chatox.chat.service.CreateMessageService
+import chatox.chat.service.MessageReadService
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
@@ -60,8 +60,6 @@ import kotlinx.coroutines.reactor.mono
 import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 import org.springframework.util.ObjectUtils
@@ -75,7 +73,6 @@ import java.util.UUID
 class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatParticipationRepository: ChatParticipationRepository,
                       private val pendingChatParticipationRepository: PendingChatParticipationRepository,
-                      private val messageRepository: MessageMongoRepository,
                       private val uploadRepository: UploadRepository,
                       private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
                       private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
@@ -95,7 +92,8 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatEventsPublisher: ChatEventsPublisher,
                       private val createMessageService: CreateMessageService,
                       private val chatRoleService: ChatRoleService,
-                      private val chatParticipantsCountService: ChatParticipantsCountService) : ChatService {
+                      private val chatParticipantsCountService: ChatParticipantsCountService,
+                      private val messageReadService: MessageReadService) : ChatService {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatOfCurrentUserResponse> {
@@ -137,6 +135,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     userOnline = currentUser.online ?: false
             )
             chatParticipationRepository.save(creatorChatParticipation).awaitFirst()
+            messageReadService.initializeUnreadMessagesCount(creatorChatParticipation).awaitFirst()
             val participantsCount = chatParticipantsCountService.initializeForChat(
                     chatId = chat.id,
                     participantsCount = 1,
@@ -230,6 +229,10 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
             val chatParticipations = mutableListOf(currentUserChatParticipation, otherUserChatParticipation)
             chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
+
+            for (chatParticipation in chatParticipations) {
+                messageReadService.initializeUnreadMessagesCount(chatParticipation, message.id).awaitFirst()
+            }
 
             val dialogParticipantsDisplay = listOf(
                     DialogDisplay(currentUser.id, chatParticipationMapper.toDialogParticipant(otherUserChatParticipation)),
@@ -489,12 +492,9 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     .findAllByUserIdAndDeletedFalse(currentUser.id)
                     .collectList()
                     .awaitFirst()
-            val unreadMessagesMap: MutableMap<String, Long> = HashMap()
-
-            chatParticipations.forEach { chatParticipation ->
-                unreadMessagesMap[chatParticipation.chatId] = countUnreadMessages(chatParticipation)
-                        .awaitFirst()
-            }
+            val unreadMessagesCountMap = messageReadService
+                    .groupUnreadMessagesCountByChats(chatParticipations.map { it.id })
+                    .awaitFirst()
 
             val allChatIds = mutableListOf<String>()
             val groupChatIds = mutableListOf<String>()
@@ -519,8 +519,10 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     .filter { chatParticipation -> chats.containsKey(chatParticipation.chatId) }
                     .map { chatParticipation ->
                         val chat = chats[chatParticipation.chatId]!!
-                        val lastReadMessage = if (chatParticipation.lastReadMessageId != null) {
-                            messageCacheWrapper.findById(chatParticipation.lastReadMessageId).awaitFirst()
+                        val unreadMessagesCount = unreadMessagesCountMap[chat.id]
+
+                        val lastReadMessage = if (unreadMessagesCount?.lastReadMessageId != null) {
+                            messageCacheWrapper.findById(unreadMessagesCount.lastReadMessageId).awaitFirst()
                         } else null
 
                         val lastMessage = if (chat.lastMessageId != null) {
@@ -547,7 +549,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                                 chatParticipation = chatParticipation,
                                 lastReadMessage = lastReadMessage,
                                 lastMessage = lastMessage,
-                                unreadMessagesCount = unreadMessagesMap[chatParticipation.chatId] ?: 0,
+                                unreadMessagesCount = unreadMessagesCount?.unreadMessagesCount ?: 0,
                                 user = user,
                                 chatParticipantsCount = chatParticipantsCount[chat.id] ?: ChatParticipantsCount.EMPTY
                         )
@@ -590,21 +592,6 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     .sortedByDescending { chat -> chatIdsAndDates[chat.id] }
         }
                 .flatMapMany { Flux.fromIterable(it) }
-    }
-
-    private fun countUnreadMessages(chatParticipation: ChatParticipation): Mono<Long> {
-        return mono {
-            if (chatParticipation.lastReadMessageCreatedAt != null) {
-                return@mono messageRepository.countByChatIdAndCreatedAtAfterAndSenderIdNot(
-                        chatId = chatParticipation.chatId,
-                        date = chatParticipation.lastReadMessageAt!!,
-                        senderId = chatParticipation.user.id
-                )
-                        .awaitFirst()
-            } else {
-                return@mono 0
-            }
-        }
     }
 
     override fun isChatCreatedByUser(chatId: String, userId: String): Mono<Boolean> {

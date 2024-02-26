@@ -10,30 +10,26 @@ import chatox.chat.exception.NoPinnedMessageException
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.MessageMapper
-import chatox.chat.messaging.rabbitmq.event.MessageReadEvent
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.Message
-import chatox.chat.model.MessageRead
+import chatox.chat.model.UnreadMessagesCount
 import chatox.chat.model.User
-import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
-import chatox.chat.repository.mongodb.MessageReadRepository
+import chatox.chat.repository.mongodb.UnreadMessagesCountRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatUploadAttachmentEntityService
 import chatox.chat.service.EmojiParserService
 import chatox.chat.service.MessageEntityService
 import chatox.chat.service.MessageService
 import chatox.chat.util.NTuple2
-import chatox.chat.util.isDateBeforeOrEquals
 import chatox.chat.util.mapTo2Lists
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
-import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -49,8 +45,7 @@ import java.util.UUID
 @LogExecution
 class MessageServiceImpl(
         private val messageRepository: MessageMongoRepository,
-        private val messageReadRepository: MessageReadRepository,
-        private val chatParticipationRepository: ChatParticipationRepository,
+        private val unreadMessagesCountRepository: UnreadMessagesCountRepository,
         private val uploadRepository: UploadRepository,
         private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
         private val authenticationHolder: ReactiveAuthenticationHolder<User>,
@@ -199,22 +194,13 @@ class MessageServiceImpl(
             val chat = findChatById(chatId).awaitFirst()
             val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull()
             val messages = messageRepository.findByChatId(chat.id, paginationRequest.toPageRequest())
-            val hasAnyReadMessages = if (currentUser == null) {
-                false
-            } else{
-                messageReadRepository.existsByUserIdAndChatId(
-                        userId = currentUser.id,
-                        chatId = chatId
-                )
-                        .awaitFirst()
+            val unreadMessagesCount = if (currentUser != null) {
+                unreadMessagesCountRepository.findByChatIdAndUserId(chatId, currentUser.id).awaitFirstOrNull()
+            } else {
+                null
             }
 
-            return@mono mapMessages(
-                    messages = messages,
-                    hasAnyReadMessages = hasAnyReadMessages,
-                    currentUser = currentUser,
-                    chat = chat
-            )
+            return@mono mapMessages(messages, unreadMessagesCount, chat.lastMessageReadByAnyoneCreatedAt)
         }
                 .flatMapMany { it }
     }
@@ -233,22 +219,13 @@ class MessageServiceImpl(
                     date = cursorMessage.createdAt,
                     pageable = paginationRequest.toPageRequest()
             )
-            val hasAnyReadMessages = if (currentUser == null) {
-                false
+            val unreadMessagesCount = if (currentUser != null) {
+                unreadMessagesCountRepository.findByChatIdAndUserId(chatId, currentUser.id).awaitFirstOrNull()
             } else {
-                messageReadRepository.existsByUserIdAndChatId(
-                        userId = currentUser.id,
-                        chatId = chat.id
-                )
-                        .awaitFirst()
+                null
             }
 
-            return@mono mapMessages(
-                    messages = messages,
-                    hasAnyReadMessages = hasAnyReadMessages,
-                    currentUser = currentUser,
-                    chat = chat
-            )
+            return@mono mapMessages(messages, unreadMessagesCount, chat.lastMessageReadByAnyoneCreatedAt)
         }
                 .flatMapMany { it }
     }
@@ -267,86 +244,23 @@ class MessageServiceImpl(
                     date = cursorMessage.createdAt,
                     pageable = paginationRequest.toPageRequest()
             )
-            val hasAnyReadMessages = if (currentUser == null) {
-                false
+            val unreadMessagesCount = if (currentUser != null) {
+                unreadMessagesCountRepository.findByChatIdAndUserId(chatId, currentUser.id).awaitFirstOrNull()
             } else {
-                messageReadRepository.existsByUserIdAndChatId(
-                        userId = currentUser.id,
-                        chatId = chat.id
-                )
-                        .awaitFirst()
+                null
             }
 
-            return@mono mapMessages(
-                    messages = messages,
-                    hasAnyReadMessages = hasAnyReadMessages,
-                    currentUser = currentUser,
-                    chat = chat
-            )
+            return@mono mapMessages(messages, unreadMessagesCount, chat.lastMessageReadByAnyoneCreatedAt)
         }
                 .flatMapMany { it }
     }
 
-    protected fun mapMessages(messages: Flux<Message>, hasAnyReadMessages: Boolean, currentUser: JwtPayload?, chat: Chat): Flux<MessageResponse> {
-        return mono {
-
-            return@mono if (hasAnyReadMessages && currentUser != null) {
-                val lastMessageRead = messageReadRepository.findTopByUserIdAndChatIdOrderByDateDesc(
-                        userId = currentUser.id,
-                        chatId = chat.id
-                )
-                        .awaitFirst()
-                messageMapper.mapMessages(messages, lastMessageRead)
-            } else {
-                messageMapper.mapMessages(messages)
-            }
-        }
-                .flatMapMany { it }
-    }
-
-    override fun markMessageRead(messageId: String): Mono<Unit> {
-        return mono {
-            val message = findMessageEntityById(messageId = messageId, retrieveFromCache = true)
-                    .awaitFirst()
-            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            val chatParticipation = chatParticipationRepository.findByChatIdAndUserId(
-                    chatId = message.chatId,
-                    userId = currentUser.id
-            )
-                    .awaitFirst()
-            val now = ZonedDateTime.now()
-
-            if (chatParticipation.lastReadMessageCreatedAt == null
-                    || isDateBeforeOrEquals(chatParticipation.lastReadMessageCreatedAt, message.createdAt)) {
-                val messageRead = messageReadRepository.save(MessageRead(
-                        id = UUID.randomUUID().toString(),
-                        userId = currentUser.id,
-                        chatId = message.chatId,
-                        date = now,
-                        messageId = message.id
-                ))
-                        .awaitFirst()
-
-                Mono.fromRunnable<Void>{ chatEventsPublisher.messageRead(MessageReadEvent(
-                        messageId = message.id,
-                        chatId = message.chatId,
-                        userId = currentUser.id,
-                        messageCreatedAt = message.createdAt,
-                        messageReadAt = now
-                )) }
-                        .subscribe()
-
-                chatParticipationRepository.save(chatParticipation.copy(
-                        lastReadMessageAt = now,
-                        lastReadMessageId = message.id,
-                        lastMessageReadId = messageRead.id,
-                        lastReadMessageCreatedAt = message.createdAt
-                ))
-                        .awaitFirst()
-
-                return@mono
-            }
-        }
+    private fun mapMessages(
+            messages: Flux<Message>,
+            unreadMessagesCount: UnreadMessagesCount?,
+            lastReadMessageCreatedAt: ZonedDateTime?
+    ): Flux<MessageResponse> {
+        return messageMapper.mapMessages(messages, unreadMessagesCount, lastReadMessageCreatedAt)
     }
 
     override fun pinMessage(id: String, chatId: String): Mono<MessageResponse> {
@@ -364,11 +278,12 @@ class MessageServiceImpl(
             val messageResponse = messageMapper.toMessageResponse(
                     message = message,
                     mapReferredMessage = true,
-                    readByCurrentUser = true
+                    readByCurrentUser = true,
+                    readByAnyone = true
             )
                     .awaitFirst()
 
-            Mono.fromRunnable<Void>{ chatEventsPublisher.messagePinned(messageResponse) }.subscribe()
+            Mono.fromRunnable<Unit>{ chatEventsPublisher.messagePinned(messageResponse) }.subscribe()
 
             return@mono messageResponse
         }

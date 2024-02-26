@@ -15,7 +15,6 @@ interface MessageService {
     fun findMessagesByChat(chatId: String, paginationRequest: PaginationRequest): Flux<MessageResponse>
     fun findMessagesSinceMessageByChat(chatId: String, sinceMessageId: String, paginationRequest: PaginationRequest): Flux<MessageResponse>
     fun findMessagesBeforeMessageByChat(chatId: String, beforeMessageId: String, paginationRequest: PaginationRequest): Flux<MessageResponse>
-    fun markMessageRead(messageId: String): Mono<Unit>
     fun pinMessage(id: String, chatId: String): Mono<MessageResponse>
     fun unpinMessage(id: String, chatId: String): Mono<MessageResponse>
     fun findPinnedMessageByChat(chatId: String): Mono<MessageResponse>

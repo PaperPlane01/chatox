@@ -3,5 +3,5 @@ export interface MessageRead {
     chatId: string,
     messageReadAt: string,
     messageCreatedAt: string,
-    userId: string
+    messageSenderId: string
 }
