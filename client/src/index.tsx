@@ -52,6 +52,12 @@ if (localStorage.getItem("accessToken")) {
     store.websocket.startListening();
 }
 
+if (import.meta.env.DEV) {
+    import("mobx").then(mobxModule => {
+        (window as any).toJS = mobxModule.toJS;
+    });
+}
+
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
