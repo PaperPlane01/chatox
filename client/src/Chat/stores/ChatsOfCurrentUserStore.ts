@@ -1,7 +1,7 @@
 import {makeAutoObservable, runInAction} from "mobx";
+import {ChatListEntry} from "../types";
 import {EntitiesStore} from "../../entities-store";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {ChatListEntry} from "../types";
 
 export class ChatsOfCurrentUserStore {
     pending = false;
@@ -35,11 +35,26 @@ export class ChatsOfCurrentUserStore {
     }
 
     get totalUnreadMessagesCount(): number {
+        if (this.entities.chats.ids.length === 0) {
+            return 0;
+        }
+
         return this.entities.chats.ids
             .map(chatId => this.entities.chats.findById(chatId))
             .filter(chat => Boolean(chat.currentUserParticipationId))
             .map(chat => chat.unreadMessagesCount)
-            .reduce((left, right) => left + right)
+            .reduce((left, right) => left + right, 0)
+    }
+
+    get unreadChatsCount(): number {
+        if (this.entities.chats.ids.length === 0) {
+            return 0;
+        }
+
+        return this.entities.chats.ids
+            .map(chatId => this.entities.chats.findById(chatId))
+            .filter(chat => Boolean(chat.currentUserParticipationId) && chat.unreadMessagesCount !== 0)
+            .length;
     }
 
     fetchChatsOfCurrentUser = (): void => {
