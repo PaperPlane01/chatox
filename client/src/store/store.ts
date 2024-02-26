@@ -508,7 +508,7 @@ const joinChatRequestsRejection = new RejectJoinChatRequestsStore(
     snackbarService
 );
 
-export const store: IAppState = {
+const _store: IAppState = {
     authorization,
     login,
     userRegistration,
@@ -664,3 +664,12 @@ export const store: IAppState = {
     joinChatRequestsRejection,
     voiceRecording
 };
+
+//Hack to avoid loss of application state on HMR
+if (import.meta.env.DEV && !(window as any).store) {
+    (window as any).store = _store;
+}
+
+export const store = import.meta.env.DEV && Boolean((window as any).store)
+    ? (window as any).store as IAppState
+    : _store;
