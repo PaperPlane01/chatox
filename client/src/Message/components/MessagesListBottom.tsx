@@ -13,7 +13,7 @@ import {UserEntity} from "../../User";
 import {Labels, TranslationFunction} from "../../localization";
 import {getGlobalBanLabel, isGlobalBanActive} from "../../GlobalBan/utils";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles<Theme>((theme: Theme) => createStyles({
     messagesListBottom: {
         [theme.breakpoints.up("lg")]: {
             display: "inline-block",
@@ -21,12 +21,12 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
             width: "100%",
         },
         [theme.breakpoints.down("lg")]: {
-            position: "sticky",
             bottom: 0,
             width: "100%",
             backgroundColor: theme.palette.background.default,
             maxHeight: "70vh",
-            minHeight: 45
+            minHeight: 45,
+            overflow: "hidden"
         }
     }
 }));
@@ -65,7 +65,11 @@ const getBlockingLabel = (
     return l(labelCode, bindings);
 };
 
-const _MessagesListBottom = forwardRef<HTMLDivElement, {style?: CSSProperties}>((props, ref) => {
+interface MessagesListBottomProps {
+    style?: CSSProperties
+}
+
+const _MessagesListBottom = forwardRef<HTMLDivElement, MessagesListBottomProps>((props, ref) => {
     const {
         entities: {
             chatParticipations: {

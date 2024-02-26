@@ -1,11 +1,11 @@
-import React, {CSSProperties, Fragment, FunctionComponent, RefObject, useRef} from "react";
+import React, {CSSProperties, DependencyList, Fragment, FunctionComponent, RefObject, useRef} from "react";
 import {observer} from "mobx-react";
 import {useMediaQuery, useTheme} from "@mui/material";
 import {Virtuoso, VirtuosoHandle} from "react-virtuoso";
 import {MessagesListItem} from "./MessagesListItem";
 import {PinnedMessage} from "./PinnedMessage";
 import {MessagesListBottom} from "./MessagesListBottom";
-import {useMessagesListRefs, useMessagesListStyles} from "../hooks";
+import {useMessagesListBottomStyles, useMessagesListRefs, useMessagesListStyles} from "../hooks";
 import {calculateMessagesListStyles} from "../utils";
 import {useStore} from "../../store";
 
@@ -13,7 +13,7 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
     const {
         messagesOfChat: {
             messagesOfChat,
-            fetchMessages
+            fetchMessages,
         },
         pinnedMessages: {
             currentPinnedMessageId,
@@ -25,6 +25,12 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
         },
         chatsPreferences: {
             virtualScrollOverscan
+        },
+        chat: {
+            selectedChat
+        },
+        messagesListScrollPositions: {
+            setReachedBottom
         }
     } = useStore();
     const virtuosoRef = useRef<VirtuosoHandle>() as RefObject<VirtuosoHandle>;
@@ -40,17 +46,25 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
         variant: "virtual"
     });
 
+    const styleDependencies: DependencyList = [
+        messagesOfChat,
+        referredMessageId,
+        onSmallScreen,
+        emojiPickerExpanded,
+        currentPinnedMessageId,
+        currentPinnedMessageIsClosed,
+        refs.messagesListRef,
+        virtuosoRef
+    ];
     const style = useMessagesListStyles(
         calculateStyles,
         refs,
-        [
-            messagesOfChat,
-            referredMessageId,
-            onSmallScreen,
-            emojiPickerExpanded,
-            currentPinnedMessageId,
-            currentPinnedMessageIsClosed
-        ]
+        styleDependencies
+    );
+    const messagesListBottomStyle = useMessagesListBottomStyles(
+        onSmallScreen,
+        styleDependencies,
+        true
     );
 
     return (
@@ -78,6 +92,7 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
                           followOutput="auto"
                           ref={virtuosoRef}
                           startReached={() => fetchMessages()}
+                          atBottomStateChange={atBottom => setReachedBottom(selectedChat!!.id, atBottom)}
                           initialTopMostItemIndex={{
                               index: "LAST"
                           }}
@@ -85,7 +100,9 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
                           overscan={virtualScrollOverscan}
                           defaultItemHeight={160}
                 />
-                <MessagesListBottom ref={refs.messagesListBottomRef}/>
+                <MessagesListBottom ref={refs.messagesListBottomRef}
+                                    style={messagesListBottomStyle}
+                />
             </div>
         </Fragment>
     );

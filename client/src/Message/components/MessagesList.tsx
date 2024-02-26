@@ -1,4 +1,13 @@
-import React, {CSSProperties, Fragment, FunctionComponent, UIEvent, useEffect, useLayoutEffect, useState} from "react";
+import React, {
+    CSSProperties,
+    DependencyList,
+    Fragment,
+    FunctionComponent,
+    UIEvent,
+    useEffect,
+    useLayoutEffect,
+    useState
+} from "react";
 import {observer} from "mobx-react";
 import {Theme, useMediaQuery, useTheme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -6,9 +15,10 @@ import {MessagesListItem} from "./MessagesListItem";
 import {MessagesListBottom} from "./MessagesListBottom";
 import {PinnedMessage} from "./PinnedMessage";
 import {calculateMessagesListStyles} from "../utils";
-import {useMessagesListRefs, useMessagesListStyles} from "../hooks";
+import {useMessagesListBottomStyles, useMessagesListRefs, useMessagesListStyles} from "../hooks";
 import {useStore} from "../../store";
 import {isScrolledToBottom} from "../../utils/event-utils";
+import {isWindowScrollable} from "../../utils/dom-utils";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messagesList: {
@@ -59,17 +69,22 @@ export const MessagesList: FunctionComponent = observer(() => {
         variant: "normal"
     });
 
+    const styleDependencies: DependencyList = [
+        messagesOfChat,
+        referredMessageId,
+        onSmallScreen,
+        emojiPickerExpanded,
+        currentPinnedMessageId,
+        currentPinnedMessageIsClosed
+    ]
     const style = useMessagesListStyles(
         calculateStyles,
         refs,
-        [
-            messagesOfChat,
-            referredMessageId,
-            onSmallScreen,
-            emojiPickerExpanded,
-            currentPinnedMessageId,
-            currentPinnedMessageIsClosed
-        ]
+        styleDependencies
+    );
+    const messagesListBottomStyles = useMessagesListBottomStyles(
+        onSmallScreen,
+        styleDependencies
     );
 
     const handleScroll = (event: UIEvent<HTMLDivElement>): void => {
@@ -91,7 +106,7 @@ export const MessagesList: FunctionComponent = observer(() => {
 
     const scrollToBottom = (): void => {
         setTimeout(() => {
-            if (refs.phantomBottomRef && refs.phantomBottomRef.current) {
+            if (refs.phantomBottomRef?.current) {
                 refs.phantomBottomRef.current.scrollIntoView();
             }
         }, 300);
@@ -136,7 +151,9 @@ export const MessagesList: FunctionComponent = observer(() => {
                 ))}
                 <div id="phantomBottom" ref={refs.phantomBottomRef}/>
             </div>
-            <MessagesListBottom ref={refs.messagesListBottomRef}/>
+            <MessagesListBottom ref={refs.messagesListBottomRef}
+                                style={messagesListBottomStyles}
+            />
         </Fragment>
     );
 });
