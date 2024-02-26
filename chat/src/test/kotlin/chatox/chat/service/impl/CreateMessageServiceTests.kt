@@ -23,6 +23,8 @@ import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatUploadAttachmentEntityService
 import chatox.chat.service.EmojiParserService
 import chatox.chat.service.MessageEntityService
+import chatox.chat.service.MessageReadService
+import chatox.chat.support.cache.MessageDataLocalCache
 import chatox.chat.test.TestObjects
 import chatox.chat.test.mockFindMessageById
 import chatox.chat.test.mockFindStickerById
@@ -68,6 +70,7 @@ class CreateMessageServiceTests {
     val messageEntityService: MessageEntityService = mockk()
     val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService = mockk()
     val emojiParserService: EmojiParserService = mockk()
+    val messageReadService: MessageReadService = mockk()
     val authenticationHolder: ReactiveAuthenticationHolder<User> = mockk()
     val messageMapper: MessageMapper = mockk()
     val chatEventsPublisher: ChatEventsPublisher = mockk()
@@ -99,6 +102,7 @@ class CreateMessageServiceTests {
                 messageEntityService,
                 chatUploadAttachmentEntityService,
                 emojiParserService,
+                messageReadService,
                 authenticationHolder,
                 messageMapper,
                 chatEventsPublisher
@@ -247,10 +251,7 @@ class CreateMessageServiceTests {
                     message = capture(mappedMessageSlot),
                     mapReferredMessage = any(),
                     readByCurrentUser = any(),
-                    localReferredMessagesCache = any(),
-                    localUsersCache = any(),
-                    localChatParticipationsCache = any(),
-                    localChatRolesCache = any()
+                    cache = MessageDataLocalCache()
             ) } returns Mono.just(messageResponse)
             every { chatEventsPublisher.scheduledMessageCreated(eq(messageResponse)) } returns Unit
 
@@ -364,10 +365,7 @@ class CreateMessageServiceTests {
                     message = capture(mappedMessageSlot),
                     mapReferredMessage = any(),
                     readByCurrentUser = any(),
-                    localReferredMessagesCache = any(),
-                    localUsersCache = any(),
-                    localChatParticipationsCache = any(),
-                    localChatRolesCache = any()
+                    cache = MessageDataLocalCache()
             ) } returns Mono.just(messageResponse)
 
             val expectedResponse = messageResponse

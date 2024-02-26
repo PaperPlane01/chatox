@@ -28,5 +28,6 @@ export interface ChatOfCurrentUserEntity {
     userId?: string,
     slowMode?: SlowMode,
     joinAllowanceSettings: JoinAllowanceMap,
-    hideFromSearch: boolean
+    hideFromSearch: boolean,
+    lastMessageReadByAnyoneCreatedAt?: Date
 }

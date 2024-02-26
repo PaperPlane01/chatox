@@ -7,6 +7,7 @@ import chatox.chat.service.CreateMessageService
 import chatox.chat.service.MessageSearchService
 import chatox.chat.service.MessageService
 import chatox.chat.service.ScheduledMessageService
+import chatox.chat.service.MessageReadService
 import chatox.platform.pagination.PaginationRequest
 import chatox.platform.pagination.annotation.PageSize
 import chatox.platform.pagination.annotation.PaginationConfig
@@ -33,7 +34,8 @@ class ChatMessageController(
         private val messageService: MessageService,
         private val createMessageService: CreateMessageService,
         private val messageSearchService: MessageSearchService,
-        private val scheduledMessageService: ScheduledMessageService) {
+        private val scheduledMessageService: ScheduledMessageService,
+        private val unreadMessagesCountService: MessageReadService) {
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
@@ -175,10 +177,20 @@ class ChatMessageController(
     ) = scheduledMessageService.publishScheduledMessage(chatId, messageId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canReadMessages(#chatId)")
+    @PostMapping("/{chatId}/messages/all/read")
+    fun markAllMessagesAsRead(
+            @PathVariable chatId: String
+    ) = unreadMessagesCountService.readAllMessagesForCurrentUser(chatId)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canReadMessages(#chatId)")
     @PostMapping("/{chatId}/messages/{messageId}/read")
     fun markMessageRead(@PathVariable chatId: String,
                         @PathVariable messageId: String
-    ) = messageService.markMessageRead(messageId)
+    ) = unreadMessagesCountService.readMessageForCurrentUser(chatId, messageId)
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL

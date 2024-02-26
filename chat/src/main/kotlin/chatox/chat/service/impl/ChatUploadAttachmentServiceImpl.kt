@@ -2,27 +2,31 @@ package chatox.chat.service.impl
 
 import chatox.chat.api.request.DeleteMultipleChatUploadAttachmentsRequest
 import chatox.chat.api.response.ChatUploadAttachmentResponse
+import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.exception.ChatUploadAttachmentNotFoundException
 import chatox.chat.mapper.ChatUploadAttachmentMapper
 import chatox.chat.model.AudioUploadMetadata
+import chatox.chat.model.Chat
 import chatox.chat.model.GifUploadMetadata
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Message
-import chatox.chat.model.MessageRead
+import chatox.chat.model.UnreadMessagesCount
 import chatox.chat.model.UploadType
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
-import chatox.chat.repository.mongodb.MessageReadRepository
+import chatox.chat.repository.mongodb.UnreadMessagesCountRepository
 import chatox.chat.service.ChatUploadAttachmentEntityService
 import chatox.chat.service.ChatUploadAttachmentService
 import chatox.chat.service.MessageEntityService
+import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.pagination.PaginationRequest
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.apache.commons.lang.StringUtils
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -30,8 +34,11 @@ import reactor.core.publisher.Mono
 @Service
 class ChatUploadAttachmentServiceImpl(
         private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
-        private val messageReadRepository: MessageReadRepository,
+        private val unreadMessagesCountRepository: UnreadMessagesCountRepository,
         private val messageRepository: MessageMongoRepository,
+
+        @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+        private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val chatUploadAttachmentMapper: ChatUploadAttachmentMapper,
         private val authenticationHolder: ReactiveAuthenticationHolder<User>,
         private val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService,
@@ -40,13 +47,20 @@ class ChatUploadAttachmentServiceImpl(
 
     override fun findChatUploadAttachments(chatId: String, paginationRequest: PaginationRequest): Flux<ChatUploadAttachmentResponse<Any>> {
         return mono {
-            val messageRead = getLastMessageRead(chatId).awaitFirstOrNull()
+            val unreadMessagesCount = getUnreadMessagesCount(chatId).awaitFirstOrNull();
             val chatUploadAttachments = chatUploadAttachmentRepository
                     .findByChatId(chatId, paginationRequest.toPageRequest())
                     .collectList()
                     .awaitFirst()
+            val lastReadMessageCreatedAt = chatCacheWrapper
+                    .findById(chatId)
+                    .awaitFirstOrNull()?.lastMessageReadByAnyoneCreatedAt
 
-            return@mono chatUploadAttachmentMapper.mapChatUploadAttachments(chatUploadAttachments, messageRead)
+            return@mono chatUploadAttachmentMapper.mapChatUploadAttachments(
+                    chatUploadAttachments,
+                    unreadMessagesCount,
+                    lastReadMessageCreatedAt
+            )
         }
                 .flatMapMany { it }
     }
@@ -69,7 +83,7 @@ class ChatUploadAttachmentServiceImpl(
 
     private fun <UploadMetadataType> findByType(chatId: String, type: UploadType, paginationRequest: PaginationRequest): Flux<ChatUploadAttachmentResponse<UploadMetadataType>> {
         return mono {
-            val messageRead = getLastMessageRead(chatId).awaitFirstOrNull()
+            val unreadMessagesCount = getUnreadMessagesCount(chatId).awaitFirstOrNull()
             val attachments = chatUploadAttachmentRepository.findByChatIdAndTypeAndMessageIdIsNotNull<UploadMetadataType>(
                     chatId = chatId,
                     type = type,
@@ -77,17 +91,25 @@ class ChatUploadAttachmentServiceImpl(
             )
                     .collectList()
                     .awaitFirst()
+            val lastReadMessageCreatedAt = chatCacheWrapper
+                    .findById(chatId)
+                    .awaitFirstOrNull()?.lastMessageReadByAnyoneCreatedAt
 
-            return@mono chatUploadAttachmentMapper.mapChatUploadAttachments(attachments, messageRead)
+            return@mono chatUploadAttachmentMapper.mapChatUploadAttachments(
+                    attachments,
+                    unreadMessagesCount,
+                    lastReadMessageCreatedAt
+            )
         }
                 .flatMapMany { it }
     }
 
-    private fun getLastMessageRead(chatId: String): Mono<MessageRead?> {
+    private fun getUnreadMessagesCount(chatId: String): Mono<UnreadMessagesCount?> {
         return mono {
             val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull()
+
             return@mono if (currentUser != null) {
-                messageReadRepository.findTopByUserIdAndChatIdOrderByDateDesc(currentUser.id, chatId).awaitFirstOrNull()
+                unreadMessagesCountRepository.findByChatIdAndUserId(chatId, currentUser.id).awaitFirstOrNull()
             } else {
                 null
             }

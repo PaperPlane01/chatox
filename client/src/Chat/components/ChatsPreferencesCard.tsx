@@ -34,7 +34,11 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
             useSharedWorker,
             setUseSharedWorker,
             sendTypingNotification,
-            setSendTypingNotification
+            setSendTypingNotification,
+            displayUnreadMessagesCount,
+            setDisplayUnreadMessagesCount,
+            displayUnreadChatsCount,
+            setDisplayUnreadChatsCount
         }
     } = useStore();
     const {l} = useLocalization();
@@ -111,6 +115,28 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                     <FormHelperText>
                         {l("settings.chat.use-shared-worker.explained")}
                     </FormHelperText>
+                </Fragment>
+                <Divider/>
+                <Typography variant="h6">
+                    {l("settings.chat.notifications")}
+                </Typography>
+                <Fragment>
+                    <FormControlLabel control={
+                        <Switch checked={displayUnreadMessagesCount}
+                                onChange={() => setDisplayUnreadMessagesCount(!displayUnreadMessagesCount)}
+                        />
+                    }
+                                      label={l("settings.chat.display-unread-messages-count")}
+                    />
+                    {displayUnreadMessagesCount && (
+                        <FormControlLabel control={
+                            <Switch checked={displayUnreadChatsCount}
+                                    onChange={() => setDisplayUnreadChatsCount(!displayUnreadChatsCount)}
+                            />
+                        }
+                                          label={l("settings.chat.display-unread-chats-count")}
+                        />
+                    )}
                 </Fragment>
             </CardContent>
         </Card>

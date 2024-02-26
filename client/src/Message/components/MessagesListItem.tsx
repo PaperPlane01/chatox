@@ -2,8 +2,8 @@ import React, {Fragment, FunctionComponent, MouseEvent, ReactNode, useEffect, us
 import {observer} from "mobx-react";
 import {Card, CardActions, CardContent, CardHeader, lighten, Theme, Tooltip, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
-import {Edit, Event, Forward} from "@mui/icons-material";
-import {format, isSameDay, isSameYear, Locale} from "date-fns";
+import {Edit, Event, Forward, Done, DoneAll} from "@mui/icons-material";
+import {format, isBefore, isEqual, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactVisibilitySensor from "react-visibility-sensor";
 import clsx from "clsx";
@@ -28,9 +28,11 @@ import {ensureEventWontPropagate} from "../../utils/event-utils";
 import {useLuminosity} from "../../utils/hooks";
 import {commonStyles} from "../../style";
 import {UploadType} from "../../api/types/response";
+import {isDefined} from "../../utils/object-utils";
 
 interface MessagesListItemProps {
     messageId: string,
+    lastMessageReadByAnyoneCreatedAt?: Date,
     fullWidth?: boolean,
     onMenuItemClick?: (menuItemType: MessageMenuItemType | ScheduledMessageMenuItemType) => void,
     onVisibilityChange?: (visible: boolean) => void,
@@ -167,6 +169,11 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     selectedForForwarding: {
         backgroundColor: lighten(theme.palette.primary.light, 0.5)
+    },
+    messageBottomText: {
+        display: "flex",
+        alignItems: "center",
+        gap: theme.spacing(0.5)
     }
 }));
 
@@ -177,6 +184,7 @@ window.addEventListener("resize", () => messageCardDimensionsCache = {});
 //TODO: Refactor this mess into smaller components
 export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     messageId,
+    lastMessageReadByAnyoneCreatedAt,
     fullWidth = false,
     onMenuItemClick,
     onVisibilityChange,
@@ -278,6 +286,9 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const containsCode = message.text.includes("`");
     const withAudio = message.audios.length !== 0
         || message.voiceMessages.length !== 0;
+    const readByAnyone = message.readByAnyone || (isDefined(lastMessageReadByAnyoneCreatedAt)
+        && (isEqual(message.createdAt, lastMessageReadByAnyoneCreatedAt)
+            || isBefore(message.createdAt, lastMessageReadByAnyoneCreatedAt)));
 
     const cardClasses = clsx({
         [classes.messageCardFullWidth]: fullWidth,
@@ -465,11 +476,17 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                     <CardActions classes={{
                         root: classes.cardActionsRoot
                     }}>
-                        <Typography variant="caption" color="textSecondary">
+                        <Typography variant="caption"
+                                    color="textSecondary"
+                                    className={classes.messageBottomText}
+                        >
                             {scheduledMessage && <Event fontSize="inherit"/>}
                             {createAtLabel}
                             {message.updatedAt && (
-                                <Tooltip title={l("message.updated-at", {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)})}>
+                                <Tooltip title={l(
+                                    "message.updated-at",
+                                    {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)}
+                                )}>
                                 <span>
                                     ,
                                     {" "}
@@ -477,6 +494,11 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                                     {l("message.edited")}
                                 </span>
                                 </Tooltip>
+                            )}
+                            {sentByCurrentUser && (
+                                readByAnyone
+                                    ? <DoneAll fontSize="small" color="primary"/>
+                                    : <Done fontSize="small" color="primary"/>
                             )}
                         </Typography>
                     </CardActions>

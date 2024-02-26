@@ -6,15 +6,19 @@ import chatox.chat.api.response.MessageResponse
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.Message
-import chatox.chat.model.MessageRead
+import chatox.chat.model.UnreadMessagesCount
 import chatox.chat.model.User
+import chatox.chat.support.cache.MessageDataLocalCache
 import chatox.chat.util.NTuple2
+import chatox.chat.util.isDateBeforeOrEquals
 import chatox.chat.util.mapTo2Lists
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
+import java.time.ZonedDateTime
+import java.util.Optional
 
 @Component
 class ChatUploadAttachmentMapper(private val messageMapper: MessageMapper,
@@ -25,7 +29,8 @@ class ChatUploadAttachmentMapper(private val messageMapper: MessageMapper,
 
     fun <UploadMetadataType> mapChatUploadAttachments(
             chatUploadAttachments: List<ChatUploadAttachment<UploadMetadataType>>,
-            lastMessageRead: MessageRead? = null
+            unreadMessagesCount: UnreadMessagesCount? = null,
+            lastReadMessageCreatedAt: ZonedDateTime? = null
     ): Flux<ChatUploadAttachmentResponse<UploadMetadataType>> {
         return mono {
             val (messagesIds, usersIds) = mapTo2Lists(
@@ -44,21 +49,22 @@ class ChatUploadAttachmentMapper(private val messageMapper: MessageMapper,
                     .associateBy { user -> user.id }
                     .toMutableMap()
 
-            val referredMessagesCache = HashMap<String, MessageResponse>()
-            val chatParticipationsCache = HashMap<String, ChatParticipation>()
-            val chatRolesCache = HashMap<String, ChatRoleResponse>()
+            val cache = MessageDataLocalCache(
+                    usersCache = usersCache
+            )
 
             val messagesCache = Flux.concat(
                     messages.map { message ->
                         messageMapper.toMessageResponse(
                                 message = message,
                                 mapReferredMessage = true,
-                                readByCurrentUser = lastMessageRead != null
-                                        && lastMessageRead.date.isAfter(message.createdAt),
-                                localReferredMessagesCache = referredMessagesCache,
-                                localUsersCache = usersCache,
-                                localChatParticipationsCache = chatParticipationsCache,
-                                localChatRolesCache = chatRolesCache
+                                readByCurrentUser = unreadMessagesCount != null
+                                        && unreadMessagesCount.lastMessageReadAt?.isAfter(message.createdAt) == true,
+                                cache = cache,
+                                readByAnyone = Optional
+                                        .ofNullable(lastReadMessageCreatedAt)
+                                        .map { isDateBeforeOrEquals(message.createdAt, it) }
+                                        .orElse(false)
                         )
                     })
                     .collectList()
