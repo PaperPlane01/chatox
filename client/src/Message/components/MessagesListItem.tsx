@@ -280,7 +280,9 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const senderChatRole = message.senderRoleId && findChatRole(message.senderRoleId);
     const color = randomColor({seed: sender.id, luminosity});
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
-    const sentByCurrentUser = currentUser && (currentUser.id === sender.id || currentUser.id === message.forwardedById);
+    const sentByCurrentUser = currentUser && isDefined(message.forwardedById)
+        ? message.forwardedById === currentUser.id
+        : message.sender === currentUser?.id;
     const containsCode = message.text.includes("`");
     const withAudio = message.audios.length !== 0
         || message.voiceMessages.length !== 0;
