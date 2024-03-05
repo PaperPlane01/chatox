@@ -43,5 +43,6 @@ data class ScheduledMessage(
         override val forwardedFromChatId: String? = null,
         override val forwardedFromDialogChatType: ChatType? = null,
         override val forwardedById: String? = null,
+        override val mentionedUsers: List<String>,
         val numberOfFailedAttemptsToPublish: Int = 0
 ) : MessageInterface

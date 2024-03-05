@@ -1,7 +1,7 @@
 package chatox.chat.model
 
-data class EmojiPosition(
+data class UserLinkPosition(
         val start: Int,
         val end: Int,
-        val emojiId: String
+        val userIdOrSlug: String
 )

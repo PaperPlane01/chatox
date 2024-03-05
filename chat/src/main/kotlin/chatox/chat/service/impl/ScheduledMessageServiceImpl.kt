@@ -10,12 +10,15 @@ import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.MessageMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
+import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
+import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.ScheduledMessageRepository
-import chatox.chat.service.EmojiParserService
+import chatox.chat.service.MessageReadService
+import chatox.chat.service.TextParserService
 import chatox.chat.service.ScheduledMessageService
 import chatox.chat.support.cache.MessageDataLocalCache
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
@@ -33,12 +36,15 @@ class ScheduledMessageServiceImpl(
         private val messageRepository: MessageMongoRepository,
         private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
         private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
+        private val chatParticipationRepository: ChatParticipationRepository,
 
         @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
+        private val chatParticipationCacheWrapper: ReactiveRepositoryCacheWrapper<ChatParticipation, String>,
 
         private val chatEventsPublisher: ChatEventsPublisher,
-        private val emojiParserService: EmojiParserService,
+        private val textParser: TextParserService,
+        private val messageReadService: MessageReadService,
         private val messageMapper: MessageMapper
 ) : ScheduledMessageService {
     override fun findScheduledMessageById(messageId: String): Mono<MessageResponse> {
@@ -112,6 +118,29 @@ class ScheduledMessageServiceImpl(
             }
 
             messageRepository.save(message).awaitFirst()
+
+            val senderChatParticipation = chatParticipationCacheWrapper.findById(message.chatParticipationId).awaitFirst()
+            val mentionedChatParticipants = if (message.mentionedUsers.isEmpty()) {
+                listOf()
+            } else {
+                chatParticipationRepository.findByChatIdAndUserIdInAndDeletedFalse(
+                        chatId = message.chatId,
+                        userIds = message.mentionedUsers
+                )
+                        .collectList()
+                        .awaitFirst()
+            }
+
+            messageReadService.increaseUnreadMessagesCountForChat(
+                    chatId = message.chatId,
+                    excludedChatParticipations = listOf(senderChatParticipation.id)
+            )
+                    .awaitFirst()
+
+            if (mentionedChatParticipants.isNotEmpty()) {
+                messageReadService.increaseUnreadMentionsCount(mentionedChatParticipants.map { it.id }).awaitFirst()
+            }
+
             scheduledMessageRepository.delete(scheduledMessage).awaitFirstOrNull()
 
             val messageCreated = messageMapper.toMessageCreated(
@@ -153,15 +182,31 @@ class ScheduledMessageServiceImpl(
 
             var scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
             var emoji = scheduledMessage.emoji
+            var mentionedUsers = scheduledMessage.mentionedUsers
 
             if (scheduledMessage.text != updateMessageRequest.text) {
-                emoji = emojiParserService.parseEmoji(updateMessageRequest.text).awaitFirst()
+                val textInfo = textParser.parseText(updateMessageRequest.text).awaitFirst()
+                emoji = textInfo.emoji
+
+                mentionedUsers = if (textInfo.userLinks.userLinksPositions.isNotEmpty()) {
+                    chatParticipationRepository.findByChatIdAndUserIdOrSlugIn(
+                            chatId = chatId,
+                            excludedUsersIds = listOf(scheduledMessage.senderId),
+                            userIdsOrSlugs = textInfo.userLinks.userLinksPositions.map { it.userIdOrSlug }
+                    )
+                            .map { it.user.id }
+                            .collectList()
+                            .awaitFirst()
+                } else {
+                    listOf()
+                }
             }
 
             scheduledMessage = messageMapper.mapScheduledMessageUpdate(
                     updateMessageRequest = updateMessageRequest,
                     originalMessage = scheduledMessage,
-                    emoji = emoji
+                    emoji = emoji,
+                    mentionedUsers = mentionedUsers
             )
 
             scheduledMessageRepository.save(scheduledMessage).awaitFirst()

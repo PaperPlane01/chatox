@@ -6,6 +6,7 @@ import reactor.util.function.Tuple4
 import reactor.util.function.Tuple5
 import reactor.util.function.Tuple6
 import reactor.util.function.Tuple7
+import reactor.util.function.Tuple8
 
 data class NTuple2<T1, T2>(val t1: T1, val t2: T2) {
     fun <Target1, Target2> map(mapper: (NTuple2<T1, T2>) -> NTuple2<Target1, Target2>): NTuple2<Target1, Target2> {
@@ -54,3 +55,11 @@ data class NTuple7<T1, T2, T3, T4, T5, T6, T7>(val t1: T1, val t2: T2, val t3: T
 }
 
 fun <T1, T2, T3, T4, T5, T6, T7> fromTuple(tuple: Tuple7<T1, T2, T3, T4, T5, T6, T7>): NTuple7<T1, T2, T3, T4, T5, T6, T7> = NTuple7(tuple.t1, tuple.t2, tuple.t3 ,tuple.t4, tuple.t5, tuple.t6, tuple.t7)
+
+data class NTuple8<T1, T2, T3, T4, T5, T6, T7, T8>(val t1: T1, val t2: T2, val t3: T3, val t4: T4, val t5: T5, val t6: T6, val t7: T7, val t8: T8) {
+    fun <Target1, Target2, Target3, Target4, Target5, Target6, Target7, Target8> map(mapper: (NTuple8<T1, T2, T3, T4, T5, T6, T7, T8>) -> NTuple8<Target1, Target2, Target3, Target4, Target5, Target6, Target7, Target8>): NTuple8<Target1, Target2, Target3, Target4, Target5, Target6, Target7, Target8> {
+        return mapper(this)
+    }
+}
+
+fun <T1, T2, T3, T4, T5, T6, T7, T8> fromTuple(tuple: Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>): NTuple8<T1, T2, T3, T4, T5, T6, T7, T8> = NTuple8(tuple.t1, tuple.t2, tuple.t3 ,tuple.t4, tuple.t5, tuple.t6, tuple.t7, tuple.t8)

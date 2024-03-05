@@ -21,7 +21,7 @@ import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.UnreadMessagesCountRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatUploadAttachmentEntityService
-import chatox.chat.service.EmojiParserService
+import chatox.chat.service.TextParserService
 import chatox.chat.service.MessageEntityService
 import chatox.chat.service.MessageService
 import chatox.chat.util.NTuple2
@@ -49,7 +49,7 @@ class MessageServiceImpl(
         private val uploadRepository: UploadRepository,
         private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
         private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-        private val emojiParserService: EmojiParserService,
+        private val textParser: TextParserService,
         private val messageCacheService: ReactiveCacheService<Message, String>,
         private val chatUploadAttachmentsEntityService: ChatUploadAttachmentEntityService,
 
@@ -124,12 +124,12 @@ class MessageServiceImpl(
             )
 
             if (originalMessageText != message.text) {
-                val emoji = emojiParserService.parseEmoji(
+                val textInfo = textParser.parseText(
                         text = message.text,
                         emojiSet = updateMessageRequest.emojisSet
                 )
                         .awaitFirst()
-                message = message.copy(emoji = emoji)
+                message = message.copy(emoji = textInfo.emoji)
             }
 
             if (newChatUploads != null) {

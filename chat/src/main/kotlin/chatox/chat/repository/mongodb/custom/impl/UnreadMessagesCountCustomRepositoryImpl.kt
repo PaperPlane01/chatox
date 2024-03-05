@@ -34,7 +34,7 @@ class UnreadMessagesCountCustomRepositoryImpl(
         }
     }
 
-    override fun decreaseUnreadMessagesCount(chatParticipationId: String, lastReadMessage: Message): Mono<Unit> {
+    override fun decreaseUnreadMessagesCount(chatParticipationId: String, lastReadMessage: Message, decreaseUnreadMentionsCount: Boolean): Mono<Unit> {
         val query = Query()
 
         query.addCriteria(Criteria.where(CHAT_PARTICIPATION_ID).`is`(chatParticipationId))
@@ -42,6 +42,10 @@ class UnreadMessagesCountCustomRepositoryImpl(
         val update = Update()
         update.inc(UNREAD_MESSAGES_COUNT, -1)
         setLastReadMessageInfo(update, lastReadMessage)
+
+        if (decreaseUnreadMentionsCount) {
+            update.inc(UNREAD_MENTIONS_COUNT, -1)
+        }
 
         return mono {
             reactiveMongoTemplate.updateFirst(query, update, UnreadMessagesCount::class.java).awaitFirst()
@@ -57,10 +61,26 @@ class UnreadMessagesCountCustomRepositoryImpl(
 
         val update = Update()
         update.set(UNREAD_MESSAGES_COUNT, 0)
+        update.set(UNREAD_MENTIONS_COUNT, 0)
         setLastReadMessageInfo(update, lastReadMessage)
 
         return mono {
             reactiveMongoTemplate.updateFirst(query, update, UnreadMessagesCount::class.java).awaitFirst()
+
+            return@mono
+        }
+    }
+
+    override fun increaseUnreadMentionsCount(chatParticipations: List<String>): Mono<Unit> {
+        val query = Query()
+
+        query.addCriteria(Criteria.where(CHAT_PARTICIPATION_ID).`in`(chatParticipations))
+
+        val update = Update()
+        update.inc(UNREAD_MENTIONS_COUNT, 1)
+
+        return mono {
+            reactiveMongoTemplate.updateMulti(query, update, UnreadMessagesCount::class.java).awaitFirst()
 
             return@mono
         }
@@ -77,6 +97,7 @@ class UnreadMessagesCountCustomRepositoryImpl(
         const val LAST_READ_MESSAGE_CREATED_AT = "lastReadMessageCreatedAt"
         const val LAST_MESSAGE_READ_AT = "lastMessageReadAt"
         const val UNREAD_MESSAGES_COUNT = "unreadMessagesCount"
+        const val UNREAD_MENTIONS_COUNT = "unreadMentionsCount"
         const val CHAT_PARTICIPATION_ID = "chatParticipationId"
     }
 }

@@ -22,5 +22,6 @@ data class UnreadMessagesCount(
         val unreadMessagesCount: Long = 0,
         val lastReadMessageId: String? = null,
         val lastReadMessageCreatedAt: ZonedDateTime? = null,
-        val lastMessageReadAt: ZonedDateTime? = null
+        val lastMessageReadAt: ZonedDateTime? = null,
+        val unreadMentionsCount: Long = 0
 )

@@ -3,9 +3,8 @@ package chatox.chat.test
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.Sticker
-import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.StickerRepository
-import chatox.chat.service.EmojiParserService
+import chatox.chat.service.TextParserService
 import chatox.chat.service.MessageEntityService
 import io.mockk.every
 import reactor.core.publisher.Mono
@@ -28,9 +27,9 @@ fun mockFindMessageById(messageId: String?, messageEntityService: MessageEntityS
     }
 }
 
-fun mockParseEmoji(text: String, emojiParserService: EmojiParserService, emojiInfo: EmojiInfo): EmojiInfo {
+fun mockParseEmoji(text: String, textParser: TextParserService, emojiInfo: EmojiInfo): EmojiInfo {
     return if (text.isNotBlank()) {
-        every { emojiParserService.parseEmoji(text, any()) } returns Mono.just(emojiInfo)
+        every { textParser.parseEmoji(text, any()) } returns Mono.just(emojiInfo)
         emojiInfo
     } else {
         EmojiInfo()
