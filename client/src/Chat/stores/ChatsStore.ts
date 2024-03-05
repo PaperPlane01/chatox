@@ -123,7 +123,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
             scheduledMessages: [],
             tags: [],
             joinAllowanceSettings: populateJoinAllowanceSettings({}),
-            hideFromSearch: true
+            hideFromSearch: true,
+            unreadMentionsCount: 0
         };
         patch.ids.chats.push(privateChatCreated.id);
 
@@ -148,7 +149,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
         this.insertEntity(chat);
     };
 
-    increaseUnreadMessagesCountOfChat = (chatId: string): void => {
+    increaseUnreadMessagesCountOfChat = (chatId: string, currentUserMentioned: boolean = false): void => {
         const chat = this.findByIdOptional(chatId);
 
         if (!chat) {
@@ -156,10 +157,15 @@ export class ChatsStore extends SoftDeletableEntityStore<
         }
 
         chat.unreadMessagesCount = chat.unreadMessagesCount + 1;
+
+        if (currentUserMentioned) {
+            chat.unreadMentionsCount = chat.unreadMentionsCount + 1;
+        }
+
         this.insertEntity(chat);
     }
 
-    decreaseUnreadMessagesCountOfChat = (chatId: string): void => {
+    decreaseUnreadMessagesCountOfChat = (chatId: string, currentUserMentioned: boolean = false): void => {
         const chat = this.findByIdOptional(chatId);
 
         if (!chat) {
@@ -168,6 +174,11 @@ export class ChatsStore extends SoftDeletableEntityStore<
 
         if (chat.unreadMessagesCount !== 0) {
             chat.unreadMessagesCount = chat.unreadMessagesCount - 1;
+
+            if (currentUserMentioned && chat.unreadMentionsCount !== 0) {
+                chat.unreadMentionsCount = chat.unreadMessagesCount - 1;
+            }
+
             this.insertEntity(chat);
         }
     }
@@ -377,7 +388,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
             type: denormalizedEntity.type,
             slowMode: denormalizedEntity.slowMode,
             joinAllowanceSettings: populateJoinAllowanceSettings(denormalizedEntity.joinAllowanceSettings),
-            hideFromSearch: denormalizedEntity.hideFromSearch
+            hideFromSearch: denormalizedEntity.hideFromSearch,
+            unreadMentionsCount: denormalizedEntity.unreadMentionsCount
         }
     }
 }

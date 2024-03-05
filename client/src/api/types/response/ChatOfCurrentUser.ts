@@ -31,5 +31,6 @@ export interface ChatOfCurrentUser {
     user?: User,
     slowMode?: SlowMode,
     joinAllowanceSettings: Partial<JoinAllowanceMap>,
-    hideFromSearch: boolean
+    hideFromSearch: boolean,
+    unreadMentionsCount: number
 }
