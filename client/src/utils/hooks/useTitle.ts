@@ -10,7 +10,8 @@ export const useTitle = (): string => {
 		},
 		chatsOfCurrentUser: {
 			totalUnreadMessagesCount,
-			unreadChatsCount
+			unreadChatsCount,
+			hasUnreadMentions
 		}
 	} = useStore();
 
@@ -18,9 +19,11 @@ export const useTitle = (): string => {
 		return DEFAULT_TITLE;
 	}
 
+	const prefix = hasUnreadMentions ? "! " : ""
+
 	if (displayUnreadChatsCount) {
-		return unreadChatsCount !== 0 ? `(${unreadChatsCount}) ${DEFAULT_TITLE}` : DEFAULT_TITLE ;
+		return unreadChatsCount !== 0 ? `${prefix}(${unreadChatsCount}) ${DEFAULT_TITLE}` : DEFAULT_TITLE ;
 	} else {
-		return totalUnreadMessagesCount !== 0 ? `(${totalUnreadMessagesCount}) ${DEFAULT_TITLE}` : DEFAULT_TITLE;
+		return totalUnreadMessagesCount !== 0 ? `${prefix}(${totalUnreadMessagesCount}) ${DEFAULT_TITLE}` : DEFAULT_TITLE;
 	}
-}
+};
