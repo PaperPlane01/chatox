@@ -12,7 +12,7 @@ import {
     populateJoinAllowanceSettings
 } from "../../api/types/response";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
-import {mergeCustomizer} from "../../utils/object-utils";
+import {isDefined, mergeCustomizer} from "../../utils/object-utils";
 import {AuthorizationStore} from "../../Authorization";
 import {PartialBy} from "../../utils/types";
 import {ChatUpdated, PrivateChatCreated} from "../../api/types/websocket";
@@ -183,9 +183,14 @@ export class ChatsStore extends SoftDeletableEntityStore<
         }
     }
 
-    setUnreadMessagesCountOfChat = (chatId: string, unreadMessagesCount: number): void => {
+    setUnreadMessagesCountOfChat = (chatId: string, unreadMessagesCount: number, unreadMentionsCount?: number): void => {
         const chat = this.findById(chatId);
         chat.unreadMessagesCount = unreadMessagesCount;
+
+        if (isDefined(unreadMentionsCount)) {
+            chat.unreadMentionsCount = unreadMentionsCount;
+        }
+
         this.insertEntity(chat);
     }
 

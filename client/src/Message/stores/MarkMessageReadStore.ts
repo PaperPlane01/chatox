@@ -37,7 +37,13 @@ export class MarkMessageReadStore {
 
                         if (!message.readByCurrentUser) {
                             this.markMessageRead(lastMessageId)
-                                .then(() => runInAction(() => this.entities.chats.setUnreadMessagesCountOfChat(message.chatId, 0)))
+                                .then(() => runInAction(
+                                    () => this.entities.chats.setUnreadMessagesCountOfChat(
+                                        message.chatId,
+                                        0,
+                                        0
+                                    ))
+                                );
                         }
                     }
                 }
