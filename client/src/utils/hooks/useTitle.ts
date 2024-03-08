@@ -11,7 +11,8 @@ export const useTitle = (): string => {
 		chatsOfCurrentUser: {
 			totalUnreadMessagesCount,
 			unreadChatsCount,
-			hasUnreadMentions
+			hasUnreadMentions,
+			hasUnreadDialogs
 		}
 	} = useStore();
 
@@ -19,7 +20,7 @@ export const useTitle = (): string => {
 		return DEFAULT_TITLE;
 	}
 
-	const prefix = hasUnreadMentions ? "! " : ""
+	const prefix = (hasUnreadMentions || hasUnreadDialogs) ? "! " : ""
 
 	if (displayUnreadChatsCount) {
 		return unreadChatsCount !== 0 ? `${prefix}(${unreadChatsCount}) ${DEFAULT_TITLE}` : DEFAULT_TITLE ;

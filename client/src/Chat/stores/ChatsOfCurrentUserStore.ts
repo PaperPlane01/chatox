@@ -2,6 +2,7 @@ import {makeAutoObservable, runInAction} from "mobx";
 import {ChatListEntry} from "../types";
 import {EntitiesStore} from "../../entities-store";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
+import {ChatType} from "../../api/types/response";
 
 export class ChatsOfCurrentUserStore {
     pending = false;
@@ -33,7 +34,8 @@ export class ChatsOfCurrentUserStore {
                 chatId: chat.id,
                 messageId: chat.lastMessage,
                 unreadMentionsCount: chat.unreadMentionsCount,
-                unreadMessagesCount: chat.unreadMessagesCount
+                unreadMessagesCount: chat.unreadMessagesCount,
+                chatType: chat.type
             }));
     }
 
@@ -52,6 +54,12 @@ export class ChatsOfCurrentUserStore {
     get hasUnreadMentions(): boolean {
         return this.chatsOfCurrentUser
             .filter(chat => chat.unreadMentionsCount ?? 0 !== 0)
+            .length !== 0;
+    }
+
+    get hasUnreadDialogs(): boolean {
+        return this.chatsOfCurrentUser
+            .filter(chat => chat.chatType === ChatType.DIALOG && (chat.unreadMessagesCount ?? 0 !== 0))
             .length !== 0;
     }
 
