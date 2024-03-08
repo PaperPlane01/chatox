@@ -386,7 +386,16 @@ class CreateMessageServiceImpl(
                     )
                             .awaitFirst()
 
-            return@mono NTuple8(baseData.t1, baseData.t2, baseData.t3, baseData.t4, baseData.t5, baseData.t6, baseData.t7, returnedTypeParticipation)
+            return@mono NTuple8(
+                    baseData.t1,
+                    baseData.t2,
+                    baseData.t3,
+                    baseData.t4,
+                    baseData.t5,
+                    baseData.t6,
+                    baseData.t7,
+                    returnedTypeParticipation
+            )
         }
     }
 
@@ -420,9 +429,13 @@ class CreateMessageServiceImpl(
             }
 
             val textInfo = getTextInfo(createMessageRequest.text, createMessageRequest.emojisSet).awaitFirst()
-            val mentionedChatParticipants = getMentionedChatParticipants(textInfo, chatId, currentUser.id)
-                    .collectList()
-                    .awaitFirst()
+            val mentionedChatParticipants = if (chat.type == ChatType.DIALOG) {
+                emptyList()
+            } else {
+                getMentionedChatParticipants(textInfo, chatId, currentUser.id)
+                        .collectList()
+                        .awaitFirst()
+            }
 
             val (uploads, uploadAttachments) = if (createMessageRequest.uploadAttachments.isEmpty()) {
                 NTuple2(listOf(), listOf())
@@ -435,7 +448,15 @@ class CreateMessageServiceImpl(
                         .awaitFirst()
             }
 
-            return@mono NTuple7(chat, sticker, referredMessage, textInfo.emoji, uploadAttachments, uploads, mentionedChatParticipants)
+            return@mono NTuple7(
+                    chat,
+                    sticker,
+                    referredMessage,
+                    textInfo.emoji,
+                    uploadAttachments,
+                    uploads,
+                    mentionedChatParticipants
+            )
         }
     }
 
@@ -448,8 +469,6 @@ class CreateMessageServiceImpl(
     }
 
     private fun getMentionedChatParticipants(textInfo: TextInfo, chatId: String, currentUserId: String): Flux<ChatParticipation> {
-        println(textInfo)
-
         if (textInfo.userLinks.userLinksPositions.isEmpty()) {
             return Flux.empty()
         }
