@@ -30,8 +30,6 @@ export class TextParserService {
 		tokenizer.input(parseTextRequest.text);
 		const tokens = tokenizer.tokens();
 
-		console.log(tokens)
-
 		tokens.forEach(token => {
 			switch (token.type) {
 				case TokenType.EMOJI_COLONS:
