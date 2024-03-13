@@ -83,7 +83,7 @@ export class TextParserService {
 	private addEmojiToResult(emojiData: EmojiData, token: Token, emojiSet: EmojiSet, result: ParseTextResponse): void {
 		result.emoji.emojiPositions.push(new EmojiPosition({
 			start: token.pos,
-			end: token.pos + token.text.length,
+			end: token.pos + token.text.length - 1,
 			emojiId: emojiData.id
 		}));
 
