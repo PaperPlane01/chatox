@@ -30,7 +30,8 @@ export class ChatInviteInfoStore {
                        deletionReason: undefined,
                        deletionComment: undefined,
                        deleted: false,
-                       unreadMessagesCount: 0
+                       unreadMessagesCount: 0,
+                       unreadMentionsCount: 0
                    });
                }
             }))

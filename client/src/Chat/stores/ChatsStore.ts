@@ -25,7 +25,7 @@ interface DeleteChatOptions {
 export class ChatsStore extends SoftDeletableEntityStore<
     "chats",
     ChatOfCurrentUserEntity,
-    PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted">,
+    PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted" | "unreadMentionsCount">,
     {},
     {deletionReason: ChatDeletionReason, deletionComment: string}
     > {
@@ -347,7 +347,9 @@ export class ChatsStore extends SoftDeletableEntityStore<
         return mergeWith(patch, ...patches, mergeCustomizer);
     }
 
-    protected convertToNormalizedForm(denormalizedEntity: PartialBy<ChatOfCurrentUser, "unreadMessagesCount">): ChatOfCurrentUserEntity {
+    protected convertToNormalizedForm(
+        denormalizedEntity: PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted" | "unreadMentionsCount">
+    ): ChatOfCurrentUserEntity {
         const indexToMessageMap: {[index: number]: string} = {};
 
         if (denormalizedEntity.lastMessage) {
@@ -355,14 +357,17 @@ export class ChatsStore extends SoftDeletableEntityStore<
         }
 
         let unreadMessagesCount = 0;
+        let unreadMentionsCount = 0;
 
-        if (denormalizedEntity.unreadMessagesCount !== undefined) {
+        if (denormalizedEntity.unreadMessagesCount !== undefined && denormalizedEntity.unreadMentionsCount !== undefined) {
             unreadMessagesCount = denormalizedEntity.unreadMessagesCount;
+            unreadMentionsCount = denormalizedEntity.unreadMentionsCount;
         } else {
             const existingChat = this.findByIdOptional(denormalizedEntity.id);
 
             if (existingChat) {
                 unreadMessagesCount = existingChat.unreadMessagesCount;
+                unreadMentionsCount = existingChat.unreadMentionsCount;
             }
         }
 
@@ -377,6 +382,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
             messages: denormalizedEntity.lastMessage ? [denormalizedEntity.lastMessage.id] : [],
             indexToMessageMap,
             unreadMessagesCount,
+            unreadMentionsCount,
             participantsCount: denormalizedEntity.participantsCount,
             participants: [],
             currentUserParticipationId: denormalizedEntity.chatParticipation?.id,
@@ -385,7 +391,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
             createdByCurrentUser: denormalizedEntity.createdByCurrentUser,
             tags: denormalizedEntity.tags,
             onlineParticipantsCount: denormalizedEntity.onlineParticipantsCount,
-            deleted: denormalizedEntity.deleted,
+            deleted: denormalizedEntity.deleted ?? false,
             deletionComment: denormalizedEntity.deletionComment,
             deletionReason: denormalizedEntity.deletionReason,
             scheduledMessages: [],
@@ -393,8 +399,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
             type: denormalizedEntity.type,
             slowMode: denormalizedEntity.slowMode,
             joinAllowanceSettings: populateJoinAllowanceSettings(denormalizedEntity.joinAllowanceSettings),
-            hideFromSearch: denormalizedEntity.hideFromSearch,
-            unreadMentionsCount: denormalizedEntity.unreadMentionsCount
+            hideFromSearch: denormalizedEntity.hideFromSearch
         }
     }
 }
