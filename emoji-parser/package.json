@@ -34,7 +34,8 @@
     "react": "^16.13.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^4.4.0",
-    "rxjs": "^7.8.0"
+    "rxjs": "^7.8.0",
+    "tokenizr": "^1.6.10"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.3.2",
@@ -49,9 +50,9 @@
     "@types/jest": "25.1.4",
     "@types/node": "^20.11.19",
     "@types/supertest": "^2.0.8",
-    "@typescript-eslint/eslint-plugin": "^2.23.0",
-    "@typescript-eslint/parser": "^2.23.0",
-    "eslint": "^6.8.0",
+    "@typescript-eslint/eslint-plugin": "^5.6.0",
+    "@typescript-eslint/parser": "^5.6.0",
+    "eslint": "^7.32.0",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-import": "^2.20.1",
     "jest": "^25.1.0",

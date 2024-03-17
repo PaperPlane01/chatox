@@ -34,6 +34,7 @@ import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatParticipantsCountService
 import chatox.chat.service.ChatRoleService
 import chatox.chat.service.CreateMessageService
+import chatox.chat.service.MessageReadService
 import chatox.chat.test.TestObjects
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
@@ -61,7 +62,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.ArgumentsSource
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.security.access.AccessDeniedException
 import reactor.core.publisher.Flux
@@ -93,6 +93,7 @@ class ChatServiceTests {
     val createMessageService: CreateMessageService = mockk()
     val chatRoleService: ChatRoleService = mockk()
     val chatParticipantsCountService: ChatParticipantsCountService = mockk()
+    val messageReadService: MessageReadService = mockk()
 
     private val user = TestObjects.user()
     private val chat = TestObjects.chat()
@@ -109,7 +110,6 @@ class ChatServiceTests {
                 chatRepository,
                 chatParticipationRepository,
                 pendingChatParticipationRepository,
-                messageRepository,
                 uploadRepository,
                 chatMessagesCounterRepository,
                 messageCacheWrapper,
@@ -123,7 +123,8 @@ class ChatServiceTests {
                 chatEventsPublisher,
                 createMessageService,
                 chatRoleService,
-                chatParticipantsCountService
+                chatParticipantsCountService,
+                messageReadService
         )
     }
 
@@ -166,6 +167,7 @@ class ChatServiceTests {
                         chat = capture(mappedChatSlot),
                         chatParticipation = capture(mappedChatParticipationSlot),
                         unreadMessagesCount = eq(0),
+                        unreadMentionsCount = eq(0),
                         lastMessage = any() as Message?,
                         lastReadMessage = any() as Message?,
                         chatParticipantsCount = eq(chatParticipantsCount)
@@ -277,7 +279,8 @@ class ChatServiceTests {
                     chatParticipation = any<ChatParticipation>(),
                     lastMessage = any<MessageResponse>(),
                     lastReadMessage = any<MessageResponse>(),
-                    unreadMessagesCount =  any(),
+                    unreadMessagesCount = eq(0),
+                    unreadMentionsCount = eq(0),
                     user = any<User>()
             ) } returns Mono.just(chatOfCurrenUser)
 

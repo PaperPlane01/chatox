@@ -95,12 +95,10 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
             return;
         }
 
-        if (!useEmojiCodes) {
-            inputRef.current.value = `${inputRef.current.value}${(emoji as any).native}`;
-        } else if (inputRef.current.value.length !== 0) {
-            inputRef.current.value = `${inputRef.current.value} ${emoji.colons}`;
+        if (useEmojiCodes) {
+            insertTextOnCursorPosition(` ${emoji.colons} `);
         } else {
-            inputRef.current.value = `${emoji.colons}`;
+            insertTextOnCursorPosition(`${(emoji as any).native} `);
         }
 
         updateText(inputRef.current.value);
@@ -123,7 +121,9 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
         }
     };
 
-    const insertNewLineOnCursorPosition = (): void => {
+    const insertNewLineOnCursorPosition = (): void => insertTextOnCursorPosition("\r\n");
+
+    const insertTextOnCursorPosition = (text: string): void => {
         if (!inputRef?.current) {
             return;
         }
@@ -136,12 +136,13 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
         }
 
         if (end === formValues.text.length) {
-            inputRef.current.value = `${inputRef.current.value}\r\n`;
+            inputRef.current.value = `${inputRef.current.value}${text}`;
         } else {
-            inputRef.current.setRangeText("\r\n", start, end, "preserve");
+            inputRef.current.setRangeText(text, start, end, "preserve");
         }
 
         updateText(inputRef.current.value);
+        inputRef.current.focus();
     };
 
     return (

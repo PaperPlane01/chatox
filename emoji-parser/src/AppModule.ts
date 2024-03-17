@@ -1,8 +1,11 @@
 import {Module} from "@nestjs/common";
-import {EmojiParserModule} from "./emoji-parser";
 import {EurekaModule} from "./eureka";
+import {EmojiModule} from "./emoji";
+import {TextParserModule} from "./text-parser";
 
 @Module({
-    imports: [EmojiParserModule, EurekaModule]
+    imports: [EmojiModule, TextParserModule, EurekaModule]
 })
-export class AppModule {}
+export class AppModule {
+
+}

@@ -26,5 +26,6 @@ data class MessageResponse(
         val forwardedBy: UserResponse? = null,
         val forwardedFromMessageId: String? = null,
         val forwardedFromChatId: String? = null,
-        val readByAnyone: Boolean = false
+        val readByAnyone: Boolean = false,
+        val mentionedUsers: List<UserResponse> = listOf()
 )

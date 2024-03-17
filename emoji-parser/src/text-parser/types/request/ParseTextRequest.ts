@@ -1,7 +1,7 @@
 import {IsBoolean, IsIn, IsNotEmpty, IsOptional, IsString} from "class-validator";
 import {EmojiSet} from "emoji-mart";
 
-export class ParseEmojiRequest {
+export class ParseTextRequest {
     @IsString()
     @IsNotEmpty()
     text: string;
@@ -13,5 +13,5 @@ export class ParseEmojiRequest {
 
     @IsBoolean()
     @IsOptional()
-    parseColons: boolean = false;
+    parseColons = false;
 }

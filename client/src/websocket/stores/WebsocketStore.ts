@@ -1,6 +1,7 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {connect, Socket} from "socket.io-client";
 import {proxy, Remote} from "comlink";
+import {isBefore} from "date-fns";
 import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
 import {ChatApi} from "../../api";
@@ -32,7 +33,6 @@ import {LocaleStore} from "../../localization";
 import {SnackbarService} from "../../Snackbar";
 import {getSocketIoWorker, SocketIoWorker} from "../../workers";
 import {isDefined} from "../../utils/object-utils";
-import {isBefore} from "date-fns";
 
 type ConnectionType = "socketIo" | "sharedWorker";
 
@@ -178,30 +178,7 @@ export class WebsocketStore {
         const map = new  Map<WebsocketEventType, (websocketEvent: WebsocketEvent<any>) => void>();
         map.set(
             WebsocketEventType.MESSAGE_CREATED,
-            (event: WebsocketEvent<Message>) => {
-                const message = event.payload;
-                message.previousMessageId = this.entities.chats.findById(message.chatId).lastMessage;
-                this.entities.messages.insert({
-                    ...message,
-                    readByCurrentUser: false
-                });
-
-                if (this.authorization.currentUser) {
-                    if (this.authorization.currentUser.id !== message.sender.id) {
-                        this.typingUsersStore.removeTypingUser(message.chatId, message.sender.id, true);
-
-                        if (this.chatStore.selectedChatId === message.chatId) {
-                            if (this.scrollPositionStore.getReachedBottom(message.chatId)) {
-                                this.markMessageReadStore.markMessageRead(message.id);
-                            } else {
-                                this.entities.chats.increaseUnreadMessagesCountOfChat(message.chatId);
-                            }
-                        } else {
-                            this.entities.chats.increaseUnreadMessagesCountOfChat(message.chatId);
-                        }
-                    }
-                }
-            }
+            (event: WebsocketEvent<Message>) => this.handleNewMessage(event.payload)
         );
         map.set(
             WebsocketEventType.MESSAGE_UPDATED,
@@ -348,6 +325,38 @@ export class WebsocketStore {
         return map;
     }
 
+    private handleNewMessage(message: Message): void {
+        message.previousMessageId = this.entities.chats.findById(message.chatId).lastMessage;
+        const messageEntity = this.entities.messages.insert({
+            ...message,
+            readByCurrentUser: false
+        });
+
+        if (this.authorization.currentUser) {
+            if (this.authorization.currentUser.id !== message.sender.id) {
+                this.typingUsersStore.removeTypingUser(message.chatId, message.sender.id, true);
+                const currentUserMentioned = messageEntity.mentionedUsers
+                    .includes(this.authorization.currentUser.id);
+
+                if (this.chatStore.selectedChatId === message.chatId) {
+                    if (this.scrollPositionStore.getReachedBottom(message.chatId)) {
+                        this.markMessageReadStore.markMessageRead(message.id);
+                    } else {
+                        this.entities.chats.increaseUnreadMessagesCountOfChat(
+                            message.chatId,
+                            currentUserMentioned
+                        );
+                    }
+                } else {
+                    this.entities.chats.increaseUnreadMessagesCountOfChat(
+                        message.chatId,
+                        currentUserMentioned
+                    );
+                }
+            }
+        }
+    }
+
     private processGlobalBan(globalBan: GlobalBan): void {
         this.entities.globalBans.insert(globalBan);
 
@@ -402,6 +411,7 @@ export class WebsocketStore {
                 return this.entities.chats.insert({
                     ...data,
                     unreadMessagesCount: 0,
+                    unreadMentionsCount: 0,
                     deleted: false
                 });
             } catch (error) {
