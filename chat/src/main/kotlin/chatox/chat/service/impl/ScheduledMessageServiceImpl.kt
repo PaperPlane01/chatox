@@ -188,7 +188,9 @@ class ScheduledMessageServiceImpl(
                 val textInfo = textParser.parseText(updateMessageRequest.text).awaitFirst()
                 emoji = textInfo.emoji
 
-                mentionedUsers = if (textInfo.userLinks.userLinksPositions.isNotEmpty()) {
+                mentionedUsers = if (textInfo.userLinks.userLinksPositions.isEmpty()) {
+                    listOf()
+                } else {
                     chatParticipationRepository.findByChatIdAndUserIdOrSlugIn(
                             chatId = chatId,
                             excludedUsersIds = listOf(scheduledMessage.senderId),
@@ -197,8 +199,6 @@ class ScheduledMessageServiceImpl(
                             .map { it.user.id }
                             .collectList()
                             .awaitFirst()
-                } else {
-                    listOf()
                 }
             }
 
