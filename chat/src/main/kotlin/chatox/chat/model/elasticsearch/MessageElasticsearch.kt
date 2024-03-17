@@ -51,6 +51,7 @@ data class MessageElasticsearch(
         override val forwardedFromDialogChatType: ChatType? = null,
         override val forwardedById: String? = null,
         override val chatParticipationIdInSourceChat: String? = null,
+        override val mentionedUsers: List<String> = listOf()
 ) : MessageInterface {
     fun toMongoDB() = Message(
             id,

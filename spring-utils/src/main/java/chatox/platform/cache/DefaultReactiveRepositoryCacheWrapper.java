@@ -77,6 +77,10 @@ public class DefaultReactiveRepositoryCacheWrapper<T, ID, RepositoryType extends
 
     @Override
     public Flux<T> findByIds(List<ID> ids, boolean putInCacheIfAbsent) {
+        if (ids.isEmpty()) {
+            return Flux.empty();
+        }
+
         return reactiveCacheService
                 .find(ids)
                 .flatMapMany(result -> {

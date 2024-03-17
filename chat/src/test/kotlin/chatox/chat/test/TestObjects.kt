@@ -14,11 +14,11 @@ import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.DialogParticipant
-import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.PendingChatParticipation
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Sticker
+import chatox.chat.model.TextInfo
 import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.platform.security.jwt.JwtPayload
@@ -67,9 +67,9 @@ object TestObjects {
             object : TypeReference<ChatUploadAttachment<Any>>() {}
     )
 
-    fun emojiInfo(): EmojiInfo = loadResource(
-            "model/emoji.json",
-            EmojiInfo::class.java
+    fun textInfo(): TextInfo = loadResource(
+            "model/text-info.json",
+            TextInfo::class.java
     )
 
     fun messageResponse(): MessageResponse = loadResource(

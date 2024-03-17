@@ -153,6 +153,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     chat = chat,
                     chatParticipation = creatorChatParticipation,
                     unreadMessagesCount = 0,
+                    unreadMentionsCount = 0,
                     lastMessage = null as Message?,
                     lastReadMessage = null as Message?,
                     chatParticipantsCount = participantsCount
@@ -258,6 +259,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     lastMessage = message,
                     lastReadMessage = message,
                     unreadMessagesCount =  0,
+                    unreadMentionsCount = 0,
                     user = user
             )
                     .awaitFirst()
@@ -550,6 +552,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                                 lastReadMessage = lastReadMessage,
                                 lastMessage = lastMessage,
                                 unreadMessagesCount = unreadMessagesCount?.unreadMessagesCount ?: 0,
+                                unreadMentionsCount = unreadMessagesCount?.unreadMentionsCount ?: 0,
                                 user = user,
                                 chatParticipantsCount = chatParticipantsCount[chat.id] ?: ChatParticipantsCount.EMPTY
                         )

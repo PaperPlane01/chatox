@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent, ReactNode} from "react";
+import React, {Fragment, FunctionComponent, MouseEvent, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -8,6 +8,7 @@ import {Element} from "hast";
 import {useEmojiParser} from "../hooks";
 import {MessageEmoji} from "../../api/types/response";
 import {EmojiKeyProviderFunction} from "../internal/ParseEmojiOptions";
+import {rootStore} from "../../store";
 
 interface MarkdownTextWithEmojiProps {
     text: string,
@@ -47,6 +48,17 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
 }) => {
     const {parseEmoji} = useEmojiParser();
     const classes = useStyles();
+
+    const handleLinkClick = (event: MouseEvent, href: string): void => {
+        if (!href.startsWith("/") && !href.startsWith(import.meta.env.VITE_PUBLIC_URL)) {
+            return;
+        }
+
+        event.preventDefault();
+        window.history.pushState(null, "", href);
+
+        rootStore.restartRouter();
+    };
 
     const processEmoji = (node: Element, props: any): ReactNode | ReactNode[] => node.children.map(child => {
         if (child.type === "text") {
@@ -94,9 +106,11 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
                                </b>
                            ),
                            a: ({node, ...props}) => (
-                               <a {...props}>
-                                   {processEmoji(node, props.children)}
-                               </a>
+                              <a {...props}
+                                  onClick={event => handleLinkClick(event, props.href ?? "/")}
+                              >
+                                  {processEmoji(node, props)}
+                              </a>
                            ),
                            strong: ({node, ...props}) => (
                                <strong>

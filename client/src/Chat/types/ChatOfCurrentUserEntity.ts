@@ -29,5 +29,6 @@ export interface ChatOfCurrentUserEntity {
     slowMode?: SlowMode,
     joinAllowanceSettings: JoinAllowanceMap,
     hideFromSearch: boolean,
-    lastMessageReadByAnyoneCreatedAt?: Date
+    lastMessageReadByAnyoneCreatedAt?: Date,
+    unreadMentionsCount: number
 }

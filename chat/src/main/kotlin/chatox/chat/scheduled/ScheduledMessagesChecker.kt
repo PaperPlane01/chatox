@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import reactor.core.scheduler.Schedulers
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
@@ -46,6 +47,7 @@ class ScheduledMessagesChecker(
             for (message in scheduledMessages) {
                 scheduledMessageService.publishScheduledMessage(message, localUsersCache, localReferredMessagesCache)
                         .doOnSuccess { log.trace("Scheduled message ${message.id} has been published") }
+                        .publishOn(Schedulers.boundedElastic())
                         .doOnError {
                             val numberOfFailedAttempts = message.numberOfFailedAttemptsToPublish + 1
                             log.error("Failed to publish scheduled message ${message.id}, number of failed attempts: $numberOfFailedAttempts")

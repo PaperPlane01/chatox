@@ -1,9 +1,11 @@
+import {action, makeObservable, override} from "mobx";
 import {ChatFeatureFormStore} from "./ChatFeatureFormStore";
 import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
-import {action, makeObservable, override} from "mobx";
 
-export abstract class AbstractChatFeatureFormStore<FormType extends object> extends AbstractFormStore<FormType> implements ChatFeatureFormStore<FormType> {
+export abstract class AbstractChatFeatureFormStore<FormType extends object>
+    extends AbstractFormStore<FormType>
+    implements ChatFeatureFormStore<FormType> {
     protected constructor(initialFormValues: FormType, initialFormErrors: FormErrors<FormType>) {
         super(initialFormValues, initialFormErrors);
 

@@ -8,14 +8,14 @@ export class EnvConfig {
     EUREKA_PORT: number;
 
     @Env({type: "string", required: false})
-    EUREKA_APP_NAME: string = "emoji-parser-service";
+    EUREKA_APP_NAME = "text-parser-service";
 
     @Env({type: "string", required: false})
-    EUREKA_APP_INSTANCE_IP_ADDRESS: string = "127.0.0.1";
+    EUREKA_APP_INSTANCE_IP_ADDRESS = "127.0.0.1";
 
     @Env({type: "string", required: false})
-    EUREKA_APP_INSTANCE_HOST: string = "localhost";
+    EUREKA_APP_INSTANCE_HOST = "localhost";
 
     @Env({type: "number", required: true})
-    EMOJI_PARSER_PORT: number;
+    TEXT_PARSER_PORT: number;
 }

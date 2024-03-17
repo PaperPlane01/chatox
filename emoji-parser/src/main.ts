@@ -8,7 +8,7 @@ import {ValidationPipe} from "@nestjs/common";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe({transform: true}));
-  await app.listen(process.env.EMOJI_PARSER_PORT);
+  await app.listen(process.env.TEXT_PARSER_PORT);
 }
 
 bootstrap();

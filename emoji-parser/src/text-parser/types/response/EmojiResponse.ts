@@ -1,11 +1,8 @@
 import {EmojiMap} from "./EmojiMap";
+import {EmojiPosition} from "./EmojiPosition";
 
 export class EmojiResponse {
-    emojiPositions: Array<{
-        start: number,
-        end: number,
-        emojiId: string
-    }>;
+    emojiPositions: EmojiPosition[];
 
     emoji: EmojiMap;
 

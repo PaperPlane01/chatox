@@ -27,7 +27,13 @@ data class MessageCreated(
         val scheduledAt: ZonedDateTime? = null,
         val sticker: StickerResponse<Any>? = null,
         val senderChatRole: ChatRoleResponse,
-        val fromScheduled: Boolean
+        val fromScheduled: Boolean,
+        val forwarded: Boolean = false,
+        val forwardedBy: UserResponse? = null,
+        val forwardedFromMessageId: String? = null,
+        val forwardedFromChatId: String? = null,
+        val readByAnyone: Boolean = false,
+        val mentionedUsers: List<UserResponse> = listOf()
 ) {
     fun toMessageResponse() = MessageResponse(
             id,
@@ -47,6 +53,12 @@ data class MessageCreated(
             pinnedBy,
             scheduledAt,
             sticker,
-            senderChatRole
+            senderChatRole,
+            forwarded,
+            forwardedBy,
+            forwardedFromMessageId,
+            forwardedFromChatId,
+            readByAnyone,
+            mentionedUsers
     )
 }

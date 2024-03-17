@@ -1,0 +1,26 @@
+{
+  "emoji": {
+    "emojiPositions": [
+      {
+        "start": 6,
+        "end": 15,
+        "emojiId": "grinning"
+      }
+    ],
+    "emoji": {
+      "grinning": {
+        "id": "grinning",
+        "name": "Grinning Face",
+        "short_names": ["grinning"],
+        "colons": ":grinning:",
+        "emoticons": [],
+        "unified": "1f600",
+        "native": "\uD83D\uDE00",
+        "originalSet": "apple"
+      }
+    }
+  },
+  "userLinks": {
+    "userLinksPositions": []
+  }
+}

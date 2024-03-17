@@ -11,6 +11,8 @@ import org.springframework.data.mongodb.core.BulkOperations
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 
@@ -101,5 +103,21 @@ class UnreadMessagesCountMigrations {
     ) {
         val id: String
             get() = _id
+    }
+
+    @Changeset(author = "mongration", order = 2)
+    fun populateUnreadMentionsCount(reactiveMongoTemplate: ReactiveMongoTemplate): Mono<Unit> {
+        return mono {
+            log.info("Executing migration: populate unread mentions count")
+
+            val update = Update()
+            update.set("unreadMentionsCount", 0)
+
+            reactiveMongoTemplate.updateMulti(Query(), update, UnreadMessagesCount::class.java).awaitFirst()
+
+            log.info("Finished migration: populate unread mentions count")
+
+            return@mono
+        }
     }
 }

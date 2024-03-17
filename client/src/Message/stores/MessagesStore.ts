@@ -4,7 +4,7 @@ import {convertMessageToNormalizedForm} from "../utils";
 import {SoftDeletableEntityStore} from "../../entity-store";
 import {EntitiesPatch, EntitiesStore, GetEntityType, RawEntitiesStore} from "../../entities-store";
 import {Message} from "../../api/types/response";
-import {mergeCustomizer} from "../../utils/object-utils";
+import {isDefined, mergeCustomizer} from "../../utils/object-utils";
 import {UserChatRolesStore} from "../../ChatRole";
 
 export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
@@ -57,7 +57,14 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
                 }
             }
 
-            patches.push(this.entities.users.createPatch(message.sender));
+            patches.push(this.entities.users.createPatchForArray(
+                [
+                    message.sender,
+                    message.forwardedBy,
+                    ...message.mentionedUsers
+                ]
+                    .filter(isDefined)
+            ));
 
             if (message.senderChatRole) {
                 this.userChatRoles.insertInCache({
@@ -86,10 +93,6 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
                         }
                     )
                 );
-            }
-
-            if (message.forwardedBy) {
-                patches.push(this.entities.users.createPatch(message.forwardedBy));
             }
         });
 

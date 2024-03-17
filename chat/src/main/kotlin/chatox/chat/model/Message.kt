@@ -51,7 +51,8 @@ data class Message(
         override val forwardedFromChatId: String? = null,
         override val forwardedFromDialogChatType: ChatType? = null,
         override val forwardedById: String? = null,
-        override val chatParticipationIdInSourceChat: String? = null
+        override val chatParticipationIdInSourceChat: String? = null,
+        override val mentionedUsers: List<String> = listOf()
 ) : MessageInterface {
         fun toElasticsearch() = MessageElasticsearch(
                 id,
@@ -79,6 +80,7 @@ data class Message(
                 forwardedFromChatId,
                 forwardedFromDialogChatType,
                 forwardedById,
-                chatParticipationIdInSourceChat
+                chatParticipationIdInSourceChat,
+                mentionedUsers
         )
 }

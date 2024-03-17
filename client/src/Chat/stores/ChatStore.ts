@@ -53,7 +53,8 @@ export class ChatStore {
                         deletionReason: undefined,
                         deletionComment: undefined,
                         deleted: false,
-                        unreadMessagesCount: 0
+                        unreadMessagesCount: 0,
+                        unreadMentionsCount: 0
                     }
                     this.entities.chats.insert(chat);
                     this.previousChatId = this.selectedChatId;

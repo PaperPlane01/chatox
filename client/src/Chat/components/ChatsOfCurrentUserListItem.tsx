@@ -62,7 +62,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         width: "100%"
     },
     unreadMessagesBadgeTopRightRectangle: {
-        top: "60%"
+        top: "70%"
+    },
+    unreadMentionsBadgeTopRightRectangle: {
+        top: "40%"
     },
     undecoratedLink: {
         textDecoration: "none",
@@ -121,6 +124,8 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
             />
         );
 
+    console.log(chat.unreadMentionsCount)
+
     return (
         <Link router={routerStore}
               className={classes.undecoratedLink}
@@ -137,38 +142,48 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                            root: classes.unreadMessagesBadgeRoot,
                            anchorOriginTopRightRectangular: classes.unreadMessagesBadgeTopRightRectangle
                        }}
-                       hidden={chat.unreadMessagesCount === 0}
+                       invisible={chat.unreadMessagesCount === 0}
+                       max={999}
                 >
-                    <CardHeader title={
-                        <div className={classes.flexWrapper}>
-                            <div className={classes.flexTruncatedTextContainer}>
-                                <Typography className={classes.truncatedText}>
-                                    <strong>
-                                        {chatUser ? getUserDisplayedName(chatUser) : chat.name}
-                                    </strong>
-                                </Typography>
+                    <Badge badgeContent={"@"}
+                           color="secondary"
+                           classes={{
+                               root: classes.unreadMessagesBadgeRoot,
+                               anchorOriginTopRightRectangular: classes.unreadMentionsBadgeTopRightRectangle
+                           }}
+                           invisible={chat.unreadMentionsCount === 0}
+                    >
+                        <CardHeader title={
+                            <div className={classes.flexWrapper}>
+                                <div className={classes.flexTruncatedTextContainer}>
+                                    <Typography className={classes.truncatedText}>
+                                        <strong>
+                                            {chatUser ? getUserDisplayedName(chatUser) : chat.name}
+                                        </strong>
+                                    </Typography>
+                                </div>
                             </div>
-                        </div>
-                    }
-                                subheader={messageId && (
-                                    <div className={classes.flexWrapper}>
-                                        <div className={classes.flexTruncatedTextContainer}>
-                                            <Typography className={`${classes.truncatedText} ${selected && !ignoreSelection && classes.selected}`}>
-                                                {chatHasTypingUsers
-                                                    ? <TypingIndicator chatId={chatId}/>
-                                                    : <ChatListMessagePreview messageId={messageId}/>
-                                                }
-                                            </Typography>
+                        }
+                                    subheader={messageId && (
+                                        <div className={classes.flexWrapper}>
+                                            <div className={classes.flexTruncatedTextContainer}>
+                                                <Typography className={`${classes.truncatedText} ${selected && !ignoreSelection && classes.selected}`}>
+                                                    {chatHasTypingUsers
+                                                        ? <TypingIndicator chatId={chatId}/>
+                                                        : <ChatListMessagePreview messageId={messageId}/>
+                                                    }
+                                                </Typography>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
-                                avatar={avatar}
-                                classes={{
-                                    root: classes.listItemHeaderRoot,
-                                    content: classes.listItemHeaderContent
-                                }}
-                    />
-                    <Divider/>
+                                    )}
+                                    avatar={avatar}
+                                    classes={{
+                                        root: classes.listItemHeaderRoot,
+                                        content: classes.listItemHeaderContent
+                                    }}
+                        />
+                        <Divider/>
+                    </Badge>
                 </Badge>
             </ListItem>
         </Link>

@@ -1,13 +1,13 @@
 package chatox.chat.model
 
 data class EmojiData(
-      var id: String,
-      var name: String,
-      var short_names: List<String>,
-      var colons: String,
-      var emoticons: List<String>,
-      var unified: String,
-      var skin: String?,
-      var native: String,
-      var originalSet: String
+      val id: String,
+      val name: String,
+      val short_names: List<String>,
+      val colons: String,
+      val emoticons: List<String>,
+      val unified: String,
+      val skin: String?,
+      val native: String,
+      val originalSet: String
 )

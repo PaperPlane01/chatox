@@ -324,7 +324,12 @@ const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsSto
 );
 const googleLogin = new LoginWithGoogleStore(authorization);
 const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
-const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
+const markMessageRead = new MarkMessageReadStore(
+    entities,
+    chat,
+    messagesListScrollPositions,
+    authorization
+);
 const balance = new BalanceStore(authorization);
 const typingUsers = new TypingUsersStore(entities, authorization);
 const websocket = new WebsocketStore(
