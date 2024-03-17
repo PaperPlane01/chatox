@@ -1,11 +1,11 @@
 package chatox.chat.test
 
-import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.Sticker
+import chatox.chat.model.TextInfo
 import chatox.chat.repository.mongodb.StickerRepository
-import chatox.chat.service.TextParserService
 import chatox.chat.service.MessageEntityService
+import chatox.chat.service.TextParserService
 import io.mockk.every
 import reactor.core.publisher.Mono
 
@@ -27,11 +27,11 @@ fun mockFindMessageById(messageId: String?, messageEntityService: MessageEntityS
     }
 }
 
-fun mockParseEmoji(text: String, textParser: TextParserService, emojiInfo: EmojiInfo): EmojiInfo {
+fun mockParseText(text: String, textParserService: TextParserService, textInfo: TextInfo): TextInfo {
     return if (text.isNotBlank()) {
-        every { textParser.parseEmoji(text, any()) } returns Mono.just(emojiInfo)
-        emojiInfo
+        every { textParserService.parseText(text, any()) } returns Mono.just(textInfo)
+        textInfo
     } else {
-        EmojiInfo()
+        TextInfo()
     }
 }

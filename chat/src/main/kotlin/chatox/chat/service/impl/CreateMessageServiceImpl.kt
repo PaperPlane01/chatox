@@ -303,9 +303,18 @@ class CreateMessageServiceImpl(
                     .awaitFirst()
 
             messageReadService
-                    .increaseUnreadMessagesCountForChat(chatId, copiedMessages.size.toLong(), listOf(chatParticipationInCurrentChat.id))
-                    .awaitFirst()
-            messageReadService.readAllMessagesForCurrentUser(chatParticipationInCurrentChat, lastMessage).awaitFirst()
+                    .increaseUnreadMessagesCountForChat(
+                            chatId = chatId,
+                            increaseCount = copiedMessages.size.toLong(),
+                            excludedChatParticipations = listOf(chatParticipationInCurrentChat.id)
+                    )
+                    .awaitFirstOrNull()
+            messageReadService
+                    .readAllMessagesForCurrentUser(
+                            chatParticipation = chatParticipationInCurrentChat,
+                            lastMessage = lastMessage
+                    )
+                    .awaitFirstOrNull()
 
             return@mono messageMapper.mapMessages(Flux.fromIterable(copiedMessages))
         }
@@ -354,8 +363,8 @@ class CreateMessageServiceImpl(
             )
 
             messageRepository.save(message).awaitFirst()
-            messageReadService.increaseUnreadMessagesCountForChat(chat.id, listOf(chatParticipation.id)).awaitFirst()
-            messageReadService.readAllMessagesForCurrentUser(chatParticipation, message).awaitFirst()
+            messageReadService.increaseUnreadMessagesCountForChat(chat.id, listOf(chatParticipation.id)).awaitFirstOrNull()
+            messageReadService.readAllMessagesForCurrentUser(chatParticipation, message).awaitFirstOrNull()
 
             if (uploadAttachments.isNotEmpty()) {
                 chatUploadAttachmentEntityService.linkChatUploadAttachmentsToMessage(uploadAttachments, message)
