@@ -1,36 +1,30 @@
-import React, {FunctionComponent, Fragment, useLayoutEffect} from "react";
+import React, {Fragment, FunctionComponent, useLayoutEffect} from "react";
 import {observer} from "mobx-react";
-import {IconButton, Hidden, Menu, useMediaQuery, useTheme} from "@mui/material";
+import {Hidden, IconButton, Menu, useMediaQuery, useTheme} from "@mui/material";
 import {InsertEmoticon} from "@mui/icons-material";
-import {usePopupState, bindToggle, bindMenu} from "material-ui-popup-state/hooks";
+import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {EmojiData} from "emoji-mart";
-import 'emoji-mart/css/emoji-mart.css';
+import "emoji-mart/css/emoji-mart.css";
 import {EmojiAndStickerPicker} from "./EmojiAndStickerPicker";
-import {useStore, useRouter} from "../../store";
-import {Routes} from "../../router";
+import {EmojiPicker} from "./EmojiPicker";
+import {EmojiPickerVariant} from "../types";
+import {useRouter, useStore} from "../../store";
 
 interface EmojiPickerContainerProps {
     onEmojiSelected: (emoji: EmojiData) => void,
-    iconButtonClassName?: string
+    iconButtonClassName?: string,
+    variant?: EmojiPickerVariant
 }
 
 export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> = observer(({
     onEmojiSelected,
-    iconButtonClassName
+    iconButtonClassName,
+    variant = "emoji-and-sticker-picker"
 }) => {
     const {
         messageCreation: {
             emojiPickerExpanded,
             setEmojiPickerExpanded,
-            userId
-        },
-        chat: {
-            selectedChatId
-        },
-        entities: {
-            chats: {
-                findById: findChat
-            }
         }
     } = useStore();
     const routerStore = useRouter();
@@ -39,7 +33,7 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
         popupId: "emojiPicker"
     });
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down('lg'));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
     useLayoutEffect(() => {
             if (!onSmallScreen) {
@@ -64,24 +58,16 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
         [emojiPickerPopupState.isOpen]
     );
 
-    const chat = selectedChatId && findChat(selectedChatId);
-
     const handleExpandEmojiPickerButtonClick = (): void => {
         const queryParameters = emojiPickerExpanded
             ? {}
             : {emojiPickerExpanded: true};
         setEmojiPickerExpanded(!emojiPickerExpanded);
 
-        if (chat) {
+        if (routerStore.currentRoute) {
             routerStore.goTo(
-                Routes.chatPage,
-                {slug: chat!.slug || chat!.id},
-                queryParameters
-            );
-        } else if (userId) {
-            routerStore.goTo(
-                Routes.newPrivateChat,
-                {},
+                routerStore.currentRoute,
+                routerStore.params,
                 queryParameters
             );
         }
@@ -98,9 +84,14 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
                     <InsertEmoticon/>
                 </IconButton>
                 <Menu {...bindMenu(emojiPickerPopupState)}>
-                    <EmojiAndStickerPicker onEmojiPicked={onEmojiSelected}
-                                           onStickerPicked={emojiPickerPopupState.close}
-                    />
+                    {variant === "emoji-and-sticker-picker"
+                        ? (
+                            <EmojiAndStickerPicker onEmojiPicked={onEmojiSelected}
+                                                   onStickerPicked={emojiPickerPopupState.close}
+                            />
+                        )
+                        : <EmojiPicker onEmojiPicked={onEmojiSelected}/>
+                    }
                 </Menu>
             </Hidden>
             <Hidden lgUp>

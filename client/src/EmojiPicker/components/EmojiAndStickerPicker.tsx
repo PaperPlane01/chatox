@@ -1,11 +1,12 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Tab, useMediaQuery, useTheme} from "@mui/material";
+import {Tab} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
-import {EmojiData, Picker} from "emoji-mart";
+import {EmojiData} from "emoji-mart";
 import {StickerPicker} from "../../Sticker";
 import {useLocalization, useStore} from "../../store";
+import {EmojiPicker} from "./EmojiPicker";
 
 interface EmojiAndStickerPickerProps {
     onEmojiPicked: (emoji: EmojiData) => void,
@@ -19,16 +20,13 @@ const useStyles = makeStyles(() => createStyles({
     tabPanelRoot: {
         padding: 0
     }
-}))
+}));
 
 export const EmojiAndStickerPicker: FunctionComponent<EmojiAndStickerPickerProps> = observer(({
     onEmojiPicked,
     onStickerPicked
 }) => {
     const {
-        emoji: {
-            selectedEmojiSet
-        },
         emojiPickerTabs: {
             selectedTab,
             setSelectedTab
@@ -36,11 +34,6 @@ export const EmojiAndStickerPicker: FunctionComponent<EmojiAndStickerPickerProps
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
-    const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down('lg'));
-    const pickerStyles = onSmallScreen
-        ? {width: "100%", backgroundColor: theme.palette.background.paper}
-        : {};
 
     return (
         <div className={classes.pickerContainer}>
@@ -54,12 +47,7 @@ export const EmojiAndStickerPicker: FunctionComponent<EmojiAndStickerPickerProps
                               root: classes.tabPanelRoot
                           }}
                 >
-                    <Picker set={selectedEmojiSet === "native" ? undefined : selectedEmojiSet}
-                            onSelect={onEmojiPicked}
-                            autoFocus={false}
-                            native={selectedEmojiSet === "native"}
-                            style={pickerStyles}
-                    />
+                    <EmojiPicker onEmojiPicked={onEmojiPicked}/>
                 </TabPanel>
                 <TabPanel value="stickers"
                           classes={{

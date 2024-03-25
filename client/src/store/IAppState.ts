@@ -54,11 +54,9 @@ import {
 } from "../User";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore,
     DeleteMessageStore,
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
-    EmojiPickerTabsStore,
     ForwardMessagesStore,
     MarkMessageReadStore,
     MessageDialogStore,
@@ -67,15 +65,19 @@ import {
     PinMessageStore,
     PinnedMessagesStore,
     PublishScheduledMessageStore,
-    RecordVoiceMessageStore,
     ScheduledMessagesOfChatStore,
     ScheduleMessageStore,
     SearchMessagesStore,
-    UnpinMessageStore,
+    UnpinMessageStore
+} from "../Message";
+import {
+    CreateMessageStore,
+    EmojiPickerTabsStore,
+    RecordVoiceMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
-} from "../Message";
+} from "../MessageForm";
 import {WebsocketStore} from "../websocket";
 import {
     BlockUserInChatByIdOrSlugStore,

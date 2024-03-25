@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Alert, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {format} from "date-fns";
-import {MessageFormContainer} from "./MessageFormContainer";
+import {MessageForm} from "../../MessageForm";
 import {ChatParticipationEntity, JoinChatButton} from "../../ChatParticipant";
 import {useAuthorization, useLocalization, useStore} from "../../store";
 import {ChatBlockingEntity} from "../../ChatBlocking";
@@ -18,7 +18,7 @@ const useStyles = makeStyles<Theme>((theme: Theme) => createStyles({
         [theme.breakpoints.up("lg")]: {
             display: "inline-block",
             verticalAlign: "bottom",
-            width: "100%",
+            width: "100%"
         },
         [theme.breakpoints.down("lg")]: {
             bottom: 0,
@@ -149,14 +149,14 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, MessagesListBottomProps>(
                         </Alert>
                     );
                 } else {
-                    messagesListBottomContent = <MessageFormContainer/>;
+                    messagesListBottomContent = <MessageForm/>;
                 }
             }
         } else {
             messagesListBottomContent = <JoinChatButton/>;
         }
     } else if (userId && currentUser) {
-        messagesListBottomContent = <MessageFormContainer/>;
+        messagesListBottomContent = <MessageForm/>;
     } else {
         messagesListBottomContent = <div/>;
     }

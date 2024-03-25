@@ -13,7 +13,7 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import {parseSendMessageButton, SendMessageButton} from "../types";
+import {MessageEditorType, parseMessageEditorType, parseSendMessageButton, SendMessageButton} from "../types";
 import {useLocalization, useStore} from "../../store";
 
 interface ChatsPreferencesCardProps {
@@ -38,7 +38,9 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
             displayUnreadMessagesCount,
             setDisplayUnreadMessagesCount,
             displayUnreadChatsCount,
-            setDisplayUnreadChatsCount
+            setDisplayUnreadChatsCount,
+            messageEditorType,
+            setMessageEditorType
         }
     } = useStore();
     const {l} = useLocalization();
@@ -61,6 +63,19 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                         <FormControlLabel control={<Radio/>}
                                           label={l("settings.chat.messages.send-message-button.ENTER")}
                                           value={SendMessageButton.ENTER}
+                        />
+                    </RadioGroup>
+                    <Divider/>
+                    <RadioGroup value={messageEditorType}
+                                onChange={event => setMessageEditorType(parseMessageEditorType(event.target.value))}
+                    >
+                        <FormControlLabel control={<Radio/>}
+                                          label={l("settings.chat.messages.editor-type.PLAIN_TEXT")}
+                                          value={MessageEditorType.PLAIN_TEXT}
+                        />
+                        <FormControlLabel control={<Radio/>}
+                                          label={l("settings.chat.messages.editor-type.RICH_TEXT")}
+                                          value={MessageEditorType.RICH_TEXT}
                         />
                     </RadioGroup>
                     <FormControlLabel control={

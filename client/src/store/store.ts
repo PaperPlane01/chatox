@@ -36,7 +36,7 @@ import {
     KickChatParticipantStore,
     OnlineChatParticipantsStore,
     RejectJoinChatRequestsStore,
-    UpdateChatParticipantStore,
+    UpdateChatParticipantStore
 } from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
@@ -58,11 +58,9 @@ import {
 } from "../User";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore,
     DeleteMessageStore,
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
-    EmojiPickerTabsStore,
     ForwardMessagesStore,
     MarkMessageReadStore,
     MessageDialogStore,
@@ -70,15 +68,20 @@ import {
     MessagesOfChatStore,
     PinMessageStore,
     PinnedMessagesStore,
-    PublishScheduledMessageStore, RecordVoiceMessageStore,
+    PublishScheduledMessageStore,
     ScheduledMessagesOfChatStore,
     ScheduleMessageStore,
     SearchMessagesStore,
-    UnpinMessageStore,
+    UnpinMessageStore
+} from "../Message";
+import {
+    CreateMessageStore,
+    EmojiPickerTabsStore,
+    RecordVoiceMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
-} from "../Message";
+} from "../MessageForm";
 import {WebsocketStore} from "../websocket";
 import {
     BlockUserInChatByIdOrSlugStore,

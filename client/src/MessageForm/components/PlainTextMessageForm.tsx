@@ -5,17 +5,17 @@ import {createStyles, makeStyles} from "@mui/styles";
 import {EmojiData} from "emoji-mart";
 import "emoji-mart/css/emoji-mart.css";
 import {AttachFilesButton} from "./AttachFilesButton";
-import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
-import {EmojiAndStickerPicker} from "./EmojiAndStickerPicker";
-import {EmojiPickerContainer} from "./EmojiPickerContainer";
 import {SendMessageButton} from "./SendMessageButton";
 import {RecordVoiceMessageButton} from "./RecordVoiceMessageButton";
 import {MessageFormData} from "../types";
+import {OpenScheduleMessageDialogButton} from "../../Message";
+import {EmojiAndStickerPicker, EmojiPickerContainer} from "../../EmojiPicker";
 import {MarkdownPreviewDialog} from "../../Markdown";
 import {useLocalization, useStore} from "../../store";
 import {SendMessageButton as SendMessageButtonType} from "../../Chat";
 import {ClaimRewardButton} from "../../Reward";
 import {Countdown} from "../../Countdown";
+import {MessageEntity} from "../../Message/types";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     textField: {
@@ -41,12 +41,14 @@ interface MessageFormProps {
     nextMessageDate?: Date,
     forwardedMessagesCount?: number,
     showVoiceMessageButton?: boolean,
+    resultMessage?: MessageEntity,
+    clearResultMessage?: () => void,
     setFormValue: <Key extends keyof MessageFormData>(key: Key, value: MessageFormData[Key]) => void,
     submitForm: () => void,
     setEmojiPickerExpanded: (emojiPickerExpended: boolean) => void
 }
 
-export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
+export const PlainTextMessageForm: FunctionComponent<MessageFormProps> = observer(({
     formValues,
     pending,
     emojiPickerExpanded,
@@ -57,6 +59,8 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
     nextMessageDate,
     forwardedMessagesCount = 0,
     showVoiceMessageButton = false,
+    resultMessage,
+    clearResultMessage,
     setFormValue,
     setEmojiPickerExpanded,
     submitForm
@@ -80,6 +84,12 @@ export const MessageForm: FunctionComponent<MessageFormProps> = observer(({
             inputRef.current.value = formValues.text;
         }
     });
+
+    useEffect(() => {
+        if (resultMessage && clearResultMessage) {
+            clearResultMessage();
+        }
+    }, [resultMessage, clearResultMessage]);
 
     const showSendMessageButton = !showVoiceMessageButton
         || formValues.text.length !== 0

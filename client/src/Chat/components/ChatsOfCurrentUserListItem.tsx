@@ -124,8 +124,6 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
             />
         );
 
-    console.log(chat.unreadMentionsCount)
-
     return (
         <Link router={routerStore}
               className={classes.undecoratedLink}

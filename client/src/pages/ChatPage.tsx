@@ -11,13 +11,13 @@ import {
 import {UpdateChatParticipantDialog} from "../ChatParticipant";
 import {ChatAppBar} from "../ChatAppBar";
 import {
-    AttachedFilesDialog,
     MessageDialog,
     MessagesListWrapper,
     PinMessageSnackbarManager,
     ScheduleMessageDialog,
     UnpinMessageSnackbarManager
 } from "../Message";
+import {AttachedFilesDialog} from "../MessageForm";
 import {BlockUserInChatByIdOrSlugDialog, CreateChatBlockingDialog} from "../ChatBlocking";
 import {BanUserGloballyDialog} from "../GlobalBan";
 import {ReportChatDialog, ReportMessageDialog} from "../Report";

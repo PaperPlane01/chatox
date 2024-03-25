@@ -6,6 +6,7 @@ import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
 import {ChatStore} from "../../Chat";
 import {EntitiesStore} from "../../entities-store";
+import {MessageEntity} from "../../Message/types";
 
 export abstract class AbstractMessageFormStore<T extends MessageFormData> extends AbstractFormStore<T> {
     emojiPickerExpanded: boolean = false;
@@ -20,6 +21,8 @@ export abstract class AbstractMessageFormStore<T extends MessageFormData> extend
             .map(fileContainer => fileContainer.uploadedFile!.id!)
     };
 
+    resultMessage?: MessageEntity = undefined;
+
     protected constructor(
         initialFormValues: T,
         initialFormErrors: FormErrors<T>,
@@ -32,7 +35,9 @@ export abstract class AbstractMessageFormStore<T extends MessageFormData> extend
             emojiPickerExpanded: observable,
             selectedChatId: computed,
             attachmentsIds: computed,
-            setEmojiPickerExpanded: action
+            setEmojiPickerExpanded: action,
+            setResultMessage: action,
+            clearResultMessage: action
         });
 
         reaction(
@@ -62,6 +67,14 @@ export abstract class AbstractMessageFormStore<T extends MessageFormData> extend
 
     setEmojiPickerExpanded = (emojiPickerExpanded: boolean): void => {
         this.emojiPickerExpanded = emojiPickerExpanded;
-    };
+    }
+
+    setResultMessage = (resultMessage: MessageEntity): void => {
+        this.resultMessage = resultMessage;
+    }
+
+    clearResultMessage = (): void => {
+        this.resultMessage = undefined;
+    }
 }
 
