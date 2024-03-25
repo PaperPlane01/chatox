@@ -4,7 +4,7 @@ import {Card, CardContent, CardHeader, IconButton, Theme, Typography} from "@mui
 import {createStyles, makeStyles, useTheme} from "@mui/styles";
 import {Close} from "@mui/icons-material";
 import randomColor from "randomcolor";
-import {getForwardMessagesLabel} from "../utils";
+import {getForwardMessagesLabel} from "../../Message/utils";
 import {useLocalization, useStore} from "../../store";
 import {useEmojiParser} from "../../Emoji";
 

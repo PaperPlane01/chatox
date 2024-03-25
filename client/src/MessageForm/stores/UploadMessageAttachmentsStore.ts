@@ -1,6 +1,6 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {AxiosPromise} from "axios";
-import {AUDIO_MAX_SIZE, FILE_MAX_SIZE, IMAGE_MAX_SIZE, VIDEO_MAX_SIZE} from "../constants";
+import {AUDIO_MAX_SIZE, FILE_MAX_SIZE, IMAGE_MAX_SIZE, VIDEO_MAX_SIZE} from "../../Message/constants";
 import {getInitialApiErrorFromResponse, ProgressCallback, UploadApi} from "../../api";
 import {AudioUploadMetadata, Upload, UploadType} from "../../api/types/response";
 import {UploadedFileContainer} from "../../utils/file-utils";

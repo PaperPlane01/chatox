@@ -754,5 +754,8 @@ export const en: Labels = {
     "message.voice.record.uploading": "Uploading",
     "message.voice.record.error.not-supported": "Your device does not support voice recording",
     "message.voice.record.error.unknown": "Error occurred when tried to record voice",
-    "message.voice.from-file": "Select from file"
+    "message.voice.from-file": "Select from file",
+    "settings.chat.messages.editor-type": "Message editor type",
+    "settings.chat.messages.editor-type.PLAIN_TEXT": "Use plain text editor",
+    "settings.chat.messages.editor-type.RICH_TEXT": "Use rich text editor"
 };

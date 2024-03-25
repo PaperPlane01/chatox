@@ -4,8 +4,9 @@ import {RouterStore} from "mobx-router";
 import {debounce} from "lodash";
 import {AbstractMessageFormStore} from "./AbstractMessageFormStore";
 import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
-import {ForwardMessagesStore} from "./ForwardMessagesStore";
+import {RecordVoiceMessageStore} from "./RecordVoiceMessageStore";
 import {CreateMessageFormData} from "../types";
+import {ForwardMessagesStore} from "../../Message";
 import {ChatsPreferencesStore, ChatStore} from "../../Chat";
 import {ChatApi, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
@@ -14,7 +15,7 @@ import {FormErrors} from "../../utils/types";
 import {createWithUndefinedValues, isDefined} from "../../utils/object-utils";
 import {Duration} from "../../utils/date-utils";
 import {isStringEmpty} from "../../utils/string-utils";
-import {RecordVoiceMessageStore} from "./RecordVoiceMessageStore";
+import {MessageEntity} from "../../Message/types";
 
 const INITIAL_FORM_VALUES: CreateMessageFormData = {
     text: "",
@@ -146,21 +147,23 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
             })
                 .then(({data}) => {
                     this.recordVoiceMessageStore.cleanRecording();
+                    const message = this.formValues.scheduledAt
+                        ? this.entities.scheduledMessages.insert(data)
+                        : this.entities.messages.insert(data);
+                    this.setResultMessage(message);
 
                     if (!this.formValues.scheduledAt) {
-                        const message = this.entities.messages.insert(data);
+                        this.setResultMessage(message);
                         this.setLastMessageDateForChat(data.chatId, message.createdAt);
 
                         if (this.forwardMessagesStore.forwardModeActive) {
                             this.sendForwardedMessages(chatId);
                         }
-                    } else {
-                        if (this.routerStore) {
-                            const chat = this.entities.chats.findById(chatId);
-                            this.routerStore.goTo(Routes.scheduledMessagesPage, {
-                                slug: chat.slug ? chat.slug : chatId
-                            });
-                        }
+                    } else if (this.routerStore) {
+                        const chat = this.entities.chats.findById(chatId);
+                        this.routerStore.goTo(Routes.scheduledMessagesPage, {
+                            slug: chat.slug ? chat.slug : chatId
+                        });
                     }
 
                     this.reset();
@@ -180,6 +183,10 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
             })
                 .then(({data}) => {
                     this.entities.chats.insert(data);
+
+                    if (data.lastMessage) {
+                        this.setResultMessage(this.entities.messages.findById(data.lastMessage.id));
+                    }
 
                     if (this.routerStore) {
                         this.routerStore.goTo(Routes.chatPage, {

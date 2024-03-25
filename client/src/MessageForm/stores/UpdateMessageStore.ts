@@ -52,7 +52,7 @@ export class UpdateMessageStore extends AbstractMessageFormStore<UpdateMessageFo
 
     setUpdatedMessageId = (messageId?: string): void => {
         this.updatedMessageId = messageId;
-    };
+    }
 
     submitForm = (): void => {
         if (!this.selectedChatId || !this.updatedMessageId || !this.validateForm()) {
@@ -71,7 +71,8 @@ export class UpdateMessageStore extends AbstractMessageFormStore<UpdateMessageFo
             }
         )
             .then(({data}) => runInAction(() => {
-                this.entities.messages.insert(data);
+                const message = this.entities.messages.insert(data);
+                this.setResultMessage(message);
                 this.updatedMessageId = undefined;
                 this.reset();
             }))

@@ -1,4 +1,4 @@
-import {Labels} from "../../localization/types";
+import {Labels} from "../../localization";
 import {isStringEmpty} from "../../utils/string-utils";
 import {differenceInMinutes, differenceInMonths} from "date-fns";
 

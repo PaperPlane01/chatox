@@ -3,10 +3,10 @@ import {observer} from "mobx-react";
 import {Divider} from "@mui/material";
 import {Edit} from "@mui/icons-material";
 import {MessageFormMessageCard} from "./MessageFormMessageCard";
-import {MessageForm} from "./MessageForm";
+import {PlainTextMessageForm} from "./PlainTextMessageForm";
 import {useStore} from "../../store";
 
-export const UpdateMessageForm: FunctionComponent = observer(() => {
+export const UpdateMessagePlainTextForm: FunctionComponent = observer(() => {
     const {
         messageUpdate: {
             formValues,
@@ -14,11 +14,13 @@ export const UpdateMessageForm: FunctionComponent = observer(() => {
             emojiPickerExpanded,
             attachmentsIds,
             updatedMessageId,
+            resultMessage,
+            clearResultMessage,
             setFormValue,
             submitForm,
             setEmojiPickerExpanded,
             setUpdatedMessageId
-        },
+        }
     } = useStore();
 
     if (!updatedMessageId) {
@@ -46,14 +48,16 @@ export const UpdateMessageForm: FunctionComponent = observer(() => {
                                     )}
             />
             <Divider/>
-            <MessageForm formValues={formValues}
-                         pending={pending}
-                         emojiPickerExpanded={emojiPickerExpanded}
-                         inputRef={inputRef}
-                         attachmentsIds={attachmentsIds}
-                         setFormValue={setFormValue}
-                         setEmojiPickerExpanded={setEmojiPickerExpanded}
-                         submitForm={submitForm}
+            <PlainTextMessageForm formValues={formValues}
+								  pending={pending}
+								  emojiPickerExpanded={emojiPickerExpanded}
+								  inputRef={inputRef}
+								  attachmentsIds={attachmentsIds}
+                                  resultMessage={resultMessage}
+                                  clearResultMessage={clearResultMessage}
+								  setFormValue={setFormValue}
+								  setEmojiPickerExpanded={setEmojiPickerExpanded}
+								  submitForm={submitForm}
             />
         </Fragment>
     );

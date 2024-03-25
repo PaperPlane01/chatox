@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {parseSendMessageButton, SendMessageButton} from "../types";
+import {MessageEditorType, parseMessageEditorType, parseSendMessageButton, SendMessageButton} from "../types";
 
 export class ChatsPreferencesStore {
     enableVirtualScroll: boolean = false;
@@ -17,6 +17,8 @@ export class ChatsPreferencesStore {
     displayUnreadMessagesCount: boolean = false;
 
     displayUnreadChatsCount: boolean = false;
+
+    messageEditorType: MessageEditorType = MessageEditorType.PLAIN_TEXT;
 
     constructor() {
         makeAutoObservable(this);
@@ -55,6 +57,10 @@ export class ChatsPreferencesStore {
 
         if (localStorage.getItem("displayUnreadChatsCount") !== null) {
             this.displayUnreadChatsCount = localStorage.getItem("displayUnreadChatsCount") === "true";
+        }
+
+        if (localStorage.getItem("messageEditorType") !== null) {
+            this.messageEditorType = parseMessageEditorType(localStorage.getItem("messageEditorType"));
         }
     }
 
@@ -99,5 +105,10 @@ export class ChatsPreferencesStore {
     setDisplayUnreadChatsCount = (displayUnreadChatsCount: boolean): void => {
         this.displayUnreadChatsCount = displayUnreadChatsCount;
         localStorage.setItem("displayUnreadChatsCount", `${displayUnreadChatsCount}`);
+    }
+
+    setMessageEditorType = (messageEditorType: MessageEditorType): void => {
+        this.messageEditorType = messageEditorType;
+        localStorage.setItem("messageEditorType", messageEditorType);
     }
 }

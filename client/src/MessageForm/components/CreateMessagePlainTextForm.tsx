@@ -3,11 +3,11 @@ import {observer} from "mobx-react";
 import {Divider} from "@mui/material";
 import {Forward, Reply} from "@mui/icons-material";
 import {MessageFormMessageCard} from "./MessageFormMessageCard";
-import {MessageForm} from "./MessageForm";
+import {PlainTextMessageForm} from "./PlainTextMessageForm";
 import {usePermissions, useStore} from "../../store";
 import {isDefined} from "../../utils/object-utils";
 
-export const CreateMessageForm: FunctionComponent = observer(() => {
+export const CreateMessagePlainTextForm: FunctionComponent = observer(() => {
     const {
         messageCreation: {
             formValues,
@@ -16,6 +16,8 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
             referredMessageId,
             attachmentsIds,
             selectedChatId,
+			resultMessage,
+			clearResultMessage,
             setFormValue,
             submitForm,
             setEmojiPickerExpanded,
@@ -79,19 +81,21 @@ export const CreateMessageForm: FunctionComponent = observer(() => {
                 />
             )}
             <Divider/>
-            <MessageForm formValues={formValues}
-                         pending={pending}
-                         emojiPickerExpanded={emojiPickerExpanded}
-                         allowScheduled
-                         inputRef={inputRef}
-                         attachmentsIds={attachmentsIds}
-                         scheduledAt={formValues.scheduledAt}
-                         nextMessageDate={nextMessageDate}
-                         forwardedMessagesCount={forwardedMessagesIds.length}
-                         showVoiceMessageButton={showVoiceMessageButton}
-                         setFormValue={setFormValue}
-                         setEmojiPickerExpanded={setEmojiPickerExpanded}
-                         submitForm={submitForm}
+            <PlainTextMessageForm formValues={formValues}
+								  pending={pending}
+								  emojiPickerExpanded={emojiPickerExpanded}
+								  allowScheduled
+								  inputRef={inputRef}
+								  attachmentsIds={attachmentsIds}
+								  scheduledAt={formValues.scheduledAt}
+								  nextMessageDate={nextMessageDate}
+								  forwardedMessagesCount={forwardedMessagesIds.length}
+								  showVoiceMessageButton={showVoiceMessageButton}
+								  resultMessage={resultMessage}
+								  clearResultMessage={clearResultMessage}
+								  setFormValue={setFormValue}
+								  setEmojiPickerExpanded={setEmojiPickerExpanded}
+								  submitForm={submitForm}
             />
         </Fragment>
     );
