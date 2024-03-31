@@ -25,7 +25,7 @@ export const MessageForm: FunctionComponent = observer(() => {
     } = useStore();
 
     if (updatedMessageId) {
-        return messageEditorType === MessageEditorType.RICH_TEXT
+        return messageEditorType === MessageEditorType.PLAIN_TEXT
             ? <UpdateMessagePlainTextForm/>
             : <UpdateMessageRichTextForm/>;
     } else if (recording || voiceMessageContainer) {
