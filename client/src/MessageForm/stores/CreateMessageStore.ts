@@ -15,7 +15,6 @@ import {FormErrors} from "../../utils/types";
 import {createWithUndefinedValues, isDefined} from "../../utils/object-utils";
 import {Duration} from "../../utils/date-utils";
 import {isStringEmpty} from "../../utils/string-utils";
-import {MessageEntity} from "../../Message/types";
 
 const INITIAL_FORM_VALUES: CreateMessageFormData = {
     text: "",

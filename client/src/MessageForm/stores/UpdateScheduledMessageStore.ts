@@ -2,7 +2,7 @@ import {action, computed, makeObservable, observable, reaction} from "mobx";
 import {addMinutes} from "date-fns";
 import {validateMessageScheduledDate, validateMessageText} from "../validation";
 import {UpdateScheduledMessageFormData} from "../types";
-import {MessageEntity} from "../../Message/types";
+import {MessageEntity} from "../../Message";
 import {AbstractFormStore} from "../../form-store";
 import {getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";

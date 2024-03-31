@@ -15,7 +15,7 @@ import {useLocalization, useStore} from "../../store";
 import {SendMessageButton as SendMessageButtonType} from "../../Chat";
 import {ClaimRewardButton} from "../../Reward";
 import {Countdown} from "../../Countdown";
-import {MessageEntity} from "../../Message/types";
+import {MessageEntity} from "../../Message";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     textField: {

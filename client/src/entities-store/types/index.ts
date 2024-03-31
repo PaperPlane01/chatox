@@ -1,4 +1,4 @@
-import {MessageEntity} from "../../Message/types";
+import {MessageEntity} from "../../Message";
 import {ChatOfCurrentUserEntity, ChatUploadEntity} from "../../Chat";
 import {ChatParticipationEntity, PendingChatParticipationEntity} from "../../ChatParticipant";
 import {UserEntity, UserProfilePhotoEntity} from "../../User";

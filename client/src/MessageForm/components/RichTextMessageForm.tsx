@@ -11,7 +11,7 @@ import {adornmentStyle, EnterAction, TextEditor} from "../../TextEditor";
 import {ClaimRewardButton} from "../../Reward";
 import {SendMessageButton as SendMessageButtonType} from "../../Chat";
 import {Countdown} from "../../Countdown";
-import {MessageEntity} from "../../Message/types";
+import {MessageEntity} from "../../Message";
 
 const useStyles = makeStyles(() => createStyles({
 	adornment: adornmentStyle
