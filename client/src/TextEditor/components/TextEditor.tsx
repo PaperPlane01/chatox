@@ -10,7 +10,7 @@ import {OnChangePlugin} from "@lexical/react/LexicalOnChangePlugin";
 import {MarkdownShortcutPlugin} from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import {ClearEditorPlugin} from "@lexical/react/LexicalClearEditorPlugin";
 import {CodeNode} from "@lexical/code";
-import {LinkNode} from "@lexical/link";
+import {AutoLinkNode, LinkNode} from "@lexical/link";
 import {ListItemNode, ListNode} from "@lexical/list";
 import {HeadingNode, QuoteNode} from "@lexical/rich-text";
 import {HorizontalRuleNode} from "@lexical/react/LexicalHorizontalRuleNode";
@@ -24,7 +24,13 @@ import {UncontainedEmojiPicker} from "./UncontainedEmojiPicker";
 import {Mention} from "./Mention";
 import {MentionMenu} from "./MentionMenu";
 import {MentionsMenuItem} from "./MentionsMenuItem";
-import {EditorReadyListenerPlugin, EmojiPlugin, EnterActionsPlugin, FloatingToolbarPlugin} from "../plugins";
+import {
+	AutoLinkPlugin,
+	EditorReadyListenerPlugin,
+	EmojiPlugin,
+	EnterActionsPlugin,
+	FloatingToolbarPlugin
+} from "../plugins";
 import {EnterAction} from "../types";
 import {adornmentStyle} from "../styles";
 import {MENTION} from "../transformers";
@@ -97,6 +103,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 const EDITOR_NODES = [
 	CodeNode,
 	HeadingNode,
+	AutoLinkNode,
 	LinkNode,
 	ListNode,
 	ListItemNode,
@@ -217,6 +224,7 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 											  menuItemComponent={MentionsMenuItem}
 											  menuComponent={MentionMenu}
 						/>
+						<AutoLinkPlugin/>
 					</LexicalComposer>
 				</div>
 				{emojiPickerVariant !== "none" && (
