@@ -5,12 +5,12 @@ import {CLEAR_EDITOR_COMMAND, LexicalEditor} from "lexical";
 import {AttachFilesButton} from "./AttachFilesButton";
 import {RecordVoiceMessageButton} from "./RecordVoiceMessageButton";
 import {SendMessageButton} from "./SendMessageButton";
+import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
 import {useLocalization, useStore} from "../../store";
 import {adornmentStyle, EnterAction, TextEditor} from "../../TextEditor";
 import {ClaimRewardButton} from "../../Reward";
 import {SendMessageButton as SendMessageButtonType} from "../../Chat";
 import {Countdown} from "../../Countdown";
-import {OpenScheduleMessageDialogButton} from "../../Message";
 import {MessageEntity} from "../../Message/types";
 
 const useStyles = makeStyles(() => createStyles({
