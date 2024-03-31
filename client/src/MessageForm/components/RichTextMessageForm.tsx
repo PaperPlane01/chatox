@@ -1,16 +1,16 @@
 import React, {FunctionComponent, ReactNode, useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {createStyles, makeStyles} from "@mui/styles";
+import {CLEAR_EDITOR_COMMAND, LexicalEditor} from "lexical";
 import {AttachFilesButton} from "./AttachFilesButton";
 import {RecordVoiceMessageButton} from "./RecordVoiceMessageButton";
 import {SendMessageButton} from "./SendMessageButton";
+import {useLocalization, useStore} from "../../store";
 import {adornmentStyle, EnterAction, TextEditor} from "../../TextEditor";
 import {ClaimRewardButton} from "../../Reward";
-import {useLocalization, useStore} from "../../store";
 import {SendMessageButton as SendMessageButtonType} from "../../Chat";
 import {Countdown} from "../../Countdown";
 import {OpenScheduleMessageDialogButton} from "../../Message";
-import {CLEAR_EDITOR_COMMAND, LexicalEditor} from "lexical";
 import {MessageEntity} from "../../Message/types";
 
 const useStyles = makeStyles(() => createStyles({
