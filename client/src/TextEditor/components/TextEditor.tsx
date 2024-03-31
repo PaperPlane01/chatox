@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent, ReactNode, useCallback, useEffect, useState} from "react";
+import React, {Fragment, FunctionComponent, ReactNode, useCallback, useState} from "react";
 import {observer} from "mobx-react";
 import {Hidden, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -17,12 +17,19 @@ import {HorizontalRuleNode} from "@lexical/react/LexicalHorizontalRuleNode";
 import {ContentEditable} from "@lexical/react/LexicalContentEditable";
 import {$convertFromMarkdownString, $convertToMarkdownString, TRANSFORMERS} from "@lexical/markdown";
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
-import {$getRoot, CLEAR_EDITOR_COMMAND, EditorState, LexicalEditor} from "lexical";
+import {$getSelection, $isRangeSelection, EditorState, LexicalEditor} from "lexical";
+import {BetterMentionsPlugin, createBetterMentionNode} from "lexical-better-mentions";
 import {ContainedEmojiPicker} from "./ContainedEmojiPicker";
 import {UncontainedEmojiPicker} from "./UncontainedEmojiPicker";
 import {EditorReadyListenerPlugin, EmojiPlugin, EnterActionsPlugin, FloatingToolbarPlugin} from "../plugins";
 import {EnterAction} from "../types";
+import {adornmentStyle} from "../styles";
 import {EmojiPickerVariant} from "../../EmojiPicker";
+import {useStore} from "../../store";
+import {MentionMenu} from "./MentionMenu";
+import {MentionsMenuItem} from "./MentionsMenuItem";
+import {Mention} from "./Mention";
+import {MENTION} from "../transformers";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
 	editorWrapper: {
@@ -83,7 +90,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 	},
 	underlineStrikeThrough: {
 		textDecoration: "underline line-through"
-	}
+	},
+	emojiPickerButton: adornmentStyle
 }));
 
 const EDITOR_NODES = [
@@ -93,7 +101,8 @@ const EDITOR_NODES = [
 	ListNode,
 	ListItemNode,
 	QuoteNode,
-	HorizontalRuleNode
+	HorizontalRuleNode,
+	...createBetterMentionNode(Mention)
 ];
 
 interface TextEditorProps {
@@ -111,6 +120,11 @@ interface TextEditorProps {
 	onEditorReady?: (editor: LexicalEditor) => void
 }
 
+const CUSTOM_TRANSFORMERS = [
+	...TRANSFORMERS,
+	MENTION
+];
+
 export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 	initialText,
 	placeholder,
@@ -125,7 +139,14 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 	onUpdate,
 	onEditorReady,
 }) => {
+	const {
+		mentions: {
+			searchMentions
+		}
+	} = useStore();
+
 	const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined);
+	const classes = useStyles();
 
 	const handleEditorReady = useCallback((editor: LexicalEditor) => {
 		setEditor(editor);
@@ -137,16 +158,15 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 
 	const handleChange = (state: EditorState): void => {
 		state.read(() => {
-			const markdown = $convertToMarkdownString(TRANSFORMERS);
+			const markdown = $convertToMarkdownString(CUSTOM_TRANSFORMERS);
 			onUpdate(markdown);
 		});
 	};
-	const classes = useStyles();
 
 	return (
 		<Fragment>
 			<div className={classes.editorWrapper}>
-				{startAdornment && startAdornment}
+				{startAdornment}
 				<div className={classes.editorContainer}>
 					<LexicalComposer initialConfig={{
 						namespace: "chatox-editor",
@@ -171,7 +191,7 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 								underlineStrikethrough: classes.underlineStrikeThrough,
 							}
 						},
-						editorState: () => $convertFromMarkdownString(initialText, TRANSFORMERS),
+						editorState: () => $convertFromMarkdownString(initialText, CUSTOM_TRANSFORMERS),
 						onError: error => console.error(error)
 					}}>
 						<RichTextPlugin contentEditable={<ContentEditable className={classes.editorInput}/>}
@@ -191,14 +211,21 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 						<EnterActionsPlugin onEnter={onEnter} onCtrlEnter={onCtrlEnter}/>
 						<ClearEditorPlugin/>
 						{emojiPickerVariant !== "none" && <EmojiPlugin useEmojiCodes={useEmojiCodes}/>}
+						<BetterMentionsPlugin triggers={["@"]}
+											  onSearch={(_, query) => searchMentions(query ?? "")}
+											  creatable={false}
+											  menuItemComponent={MentionsMenuItem}
+											  menuComponent={MentionMenu}
+						/>
 					</LexicalComposer>
 				</div>
 				{emojiPickerVariant !== "none" && (
 					<ContainedEmojiPicker variant={emojiPickerVariant}
 										  editor={editor}
+										  iconButtonClassName={classes.emojiPickerButton}
 					/>
 				)}
-				{endAdornment && endAdornment}
+				{endAdornment}
 			</div>
 			{emojiPickerVariant !== "none" && emojiPickerExpanded && (
 				<Hidden lgUp>

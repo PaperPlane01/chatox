@@ -178,6 +178,7 @@ import {
     JoinChatByInviteStore,
     UpdateChatInviteStore
 } from "../ChatInvite";
+import {MentionsStore} from "../TextEditor";
 
 const snackbarService = new SnackbarService();
 
@@ -515,6 +516,7 @@ const joinChatRequestsRejection = new RejectJoinChatRequestsStore(
     language,
     snackbarService
 );
+const mentions = new MentionsStore(entities, chat, chatsOfCurrentUser);
 
 const _store: IAppState = {
     authorization,
@@ -670,7 +672,8 @@ const _store: IAppState = {
     joinChatRequests,
     joinChatRequestsApproval,
     joinChatRequestsRejection,
-    voiceRecording
+    voiceRecording,
+    mentions
 };
 
 //Hack to avoid loss of application state on HMR
