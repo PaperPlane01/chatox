@@ -7,14 +7,15 @@ import {EmojiPickerContainer, EmojiPickerVariant} from "../../EmojiPicker";
 
 interface ContainedEmojiPicker {
 	variant: EmojiPickerVariant,
-	editor?: LexicalEditor
+	editor?: LexicalEditor,
+	iconButtonClassName?: string
 }
 
 export const ContainedEmojiPicker: FunctionComponent<ContainedEmojiPicker> = observer(({
 	variant,
-	editor
+	editor,
+	iconButtonClassName
 }) => {
-
 	const handleEmojiSelect = (emoji: EmojiData): void => {
 		if (editor) {
 			editor.dispatchCommand(
@@ -27,6 +28,7 @@ export const ContainedEmojiPicker: FunctionComponent<ContainedEmojiPicker> = obs
 	return (
 		<EmojiPickerContainer onEmojiSelected={handleEmojiSelect}
 							  variant={variant}
+							  iconButtonClassName={iconButtonClassName}
 		/>
 	);
 });
