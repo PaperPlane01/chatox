@@ -1,9 +1,9 @@
 import React, {forwardRef, FunctionComponent, useEffect, useRef, useState} from "react";
+import {createPortal} from "react-dom";
 import {CircularProgress, Paper} from "@mui/material";
 import {BetterMentionsMenuProps} from "lexical-better-mentions";
 import {computePosition} from "@floating-ui/dom";
 import {FloatingElementCoordinates} from "../types";
-import {createPortal} from "react-dom";
 import {commonStyles} from "../../style";
 
 export const MentionMenu: FunctionComponent = forwardRef<

@@ -1,10 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {EmojiData} from "emoji-mart";
+import {LexicalEditor} from "lexical";
 import {ADD_EMOJI} from "../commands";
 import {EmojiAndStickerPicker, EmojiPicker, EmojiPickerVariant} from "../../EmojiPicker";
 import {isDefined} from "../../utils/object-utils";
-import {LexicalEditor} from "lexical";
 
 interface UncontainedEmojiPickerProps {
 	variant: EmojiPickerVariant,

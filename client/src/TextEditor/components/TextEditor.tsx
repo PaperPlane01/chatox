@@ -17,19 +17,19 @@ import {HorizontalRuleNode} from "@lexical/react/LexicalHorizontalRuleNode";
 import {ContentEditable} from "@lexical/react/LexicalContentEditable";
 import {$convertFromMarkdownString, $convertToMarkdownString, TRANSFORMERS} from "@lexical/markdown";
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
-import {$getSelection, $isRangeSelection, EditorState, LexicalEditor} from "lexical";
+import {EditorState, LexicalEditor} from "lexical";
 import {BetterMentionsPlugin, createBetterMentionNode} from "lexical-better-mentions";
 import {ContainedEmojiPicker} from "./ContainedEmojiPicker";
 import {UncontainedEmojiPicker} from "./UncontainedEmojiPicker";
+import {Mention} from "./Mention";
+import {MentionMenu} from "./MentionMenu";
+import {MentionsMenuItem} from "./MentionsMenuItem";
 import {EditorReadyListenerPlugin, EmojiPlugin, EnterActionsPlugin, FloatingToolbarPlugin} from "../plugins";
 import {EnterAction} from "../types";
 import {adornmentStyle} from "../styles";
+import {MENTION} from "../transformers";
 import {EmojiPickerVariant} from "../../EmojiPicker";
 import {useStore} from "../../store";
-import {MentionMenu} from "./MentionMenu";
-import {MentionsMenuItem} from "./MentionsMenuItem";
-import {Mention} from "./Mention";
-import {MENTION} from "../transformers";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
 	editorWrapper: {
