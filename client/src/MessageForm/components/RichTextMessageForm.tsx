@@ -1,9 +1,10 @@
-import React, {Fragment, FunctionComponent, ReactNode, useEffect, useState} from "react";
+import React, {FunctionComponent, ReactNode, useEffect, useState} from "react";
 import {observer} from "mobx-react";
+import {createStyles, makeStyles} from "@mui/styles";
 import {AttachFilesButton} from "./AttachFilesButton";
 import {RecordVoiceMessageButton} from "./RecordVoiceMessageButton";
 import {SendMessageButton} from "./SendMessageButton";
-import {EnterAction, TextEditor} from "../../TextEditor";
+import {adornmentStyle, EnterAction, TextEditor} from "../../TextEditor";
 import {ClaimRewardButton} from "../../Reward";
 import {useLocalization, useStore} from "../../store";
 import {SendMessageButton as SendMessageButtonType} from "../../Chat";
@@ -11,6 +12,10 @@ import {Countdown} from "../../Countdown";
 import {OpenScheduleMessageDialogButton} from "../../Message";
 import {CLEAR_EDITOR_COMMAND, LexicalEditor} from "lexical";
 import {MessageEntity} from "../../Message/types";
+
+const useStyles = makeStyles(() => createStyles({
+	adornment: adornmentStyle
+}));
 
 interface RichTextMessageFormProps {
 	initialText: string,
@@ -56,6 +61,7 @@ export const RichTextMessageForm: FunctionComponent<RichTextMessageFormProps> = 
 	} = useStore();
 	const {l} = useLocalization();
 	const [editor, setEditor] = useState<LexicalEditor | null>(null);
+	const classes = useStyles();
 
 	const handleEditorReady = (editor: LexicalEditor): void => {
 		setEditor(editor);
@@ -106,18 +112,18 @@ export const RichTextMessageForm: FunctionComponent<RichTextMessageFormProps> = 
 					onCtrlEnter={ctrlEnterAction}
 					emojiPickerVariant="emoji-and-sticker-picker"
 					startAdornment={(
-						<Fragment>
+						<div className={classes.adornment}>
 							<AttachFilesButton/>
 							<ClaimRewardButton/>
-						</Fragment>
+						</div>
 					)}
 					endAdornment={(
-						<Fragment>
+						<div className={classes.adornment}>
 							{allowScheduled && scheduledAt && <OpenScheduleMessageDialogButton/>}
 							<Countdown date={nextMessageDate}>
 								{button}
 							</Countdown>
-						</Fragment>
+						</div>
 					)}
 					emojiPickerExpanded={emojiPickerExpanded}
 					setEmojiPickerExpanded={onEmojiPickerExpanded}
