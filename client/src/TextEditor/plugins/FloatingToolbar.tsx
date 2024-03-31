@@ -4,7 +4,7 @@ import {createStyles, makeStyles} from "@mui/styles";
 import {Code, FormatBold, FormatItalic, FormatStrikethrough} from "@mui/icons-material";
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {$getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND} from "lexical";
-import {FloatingToolbarCoordinates} from "../types";
+import {FloatingElementCoordinates} from "../types";
 import {isDefined} from "../../utils/object-utils";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -22,7 +22,7 @@ interface FloatingToolbarState {
 
 interface FloatingToolbarProps {
 	editor: ReturnType<typeof useLexicalComposerContext>[0],
-	coordinates?: FloatingToolbarCoordinates
+	coordinates?: FloatingElementCoordinates
 }
 
 export const FloatingToolbar = forwardRef<HTMLDivElement, FloatingToolbarProps>(

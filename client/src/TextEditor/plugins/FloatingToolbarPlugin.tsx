@@ -4,12 +4,12 @@ import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {$getSelection, $isRangeSelection} from "lexical";
 import {computePosition} from "@floating-ui/dom";
 import {FloatingToolbar} from "./FloatingToolbar";
-import {FloatingToolbarCoordinates} from "../types";
+import {FloatingElementCoordinates} from "../types";
 import {usePointerInteractions} from "../hooks";
 
 export const FloatingToolbarPlugin: FunctionComponent = () => {
 	const ref = useRef<HTMLDivElement>(null);
-	const [coordinates, setCoordinates] = useState<FloatingToolbarCoordinates | undefined>(undefined);
+	const [coordinates, setCoordinates] = useState<FloatingElementCoordinates | undefined>(undefined);
 	const [editor] = useLexicalComposerContext();
 	const {isPointerDown, isPointerReleased} = usePointerInteractions();
 

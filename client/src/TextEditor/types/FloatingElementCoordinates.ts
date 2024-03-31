@@ -1,4 +1,4 @@
-export interface FloatingToolbarCoordinates {
+export interface FloatingElementCoordinates {
 	x: number,
 	y: number
 }
