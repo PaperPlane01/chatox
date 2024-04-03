@@ -11,10 +11,6 @@ import {debounceAsync} from "../../utils/debounce-async";
 import {UserEntity} from "../../User";
 
 export class MentionsStore {
-	query = "";
-
-	pending = false;
-
 	get selectedChatId(): string | undefined {
 		return this.chat.selectedChatId;
 	}
