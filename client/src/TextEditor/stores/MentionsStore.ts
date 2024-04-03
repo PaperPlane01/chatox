@@ -59,7 +59,7 @@ export class MentionsStore {
 			fromCurrentChat: false,
 			id: user.id,
 			slug: user.slug ?? user.id,
-			url: `/users/${user.slug ?? user.id}`,
+			url: `/user/${user.slug ?? user.id}`,
 			displayedText: user.slug ? user.slug : getUserDisplayedName(user)
 		}));
 		const chatUsers: MentionItem[] = chatParticipants.map(user => ({
