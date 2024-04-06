@@ -9,7 +9,7 @@ import {commonStyles} from "../../style";
 export const MentionMenu: FunctionComponent = forwardRef<
 	HTMLDivElement,
 	BetterMentionsMenuProps
->(({anchorEl, loading, ...props }, ref) => {
+>(({anchorEl, loading, ...props}, ref) => {
 	const [coordinates, setCoordinates] = useState<FloatingElementCoordinates | null>(null);
 	const innerRef = useRef<HTMLDivElement | null>(null);
 

@@ -11,7 +11,7 @@ import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels"
 const _MentionsMenuItem = forwardRef<
 	HTMLLIElement,
 	BetterMentionsMenuItemProps
->(({item: {data}, ...props }, ref) => {
+>(({item: {data}, ...props}, ref) => {
 	const {
 		users: {
 			findById: findUser
