@@ -178,7 +178,7 @@ import {
     JoinChatByInviteStore,
     UpdateChatInviteStore
 } from "../ChatInvite";
-import {MentionsStore} from "../TextEditor";
+import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
 
 const snackbarService = new SnackbarService();
 
@@ -517,6 +517,7 @@ const joinChatRequestsRejection = new RejectJoinChatRequestsStore(
     snackbarService
 );
 const mentions = new MentionsStore(entities, chat, chatsOfCurrentUser);
+const editorLink = new CreateEditorLinkDialogStore();
 
 const _store: IAppState = {
     authorization,
@@ -673,7 +674,8 @@ const _store: IAppState = {
     joinChatRequestsApproval,
     joinChatRequestsRejection,
     voiceRecording,
-    mentions
+    mentions,
+    editorLink
 };
 
 //Hack to avoid loss of application state on HMR

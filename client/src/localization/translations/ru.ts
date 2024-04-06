@@ -757,5 +757,8 @@ export const ru: Labels = {
     "message.voice.from-file": "Выбрать файл",
     "settings.chat.messages.editor-type": "Тип редактора сообщений",
     "settings.chat.messages.editor-type.PLAIN_TEXT": "Использовать упрощённый редактор сообщений",
-    "settings.chat.messages.editor-type.RICH_TEXT": "Использовать полнотекстовый редактор сообщений"
+    "settings.chat.messages.editor-type.RICH_TEXT": "Использовать полнотекстовый редактор сообщений",
+    "editor.create-link": "Создать ссылку",
+    "editor.create-link.url": "URL",
+    "editor.create-link.url.invalid": "Неправильный URL"
 };

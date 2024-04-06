@@ -757,5 +757,8 @@ export const en: Labels = {
     "message.voice.from-file": "Select from file",
     "settings.chat.messages.editor-type": "Message editor type",
     "settings.chat.messages.editor-type.PLAIN_TEXT": "Use plain text editor",
-    "settings.chat.messages.editor-type.RICH_TEXT": "Use rich text editor"
+    "settings.chat.messages.editor-type.RICH_TEXT": "Use rich text editor",
+    "editor.create-link": "Create link",
+    "editor.create-link.url": "URL",
+    "editor.create-link.url.invalid": "Invalid URL"
 };

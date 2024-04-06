@@ -167,7 +167,7 @@ import {
     JoinChatByInviteStore,
     UpdateChatInviteStore
 } from "../ChatInvite";
-import {MentionsStore} from "../TextEditor";
+import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
 
 export interface IAppState {
     language: LocaleStore,
@@ -324,5 +324,6 @@ export interface IAppState {
     joinChatRequestsApproval: ApproveJoinChatRequestsStore,
     joinChatRequestsRejection: RejectJoinChatRequestsStore,
     voiceRecording: RecordVoiceMessageStore,
-    mentions: MentionsStore
+    mentions: MentionsStore,
+    editorLink: CreateEditorLinkDialogStore
 }

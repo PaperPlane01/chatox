@@ -29,7 +29,8 @@ import {
 	EditorReadyListenerPlugin,
 	EmojiPlugin,
 	EnterActionsPlugin,
-	FloatingToolbarPlugin
+	FloatingToolbarPlugin,
+	CreateEditorLinkPlugin
 } from "../plugins";
 import {EnterAction} from "../types";
 import {adornmentStyle} from "../styles";
@@ -225,6 +226,7 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 											  menuComponent={MentionMenu}
 						/>
 						<AutoLinkPlugin/>
+						<CreateEditorLinkPlugin/>
 					</LexicalComposer>
 				</div>
 				{emojiPickerVariant !== "none" && (

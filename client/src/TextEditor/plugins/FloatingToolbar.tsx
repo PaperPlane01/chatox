@@ -1,11 +1,15 @@
 import React, {forwardRef, useEffect, useState} from "react";
+import {observer} from "mobx-react";
 import {Theme, ToggleButton} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
-import {Code, FormatBold, FormatItalic, FormatStrikethrough} from "@mui/icons-material";
+import {Code, FormatBold, FormatItalic, FormatStrikethrough, InsertLink} from "@mui/icons-material";
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
+import {$isAutoLinkNode, $isLinkNode} from "@lexical/link";
 import {$getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND} from "lexical";
 import {FloatingElementCoordinates} from "../types";
+import {getSelectedNode} from "../utils";
 import {isDefined} from "../../utils/object-utils";
+import {useStore} from "../../store";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
 	editorToolbarButton: {
@@ -25,7 +29,7 @@ interface FloatingToolbarProps {
 	coordinates?: FloatingElementCoordinates
 }
 
-export const FloatingToolbar = forwardRef<HTMLDivElement, FloatingToolbarProps>(
+const _FloatingToolbar = forwardRef<HTMLDivElement, FloatingToolbarProps>(
 	function FloatingToolbar({editor, coordinates}, ref) {
 		const shouldShow = isDefined(coordinates);
 		const classes = useStyles();
@@ -36,6 +40,13 @@ export const FloatingToolbar = forwardRef<HTMLDivElement, FloatingToolbarProps>(
 			isItalic: false,
 			isStrikethrough: false
 		});
+
+		const {
+			editorLink: {
+				openCreateLinkDialog,
+				setFormValue
+			}
+		} = useStore();
 
 		useEffect(() => {
 				return editor.registerUpdateListener(
@@ -53,6 +64,14 @@ export const FloatingToolbar = forwardRef<HTMLDivElement, FloatingToolbarProps>(
 							isItalic: selection.hasFormat("italic"),
 							isStrikethrough: selection.hasFormat("strikethrough")
 						});
+
+						const node = getSelectedNode(selection);
+
+						if ($isAutoLinkNode(node) || $isLinkNode(node)) {
+							setFormValue("url", node.getURL())
+						} else {
+							setFormValue("url", "");
+						}
 					});
 				}
 			);
@@ -99,7 +118,15 @@ export const FloatingToolbar = forwardRef<HTMLDivElement, FloatingToolbarProps>(
 				>
 					<Code/>
 				</ToggleButton>
+				<ToggleButton value="link"
+							  className={classes.editorToolbarButton}
+							  onClick={openCreateLinkDialog}
+				>
+					<InsertLink/>
+				</ToggleButton>
 			</div>
 		);
 	}
 );
+
+export const FloatingToolbar = observer(_FloatingToolbar);
