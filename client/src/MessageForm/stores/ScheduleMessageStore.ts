@@ -1,6 +1,6 @@
 import {makeAutoObservable, reaction} from "mobx";
 import {addMinutes} from "date-fns";
-import {CreateMessageStore} from "../../MessageForm/stores/CreateMessageStore";
+import {CreateMessageStore} from "./CreateMessageStore";
 import {Labels} from "../../localization";
 import {ApiError} from "../../api";
 

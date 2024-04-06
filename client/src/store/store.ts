@@ -70,7 +70,6 @@ import {
     PinnedMessagesStore,
     PublishScheduledMessageStore,
     ScheduledMessagesOfChatStore,
-    ScheduleMessageStore,
     SearchMessagesStore,
     UnpinMessageStore
 } from "../Message";
@@ -78,6 +77,7 @@ import {
     CreateMessageStore,
     EmojiPickerTabsStore,
     RecordVoiceMessageStore,
+    ScheduleMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
