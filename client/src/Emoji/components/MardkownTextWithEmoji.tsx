@@ -9,6 +9,7 @@ import {useEmojiParser} from "../hooks";
 import {MessageEmoji} from "../../api/types/response";
 import {EmojiKeyProviderFunction} from "../internal/ParseEmojiOptions";
 import {rootStore} from "../../store";
+import {createBlockquoteStyles} from "../../style";
 
 interface MarkdownTextWithEmojiProps {
     text: string,
@@ -18,26 +19,7 @@ interface MarkdownTextWithEmojiProps {
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
-    blockquote: {
-        marginBlockStart: 0,
-        marginBlockEnd: 0,
-        marginInlineStart: 0,
-        marginInlineEnd: 0,
-        paddingLeft: theme.spacing(4),
-        borderLeft: `${theme.spacing(0.5)} ${theme.palette.primary.main} solid`,
-        position: "relative",
-        "&::before": {
-            content: "'\u201C'",
-            position: "absolute",
-            fontSize: "4em",
-            color: theme.palette.primary.main,
-            left: 10,
-            top: -20
-        },
-        "&::after": {
-            content: "''"
-        }
-    }
+    blockquote: createBlockquoteStyles(theme)
 }));
 
 export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps> = observer(({

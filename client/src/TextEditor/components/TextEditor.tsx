@@ -37,6 +37,7 @@ import {adornmentStyle} from "../styles";
 import {MENTION} from "../transformers";
 import {EmojiPickerVariant} from "../../EmojiPicker";
 import {useStore} from "../../store";
+import {createBlockquoteStyles} from "../../style";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
 	editorWrapper: {
@@ -98,7 +99,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 	underlineStrikeThrough: {
 		textDecoration: "underline line-through"
 	},
-	emojiPickerButton: adornmentStyle
+	emojiPickerButton: adornmentStyle,
+	blockquote: createBlockquoteStyles(theme)
 }));
 
 const EDITOR_NODES = [
@@ -196,8 +198,9 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 								italic: classes.italic,
 								underline: classes.underline,
 								strikethrough: classes.strikethrough,
-								underlineStrikethrough: classes.underlineStrikeThrough,
-							}
+								underlineStrikethrough: classes.underlineStrikeThrough
+							},
+							quote: classes.blockquote
 						},
 						editorState: () => $convertFromMarkdownString(initialText, CUSTOM_TRANSFORMERS),
 						onError: error => console.error(error)
