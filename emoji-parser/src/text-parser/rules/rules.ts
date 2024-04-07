@@ -6,4 +6,4 @@ export const EMOJI_NATIVE = createEmojiRegExp();
 
 export const USER_LINK = /\[[^\]]*]\(\/user\/[^)]*\)/;
 
-export const ANYTHING = /./;
+export const ANYTHING = /.*/s;
