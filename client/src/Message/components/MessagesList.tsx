@@ -77,7 +77,7 @@ export const MessagesList: FunctionComponent = observer(() => {
         emojiPickerExpanded,
         currentPinnedMessageId,
         currentPinnedMessageIsClosed
-    ]
+    ];
     const style = useMessagesListStyles(
         calculateStyles,
         refs,

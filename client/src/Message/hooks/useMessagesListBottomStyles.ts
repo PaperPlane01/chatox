@@ -22,7 +22,7 @@ export const useMessagesListBottomStyles = (
 		setStyle(calculateStyles());
 
 		if (recheckInTimeout) {
-			setTimeout(() => setStyle(calculateStyles()), 1);
+			setTimeout(() => setStyle(calculateStyles()), 10);
 		}
 	}, dependencies);
 

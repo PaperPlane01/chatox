@@ -54,11 +54,9 @@ import {
 } from "../User";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore,
     DeleteMessageStore,
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
-    EmojiPickerTabsStore,
     ForwardMessagesStore,
     MarkMessageReadStore,
     MessageDialogStore,
@@ -67,15 +65,19 @@ import {
     PinMessageStore,
     PinnedMessagesStore,
     PublishScheduledMessageStore,
-    RecordVoiceMessageStore,
     ScheduledMessagesOfChatStore,
-    ScheduleMessageStore,
     SearchMessagesStore,
-    UnpinMessageStore,
+    UnpinMessageStore
+} from "../Message";
+import {
+    CreateMessageStore,
+    EmojiPickerTabsStore,
+    RecordVoiceMessageStore,
+    ScheduleMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
-} from "../Message";
+} from "../MessageForm";
 import {WebsocketStore} from "../websocket";
 import {
     BlockUserInChatByIdOrSlugStore,
@@ -165,6 +167,7 @@ import {
     JoinChatByInviteStore,
     UpdateChatInviteStore
 } from "../ChatInvite";
+import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
 
 export interface IAppState {
     language: LocaleStore,
@@ -320,5 +323,7 @@ export interface IAppState {
     joinChatRequests: JoinChatRequestsStore,
     joinChatRequestsApproval: ApproveJoinChatRequestsStore,
     joinChatRequestsRejection: RejectJoinChatRequestsStore,
-    voiceRecording: RecordVoiceMessageStore
+    voiceRecording: RecordVoiceMessageStore,
+    mentions: MentionsStore,
+    editorLink: CreateEditorLinkDialogStore
 }

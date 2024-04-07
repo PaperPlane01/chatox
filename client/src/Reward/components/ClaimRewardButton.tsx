@@ -1,8 +1,18 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {IconButton, Typography} from "@mui/material";
+import {IconButton, Theme, Typography} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {Wallet} from "@mui/icons-material"
 import {useStore} from "../../store";
+
+const useStyles = makeStyles((theme: Theme) => createStyles({
+    rewardText: {
+        color: theme.palette.primary.main,
+        display: "inline-flex",
+        alignItems: "center",
+        padding: theme.spacing(1)
+    }
+}));
 
 export const ClaimRewardButton: FunctionComponent = observer(() => {
     const {
@@ -16,10 +26,11 @@ export const ClaimRewardButton: FunctionComponent = observer(() => {
             claimNextReward
         }
     } = useStore();
+    const classes = useStyles();
 
     if (showClaimedAmount) {
         return (
-            <Typography sx={theme => ({color: theme.palette.primary.main})}>
+            <Typography className={classes.rewardText}>
                 <strong>+{claimedAmount}</strong>
             </Typography>
         );

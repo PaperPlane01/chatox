@@ -36,7 +36,7 @@ import {
     KickChatParticipantStore,
     OnlineChatParticipantsStore,
     RejectJoinChatRequestsStore,
-    UpdateChatParticipantStore,
+    UpdateChatParticipantStore
 } from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
@@ -58,11 +58,9 @@ import {
 } from "../User";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore,
     DeleteMessageStore,
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
-    EmojiPickerTabsStore,
     ForwardMessagesStore,
     MarkMessageReadStore,
     MessageDialogStore,
@@ -70,15 +68,20 @@ import {
     MessagesOfChatStore,
     PinMessageStore,
     PinnedMessagesStore,
-    PublishScheduledMessageStore, RecordVoiceMessageStore,
+    PublishScheduledMessageStore,
     ScheduledMessagesOfChatStore,
-    ScheduleMessageStore,
     SearchMessagesStore,
-    UnpinMessageStore,
+    UnpinMessageStore
+} from "../Message";
+import {
+    CreateMessageStore,
+    EmojiPickerTabsStore,
+    RecordVoiceMessageStore,
+    ScheduleMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
-} from "../Message";
+} from "../MessageForm";
 import {WebsocketStore} from "../websocket";
 import {
     BlockUserInChatByIdOrSlugStore,
@@ -175,6 +178,7 @@ import {
     JoinChatByInviteStore,
     UpdateChatInviteStore
 } from "../ChatInvite";
+import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
 
 const snackbarService = new SnackbarService();
 
@@ -512,6 +516,8 @@ const joinChatRequestsRejection = new RejectJoinChatRequestsStore(
     language,
     snackbarService
 );
+const mentions = new MentionsStore(entities, chat, chatsOfCurrentUser);
+const editorLink = new CreateEditorLinkDialogStore();
 
 const _store: IAppState = {
     authorization,
@@ -667,7 +673,9 @@ const _store: IAppState = {
     joinChatRequests,
     joinChatRequestsApproval,
     joinChatRequestsRejection,
-    voiceRecording
+    voiceRecording,
+    mentions,
+    editorLink
 };
 
 //Hack to avoid loss of application state on HMR

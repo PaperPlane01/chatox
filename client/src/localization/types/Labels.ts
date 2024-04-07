@@ -752,5 +752,11 @@ export interface Labels {
     "message.voice.record.uploading": string,
     "message.voice.record.error.not-supported": string,
     "message.voice.record.error.unknown": string,
-    "message.voice.from-file": string
+    "message.voice.from-file": string,
+    "settings.chat.messages.editor-type": string,
+    "settings.chat.messages.editor-type.PLAIN_TEXT": string,
+    "settings.chat.messages.editor-type.RICH_TEXT": string,
+    "editor.create-link": string,
+    "editor.create-link.url": string,
+    "editor.create-link.url.invalid": string
 }
