@@ -49,10 +49,16 @@ export const MentionMenu: FunctionComponent = forwardRef<
 				  top: coordinates?.y ?? 0,
 				  left: coordinates?.x ?? 0,
 				  visibility: anchorEl ? "visible" : "hidden",
-				  opacity: anchorEl ? 1 : 0
+				  opacity: anchorEl ? 1 : 0,
+				  minWidth: 200,
+				  maxHeight: 400
 			  }}
 		>
-			{loading && <CircularProgress size={25} color="primary" style={commonStyles.centered}/>}
+			{loading && (
+				<div style={commonStyles.centered}>
+					<CircularProgress size={25} color="primary"/>
+				</div>
+			)}
 			{props.children}
 		</Paper>,
 		document.body
