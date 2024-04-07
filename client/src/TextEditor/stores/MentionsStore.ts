@@ -70,7 +70,7 @@ export class MentionsStore {
 
 		return uniqBy(
 			[...chatUsers, ...dialogMentions],
-				item => item.value
+			item => item.value
 		);
 	}
 
