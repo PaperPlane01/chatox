@@ -440,7 +440,6 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                                     <div className={classes.cardContentWithPadding}>
                                         <MarkdownTextWithEmoji text={message.text}
                                                                emojiData={message.emoji}
-                                                               uniqueId={messageId}
                                         />
                                     </div>
                                     {message.stickerId && (

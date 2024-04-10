@@ -325,7 +325,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
                 chat.messages.push(denormalizedEntity.lastReadMessage.id);
             }
 
-            if (denormalizedEntity.lastMessage) {
+            if (denormalizedEntity.lastMessage && denormalizedEntity.lastMessage.id !== denormalizedEntity.lastReadMessage?.id) {
                 patches.push(this.entities.messages.createPatch(denormalizedEntity.lastMessage, {
                     skipSettingLastMessage: true,
                     skipUpdatingChat: true
