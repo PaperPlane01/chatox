@@ -18,7 +18,7 @@ import {ContentEditable} from "@lexical/react/LexicalContentEditable";
 import {$convertFromMarkdownString, $convertToMarkdownString, TRANSFORMERS} from "@lexical/markdown";
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
 import {EditorState, LexicalEditor} from "lexical";
-import {BetterMentionsPlugin, createBetterMentionNode} from "lexical-better-mentions";
+import {BetterMentionComponentProps, BetterMentionsPlugin, createBetterMentionNode} from "lexical-better-mentions";
 import {ContainedEmojiPicker} from "./ContainedEmojiPicker";
 import {UncontainedEmojiPicker} from "./UncontainedEmojiPicker";
 import {Mention} from "./Mention";
@@ -112,7 +112,7 @@ const EDITOR_NODES = [
 	ListItemNode,
 	QuoteNode,
 	HorizontalRuleNode,
-	...createBetterMentionNode(Mention)
+	...createBetterMentionNode(Mention as unknown as FunctionComponent<BetterMentionComponentProps<{}>>)
 ];
 
 interface TextEditorProps {
