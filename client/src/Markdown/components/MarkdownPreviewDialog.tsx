@@ -1,12 +1,10 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {Close} from "@mui/icons-material";
-import ReactMarkdown from "react-markdown";
-import breaks from "remark-breaks";
+import {MarkdownTextWithEmoji} from "./MardkownTextWithEmoji";
 import {useLocalization, useStore} from "../../store";
 import {MessageEmoji} from "../../api/types/response";
-import {useEmojiParser} from "../../Emoji";
 
 interface MarkdownPreviewDialogProps {
     text: string,
@@ -21,7 +19,6 @@ export const MarkdownPreviewDialog: FunctionComponent<MarkdownPreviewDialogProps
         }
     } = useStore();
     const {l} = useLocalization();
-    const {parseEmoji} = useEmojiParser();
 
     return (
         <Dialog open={markdownPreviewDialogOpen}
@@ -38,18 +35,7 @@ export const MarkdownPreviewDialog: FunctionComponent<MarkdownPreviewDialogProps
                 </IconButton>
             </DialogTitle>
             <DialogContent>
-                <Typography>
-                    <ReactMarkdown children={text}
-                                   remarkPlugins={[breaks]}
-                                   components={{
-                                       text: (props: any) => (
-                                           <Fragment>
-                                               {parseEmoji(props.value as string)}
-                                           </Fragment>
-                                       )
-                                   }}
-                    />
-                </Typography>
+                <MarkdownTextWithEmoji text={text}/>
             </DialogContent>
             <DialogActions>
                 <Button variant="outlined"

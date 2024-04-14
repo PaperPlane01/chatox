@@ -1,6 +1,7 @@
 import {makeAutoObservable} from "mobx";
 import {merge, union} from "lodash";
 import {Entities, EntitiesIds, EntitiesPatch, RawEntities} from "./types";
+import {mergeCustomizer} from "../utils/object-utils";
 
 export class RawEntitiesStore {
     entities: RawEntities = {

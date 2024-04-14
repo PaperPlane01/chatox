@@ -20,7 +20,7 @@ import {MessageEntity} from "../types";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useEntities, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {MarkdownTextWithEmoji} from "../../Emoji";
+import {MarkdownTextWithEmoji} from "../../Markdown";
 import {TranslationFunction} from "../../localization";
 import {UserEntity} from "../../User";
 import {getChatRoleTranslation} from "../../ChatRole/utils";
@@ -440,7 +440,6 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                                     <div className={classes.cardContentWithPadding}>
                                         <MarkdownTextWithEmoji text={message.text}
                                                                emojiData={message.emoji}
-                                                               uniqueId={messageId}
                                         />
                                     </div>
                                     {message.stickerId && (

@@ -1,13 +1,15 @@
 import React, {Fragment, FunctionComponent, ReactElement, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {Audiotrack, FileCopy, Image, KeyboardVoice, VideoLibrary} from "@mui/icons-material";
-import {useLocalization, useStore} from "../../store";
-import {ParseEmojiFunction, useEmojiParser} from "../../Emoji";
+import {Emoji} from "emoji-mart";
+import {useEntities, useLocalization, useStore} from "../../store";
 import {Upload, UploadType} from "../../api/types/response";
 import {capitalize} from "../../utils/string-utils";
 import {Labels, TranslationFunction} from "../../localization";
 import {StickerEntity} from "../../Sticker";
 import {MessageEntity} from "../../Message/types";
+import {MarkdownTextWithEmoji} from "../../Markdown";
+import {ExtendedEmojiSet} from "../../Emoji/types";
 
 interface ChatListMessagePreviewProps {
     messageId: string
@@ -25,23 +27,25 @@ export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewPro
     messageId
 }) => {
     const {
-        entities: {
-            messages: {
-                findById: findMessage
-            },
-            users: {
-                findById: findUser
-            },
-            uploads: {
-                findAllById: findUploads,
-            },
-            stickers: {
-                findById: findSticker
-            }
+        emoji: {
+            selectedEmojiSet
         }
     } = useStore();
+    const {
+        messages: {
+            findById: findMessage
+        },
+        users: {
+            findById: findUser
+        },
+        uploads: {
+            findAllById: findUploads,
+        },
+        stickers: {
+            findById: findSticker
+        }
+    } = useEntities()
     const {l} = useLocalization();
-    const {parseEmoji} = useEmojiParser();
 
     const message = findMessage(messageId);
     const messageSender = findUser(message.sender);
@@ -55,11 +59,11 @@ export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewPro
     const messageSenderName = messageSender.firstName;
 
     if (messageSticker) {
-        return renderSticker(messageSenderName, messageSticker, parseEmoji, l);
+        return renderSticker(messageSenderName, messageSticker, selectedEmojiSet, l);
     }
 
     if (message.text && message.text.length !== 0) {
-        return renderText(messageSenderName, message, messageId, parseEmoji);
+        return renderText(messageSenderName, message);
     }
 
     if (messageUploads.length !== 0) {
@@ -77,20 +81,38 @@ export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewPro
     );
 });
 
-const renderSticker = (senderName: string, sticker: StickerEntity, parseEmoji: ParseEmojiFunction, l: TranslationFunction): ReactElement => (
+const renderSticker = (
+    senderName: string,
+    sticker: StickerEntity,
+    emojiSet: ExtendedEmojiSet,
+    l: TranslationFunction
+): ReactElement => (
     <Fragment>
         {senderName}
         {": "}
-        {sticker.emojis.length !== 0 && parseEmoji((sticker.emojis[0] as any).native)}
+        {sticker.emojis.length !== 0 && (
+            <Emoji size={20}
+                   emoji={sticker.emojis[0].id!}
+                   set={emojiSet === "native" ? undefined : emojiSet}
+                   native={emojiSet === "native"}
+            />
+        )}
         {` [${l("sticker")}]`}
     </Fragment>
 );
 
-const renderText = (senderName: string, message: MessageEntity, messageId: string, parseEmoji: ParseEmojiFunction): ReactElement =>  (
+const renderText = (senderName: string, message: MessageEntity): ReactElement =>  (
     <Fragment>
         {senderName}
         {": "}
-        {parseEmoji(message.text, message.emoji, undefined, emoji => `chatList-${messageId}`)}
+        <MarkdownTextWithEmoji text={message.text}
+                               emojiData={message.emoji}
+                               renderParagraphsAsSpan
+                               renderHeadersAsPlainText
+                               renderQuotesAsPlainText
+                               renderLinksAsPlainText
+                               renderCodeAsPlainText
+        />
     </Fragment>
 );
 

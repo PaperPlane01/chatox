@@ -6,7 +6,7 @@ import {Close} from "@mui/icons-material";
 import randomColor from "randomcolor";
 import {getForwardMessagesLabel} from "../../Message/utils";
 import {useLocalization, useStore} from "../../store";
-import {useEmojiParser} from "../../Emoji";
+import {MarkdownTextWithEmoji} from "../../Markdown";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     cardContentRoot: {
@@ -62,7 +62,6 @@ export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardPro
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
-    const {parseEmoji} = useEmojiParser();
     const theme = useTheme<Theme>();
 
     const messagesListElement = document.getElementById("messagesList");
@@ -117,7 +116,16 @@ export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardPro
     if (message) {
         cardContent = message.deleted
                 ? <i>{l("message.deleted")}</i>
-                : parseEmoji(message.text, message.emoji);
+                : (
+                <MarkdownTextWithEmoji text={message.text}
+                                       emojiData={message.emoji}
+                                       renderParagraphsAsSpan
+                                       renderHeadersAsPlainText
+                                       renderQuotesAsPlainText
+                                       renderLinksAsPlainText
+                                       renderCodeAsPlainText
+                />
+            );
     } else if (mode === "forward") {
         cardContent = `[${getForwardMessagesLabel(messagesCount, l)}]`;
     }
