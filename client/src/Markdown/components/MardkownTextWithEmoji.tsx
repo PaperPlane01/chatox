@@ -1,4 +1,4 @@
-import React, {FunctionComponent, MouseEvent} from "react";
+import React, {FunctionComponent, MouseEvent, KeyboardEvent} from "react";
 import {observer} from "mobx-react";
 import {Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -32,7 +32,7 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
     } = useStore();
     const classes = useStyles();
 
-    const handleLinkClick = (event: MouseEvent, href: string): void => {
+    const handleLinkClick = (event: MouseEvent | KeyboardEvent, href: string): void => {
         if (!href.startsWith("/") && !href.startsWith(import.meta.env.VITE_PUBLIC_URL)) {
             return;
         }
@@ -55,7 +55,12 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
                            ),
                            a: ({node, ...props}) => (
                               <a {...props}
-                                  onClick={event => handleLinkClick(event, props.href ?? "/")}
+                                 onClick={event => handleLinkClick(event, props.href ?? "/")}
+                                 onKeyDown={event => {
+                                     if (event.key === "Enter") {
+                                         handleLinkClick(event, props.href ?? "/")
+                                     }
+                                 }}
                               />
                            ),
                            blockquote: ({node, ...props}) => (
@@ -73,7 +78,7 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
                                           }
                                           native={selectedEmojiSet === "native"}
                                    />
-                               )
+                               );
                            }
                        }}
         >

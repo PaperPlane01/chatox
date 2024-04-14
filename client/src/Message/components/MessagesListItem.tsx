@@ -20,7 +20,7 @@ import {MessageEntity} from "../types";
 import {Avatar} from "../../Avatar";
 import {useAuthorization, useEntities, useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {MarkdownTextWithEmoji} from "../../Emoji";
+import {MarkdownTextWithEmoji} from "../../Markdown";
 import {TranslationFunction} from "../../localization";
 import {UserEntity} from "../../User";
 import {getChatRoleTranslation} from "../../ChatRole/utils";
