@@ -125,7 +125,6 @@ const addEmojiNodesByRegExp = (
 				nodePosition.start.line
 			));
 		}
-		console.log(match);
 
 		const matchedValue = match[0];
 		let emojiData: EmojiData | undefined;
