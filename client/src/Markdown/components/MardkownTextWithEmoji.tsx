@@ -43,10 +43,12 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
         rootStore.restartRouter();
     };
 
+    const emojiSet = selectedEmojiSet === "native" ? "apple" : selectedEmojiSet;
+
     return (
         <ReactMarkdown remarkPlugins={!disableRemarkBreaks
-            ? [remarkBreaks, emojiPlugin(emojiData)]
-            : [emojiPlugin(emojiData)]
+            ? [remarkBreaks, emojiPlugin(emojiSet, emojiData)]
+            : [emojiPlugin(emojiSet, emojiData)]
         }
                        allowElement={element => element.tagName !== "img"}
                        components={{
