@@ -7,8 +7,8 @@ import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks
 import {ClosePinnedMessageMenuItem} from "./ClosePinnedMessageMenuItem";
 import {UnpinMessageMenuItem} from "./UnpinMessageMenuItem";
 import {useEntities, useLocalization, usePermissions, useStore} from "../../store";
-import {useEmojiParser} from "../../Emoji";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
+import {MarkdownTextWithEmoji} from "../../Markdown";
 
 interface PinnedMessageProps {
     width?: string | number
@@ -82,7 +82,6 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
         }
     } = usePermissions();
     const classes = useStyles();
-    const {parseEmoji} = useEmojiParser();
     const {l} = useLocalization();
     const closeOrUnpinMessageMenuPopupState = usePopupState({
         variant: "popover",
@@ -139,7 +138,16 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
                     >
                         {pinnedMessage.deleted
                             ? <i>{l("message.deleted")}</i>
-                            : parseEmoji(pinnedMessage.text, pinnedMessage.emoji)
+                            : (
+                                <MarkdownTextWithEmoji text={pinnedMessage.text}
+                                                       emojiData={pinnedMessage.emoji}
+                                                       renderParagraphsAsSpan
+                                                       renderHeadersAsPlainText
+                                                       renderQuotesAsPlainText
+                                                       renderLinksAsPlainText
+                                                       renderCodeAsPlainText
+                                />
+                            )
                         }
                     </Typography>
                 </div>

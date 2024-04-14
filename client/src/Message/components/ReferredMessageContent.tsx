@@ -8,6 +8,7 @@ import {trimString} from "../../utils/string-utils";
 import {useLocalization, useStore} from "../../store";
 import {useEmojiParser} from "../../Emoji";
 import {UserEntity} from "../../User";
+import {MarkdownTextWithEmoji} from "../../Markdown";
 
 interface ReferredMessageContentProps {
     messageId?: string,
@@ -51,7 +52,6 @@ export const ReferredMessageContent: FunctionComponent<ReferredMessageContentPro
     } = useStore();
     const {l} = useLocalization();
     const classes = useStyles();
-    const {parseEmoji} = useEmojiParser();
 
     if (!messageId) {
         return null;
@@ -79,9 +79,14 @@ export const ReferredMessageContent: FunctionComponent<ReferredMessageContentPro
                 {message.deleted
                     ? <i>{l("message.deleted")}</i>
                     : (
-                        <Typography>
-                            {parseEmoji(trimString(message.text, 150), message.emoji)}
-                        </Typography>
+                        <MarkdownTextWithEmoji text={message.text}
+                                               emojiData={message.emoji}
+                                               renderParagraphsAsSpan
+                                               renderHeadersAsPlainText
+                                               renderQuotesAsPlainText
+                                               renderLinksAsPlainText
+                                               renderCodeAsPlainText
+                        />
                     )
                 }
             </CardContent>
