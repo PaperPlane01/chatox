@@ -1,12 +1,10 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {CardContent, CardHeader, Theme, Typography} from "@mui/material";
+import {CardContent, CardHeader, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {MessageEntity} from "../types";
 import {UserLink} from "../../UserLink";
-import {trimString} from "../../utils/string-utils";
 import {useLocalization, useStore} from "../../store";
-import {useEmojiParser} from "../../Emoji";
 import {UserEntity} from "../../User";
 import {MarkdownTextWithEmoji} from "../../Markdown";
 
