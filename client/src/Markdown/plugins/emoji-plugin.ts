@@ -18,8 +18,8 @@ const emojiData = allEmojiData;
 uncompress(emojiData);
 
 const NATIVE_EMOJI_REGEXP = createRegEmojiRegExp();
-const COLONS_EMOJI_REGEXP = /:[^:\s]*(?:::[^:\s]*)*:/g;
-const EMOJI_REGEXP = new RegExp(`(${NATIVE_EMOJI_REGEXP.source})|(${COLONS_EMOJI_REGEXP.source})`);
+const COLONS_EMOJI_REGEXP = /:[^:\s]*(?:::[^:\s]*)*:/;
+const EMOJI_REGEXP = new RegExp(`(${NATIVE_EMOJI_REGEXP.source})|(${COLONS_EMOJI_REGEXP.source})`, 'g');
 
 export const emojiPlugin = (
 	set: EmojiSet,
@@ -125,6 +125,7 @@ const addEmojiNodesByRegExp = (
 				nodePosition.start.line
 			));
 		}
+		console.log(match);
 
 		const matchedValue = match[0];
 		let emojiData: EmojiData | undefined;
