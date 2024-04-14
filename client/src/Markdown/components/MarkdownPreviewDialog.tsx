@@ -2,9 +2,9 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {Close} from "@mui/icons-material";
+import {MarkdownTextWithEmoji} from "./MardkownTextWithEmoji";
 import {useLocalization, useStore} from "../../store";
 import {MessageEmoji} from "../../api/types/response";
-import {MarkdownTextWithEmoji} from "./MardkownTextWithEmoji";
 
 interface MarkdownPreviewDialogProps {
     text: string,
