@@ -4,7 +4,7 @@ import {Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import ReactMarkdown, {Components} from "react-markdown";
 import remarkBreaks from "remark-breaks";
-import {Emoji, EmojiData, EmojiSet} from "emoji-mart";
+import {Emoji, EmojiData} from "emoji-mart";
 import {emojiPlugin} from "../plugins";
 import {MessageEmoji} from "../../api/types/response";
 import {rootStore, useStore} from "../../store";
