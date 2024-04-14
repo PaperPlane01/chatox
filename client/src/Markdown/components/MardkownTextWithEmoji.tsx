@@ -69,7 +69,7 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
                                    <Emoji size={20}
                                           emoji={properties}
                                           set={selectedEmojiSet !== "native"
-                                              ? selectedEmojiSet as unknown as EmojiSet
+                                              ? selectedEmojiSet
                                               : undefined
                                           }
                                           native={selectedEmojiSet === "native"}
@@ -161,4 +161,4 @@ const renderPre = (renderAsPlainText: boolean): Components["pre"] => ({node, ...
     } else {
         return <pre {...props}/>;
     }
-}
+};
