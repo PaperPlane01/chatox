@@ -29,7 +29,8 @@ export const EmojiSetPicker: FunctionComponent<EmojiSetPickerProps> = observer((
                             onChange={event => setSelectedEmojiSet(event.target.value as ExtendedEmojiSet)}
                 >
                     {ALLOWED_EMOJI_SETS.map(emojiSet => (
-                        <FormControlLabel control={<Radio/>}
+                        <FormControlLabel key={emojiSet}
+                                          control={<Radio/>}
                                           value={emojiSet}
                                           label={
                                               <Fragment>

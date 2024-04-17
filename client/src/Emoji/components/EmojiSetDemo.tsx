@@ -20,7 +20,13 @@ export const EmojiSetDemo: FunctionComponent<EmojiSetDemoProps> = ({set}) => {
 
     return (
         <Fragment>
-            {DEMO_EMOJI.map(emojiCode => <Emoji size={20} emoji={emojiCode} set={emojiSet} native={native}/>)}
+            {DEMO_EMOJI.map(emojiCode => (
+                <Emoji key={emojiCode}
+                       size={20}
+                       emoji={emojiCode}
+                       set={emojiSet}
+                       native={native}/>
+            ))}
         </Fragment>
     );
 };
