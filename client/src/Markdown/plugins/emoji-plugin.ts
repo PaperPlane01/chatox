@@ -174,9 +174,8 @@ const getEmojiDataFromColons = (colons: string, set: EmojiSet): EmojiData | unde
 
 	const unified= rawEmojiData.unified as string;
 	const nativeEmoji = unified.split("-")
-		.map(unicode => parseInt(unicode, 16))
-		.map(unicode => String.fromCodePoint(unicode))
-		.reduce((left, right) => left + right);
+		.map(unicode => String.fromCodePoint(parseInt(unicode, 16)))
+		.join();
 
 	return getEmojiDataFromNative(nativeEmoji, set, allEmojiData);
 };
