@@ -5,6 +5,7 @@ import randomColor from "randomcolor";
 import {AvatarUpload} from "../../Upload";
 import {getAvatarLabel} from "../utils";
 import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
 
 const useStyles = makeStyles(() => createStyles({
     centered: {
@@ -20,11 +21,6 @@ export const ChatAvatarUpload: FunctionComponent = observer(() => {
         chat: {
             selectedChatId
         },
-        entities: {
-            chats: {
-                findById: findChat
-            }
-        },
         chatAvatarUpload: {
             uploadFile,
             imageContainer: avatarContainer,
@@ -35,11 +31,11 @@ export const ChatAvatarUpload: FunctionComponent = observer(() => {
     } = useStore();
     const classes = useStyles();
 
-    if (!selectedChatId) {
+    const chat = useEntityById("chats", selectedChatId);
+
+    if (!chat) {
         return null;
     }
-
-    const chat = findChat(selectedChatId);
 
     return (
         <div className={classes.centered}>

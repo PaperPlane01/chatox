@@ -10,7 +10,7 @@ import {getAvatarLabel, getChatLinkProps} from "../utils";
 import {ChatLinkPropsGenerationStrategy} from "../types";
 import {Avatar} from "../../Avatar";
 import {useRouter, useStore} from "../../store";
-import {ChatType} from "../../api/types/response";
+import {useEntityById} from "../../entities";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {useLuminosity} from "../../utils/hooks";
 
@@ -83,26 +83,18 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
         chat: {
             selectedChatId
         },
-        entities: {
-            chats: {
-                findById: findChat
-            },
-            users: {
-                findById: findUser
-            }
-        },
         typingUsers: {
             hasTypingUsers
         }
     } = useStore();
     const routerStore = useRouter();
     const classes = useStyles();
-    const chat = findChat(chatId);
-    const chatUser = chat.type === ChatType.DIALOG && chat.userId && findUser(chat.userId);
-    const selected = selectedChatId === chatId;
+    const chat = useEntityById("chats", chatId);
+    const chatUser = useEntityById("users", chat.userId)
+    const luminosity = useLuminosity();
+
     const linkProps = getChatLinkProps(linkGenerationStrategy, {chat, messageId});
     const chatHasTypingUsers = hasTypingUsers(chatId);
-    const luminosity = useLuminosity();
     const color = randomColor({
         seed: chatUser ? chatUser.id : chatId,
         luminosity
@@ -123,6 +115,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                     avatarId={chat.avatarId}
             />
         );
+    const selected = chatId === selectedChatId;
 
     return (
         <Link router={routerStore}

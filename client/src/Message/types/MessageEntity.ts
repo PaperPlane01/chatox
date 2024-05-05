@@ -1,13 +1,15 @@
+import {IModel} from "pouchorm";
 import {MessageEmoji} from "../../api/types/response";
 
-export interface MessageEntity {
+export interface MessageEntity extends IModel {
     id: string,
     referredMessageId?: string,
     sender: string,
     text: string,
     deleted: boolean,
-    createdAt: Date,
-    updatedAt?: Date,
+    messageDeleted: boolean,
+    createdAt: Date | string,
+    updatedAt?: Date | string,
     readByCurrentUser: boolean,
     previousMessageId?: string,
     nextMessageId?: string,
@@ -24,7 +26,7 @@ export interface MessageEntity {
     videosCount: number,
     voiceMessagesCount: number,
     filesCount: number,
-    scheduledAt?: Date,
+    scheduledAt?: Date | string,
     index: number,
     stickerId?: string,
     senderRoleId?: string,

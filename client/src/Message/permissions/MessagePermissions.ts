@@ -10,6 +10,7 @@ import {CurrentUser} from "../../api/types/response";
 import {ChatRoleEntity} from "../../ChatRole/types";
 import {isBetween} from "../../utils/number-utils";
 import {isDefined} from "../../utils/object-utils";
+import {getDate} from "../../utils/date-utils";
 
 type SendMessagesPermission = "allowedToSendAudios" | "allowedToSendStickers" | "allowedToSendImages"
     | "allowedToSendFiles" | "allowedToSendVoiceMessages" | "allowedToSendVideos";
@@ -30,7 +31,7 @@ export class MessagePermissions {
             return false;
         }
 
-        if (message.deleted) {
+        if (message.messageDeleted) {
             return false;
         }
 
@@ -42,7 +43,7 @@ export class MessagePermissions {
             return false;
         }
 
-        if (differenceInDays(new Date(), message.createdAt) >= 1) {
+        if (differenceInDays(new Date(), getDate(message.createdAt)) >= 1) {
             return false;
         }
 
@@ -110,7 +111,7 @@ export class MessagePermissions {
             return false;
         }
 
-        if (message.deleted) {
+        if (message.messageDeleted) {
             return false;
         }
 

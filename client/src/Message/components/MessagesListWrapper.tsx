@@ -5,6 +5,7 @@ import {VirtualMessagesList} from "./VirtualMessagesList";
 import {MessagesList} from "./MessagesList";
 import {ChatDeletionLabel} from "../../Chat";
 import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
 
 const useStyles = makeStyles(() => createStyles({
     centered: {
@@ -22,17 +23,13 @@ export const MessagesListWrapper = observer(() => {
             errorsMap,
             currentSlug
         },
-        entities: {
-            chats: {
-                findById: findChat
-            }
-        },
         chatsPreferences: {
             enableVirtualScroll
         }
     } = useStore();
     const classes = useStyles();
 
+    const chat = useEntityById("chats", selectedChatId);
     const error = currentSlug ? errorsMap[currentSlug] : undefined;
 
     if (error && error.metadata && error.metadata.errorCode === "CHAT_DELETED") {
@@ -48,11 +45,9 @@ export const MessagesListWrapper = observer(() => {
         );
     }
 
-    if (!selectedChatId) {
+    if (!chat) {
         return null;
     }
-
-    const chat = findChat(selectedChatId);
 
     if (chat.deleted) {
         return (

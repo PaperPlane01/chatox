@@ -13,8 +13,12 @@ interface PossibleBindings {
     comment?: string
 }
 
-export const getGlobalBanLabel = (globalBan: GlobalBanEntity, l: TranslationFunction, dateFnsLocale: Locale, findUser: FindUserFunction): string => {
-    const createdBy = findUser(globalBan.createdById);
+export const getGlobalBanLabel = (
+    globalBan: GlobalBanEntity,
+    l: TranslationFunction,
+    dateFnsLocale: Locale,
+    createdBy: UserEntity // TODO: make this parameter optional
+): string => {
     let label: keyof Labels;
     let bindings: PossibleBindings;
 

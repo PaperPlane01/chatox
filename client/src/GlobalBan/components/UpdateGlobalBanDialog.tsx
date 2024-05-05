@@ -11,11 +11,12 @@ import {
     FormControlLabel,
     TextField,
     Typography
-} from "@mui/material"
+} from "@mui/material";
 import {DateTimePicker} from "@mui/x-date-pickers";
 import {useSnackbar} from "notistack";
 import {GlobalBanReasonSelect} from "./GlobalBanReasonSelect";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 import {getUserDisplayedName} from "../../User/utils/labels";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
@@ -33,11 +34,6 @@ const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
 
 export const UpdateGlobalBanDialog: FunctionComponent = observer(() => {
     const {
-        entities: {
-            users: {
-                findById: findUser
-            }
-        },
         updateGlobalBan: {
             updateGlobalBanDialogOpen,
             updatedGlobalBan,
@@ -65,17 +61,17 @@ export const UpdateGlobalBanDialog: FunctionComponent = observer(() => {
             }
         }
     );
-    
-    if (!updatedGlobalBan) {
+
+    const bannedUser = useEntityById("users", updatedGlobalBan?.bannedUserId);
+
+    if (!bannedUser) {
         return null;
     }
-    
+
     const closeDialog = (): void => {
         setUpdateGlobalBanDialogOpen(false);
         setUpdatedGlobalBanId(undefined);
     }
-    
-    const bannedUser = findUser(updatedGlobalBan.bannedUserId);
 
     return (
         <Dialog open={updateGlobalBanDialogOpen}

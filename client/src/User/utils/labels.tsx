@@ -4,6 +4,7 @@ import {format, formatDistanceStrict, isSameDay, isSameYear, Locale} from "date-
 import {isStringEmpty} from "../../utils/string-utils";
 import {UserEntity} from "../types";
 import {TranslationFunction} from "../../localization";
+import {getDate} from "../../utils/date-utils";
 
 interface WithFirstNameAndLastName {
     firstName: string,
@@ -23,10 +24,11 @@ export const getUserDisplayedName = (user: {firstName: string, lastName?: string
     }
 };
 
-export const getDateOfBirthLabel = (dateOfBirth: Date, dateFnsLocale: Locale): string => {
-    const dateLabel = format(dateOfBirth, "dd MMMM yyyy", {locale: dateFnsLocale});
+export const getDateOfBirthLabel = (dateOfBirth: Date | string, dateFnsLocale: Locale): string => {
+    const birthDate = getDate(dateOfBirth);
+    const dateLabel = format(birthDate, "dd MMMM yyyy", {locale: dateFnsLocale});
     const ageLabel = formatDistanceStrict(
-        dateOfBirth,
+        birthDate,
         new Date(),
         {
             unit: "year",
@@ -36,15 +38,16 @@ export const getDateOfBirthLabel = (dateOfBirth: Date, dateFnsLocale: Locale): s
     return `${dateLabel} (${ageLabel})`;
 };
 
-export const getLastSeenLabel = (lastSeen: Date, locale: Locale): string => {
+export const getLastSeenLabel = (lastSeen: Date | string, locale: Locale): string => {
     const currentDate = new Date();
+    const lastSeenDate = getDate(lastSeen);
 
-    if (isSameDay(lastSeen, currentDate)) {
-        return format(lastSeen, "HH:mm", {locale});
-    } else if (isSameYear(lastSeen, currentDate)) {
-        return format(lastSeen, "d MMM HH:mm", {locale});
+    if (isSameDay(lastSeenDate, currentDate)) {
+        return format(lastSeenDate, "HH:mm", {locale});
+    } else if (isSameYear(lastSeenDate, currentDate)) {
+        return format(lastSeenDate, "d MMM HH:mm", {locale});
     } else {
-        return format(lastSeen, "d MMM yyyy HH:mm", {locale});
+        return format(lastSeenDate, "d MMM yyyy HH:mm", {locale});
     }
 };
 

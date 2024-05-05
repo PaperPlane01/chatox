@@ -6,6 +6,7 @@ import {MessageApi} from "../../api";
 import {ChatStore} from "../../Chat";
 import {AuthorizationStore} from "../../Authorization";
 import {CurrentUser} from "../../api/types/response";
+import {getDate} from "../../utils/date-utils";
 
 export class MarkMessageReadStore {
     pendingMap: {[messageId: string]: boolean} = {};
@@ -59,7 +60,7 @@ export class MarkMessageReadStore {
         const messages = this.entities.messages.findAllById(this.queues[chatId]);
 
         return messages.slice()
-            .sort((left, right) => left.createdAt.getTime() - right.createdAt.getTime())[0].id;
+            .sort((left, right) => getDate(left.createdAt).getTime() - getDate(right.createdAt).getTime())[0].id;
     })
 
     addMessageToQueue = (messageId: string): void => {

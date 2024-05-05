@@ -4,5 +4,10 @@ export * from "./MessageUploadsStats";
 export * from "./UploadsGroupedByType";
 export * from "./MessageInsertOptions";
 export * from "./MessagesListRefs";
-
-
+export * from "./FindMessageSenderFunction";
+export * from "./FindMessageFunction";
+export * from "./MessageRelationships";
+export * from "./FetchMessagesOptions";
+export * from "./MessagesCleanupState";
+export * from "./CleanedUpMessageMetadata";
+export * from "./CleanedUpMessagesMetadata";

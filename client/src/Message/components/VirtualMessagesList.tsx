@@ -13,7 +13,7 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
     const {
         messagesOfChat: {
             messagesOfChat,
-            fetchMessages,
+            fetchMessages
         },
         pinnedMessages: {
             currentPinnedMessageId,
@@ -67,6 +67,16 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
         true
     );
 
+    const fetchNextMessages = (): void => {
+        const beforeId = messagesOfChat[0];
+
+        fetchMessages({
+            beforeId,
+            abortIfInitiallyFetched: false,
+            skipSettingLastMessage: true
+        });
+    };
+
     return (
         <Fragment>
             <PinnedMessage ref={refs.pinnedMessageRef}
@@ -92,7 +102,7 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
                           )}
                           followOutput="auto"
                           ref={virtuosoRef}
-                          startReached={() => fetchMessages()}
+                          startReached={fetchNextMessages}
                           atBottomStateChange={atBottom => setReachedBottom(selectedChat!!.id, atBottom)}
                           initialTopMostItemIndex={{
                               index: "LAST"

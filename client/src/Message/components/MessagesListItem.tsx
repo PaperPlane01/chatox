@@ -2,7 +2,7 @@ import React, {Fragment, FunctionComponent, MouseEvent, ReactNode, useEffect, us
 import {observer} from "mobx-react";
 import {Card, CardActions, CardContent, CardHeader, lighten, Theme, Tooltip, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
-import {Edit, Event, Forward, Done, DoneAll} from "@mui/icons-material";
+import {Done, DoneAll, Edit, Event, Forward} from "@mui/icons-material";
 import {format, isBefore, isEqual, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import ReactVisibilitySensor from "react-visibility-sensor";
@@ -16,19 +16,21 @@ import {MessageAudios} from "./MessageAudios";
 import {MessageFiles} from "./MessageFiles";
 import {MessageSticker} from "./MessageSticker";
 import {SelectMessageForForwardingRadioButton} from "./SelectMessageForForwardingRadioButton";
-import {MessageEntity} from "../types";
+import {FindMessageFunction, FindMessageSenderFunction} from "../types";
+import {useMessageById, useMessageSenderById} from "../hooks";
 import {Avatar} from "../../Avatar";
-import {useAuthorization, useEntities, useLocalization, useRouter, useStore} from "../../store";
+import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 import {MarkdownTextWithEmoji} from "../../Markdown";
 import {TranslationFunction} from "../../localization";
-import {UserEntity} from "../../User";
 import {getChatRoleTranslation} from "../../ChatRole/utils";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 import {useLuminosity} from "../../utils/hooks";
 import {commonStyles} from "../../style";
 import {UploadType} from "../../api/types/response";
 import {isDefined} from "../../utils/object-utils";
+import {getDate} from "../../utils/date-utils";
 
 interface MessagesListItemProps {
     messageId: string,
@@ -39,24 +41,25 @@ interface MessagesListItemProps {
     hideAttachments?: boolean,
     messagesListHeight?: number,
     scheduledMessage?: boolean,
-    findMessageFunction?: (id: string) => MessageEntity,
-    findMessageSenderFunction?: (id: string) => UserEntity,
+    findMessageFunction?: FindMessageFunction,
+    findMessageSenderFunction?: FindMessageSenderFunction,
     menu?: ReactNode
 }
 
-const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
+const getCreatedAtLabel = (createdAt: Date | string, locale: Locale): string => {
     const currentDate = new Date();
+    const date = getDate(createdAt);
 
-    if (isSameDay(createdAt, currentDate)) {
-        return format(createdAt, "HH:mm", {locale});
-    } else if (isSameYear(createdAt, currentDate)) {
-        return format(createdAt, "d MMM HH:mm", {locale});
+    if (isSameDay(date, currentDate)) {
+        return format(date, "HH:mm", {locale});
+    } else if (isSameYear(date, currentDate)) {
+        return format(date, "d MMM HH:mm", {locale});
     } else {
-        return format(createdAt, "d MMM yyyy HH:mm", {locale});
+        return format(date, "d MMM yyyy HH:mm", {locale});
     }
 };
 
-const getScheduledAtLabel = (scheduledAt: Date, locale: Locale, l: TranslationFunction): string => {
+const getScheduledAtLabel = (scheduledAt: Date | string, locale: Locale, l: TranslationFunction): string => {
     const dateLabel = getCreatedAtLabel(scheduledAt, locale);
 
     return l("message.scheduled-at", {scheduleDate: dateLabel});
@@ -211,20 +214,6 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
             removeMessage
         }
     } = useStore();
-    const {
-        users: {
-            findById: findUser
-        },
-        messages: {
-            findById: findMessage
-        },
-        scheduledMessages: {
-            findById: findScheduledMessage
-        },
-        chatRoles: {
-            findById: findChatRole
-        }
-    } = useEntities();
     const {l, dateFnsLocale} = useLocalization();
     const {currentUser} = useAuthorization();
     const routerStore = useRouter();
@@ -232,9 +221,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const [width, setWidth] = useState<number | undefined>(undefined);
     const [height, setHeight] = useState<number | undefined>(undefined);
 
-    const message = findMessageFunction
-        ? findMessageFunction(messageId)
-        : !scheduledMessage ? findMessage(messageId) : findScheduledMessage(messageId);
+    const message = useMessageById(messageId, scheduledMessage, findMessageFunction);
 
     const [allImagesLoaded, setAllImagesLoaded] = useState(message.images.length === 0);
     const [stickerLoaded, setStickerLoaded] = useState(message.stickerId === undefined);
@@ -268,16 +255,13 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
         }
     });
 
-    const sender = findMessageSenderFunction
-        ? findMessageSenderFunction(message.sender)
-        : findUser(message.sender);
-    const forwardedBy = message.forwardedById
-        ? findMessageSenderFunction ? findMessageSenderFunction(message.forwardedById) : findUser(message.forwardedById)
-        : undefined;
+    const sender = useMessageSenderById(message.sender, findMessageSenderFunction);
+    const forwardedBy = useMessageSenderById(message.forwardedById, findMessageSenderFunction);
+    const messageCreatedAt = getDate(message.createdAt);
     const createAtLabel = !scheduledMessage
-        ? getCreatedAtLabel(message.createdAt, dateFnsLocale)
+        ? getCreatedAtLabel(messageCreatedAt, dateFnsLocale)
         : getScheduledAtLabel(message.scheduledAt!, dateFnsLocale, l);
-    const senderChatRole = message.senderRoleId && findChatRole(message.senderRoleId);
+    const senderChatRole = useEntityById("chatRoles", message.senderRoleId);
     const color = randomColor({seed: sender.id, luminosity});
     const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
     const sentByCurrentUser = currentUser && isDefined(message.forwardedById)
@@ -287,8 +271,8 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const withAudio = message.audios.length !== 0
         || message.voiceMessages.length !== 0;
     const readByAnyone = message.readByAnyone || (isDefined(lastMessageReadByAnyoneCreatedAt)
-        && (isEqual(message.createdAt, lastMessageReadByAnyoneCreatedAt)
-            || isBefore(message.createdAt, lastMessageReadByAnyoneCreatedAt)));
+        && (isEqual(messageCreatedAt, lastMessageReadByAnyoneCreatedAt)
+            || isBefore(messageCreatedAt, lastMessageReadByAnyoneCreatedAt)));
 
     const cardClasses = clsx({
         [classes.messageCardFullWidth]: fullWidth,
@@ -425,11 +409,13 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                                  ref={messagesListItemRef}
                                  style={messageCardDimensionsCache[messageId] && messageCardDimensionsCache[messageId]}
                     >
-                        <ReferredMessageContent messageId={message.referredMessageId}
-                                                findMessageFunction={findMessageFunction}
-                                                findSenderFunction={findMessageSenderFunction}
-                        />
-                        {message.deleted
+                        {message.referredMessageId && (
+                            <ReferredMessageContent messageId={message.referredMessageId}
+                                                    findMessageFunction={findMessageFunction}
+                                                    findSenderFunction={findMessageSenderFunction}
+                            />
+                        )}
+                        {message.messageDeleted
                             ? (
                                 <div className={classes.cardContentWithPadding}>
                                     <i>{l("message.deleted")}</i>

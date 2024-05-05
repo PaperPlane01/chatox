@@ -1,20 +1,12 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {
-    AppBar,
-    CardHeader,
-    Hidden,
-    IconButton,
-    Toolbar,
-    Typography,
-    useMediaQuery,
-    useTheme,
-} from "@mui/material";
+import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {ArrowBack} from "@mui/icons-material";
 import randomColor from "randomcolor";
 import {Link} from "mobx-router";
-import {useStore, useLocalization, useRouter} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {trimString} from "../../utils/string-utils";
 import {getOnlineOrLastSeenLabel, getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {Avatar} from "../../Avatar";
@@ -35,26 +27,21 @@ export const NewPrivateChatAppBar: FunctionComponent = observer(() => {
     const {
         messageCreation: {
             userId
-        },
-        entities: {
-            users: {
-                findById: findUser
-            }
         }
     } = useStore();
     const routerStore = useRouter();
     const {l, dateFnsLocale} = useLocalization();
     const classes = useStyles();
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down('lg'));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
+
+    const user = useEntityById("users", userId);
 
     let appBarContent: ReactNode;
 
-    if (!userId) {
+    if (!user) {
         appBarContent = <div/>
     } else {
-        const user = findUser(userId);
-
         appBarContent = (
             <CardHeader title={(
                 <div style={{display: "flex"}}>

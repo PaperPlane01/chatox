@@ -69,7 +69,7 @@ export type GetEntityType<Key extends Entities>
     : never;
 //@formatter:on
 
-type GetEntityMapType<Key extends Entities> = EntityMap<GetEntityType<Key>>;
+export type GetEntityMapType<Key extends Entities> = EntityMap<GetEntityType<Key>>;
 
 export type RawEntities = {
     [Key in Entities]: GetEntityMapType<Key>
@@ -89,4 +89,8 @@ export type EntitiesPatch = {
 export type PopulatedEntitiesPatch<T extends Entities> = {
     entities: RequiredField<Partial<RawEntities>, T>,
     ids: RequiredField<Partial<EntitiesIds>, T>
+};
+
+export type RelationshipsIds = {
+    [key in Entities]?: string[]
 };

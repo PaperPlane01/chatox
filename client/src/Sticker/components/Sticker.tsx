@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {createStyles, makeStyles} from "@mui/styles";
-import {useStore} from "../../store";
+import {useEntityById, useEntitySelector} from "../../entities";
 
 interface StickerProps {
     stickerId: string,
@@ -28,20 +28,10 @@ export const Sticker: FunctionComponent<StickerProps> = observer(({
     stickerId,
     onClick
 }) => {
-    const {
-        entities: {
-            stickers: {
-                findById: findSticker
-            },
-            uploads: {
-                findById: findStickerImage
-            }
-        }
-    } = useStore();
     const classes = useStyles();
 
-    const sticker = findSticker(stickerId);
-    const image = findStickerImage(sticker.imageId);
+    const sticker = useEntityById("stickers", stickerId);
+    const image = useEntitySelector("uploads", entities => entities.uploads.findImage(sticker.imageId));
 
     const handleClick = (): void => {
         if (onClick) {

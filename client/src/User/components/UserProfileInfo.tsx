@@ -13,6 +13,7 @@ import {useLocalization, useStore} from "../../store";
 import {HasAnyRole} from "../../Authorization";
 import {UserInteractionsCount} from "../../UserInteraction";
 import {MarkdownTextWithEmoji} from "../../Markdown";
+import {getDate} from "../../utils/date-utils";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     centered: {
@@ -123,7 +124,7 @@ export const UserProfileInfo: FunctionComponent = observer(() => {
                     }
                                 subheader={
                                     <Typography>
-                                        {format(user.createdAt, "dd MMMM yyyy", {locale: dateFnsLocale})}
+                                        {format(getDate(user.createdAt), "dd MMMM yyyy", {locale: dateFnsLocale})}
                                     </Typography>
                                 }
                     />

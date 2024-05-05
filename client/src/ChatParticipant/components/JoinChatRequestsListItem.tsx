@@ -6,7 +6,8 @@ import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {JoinChatRequestMenu} from "./JoinChatRequestMenu";
 import {Avatar} from "../../Avatar";
-import {useEntities, useRouter, useStore} from "../../store";
+import {useRouter, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {commonStyles} from "../../style";
@@ -34,19 +35,11 @@ export const JoinChatRequestListItem: FunctionComponent<JoinChatRequestsListItem
             isSelected
         }
     } = useStore();
-    const {
-        pendingChatParticipations: {
-            findById: findPendingChatParticipant
-        },
-        users: {
-            findById: findUser
-        }
-    } = useEntities();
     const router = useRouter();
     const classes = useStyles();
 
-    const pendingChatParticipant = findPendingChatParticipant(pendingChatParticipantId);
-    const user = findUser(pendingChatParticipant.userId);
+    const pendingChatParticipant = useEntityById("pendingChatParticipations", pendingChatParticipantId);
+    const user = useEntityById("users", pendingChatParticipant.userId);
     const avatarLetter = getUserAvatarLabel(user);
     const avatarColor = randomColor({seed: user.id, luminosity: "dark"});
     const selected = isSelected(pendingChatParticipantId);

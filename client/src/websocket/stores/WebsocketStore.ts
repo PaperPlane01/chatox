@@ -33,6 +33,7 @@ import {LocaleStore} from "../../localization";
 import {SnackbarService} from "../../Snackbar";
 import {getSocketIoWorker, SocketIoWorker} from "../../workers";
 import {isDefined} from "../../utils/object-utils";
+import {getDate} from "../../utils/date-utils";
 
 type ConnectionType = "socketIo" | "sharedWorker";
 
@@ -433,8 +434,11 @@ export class WebsocketStore {
         message.readByAnyone = true;
         this.entities.messages.insertEntity(message);
 
-        if (!isDefined(chat.lastMessageReadByAnyoneCreatedAt) || isBefore(chat.lastMessageReadByAnyoneCreatedAt, message.createdAt)) {
-            chat.lastMessageReadByAnyoneCreatedAt = message.createdAt;
+        const messageCreatedAt = getDate(message.createdAt);
+
+        if (!isDefined(chat.lastMessageReadByAnyoneCreatedAt)
+            || isBefore(chat.lastMessageReadByAnyoneCreatedAt, messageCreatedAt)) {
+            chat.lastMessageReadByAnyoneCreatedAt = messageCreatedAt
             this.entities.chats.insertEntity(chat);
         }
     }

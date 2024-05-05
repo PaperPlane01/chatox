@@ -6,7 +6,9 @@ import {Close} from "@mui/icons-material";
 import randomColor from "randomcolor";
 import {getForwardMessagesLabel} from "../../Message/utils";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {MarkdownTextWithEmoji} from "../../Markdown";
+import {getUserDisplayedName} from "../../User/utils/labels";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     cardContentRoot: {
@@ -50,14 +52,6 @@ export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardPro
         },
         messageDialog: {
             setMessageId: setMessageDialogMessageId
-        },
-        entities: {
-            messages: {
-                findById: findMessage
-            },
-            users: {
-                findById: findUser
-            }
         }
     } = useStore();
     const {l} = useLocalization();
@@ -85,11 +79,12 @@ export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardPro
         return () => window.removeEventListener("resize", updateWidth);
     }, []);
 
+    const message = useEntityById("messages", messageId);
+    const user = useEntityById("users", message?.sender);
+
     if (mode === "reply" && !messageId) {
         return null;
     }
-
-    const message = messageId ? findMessage(messageId) : undefined;
 
     if (mode === "reply" && message && message.chatId !== selectedChatId) {
         return null;
@@ -98,12 +93,10 @@ export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardPro
     let headerContent: ReactNode = null;
     let headerColor = theme.palette.primary.main;
 
-    if (message) {
-        const user = findUser(message.sender);
-
+    if (message && user) {
         headerContent = (
             <strong>
-                {user.firstName} {user.lastName && user.lastName}
+                {getUserDisplayedName(user)}
             </strong>
         );
         headerColor = randomColor({seed: user.id});
@@ -152,7 +145,7 @@ export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardPro
                          style={{maxWidth: width}}
                          onClick={() => setMessageDialogMessageId(messageId)}
             >
-                {icon && icon}
+                {icon}
                 {cardContent}
             </CardContent>
         </Card>

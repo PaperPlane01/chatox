@@ -8,7 +8,8 @@ import {
     GetEntityType,
     PopulatedEntitiesPatch,
     RawEntitiesStore,
-    RawEntityKey
+    RawEntityKey,
+    RelationshipsIds
 } from "../entities-store";
 import {SortingDirection} from "../utils/types";
 
@@ -74,6 +75,10 @@ export abstract class AbstractEntityStore<
         return this.findAllById(this.ids);
     }
 
+    findAllAsync(): Promise<Entity[]> | Entity[] {
+        return this.findAll();
+    }
+
     findAllById = computedFn((ids: Iterable<string>): Entity[] => {
         const entities: Entity[] = [];
         for (const id of ids) {
@@ -85,15 +90,31 @@ export abstract class AbstractEntityStore<
         } else {
             return orderBy(entities, this.sortBy, this.sortingDirection);
         }
-    });
+    })
+
+    findAllByIdWithRelationships(ids: string[]): Array<readonly [Entity, RelationshipsIds]> {
+        return ids.map(id => this.findByIdWithRelationships(id));
+    }
+
+    findAllByIdAsync(ids: string[]): Promise<Entity[]> | Entity[] {
+        return this.findAllById(ids);
+    }
 
     findById = computedFn((id: string): Entity => {
         return this.findByIdOptional(id)!
-    });
+    })
+
+    findByIdWithRelationships(id: string): readonly [Entity, RelationshipsIds] {
+        return [this.findById(id), {}];
+    }
+ 
+    findByIdAsync(id: string): Promise<Entity> | Entity {
+        return this.findById(id);
+    }
 
     findByIdOptional = computedFn((id: string): Entity | undefined => {
         return this.rawEntities.entities[this.entityName][id] as Entity | undefined;
-    });
+    })
 
     insert(entity: DenormalizedEntity, options?: InsertOptions): Entity {
         this.rawEntities.applyPatch(this.createPatch(entity, options));

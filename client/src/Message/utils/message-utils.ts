@@ -1,14 +1,15 @@
 import {MessageEntity, MessageUploadsStats, UploadsGroupedByType} from "../types";
 import {Message, UploadType} from "../../api/types/response";
+import {getDate} from "../../utils/date-utils";
 
 export const sortMessages = (leftMessageId: string, rightMessageId: string, findMessage: (messageId: string) => MessageEntity, reverse: boolean): number => {
     const leftMessage = findMessage(leftMessageId);
     const rightMessage = findMessage(rightMessageId);
 
     if (reverse) {
-        return rightMessage.createdAt.getTime() - leftMessage.createdAt.getTime();
+        return getDate(rightMessage.createdAt).getTime() - getDate(leftMessage.createdAt).getTime();
     } else {
-        return leftMessage.createdAt.getTime() - rightMessage.createdAt.getTime();
+        return getDate(leftMessage.createdAt).getTime() - getDate(rightMessage.createdAt).getTime();
     }
 }
 
@@ -64,6 +65,7 @@ export const convertMessageToNormalizedForm = (message: Message): MessageEntity 
         id: message.id,
         createdAt: new Date(message.createdAt),
         deleted: message.deleted,
+        messageDeleted: message.deleted,
         readByCurrentUser: message.readByCurrentUser,
         referredMessageId: message.referredMessage?.id,
         sender: message.sender.id,

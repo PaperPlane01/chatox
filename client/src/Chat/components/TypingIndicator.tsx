@@ -5,7 +5,8 @@ import {keyframes, styled} from "@mui/material/styles";
 import {ModeEdit} from "@mui/icons-material";
 import {UserEntity} from "../../User";
 import {TranslationFunction} from "../../localization";
-import {useEntities, useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store";
+import {useEntitiesByIds} from "../../entities";
 
 const TypingIndicatorContainer = styled("div")(({theme}: {theme: Theme}) => ({
     display: "flex",
@@ -79,20 +80,14 @@ export const TypingIndicator: FunctionComponent<TypingIndicatorProps> = observer
             getTypingUsersIds
         }
     } = useStore();
-    const {
-        users: {
-            findAllById: findUsers
-        }
-    } = useEntities();
     const {l} = useLocalization();
 
     const typingUsersIds = getTypingUsersIds(chatId);
+    const typingUsers = useEntitiesByIds("users", typingUsersIds);
 
-    if (typingUsersIds.length === 0) {
+    if (typingUsers.length === 0) {
         return null;
     }
-
-    const typingUsers = findUsers(typingUsersIds);
 
     return (
         <Fragment>

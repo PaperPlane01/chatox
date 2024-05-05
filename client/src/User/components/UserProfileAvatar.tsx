@@ -4,7 +4,8 @@ import {createStyles, makeStyles} from "@mui/styles";
 import clsx from "clsx";
 import randomColor from "randomcolor";
 import {Avatar} from "../../Avatar";
-import {useStore, useEntities} from "../../store";
+import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {isDefined} from "../../utils/object-utils";
 import {getUserAvatarLabel} from "../utils/labels";
 
@@ -23,18 +24,13 @@ export const UserProfileAvatar: FunctionComponent = observer(() => {
             openLightboxToAvatar
         }
     } = useStore();
-    const {
-        users: {
-            findById: findUser
-        }
-    } = useEntities()
     const classes = useStyles();
+    const user = useEntityById("users", selectedUserId);
 
-    if (!selectedUserId) {
+    if (!user) {
         return null;
     }
 
-    const user = findUser(selectedUserId);
     const avatarLetter = getUserAvatarLabel(user);
     const color = randomColor({seed: user.id});
     const clickable = isDefined(user.avatarId);

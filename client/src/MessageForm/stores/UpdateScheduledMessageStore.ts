@@ -6,6 +6,7 @@ import {MessageEntity} from "../../Message";
 import {AbstractFormStore} from "../../form-store";
 import {getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
+import {getDate} from "../../utils/date-utils";
 
 export class UpdateScheduledMessageStore extends AbstractFormStore<UpdateScheduledMessageFormData> {
     messageId?: string;
@@ -44,7 +45,7 @@ export class UpdateScheduledMessageStore extends AbstractFormStore<UpdateSchedul
             () => this.message,
             message => {
                 if (message) {
-                    this.setForm({text: message.text, scheduledAt: message.scheduledAt!});
+                    this.setForm({text: message.text, scheduledAt: getDate(message.scheduledAt!)});
                 } else {
                     this.resetForm();
                 }

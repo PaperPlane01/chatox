@@ -5,7 +5,8 @@ import {createStyles, makeStyles} from "@mui/styles";
 import {EditChatInviteButton} from "./EditChatInviteButton";
 import {getChatInviteLink} from "../utils";
 import {CopyToClipboardButton} from "../../CopyToClipboardButton";
-import {useEntities, useStore} from "../../store";
+import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {isStringEmpty} from "../../utils/string-utils";
 
 interface ChatInviteListItemProps {
@@ -26,14 +27,9 @@ export const ChatInviteListItem: FunctionComponent<ChatInviteListItemProps> = ob
             openDialogToInvite
         }
     } = useStore();
-    const {
-        chatInvites: {
-            findById: findChatInvite
-        }
-    } = useEntities();
     const classes = useStyles();
 
-    const chatInvite = findChatInvite(chatInviteId);
+    const chatInvite = useEntityById("chatInvites", chatInviteId);
 
     const handleClick = (): void => {
         openDialogToInvite(chatInviteId);

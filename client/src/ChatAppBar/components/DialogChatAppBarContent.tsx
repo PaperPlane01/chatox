@@ -8,7 +8,9 @@ import {TypingIndicator} from "../../Chat";
 import {Avatar} from "../../Avatar";
 import {getOnlineOrLastSeenLabel, getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {trimString} from "../../utils/string-utils";
+import {useLuminosity} from "../../utils/hooks";
 
 interface DialogChatAppBarContentProps {
     chatId: string
@@ -24,14 +26,6 @@ export const DialogChatAppBarContent: FunctionComponent<DialogChatAppBarContentP
     chatId
 }) => {
     const {
-        entities: {
-            chats: {
-                findById: findChat
-            },
-            users: {
-                findById: findUser
-            }
-        },
         messagesSearch: {
             showInput
         },
@@ -43,12 +37,15 @@ export const DialogChatAppBarContent: FunctionComponent<DialogChatAppBarContentP
     const classes = useStyles();
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+    const chat = useEntityById("chats", !showInput ? chatId : undefined);
+    const user = useEntityById("users", chat?.userId);
+    const luminosity = useLuminosity();
 
     if (showInput) {
         return <ChatAppBarSearchInput/>;
+    } else if (!chat || !user) {
+        return null;
     } else {
-        const chat = findChat(chatId);
-        const user = findUser(chat.userId!);
         const username = getUserDisplayedName(user);
         const chatHasTypingUsers = hasTypingUsers(chatId);
 
@@ -65,7 +62,7 @@ export const DialogChatAppBarContent: FunctionComponent<DialogChatAppBarContentP
                         cursor: "pointer"
                     }
                 }
-            )
+            );
 
         return (
             <CardHeader title={(
@@ -81,7 +78,7 @@ export const DialogChatAppBarContent: FunctionComponent<DialogChatAppBarContentP
                         avatar={(
                             <div>
                                 <Avatar avatarLetter={getUserAvatarLabel(user)}
-                                        avatarColor={randomColor({seed: user.id})}
+                                        avatarColor={randomColor({seed: user.id, luminosity})}
                                         avatarUri={user.externalAvatarUri}
                                         avatarId={user.avatarId}
                                 />

@@ -3,6 +3,7 @@ import {ChatListEntry} from "../types";
 import {EntitiesStore} from "../../entities-store";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {ChatType} from "../../api/types/response";
+import {getDate} from "../../utils/date-utils";
 
 export class ChatsOfCurrentUserStore {
     pending = false;
@@ -28,7 +29,7 @@ export class ChatsOfCurrentUserStore {
                     ? this.entities.messages.findById(rightLastMessageId).createdAt
                     : right.createdAt;
 
-                return rightDate.getTime() - leftDate.getTime();
+                return getDate(rightDate).getTime() - getDate(leftDate).getTime();
             })
             .map(chat => ({
                 chatId: chat.id,

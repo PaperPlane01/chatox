@@ -5,7 +5,8 @@ import {HttpStatusCode} from "axios";
 import {ChatInviteForm} from "./ChatInviteForm";
 import {ChatInviteUpdateUserSelect} from "./ChatInviteUpdateUserSelect";
 import {getChatInviteLink} from "../utils";
-import {useEntities, useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
@@ -35,19 +36,15 @@ export const UpdateChatInviteDialog: FunctionComponent = observer(() => {
             submitForm
         }
     } = useStore();
-    const {
-        chatInvites: {
-            findById: findChatInvite
-        }
-    } = useEntities();
     const {l} = useLocalization();
     const {fullScreen} = useMobileDialog();
 
-    if (!chatInviteId) {
+    const invite = useEntityById("chatInvites", chatInviteId);
+
+    if (!invite) {
         return null;
     }
 
-    const invite = findChatInvite(chatInviteId);
     const link = getChatInviteLink(invite.id);
 
     return (

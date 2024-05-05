@@ -20,13 +20,13 @@ import {
 } from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {DateTimePicker} from "@mui/x-date-pickers";
-import {useSnackbar} from "notistack";
 import randomColor from "randomcolor";
 import {RecentMessagesDeletionPeriod} from "../types";
 import {Labels, TranslationFunction} from "../../localization";
 import {Avatar} from "../../Avatar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -59,42 +59,24 @@ export const CreateChatBlockingDialog: FunctionComponent = observer(() => {
             formErrors: errors,
             chatId,
             createChatBlockingDialogOpen: open,
-            showSnackbar,
             submissionError,
             pending,
             setFormValue,
             setCreateChatBlockingDialogOpen,
-            setShowSnackbar,
             createChatBlocking
-        },
-        entities: {
-            chats: {
-                findById: findChat
-            },
-            users: {
-                findById: findUser
-            }
         }
     } = useStore();
     const {l} = useLocalization();
-    const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
     const classes = useStyles();
     const {fullScreen} = useMobileDialog();
+    const chat = useEntityById("chats", chatId);
+    const user = useEntityById("users", formData.blockedUserId);
 
-    if (!chatId || !formData.blockedUserId) {
+    if (!chat || !user) {
         return null;
     }
 
-    if (showSnackbar) {
-        setCreateChatBlockingDialogOpen(false);
-        enqueueSnackbar(l("chat.blocking.success"));
-        setShowSnackbar(false);
-        return null;
-    }
-
-    const chat = findChat(chatId);
-    const user = findUser(formData.blockedUserId);
     const userName = `${user.firstName} ${user.lastName ? user.lastName : ""}`;
     const avatarLetters = `${user.firstName[0]}${user.lastName ? user.lastName[0] : ""}`;
     const color = randomColor({seed: user.id});

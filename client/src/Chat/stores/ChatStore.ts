@@ -1,8 +1,7 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {ChatApi} from "../../api/clients";
-import {EntitiesStore} from "../../entities-store";
-import {ApiError, getInitialApiErrorFromResponse} from "../../api";
 import {ChatOfCurrentUserEntity} from "../types";
+import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
+import {EntitiesStore} from "../../entities-store";
 
 interface ChatErrorsMap {
     [slug: string]: ApiError

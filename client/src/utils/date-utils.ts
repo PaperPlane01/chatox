@@ -34,3 +34,11 @@ export class Duration {
         return new Duration({value, unit});
     }
 }
+
+export const getDate = (date: Date | string): Date => {
+    if (typeof date === "string") {
+        return new Date(date);
+    } else {
+        return date;
+    }
+};

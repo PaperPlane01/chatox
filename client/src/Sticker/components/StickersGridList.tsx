@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ImageList, ImageListItem} from "@mui/material";
 import {Sticker} from "./Sticker";
-import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
 
 interface StickersGridListProps {
     stickerPackId: string,
@@ -17,15 +17,8 @@ export const StickersGridList: FunctionComponent<StickersGridListProps> = observ
     gridListTileWidth,
     onStickerClick
 }) => {
-    const {
-        entities: {
-            stickerPacks: {
-                findById: findStickerPack
-            }
-        }
-    } = useStore();
-
-    const stickers = findStickerPack(stickerPackId).stickersIds;
+    const stickersPack = useEntityById("stickerPacks", stickerPackId);
+    const stickers = stickersPack.stickersIds;
     const gridListTileStyle = gridListTileWidth && gridListTileHeight
         ? {width: gridListTileWidth, height: gridListTileHeight}
         : undefined;
