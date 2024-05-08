@@ -105,9 +105,9 @@ export class MessagesOfChatStore {
                 }
 
                 if (this.previousChatId) {
-                    const chatId = this.previousChatId;
-                    this.releaseEntityReferences(chatId);
-                    setTimeout(() => this.cleanupMessages(chatId));
+                    const previousChatId = this.previousChatId;
+                    this.releaseEntityReferences(previousChatId);
+                    setTimeout(() => this.cleanupMessages(previousChatId));
                 }
             }
         );
@@ -335,7 +335,7 @@ export class MessagesOfChatStore {
                 continue;
             }
 
-            this.entities.messages.deleteById(message.id);
+            this.entities.messages.deleteById(message.id, {hardDelete: true});
 
             Object.keys(relationships).forEach(key => {
                 const entityName = key as Entities;

@@ -16,7 +16,6 @@ import {Routes} from "../../router";
 import {ChatType} from "../../api/types/response";
 import {commonStyles} from "../../style";
 import {ForwardMessagesAppBarContent} from "./ForwardMessagesAppBarContent";
-import {toJS} from "mobx";
 
 const useStyles = makeStyles(() => createStyles({
     undecoratedLink: commonStyles.undecoratedLink
@@ -56,7 +55,6 @@ export const ChatAppBar: FunctionComponent = observer(() => {
     const routerStore = useRouter();
     const classes = useStyles();
     const chat = useEntityById("chats", selectedChatId);
-    console.log(toJS(chat));
     let appBarContent: ReactNode;
 
     if (pending) {

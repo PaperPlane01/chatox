@@ -1,17 +1,17 @@
 import {IModel, PouchCollection} from "pouchorm";
 import {v4 as uuid} from "uuid";
+import {Repository} from "./Repository";
+import {Relationships} from "./Relationships";
 import {Repositories} from "../repositories";
-import {Entities, EntitiesPatch, GetEntityType} from "../entities-store";
+import {EntitiesPatch} from "../entities-store";
+import {BaseEntity} from "../entity-store";
 
-export type Relationships = {
-	[EntityName in Entities]?: Array<GetEntityType<EntityName>>
+interface PouchEntity extends IModel, BaseEntity {
 }
 
-interface RepositoryEntity extends IModel {
-	id: string
-}
-
-export abstract class AbstractRepository<T extends RepositoryEntity, R extends Relationships = {}> extends PouchCollection<T> {
+export abstract class AbstractPouchRepository<T extends PouchEntity, R extends Relationships = {}>
+	extends PouchCollection<T>
+	implements Repository<T, R> {
 	constructor(dbName: string, protected readonly repositories: Repositories) {
 		super(dbName, {auto_compaction: true});
 	}

@@ -179,11 +179,15 @@ import {
     UpdateChatInviteStore
 } from "../ChatInvite";
 import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
-import {Repositories} from "../repositories";
+import {DexieRepositories, PouchRepositories, Repositories} from "../repositories";
 
 const referencedEntities = new ReferencedEntitiesStore();
 const authorization = new AuthorizationStore();
-const repositories = new Repositories(authorization);
+
+const databaseImplementation: "dexie" | "pouchdb" = localStorage.getItem("databaseImplementation") === "dexie"
+    ? "dexie"
+    : "pouchdb";
+const repositories: Repositories = databaseImplementation === "dexie" ? new DexieRepositories() : new PouchRepositories();
 const snackbarService = new SnackbarService();
 
 const rawEntities = new RawEntitiesStore(repositories);

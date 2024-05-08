@@ -2,7 +2,7 @@ import {action, computed, makeObservable, observable, override} from "mobx";
 import {computedFn} from "mobx-utils";
 import {mergeWith, uniq} from "lodash";
 import {ChatOfCurrentUserEntity} from "../types";
-import {SoftDeletableEntityStore} from "../../entity-store";
+import {EntityDeletionOptions, SoftDeletableEntityStore} from "../../entity-store";
 import {
     ChatDeletionReason,
     ChatOfCurrentUser,
@@ -17,7 +17,7 @@ import {AuthorizationStore} from "../../Authorization";
 import {PartialBy} from "../../utils/types";
 import {ChatUpdated, PrivateChatCreated} from "../../api/types/websocket";
 
-interface DeleteChatOptions {
+interface DeleteChatOptions extends EntityDeletionOptions {
     deletionReason?: ChatDeletionReason,
     deletionComment?: string
 }
@@ -27,7 +27,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
     ChatOfCurrentUserEntity,
     PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted" | "unreadMentionsCount">,
     {},
-    {deletionReason: ChatDeletionReason, deletionComment: string}
+    DeleteChatOptions
     > {
     privateChats: {[userId: string]: string} = {};
 

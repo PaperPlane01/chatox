@@ -59,15 +59,15 @@ export abstract class AbstractEntityStore<
         });
     }
 
-    deleteAll(): void {
-        this.deleteAllById(this.ids);
+    deleteAll(options?: DeleteOptions): void {
+        this.deleteAllById(this.ids, options);
     }
 
-    deleteAllById(ids: string[]): void {
+    deleteAllById(ids: string[], options?: DeleteOptions): void {
         ids.forEach(id => this.rawEntities.deleteEntity(this.entityName, id));
     }
 
-    deleteById(id: string): void {
+    deleteById(id: string, options?: DeleteOptions): void {
         this.rawEntities.deleteEntity(this.entityName, id);
     }
 
