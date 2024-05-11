@@ -1,7 +1,6 @@
-import {IModel} from "pouchorm";
 import {MessageEmoji} from "../../api/types/response";
 
-export interface MessageEntity extends IModel {
+export interface MessageEntity {
     id: string,
     referredMessageId?: string,
     sender: string,

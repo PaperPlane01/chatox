@@ -39,7 +39,6 @@
     "mobx-router": "^1.0.0",
     "mobx-utils": "^6.0.5",
     "notistack": "^2.0.5",
-    "pouchorm": "^2.1.2",
     "pretty-bytes": "^5.4.1",
     "query-string": "^6.12.1",
     "randomcolor": "^0.5.4",

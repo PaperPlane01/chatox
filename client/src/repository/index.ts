@@ -1,4 +1,3 @@
-export * from "./AbstractPouchRepository";
 export * from "./Repository";
 export * from "./Relationships";
 export * from "./AbstractDexieRepository";

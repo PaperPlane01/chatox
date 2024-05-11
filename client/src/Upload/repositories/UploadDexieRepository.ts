@@ -1,8 +1,8 @@
+import {UploadRepository} from "./UploadRepository";
 import {AbstractDexieRepository} from "../../repository";
 import {Upload} from "../../api/types/response";
 import {createEmptyEntitiesPatch, EntitiesPatch, populatePatch} from "../../entities-store";
 import {ChatoxDexieDatabase} from "../../repositories";
-import {UploadRepository} from "./UploadRepository";
 
 export class UploadDexieRepository extends AbstractDexieRepository<Upload<any>> implements UploadRepository {
 	constructor(database: ChatoxDexieDatabase) {

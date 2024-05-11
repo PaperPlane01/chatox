@@ -37,7 +37,7 @@ export abstract class AbstractDexieRepository<T extends BaseEntity, R extends Re
 		return await this.restoreEntityPatchForEntities(entities);
 	}
 
-	public abstract restoreEntityPatchForEntities(entities: T[]): Promise<EntitiesPatch>;
+	abstract restoreEntityPatchForEntities(entities: T[]): Promise<EntitiesPatch>;
 
 	async upsert(entity: T): Promise<T> {
 		await this.database.transaction("rw", this.table, async () => {
