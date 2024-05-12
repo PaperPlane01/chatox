@@ -3,13 +3,13 @@ export interface UserEntity {
     firstName: string,
     lastName?: string,
     bio?: string,
-    dateOfBirth?: Date | string,
+    dateOfBirth?: Date,
     slug?: string,
     externalAvatarUri?: string,
     deleted: boolean,
-    createdAt: Date | string,
+    createdAt: Date,
     online: boolean,
-    lastSeen?: Date | string,
+    lastSeen?: Date,
     avatarId?: string,
     onlineStatusMightBeInaccurate?: boolean
 }
