@@ -37,8 +37,10 @@ export type Entities = "messages"
     | "chatInvites"
     | "pendingChatParticipations";
 
+export type PersistentEntities = Extract<Entities, "messages" | "users" | "uploads" | "stickers" | "stickerPacks" | "chatRoles">;
+
 interface EntityMap<T> {
-    [key: string]: T
+    [key: string]: T;
 }
 
 //@formatter:off
