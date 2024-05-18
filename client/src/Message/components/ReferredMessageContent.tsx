@@ -2,16 +2,16 @@ import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CardContent, CardHeader, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
-import {MessageEntity} from "../types";
+import {FindMessageFunction, FindMessageSenderFunction} from "../types";
+import {useMessageById, useMessageSenderById} from "../hooks";
 import {UserLink} from "../../UserLink";
 import {useLocalization, useStore} from "../../store";
-import {UserEntity} from "../../User";
 import {MarkdownTextWithEmoji} from "../../Markdown";
 
 interface ReferredMessageContentProps {
-    messageId?: string,
-    findSenderFunction?: (id: string) => UserEntity,
-    findMessageFunction?: (id: string) => MessageEntity
+    messageId: string,
+    findSenderFunction?: FindMessageSenderFunction,
+    findMessageFunction?: FindMessageFunction
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -36,14 +36,6 @@ export const ReferredMessageContent: FunctionComponent<ReferredMessageContentPro
     findSenderFunction
 }) => {
     const {
-        entities: {
-            messages: {
-                findById: findMessage
-            },
-            users: {
-                findById: findUser
-            }
-        },
         messageDialog: {
             setMessageId: setMessageDialogMessageId
         }
@@ -51,16 +43,8 @@ export const ReferredMessageContent: FunctionComponent<ReferredMessageContentPro
     const {l} = useLocalization();
     const classes = useStyles();
 
-    if (!messageId) {
-        return null;
-    }
-
-    const message = findMessageFunction
-        ? findMessageFunction(messageId)
-        : findMessage(messageId);
-    const user = findSenderFunction
-        ? findSenderFunction(message.sender)
-        : findUser(message.sender);
+    const message = useMessageById(messageId, false, findMessageFunction)
+    const user = useMessageSenderById(message.sender, findSenderFunction);
 
     return (
         <Fragment>
@@ -74,7 +58,7 @@ export const ReferredMessageContent: FunctionComponent<ReferredMessageContentPro
             }}
                          onClick={() => setMessageDialogMessageId(messageId)}
             >
-                {message.deleted
+                {message.messageDeleted
                     ? <i>{l("message.deleted")}</i>
                     : (
                         <MarkdownTextWithEmoji text={message.text}
@@ -89,5 +73,5 @@ export const ReferredMessageContent: FunctionComponent<ReferredMessageContentPro
                 }
             </CardContent>
         </Fragment>
-    )
+    );
 });

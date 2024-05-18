@@ -433,8 +433,10 @@ export class WebsocketStore {
         message.readByAnyone = true;
         this.entities.messages.insertEntity(message);
 
-        if (!isDefined(chat.lastMessageReadByAnyoneCreatedAt) || isBefore(chat.lastMessageReadByAnyoneCreatedAt, message.createdAt)) {
-            chat.lastMessageReadByAnyoneCreatedAt = message.createdAt;
+
+        if (!isDefined(chat.lastMessageReadByAnyoneCreatedAt)
+            || isBefore(chat.lastMessageReadByAnyoneCreatedAt, message.createdAt)) {
+            chat.lastMessageReadByAnyoneCreatedAt = message.createdAt
             this.entities.chats.insertEntity(chat);
         }
     }

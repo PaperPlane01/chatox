@@ -37,7 +37,7 @@ import {
 } from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
-import {EntitiesStore, RawEntitiesStore} from "../entities-store";
+import {EntitiesStore, RawEntitiesStore, ReferencedEntitiesStore} from "../entities-store";
 import {
     CreateUserProfilePhotoStore,
     DeleteSelectedUserProfilePhotosStore,
@@ -325,5 +325,6 @@ export interface IAppState {
     joinChatRequestsRejection: RejectJoinChatRequestsStore,
     voiceRecording: RecordVoiceMessageStore,
     mentions: MentionsStore,
-    editorLink: CreateEditorLinkDialogStore
+    editorLink: CreateEditorLinkDialogStore,
+    referencedEntities: ReferencedEntitiesStore
 }

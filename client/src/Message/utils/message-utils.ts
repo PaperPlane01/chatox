@@ -64,6 +64,7 @@ export const convertMessageToNormalizedForm = (message: Message): MessageEntity 
         id: message.id,
         createdAt: new Date(message.createdAt),
         deleted: message.deleted,
+        messageDeleted: message.deleted,
         readByCurrentUser: message.readByCurrentUser,
         referredMessageId: message.referredMessage?.id,
         sender: message.sender.id,

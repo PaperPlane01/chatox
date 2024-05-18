@@ -2,7 +2,8 @@ import React, {Fragment, FunctionComponent, ReactElement, ReactNode} from "react
 import {observer} from "mobx-react";
 import {Audiotrack, FileCopy, Image, KeyboardVoice, VideoLibrary} from "@mui/icons-material";
 import {Emoji} from "emoji-mart";
-import {useEntities, useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store";
+import {useEntityById, useEntitiesByIds} from "../../entities";
 import {Upload, UploadType} from "../../api/types/response";
 import {capitalize} from "../../utils/string-utils";
 import {Labels, TranslationFunction} from "../../localization";
@@ -31,26 +32,12 @@ export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewPro
             selectedEmojiSet
         }
     } = useStore();
-    const {
-        messages: {
-            findById: findMessage
-        },
-        users: {
-            findById: findUser
-        },
-        uploads: {
-            findAllById: findUploads,
-        },
-        stickers: {
-            findById: findSticker
-        }
-    } = useEntities()
     const {l} = useLocalization();
 
-    const message = findMessage(messageId);
-    const messageSender = findUser(message.sender);
-    const messageUploads = findUploads(message.uploads);
-    const messageSticker = message.stickerId && findSticker(message.stickerId);
+    const message = useEntityById("messages", messageId)!;
+    const messageSender = useEntityById("users", message.sender);
+    const messageUploads = useEntitiesByIds("uploads", message.uploads);
+    const messageSticker = useEntityById("stickers", message.stickerId);
 
     if (message.deleted) {
         return <i>{l("message.deleted")}</i>;

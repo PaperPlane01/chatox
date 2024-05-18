@@ -1,10 +1,15 @@
 import React from "react";
 import {createRoot} from "react-dom/client";
 import {Provider} from "mobx-react";
+import {toJS} from "mobx";
 import {App} from "./App";
 import {rootStore, store} from "./store";
 import {RouterStoreAware} from "./router";
 import * as serviceWorker from "./serviceWorker";
+
+if (import.meta.env.DEV) {
+    (window as any).toJS = toJS; // expose for convenient debugging
+}
 
 const routerStore = rootStore.router;
 const routerStoreAware: RouterStoreAware[] = [

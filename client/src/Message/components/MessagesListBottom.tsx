@@ -4,14 +4,16 @@ import {Alert, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {format} from "date-fns";
 import {MessageForm} from "../../MessageForm";
-import {ChatParticipationEntity, JoinChatButton} from "../../ChatParticipant";
+import {JoinChatButton, useChatParticipation} from "../../ChatParticipant";
 import {useAuthorization, useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {ChatBlockingEntity} from "../../ChatBlocking";
 import {isChatBlockingActive} from "../../ChatBlocking/utils";
 import {isStringEmpty} from "../../utils/string-utils";
 import {UserEntity} from "../../User";
 import {Labels, TranslationFunction} from "../../localization";
 import {getGlobalBanLabel, isGlobalBanActive} from "../../GlobalBan/utils";
+import {getUserDisplayedName} from "../../User/utils/labels";
 
 const useStyles = makeStyles<Theme>((theme: Theme) => createStyles({
     messagesListBottom: {
@@ -33,14 +35,14 @@ const useStyles = makeStyles<Theme>((theme: Theme) => createStyles({
 
 const getBlockingLabel = (
     chatBlockingEntity: ChatBlockingEntity,
-    blockedBy: UserEntity,
+    blockedBy: UserEntity, // TODO: make this parameter optional
     l: TranslationFunction,
     dateFnsLocale: Locale
 ): string => {
     let labelCode: keyof Labels;
     let bindings: any;
 
-    const blockedByUsername = `${blockedBy.firstName}${blockedBy.lastName ? `${ blockedBy.lastName}` : ""}`;
+    const blockedByUsername = getUserDisplayedName(blockedBy);
     const blockedUntil = format(
         chatBlockingEntity.blockedUntil,
         "dd MMMM yyyy HH:mm:ss",
@@ -71,23 +73,6 @@ interface MessagesListBottomProps {
 
 const _MessagesListBottom = forwardRef<HTMLDivElement, MessagesListBottomProps>((props, ref) => {
     const {
-        entities: {
-            chatParticipations: {
-                findByUserAndChat: findChatParticipation
-            },
-            chatBlockings: {
-                findById: findChatBlocking
-            },
-            users: {
-                findById: findUser
-            },
-            chats: {
-                findById: findChat
-            },
-            globalBans: {
-                findById: findGlobalBan
-            }
-        },
         chat: {
             selectedChatId
         },
@@ -99,58 +84,48 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, MessagesListBottomProps>(
     const {currentUser} = useAuthorization();
     const classes = useStyles();
 
-    let chatParticipation: ChatParticipationEntity | undefined;
-    let activeChatBlocking: ChatBlockingEntity | undefined;
+    const chat = useEntityById("chats", selectedChatId);
+    const chatParticipation = useChatParticipation(selectedChatId, currentUser?.id)
+    const lastChatBlocking = useEntityById("chatBlockings", chatParticipation?.activeChatBlockingId);
+    const blockedInChatBy = useEntityById("users", lastChatBlocking?.blockedById);
+    const globalBan = useEntityById("globalBans", currentUser?.globalBan?.id);
+    const globalBanCreatedBy = useEntityById("users", globalBan?.createdById);
     let messagesListBottomContent: ReactNode;
 
-    if (selectedChatId && currentUser) {
-        chatParticipation = findChatParticipation({
-            userId: currentUser.id,
-            chatId: selectedChatId
-        });
-        const chat = findChat(selectedChatId);
-
+    if (chat && currentUser) {
         if (chat.deleted) {
             return null;
         }
 
         if (chatParticipation) {
-            if (currentUser.globalBan && isGlobalBanActive(findGlobalBan(currentUser.globalBan.id))) {
+            if (globalBan && isGlobalBanActive(globalBan) && globalBanCreatedBy) {
                 messagesListBottomContent = (
                     <Alert severity="error">
                         {
                             getGlobalBanLabel(
-                                findGlobalBan(currentUser.globalBan.id),
+                                globalBan,
                                 l,
                                 dateFnsLocale,
-                                findUser
+                                globalBanCreatedBy
                             )
                         }
                     </Alert>
                 )
+            } else if (lastChatBlocking && isChatBlockingActive(lastChatBlocking) && blockedInChatBy) {
+                messagesListBottomContent = (
+                    <Alert severity="error">
+                        {
+                            getBlockingLabel(
+                                lastChatBlocking,
+                                blockedInChatBy,
+                                l,
+                                dateFnsLocale
+                            )
+                        }
+                    </Alert>
+                );
             } else {
-                if (chatParticipation.activeChatBlockingId) {
-                    const chatBlocking = findChatBlocking(chatParticipation.activeChatBlockingId);
-                    activeChatBlocking = isChatBlockingActive(chatBlocking) ? chatBlocking : undefined;
-                }
-
-                if (activeChatBlocking) {
-                    const blockedBy = findUser(activeChatBlocking.blockedById);
-                    messagesListBottomContent = (
-                        <Alert severity="error">
-                            {
-                                getBlockingLabel(
-                                    activeChatBlocking,
-                                    blockedBy,
-                                    l,
-                                    dateFnsLocale
-                                )
-                            }
-                        </Alert>
-                    );
-                } else {
-                    messagesListBottomContent = <MessageForm/>;
-                }
+                messagesListBottomContent = <MessageForm />;
             }
         } else {
             messagesListBottomContent = <JoinChatButton/>;

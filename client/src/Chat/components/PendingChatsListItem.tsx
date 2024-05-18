@@ -5,7 +5,8 @@ import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {getAvatarLabel} from "../utils";
-import {useEntities, useRouter} from "../../store";
+import {useRouter} from "../../store";
+import {useEntityById} from "../../entities";
 import {commonStyles} from "../../style";
 import {Routes} from "../../router";
 import {Avatar} from "../../Avatar";
@@ -21,15 +22,10 @@ const useStyles = makeStyles(() => createStyles({
 export const PendingChatsListItem: FunctionComponent<PendingChatListItemProps> = observer(({
     chatId
 }) => {
-    const {
-        chats: {
-            findById: findChat
-        }
-    } = useEntities();
     const classes = useStyles();
     const router = useRouter();
 
-    const chat = findChat(chatId);
+    const chat = useEntityById("chats", chatId);
     const avatarLabel = getAvatarLabel(chat.name);
     const avatarColor = randomColor({seed: chat.id});
 

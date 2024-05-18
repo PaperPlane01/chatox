@@ -1,11 +1,22 @@
 import {mergeWith} from "lodash";
 import {StickerEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
-import {EntitiesPatch} from "../../entities-store";
+import {EntitiesPatch, RelationshipsIds} from "../../entities-store";
 import {Sticker} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
 
 export class StickersStore extends AbstractEntityStore<"stickers", StickerEntity, Sticker> {
+    findByIdWithRelationships(id: string): readonly [StickerEntity, RelationshipsIds] {
+        const sticker = this.findById(id);
+
+        return [
+            sticker,
+            {
+                uploads: [sticker.imageId]
+            }
+        ];
+    }
+
     protected convertToNormalizedForm(denormalizedEntity: Sticker): StickerEntity {
         return {
             id: denormalizedEntity.id,

@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useEffect, Fragment} from "react";
+import React, {Fragment, FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
 import {
     Button,
@@ -8,13 +8,15 @@ import {
     CardHeader,
     CircularProgress,
     InputAdornment,
-    TextField, Typography
+    TextField,
+    Typography
 } from "@mui/material";
 import {DatePicker} from "@mui/x-date-pickers";
 import {useSnackbar} from "notistack";
 import {UserAvatarUpload} from "./UserAvatarUpload";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {getGlobalBanLabel} from "../../GlobalBan/utils";
 
 interface EditProfileFormProps {
@@ -29,21 +31,12 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
             editProfileForm,
             formErrors,
             pending,
-            error,
             checkingSlugAvailability,
             avatarUploadPending,
             showSnackbar,
             setFormValue,
             setShowSnackbar,
             updateProfile
-        },
-        entities: {
-            globalBans: {
-                findById: findGlobalBan
-            },
-            users: {
-                findById: findUser
-            }
         },
         authorization: {
             currentUser,
@@ -60,11 +53,14 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
         }
     }, [showSnackbar]);
 
+    const globalBan = useEntityById("globalBans", currentUser?.globalBan?.id);
+    const globalBanCreatedBy = useEntityById("users", globalBan?.createdById);
+
     if (!currentUser) {
         return null;
     }
 
-    if (isCurrentUserBannedGlobally()) {
+    if (globalBan && globalBanCreatedBy && isCurrentUserBannedGlobally()) {
         return (
             <Fragment>
                 <Typography>
@@ -75,10 +71,10 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
                     {
 
                         getGlobalBanLabel(
-                            findGlobalBan(currentUser.globalBan!.id),
+                            globalBan,
                             l,
                             dateFnsLocale,
-                            findUser
+                            globalBanCreatedBy
                         )
                     }
                 </Typography>

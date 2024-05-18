@@ -1,11 +1,12 @@
-import {mergeWith, uniq} from "lodash";
+import {merge, mergeWith, uniq} from "lodash";
 import {MessageInsertOptions} from "../types";
 import {convertMessageToNormalizedForm} from "../utils";
 import {SoftDeletableEntityStore} from "../../entity-store";
-import {EntitiesPatch, EntitiesStore, GetEntityType, RawEntitiesStore} from "../../entities-store";
+import {EntitiesPatch, EntitiesStore, GetEntityType, RawEntitiesStore, RelationshipsIds} from "../../entities-store";
 import {Message} from "../../api/types/response";
 import {isDefined, mergeCustomizer} from "../../utils/object-utils";
 import {UserChatRolesStore} from "../../ChatRole";
+import {RequiredField} from "../../utils/types";
 
 export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
     extends SoftDeletableEntityStore<MessageType, GetEntityType<MessageType>, Message, MessageInsertOptions> {
@@ -15,6 +16,70 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
                 entities: EntitiesStore,
                 private readonly userChatRoles: UserChatRolesStore) {
         super(rawEntities, entityName, entities);
+    }
+
+    findByIdWithRelationships(id: string): readonly [GetEntityType<MessageType>, RelationshipsIds] {
+        const message = this.findById(id);
+
+        if (this.entityName !== "messages") {
+            return [message, {}];
+        }
+
+        const relationships: RequiredField<RelationshipsIds, "users" | "uploads" | "stickers" | "chatRoles"> = {
+            users: [],
+            uploads: [],
+            stickers: [],
+            chatRoles: []
+        };
+
+        const [sender, senderRelationships] = this.entities.users.findByIdWithRelationships(message.sender);
+        const mentionedUsersWithRelationships = this.entities.users.findAllByIdWithRelationships(message.mentionedUsers);
+        const [forwardedBy, forwardedByRelationships] = message.forwardedById
+            ? this.entities.users.findByIdWithRelationships(message.forwardedById)
+            : [undefined, {}];
+        const [sticker, stickerRelationships] = message.stickerId
+            ? this.entities.stickers.findByIdWithRelationships(message.stickerId)
+            : [undefined, {}];
+        const [senderRole, senderRoleRelationships] = message.senderRoleId
+            ? this.entities.chatRoles.findByIdWithRelationships(message.senderRoleId)
+            : [undefined, {}];
+
+        relationships.users.push(sender.id);
+        relationships.uploads.push(...message.uploads);
+
+        if (forwardedBy) {
+            relationships.users.push(forwardedBy.id);
+        }
+
+        if (sticker) {
+            relationships.stickers.push(sticker.id);
+        }
+
+        if (senderRole) {
+            relationships.chatRoles.push(senderRole.id);
+        }
+
+        mentionedUsersWithRelationships.forEach(([user]) => relationships.users.push(user.id));
+        const nestedRelationships = merge(
+            senderRelationships,
+            forwardedByRelationships,
+            stickerRelationships,
+            senderRoleRelationships
+        );
+        const resultRelationships = mergeWith(
+            relationships,
+            nestedRelationships,
+            mergeCustomizer
+        );
+
+        return [
+            message,
+            resultRelationships
+        ];
+    }
+
+    private mergeRelationships(source: RelationshipsIds, ...relationships: RelationshipsIds[]): RelationshipsIds {
+        return mergeWith(source, relationships, mergeCustomizer)
     }
 
     protected convertToNormalizedForm(denormalizedEntity: Message): GetEntityType<MessageType> {

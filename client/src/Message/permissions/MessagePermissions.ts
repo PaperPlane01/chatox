@@ -30,7 +30,7 @@ export class MessagePermissions {
             return false;
         }
 
-        if (message.deleted) {
+        if (message.messageDeleted) {
             return false;
         }
 
@@ -110,7 +110,7 @@ export class MessagePermissions {
             return false;
         }
 
-        if (message.deleted) {
+        if (message.messageDeleted) {
             return false;
         }
 

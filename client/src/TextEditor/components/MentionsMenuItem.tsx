@@ -4,7 +4,7 @@ import {ListItemAvatar, ListItemText, MenuItem} from "@mui/material";
 import {BetterMentionsMenuItemProps} from "lexical-better-mentions";
 import randomColor from "randomcolor";
 import {MentionItem} from "../types";
-import {useEntities} from "../../store";
+import {useEntityById} from "../../entities";
 import {Avatar} from "../../Avatar";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 
@@ -12,19 +12,12 @@ const _MentionsMenuItem = forwardRef<
 	HTMLLIElement,
 	BetterMentionsMenuItemProps
 >(({item: {data}, ...props}, ref) => {
-	const {
-		users: {
-			findById: findUser
-		}
-	} = useEntities();
+	const user = useEntityById("users", (data as MentionItem | undefined)?.id);
 
-	if (!data) {
+	if (!user) {
 		return null;
 	}
 
-	const {id} = (data as MentionItem);
-
-	const user = findUser(id);
 	const avatarColor = randomColor({seed: user.id});
 
 	return (

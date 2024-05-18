@@ -9,7 +9,7 @@ import {
     Table,
     TableBody,
     TableCell,
-    TableRow,
+    TableRow
 } from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Check, Remove} from "@mui/icons-material";
@@ -17,6 +17,7 @@ import {format} from "date-fns";
 import {GlobalBanMenu} from "./GlobalBanMenu";
 import {isGlobalBanActive} from "../utils";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {getUserDisplayedName} from "../../User/utils/labels";
 import {UserLink} from "../../UserLink";
 import {Labels} from "../../localization";
@@ -34,20 +35,18 @@ export const GlobalBanDetailsDialog: FunctionComponent = observer(() => {
             globalBanId,
             setGlobalBanDetailsDialogOpen,
             setGlobalBanId
-        },
-        entities: {
-            globalBans: {
-                findById: findGlobalBan
-            },
-            users: {
-                findById: findUser
-            }
         }
     } = useStore();
     const {dateFnsLocale, l} = useLocalization();
     const classes = useStyles();
 
-    if (!globalBanId) {
+    const globalBan = useEntityById("globalBans", globalBanId);
+    const bannedUser = useEntityById("users", globalBan?.bannedUserId);
+    const bannedBy = useEntityById("users", globalBan?.createdById);
+    const canceledBy = useEntityById("users", globalBan?.canceledById);
+    const updatedBy = useEntityById("users", globalBan?.updatedById);
+
+    if (!globalBanId || !globalBan || !bannedUser || !bannedBy) {
         return null;
     }
 
@@ -55,12 +54,6 @@ export const GlobalBanDetailsDialog: FunctionComponent = observer(() => {
         setGlobalBanDetailsDialogOpen(false);
         setGlobalBanId(undefined);
     };
-
-    const globalBan = findGlobalBan(globalBanId);
-    const bannedUser = findUser(globalBan.bannedUserId);
-    const bannedBy = findUser(globalBan.createdById);
-    const canceledBy = globalBan.canceledById ? findUser(globalBan.canceledById) : undefined;
-    const updatedBy = globalBan.updatedById ? findUser(globalBan.updatedById) : undefined;
 
     return (
         <Dialog open={globalBanDetailsDialogOpen}

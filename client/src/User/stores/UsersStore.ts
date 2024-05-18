@@ -2,7 +2,7 @@ import {mergeWith} from "lodash";
 import {computedFn} from "mobx-utils";
 import {UserEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
-import {EntitiesPatch, GetEntityType, RawEntityKey} from "../../entities-store";
+import {EntitiesPatch, GetEntityType, RawEntityKey, RelationshipsIds} from "../../entities-store";
 import {User} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
 
@@ -15,6 +15,21 @@ export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "r
     GetEntityType<UserType>,
     User,
     UserInsertOptions> {
+
+    findByIdWithRelationships(id: string): readonly [GetEntityType<UserType>, RelationshipsIds] {
+        const user = this.findById(id);
+
+        if (user.avatarId) {
+            return [
+                user,
+                {
+                    uploads: [user.avatarId]
+                }
+            ];
+        } else {
+            return [user, {}];
+        }
+    }
 
     findByIdOrSlug = computedFn((idOrSlug: string): UserEntity | undefined => {
        const user = this.findByIdOptional(idOrSlug);

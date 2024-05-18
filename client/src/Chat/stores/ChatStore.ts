@@ -1,8 +1,7 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {ChatApi} from "../../api/clients";
-import {EntitiesStore} from "../../entities-store";
-import {ApiError, getInitialApiErrorFromResponse} from "../../api";
 import {ChatOfCurrentUserEntity} from "../types";
+import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
+import {EntitiesStore} from "../../entities-store";
 
 interface ChatErrorsMap {
     [slug: string]: ApiError
@@ -33,6 +32,7 @@ export class ChatStore {
 
     setSelectedChat = (slug?: string): void => {
         if (!slug) {
+            this.previousChatId = this.selectedChatId;
             this.selectedChatId = undefined;
             this.currentSlug = undefined;
             return;
@@ -67,5 +67,5 @@ export class ChatStore {
                 .catch(error => runInAction(() => this.errorsMap[slug] = getInitialApiErrorFromResponse(error)))
                 .finally(() => runInAction(() => this.pending = false));
         }
-    };
+    }
 }

@@ -40,7 +40,7 @@ import {
 } from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
-import {EntitiesStore, RawEntitiesStore} from "../entities-store";
+import {EntitiesStore, RawEntitiesStore, ReferencedEntitiesStore} from "../entities-store";
 import {
     createSetChangePasswordStepCallback,
     CreateUserProfilePhotoStore,
@@ -179,11 +179,15 @@ import {
     UpdateChatInviteStore
 } from "../ChatInvite";
 import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
+import {DexieRepositories, Repositories} from "../repositories";
 
+const referencedEntities = new ReferencedEntitiesStore();
+const authorization = new AuthorizationStore();
+
+const repositories: Repositories = new DexieRepositories();
 const snackbarService = new SnackbarService();
 
-const rawEntities = new RawEntitiesStore();
-const authorization = new AuthorizationStore();
+const rawEntities = new RawEntitiesStore(repositories);
 const userChatRoles = new UserChatRolesStore();
 const entities = new EntitiesStore(rawEntities, authorization, userChatRoles);
 
@@ -226,10 +230,18 @@ const messageCreation = new CreateMessageStore(
 );
 const pendingChats = new PendingChatsOfCurrentUserStore(entities);
 const messagesSearch = new SearchMessagesStore(entities, chat);
-const messagesOfChat = new MessagesOfChatStore(entities, chat, messagesSearch);
+const messagesOfChat = new MessagesOfChatStore(
+    entities,
+    rawEntities,
+    chat,
+    messagesSearch,
+    referencedEntities,
+    chatsPreferences,
+    repositories.getRepository("messages")!
+);
 const joinChat = new JoinChatStore(entities, pendingChats, language, authorization, snackbarService);
 const userProfile = new UserProfileStore(entities);
-const createChatBlocking = new CreateChatBlockingStore(chat, entities);
+const createChatBlocking = new CreateChatBlockingStore(chat, entities, snackbarService, language);
 const chatBlockingsOfChat = new ChatBlockingsOfChatStore(entities, chat);
 const chatBlockingsDialog = new ChatBlockingsDialogStore();
 const cancelChatBlocking = new CancelChatBlockingStore(entities);
@@ -675,7 +687,8 @@ const _store: IAppState = {
     joinChatRequestsRejection,
     voiceRecording,
     mentions,
-    editorLink
+    editorLink,
+    referencedEntities
 };
 
 //Hack to avoid loss of application state on HMR

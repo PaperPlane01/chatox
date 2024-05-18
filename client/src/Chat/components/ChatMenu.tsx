@@ -12,16 +12,12 @@ import {ShowPinnedMessageMenuItem} from "./ShowPinnedMessageMenuItem";
 import {ChatManagementMenuItem} from "./ChatManagementMenuItem";
 import {ReportChatMenuItem} from "../../Report";
 import {useAuthorization, usePermissions, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 
 export const ChatMenu: FunctionComponent = observer(() => {
     const {
         chat: {
             selectedChatId
-        },
-        entities: {
-            chats: {
-                findById: findChat
-            }
         },
         pinnedMessages: {
             currentPinnedMessageId,
@@ -44,13 +40,13 @@ export const ChatMenu: FunctionComponent = observer(() => {
     } = usePermissions();
 
     const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
-    const menuOpen = Boolean(anchorElement);
+    const chat = useEntityById("chats", selectedChatId);
 
-    if (!selectedChatId) {
+    if (!chat) {
         return null;
     }
 
-    const chat = findChat(selectedChatId);
+    const menuOpen = Boolean(anchorElement);
 
     const handleOpenClick = (event: MouseEvent<HTMLElement>): void => {
         setAnchorElement(event.currentTarget);

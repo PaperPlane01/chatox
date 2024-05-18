@@ -1,10 +1,11 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import { Badge, IconButton, CircularProgress, Typography, Theme } from "@mui/material";
+import {Badge, CircularProgress, IconButton, Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {FileCopy} from "@mui/icons-material";
 import prettyBytes from "pretty-bytes";
-import {useEntities, useStore} from "../../store";
+import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
 
 interface MessageFileProps {
     chatUploadId: string
@@ -33,14 +34,9 @@ export const MessageFile: FunctionComponent<MessageFileProps> = observer(({
             downloadProgressMap
         }
     } = useStore();
-    const {
-        uploads: {
-            findById: findUpload
-        }
-    } = useEntities();
     const classes = useStyles();
 
-    const file = findUpload(chatUploadId);
+    const file = useEntityById("uploads", chatUploadId);
 
     const handleDownloadButtonClick = (): void => {
         if (!downloadProgressMap[file.name] || !downloadProgressMap[file.name].downloading) {

@@ -1,15 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {
-    Button,
-    Card,
-    CardHeader,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Theme,
-} from "@mui/material";
+import {Button, Card, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {ChatDescription} from "./ChatDescription";
@@ -18,6 +9,7 @@ import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
 import {ChatParticipantsCard, useChatParticipantsListScroll} from "../../ChatParticipant";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 import {ChatType} from "../../api/types/response";
 
@@ -46,11 +38,6 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
         chatInfoDialog: {
             chatInfoDialogOpen,
             setChatInfoDialogOpen
-        },
-        entities: {
-            chats: {
-                findById: findChat
-            }
         }
     } = useStore();
     const {l} = useLocalization();
@@ -58,13 +45,9 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
     const classes = useStyles();
     const {scrollHandler} = useChatParticipantsListScroll("all");
 
-    if (!selectedChatId) {
-        return null;
-    }
+    const chat = useEntityById("chats", selectedChatId);
 
-    const chat = findChat(selectedChatId);
-
-    if (chat.type === ChatType.DIALOG) {
+    if (!chat || chat.type === ChatType.DIALOG) {
         return null;
     }
 

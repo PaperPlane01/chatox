@@ -1,10 +1,11 @@
-import React, {FunctionComponent, Fragment} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {IconButton, AppBar, Typography, Toolbar} from "@mui/material";
+import {AppBar, IconButton, Toolbar, Typography} from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Link} from "mobx-router";
-import {useRouter, useStore, useLocalization} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 
 const useStyles = makeStyles(() => createStyles({
@@ -18,22 +19,17 @@ export const ScheduledMessagesAppBar: FunctionComponent = observer(() => {
     const {
         chat: {
             selectedChatId
-        },
-        entities: {
-            chats: {
-                findById: findChat
-            }
         }
     } = useStore();
     const router = useRouter();
     const {l} = useLocalization();
     const classes = useStyles();
 
-    if (!selectedChatId) {
+    const chat = useEntityById("chats", selectedChatId);
+
+    if (!chat) {
         return null;
     }
-
-    const chat = findChat(selectedChatId);
 
     return (
         <Fragment>

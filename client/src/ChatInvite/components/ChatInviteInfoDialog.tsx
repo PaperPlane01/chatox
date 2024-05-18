@@ -16,7 +16,8 @@ import {ArrowBack, Remove} from "@mui/icons-material";
 import {format} from "date-fns";
 import {getChatInviteLink} from "../utils";
 import {JoinChatAllowanceInfo} from "../../JoinChatAllowanceForm";
-import {useEntities, useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 import {CopyToClipboardButton} from "../../CopyToClipboardButton";
 import {UserLink} from "../../UserLink";
@@ -43,28 +44,20 @@ export const ChatInviteInfoDialog: FunctionComponent = observer(() => {
             closeDialog
         }
     } = useStore();
-    const {
-        chatInvites: {
-            findById: findChatInvite
-        },
-        users: {
-            findById: findUser
-        }
-    } = useEntities();
     const {l, dateFnsLocale} = useLocalization();
     const {fullScreen} = useMobileDialog();
     const classes = useStyles();
 
-    if (!inviteId) {
+    const chatInvite = useEntityById("chatInvites", inviteId);
+    const createdBy = useEntityById("users", chatInvite?.createdById);
+    const user = useEntityById("users", chatInvite?.userId);
+    const updatedBy = useEntityById("users", chatInvite?.updatedById)
+    const lastUsedBy = useEntityById("users", chatInvite?.lastUsedById);
+
+    if (!isDefined(chatInvite)) {
         return null;
     }
 
-    const chatInvite = findChatInvite(inviteId);
-
-    const createdBy = findUser(chatInvite.createdById);
-    const user = chatInvite.userId && findUser(chatInvite.userId);
-    const updatedBy = chatInvite.updatedById && findUser(chatInvite.updatedById);
-    const lastUsedBy = chatInvite.lastUsedById && findUser(chatInvite.lastUsedById);
     const link = getChatInviteLink(chatInvite.id);
 
     let content: ReactNode;
@@ -88,9 +81,11 @@ export const ChatInviteInfoDialog: FunctionComponent = observer(() => {
                 <Typography>
                     <strong>{l("chat.invite.created-by")}</strong>
                 </Typography>
-                <Typography className={classes.withPaddingBottom}>
-                    <UserLink user={createdBy} displayAvatar/>
-                </Typography>
+                {createdBy && (
+                    <Typography className={classes.withPaddingBottom}>
+                        <UserLink user={createdBy} displayAvatar/>
+                    </Typography>
+                )}
                 <JoinChatAllowanceInfo allowances={chatInvite.joinAllowanceSettings}
                                        wrapWithBorder
                                        label="chat.invite.usage-allowance"
