@@ -17,7 +17,6 @@ import {Entities, EntitiesStore, RawEntitiesStore, ReferencedEntitiesStore} from
 import {ChatsPreferencesStore, ChatStore} from "../../Chat";
 import {MessageApi} from "../../api";
 import {Message} from "../../api/types/response";
-import {getDate} from "../../utils/date-utils";
 import {isDefined} from "../../utils/object-utils";
 
 const DEFAULT_FETCH_OPTIONS: FetchMessagesOptions = {
@@ -349,7 +348,7 @@ export class MessagesOfChatStore {
 
             cleanUpMessages.push(message.id);
 
-            const messageCreatedAt = getDate(message.createdAt);
+            const messageCreatedAt = message.createdAt;
 
             if (!isDefined(first) || isBefore(messageCreatedAt, first!.createdAt)) {
                 first = {

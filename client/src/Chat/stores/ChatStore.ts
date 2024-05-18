@@ -32,6 +32,7 @@ export class ChatStore {
 
     setSelectedChat = (slug?: string): void => {
         if (!slug) {
+            this.previousChatId = this.selectedChatId;
             this.selectedChatId = undefined;
             this.currentSlug = undefined;
             return;
@@ -66,5 +67,5 @@ export class ChatStore {
                 .catch(error => runInAction(() => this.errorsMap[slug] = getInitialApiErrorFromResponse(error)))
                 .finally(() => runInAction(() => this.pending = false));
         }
-    };
+    }
 }

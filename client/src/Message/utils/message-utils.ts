@@ -1,15 +1,14 @@
 import {MessageEntity, MessageUploadsStats, UploadsGroupedByType} from "../types";
 import {Message, UploadType} from "../../api/types/response";
-import {getDate} from "../../utils/date-utils";
 
 export const sortMessages = (leftMessageId: string, rightMessageId: string, findMessage: (messageId: string) => MessageEntity, reverse: boolean): number => {
     const leftMessage = findMessage(leftMessageId);
     const rightMessage = findMessage(rightMessageId);
 
     if (reverse) {
-        return getDate(rightMessage.createdAt).getTime() - getDate(leftMessage.createdAt).getTime();
+        return rightMessage.createdAt.getTime() - leftMessage.createdAt.getTime();
     } else {
-        return getDate(leftMessage.createdAt).getTime() - getDate(rightMessage.createdAt).getTime();
+        return leftMessage.createdAt.getTime() - rightMessage.createdAt.getTime();
     }
 }
 

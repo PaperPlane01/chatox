@@ -13,7 +13,7 @@ import {EntitiesStore} from "../../entities-store";
 import {RouterStoreAware, Routes} from "../../router";
 import {FormErrors} from "../../utils/types";
 import {createWithUndefinedValues, isDefined} from "../../utils/object-utils";
-import {Duration, getDate} from "../../utils/date-utils";
+import {Duration} from "../../utils/date-utils";
 import {isStringEmpty} from "../../utils/string-utils";
 
 const INITIAL_FORM_VALUES: CreateMessageFormData = {
@@ -101,7 +101,7 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
         })
             .then(({data}) => {
                 const message = this.entities.messages.insert(data);
-                this.setLastMessageDateForChat(data.chatId, getDate(message.createdAt));
+                this.setLastMessageDateForChat(data.chatId, message.createdAt);
                 this.sendForwardedMessages(data.chatId);
             })
             .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
@@ -153,7 +153,7 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
 
                     if (!this.formValues.scheduledAt) {
                         this.setResultMessage(message);
-                        this.setLastMessageDateForChat(data.chatId, getDate(message.createdAt));
+                        this.setLastMessageDateForChat(data.chatId, message.createdAt);
 
                         if (this.forwardMessagesStore.forwardModeActive) {
                             this.sendForwardedMessages(chatId);

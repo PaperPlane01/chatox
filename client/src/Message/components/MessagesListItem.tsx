@@ -30,7 +30,6 @@ import {useLuminosity} from "../../utils/hooks";
 import {commonStyles} from "../../style";
 import {UploadType} from "../../api/types/response";
 import {isDefined} from "../../utils/object-utils";
-import {getDate} from "../../utils/date-utils";
 
 interface MessagesListItemProps {
     messageId: string,
@@ -46,20 +45,19 @@ interface MessagesListItemProps {
     menu?: ReactNode
 }
 
-const getCreatedAtLabel = (createdAt: Date | string, locale: Locale): string => {
+const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
     const currentDate = new Date();
-    const date = getDate(createdAt);
 
-    if (isSameDay(date, currentDate)) {
-        return format(date, "HH:mm", {locale});
-    } else if (isSameYear(date, currentDate)) {
-        return format(date, "d MMM HH:mm", {locale});
+    if (isSameDay(createdAt, currentDate)) {
+        return format(createdAt, "HH:mm", {locale});
+    } else if (isSameYear(createdAt, currentDate)) {
+        return format(createdAt, "d MMM HH:mm", {locale});
     } else {
-        return format(date, "d MMM yyyy HH:mm", {locale});
+        return format(createdAt, "d MMM yyyy HH:mm", {locale});
     }
 };
 
-const getScheduledAtLabel = (scheduledAt: Date | string, locale: Locale, l: TranslationFunction): string => {
+const getScheduledAtLabel = (scheduledAt: Date, locale: Locale, l: TranslationFunction): string => {
     const dateLabel = getCreatedAtLabel(scheduledAt, locale);
 
     return l("message.scheduled-at", {scheduleDate: dateLabel});
@@ -257,7 +255,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
 
     const sender = useMessageSenderById(message.sender, findMessageSenderFunction);
     const forwardedBy = useMessageSenderById(message.forwardedById, findMessageSenderFunction);
-    const messageCreatedAt = getDate(message.createdAt);
+    const messageCreatedAt = message.createdAt;
     const createAtLabel = !scheduledMessage
         ? getCreatedAtLabel(messageCreatedAt, dateFnsLocale)
         : getScheduledAtLabel(message.scheduledAt!, dateFnsLocale, l);
