@@ -16,8 +16,8 @@ import {
 import {Entities, EntitiesStore, RawEntitiesStore, ReferencedEntitiesStore} from "../../entities-store";
 import {ChatsPreferencesStore, ChatStore} from "../../Chat";
 import {MessageApi} from "../../api";
-import {Message, TimeUnit} from "../../api/types/response";
-import {Duration, getDate} from "../../utils/date-utils";
+import {Message} from "../../api/types/response";
+import {getDate} from "../../utils/date-utils";
 import {isDefined} from "../../utils/object-utils";
 
 const DEFAULT_FETCH_OPTIONS: FetchMessagesOptions = {
@@ -26,8 +26,7 @@ const DEFAULT_FETCH_OPTIONS: FetchMessagesOptions = {
     abortIfInitiallyFetched: true
 };
 
-const MESSAGES_CLEANUP_THRESHOLD = 100;
-const MESSAGES_CLEANUP_INTERVAL = Duration.of(30, TimeUnit.MINUTES);
+const MESSAGES_CLEANUP_THRESHOLD = 600;
 
 export class MessagesOfChatStore {
     chatMessagesFetchingStateMap: ChatMessagesFetchingStateMap = {};
