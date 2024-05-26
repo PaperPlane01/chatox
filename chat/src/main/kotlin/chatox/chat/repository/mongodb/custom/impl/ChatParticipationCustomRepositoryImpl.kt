@@ -77,4 +77,13 @@ class ChatParticipationCustomRepositoryImpl(private val reactiveMongoTemplate: R
 
         return reactiveMongoTemplate.find(query, ChatParticipation::class.java)
     }
+
+    override fun findWithCustomNotificationsSettings(userId: String): Flux<ChatParticipation> {
+        val query = Query()
+
+        query.addCriteria(Criteria.where("user._id").`is`(userId))
+        query.addCriteria(Criteria.where("notificationsSettings").ne(null))
+
+        return reactiveMongoTemplate.find(query, ChatParticipation::class.java)
+    }
 }

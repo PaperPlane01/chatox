@@ -12,4 +12,5 @@ interface ChatParticipationCustomRepository {
     fun updateChatDeleted(chatId: String, chatDeleted: Boolean): Mono<UpdateResult>
     fun searchChatParticipants(chatId: String, searchQuery: String, pageable: Pageable): Flux<ChatParticipation>
     fun findByChatIdAndUserIdOrSlugIn(chatId: String, userIdsOrSlugs: List<String>, includeDeleted: Boolean = false, excludedUsersIds: List<String> = listOf()): Flux<ChatParticipation>
+    fun findWithCustomNotificationsSettings(userId: String): Flux<ChatParticipation>
 }

@@ -17,6 +17,7 @@ interface ChatParticipationRepository : ReactiveMongoRepository<ChatParticipatio
     fun findByChatIdAndDeletedFalse(chatId: String): Flux<ChatParticipation>
     fun findByChatIdAndUserId(chatId: String, userId: String): Mono<ChatParticipation>
     fun findByChatId(chatId: String): Flux<ChatParticipation>
+    fun findByChatIdIn(chatIds: List<String>): Flux<ChatParticipation>
     fun findByChatIdAndUserIdAndDeletedFalse(chatId: String, userId: String): Mono<ChatParticipation>
     fun findByChatIdAndUserIdAndDeletedTrue(chatId: String, userId: String): Mono<ChatParticipation>
     fun findByChatIdAndUserOnlineTrue(chatId: String): Flux<ChatParticipation>
