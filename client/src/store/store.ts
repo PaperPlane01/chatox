@@ -179,6 +179,7 @@ import {
     UpdateChatInviteStore
 } from "../ChatInvite";
 import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
+import {NotificationsSettingsStore, SoundNotificationStore} from "../Notification";
 import {DexieRepositories, Repositories} from "../repositories";
 
 const referencedEntities = new ReferencedEntitiesStore();
@@ -348,6 +349,13 @@ const markMessageRead = new MarkMessageReadStore(
 );
 const balance = new BalanceStore(authorization);
 const typingUsers = new TypingUsersStore(entities, authorization);
+const notificationsSettings = new NotificationsSettingsStore(authorization, entities);
+const soundNotification = new SoundNotificationStore(
+    notificationsSettings,
+    chat,
+    authorization,
+    entities
+);
 const websocket = new WebsocketStore(
     authorization,
     entities,
@@ -360,6 +368,7 @@ const websocket = new WebsocketStore(
     typingUsers,
     pendingChats,
     language,
+    soundNotification,
     snackbarService
 );
 const stickerPackCreation = new CreateStickerPackStore(entities);
@@ -688,7 +697,9 @@ const _store: IAppState = {
     voiceRecording,
     mentions,
     editorLink,
-    referencedEntities
+    referencedEntities,
+    notificationsSettings,
+    soundNotification
 };
 
 //Hack to avoid loss of application state on HMR

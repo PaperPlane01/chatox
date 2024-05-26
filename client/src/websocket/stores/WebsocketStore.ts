@@ -33,6 +33,7 @@ import {LocaleStore} from "../../localization";
 import {SnackbarService} from "../../Snackbar";
 import {getSocketIoWorker, SocketIoWorker} from "../../workers";
 import {isDefined} from "../../utils/object-utils";
+import {SoundNotificationStore} from "../../Notification";
 
 type ConnectionType = "socketIo" | "sharedWorker";
 
@@ -60,6 +61,7 @@ export class WebsocketStore {
                 private readonly typingUsersStore: TypingUsersStore,
                 private readonly pendingChats: PendingChatsOfCurrentUserStore,
                 private readonly locale: LocaleStore,
+                private readonly soundNotification: SoundNotificationStore,
                 private readonly snackbarService: SnackbarService) {
         makeAutoObservable(this);
 
@@ -355,6 +357,8 @@ export class WebsocketStore {
                 }
             }
         }
+
+        this.soundNotification.playNotificationSound(messageEntity);
     }
 
     private processGlobalBan(globalBan: GlobalBan): void {

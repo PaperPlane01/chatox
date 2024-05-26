@@ -168,6 +168,7 @@ import {
     UpdateChatInviteStore
 } from "../ChatInvite";
 import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
+import {NotificationsSettingsStore, SoundNotificationStore} from "../Notification";
 
 export interface IAppState {
     language: LocaleStore,
@@ -326,5 +327,7 @@ export interface IAppState {
     voiceRecording: RecordVoiceMessageStore,
     mentions: MentionsStore,
     editorLink: CreateEditorLinkDialogStore,
-    referencedEntities: ReferencedEntitiesStore
+    referencedEntities: ReferencedEntitiesStore,
+    notificationsSettings: NotificationsSettingsStore,
+    soundNotification: SoundNotificationStore
 }
