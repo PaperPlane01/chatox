@@ -1,5 +1,6 @@
 import {makeAutoObservable, observable, ObservableMap, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
+import {ApiError, getInitialApiErrorFromResponse, NotificationsSettingsApi} from "../../api";
 import {
 	ChatNotificationsSettings,
 	ChatType,
@@ -9,7 +10,6 @@ import {
 	NotificationsSettings
 } from "../../api/types/response";
 import {AuthorizationStore} from "../../Authorization";
-import {ApiError, getInitialApiErrorFromResponse, NotificationsSettingsApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 
 
@@ -52,7 +52,7 @@ export class NotificationsSettingsStore {
 					this.fetchNotificationsSettings();
 				}
 			}
-		)
+		);
 	}
 
 	getNotificationsSettingsForChat = computedFn((chatId: string, chatType: ChatType): NotificationsSettings => {
@@ -65,8 +65,8 @@ export class NotificationsSettingsStore {
 		}
 
 		return chatType === ChatType.DIALOG
-			? DEFAULT_DIALOG_CHATS_NOTIFICATIONS_SETTINGS
-			: DEFAULT_GROUP_CHATS_NOTIFICATIONS_SETTINGS;
+			? this.dialogChatsSettings
+			: this.groupChatsSettings;
 	})
 
 	getNotificationsSettingsForUserInChat = ((chatId: string, userId: string): NotificationsSettings | undefined => {
@@ -138,10 +138,13 @@ export class NotificationsSettingsStore {
 					unreadMessagesCount: 0,
 					deleted: false
 				});
-				this.entities.users.insert(dialogChatException.chat.user!);
+
+				if (dialogChatException.chat.user) {
+					this.entities.users.insert(dialogChatException.chat.user);
+				}
 			}
 
 			this.dialogChatsExceptions.set(dialogChatException.chat.id, dialogChatException.notificationsSettings);
-		})
+		});
 	}
 }

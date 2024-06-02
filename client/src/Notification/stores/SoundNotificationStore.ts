@@ -24,7 +24,7 @@ export class SoundNotificationStore {
 		makeAutoObservable(this)
 	}
 
-	playNotificationSound = (message: MessageEntity): void => {
+	playSoundForMessage = (message: MessageEntity): void => {
 		const chat = this.entities.chats.findByIdOptional(message.chatId);
 
 		if (!chat) {
@@ -63,8 +63,7 @@ export class SoundNotificationStore {
 			}
 		}
 	}
-
-	private playSound = (notificationSound: NotificationSound): void => {
+	playSound = (notificationSound: NotificationSound): void => {
 		const audio = new Audio(`/sounds/${notificationSound}.mp3`);
 		audio.play();
 	}

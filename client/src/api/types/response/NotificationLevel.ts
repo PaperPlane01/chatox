@@ -13,4 +13,10 @@ export const getNotificationLevel = (notificationLevel: NotificationLevel) => {
 		case NotificationLevel.MUTED:
 			return 0;
 	}
-}
+};
+
+export const NOTIFICATION_LEVELS: NotificationLevel[] = [
+	NotificationLevel.MUTED,
+	NotificationLevel.MENTIONS_AND_REPLIES,
+	NotificationLevel.ALL_MESSAGES
+];

@@ -179,7 +179,12 @@ import {
     UpdateChatInviteStore
 } from "../ChatInvite";
 import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
-import {NotificationsSettingsStore, SoundNotificationStore} from "../Notification";
+import {
+    NotificationSoundSelectDialogStore,
+    NotificationsSettingsStore,
+    SoundNotificationStore,
+    UpdateGlobalNotificationsSettingsStore
+} from "../Notification";
 import {DexieRepositories, Repositories} from "../repositories";
 
 const referencedEntities = new ReferencedEntitiesStore();
@@ -539,6 +544,12 @@ const joinChatRequestsRejection = new RejectJoinChatRequestsStore(
 );
 const mentions = new MentionsStore(entities, chat, chatsOfCurrentUser);
 const editorLink = new CreateEditorLinkDialogStore();
+const notificationSoundSelectDialog = new NotificationSoundSelectDialogStore(soundNotification);
+const updateGlobalNotificationsSettings = new UpdateGlobalNotificationsSettingsStore(
+    notificationsSettings,
+    language,
+    snackbarService
+);
 
 const _store: IAppState = {
     authorization,
@@ -699,7 +710,9 @@ const _store: IAppState = {
     editorLink,
     referencedEntities,
     notificationsSettings,
-    soundNotification
+    soundNotification,
+    notificationSoundSelectDialog,
+    updateGlobalNotificationsSettings
 };
 
 //Hack to avoid loss of application state on HMR

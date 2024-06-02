@@ -358,7 +358,7 @@ export class WebsocketStore {
             }
         }
 
-        this.soundNotification.playNotificationSound(messageEntity);
+        this.soundNotification.playSoundForMessage(messageEntity);
     }
 
     private processGlobalBan(globalBan: GlobalBan): void {
