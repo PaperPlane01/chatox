@@ -776,5 +776,10 @@ export const ru: Labels = {
     "notification.settings.for-group-chats": "Уведомления в группах",
     "notification.settings.for-dialog-chats": "Уведомления в диалогах",
     "notification.settings.add-exception": "Добавить исключение",
-    "notification.settings.update.success": "Настройки уведомлений сохранены"
+    "notification.settings.exceptions": "{exceptionsCount} исключений",
+    "notification.settings.update.success": "Настройки уведомлений сохранены",
+    "notification.settings.for-chat": "Настройки уведомлений для чата {chatName}",
+    "notification.settings.for-chat.with-user": "Настройки уведомлений для чата с пользователем {username}",
+    "notification.settings.exceptions.for-group-chats": "Исключения для групп",
+    "notification.settings.exceptions.for-dialog-chats": "Исключения для диалогов"
 };

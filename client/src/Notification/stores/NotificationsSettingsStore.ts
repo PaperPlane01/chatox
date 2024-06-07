@@ -69,6 +69,10 @@ export class NotificationsSettingsStore {
 			: this.groupChatsSettings;
 	})
 
+	getUserExceptionsForChat = computedFn((chatId: string): Map<string, NotificationsSettings> => {
+		return this.groupChatsUsersExceptions.get(chatId) ?? new Map();
+	})
+
 	getNotificationsSettingsForUserInChat = ((chatId: string, userId: string): NotificationsSettings | undefined => {
 		const groupChatsUserExceptions = this.groupChatsUsersExceptions.get(chatId);
 
@@ -109,22 +113,26 @@ export class NotificationsSettingsStore {
 				});
 			}
 
-			const userExceptions = groupChatException.userExceptions ?? [];
-
-			userExceptions.forEach(userException => {
-				this.entities.users.insert(userException.user);
-
-				if (!this.groupChatsUsersExceptions.has(groupChatException.chat.id)) {
-					this.groupChatsUsersExceptions.set(groupChatException.chat.id, observable.map());
-				}
-
-				this.groupChatsUsersExceptions
-					.get(groupChatException.chat.id)!
-					.set(userException.user.id, userException.notificationsSettings);
-			})
-
-			this.groupChatsExceptions.set(groupChatException.chat.id, groupChatException.notificationsSettings);
+			this.setNotificationsSettingsForGroupChat(groupChatException.chat.id, groupChatException);
 		});
+	}
+
+	setNotificationsSettingsForGroupChat = (chatId: string, chatNotificationsSettings: ChatNotificationsSettings): void => {
+		const userExceptions = chatNotificationsSettings.userExceptions ?? [];
+
+		userExceptions.forEach(userException => {
+			this.entities.users.insert(userException.user);
+
+			if (!this.groupChatsUsersExceptions.has(chatNotificationsSettings.chat.id)) {
+				this.groupChatsUsersExceptions.set(chatNotificationsSettings.chat.id, observable.map());
+			}
+
+			this.groupChatsUsersExceptions
+				.get(chatNotificationsSettings.chat.id)!
+				.set(userException.user.id, userException.notificationsSettings);
+		})
+
+		this.groupChatsExceptions.set(chatNotificationsSettings.chat.id, chatNotificationsSettings.notificationsSettings);
 	}
 
 	private setExceptionNotificationsSettingsForDialogChats = (dialogChatsExceptions: ChatNotificationsSettings[]): void => {
@@ -144,7 +152,11 @@ export class NotificationsSettingsStore {
 				}
 			}
 
-			this.dialogChatsExceptions.set(dialogChatException.chat.id, dialogChatException.notificationsSettings);
+			this.setNotificationSettingsForDialogChat(dialogChatException.chat.id, dialogChatException);
 		});
+	}
+
+	setNotificationSettingsForDialogChat = (chatId: string, chatNotificationSettings: ChatNotificationsSettings): void => {
+		this.dialogChatsExceptions.set(chatId, chatNotificationSettings.notificationsSettings);
 	}
 }

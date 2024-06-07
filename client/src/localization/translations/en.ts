@@ -776,5 +776,10 @@ export const en: Labels = {
     "notification.settings.for-group-chats": "Notifications in group chats",
     "notification.settings.for-dialog-chats": "Notifications in dialogs",
     "notification.settings.add-exception": "Add exception",
-    "notification.settings.update.success": "Notifications settings have been updated"
+    "notification.settings.exceptions": "{exceptionsCount} exceptions",
+    "notification.settings.update.success": "Notifications settings have been updated",
+    "notification.settings.for-chat": "Notifications settings for chat {chatName}",
+    "notification.settings.for-chat.with-user": "Notifications settings for chat with user {username}",
+    "notification.settings.exceptions.for-group-chats": "Group chats exceptions",
+    "notification.settings.exceptions.for-dialog-chats": "Dialog chats exceptions"
 };

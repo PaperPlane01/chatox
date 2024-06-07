@@ -63,6 +63,7 @@ export class SoundNotificationStore {
 			}
 		}
 	}
+
 	playSound = (notificationSound: NotificationSound): void => {
 		const audio = new Audio(`/sounds/${notificationSound}.mp3`);
 		audio.play();

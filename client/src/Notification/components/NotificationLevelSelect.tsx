@@ -1,14 +1,15 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Select, FormControl, InputLabel, MenuItem, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {createStyles, CSSProperties, makeStyles} from "@mui/styles";
 import {useLocalization} from "../../store";
 import {NotificationLevel, NOTIFICATION_LEVELS} from "../../api/types/response";
 import {Labels} from "../../localization";
 
 interface NotificationLevelSelectProps {
 	value: NotificationLevel,
-	onChange: (notificationLevel: NotificationLevel) => void
+	onChange: (notificationLevel: NotificationLevel) => void,
+	style?: CSSProperties
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -19,13 +20,14 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 
 export const NotificationLevelSelect: FunctionComponent<NotificationLevelSelectProps> = observer(({
 	value,
-	onChange
+	onChange,
+	style
 }) => {
 	const {l} = useLocalization();
 	const classes = useStyles();
 
 	return (
-		<FormControl fullWidth className={classes.formControl}>
+		<FormControl fullWidth className={classes.formControl} style={style}>
 			<InputLabel id="notification-level-select-label">
 				{l("notification.level")}
 			</InputLabel>

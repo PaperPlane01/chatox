@@ -3,6 +3,8 @@ import {observer} from "mobx-react";
 import {Button, CircularProgress, Grid} from "@mui/material";
 import {NotificationSoundSelectDialog} from "./NotificationSoundSelectDialog";
 import {UpdateGlobalChatsNotificationsSettingsCard} from "./UpdateGlobalChatsNotificationsSettingsCard";
+import {UpdateChatNotificationsSettingsDialog} from "./UpdateChatNotificationsSettingsDialog";
+import {ChatNotificationExceptionsDialog} from "./ChatNotificationExceptionsDialog";
 import {ChatType} from "../../api/types/response";
 import {useLocalization, useStore} from "../../store";
 
@@ -34,6 +36,8 @@ export const GlobalNotificationsSettingsUpdate: FunctionComponent = observer(() 
 				</Button>
 			</Grid>
 			<NotificationSoundSelectDialog/>
+			<UpdateChatNotificationsSettingsDialog/>
+			<ChatNotificationExceptionsDialog/>
 		</Grid>
 	);
 });

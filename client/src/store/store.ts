@@ -180,9 +180,10 @@ import {
 } from "../ChatInvite";
 import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
 import {
+    ChatNotificationExceptionsDialogStore,
     NotificationSoundSelectDialogStore,
     NotificationsSettingsStore,
-    SoundNotificationStore,
+    SoundNotificationStore, UpdateChatNotificationsSettingsStore,
     UpdateGlobalNotificationsSettingsStore
 } from "../Notification";
 import {DexieRepositories, Repositories} from "../repositories";
@@ -550,6 +551,12 @@ const updateGlobalNotificationsSettings = new UpdateGlobalNotificationsSettingsS
     language,
     snackbarService
 );
+const updateChatNotificationsSettings = new UpdateChatNotificationsSettingsStore(
+    notificationsSettings,
+    language,
+    snackbarService
+);
+const chatNotificationExceptionsDialog = new ChatNotificationExceptionsDialogStore();
 
 const _store: IAppState = {
     authorization,
@@ -712,7 +719,9 @@ const _store: IAppState = {
     notificationsSettings,
     soundNotification,
     notificationSoundSelectDialog,
-    updateGlobalNotificationsSettings
+    updateGlobalNotificationsSettings,
+    updateChatNotificationsSettings,
+    chatNotificationExceptionsDialog
 };
 
 //Hack to avoid loss of application state on HMR

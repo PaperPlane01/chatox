@@ -1,11 +1,12 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, Card, CardContent, CardHeader, Theme} from "@mui/material";
+import {Button, Card, CardActions, CardContent, CardHeader, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {NotificationLevelSelect} from "./NotificationLevelSelect";
 import {useLocalization, useStore} from "../../store";
 import {ChatType} from "../../api/types/response";
 import {Labels} from "../../localization";
+import {ChatNotificationExceptionsButton} from "./ChatNotificationExceptionsButton";
 
 interface UpdateGlobalChatsNotificationsSettingsCardProps {
 	chatType: ChatType
@@ -71,6 +72,9 @@ export const UpdateGlobalChatsNotificationsSettingsCard: FunctionComponent<Updat
 					</Button>
 				</div>
 			</CardContent>
+			<CardActions>
+				<ChatNotificationExceptionsButton chatType={chatType}/>
+			</CardActions>
 		</Card>
 	);
 });

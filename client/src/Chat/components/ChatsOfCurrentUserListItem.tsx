@@ -2,17 +2,14 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Badge, CardHeader, Divider, ListItem, Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
-import randomColor from "randomcolor";
 import {Link} from "mobx-router";
+import {ChatAvatar} from "./ChatAvatar";
 import {ChatListMessagePreview} from "./ChatListMessagePreview";
 import {TypingIndicator} from "./TypingIndicator";
-import {getAvatarLabel, getChatLinkProps} from "../utils";
+import {getChatLinkProps, getChatName} from "../utils";
 import {ChatLinkPropsGenerationStrategy} from "../types";
-import {Avatar} from "../../Avatar";
 import {useRouter, useStore} from "../../store";
 import {useEntityById} from "../../entities";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {useLuminosity} from "../../utils/hooks";
 
 interface ChatsOfCurrentUserListItemProps {
     chatId: string,
@@ -91,30 +88,9 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
     const classes = useStyles();
     const chat = useEntityById("chats", chatId);
     const chatUser = useEntityById("users", chat.userId)
-    const luminosity = useLuminosity();
 
     const linkProps = getChatLinkProps(linkGenerationStrategy, {chat, messageId});
     const chatHasTypingUsers = hasTypingUsers(chatId);
-    const color = randomColor({
-        seed: chatUser ? chatUser.id : chatId,
-        luminosity
-    });
-
-    const avatar = chatUser
-        ? (
-            <Avatar avatarLetter={getUserAvatarLabel(chatUser)}
-                    avatarColor={color}
-                    avatarUri={chatUser.externalAvatarUri}
-                    avatarId={chatUser.avatarId}
-            />
-        )
-        : (
-            <Avatar avatarLetter={getAvatarLabel(chat.name)}
-                    avatarColor={color}
-                    avatarUri={chat.avatarUri}
-                    avatarId={chat.avatarId}
-            />
-        );
     const selected = chatId === selectedChatId;
 
     return (
@@ -149,7 +125,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                                 <div className={classes.flexTruncatedTextContainer}>
                                     <Typography className={classes.truncatedText}>
                                         <strong>
-                                            {chatUser ? getUserDisplayedName(chatUser) : chat.name}
+                                            {getChatName(chat, chatUser)}
                                         </strong>
                                     </Typography>
                                 </div>
@@ -167,7 +143,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                                             </div>
                                         </div>
                                     )}
-                                    avatar={avatar}
+                                    avatar={<ChatAvatar chat={chat} chatUser={chatUser}/>}
                                     classes={{
                                         root: classes.listItemHeaderRoot,
                                         content: classes.listItemHeaderContent
