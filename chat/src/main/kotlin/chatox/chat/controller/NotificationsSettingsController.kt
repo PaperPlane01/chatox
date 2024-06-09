@@ -4,6 +4,7 @@ import chatox.chat.api.request.UpdateChatNotificationsSettingsRequest
 import chatox.chat.api.request.UpdateGlobalNotificationsSettingsRequest
 import chatox.chat.service.NotificationsSettingsService
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -36,6 +38,7 @@ class NotificationsSettingsController(private val notificationsSettingsService: 
 
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/chats/{chatId}/notifications-settings")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteChatNotificationsSettings(
             @PathVariable chatId: String
     ) = notificationsSettingsService.deleteNotificationsSettingsForChat(chatId)
