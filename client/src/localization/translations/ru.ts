@@ -781,5 +781,8 @@ export const ru: Labels = {
     "notification.settings.for-chat": "Настройки уведомлений для чата {chatName}",
     "notification.settings.for-chat.with-user": "Настройки уведомлений для чата с пользователем {username}",
     "notification.settings.exceptions.for-group-chats": "Исключения для групп",
-    "notification.settings.exceptions.for-dialog-chats": "Исключения для диалогов"
+    "notification.settings.exceptions.for-dialog-chats": "Исключения для диалогов",
+    "notification.settings.for-chat.delete": "Удалить настройки уведомлений для чата",
+    "notification.settings.for-chat.delete.success": "Настройки уведомлений для чата были удалены",
+    "notification.settings.for-chat.delete.error": "При попытке удалить настройки уведомлений для чата произошла ошибка"
 };

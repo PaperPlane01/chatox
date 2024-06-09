@@ -779,5 +779,8 @@ export interface Labels {
     "notification.settings.for-chat": string,
     "notification.settings.for-chat.with-user": string,
     "notification.settings.exceptions.for-group-chats": string,
-    "notification.settings.exceptions.for-dialog-chats": string
+    "notification.settings.exceptions.for-dialog-chats": string,
+    "notification.settings.for-chat.delete": string,
+    "notification.settings.for-chat.delete.success": string,
+    "notification.settings.for-chat.delete.error": string
 }

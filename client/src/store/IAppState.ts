@@ -173,7 +173,7 @@ import {
     NotificationsSettingsStore,
     SoundNotificationStore,
     UpdateGlobalNotificationsSettingsStore,
-    UpdateChatNotificationsSettingsStore, ChatNotificationExceptionsDialogStore
+    UpdateChatNotificationsSettingsStore, ChatNotificationExceptionsDialogStore, DeleteChatNotificationSettingsStore
 } from "../Notification";
 
 export interface IAppState {
@@ -339,5 +339,6 @@ export interface IAppState {
     notificationSoundSelectDialog: NotificationSoundSelectDialogStore,
     updateGlobalNotificationsSettings: UpdateGlobalNotificationsSettingsStore,
     updateChatNotificationsSettings: UpdateChatNotificationsSettingsStore,
-    chatNotificationExceptionsDialog: ChatNotificationExceptionsDialogStore
+    chatNotificationExceptionsDialog: ChatNotificationExceptionsDialogStore,
+    deleteChatNotificationsSettings: DeleteChatNotificationSettingsStore
 }

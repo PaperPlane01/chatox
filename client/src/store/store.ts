@@ -180,7 +180,7 @@ import {
 } from "../ChatInvite";
 import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
 import {
-    ChatNotificationExceptionsDialogStore,
+    ChatNotificationExceptionsDialogStore, DeleteChatNotificationSettingsStore,
     NotificationSoundSelectDialogStore,
     NotificationsSettingsStore,
     SoundNotificationStore, UpdateChatNotificationsSettingsStore,
@@ -557,6 +557,11 @@ const updateChatNotificationsSettings = new UpdateChatNotificationsSettingsStore
     snackbarService
 );
 const chatNotificationExceptionsDialog = new ChatNotificationExceptionsDialogStore();
+const deleteChatNotificationsSettings = new DeleteChatNotificationSettingsStore(
+    notificationsSettings,
+    language,
+    snackbarService
+);
 
 const _store: IAppState = {
     authorization,
@@ -721,7 +726,8 @@ const _store: IAppState = {
     notificationSoundSelectDialog,
     updateGlobalNotificationsSettings,
     updateChatNotificationsSettings,
-    chatNotificationExceptionsDialog
+    chatNotificationExceptionsDialog,
+    deleteChatNotificationsSettings
 };
 
 //Hack to avoid loss of application state on HMR

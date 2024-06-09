@@ -123,16 +123,16 @@ export class NotificationsSettingsStore {
 		userExceptions.forEach(userException => {
 			this.entities.users.insert(userException.user);
 
-			if (!this.groupChatsUsersExceptions.has(chatNotificationsSettings.chat.id)) {
-				this.groupChatsUsersExceptions.set(chatNotificationsSettings.chat.id, observable.map());
+			if (!this.groupChatsUsersExceptions.has(chatId)) {
+				this.groupChatsUsersExceptions.set(chatId, observable.map());
 			}
 
 			this.groupChatsUsersExceptions
-				.get(chatNotificationsSettings.chat.id)!
+				.get(chatId)!
 				.set(userException.user.id, userException.notificationsSettings);
 		})
 
-		this.groupChatsExceptions.set(chatNotificationsSettings.chat.id, chatNotificationsSettings.notificationsSettings);
+		this.groupChatsExceptions.set(chatId, chatNotificationsSettings.notificationsSettings);
 	}
 
 	private setExceptionNotificationsSettingsForDialogChats = (dialogChatsExceptions: ChatNotificationsSettings[]): void => {
@@ -158,5 +158,13 @@ export class NotificationsSettingsStore {
 
 	setNotificationSettingsForDialogChat = (chatId: string, chatNotificationSettings: ChatNotificationsSettings): void => {
 		this.dialogChatsExceptions.set(chatId, chatNotificationSettings.notificationsSettings);
+	}
+
+	deleteNotificationsSettingsForGroupChat = (chatId: string): void => {
+		this.groupChatsExceptions.delete(chatId);
+	}
+
+	deleteNotificationsSettingsForDialogChat = (chatId: string): void => {
+		this.dialogChatsExceptions.delete(chatId);
 	}
 }
