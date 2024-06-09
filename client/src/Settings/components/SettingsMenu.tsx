@@ -108,8 +108,8 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                     </MenuItem>
                 </Link>
                 <Link className={classes.undecoratedLink}
-                      route={Routes.settingsPage}
-                      params={{tag: SettingsTab.NOTIFICATIONS}}
+                      route={Routes.settingsTabPage}
+                      params={{tab: SettingsTab.NOTIFICATIONS}}
                       router={routerStore}
                 >
                     <MenuItem>
