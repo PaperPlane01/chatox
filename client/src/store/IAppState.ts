@@ -26,6 +26,7 @@ import {
 } from "../Chat";
 import {
     ApproveJoinChatRequestsStore,
+    ChatParticipantsAutoCompleteStore,
     ChatParticipantsSearchStore,
     ChatParticipantsStore,
     JoinChatRequestsStore,
@@ -169,11 +170,15 @@ import {
 } from "../ChatInvite";
 import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
 import {
+    ChatNotificationExceptionsDialogStore,
+    DeleteChatNotificationSettingsStore,
     NotificationSoundSelectDialogStore,
     NotificationsSettingsStore,
     SoundNotificationStore,
+    UpdateChatNotificationsSettingsStore,
     UpdateGlobalNotificationsSettingsStore,
-    UpdateChatNotificationsSettingsStore, ChatNotificationExceptionsDialogStore, DeleteChatNotificationSettingsStore
+    UpdateUserNotificationSettingsInChatDialogStore,
+    UserNotificationExceptionsDialogStore
 } from "../Notification";
 
 export interface IAppState {
@@ -340,5 +345,8 @@ export interface IAppState {
     updateGlobalNotificationsSettings: UpdateGlobalNotificationsSettingsStore,
     updateChatNotificationsSettings: UpdateChatNotificationsSettingsStore,
     chatNotificationExceptionsDialog: ChatNotificationExceptionsDialogStore,
-    deleteChatNotificationsSettings: DeleteChatNotificationSettingsStore
+    deleteChatNotificationsSettings: DeleteChatNotificationSettingsStore,
+    chatParticipantsAutoComplete: ChatParticipantsAutoCompleteStore,
+    userNotificationExceptionsDialog: UserNotificationExceptionsDialogStore,
+    updateUserNotificationsSettingsInChatDialog: UpdateUserNotificationSettingsInChatDialogStore
 }

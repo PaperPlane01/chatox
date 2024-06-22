@@ -784,5 +784,11 @@ export const en: Labels = {
     "notification.settings.exceptions.for-dialog-chats": "Dialog chats exceptions",
     "notification.settings.for-chat.delete": "Delete notifications settings for chat",
     "notification.settings.for-chat.delete.success": "Notifications settings have been deleted",
-    "notification.settings.for-chat.delete.error": "Error occurred when tried to delete notification settings for chat"
+    "notification.settings.for-chat.delete.error": "Error occurred when tried to delete notification settings for chat",
+    "notification.settings.add-user-exception": "Add user exception",
+    "notification.settings.user-exceptions": "{exceptionsCount} user exceptions",
+    "notification.settings.for-user-in-chat": "Notification settings for user {username} in chat {chatName}",
+    "common.change": "Change",
+    "notification.settings.for-user-in-chat.delete": "Delete notification settings for this user",
+    "notification.settings.for-chat.exceptions": "Exceptions in chat {chatName}"
 };

@@ -5,8 +5,10 @@ import {NotificationSoundSelectDialog} from "./NotificationSoundSelectDialog";
 import {UpdateGlobalChatsNotificationsSettingsCard} from "./UpdateGlobalChatsNotificationsSettingsCard";
 import {UpdateChatNotificationsSettingsDialog} from "./UpdateChatNotificationsSettingsDialog";
 import {ChatNotificationExceptionsDialog} from "./ChatNotificationExceptionsDialog";
+import {UpdateUserNotificationsSettingsInChatDialog} from "./UpdateUserNotificationsSettingsInChatDialog";
 import {ChatType} from "../../api/types/response";
 import {useLocalization, useStore} from "../../store";
+import {UserNotificationExceptionsDialog} from "./UserNotificationExceptionsDialog";
 
 export const GlobalNotificationsSettingsUpdate: FunctionComponent = observer(() => {
 	const {
@@ -38,6 +40,8 @@ export const GlobalNotificationsSettingsUpdate: FunctionComponent = observer(() 
 			<NotificationSoundSelectDialog/>
 			<UpdateChatNotificationsSettingsDialog/>
 			<ChatNotificationExceptionsDialog/>
+			<UpdateUserNotificationsSettingsInChatDialog/>
+			<UserNotificationExceptionsDialog/>
 		</Grid>
 	);
 });

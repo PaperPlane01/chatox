@@ -1,7 +1,6 @@
 import {action, makeObservable, observable, runInAction} from "mobx";
 import {differenceInMilliseconds} from "date-fns";
 import {Duration} from "../utils/date-utils";
-import {computedFn} from "mobx-utils";
 
 type ExpireCallback<K> = (key: K) => boolean;
 
@@ -25,7 +24,7 @@ export class ExpirableStore<K, V> {
         const timeoutDuration = differenceInMilliseconds(this.timeToLive.addToDate(currentDate), currentDate);
 
         setTimeout(() => runInAction(() => {
-            const shouldDelete = this.onExpire && this.onExpire(key);
+            const shouldDelete = this.onExpire ? this.onExpire(key) : true;
 
             if (shouldDelete) {
                 this.storage.delete(key);
@@ -35,5 +34,7 @@ export class ExpirableStore<K, V> {
         }), timeoutDuration);
     }
 
-    get = computedFn((key: K): V | undefined => this.storage.get(key))
+    get = (key: K): V | undefined => {
+        return this.storage.get(key);
+    }
 }

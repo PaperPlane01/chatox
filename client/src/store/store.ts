@@ -28,7 +28,7 @@ import {
     UpdateChatStore
 } from "../Chat";
 import {
-    ApproveJoinChatRequestsStore,
+    ApproveJoinChatRequestsStore, ChatParticipantsAutoCompleteStore,
     ChatParticipantsSearchStore,
     ChatParticipantsStore,
     JoinChatRequestsStore,
@@ -180,11 +180,15 @@ import {
 } from "../ChatInvite";
 import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
 import {
-    ChatNotificationExceptionsDialogStore, DeleteChatNotificationSettingsStore,
+    ChatNotificationExceptionsDialogStore,
+    DeleteChatNotificationSettingsStore,
     NotificationSoundSelectDialogStore,
     NotificationsSettingsStore,
-    SoundNotificationStore, UpdateChatNotificationsSettingsStore,
-    UpdateGlobalNotificationsSettingsStore
+    SoundNotificationStore,
+    UpdateChatNotificationsSettingsStore,
+    UpdateGlobalNotificationsSettingsStore,
+    UpdateUserNotificationSettingsInChatDialogStore,
+    UserNotificationExceptionsDialogStore
 } from "../Notification";
 import {DexieRepositories, Repositories} from "../repositories";
 
@@ -562,6 +566,9 @@ const deleteChatNotificationsSettings = new DeleteChatNotificationSettingsStore(
     language,
     snackbarService
 );
+const chatParticipantsAutoComplete = new ChatParticipantsAutoCompleteStore(entities);
+const userNotificationExceptionsDialog = new UserNotificationExceptionsDialogStore();
+const updateUserNotificationsSettingsInChatDialog = new UpdateUserNotificationSettingsInChatDialogStore(updateChatNotificationsSettings);
 
 const _store: IAppState = {
     authorization,
@@ -727,7 +734,10 @@ const _store: IAppState = {
     updateGlobalNotificationsSettings,
     updateChatNotificationsSettings,
     chatNotificationExceptionsDialog,
-    deleteChatNotificationsSettings
+    deleteChatNotificationsSettings,
+    chatParticipantsAutoComplete,
+    userNotificationExceptionsDialog,
+    updateUserNotificationsSettingsInChatDialog
 };
 
 //Hack to avoid loss of application state on HMR

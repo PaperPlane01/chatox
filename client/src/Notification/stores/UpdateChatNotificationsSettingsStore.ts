@@ -1,4 +1,4 @@
-import {makeAutoObservable, runInAction} from "mobx";
+import {makeAutoObservable, runInAction, toJS} from "mobx";
 import {NotificationsSettingsStore} from "./NotificationsSettingsStore";
 import {ApiError, getInitialApiErrorFromResponse, NotificationsSettingsApi} from "../../api";
 import {UpdateChatNotificationsSettingsRequest, UpdateNotificationsSettingsRequest} from "../../api/types/request";
@@ -15,8 +15,6 @@ interface OpenUpdateChatNotificationSettingsDialogOptions {
 
 export class UpdateChatNotificationsSettingsStore {
 	chatId?: string = undefined;
-
-	userId?: string = undefined;
 
 	chatType?: ChatType = undefined;
 
@@ -60,7 +58,7 @@ export class UpdateChatNotificationsSettingsStore {
 		if (userExceptions.size !== 0) {
 			const requestUsersMap: {[userId: string]: UpdateNotificationsSettingsRequest} = {};
 
-			userExceptions.forEach((userId, settings) => {
+			userExceptions.forEach((settings, userId) => {
 				requestUsersMap[userId] = {
 					level: settings.level,
 					sound: settings.sound
@@ -78,14 +76,6 @@ export class UpdateChatNotificationsSettingsStore {
 		this.updateChatNotificationsSettingsDialogOpen = true;
 	}
 
-	setUserId = (userId: string): void => {
-		this.userId = userId;
-	}
-
-	clearUserId = (): void => {
-		this.userId = undefined;
-	}
-
 	closeDialog = (): void => {
 		this.updateChatNotificationsSettingsDialogOpen = false;
 	}
@@ -93,7 +83,6 @@ export class UpdateChatNotificationsSettingsStore {
 	closeDialogAndResetState = (): void => {
 		this.closeDialog();
 		this.chatId = undefined;
-		this.userId = undefined;
 		this.chatType = undefined;
 		this.error = undefined;
 		this.pending = false;
@@ -112,10 +101,12 @@ export class UpdateChatNotificationsSettingsStore {
 			this.request.userExceptions = {};
 		}
 
-		this.request.userExceptions[userId] = {
-			level: this.request.level,
-			sound: this.request.sound
-		};
+		if (!this.request.userExceptions[userId]) {
+			this.request.userExceptions[userId] = {
+				level: this.request.level,
+				sound: this.request.sound
+			};
+		}
 	}
 
 	setUserLevel = (userId: string, level: NotificationLevel): void => {
@@ -152,6 +143,10 @@ export class UpdateChatNotificationsSettingsStore {
 
 		this.pending = true;
 		this.error = undefined;
+
+		if (this.request.userExceptions && Object.keys(this.request.userExceptions).length === 0) {
+			delete this.request.userExceptions;
+		}
 
 		NotificationsSettingsApi.updateNotificationsSettingsForChat(
 			chatId,

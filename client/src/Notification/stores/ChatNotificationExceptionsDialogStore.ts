@@ -1,5 +1,5 @@
-import {ChatType} from "../../api/types/response";
 import {makeAutoObservable} from "mobx";
+import {ChatType} from "../../api/types/response";
 
 export class ChatNotificationExceptionsDialogStore {
 	chatNotificationExceptionsDialogOpen = false;

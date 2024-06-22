@@ -12,7 +12,8 @@ import {useLuminosity} from "../../utils/hooks";
 interface ChatParticipantsListItemProps {
     participantId: string,
     highlightOnline?: boolean,
-    onClick?: () => void
+    hideMenu?: boolean,
+    onClick?: () => void,
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -27,6 +28,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 export const ChatParticipantsListItem: FunctionComponent<ChatParticipantsListItemProps> = observer(({
     participantId,
     highlightOnline = false,
+    hideMenu = false,
     onClick
 }) => {
     const classes = useStyles();
@@ -59,7 +61,7 @@ export const ChatParticipantsListItem: FunctionComponent<ChatParticipantsListIte
             }}>
                 {getUserDisplayedName(user)}
             </ListItemText>
-            <ChatParticipantMenu chatParticipation={chatParticipant}/>
+            {!hideMenu && <ChatParticipantMenu chatParticipation={chatParticipant}/>}
         </MenuItem>
     );
 });

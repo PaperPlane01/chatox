@@ -12,7 +12,6 @@ import {
 import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
 
-
 const DEFAULT_GROUP_CHATS_NOTIFICATIONS_SETTINGS: NotificationsSettings = {
 	level: NotificationLevel.ALL_MESSAGES,
 	sound: "happy-pop-3"
@@ -118,14 +117,12 @@ export class NotificationsSettingsStore {
 	}
 
 	setNotificationsSettingsForGroupChat = (chatId: string, chatNotificationsSettings: ChatNotificationsSettings): void => {
+		this.groupChatsUsersExceptions.set(chatId, observable.map());
+
 		const userExceptions = chatNotificationsSettings.userExceptions ?? [];
 
 		userExceptions.forEach(userException => {
 			this.entities.users.insert(userException.user);
-
-			if (!this.groupChatsUsersExceptions.has(chatId)) {
-				this.groupChatsUsersExceptions.set(chatId, observable.map());
-			}
 
 			this.groupChatsUsersExceptions
 				.get(chatId)!

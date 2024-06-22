@@ -12,10 +12,12 @@ import {
 } from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
 import {NotificationLevelSelect} from "./NotificationLevelSelect";
+import {UserNotificationExceptionsButton} from "./UserNotificationExceptionsButton";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {useEntityById} from "../../entities";
 import {getUserDisplayedName} from "../../User/utils/labels";
+import {ChatType} from "../../api/types/response";
 
 export const UpdateChatNotificationsSettingsDialog: FunctionComponent = observer(() => {
 	const {
@@ -108,6 +110,9 @@ export const UpdateChatNotificationsSettingsDialog: FunctionComponent = observer
 						Change
 					</Button>
 				</div>
+				{chat.type === ChatType.GROUP && (
+					<UserNotificationExceptionsButton chatId={chat.id}/>
+				)}
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={updateChatNotificationsSettings}

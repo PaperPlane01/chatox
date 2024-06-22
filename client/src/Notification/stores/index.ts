@@ -5,3 +5,5 @@ export * from "./UpdateGlobalNotificationsSettingsStore";
 export * from "./UpdateChatNotificationsSettingsStore";
 export * from "./ChatNotificationExceptionsDialogStore";
 export * from "./DeleteChatNotificationSettingsStore";
+export * from "./UpdateUserNotificationSettingsInChatDialogStore";
+export * from "./UserNotificationExceptionsDialogStore";
