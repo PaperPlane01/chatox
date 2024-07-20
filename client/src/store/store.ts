@@ -379,6 +379,7 @@ const websocket = new WebsocketStore(
     pendingChats,
     language,
     soundNotification,
+    notificationsSettings,
     snackbarService
 );
 const stickerPackCreation = new CreateStickerPackStore(entities);

@@ -19,7 +19,17 @@ import {
     WebsocketEvent,
     WebsocketEventType
 } from "../../api/types/websocket";
-import {ChatBlocking, ChatParticipation, ChatRole, CurrentUser, GlobalBan, Message} from "../../api/types/response";
+import {
+    ChatBlocking,
+    ChatNotificationsSettings,
+    ChatParticipation,
+    ChatRole,
+    ChatType,
+    CurrentUser,
+    GlobalBan,
+    GlobalNotificationsSettings,
+    Message
+} from "../../api/types/response";
 import {
     ChatOfCurrentUserEntity,
     ChatsPreferencesStore,
@@ -33,7 +43,7 @@ import {LocaleStore} from "../../localization";
 import {SnackbarService} from "../../Snackbar";
 import {getSocketIoWorker, SocketIoWorker} from "../../workers";
 import {isDefined} from "../../utils/object-utils";
-import {SoundNotificationStore} from "../../Notification";
+import {NotificationsSettingsStore, SoundNotificationStore} from "../../Notification";
 
 type ConnectionType = "socketIo" | "sharedWorker";
 
@@ -62,6 +72,7 @@ export class WebsocketStore {
                 private readonly pendingChats: PendingChatsOfCurrentUserStore,
                 private readonly locale: LocaleStore,
                 private readonly soundNotification: SoundNotificationStore,
+                private readonly notificationsSettings: NotificationsSettingsStore,
                 private readonly snackbarService: SnackbarService) {
         makeAutoObservable(this);
 
@@ -177,7 +188,7 @@ export class WebsocketStore {
     }
     
     private createHandlers(): Map<WebsocketEventType, (websocketEvent: WebsocketEvent<any>) => void> {
-        const map = new  Map<WebsocketEventType, (websocketEvent: WebsocketEvent<any>) => void>();
+        const map = new Map<WebsocketEventType, (websocketEvent: WebsocketEvent<any>) => void>();
         map.set(
             WebsocketEventType.MESSAGE_CREATED,
             (event: WebsocketEvent<Message>) => this.handleNewMessage(event.payload)
@@ -323,6 +334,18 @@ export class WebsocketStore {
             WebsocketEventType.USER_JOINED_CHAT,
             (event: WebsocketEvent<ChatParticipation>) => this.handleUserJoinChat(event.payload)
         );
+        map.set(
+            WebsocketEventType.CHAT_NOTIFICATIONS_SETTINGS_UPDATED,
+            (event: WebsocketEvent<ChatNotificationsSettings>) => this.handleChatNotificationsSettingsUpdated(event.payload)
+        );
+        map.set(
+            WebsocketEventType.CHAT_NOTIFICATIONS_SETTINGS_DELETED,
+            (event: WebsocketEvent<{chatId: string}>) => this.handleChatNotificationsSettingsDeleted(event.payload.chatId)
+        );
+        map.set(
+            WebsocketEventType.GLOBAL_NOTIFICATIONS_SETTINGS_UPDATED,
+            (event: WebsocketEvent<GlobalNotificationsSettings>) => this.handleGlobalNotificationsSettingsUpdated(event.payload)
+        );
         
         return map;
     }
@@ -443,6 +466,34 @@ export class WebsocketStore {
             chat.lastMessageReadByAnyoneCreatedAt = message.createdAt
             this.entities.chats.insertEntity(chat);
         }
+    }
+
+    private handleChatNotificationsSettingsUpdated = (chatNotificationsSettings: ChatNotificationsSettings): void => {
+        const chat = chatNotificationsSettings.chat;
+
+        if (chat.type === ChatType.GROUP) {
+            this.notificationsSettings.setNotificationsSettingsForGroupChat(chat.id, chatNotificationsSettings);
+        } else if (chat.type === ChatType.DIALOG) {
+            this.notificationsSettings.setNotificationSettingsForDialogChat(chat.id, chatNotificationsSettings);
+        }
+    }
+
+    private handleChatNotificationsSettingsDeleted = async (chatId: string): Promise<void> => {
+        const chat = await this.getChat(chatId);
+
+        if (!chat) {
+            return;
+        }
+
+        if (chat.type === ChatType.GROUP) {
+            this.notificationsSettings.deleteNotificationsSettingsForGroupChat(chatId);
+        } else if (chat.type === ChatType.DIALOG) {
+            this.notificationsSettings.deleteNotificationsSettingsForDialogChat(chatId);
+        }
+    }
+
+    private handleGlobalNotificationsSettingsUpdated = (globalNotificationsSettings: GlobalNotificationsSettings): void => {
+        this.notificationsSettings.setNotificationsSettings(globalNotificationsSettings);
     }
 
     subscribeToChat = (chatId: string) => {
