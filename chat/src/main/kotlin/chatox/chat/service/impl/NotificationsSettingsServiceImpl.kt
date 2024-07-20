@@ -8,6 +8,10 @@ import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.exception.ChatParticipationNotFoundException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.NotificationsSettingsMapper
+import chatox.chat.messaging.rabbitmq.event.ChatNotificationsSettingsDeleted
+import chatox.chat.messaging.rabbitmq.event.ChatNotificationsSettingsUpdated
+import chatox.chat.messaging.rabbitmq.event.GlobalNotificationsSettingsUpdated
+import chatox.chat.messaging.rabbitmq.event.publisher.NotificationsSettingsEventsPublisher
 import chatox.chat.model.Chat
 import chatox.chat.model.GlobalNotificationSettings
 import chatox.chat.model.NotificationsSettings
@@ -17,6 +21,7 @@ import chatox.chat.model.UserNotificationSettings
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.UserGlobalNotificationsSettingsRepository
 import chatox.chat.service.NotificationsSettingsService
+import chatox.chat.util.runAsync
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
@@ -34,6 +39,7 @@ class NotificationsSettingsServiceImpl(
         @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val notificationsSettingsMapper: NotificationsSettingsMapper,
+        private val notificationsSettingsEventsPublisher: NotificationsSettingsEventsPublisher,
         private val authenticationHolder: ReactiveAuthenticationHolder<User>
 ) : NotificationsSettingsService {
 
@@ -90,12 +96,23 @@ class NotificationsSettingsServiceImpl(
                     .collectList()
                     .awaitFirst()
 
-            return@mono notificationsSettingsMapper.toGlobalNotificationsSettingsResponse(
+            val notificationsSettingsResponse = notificationsSettingsMapper.toGlobalNotificationsSettingsResponse(
                     globalNotificationsSettings,
                     customChatSettings,
                     currentUser.id
             )
                     .awaitFirst()
+
+            runAsync {
+                val event = GlobalNotificationsSettingsUpdated(
+                        userId = currentUser.id,
+                        groupChatSettings = notificationsSettingsResponse.groupChats,
+                        dialogChatsSettings = notificationsSettingsResponse.dialogs
+                )
+                notificationsSettingsEventsPublisher.globalNotificationsSettingsUpdated(event)
+            }
+
+            return@mono notificationsSettingsResponse
         }
     }
 
@@ -131,12 +148,22 @@ class NotificationsSettingsServiceImpl(
 
             chatParticipationRepository.save(chatParticipation).awaitFirst()
 
-            return@mono notificationsSettingsMapper.toChatNotificationsSettingsResponse(
+            val notificationsSettingsResponse = notificationsSettingsMapper.toChatNotificationsSettingsResponse(
                     notificationsSettings = notificationsSettings,
                     chat = chat,
                     currentUserId = currentUser.id
             )
                     .awaitFirst()
+
+            runAsync {
+                val event = ChatNotificationsSettingsUpdated(
+                        userId = currentUser.id,
+                        notificationsSettings = notificationsSettingsResponse
+                )
+                notificationsSettingsEventsPublisher.chatNotificationsSettingsUpdated(event)
+            }
+
+            return@mono notificationsSettingsResponse
         }
     }
 
@@ -147,13 +174,22 @@ class NotificationsSettingsServiceImpl(
                     chatId = chatId,
                     userId = currentUser.id
             )
-                    .awaitFirstOrNull() ?: throw ChatParticipationNotFoundException(
-                    "Could not find chat participation of current user in chat $chatId"
-            )
+                    .awaitFirstOrNull()
+                    ?: throw ChatParticipationNotFoundException(
+                            "Could not find chat participation of current user in chat $chatId"
+                    )
 
             chatParticipation = chatParticipation.copy(notificationsSettings = null)
 
             chatParticipationRepository.save(chatParticipation).awaitFirst()
+
+            runAsync {
+                val event = ChatNotificationsSettingsDeleted(
+                        userId = currentUser.id,
+                        chatId = chatId
+                )
+                notificationsSettingsEventsPublisher.chatNotificationsSettingsDeleted(event)
+            }
 
             return@mono
         }

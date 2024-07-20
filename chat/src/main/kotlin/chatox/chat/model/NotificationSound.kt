@@ -27,7 +27,7 @@ enum class NotificationSound {
     @JsonProperty("music-box")
     MUSIC_BOX,
 
-    @JsonProperty("new-notification-7")
+    @JsonProperty("new_notification_7")
     NEW_NOTIFICATION_7,
 
     @JsonProperty("notification-sound")

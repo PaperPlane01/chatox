@@ -10,8 +10,12 @@ import {config} from "../env-config";
                 {
                     name: "websocket.events",
                     type: "topic",
+                },
+                {
+                    name: "notification.events",
+                    type: "topic"
                 }
-            ],
+            ]
         })
     ],
     exports: [RabbitMQModule]
