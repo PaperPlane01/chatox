@@ -1,12 +1,11 @@
 import React, {FunctionComponent, MouseEvent, useCallback} from "react";
 import {observer} from "mobx-react";
-import {ListItem, ListItemAvatar, ListItemText, IconButton, Tooltip, useTheme} from "@mui/material";
+import {IconButton, ListItem, ListItemAvatar, ListItemText, Tooltip, useTheme} from "@mui/material";
 import {Delete} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {ChatType, NotificationLevel} from "../../api/types/response";
-import {ChatAvatar} from "../../Chat";
-import {getChatName} from "../../Chat/utils";
+import {ChatAvatar, useChatName} from "../../Chat";
 import {Labels} from "../../localization";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 
@@ -32,6 +31,7 @@ export const ChatNotificationException: FunctionComponent<ChatNotificationExcept
 	const theme = useTheme();
 	const chat = useEntityById("chats", chatId);
 	const chatUser = useEntityById("users", chat.userId)
+	const chatName = useChatName(chat, chatUser);
 
 	const handleDeleteClick = useCallback((event: MouseEvent) => {
 		ensureEventWontPropagate(event);
@@ -58,7 +58,7 @@ export const ChatNotificationException: FunctionComponent<ChatNotificationExcept
 			<ListItemAvatar>
 				<ChatAvatar chat={chat} chatUser={chatUser}/>
 			</ListItemAvatar>
-			<ListItemText primary={getChatName(chat, chatUser)}
+			<ListItemText primary={chatName}
 						  secondary={settingsLabel}
 			/>
 			<Tooltip title={l("notification.settings.for-chat.delete")}>

@@ -6,8 +6,9 @@ import {Link} from "mobx-router";
 import {ChatAvatar} from "./ChatAvatar";
 import {ChatListMessagePreview} from "./ChatListMessagePreview";
 import {TypingIndicator} from "./TypingIndicator";
-import {getChatLinkProps, getChatName} from "../utils";
+import {getChatLinkProps} from "../utils";
 import {ChatLinkPropsGenerationStrategy} from "../types";
+import {useChatName} from "../hooks";
 import {useRouter, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 
@@ -88,6 +89,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
     const classes = useStyles();
     const chat = useEntityById("chats", chatId);
     const chatUser = useEntityById("users", chat.userId)
+    const chatName = useChatName(chat, chatUser);
 
     const linkProps = getChatLinkProps(linkGenerationStrategy, {chat, messageId});
     const chatHasTypingUsers = hasTypingUsers(chatId);
@@ -125,7 +127,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                                 <div className={classes.flexTruncatedTextContainer}>
                                     <Typography className={classes.truncatedText}>
                                         <strong>
-                                            {getChatName(chat, chatUser)}
+                                            {chatName}
                                         </strong>
                                     </Typography>
                                 </div>

@@ -4,8 +4,6 @@ import {Autocomplete, TextField} from "@mui/material";
 import {ChatsOfCurrentUserListItemSimple} from "./ChatsOfCurrentUserListItemSimple";
 import {useEntities, useStore} from "../../store";
 import {ChatType} from "../../api/types/response";
-import {useEntitiesByIds} from "../../entities";
-import {toJS} from "mobx";
 
 interface ChatOfCurrentUserSelectProps {
 	selectedChatId?: string,

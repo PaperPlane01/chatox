@@ -90,7 +90,15 @@ export class ChatsOfCurrentUserStore {
         return this.chatsOfCurrentUserInAlphabeticalOrder.filter(chat => chat.chatType === chatType);
     })
 
-    getChatName = computedFn((chat: ChatOfCurrentUserEntity, user?: UserEntity): string => {
+    getChatName = computedFn((chat?: ChatOfCurrentUserEntity, user?: UserEntity): string => {
+        if (!chat) {
+            if (user) {
+                return getUserDisplayedName(user);
+            } else {
+                return "";
+            }
+        }
+
         if (chat.type === ChatType.DIALOG) {
             const chatUser = user ?? this.entities.users.findById(chat.userId!);
             return getUserDisplayedName(chatUser);

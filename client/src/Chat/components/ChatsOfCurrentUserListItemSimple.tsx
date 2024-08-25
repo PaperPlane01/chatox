@@ -2,7 +2,7 @@ import React, {Fragment, FunctionComponent, HTMLAttributes, ReactNode} from "rea
 import {observer} from "mobx-react";
 import {ListItem, ListItemAvatar, ListItemText, MenuItem} from "@mui/material";
 import {ChatAvatar} from "./ChatAvatar";
-import {getChatName} from "../utils";
+import {useChatName} from "../hooks";
 import {useEntityById} from "../../entities";
 
 type Variant = "listItem" | "menuItem";
@@ -51,14 +51,15 @@ export const ChatsOfCurrentUserListItemSimple: FunctionComponent<ChatsOfCurrentU
 	...props
 }) => {
 	const chat = useEntityById("chats", chatId);
-	const chatUser = useEntityById("users", chat.userId)
+	const chatUser = useEntityById("users", chat.userId);
+	const chatName = useChatName(chat, chatUser);
 	const itemContent = (
 		<Fragment>
 			<ListItemAvatar>
 				<ChatAvatar chat={chat} chatUser={chatUser}/>
 			</ListItemAvatar>
 			<ListItemText>
-				{getChatName(chat, chatUser)}
+				{chatName}
 			</ListItemText>
 		</Fragment>
 	);
