@@ -2,7 +2,7 @@ import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {List, ListItemIcon, ListItemText, MenuItem, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
-import {ChatBubble, Image, Language, Palette, Person, Security} from "@mui/icons-material";
+import {ChatBubble, Image, Language, Notifications, Palette, Person, Security} from "@mui/icons-material";
 import {Link} from "mobx-router";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
 import {SecurityTabWrapper} from "./SecurityTabWrapper";
@@ -15,6 +15,7 @@ import {useLocalization, useRouter, useStore} from "../../store";
 import {ChatsPreferencesCard} from "../../Chat";
 import {HasAnyRole} from "../../Authorization";
 import {InstalledStickerPacksList} from "../../Sticker";
+import {GlobalNotificationsSettingsUpdate} from "../../Notification";
 
 const useStyles = makeStyles(() => createStyles({
     undecoratedLink: {
@@ -108,6 +109,20 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                 </Link>
                 <Link className={classes.undecoratedLink}
                       route={Routes.settingsTabPage}
+                      params={{tab: SettingsTab.NOTIFICATIONS}}
+                      router={routerStore}
+                >
+                    <MenuItem>
+                        <ListItemIcon>
+                            <Notifications/>
+                        </ListItemIcon>
+                        <ListItemText>
+                            {l("settings.notifications")}
+                        </ListItemText>
+                    </MenuItem>
+                </Link>
+                <Link className={classes.undecoratedLink}
+                      route={Routes.settingsTabPage}
                       params={{tab: SettingsTab.STICKERS}}
                       router={routerStore}
                 >
@@ -145,6 +160,11 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                                       open={activeTab === SettingsTab.CHATS}
             >
                 <ChatsPreferencesCard/>
+            </SettingsFullScreenDialog>
+            <SettingsFullScreenDialog title={l("settings.notifications")}
+                                      open={activeTab === SettingsTab.NOTIFICATIONS}
+            >
+                <GlobalNotificationsSettingsUpdate/>
             </SettingsFullScreenDialog>
             <SettingsFullScreenDialog title={l("sticker.pack.list")}
                                       open={activeTab === SettingsTab.STICKERS}>

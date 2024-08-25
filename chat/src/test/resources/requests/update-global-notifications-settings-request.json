@@ -1,0 +1,10 @@
+{
+  "groupChats": {
+    "level": "MENTIONS_AND_REPLIES",
+    "sound": "happy-pop-1"
+  },
+  "dialogChats": {
+    "level": "ALL_MESSAGES",
+    "sound": "livechat"
+  }
+}

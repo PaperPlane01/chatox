@@ -1,4 +1,5 @@
 import {Upload} from "./Upload";
+import {User} from "./User";
 
 export interface Chat {
     id: string,
@@ -7,5 +8,8 @@ export interface Chat {
     tags: string[],
     avatar: Upload,
     description: string,
-    createdAt: string
+    createdAt: string,
+    participantsCount?: number,
+    onlineParticipantsCount?: number,
+    user?: User
 }

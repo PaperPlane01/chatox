@@ -9,3 +9,4 @@ export * from "./PendingChatParticipationsStore";
 export * from "./JoinChatRequestsStore";
 export * from "./ApproveJoinChatRequestsStore";
 export * from "./RejectJoinChatRequestsStore";
+export * from "./ChatParticipantsAutoCompleteStore";

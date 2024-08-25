@@ -1,0 +1,5 @@
+export enum NotificationLevel {
+	MUTED = "MUTED",
+	MENTIONS_AND_REPLIES = "MENTIONS_AND_REPLIES",
+	ALL_MESSAGES = "ALL_MESSAGES"
+}

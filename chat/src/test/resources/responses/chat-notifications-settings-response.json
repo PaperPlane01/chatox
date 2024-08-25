@@ -1,0 +1,23 @@
+{
+  "chat": {
+    "id": "2d9ada32-1642-425c-922c-ff770ae000db",
+    "name": "Markdown test playground",
+    "description": "",
+    "avatarUri": null,
+    "tags": [],
+    "slug": "test_pg",
+    "avatar": null,
+    "type": "GROUP",
+    "slowMode": {
+      "enabled": true,
+      "interval": 5,
+      "unit": "SECONDS"
+    },
+    "joinAllowanceSettings": {},
+    "hideFromSearch": false
+  },
+  "notificationsSettings": {
+    "level": "MUTED",
+    "sound": "new_notification_7"
+  }
+}

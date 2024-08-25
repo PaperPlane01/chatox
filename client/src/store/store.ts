@@ -28,7 +28,7 @@ import {
     UpdateChatStore
 } from "../Chat";
 import {
-    ApproveJoinChatRequestsStore,
+    ApproveJoinChatRequestsStore, ChatParticipantsAutoCompleteStore,
     ChatParticipantsSearchStore,
     ChatParticipantsStore,
     JoinChatRequestsStore,
@@ -179,6 +179,17 @@ import {
     UpdateChatInviteStore
 } from "../ChatInvite";
 import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
+import {
+    ChatNotificationExceptionsDialogStore,
+    DeleteChatNotificationSettingsStore,
+    NotificationSoundSelectDialogStore,
+    NotificationsSettingsStore,
+    SoundNotificationStore,
+    UpdateChatNotificationsSettingsStore,
+    UpdateGlobalNotificationsSettingsStore,
+    UpdateUserNotificationSettingsInChatDialogStore,
+    UserNotificationExceptionsDialogStore
+} from "../Notification";
 import {DexieRepositories, Repositories} from "../repositories";
 
 const referencedEntities = new ReferencedEntitiesStore();
@@ -348,6 +359,13 @@ const markMessageRead = new MarkMessageReadStore(
 );
 const balance = new BalanceStore(authorization);
 const typingUsers = new TypingUsersStore(entities, authorization);
+const notificationsSettings = new NotificationsSettingsStore(authorization, entities);
+const soundNotification = new SoundNotificationStore(
+    notificationsSettings,
+    chat,
+    authorization,
+    entities
+);
 const websocket = new WebsocketStore(
     authorization,
     entities,
@@ -360,6 +378,8 @@ const websocket = new WebsocketStore(
     typingUsers,
     pendingChats,
     language,
+    soundNotification,
+    notificationsSettings,
     snackbarService
 );
 const stickerPackCreation = new CreateStickerPackStore(entities);
@@ -530,6 +550,26 @@ const joinChatRequestsRejection = new RejectJoinChatRequestsStore(
 );
 const mentions = new MentionsStore(entities, chat, chatsOfCurrentUser);
 const editorLink = new CreateEditorLinkDialogStore();
+const notificationSoundSelectDialog = new NotificationSoundSelectDialogStore(soundNotification);
+const updateGlobalNotificationsSettings = new UpdateGlobalNotificationsSettingsStore(
+    notificationsSettings,
+    language,
+    snackbarService
+);
+const updateChatNotificationsSettings = new UpdateChatNotificationsSettingsStore(
+    notificationsSettings,
+    language,
+    snackbarService
+);
+const chatNotificationExceptionsDialog = new ChatNotificationExceptionsDialogStore();
+const deleteChatNotificationsSettings = new DeleteChatNotificationSettingsStore(
+    notificationsSettings,
+    language,
+    snackbarService
+);
+const chatParticipantsAutoComplete = new ChatParticipantsAutoCompleteStore(entities);
+const userNotificationExceptionsDialog = new UserNotificationExceptionsDialogStore();
+const updateUserNotificationsSettingsInChatDialog = new UpdateUserNotificationSettingsInChatDialogStore(updateChatNotificationsSettings);
 
 const _store: IAppState = {
     authorization,
@@ -688,7 +728,17 @@ const _store: IAppState = {
     voiceRecording,
     mentions,
     editorLink,
-    referencedEntities
+    referencedEntities,
+    notificationsSettings,
+    soundNotification,
+    notificationSoundSelectDialog,
+    updateGlobalNotificationsSettings,
+    updateChatNotificationsSettings,
+    chatNotificationExceptionsDialog,
+    deleteChatNotificationsSettings,
+    chatParticipantsAutoComplete,
+    userNotificationExceptionsDialog,
+    updateUserNotificationsSettingsInChatDialog
 };
 
 //Hack to avoid loss of application state on HMR

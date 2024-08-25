@@ -42,7 +42,7 @@ spring:
         - id: chat-service
           uri: lb://chat-service
           predicates:
-            - Path=/api/v1/chats/**, /api/v1/messages/**
+            - Path=/api/v1/chats/**, /api/v1/messages/**, /api/v1/notifications-settings/**
         - id: user-service
           uri: lb://user-service
           predicates:
