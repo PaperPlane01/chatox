@@ -32,7 +32,7 @@ export const MessagesListWrapper = observer(() => {
     const chat = useEntityById("chats", selectedChatId);
     const error = currentSlug ? errorsMap[currentSlug] : undefined;
 
-    if (error && error.metadata && error.metadata.errorCode === "CHAT_DELETED") {
+    if (error?.metadata?.errorCode === "CHAT_DELETED") {
         const comment = error.metadata.additional ? error.metadata.additional.comment : undefined;
         const reason = error.metadata.additional ? error.metadata.additional.reason : undefined;
 
@@ -45,11 +45,7 @@ export const MessagesListWrapper = observer(() => {
         );
     }
 
-    if (!chat) {
-        return null;
-    }
-
-    if (chat.deleted) {
+    if (chat?.deleted) {
         return (
             <ChatDeletionLabel deletionComment={chat.deletionComment}
                                deletionReason={chat.deletionReason}

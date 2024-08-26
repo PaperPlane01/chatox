@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {Grid, Hidden} from "@mui/material";
 import {ChatAppBar} from "../ChatAppBar";
-import {MessagesList} from "../Message";
+import {MessagesListWrapper} from "../Message";
 import {ChatsOfCurrentUserList} from "../Chat";
 
 export const NewPrivateChatPage: FunctionComponent = () => (
@@ -19,7 +19,7 @@ export const NewPrivateChatPage: FunctionComponent = () => (
             </Hidden>
             <Grid container>
                 <Grid item xs={12}>
-                    <MessagesList/>
+                    <MessagesListWrapper/>
                 </Grid>
             </Grid>
         </Grid>
