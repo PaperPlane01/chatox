@@ -40,8 +40,8 @@ import chatox.chat.service.MessageEntityService
 import chatox.chat.service.MessageReadService
 import chatox.chat.service.TextParserService
 import chatox.chat.util.NTuple2
+import chatox.chat.util.NTuple6
 import chatox.chat.util.NTuple7
-import chatox.chat.util.NTuple8
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
@@ -135,7 +135,6 @@ class CreateMessageServiceImpl(
             }
 
             val (
-                    chat,
                     sticker,
                     referredMessage,
                     emoji,
@@ -148,7 +147,7 @@ class CreateMessageServiceImpl(
             val scheduledMessage = ScheduledMessage(
                     id = UUID.randomUUID().toString(),
                     createdAt = ZonedDateTime.now(),
-                    chatId = chat.id,
+                    chatId = chatId,
                     referredMessageId = referredMessage?.id,
                     text = createMessageRequest.text,
                     senderId = currentUser.id,
@@ -174,23 +173,18 @@ class CreateMessageServiceImpl(
         }
     }
 
-    override fun createFirstMessageForPrivateChat(chatId: String, createMessageRequest: CreateMessageRequest, chatParticipation: ChatParticipation): Mono<MessageResponse> {
+    override fun createFirstMessageForPrivateChat(chatId: String, createMessageRequest: CreateMessageRequest, chatParticipation: ChatParticipation): Mono<Message> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            val message = createMessageFromRequest(
+
+            return@mono createMessageFromRequest(
                     chatId = chatId,
                     createMessageRequest = createMessageRequest,
                     currentUser = currentUser,
                     providedChatParticipation = chatParticipation,
-                    skipIncreasingUnreadMentionsCount = true
-           ).awaitFirst()
-
-            return@mono messageMapper.toMessageResponse(
-                    message = message,
-                    mapReferredMessage = true,
-                    readByCurrentUser = true
-            )
-                    .awaitFirst()
+                    skipIncreasingUnreadMentionsCount = true,
+                    chatNotCreated = true
+            ).awaitFirst()
         }
     }
 
@@ -326,11 +320,11 @@ class CreateMessageServiceImpl(
             createMessageRequest: CreateMessageRequest,
             currentUser: JwtPayload,
             providedChatParticipation: ChatParticipation? = null,
-            skipIncreasingUnreadMentionsCount: Boolean = false
+            skipIncreasingUnreadMentionsCount: Boolean = false,
+            chatNotCreated: Boolean = false
     ): Mono<Message> {
         return mono {
             val (
-                    chat,
                     sticker,
                     referredMessage,
                     emoji,
@@ -343,13 +337,18 @@ class CreateMessageServiceImpl(
                     createMessageRequest = createMessageRequest,
                     currentUser = currentUser,
                     chatParticipation = providedChatParticipation,
+                    chatNotCreated = chatNotCreated
             ).awaitFirst()
 
-            val messageIndex = chatMessagesCounterRepository.getNextCounterValue(chat).awaitFirst()
+            val messageIndex = if (chatNotCreated) {
+                1L
+            } else {
+                chatMessagesCounterRepository.getNextCounterValue(chatId).awaitFirst()
+            }
             val message = Message(
                     id = UUID.randomUUID().toString(),
                     text = createMessageRequest.text,
-                    chatId = chat.id,
+                    chatId = chatId,
                     senderId = currentUser.id,
                     chatParticipationId = chatParticipation.id,
                     sticker = sticker,
@@ -363,8 +362,11 @@ class CreateMessageServiceImpl(
             )
 
             messageRepository.save(message).awaitFirst()
-            messageReadService.increaseUnreadMessagesCountForChat(chat.id, listOf(chatParticipation.id)).awaitFirstOrNull()
-            messageReadService.readAllMessagesForCurrentUser(chatParticipation, message).awaitFirstOrNull()
+
+            if (!chatNotCreated) {
+                messageReadService.increaseUnreadMessagesCountForChat(chatId, listOf(chatParticipation.id)).awaitFirstOrNull()
+                messageReadService.readAllMessagesForCurrentUser(chatParticipation, message).awaitFirstOrNull()
+            }
 
             if (uploadAttachments.isNotEmpty()) {
                 chatUploadAttachmentEntityService.linkChatUploadAttachmentsToMessage(uploadAttachments, message)
@@ -385,9 +387,15 @@ class CreateMessageServiceImpl(
             createMessageRequest: CreateMessageRequest,
             currentUser: JwtPayload,
             chatParticipation: ChatParticipation? = null,
-    ): Mono<NTuple8<Chat, Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, List<ChatParticipation>, ChatParticipation>> {
+            chatNotCreated: Boolean = false,
+    ): Mono<NTuple7<Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, List<ChatParticipation>, ChatParticipation>> {
         return mono {
-            val baseData = prepareBaseDataForSavingMessage(chatId, createMessageRequest, currentUser).awaitFirst()
+            val baseData = prepareBaseDataForSavingMessage(
+                    chatId = chatId,
+                    createMessageRequest = createMessageRequest,
+                    currentUser = currentUser,
+                    chatNotCreated = chatNotCreated
+            ).awaitFirst()
             val returnedTypeParticipation = chatParticipation
                     ?: chatParticipationRepository.findByChatIdAndUserIdAndDeletedFalse(
                             chatId = chatId,
@@ -395,14 +403,13 @@ class CreateMessageServiceImpl(
                     )
                             .awaitFirst()
 
-            return@mono NTuple8(
+            return@mono NTuple7(
                     baseData.t1,
                     baseData.t2,
                     baseData.t3,
                     baseData.t4,
                     baseData.t5,
                     baseData.t6,
-                    baseData.t7,
                     returnedTypeParticipation
             )
         }
@@ -412,12 +419,17 @@ class CreateMessageServiceImpl(
             chatId: String,
             createMessageRequest: CreateMessageRequest,
             currentUser: JwtPayload,
-    ): Mono<NTuple7<Chat, Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, List<ChatParticipation>>> {
+            chatNotCreated: Boolean = false
+    ): Mono<NTuple6<Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, List<ChatParticipation>>> {
         return mono {
-            val chat = findChatById(chatId).awaitFirst()
+            var chat: Chat? = null
 
-            if (chat.deleted) {
-                throw ChatDeletedException(chat.chatDeletion)
+            if (!chatNotCreated) {
+                chat = findChatById(chatId).awaitFirst()
+
+                if (chat.deleted) {
+                    throw ChatDeletedException(chat.chatDeletion)
+                }
             }
 
             var sticker: Sticker<Any>? = null
@@ -438,7 +450,7 @@ class CreateMessageServiceImpl(
             }
 
             val textInfo = getTextInfo(createMessageRequest.text, createMessageRequest.emojisSet).awaitFirst()
-            val mentionedChatParticipants = if (chat.type == ChatType.DIALOG) {
+            val mentionedChatParticipants = if (chat != null && chat.type == ChatType.DIALOG) {
                 emptyList()
             } else {
                 getMentionedChatParticipants(textInfo, chatId, currentUser.id)
@@ -451,14 +463,13 @@ class CreateMessageServiceImpl(
             } else {
                 getUploadsAndAttachments(
                         uploadsIds = createMessageRequest.uploadAttachments,
-                        chatId = chat.id,
+                        chatId = chatId,
                         currentUserId = currentUser.id
                 )
                         .awaitFirst()
             }
 
-            return@mono NTuple7(
-                    chat,
+            return@mono NTuple6(
                     sticker,
                     referredMessage,
                     textInfo.emoji,
