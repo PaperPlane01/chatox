@@ -98,5 +98,6 @@ class ChatUploadAttachmentEntityServiceImpl(
             }
 
             return@mono Flux.fromIterable(result)
-        }.flatMapMany { it }    }
+        }.flatMapMany { it }
+    }
 }

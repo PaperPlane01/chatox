@@ -15,6 +15,7 @@ export const CreateMessageRichTextForm: FunctionComponent = observer(() => {
 			referredMessageId,
 			attachmentsIds,
 			selectedChatId,
+			userId,
 			resultMessage,
 			clearResultMessage,
 			setFormValue,
@@ -36,13 +37,13 @@ export const CreateMessageRichTextForm: FunctionComponent = observer(() => {
 		}
 	} = usePermissions();
 
-	if (!selectedChatId) {
+	if (!selectedChatId && !userId) {
 		return null;
 	}
 
-	const allowScheduled = canScheduleMessage(selectedChatId);
-	const allowVoiceMessages = canSendVoiceMessages(selectedChatId);
-	const nextMessageDate = getNextMessageDate(selectedChatId);
+	const allowScheduled = Boolean(selectedChatId && canScheduleMessage(selectedChatId));
+	const allowVoiceMessages = Boolean(selectedChatId && canSendVoiceMessages(selectedChatId));
+	const nextMessageDate = selectedChatId ? getNextMessageDate(selectedChatId) : undefined;
 
 	return (
 		<Fragment>

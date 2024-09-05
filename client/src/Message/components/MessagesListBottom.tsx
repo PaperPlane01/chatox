@@ -110,7 +110,7 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, MessagesListBottomProps>(
                             )
                         }
                     </Alert>
-                )
+                );
             } else if (lastChatBlocking && isChatBlockingActive(lastChatBlocking) && blockedInChatBy) {
                 messagesListBottomContent = (
                     <Alert severity="error">
@@ -125,7 +125,7 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, MessagesListBottomProps>(
                     </Alert>
                 );
             } else {
-                messagesListBottomContent = <MessageForm />;
+                messagesListBottomContent = <MessageForm/>;
             }
         } else {
             messagesListBottomContent = <JoinChatButton/>;

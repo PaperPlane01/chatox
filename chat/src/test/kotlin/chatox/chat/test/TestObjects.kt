@@ -23,6 +23,7 @@ import chatox.chat.model.PendingChatParticipation
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Sticker
 import chatox.chat.model.TextInfo
+import chatox.chat.model.UnreadMessagesCount
 import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.chat.model.UserGlobalNotificationsSettings
@@ -75,6 +76,11 @@ object TestObjects {
     fun textInfo(): TextInfo = loadResource(
             "model/text-info.json",
             TextInfo::class.java
+    )
+
+    fun unreadMessagesCount(): UnreadMessagesCount = loadResource(
+            "model/unread-messages-count.json",
+            UnreadMessagesCount::class.java
     )
 
     fun messageResponse(): MessageResponse = loadResource(
