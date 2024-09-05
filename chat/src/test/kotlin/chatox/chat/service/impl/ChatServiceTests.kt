@@ -15,6 +15,7 @@ import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.ChatMapper
 import chatox.chat.mapper.ChatParticipationMapper
+import chatox.chat.mapper.MessageMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatDeletionReason
@@ -88,6 +89,7 @@ class ChatServiceTests {
     val chatBySlugCacheService: ReactiveCacheService<Chat, String> = mockk()
     val chatMapper: ChatMapper = mockk()
     val chatParticipationMapper: ChatParticipationMapper = mockk()
+    val messageMapper: MessageMapper = mockk()
     val authenticationHolder: ReactiveAuthenticationHolder<User> = mockk()
     val chatEventsPublisher: ChatEventsPublisher = mockk()
     val createMessageService: CreateMessageService = mockk()
@@ -103,6 +105,7 @@ class ChatServiceTests {
     private val chatParticipationResponse = TestObjects.chatParticipationResponse()
     private val chatOfCurrenUser = TestObjects.chatOfCurrentUser()
     private val chatParticipantsCount = TestObjects.chatParticipantsCount()
+    private val uncreadMessagesCount = TestObjects.unreadMessagesCount()
 
     @BeforeEach
     fun setUp() {
@@ -119,6 +122,7 @@ class ChatServiceTests {
                 chatBySlugCacheService,
                 chatMapper,
                 chatParticipationMapper,
+                messageMapper,
                 authenticationHolder,
                 chatEventsPublisher,
                 createMessageService,
@@ -149,6 +153,9 @@ class ChatServiceTests {
 
             every { chatRoleService.createRolesForChat(any()) } returns Flux.fromIterable(chatRoles)
             every { chatParticipationRepository.save(any()) } returns Mono.just(chatParticipation)
+            every {
+                messageReadService.initializeUnreadMessagesCount(any())
+            } returns Mono.just(uncreadMessagesCount)
             every { chatParticipationMapper.toChatParticipationResponse(
                     chatParticipation = any(),
                     chatRole = any()
@@ -244,6 +251,7 @@ class ChatServiceTests {
         private val dialogParticipant = TestObjects.dialogParticipant()
         private val chatRole = TestObjects.chatRole()
         private val messageResponse = TestObjects.messageResponse()
+        private val message = TestObjects.message()
 
         @Test
         fun `It creates private chat`() {
@@ -262,12 +270,20 @@ class ChatServiceTests {
                     any(),
                     eq(request.message),
                     capture(messageChatParticipationSlot)
-            ) } returns Mono.just(messageResponse)
+            ) } returns Mono.just(message)
+            every { messageMapper.toMessageResponse(message, any(), any()) } returns Mono.just(messageResponse)
 
             val chatParticipationsSlot = slot<List<ChatParticipation>>()
             every {
                 chatParticipationRepository.saveAll(capture(chatParticipationsSlot))
             } returns Flux.just(chatParticipation)
+
+            every {
+                messageReadService.initializeUnreadMessagesCount(
+                        chatParticipation = any(),
+                        lastMessage = any()
+                )
+            } returns Mono.just(uncreadMessagesCount)
 
             val chatSlot = slot<Chat>()
             every { chatRepository.save(capture(chatSlot)) } returns Mono.just(chat)
@@ -298,8 +314,8 @@ class ChatServiceTests {
                                         savedChat.name
                                 )
                                 assertEquals(ChatType.DIALOG, savedChat.type)
-                                assertEquals(messageResponse.id, savedChat.lastMessageId)
-                                assertEquals(messageResponse.createdAt, savedChat.lastMessageDate)
+                                assertEquals(message.id, savedChat.lastMessageId)
+                                assertEquals(message.createdAt, savedChat.lastMessageDate)
 
                                 val currentUserDialogDisplay = savedChat.dialogDisplay[0]
                                 assertEquals(user.id, currentUserDialogDisplay.userId)
@@ -339,6 +355,11 @@ class ChatServiceTests {
                         assertEquals(otherUser.slug, otherUserChatParticipation.userSlug)
                         assertEquals(chatRole, otherUserChatParticipation.role)
                         assertEquals(chatRole.id, otherUserChatParticipation.roleId)
+
+                        verifySequence {
+                            messageReadService.initializeUnreadMessagesCount(currentUserChatParticipation, message)
+                            messageReadService.initializeUnreadMessagesCount(otherUserChatParticipation, message)
+                        }
 
                         verifySequence {
                             chatParticipationMapper.toDialogParticipant(eq(otherUserChatParticipation))

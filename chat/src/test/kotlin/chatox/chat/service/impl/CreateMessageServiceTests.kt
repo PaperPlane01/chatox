@@ -127,7 +127,7 @@ class CreateMessageServiceTests {
             val chatId = "chatId"
             val index = 5L
 
-            every { chatMessagesCounterRepository.getNextCounterValue(eq(chat)) } returns Mono.just(index)
+            every { chatMessagesCounterRepository.getNextCounterValue(eq(chatId)) } returns Mono.just(index)
 
             val messageSicker = mockFindStickerById(request.stickerId, stickerRepository, sticker)
             val referredMessage = mockFindMessageById(request.referredMessageId, messageEntityService, message)
@@ -151,7 +151,7 @@ class CreateMessageServiceTests {
             
             every { messageRepository.save(capture(savedMessageSlot)) } returns Mono.just(message)
             every { messageReadService.increaseUnreadMessagesCountForChat(
-                    eq(chat.id),
+                    eq(chatId),
                     eq(listOf(chatParticipation.id))
             ) } returns Mono.empty()
             every { messageReadService.readAllMessagesForCurrentUser(
@@ -363,7 +363,6 @@ class CreateMessageServiceTests {
             val textInfo = mockParseText(request.text, textParser, textInfo)
 
             val savedMessageSlot = slot<Message>()
-            val mappedMessageSlot = slot<Message>()
 
             every { messageRepository.save(capture(savedMessageSlot)) } returns Mono.just(message)
             every { messageReadService.increaseUnreadMessagesCountForChat(
@@ -374,25 +373,13 @@ class CreateMessageServiceTests {
                     eq(chatParticipation),
                     any<Message>()
             ) } returns Mono.empty()
-            every { messageMapper.toMessageResponse(
-                    message = capture(mappedMessageSlot),
-                    mapReferredMessage = any(),
-                    readByCurrentUser = any(),
-                    cache = any()
-            ) } returns Mono.just(messageResponse)
-
-            val expectedResponse = messageResponse
 
             StepVerifier
                     .create(createMessageService.createFirstMessageForPrivateChat(chatId, request, chatParticipation))
-                    .assertNext { messageResponse ->
-                        assertEquals(expectedResponse, messageResponse)
-
+                    .assertNext {
                         val capturedSavedMessage = savedMessageSlot.captured
-                        val capturedMappedMessage = mappedMessageSlot.captured
 
                         verify(exactly = 1) { messageRepository.save(capturedSavedMessage) }
-                        assertEquals(capturedSavedMessage, capturedMappedMessage)
                         assertEquals(request.text, capturedSavedMessage.text)
                         assertEquals(capturedSavedMessage.senderId, jwtPayload.id)
                         assertEquals(referredMessage?.id, capturedSavedMessage.referredMessageId)
@@ -453,8 +440,9 @@ class CreateMessageServiceTests {
 
             StepVerifier
                     .create(createMessageService.forwardMessages(chatId, request))
-                    .expectNextSequence(listOf(messageResponse))
-                    .assertNext { _ ->
+                    .assertNext { response ->
+                        assertEquals(messageResponse, response)
+
                         verify { messageRepository.saveAll(match<List<Message>> { savedMessages ->
                             assertEquals(request.forwardedMessagesIds.size, savedMessages.size)
 
@@ -466,6 +454,7 @@ class CreateMessageServiceTests {
                             return@match true
                         }) }
                     }
+                    .verifyComplete()
         }
     }
 

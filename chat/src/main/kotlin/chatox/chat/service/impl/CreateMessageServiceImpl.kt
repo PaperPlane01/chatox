@@ -422,15 +422,7 @@ class CreateMessageServiceImpl(
             chatNotCreated: Boolean = false
     ): Mono<NTuple6<Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, List<ChatParticipation>>> {
         return mono {
-            var chat: Chat? = null
-
-            if (!chatNotCreated) {
-                chat = findChatById(chatId).awaitFirst()
-
-                if (chat.deleted) {
-                    throw ChatDeletedException(chat.chatDeletion)
-                }
-            }
+            val chat = getChat(chatId, chatNotCreated).awaitFirstOrNull()
 
             var sticker: Sticker<Any>? = null
 
@@ -477,6 +469,22 @@ class CreateMessageServiceImpl(
                     uploads,
                     mentionedChatParticipants
             )
+        }
+    }
+
+    private fun getChat(id: String, chatNotCreated: Boolean): Mono<Chat> {
+        return mono {
+            if (chatNotCreated) {
+                return@mono null
+            }
+
+            val chat = findChatById(id).awaitFirst()
+
+            if (chat.deleted) {
+                throw ChatDeletedException(chat.chatDeletion)
+            }
+
+            return@mono chat
         }
     }
 
