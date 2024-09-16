@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import {ImageList, ImageListItem} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {useStore} from "../../store";
+import {useEntityById, useEntitySelector} from "../../entities";
 
 interface MessageStickerProps {
     stickerId: string,
@@ -37,14 +38,6 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
     onImageLoaded
 }) => {
     const {
-        entities: {
-            stickers: {
-                findById: findSticker
-            },
-            uploads: {
-                findImage
-            }
-        },
         stickerPackDialog: {
             setStickerPackId
         }
@@ -63,8 +56,8 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
         }
     });
 
-    const sticker = findSticker(stickerId);
-    const image = findImage(sticker.imageId);
+    const sticker = useEntityById("stickers", stickerId);
+    const image = useEntitySelector("uploads", entities => entities.uploads.findImage(sticker.imageId));
     const targetSize = image.meta!.height >= 256 ? 256 : image.meta!.height;
 
     return (

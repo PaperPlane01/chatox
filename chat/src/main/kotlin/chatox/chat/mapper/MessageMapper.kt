@@ -17,7 +17,7 @@ import chatox.chat.model.UnreadMessagesCount
 import chatox.chat.model.Upload
 import chatox.chat.service.UserService
 import chatox.chat.support.cache.MessageDataLocalCache
-import chatox.chat.util.NTuple6
+import chatox.chat.util.NTuple7
 import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import kotlinx.coroutines.reactive.awaitFirst
@@ -95,7 +95,15 @@ class MessageMapper(private val userService: UserService,
             cache: MessageDataLocalCache? = null
     ): Mono<MessageResponse> {
         return mono {
-            val (referredMessage, sender, pinnedBy, chatRole, chatParticipationInSourceChat, forwardedBy) = getDataForMessageResponse(
+            val (
+                    referredMessage,
+                    sender,
+                    pinnedBy,
+                    chatRole,
+                    chatParticipationInSourceChat,
+                    forwardedBy,
+                    mentionedUsers
+            ) = getDataForMessageResponse(
                     message = message,
                     mapReferredMessage = mapReferredMessage,
                     readByCurrentUser = readByCurrentUser,
@@ -149,7 +157,8 @@ class MessageMapper(private val userService: UserService,
                         null
                     },
                     forwardedBy = forwardedBy,
-                    readByAnyone = readByAnyone
+                    readByAnyone = readByAnyone,
+                    mentionedUsers = mentionedUsers
             )
         }
     }
@@ -165,7 +174,15 @@ class MessageMapper(private val userService: UserService,
             fromScheduled: Boolean = false
     ): Mono<MessageCreated> {
         return mono {
-            val (referredMessage, sender, pinnedBy, chatRole) = getDataForMessageResponse(
+            val (
+                    referredMessage,
+                    sender,
+                    pinnedBy,
+                    chatRole,
+                    chatParticipationInSourceChat,
+                    forwardedBy,
+                    mentionedUsers
+            ) = getDataForMessageResponse(
                     message = message,
                     mapReferredMessage = mapReferredMessage,
                     readByCurrentUser = readByCurrentUser,
@@ -175,6 +192,10 @@ class MessageMapper(private val userService: UserService,
                     localChatRolesCache = localChatRolesCache
             )
                     .awaitFirst()
+
+            val messageIsForwarded = message.forwardedFromMessageId != null
+            val includeForwardedMessageIdAndChatId = messageIsForwarded
+                    && (message.forwardedFromDialogChatType == ChatType.GROUP || chatParticipationInSourceChat != null)
 
             return@mono MessageCreated(
                     id = message.id,
@@ -203,7 +224,20 @@ class MessageMapper(private val userService: UserService,
                     },
                     scheduledAt = message.scheduledAt,
                     senderChatRole = chatRole,
-                    fromScheduled = fromScheduled
+                    fromScheduled = fromScheduled,
+                    forwarded = messageIsForwarded,
+                    forwardedFromMessageId = if (includeForwardedMessageIdAndChatId) {
+                        message.forwardedFromMessageId
+                    } else {
+                        null
+                    },
+                    forwardedFromChatId = if (includeForwardedMessageIdAndChatId) {
+                        message.forwardedFromChatId
+                    } else {
+                        null
+                    },
+                    forwardedBy = forwardedBy,
+                    mentionedUsers = mentionedUsers
             )
         }
     }
@@ -217,7 +251,7 @@ class MessageMapper(private val userService: UserService,
             localUsersCache: MutableMap<String, UserResponse>? = null,
             localChatParticipationsCache: MutableMap<String, ChatParticipation>? = null,
             localChatRolesCache: MutableMap<String, ChatRoleResponse>? = null
-    ): Mono<NTuple6<MessageResponse?, UserResponse, UserResponse?, ChatRoleResponse, ChatParticipation?, UserResponse?>> {
+    ): Mono<NTuple7<MessageResponse?, UserResponse, UserResponse?, ChatRoleResponse, ChatParticipation?, UserResponse?, List<UserResponse>>> {
         return mono {
             val referredMessage: MessageResponse? = if (!mapReferredMessage || message.referredMessageId == null) {
                 null
@@ -247,8 +281,16 @@ class MessageMapper(private val userService: UserService,
             val forwardedBy = userService
                     .findUserByIdAndPutInLocalCache(message.forwardedById, localUsersCache)
                     .awaitFirstOrNull()
+            val mentionedUsers = if (message.mentionedUsers.isEmpty()) {
+                listOf()
+            } else {
+                userService.findAllByIdAndPutInLocalCache(message.mentionedUsers, localUsersCache)
+                        .collectList()
+                        .awaitFirst()
 
-            return@mono NTuple6(referredMessage, sender, pinnedBy, chatRole, chatParticipationInSourceChat, forwardedBy)
+            }
+
+            return@mono NTuple7(referredMessage, sender, pinnedBy, chatRole, chatParticipationInSourceChat, forwardedBy, mentionedUsers)
         }
     }
 
@@ -360,10 +402,12 @@ class MessageMapper(private val userService: UserService,
 
     fun mapScheduledMessageUpdate(updateMessageRequest: UpdateMessageRequest,
                                   originalMessage: ScheduledMessage,
-                                  emoji: EmojiInfo = originalMessage.emoji
+                                  emoji: EmojiInfo = originalMessage.emoji,
+                                  mentionedUsers: List<String> = originalMessage.mentionedUsers
     ) = originalMessage.copy(
             text = updateMessageRequest.text,
             emoji = emoji,
-            updatedAt = ZonedDateTime.now()
+            updatedAt = ZonedDateTime.now(),
+            mentionedUsers = mentionedUsers
     )
 }

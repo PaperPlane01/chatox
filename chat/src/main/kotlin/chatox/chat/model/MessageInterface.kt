@@ -29,4 +29,5 @@ interface MessageInterface {
     val forwardedFromDialogChatType: ChatType?
     val forwardedById: String?
     val chatParticipationIdInSourceChat: String?
+    val mentionedUsers: List<String>
 }

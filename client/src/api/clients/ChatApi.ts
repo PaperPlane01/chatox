@@ -51,7 +51,7 @@ export class ChatApi {
         return axiosInstance.get(`/${CHATS}/${MY}/${PENDING}`);
     }
 
-    public static searchChatsOfCurrentUser(query: String): AxiosPromise<Chat[]> {
+    public static searchChatsOfCurrentUser(query: string): AxiosPromise<Chat[]> {
         return axiosInstance.get(`/${CHATS}/${MY}?query=${query}`);
     }
 

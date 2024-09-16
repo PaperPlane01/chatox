@@ -33,6 +33,12 @@ import {ChatParticipationDto} from "../chat-participation/types";
 import {LoggerFactory} from "../logging";
 import {ChatsService} from "../chats/ChatsService";
 import {ChatRoleResponse} from "../chat-roles";
+import {
+    ChatNotificationsSettings,
+    ChatNotificationsSettingsDeleted,
+    ChatNotificationsSettingsUpdated,
+    GlobalNotificationsSettingsUpdated
+} from "../notifications-settings";
 
 @WebSocketGateway({
     path: "/api/v1/events/",
@@ -434,5 +440,45 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             this.connectionsStateHolder.publishEventToChatParticipants(userStartedTyping.chatId, event),
             this.connectionsStateHolder.publishEventToUsersSubscribedToChat(userStartedTyping.chatId, event)
         ]);
+    }
+
+    public async publishChatNotificationsSettingsUpdated(chatNotificationsSettingsUpdated: ChatNotificationsSettingsUpdated) {
+        const event: WebsocketEvent<ChatNotificationsSettings> = {
+            payload: chatNotificationsSettingsUpdated.notificationsSettings,
+            type: EventType.CHAT_NOTIFICATIONS_SETTINGS_UPDATED
+        };
+        await this.connectionsStateHolder.publishEventToUsers(
+            [chatNotificationsSettingsUpdated.userId],
+            event
+        );
+    }
+
+    public async publishChatNotificationsSettingsDeleted(chatNotificationsSettingsDeleted: ChatNotificationsSettingsDeleted) {
+        const payload: Omit<ChatNotificationsSettingsDeleted, "userId"> = {
+            chatId: chatNotificationsSettingsDeleted.chatId
+        };
+        const event: WebsocketEvent<typeof payload> = {
+            payload,
+            type: EventType.CHAT_NOTIFICATIONS_SETTINGS_DELETED
+        };
+        await this.connectionsStateHolder.publishEventToUsers(
+            [chatNotificationsSettingsDeleted.userId],
+            event
+        );
+    }
+
+    public async publishGlobalNotificationsSettingsUpdated(globalNotificationsSettingsUpdated: GlobalNotificationsSettingsUpdated) {
+        const payload: Omit<GlobalNotificationsSettingsUpdated, "userId"> = {
+            dialogChatSettings: globalNotificationsSettingsUpdated.dialogChatSettings,
+            groupChatSettings: globalNotificationsSettingsUpdated.dialogChatSettings
+        };
+        const event: WebsocketEvent<typeof payload> = {
+            payload,
+            type: EventType.GLOBAL_NOTIFICATIONS_SETTINGS_UPDATED
+        };
+        await this.connectionsStateHolder.publishEventToUsers(
+            [globalNotificationsSettingsUpdated.userId],
+            event
+        );
     }
 }

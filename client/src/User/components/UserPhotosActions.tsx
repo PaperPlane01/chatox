@@ -4,7 +4,8 @@ import {IconButton, useMediaQuery, useTheme} from "@mui/material";
 import {Close} from "@mui/icons-material";
 import {DeleteSelectedUserPhotosButton} from "./DeleteSelectedUserPhotosButton";
 import {SetSelectedPhotoAsAvatarButton} from "./SetSelectedPhotoAsAvatarButton";
-import {useEntities, useLocalization, usePermissions, useStore} from "../../store";
+import {useLocalization, usePermissions, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {TranslationFunction} from "../../localization";
 
 interface SelectedUserPhotosActionsProps {
@@ -32,11 +33,6 @@ export const UserPhotosActions: FunctionComponent<SelectedUserPhotosActionsProps
             selectedUserId
         }
     } = useStore();
-    const {
-        users: {
-            findById: findUser
-        }
-    } = useEntities();
     const {l} = useLocalization();
     const {
         users: {
@@ -47,11 +43,12 @@ export const UserPhotosActions: FunctionComponent<SelectedUserPhotosActionsProps
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
-    if (!selectedUserId) {
+    const user = useEntityById("users", selectedUserId);
+
+    if (!user || !selectedUserId) {
         return null;
     }
 
-    const user = findUser(selectedUserId);
     const label = getLabel(selectedPhotosCount, user.firstName, l);
 
     const displaySetAsAvatarButton = canUploadProfilePhoto(selectedUserId) && selectedPhotosCount === 1;

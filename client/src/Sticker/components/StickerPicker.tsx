@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Tab, Theme} from "@mui/material";
+import {Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
 import {useSnackbar} from "notistack";
@@ -8,31 +8,13 @@ import {isAfter} from "date-fns";
 import {StickersGridList} from "./StickersGridList";
 import {useLocalization, useStore} from "../../store";
 import {isDefined} from "../../utils/object-utils";
+import {StickerPickerTab} from "./StickerPickerTab";
 
 interface StickerPickerProps {
     onStickerPicked?: () => void
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
-    imageWrapper: {
-        display: "inline-block",
-        position: "relative",
-        height: "100%",
-        width: "100%",
-        cursor: "pointer"
-    },
-    image: {
-        maxWidth: "100%",
-        maxHeight: "100%",
-        height: "inherit",
-        objectFit: "contain"
-    },
-    tabRoot: {
-        width: 48,
-        height: 48,
-        minWidth: 48,
-        padding: theme.spacing(1)
-    },
     tabPanelRoot: {
         overflowY: "auto",
         overflowX: "hidden",
@@ -48,14 +30,6 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
     const {
         installedStickerPacks: {
             installedStickerPacksIds
-        },
-        entities: {
-            stickerPacks: {
-                findById: findStickerPack
-            },
-            uploads: {
-                findById: findImage
-            }
         },
         stickerPicker: {
             selectedStickerPackId,
@@ -100,31 +74,18 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
                 <TabList orientation="horizontal"
                          onChange={(_, newValue) => setSelectedStickerPackId(newValue)}
                 >
-                    {installedStickerPacksIds.map(stickerPackId => {
-                        const stickerPack = findStickerPack(stickerPackId);
-                        const preview = findImage(stickerPack.previewId);
-
-                        return (
-                            <Tab value={stickerPackId}
-                                 icon={
-                                     <div className={classes.imageWrapper}>
-                                         <img src={`${preview.uri}?size=64`}
-                                              className={classes.image}
-                                         />
-                                     </div>
-                                 }
-                                 classes={{
-                                     root: classes.tabRoot
-                                 }}
-                            />
-                        )
-                    })}
+                    {installedStickerPacksIds.map(stickerPackId => (
+                        <StickerPickerTab stickerPackId={stickerPackId}
+                                          key={`${stickerPackId}_tab`}
+                        />
+                    ))}
                 </TabList>
                 {installedStickerPacksIds.map(stickerPackId => (
                     <TabPanel value={stickerPackId}
                               classes={{
                                   root: classes.tabPanelRoot
                               }}
+                              key={`${stickerPackId}_tabPanel`}
                     >
                         <StickersGridList stickerPackId={stickerPackId}
                                           onStickerClick={handleStickerSelection}

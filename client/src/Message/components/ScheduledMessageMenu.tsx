@@ -6,7 +6,8 @@ import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks
 import {EditScheduledMessageMenuItem} from "./EditScheduledMessageMenuItem";
 import {PublishScheduledMessageNowMenuItem} from "./PublishScheduledMessageNowMenuItem";
 import {DeleteScheduledMessageMenuItem} from "./DeleteScheduledMessageMenuItem";
-import {usePermissions, useStore} from "../../store";
+import {usePermissions} from "../../store";
+import {useEntityById} from "../../entities";
 
 export type ScheduledMessageMenuItemType = "publishScheduledMessage" | "deleteScheduledMessage" | "editScheduledMessage";
 
@@ -20,13 +21,6 @@ export const ScheduledMessageMenu: FunctionComponent<ScheduledMessageMenuProps> 
     onMenuItemClick
 }) => {
     const {
-        entities: {
-            scheduledMessages: {
-                findById: findScheduledMessage
-            }
-        }
-    } = useStore();
-    const {
         messages: {
             canScheduleMessage,
             canUpdateScheduledMessage,
@@ -38,7 +32,7 @@ export const ScheduledMessageMenu: FunctionComponent<ScheduledMessageMenuProps> 
         variant: "popover"
     });
 
-    const scheduledMessage = findScheduledMessage(messageId);
+    const scheduledMessage = useEntityById("scheduledMessages", messageId);
 
     const handleMenuItemClick = (menuItemType: ScheduledMessageMenuItemType) => (): void => {
         if (onMenuItemClick) {

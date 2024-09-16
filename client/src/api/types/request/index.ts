@@ -44,3 +44,6 @@ export * from "./CreateChatInviteRequest";
 export * from "./UpdateChatInviteRequest";
 export * from "./ChatInviteRequest";
 export * from "./PendingChatParticipantsRequest";
+export * from "./UpdateNotificationsSettingsRequest";
+export * from "./UpdateChatNotificationsSettingsRequest";
+export * from "./UpdateGlobalNotificationsSettingsRequest";

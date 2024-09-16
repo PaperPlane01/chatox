@@ -7,6 +7,7 @@ import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
 import {ChatMenu, TypingIndicator} from "../../Chat";
 import {getAvatarLabel} from "../../Chat/utils";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {trimString} from "../../utils/string-utils";
 import {Avatar} from "../../Avatar";
 
@@ -24,11 +25,6 @@ export const GroupChatAppBarContent: FunctionComponent<GroupChatAppBarContentPro
     chatId
 }) => {
     const {
-        entities: {
-            chats: {
-                findById: findChat
-            }
-        },
         onlineChatParticipants: {
             onlineParticipantsCount
         },
@@ -47,12 +43,11 @@ export const GroupChatAppBarContent: FunctionComponent<GroupChatAppBarContentPro
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
     const chatHasTypingUsers = hasTypingUsers(chatId);
+    const chat = useEntityById("chats", chatId);
 
     if (showInput) {
         return <ChatAppBarSearchInput/>
     } else {
-        const chat = findChat(chatId);
-
         return (
             <CardHeader title={(
                 <div style={{display: "flex"}}>

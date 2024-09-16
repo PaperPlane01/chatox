@@ -26,6 +26,7 @@ import {
 } from "../Chat";
 import {
     ApproveJoinChatRequestsStore,
+    ChatParticipantsAutoCompleteStore,
     ChatParticipantsSearchStore,
     ChatParticipantsStore,
     JoinChatRequestsStore,
@@ -37,7 +38,7 @@ import {
 } from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
-import {EntitiesStore, RawEntitiesStore} from "../entities-store";
+import {EntitiesStore, RawEntitiesStore, ReferencedEntitiesStore} from "../entities-store";
 import {
     CreateUserProfilePhotoStore,
     DeleteSelectedUserProfilePhotosStore,
@@ -54,11 +55,9 @@ import {
 } from "../User";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore,
     DeleteMessageStore,
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
-    EmojiPickerTabsStore,
     ForwardMessagesStore,
     MarkMessageReadStore,
     MessageDialogStore,
@@ -67,15 +66,19 @@ import {
     PinMessageStore,
     PinnedMessagesStore,
     PublishScheduledMessageStore,
-    RecordVoiceMessageStore,
     ScheduledMessagesOfChatStore,
-    ScheduleMessageStore,
     SearchMessagesStore,
-    UnpinMessageStore,
+    UnpinMessageStore
+} from "../Message";
+import {
+    CreateMessageStore,
+    EmojiPickerTabsStore,
+    RecordVoiceMessageStore,
+    ScheduleMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
-} from "../Message";
+} from "../MessageForm";
 import {WebsocketStore} from "../websocket";
 import {
     BlockUserInChatByIdOrSlugStore,
@@ -165,6 +168,18 @@ import {
     JoinChatByInviteStore,
     UpdateChatInviteStore
 } from "../ChatInvite";
+import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
+import {
+    ChatNotificationExceptionsDialogStore,
+    DeleteChatNotificationSettingsStore,
+    NotificationSoundSelectDialogStore,
+    NotificationsSettingsStore,
+    SoundNotificationStore,
+    UpdateChatNotificationsSettingsStore,
+    UpdateGlobalNotificationsSettingsStore,
+    UpdateUserNotificationSettingsInChatDialogStore,
+    UserNotificationExceptionsDialogStore
+} from "../Notification";
 
 export interface IAppState {
     language: LocaleStore,
@@ -320,5 +335,18 @@ export interface IAppState {
     joinChatRequests: JoinChatRequestsStore,
     joinChatRequestsApproval: ApproveJoinChatRequestsStore,
     joinChatRequestsRejection: RejectJoinChatRequestsStore,
-    voiceRecording: RecordVoiceMessageStore
+    voiceRecording: RecordVoiceMessageStore,
+    mentions: MentionsStore,
+    editorLink: CreateEditorLinkDialogStore,
+    referencedEntities: ReferencedEntitiesStore,
+    notificationsSettings: NotificationsSettingsStore,
+    soundNotification: SoundNotificationStore,
+    notificationSoundSelectDialog: NotificationSoundSelectDialogStore,
+    updateGlobalNotificationsSettings: UpdateGlobalNotificationsSettingsStore,
+    updateChatNotificationsSettings: UpdateChatNotificationsSettingsStore,
+    chatNotificationExceptionsDialog: ChatNotificationExceptionsDialogStore,
+    deleteChatNotificationsSettings: DeleteChatNotificationSettingsStore,
+    chatParticipantsAutoComplete: ChatParticipantsAutoCompleteStore,
+    userNotificationExceptionsDialog: UserNotificationExceptionsDialogStore,
+    updateUserNotificationsSettingsInChatDialog: UpdateUserNotificationSettingsInChatDialogStore
 }

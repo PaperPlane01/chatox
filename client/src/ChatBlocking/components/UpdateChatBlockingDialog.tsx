@@ -9,16 +9,17 @@ import {
     DialogTitle,
     TextField,
     Typography,
-    useTheme,
+    useTheme
 } from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {DateTimePicker} from "@mui/x-date-pickers";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import randomColor from "randomcolor";
-import {getUserAvatarLabel} from "../../User/utils/labels";
+import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {Avatar} from "../../Avatar";
 import {TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 
 const useStyles = makeStyles(() => createStyles({
@@ -49,14 +50,6 @@ export const UpdateChatBlockingDialog: FunctionComponent = observer(() => {
             setUpdateChatBlockingDialogOpen,
             setFormValue,
             updateChatBlocking
-        },
-        entities: {
-            chats: {
-                findById: findChat
-            },
-            users: {
-                findById: findUser
-            }
         }
     } = useStore();
     const {l} = useLocalization();
@@ -64,13 +57,14 @@ export const UpdateChatBlockingDialog: FunctionComponent = observer(() => {
     const theme = useTheme();
     const {fullScreen} = useMobileDialog();
 
-    if (!updatedChatBlocking) {
+    const chat = useEntityById("chats", updatedChatBlocking?.chatId);
+    const blockedUser = useEntityById("users", updatedChatBlocking?.blockedUserId);
+
+    if (!chat || !blockedUser) {
         return null;
     }
 
-    const chat = findChat(updatedChatBlocking.chatId);
-    const blockedUser = findUser(updatedChatBlocking.blockedUserId);
-    const username = `${blockedUser.firstName} ${blockedUser.lastName ? blockedUser.lastName : ""}`;
+    const username = getUserDisplayedName(blockedUser);
     const avatarLetters = getUserAvatarLabel(blockedUser);
     const color = randomColor({seed: blockedUser.id});
 
@@ -103,7 +97,7 @@ export const UpdateChatBlockingDialog: FunctionComponent = observer(() => {
                             height={25}
                     />
                     <Typography style={{color}}>
-                        {blockedUser.firstName} {blockedUser.lastName && blockedUser.lastName}
+                        {username}
                     </Typography>
                 </div>
                 <DateTimePicker value={formData.blockedUntil}

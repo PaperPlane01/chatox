@@ -14,6 +14,7 @@ import {
 import {TranslationFunction} from "../../localization";
 import {ApiError} from "../../api";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 
 const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
@@ -36,21 +37,16 @@ export const BlockUserInChatByIdOrSlugDialog: FunctionComponent = observer(() =>
             userIdOrSlug,
             setUserIdOrSlug,
             setBlockUserInChatByIdOrSlugDialogOpen
-        },
-        entities: {
-            chats: {
-                findById: findChat
-            }
         }
     } = useStore();
     const {l} = useLocalization();
     const {fullScreen} = useMobileDialog();
 
-    if (!selectedChatId) {
+    const chat = useEntityById("chats", selectedChatId);
+
+    if (!chat) {
         return null;
     }
-
-    const chat = findChat(selectedChatId);
 
     return (
         <Dialog open={blockUserInChatByIdOrSlugDialogOpen}

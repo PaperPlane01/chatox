@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography, Skeleton} from "@mui/material";
+import {AppBar, CardHeader, Hidden, IconButton, Skeleton, Toolbar, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {ArrowBack} from "@mui/icons-material";
 import {Link} from "mobx-router";
@@ -11,6 +11,7 @@ import {NavigationalDrawer, OpenDrawerButton} from "../../AppBar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {Labels} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 import {ChatType} from "../../api/types/response";
 import {commonStyles} from "../../style";
@@ -42,11 +43,6 @@ export const ChatAppBar: FunctionComponent = observer(() => {
             selectedChatId,
             currentSlug,
         },
-        entities: {
-            chats: {
-                findById: findChat
-            }
-        },
         messageCreation: {
             userId
         },
@@ -58,6 +54,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
     const {l} = useLocalization();
     const routerStore = useRouter();
     const classes = useStyles();
+    const chat = useEntityById("chats", selectedChatId);
     let appBarContent: ReactNode;
 
     if (pending) {
@@ -67,9 +64,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
                         avatar={<Skeleton variant="circular" width={40} height={40}/>}
             />
         );
-    } else if (selectedChatId) {
-        const chat = findChat(selectedChatId);
-
+    } else if (selectedChatId && chat) {
         if (forwardModeActive && forwardedFromChatId === selectedChatId) {
             appBarContent = <ForwardMessagesAppBarContent/>
         } else {
@@ -84,7 +79,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
                     appBarContent = <Typography>Unsupported chat type</Typography>;
             }
         }
-    } else  if (userId) {
+    } else if (userId) {
         appBarContent = <NewPrivateChatAppBar/>;
     } else if (currentSlug && errorsMap[currentSlug]) {
         appBarContent = (

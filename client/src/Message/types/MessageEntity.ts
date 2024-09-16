@@ -6,6 +6,7 @@ export interface MessageEntity {
     sender: string,
     text: string,
     deleted: boolean,
+    messageDeleted: boolean,
     createdAt: Date,
     updatedAt?: Date,
     readByCurrentUser: boolean,
@@ -32,5 +33,6 @@ export interface MessageEntity {
     forwardedFromChatId?: string,
     forwardedFromMessageId?: string,
     forwardedById?: string,
-    readByAnyone: boolean
+    readByAnyone: boolean,
+    mentionedUsers: string[]
 }

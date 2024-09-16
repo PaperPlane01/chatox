@@ -1,8 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {MenuItem, ListItemText} from "@mui/material";
+import {ListItemText, MenuItem} from "@mui/material";
 import {getChatRoleTranslation} from "../utils";
-import {useStore, useLocalization} from "../../store";
+import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 
 interface ChatRolesListItemProps {
     chatRoleId: string
@@ -10,18 +11,13 @@ interface ChatRolesListItemProps {
 
 export const ChatRolesListItem: FunctionComponent<ChatRolesListItemProps> = observer(({chatRoleId}) => {
     const {
-        entities: {
-            chatRoles: {
-                findById: findChatRole
-            }
-        },
         chatRoleInfo: {
             setRoleId
         }
     } = useStore();
     const {l} = useLocalization();
 
-    const chatRole = findChatRole(chatRoleId);
+    const chatRole = useEntityById("chatRoles", chatRoleId);
 
     const handleClick = (): void => {
         setRoleId(chatRoleId);

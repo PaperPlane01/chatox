@@ -6,7 +6,8 @@ import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import randomColor from "randomcolor";
 import {Link} from "mobx-router";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useLocalization, useRouter} from "../../store";
+import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 import {Avatar} from "../../Avatar";
 import {getAvatarLabel} from "../utils";
@@ -32,19 +33,12 @@ export const PopularChatsListItem: FunctionComponent<PopularChatsListItemProps> 
     chatId,
     action
 }) => {
-    const {
-        entities: {
-            chats: {
-                findById: findChat
-            }
-        }
-    } = useStore();
     const {l} = useLocalization();
     const routerStore = useRouter();
     const classes = useStyles();
     const luminosity = useLuminosity();
 
-    const chat = findChat(chatId);
+    const chat = useEntityById("chats", chatId);
     const chatColor = randomColor({seed: chat.id, luminosity});
 
     return (

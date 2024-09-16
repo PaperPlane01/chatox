@@ -14,6 +14,14 @@ import {GlobalBansStore} from "../GlobalBan";
 import {RewardsStore, UserRewardsStore} from "../Reward";
 import {UserInteractionsStore} from "../UserInteraction";
 import {ChatInvitesStore} from "../ChatInvite";
+import {Entities, GetEntityType} from "./types";
+import {EntityStore} from "../entity-store";
+
+type EntitiesStores = {
+    [Entity in Entities]: Entity extends "chatUploads"
+        ? any
+        : EntityStore<Entity, GetEntityType<Entity>, any, any>
+}
 
 export class EntitiesStore {
     public messages: MessagesStore<"messages">;
@@ -38,6 +46,34 @@ export class EntitiesStore {
     public userProfilePhotos: UserProfilePhotosStore;
     public chatInvites: ChatInvitesStore;
     public pendingChatParticipations: PendingChatParticipationsStore;
+
+    get stores(): EntitiesStores {
+        return {
+            messages: this.messages,
+            chats: this.chats,
+            uploads: this.uploads,
+            users: this.users,
+            chatRoles: this.chatRoles,
+            chatBlockings: this.chatBlockings,
+            globalBans: this.globalBans,
+            chatParticipations: this.chatParticipations,
+            stickers: this.stickers,
+            stickerPacks: this.stickerPacks,
+            scheduledMessages: this.scheduledMessages,
+            reportedMessages: this.reportedMessages,
+            reportedMessageSenders: this.reportedMessageSenders,
+            reportedChats: this.reportedChats,
+            reportedUsers: this.reportedUsers,
+            reports: this.reports,
+            rewards: this.rewards,
+            userRewards: this.userRewards,
+            userInteractions: this.userInteractions,
+            userProfilePhotos: this.userProfilePhotos,
+            chatInvites: this.chatInvites,
+            pendingChatParticipations: this.pendingChatParticipations,
+            chatUploads: undefined
+        }
+    }
 
     constructor(rawEntities: RawEntitiesStore, authorization: AuthorizationStore, userChatRoles: UserChatRolesStore) {
         this.messages = new MessagesStore(rawEntities, "messages", this, userChatRoles);

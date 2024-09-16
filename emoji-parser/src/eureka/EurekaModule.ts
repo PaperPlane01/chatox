@@ -10,7 +10,7 @@ import {config} from "../config";
             useValue: new Eureka({
                 instance: {
                     app: config.EUREKA_APP_NAME,
-                    instanceId: `${config.EUREKA_APP_NAME}-${config.EMOJI_PARSER_PORT}`,
+                    instanceId: `${config.EUREKA_APP_NAME}-${config.TEXT_PARSER_PORT}`,
                     ipAddr: config.EUREKA_APP_INSTANCE_IP_ADDRESS,
                     hostName: config.EUREKA_APP_INSTANCE_HOST,
                     dataCenterInfo: {
@@ -19,7 +19,7 @@ import {config} from "../config";
                     },
                     vipAddress: config.EUREKA_APP_NAME,
                     port: {
-                        $: config.EMOJI_PARSER_PORT,
+                        $: config.TEXT_PARSER_PORT,
                         "@enabled": true
                     }
                 },

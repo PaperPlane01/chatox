@@ -18,7 +18,6 @@ import {calculateMessagesListStyles} from "../utils";
 import {useMessagesListBottomStyles, useMessagesListRefs, useMessagesListStyles} from "../hooks";
 import {useStore} from "../../store";
 import {isScrolledToBottom} from "../../utils/event-utils";
-import {isWindowScrollable} from "../../utils/dom-utils";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     messagesList: {
@@ -77,7 +76,7 @@ export const MessagesList: FunctionComponent = observer(() => {
         emojiPickerExpanded,
         currentPinnedMessageId,
         currentPinnedMessageIsClosed
-    ]
+    ];
     const style = useMessagesListStyles(
         calculateStyles,
         refs,

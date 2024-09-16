@@ -3,17 +3,16 @@ import {observer} from "mobx-react";
 import {Card, CardHeader, CircularProgress, Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {format} from "date-fns";
-import ReactMarkdown from "react-markdown";
-import breaks from "remark-breaks";
 import {UserMenu} from "./UserMenu";
 import {DialogWithUserButton} from "./DialogWithUserButton";
 import {UserProfileAvatar} from "./UserProfileAvatar";
-import {getDateOfBirthLabel, getOnlineOrLastSeenLabel} from "../utils/labels"
+import {getDateOfBirthLabel, getOnlineOrLastSeenLabel} from "../utils/labels";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
 import {HasAnyRole} from "../../Authorization";
 import {UserInteractionsCount} from "../../UserInteraction";
+import {MarkdownTextWithEmoji} from "../../Markdown";
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
     centered: {
@@ -29,6 +28,9 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     onlineLabel: {
         color: theme.palette.primary.main
+    },
+    cardSubheader: {
+        color: theme.palette.text.primary
     }
 }));
 
@@ -147,13 +149,10 @@ export const UserProfileInfo: FunctionComponent = observer(() => {
                                     <strong>{l("user.profile.bio")}</strong>
                                 </Typography>
                             }
-                                        subheader={
-                                            <Typography>
-                                                <ReactMarkdown children={user.bio}
-                                                               remarkPlugins={[breaks]}
-                                                />
-                                            </Typography>
-                                        }
+                                        subheader={<MarkdownTextWithEmoji text={user.bio}/>}
+                                        classes={{
+                                            subheader: classes.cardSubheader
+                                        }}
                             />
                         )}
                     </Card>

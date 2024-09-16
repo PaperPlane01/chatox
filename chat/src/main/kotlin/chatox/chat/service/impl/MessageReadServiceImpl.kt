@@ -57,6 +57,10 @@ class MessageReadServiceImpl(
         return unreadMessagesCountRepository.increaseUnreadMessagesCountForChat(chatId, increaseCount, excludedChatParticipations)
     }
 
+    override fun increaseUnreadMentionsCount(chatParticipationsIds: List<String>): Mono<Unit> {
+        return unreadMessagesCountRepository.increaseUnreadMentionsCount(chatParticipationsIds)
+    }
+
     override fun readMessageForCurrentUser(chatId: String, messageId: String): Mono<Unit> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
@@ -150,9 +154,9 @@ class MessageReadServiceImpl(
             val message = if (lastMessage != null) {
                 lastMessage
             } else {
-                val chat = chatCacheWrapper.findById(chatParticipation.chatId).awaitFirst()
+                val chat = chatCacheWrapper.findById(chatParticipation.chatId).awaitFirstOrNull()
 
-                if (chat.lastMessageId == null) {
+                if (chat?.lastMessageId == null) {
                     null
                 } else {
                     messageCacheWrapper.findById(chat.lastMessageId).awaitFirst()

@@ -1,4 +1,4 @@
-import {MessageEntity} from "../../Message/types";
+import {MessageEntity} from "../../Message";
 import {ChatOfCurrentUserEntity, ChatUploadEntity} from "../../Chat";
 import {ChatParticipationEntity, PendingChatParticipationEntity} from "../../ChatParticipant";
 import {UserEntity, UserProfilePhotoEntity} from "../../User";
@@ -37,8 +37,10 @@ export type Entities = "messages"
     | "chatInvites"
     | "pendingChatParticipations";
 
+export type PersistentEntities = Extract<Entities, "messages" | "users" | "uploads" | "stickers" | "stickerPacks" | "chatRoles">;
+
 interface EntityMap<T> {
-    [key: string]: T
+    [key: string]: T;
 }
 
 //@formatter:off
@@ -69,7 +71,7 @@ export type GetEntityType<Key extends Entities>
     : never;
 //@formatter:on
 
-type GetEntityMapType<Key extends Entities> = EntityMap<GetEntityType<Key>>;
+export type GetEntityMapType<Key extends Entities> = EntityMap<GetEntityType<Key>>;
 
 export type RawEntities = {
     [Key in Entities]: GetEntityMapType<Key>
@@ -89,4 +91,8 @@ export type EntitiesPatch = {
 export type PopulatedEntitiesPatch<T extends Entities> = {
     entities: RequiredField<Partial<RawEntities>, T>,
     ids: RequiredField<Partial<EntitiesIds>, T>
+};
+
+export type RelationshipsIds = {
+    [key in Entities]?: string[]
 };

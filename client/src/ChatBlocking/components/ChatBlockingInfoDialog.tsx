@@ -18,6 +18,7 @@ import {CancelChatBlockingButton} from "./CancelChatBlockingButton";
 import {UserLink} from "../../UserLink";
 import {isStringEmpty} from "../../utils/string-utils";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 
 export const ChatBlockingInfoDialog: FunctionComponent = observer(() => {
     const {
@@ -25,31 +26,20 @@ export const ChatBlockingInfoDialog: FunctionComponent = observer(() => {
             chatBlockingDialogOpen,
             setChatBlockingDialogOpen,
             chatBlockingId
-        },
-        entities: {
-            users: {
-                findById: findUser
-            },
-            chats: {
-                findById: findChat
-            },
-            chatBlockings: {
-                findById: findChatBlocking
-            }
         }
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
 
-    if (!chatBlockingId) {
+    const chatBlocking = useEntityById("chatBlockings", chatBlockingId);
+    const chat = useEntityById("chats", chatBlocking?.chatId);
+    const blockedUser = useEntityById("users", chatBlocking?.blockedUserId);
+    const blockedBy = useEntityById("users", chatBlocking?.blockedById);
+    const canceledBy = useEntityById("users", chatBlocking?.canceledByUserId);
+    const updatedBy = useEntityById("users", chatBlocking?.lastModifiedByUserId);
+
+    if (!chatBlockingId || !chatBlocking || !chat || !blockedUser || !blockedBy) {
         return null;
     }
-
-    const chatBlocking = findChatBlocking(chatBlockingId);
-    const chat = findChat(chatBlocking.chatId);
-    const blockedUser = findUser(chatBlocking.blockedUserId);
-    const blockedBy = findUser(chatBlocking.blockedById);
-    const canceledBy = chatBlocking.canceledByUserId ? findUser(chatBlocking.canceledByUserId) : undefined;
-    const updatedBy = chatBlocking.lastModifiedByUserId ? findUser(chatBlocking.lastModifiedByUserId) : undefined;
 
     return (
         <Dialog open={chatBlockingDialogOpen}

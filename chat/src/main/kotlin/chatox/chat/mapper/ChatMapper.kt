@@ -76,6 +76,7 @@ class ChatMapper(
             lastMessage: Message?,
             lastReadMessage: Message?,
             unreadMessagesCount: Long,
+            unreadMentionsCount: Long,
             localUsersCache: MutableMap<String, UserResponse>? = null,
             user: User? = null,
             chatParticipantsCount: ChatParticipantsCount
@@ -118,6 +119,7 @@ class ChatMapper(
                     lastMessage = lastMessageMapped,
                     lastReadMessage = lastReadMessageMapped,
                     unreadMessagesCount = unreadMessagesCount,
+                    unreadMentionsCount = unreadMentionsCount,
                     localUsersCache = localUsersCache,
                     chatParticipantsCount = chatParticipantsCount
             ).awaitFirst()
@@ -130,6 +132,7 @@ class ChatMapper(
             lastMessage: MessageResponse?,
             lastReadMessage: MessageResponse?,
             unreadMessagesCount: Long,
+            unreadMentionsCount: Long,
             user: User? = null,
             chatParticipantsCount: ChatParticipantsCount? = null
     ): Mono<ChatOfCurrentUserResponse> {
@@ -146,6 +149,7 @@ class ChatMapper(
                     lastMessage = lastMessage,
                     lastReadMessage = lastReadMessage,
                     unreadMessagesCount = unreadMessagesCount,
+                    unreadMentionsCount = unreadMentionsCount,
                     user = userMapped,
                     chatParticipantsCount = chatParticipantsCount
             ).awaitFirst()
@@ -158,6 +162,7 @@ class ChatMapper(
             lastMessage: MessageResponse?,
             lastReadMessage: MessageResponse?,
             unreadMessagesCount: Long,
+            unreadMentionsCount: Long,
             localUsersCache: MutableMap<String, UserResponse>? = null,
             user: UserResponse? = null,
             chatParticipantsCount: ChatParticipantsCount? = null
@@ -197,7 +202,8 @@ class ChatMapper(
                     type = chat.type,
                     slowMode = chat.slowMode,
                     joinAllowanceSettings = chat.joinAllowanceSettings,
-                    hideFromSearch = chat.hideFromSearch
+                    hideFromSearch = chat.hideFromSearch,
+                    unreadMentionsCount = unreadMentionsCount
             )
         }
     }

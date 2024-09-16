@@ -5,12 +5,15 @@ import {createStyles, makeStyles} from "@mui/styles";
 import randomColor from "randomcolor";
 import {ChatParticipantMenu} from "./ChatParticipantMenu";
 import {Avatar} from "../../Avatar";
-import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
+import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {useLuminosity} from "../../utils/hooks";
 
 interface ChatParticipantsListItemProps {
     participantId: string,
     highlightOnline?: boolean,
-    onClick?: () => void
+    hideMenu?: boolean,
+    onClick?: () => void,
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -19,30 +22,20 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     },
     avatar: {
         paddingRight: theme.spacing(2)
-    },
-    online: {
     }
 }));
 
 export const ChatParticipantsListItem: FunctionComponent<ChatParticipantsListItemProps> = observer(({
     participantId,
     highlightOnline = false,
+    hideMenu = false,
     onClick
 }) => {
-    const {
-        entities: {
-            chatParticipations: {
-                findById: findParticipant
-            },
-            users: {
-                findById: findUser
-            }
-        }
-    } = useStore();
     const classes = useStyles();
-    const chatParticipant = findParticipant(participantId);
-    const user = findUser(chatParticipant.userId);
-    const avatarLetters = `${user.firstName[0]}${user.lastName ? user.lastName[0] : ""}`;
+    const chatParticipant = useEntityById("chatParticipations", participantId);
+    const user = useEntityById("users", chatParticipant.userId);
+    const luminosity = useLuminosity();
+    const avatarLetters = getUserAvatarLabel(user);
 
     const handleClick = () => {
         if (onClick) {
@@ -58,7 +51,7 @@ export const ChatParticipantsListItem: FunctionComponent<ChatParticipantsListIte
         >
             <div className={classes.avatar}>
                 <Avatar avatarLetter={avatarLetters}
-                        avatarColor={randomColor({seed: user.id})}
+                        avatarColor={randomColor({seed: user.id, luminosity})}
                         avatarId={user.avatarId}
                         avatarUri={user.externalAvatarUri}
                 />
@@ -66,9 +59,9 @@ export const ChatParticipantsListItem: FunctionComponent<ChatParticipantsListIte
             <ListItemText primaryTypographyProps={{
                 color: (user.online && highlightOnline) ? "primary" : "textPrimary"
             }}>
-                {user.firstName} {user.lastName && user.lastName}
+                {getUserDisplayedName(user)}
             </ListItemText>
-            <ChatParticipantMenu chatParticipation={chatParticipant}/>
+            {!hideMenu && <ChatParticipantMenu chatParticipation={chatParticipant}/>}
         </MenuItem>
     );
 });

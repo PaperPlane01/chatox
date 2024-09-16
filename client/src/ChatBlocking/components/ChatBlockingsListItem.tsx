@@ -5,6 +5,7 @@ import randomColor from "randomcolor";
 import {Avatar} from "../../Avatar";
 import {getUserAvatarLabel} from "../../User/utils/labels";
 import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
 
 interface ChatBlockingsListItemProps {
     chatBlockingId: string
@@ -12,22 +13,14 @@ interface ChatBlockingsListItemProps {
 
 export const ChatBlockingsListItem: FunctionComponent<ChatBlockingsListItemProps> = observer(({chatBlockingId}) => {
     const {
-        entities: {
-            chatBlockings: {
-                findById: findChatBlocking
-            },
-            users: {
-                findById: findUser
-            }
-        },
         chatBlockingInfoDialog: {
             setChatBlockingDialogOpen,
             setChatBlockingId
         }
     } = useStore();
 
-    const chatBlocking = findChatBlocking(chatBlockingId);
-    const blockedUser = findUser(chatBlocking.blockedUserId);
+    const chatBlocking = useEntityById("chatBlockings", chatBlockingId);
+    const blockedUser = useEntityById("users", chatBlocking.blockedUserId);
     const avatarLabel = getUserAvatarLabel(blockedUser);
     const color = randomColor({seed: blockedUser.id});
 

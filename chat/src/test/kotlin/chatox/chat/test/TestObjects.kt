@@ -1,8 +1,12 @@
 package chatox.chat.test
 
+import chatox.chat.api.request.UpdateChatNotificationsSettingsRequest
+import chatox.chat.api.request.UpdateGlobalNotificationsSettingsRequest
+import chatox.chat.api.response.ChatNotificationsSettingsResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatParticipationResponse
 import chatox.chat.api.response.ChatResponse
+import chatox.chat.api.response.GlobalNotificationsSettingsResponse
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.messaging.rabbitmq.event.ChatUpdated
 import chatox.chat.messaging.rabbitmq.event.MessageCreated
@@ -14,13 +18,15 @@ import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.DialogParticipant
-import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.PendingChatParticipation
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Sticker
+import chatox.chat.model.TextInfo
+import chatox.chat.model.UnreadMessagesCount
 import chatox.chat.model.Upload
 import chatox.chat.model.User
+import chatox.chat.model.UserGlobalNotificationsSettings
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.util.JsonLoader.loadResource
 import com.fasterxml.jackson.core.type.TypeReference
@@ -67,9 +73,14 @@ object TestObjects {
             object : TypeReference<ChatUploadAttachment<Any>>() {}
     )
 
-    fun emojiInfo(): EmojiInfo = loadResource(
-            "model/emoji.json",
-            EmojiInfo::class.java
+    fun textInfo(): TextInfo = loadResource(
+            "model/text-info.json",
+            TextInfo::class.java
+    )
+
+    fun unreadMessagesCount(): UnreadMessagesCount = loadResource(
+            "model/unread-messages-count.json",
+            UnreadMessagesCount::class.java
     )
 
     fun messageResponse(): MessageResponse = loadResource(
@@ -140,5 +151,30 @@ object TestObjects {
     fun chatParticipantsCount(): ChatParticipantsCount = loadResource(
             "model/chat-participants-count.json",
             ChatParticipantsCount::class.java
+    )
+
+    fun userGlobalNotificationsSettings(): UserGlobalNotificationsSettings = loadResource(
+            "model/user-global-notifications-settings.json",
+            UserGlobalNotificationsSettings::class.java
+    )
+
+    fun globalNotificationsSettingsResponse(): GlobalNotificationsSettingsResponse = loadResource(
+            "responses/global-notifications-settings-response.json",
+            GlobalNotificationsSettingsResponse::class.java
+    )
+
+    fun updateGlobalNotificationsSettingsRequest(): UpdateGlobalNotificationsSettingsRequest = loadResource(
+            "requests/update-global-notifications-settings-request.json",
+            UpdateGlobalNotificationsSettingsRequest::class.java
+    )
+
+    fun chatNotificationsSettingsResponse(): ChatNotificationsSettingsResponse = loadResource(
+            "responses/chat-notifications-settings-response.json",
+            ChatNotificationsSettingsResponse::class.java
+    )
+
+    fun updateChatNotificationsSettingsRequest(): UpdateChatNotificationsSettingsRequest = loadResource(
+            "requests/update-chat-notifications-settings-request.json",
+            UpdateChatNotificationsSettingsRequest::class.java
     )
 }

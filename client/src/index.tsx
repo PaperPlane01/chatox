@@ -1,12 +1,15 @@
 import React from "react";
 import {createRoot} from "react-dom/client";
 import {Provider} from "mobx-react";
-import {parse} from "query-string";
-import {startRouter} from "mobx-router";
+import {toJS} from "mobx";
 import {App} from "./App";
-import {store, rootStore} from "./store";
-import {RouterStoreAware, Routes} from "./router";
+import {rootStore, store} from "./store";
+import {RouterStoreAware} from "./router";
 import * as serviceWorker from "./serviceWorker";
+
+if (import.meta.env.DEV) {
+    (window as any).toJS = toJS; // expose for convenient debugging
+}
 
 const routerStore = rootStore.router;
 const routerStoreAware: RouterStoreAware[] = [
@@ -15,25 +18,8 @@ const routerStoreAware: RouterStoreAware[] = [
     store.joinChatByInvite
 ];
 
-const injectRouterStore = (): void => {
-    routerStoreAware.forEach(store => store.setRouterStore(routerStore));
-};
-
-injectRouterStore();
-
-startRouter(Routes, rootStore, {
-    notfound: () => {
-        if (window.location.href.includes(`${import.meta.env.VITE_PUBLIC_URL}/oauth/google/`)) {
-            const queryStringParameters = parse(
-                window.location.href.substring(`${import.meta.env.VITE_PUBLIC_URL}/oauth/google/`.length)
-            );
-            const access_token = queryStringParameters.access_token ? `${queryStringParameters.access_token}` : "";
-            routerStore.goTo(Routes.googleAuthentication, {}, {access_token});
-        } else {
-            routerStore.goTo(Routes.notFound);
-        }
-    }
-});
+rootStore.startRouter();
+rootStore.injectRouterStore(routerStoreAware);
 
 const root = createRoot(document.getElementById("root")!);
 root.render(

@@ -1,12 +1,13 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {format} from "date-fns";
-import { Checkbox, TableCell, TableRow, Typography } from "@mui/material";
+import {Checkbox, TableCell, TableRow, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Remove} from "@mui/icons-material";
 import randomColor from "randomcolor";
 import {Link} from "mobx-router";
 import {useLocalization, useRouter, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {Labels} from "../../localization";
 import {Routes} from "../../router";
 
@@ -25,14 +26,6 @@ export const ReportedChatsTableRow: FunctionComponent<ReportedChatsTableRowProps
     reportId
 }) => {
     const {
-        entities: {
-            reports: {
-                findById: findReport
-            },
-            reportedChats: {
-                findById: findChat
-            }
-        },
         chatReports: {
             isReportSelected,
             setReportSelected
@@ -43,8 +36,8 @@ export const ReportedChatsTableRow: FunctionComponent<ReportedChatsTableRowProps
     const routerStore = useRouter();
 
     const reportSelected = isReportSelected(reportId);
-    const report = findReport(reportId);
-    const chat = findChat(report.reportedObjectId);
+    const report = useEntityById("reports", reportId);
+    const chat = useEntityById("reportedChats", report.reportedObjectId);
     const chatColor = randomColor({seed: chat.id});
 
     return (

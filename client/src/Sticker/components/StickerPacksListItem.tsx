@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
-import {useStore} from "../../store";
+import {useEntityById, useEntitySelector} from "../../entities";
 import {Avatar} from "../../Avatar";
 
 interface StickerPacksListItemProps {
@@ -20,20 +20,10 @@ export const StickerPacksListItem: FunctionComponent<StickerPacksListItemProps> 
     stickerPackId,
     onClick
 }) => {
-    const {
-        entities: {
-            stickerPacks: {
-                findById: findStickerPack
-            },
-            uploads: {
-                findById: findUpload
-            }
-        }
-    } = useStore();
     const classes = useStyles();
 
-    const stickerPack = findStickerPack(stickerPackId);
-    const stickerPackPreview = findUpload(stickerPack.previewId);
+    const stickerPack = useEntityById("stickerPacks", stickerPackId);
+    const stickerPackPreview = useEntitySelector("uploads", entities => entities.uploads.findImage(stickerPack.previewId));
 
     const handleClick = (): void => {
         if (onClick) {

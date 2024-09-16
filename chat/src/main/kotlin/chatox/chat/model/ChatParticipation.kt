@@ -58,5 +58,6 @@ data class ChatParticipation(
 
         @Indexed
         val inviteId: String? = null,
-        val approvedBy: String? = null
+        val approvedBy: String? = null,
+        val notificationsSettings: NotificationsSettings? = null
 )

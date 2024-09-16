@@ -31,5 +31,6 @@ data class ChatOfCurrentUserResponse(
         val user: UserResponse?,
         val slowMode: SlowMode? = null,
         val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance> = mapOf(),
-        val hideFromSearch: Boolean
+        val hideFromSearch: Boolean,
+        val unreadMentionsCount: Long
 )

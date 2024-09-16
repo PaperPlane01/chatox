@@ -1,7 +1,8 @@
 import React, {FunctionComponent, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import ReactPlayer from "react-player";
-import {useEntities, useStore} from "../../store";
+import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
 
 export const AudioPlayerContainer: FunctionComponent = observer(() => {
     const {
@@ -14,11 +15,6 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
             seekTo
         }
     } = useStore();
-    const {
-        uploads: {
-            findAudio
-        }
-    } = useEntities();
 
     const playerRef = useRef<ReactPlayer>(null);
 
@@ -31,11 +27,11 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
         [seekTo]
     );
 
-    if (!currentTrackId) {
+    const audio = useEntityById("uploads", currentTrackId);
+
+    if (!audio) {
         return null;
     }
-
-    const audio = findAudio(currentTrackId);
 
     return (
         <ReactPlayer url={`${audio.uri}/stream`}

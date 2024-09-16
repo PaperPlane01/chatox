@@ -58,3 +58,28 @@ inline fun <SourceType, TargetType1, TargetType2, TargetType3> mapTo3Lists(
             result.t3.toList()
     )
 }
+
+fun <T>splitTo2Lists(
+        list: List<T>,
+        condition1: (T) -> Boolean,
+        condition2: (T) -> Boolean
+): NTuple2<List<T>, List<T>> {
+    if (list.isEmpty()) {
+        return NTuple2(listOf(), listOf())
+    }
+
+    val list1 = mutableListOf<T>()
+    val list2 = mutableListOf<T>()
+
+    list.forEach { item ->
+        if (condition1(item)) {
+            list1.add(item)
+        }
+
+        if (condition2(item)) {
+            list2.add(item)
+        }
+    }
+
+    return NTuple2(list1.toList(), list2.toList())
+}

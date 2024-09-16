@@ -21,6 +21,7 @@ import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.mapper.ChatMapper
 import chatox.chat.mapper.ChatParticipationMapper
+import chatox.chat.mapper.MessageMapper
 import chatox.chat.messaging.rabbitmq.event.ChatDeleted
 import chatox.chat.messaging.rabbitmq.event.PrivateChatCreated
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
@@ -88,6 +89,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val chatBySlugCacheService: ReactiveCacheService<Chat, String>,
                       private val chatMapper: ChatMapper,
                       private val chatParticipationMapper: ChatParticipationMapper,
+                      private val messageMapper: MessageMapper,
                       private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                       private val chatEventsPublisher: ChatEventsPublisher,
                       private val createMessageService: CreateMessageService,
@@ -153,6 +155,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     chat = chat,
                     chatParticipation = creatorChatParticipation,
                     unreadMessagesCount = 0,
+                    unreadMentionsCount = 0,
                     lastMessage = null as Message?,
                     lastReadMessage = null as Message?,
                     chatParticipantsCount = participantsCount
@@ -231,7 +234,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
 
             for (chatParticipation in chatParticipations) {
-                messageReadService.initializeUnreadMessagesCount(chatParticipation, message.id).awaitFirst()
+                messageReadService.initializeUnreadMessagesCount(chatParticipation, message).awaitFirst()
             }
 
             val dialogParticipantsDisplay = listOf(
@@ -245,19 +248,26 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     dialogDisplay = dialogParticipantsDisplay
             )).awaitFirst()
 
+            val messageResponse = messageMapper.toMessageResponse(
+                    message = message,
+                    readByCurrentUser = true,
+                    mapReferredMessage = true
+            )
+                    .awaitFirst()
             val privateChatCreated = PrivateChatCreated(
                     id = chat.id,
                     chatParticipations = chatParticipations.map { chatParticipation -> chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst() },
-                    message = message
+                    message = messageResponse
             )
             chatEventsPublisher.privateChatCreated(privateChatCreated)
 
             return@mono chatMapper.toChatOfCurrentUserResponse(
                     chat = chat,
                     chatParticipation = currentUserChatParticipation,
-                    lastMessage = message,
-                    lastReadMessage = message,
+                    lastMessage = messageResponse,
+                    lastReadMessage = messageResponse,
                     unreadMessagesCount =  0,
+                    unreadMentionsCount = 0,
                     user = user
             )
                     .awaitFirst()
@@ -550,6 +560,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                                 lastReadMessage = lastReadMessage,
                                 lastMessage = lastMessage,
                                 unreadMessagesCount = unreadMessagesCount?.unreadMessagesCount ?: 0,
+                                unreadMentionsCount = unreadMessagesCount?.unreadMentionsCount ?: 0,
                                 user = user,
                                 chatParticipantsCount = chatParticipantsCount[chat.id] ?: ChatParticipantsCount.EMPTY
                         )

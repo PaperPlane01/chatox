@@ -28,7 +28,7 @@ import {
     UpdateChatStore
 } from "../Chat";
 import {
-    ApproveJoinChatRequestsStore,
+    ApproveJoinChatRequestsStore, ChatParticipantsAutoCompleteStore,
     ChatParticipantsSearchStore,
     ChatParticipantsStore,
     JoinChatRequestsStore,
@@ -36,11 +36,11 @@ import {
     KickChatParticipantStore,
     OnlineChatParticipantsStore,
     RejectJoinChatRequestsStore,
-    UpdateChatParticipantStore,
+    UpdateChatParticipantStore
 } from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
-import {EntitiesStore, RawEntitiesStore} from "../entities-store";
+import {EntitiesStore, RawEntitiesStore, ReferencedEntitiesStore} from "../entities-store";
 import {
     createSetChangePasswordStepCallback,
     CreateUserProfilePhotoStore,
@@ -58,11 +58,9 @@ import {
 } from "../User";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore,
     DeleteMessageStore,
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
-    EmojiPickerTabsStore,
     ForwardMessagesStore,
     MarkMessageReadStore,
     MessageDialogStore,
@@ -70,15 +68,20 @@ import {
     MessagesOfChatStore,
     PinMessageStore,
     PinnedMessagesStore,
-    PublishScheduledMessageStore, RecordVoiceMessageStore,
+    PublishScheduledMessageStore,
     ScheduledMessagesOfChatStore,
-    ScheduleMessageStore,
     SearchMessagesStore,
-    UnpinMessageStore,
+    UnpinMessageStore
+} from "../Message";
+import {
+    CreateMessageStore,
+    EmojiPickerTabsStore,
+    RecordVoiceMessageStore,
+    ScheduleMessageStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
-} from "../Message";
+} from "../MessageForm";
 import {WebsocketStore} from "../websocket";
 import {
     BlockUserInChatByIdOrSlugStore,
@@ -175,11 +178,27 @@ import {
     JoinChatByInviteStore,
     UpdateChatInviteStore
 } from "../ChatInvite";
+import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
+import {
+    ChatNotificationExceptionsDialogStore,
+    DeleteChatNotificationSettingsStore,
+    NotificationSoundSelectDialogStore,
+    NotificationsSettingsStore,
+    SoundNotificationStore,
+    UpdateChatNotificationsSettingsStore,
+    UpdateGlobalNotificationsSettingsStore,
+    UpdateUserNotificationSettingsInChatDialogStore,
+    UserNotificationExceptionsDialogStore
+} from "../Notification";
+import {DexieRepositories, Repositories} from "../repositories";
 
+const referencedEntities = new ReferencedEntitiesStore();
+const authorization = new AuthorizationStore();
+
+const repositories: Repositories = new DexieRepositories();
 const snackbarService = new SnackbarService();
 
-const rawEntities = new RawEntitiesStore();
-const authorization = new AuthorizationStore();
+const rawEntities = new RawEntitiesStore(repositories);
 const userChatRoles = new UserChatRolesStore();
 const entities = new EntitiesStore(rawEntities, authorization, userChatRoles);
 
@@ -222,10 +241,18 @@ const messageCreation = new CreateMessageStore(
 );
 const pendingChats = new PendingChatsOfCurrentUserStore(entities);
 const messagesSearch = new SearchMessagesStore(entities, chat);
-const messagesOfChat = new MessagesOfChatStore(entities, chat, messagesSearch);
+const messagesOfChat = new MessagesOfChatStore(
+    entities,
+    rawEntities,
+    chat,
+    messagesSearch,
+    referencedEntities,
+    chatsPreferences,
+    repositories.getRepository("messages")!
+);
 const joinChat = new JoinChatStore(entities, pendingChats, language, authorization, snackbarService);
 const userProfile = new UserProfileStore(entities);
-const createChatBlocking = new CreateChatBlockingStore(chat, entities);
+const createChatBlocking = new CreateChatBlockingStore(chat, entities, snackbarService, language);
 const chatBlockingsOfChat = new ChatBlockingsOfChatStore(entities, chat);
 const chatBlockingsDialog = new ChatBlockingsDialogStore();
 const cancelChatBlocking = new CancelChatBlockingStore(entities);
@@ -324,9 +351,21 @@ const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsSto
 );
 const googleLogin = new LoginWithGoogleStore(authorization);
 const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
-const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
+const markMessageRead = new MarkMessageReadStore(
+    entities,
+    chat,
+    messagesListScrollPositions,
+    authorization
+);
 const balance = new BalanceStore(authorization);
 const typingUsers = new TypingUsersStore(entities, authorization);
+const notificationsSettings = new NotificationsSettingsStore(authorization, entities);
+const soundNotification = new SoundNotificationStore(
+    notificationsSettings,
+    chat,
+    authorization,
+    entities
+);
 const websocket = new WebsocketStore(
     authorization,
     entities,
@@ -339,6 +378,8 @@ const websocket = new WebsocketStore(
     typingUsers,
     pendingChats,
     language,
+    soundNotification,
+    notificationsSettings,
     snackbarService
 );
 const stickerPackCreation = new CreateStickerPackStore(entities);
@@ -507,6 +548,28 @@ const joinChatRequestsRejection = new RejectJoinChatRequestsStore(
     language,
     snackbarService
 );
+const mentions = new MentionsStore(entities, chat, chatsOfCurrentUser);
+const editorLink = new CreateEditorLinkDialogStore();
+const notificationSoundSelectDialog = new NotificationSoundSelectDialogStore(soundNotification);
+const updateGlobalNotificationsSettings = new UpdateGlobalNotificationsSettingsStore(
+    notificationsSettings,
+    language,
+    snackbarService
+);
+const updateChatNotificationsSettings = new UpdateChatNotificationsSettingsStore(
+    notificationsSettings,
+    language,
+    snackbarService
+);
+const chatNotificationExceptionsDialog = new ChatNotificationExceptionsDialogStore();
+const deleteChatNotificationsSettings = new DeleteChatNotificationSettingsStore(
+    notificationsSettings,
+    language,
+    snackbarService
+);
+const chatParticipantsAutoComplete = new ChatParticipantsAutoCompleteStore(entities);
+const userNotificationExceptionsDialog = new UserNotificationExceptionsDialogStore();
+const updateUserNotificationsSettingsInChatDialog = new UpdateUserNotificationSettingsInChatDialogStore(updateChatNotificationsSettings);
 
 const _store: IAppState = {
     authorization,
@@ -662,7 +725,20 @@ const _store: IAppState = {
     joinChatRequests,
     joinChatRequestsApproval,
     joinChatRequestsRejection,
-    voiceRecording
+    voiceRecording,
+    mentions,
+    editorLink,
+    referencedEntities,
+    notificationsSettings,
+    soundNotification,
+    notificationSoundSelectDialog,
+    updateGlobalNotificationsSettings,
+    updateChatNotificationsSettings,
+    chatNotificationExceptionsDialog,
+    deleteChatNotificationsSettings,
+    chatParticipantsAutoComplete,
+    userNotificationExceptionsDialog,
+    updateUserNotificationsSettingsInChatDialog
 };
 
 //Hack to avoid loss of application state on HMR

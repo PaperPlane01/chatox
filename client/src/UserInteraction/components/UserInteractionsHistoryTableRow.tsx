@@ -4,7 +4,8 @@ import {TableCell, TableRow, Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {format} from "date-fns";
 import {USER_INTERACTIONS_ICONS_MAP} from "./UserInteractionIcons";
-import {useEntities, useLocalization} from "../../store";
+import {useLocalization} from "../../store";
+import {useEntityById} from "../../entities";
 import {Labels} from "../../localization";
 import {UserLink} from "../../UserLink";
 
@@ -25,18 +26,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 export const UserInteractionsHistoryTableRow: FunctionComponent<UserInteractionsTableRowProps> = observer(({
     userInteractionId
 }) => {
-    const {
-        userInteractions: {
-            findById: findUserInteraction
-        },
-        users: {
-            findById: findUser
-        }
-    } = useEntities();
     const {l} = useLocalization();
     const classes = useStyles();
-    const userInteraction = findUserInteraction(userInteractionId);
-    const user = findUser(userInteraction.userId);
+    const userInteraction = useEntityById("userInteractions", userInteractionId);
+    const user = useEntityById("users", userInteraction.userId);
 
     return (
         <TableRow>

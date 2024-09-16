@@ -57,4 +57,33 @@ class ChatParticipationCustomRepositoryImpl(private val reactiveMongoTemplate: R
 
         return reactiveMongoTemplate.find(query, ChatParticipation::class.java)
     }
+
+    override fun findByChatIdAndUserIdOrSlugIn(chatId: String, userIdsOrSlugs: List<String>, includeDeleted: Boolean, excludedUsersIds: List<String>): Flux<ChatParticipation> {
+        val query = Query()
+
+        query.addCriteria(Criteria.where("chatId").`is`(chatId))
+        query.addCriteria(Criteria().orOperator(
+                Criteria.where("user._id").`in`(userIdsOrSlugs),
+                Criteria.where("userSlug").`in`(userIdsOrSlugs)
+        ))
+
+        if (!includeDeleted) {
+            query.addCriteria(Criteria.where("deleted").`is`(false))
+        }
+
+        if (excludedUsersIds.isNotEmpty()) {
+            query.addCriteria(Criteria.where("user._id").nin(excludedUsersIds))
+        }
+
+        return reactiveMongoTemplate.find(query, ChatParticipation::class.java)
+    }
+
+    override fun findWithCustomNotificationsSettings(userId: String): Flux<ChatParticipation> {
+        val query = Query()
+
+        query.addCriteria(Criteria.where("user._id").`is`(userId))
+        query.addCriteria(Criteria.where("notificationsSettings").ne(null))
+
+        return reactiveMongoTemplate.find(query, ChatParticipation::class.java)
+    }
 }

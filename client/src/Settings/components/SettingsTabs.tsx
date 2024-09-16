@@ -2,7 +2,7 @@ import React, {ChangeEvent, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem, Tab, Typography} from "@mui/material";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
-import {Block, ChatBubble, Image, Language, Palette, Person, Security} from "@mui/icons-material";
+import {Block, ChatBubble, Image, Language, Notifications, Palette, Person, Security} from "@mui/icons-material";
 import {SecurityTabWrapper} from "./SecurityTabWrapper";
 import {AppearanceTabWrapper} from "./AppearanceTabWrapper";
 import {SettingsTab} from "../types";
@@ -15,6 +15,7 @@ import {Routes} from "../../router";
 import {InstalledStickerPacksList} from "../../Sticker";
 import {BlacklistedUsersList} from "../../Blacklist";
 import {createTabStyles} from "../../style";
+import {GlobalNotificationsSettingsUpdate} from "../../Notification";
 
 const useStyles = createTabStyles();
 
@@ -103,6 +104,18 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                              </MenuItem>
                          }
                     />
+                    <Tab value={SettingsTab.NOTIFICATIONS}
+                         label={(
+                             <MenuItem>
+                                 <ListItemIcon>
+                                     <Notifications/>
+                                 </ListItemIcon>
+                                 <ListItemText>
+                                     {l("settings.notifications")}
+                                 </ListItemText>
+                             </MenuItem>
+                         )}
+                    />
                     <Tab value={SettingsTab.STICKERS}
                          label={
                              <MenuItem>
@@ -168,6 +181,11 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                           className={classes.fullWidth}
                 >
                     <ChatsPreferencesCard/>
+                </TabPanel>
+                <TabPanel value={SettingsTab.NOTIFICATIONS}
+                          className={classes.fullWidth}
+                >
+                    <GlobalNotificationsSettingsUpdate/>
                 </TabPanel>
                 <TabPanel value={SettingsTab.STICKERS}
                           className={classes.fullWidth}
