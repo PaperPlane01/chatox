@@ -8,4 +8,5 @@ interface UnreadMessagesCountCustomRepository {
     fun decreaseUnreadMessagesCount(chatParticipationId: String, lastReadMessage: Message, decreaseUnreadMentionsCount: Boolean = false): Mono<Unit>
     fun resetUnreadMessagesCount(chatParticipationId: String, lastReadMessage: Message): Mono<Unit>
     fun increaseUnreadMentionsCount(chatParticipations: List<String>): Mono<Unit>
+    fun decreaseUnreadMentionsCount(chatParticipations: List<String>): Mono<Unit>
 }

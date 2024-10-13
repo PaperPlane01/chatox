@@ -9,6 +9,7 @@ import chatox.chat.model.Message
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.service.MessageEntityService
+import chatox.chat.util.runAsync
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
@@ -42,10 +43,9 @@ class MessageEntityServiceImpl(
             ))
                     .awaitFirst()
 
-            Mono.fromRunnable<Void> {
+            runAsync {
                 chatEventsPublisher.messageDeleted(chatId = message.chatId, messageId = message.id)
             }
-                    .subscribe()
 
             return@mono
         }
@@ -66,10 +66,9 @@ class MessageEntityServiceImpl(
             ) }).collectList().awaitFirst()
 
             messages.forEach { message ->
-                Mono.fromRunnable<Void> {
+                runAsync {
                     chatEventsPublisher.messageDeleted(chatId = message.chatId, messageId = message.id)
                 }
-                        .subscribe()
             }
         }
     }
@@ -87,7 +86,7 @@ class MessageEntityServiceImpl(
             )
                     .awaitFirst()
 
-            Mono.fromRunnable<Void> { chatEventsPublisher.messageUpdated(response) }.subscribe()
+            runAsync { chatEventsPublisher.messageUpdated(response) }
 
             return@mono response
         }

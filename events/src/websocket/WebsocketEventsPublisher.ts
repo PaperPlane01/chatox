@@ -481,4 +481,20 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             event
         );
     }
+
+    public async publishDraftMessageCreated(message: ChatMessage): Promise<void> {
+        const event: WebsocketEvent<ChatMessage> = {
+            type: EventType.DRAFT_MESSAGE_CREATED,
+            payload: message
+        };
+        await this.connectionsStateHolder.publishEventToUsers([message.sender.id], event);
+    }
+
+    public async publishDraftMessageUpdated(message: ChatMessage): Promise<void> {
+        const event: WebsocketEvent<ChatMessage> = {
+            type: EventType.DRAFT_MESSAGE_UPDATED,
+            payload: message
+        };
+        await this.connectionsStateHolder.publishEventToUsers([message.sender.id], event);
+    }
 }

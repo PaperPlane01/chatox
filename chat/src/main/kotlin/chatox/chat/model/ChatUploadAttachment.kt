@@ -20,6 +20,9 @@ data class ChatUploadAttachment<UploadMetadataType>(
         val messageId: String? = null,
 
         @Indexed
+        val messageType: MessageType = MessageType.REGULAR,
+
+        @Indexed
         val chatId: String? = null,
 
         @Indexed

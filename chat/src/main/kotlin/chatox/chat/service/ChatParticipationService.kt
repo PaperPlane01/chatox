@@ -5,6 +5,8 @@ import chatox.chat.api.request.UpdateChatParticipationRequest
 import chatox.chat.api.response.ChatParticipationMinifiedResponse
 import chatox.chat.api.response.ChatParticipationResponse
 import chatox.chat.api.response.PendingChatParticipationResponse
+import chatox.chat.model.ChatParticipation
+import chatox.chat.model.TextInfo
 import chatox.chat.model.User
 import chatox.platform.pagination.PaginationRequest
 import reactor.core.publisher.Flux
@@ -26,4 +28,5 @@ interface ChatParticipationService {
     fun rejectChatParticipants(chatId: String, pendingChatParticipantsRequest: PendingChatParticipantsRequest): Mono<Unit>
     fun findChatParticipationsByInvite(chatId: String, inviteId: String, paginationRequest: PaginationRequest): Flux<ChatParticipationResponse>
     fun findPendingChatParticipationsByInvite(chatId: String, inviteId: String, paginationRequest: PaginationRequest): Flux<PendingChatParticipationResponse>
+    fun getMentionedChatParticipants(chatId: String, textInfo: TextInfo, excludedUsersIds: List<String>): Flux<ChatParticipation>
 }

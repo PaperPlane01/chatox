@@ -22,6 +22,7 @@ import chatox.chat.model.ChatDeletionReason
 import chatox.chat.model.ChatMessagesCounter
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatType
+import chatox.chat.model.DraftMessage
 import chatox.chat.model.Message
 import chatox.chat.model.StandardChatRole
 import chatox.chat.model.UploadType
@@ -29,6 +30,7 @@ import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
+import chatox.chat.repository.mongodb.DraftMessageRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.PendingChatParticipationRepository
 import chatox.chat.repository.mongodb.UploadRepository
@@ -80,6 +82,7 @@ class ChatServiceTests {
     val chatParticipationRepository: ChatParticipationRepository = mockk()
     val pendingChatParticipationRepository: PendingChatParticipationRepository = mockk()
     val messageRepository: MessageMongoRepository = mockk()
+    val draftMessageRepository: DraftMessageRepository = mockk()
     val uploadRepository: UploadRepository = mockk()
     val chatMessagesCounterRepository: ChatMessagesCounterRepository = mockk()
     val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>  = mockk()
@@ -115,6 +118,7 @@ class ChatServiceTests {
                 pendingChatParticipationRepository,
                 uploadRepository,
                 chatMessagesCounterRepository,
+                draftMessageRepository,
                 messageCacheWrapper,
                 userCacheWrapper,
                 chatByIdCacheWrapper,
@@ -177,6 +181,7 @@ class ChatServiceTests {
                         unreadMentionsCount = eq(0),
                         lastMessage = any() as Message?,
                         lastReadMessage = any() as Message?,
+                        draftMessage = any() as DraftMessage?,
                         chatParticipantsCount = eq(chatParticipantsCount)
                 )
             } returns Mono.just(chatOfCurrenUser)
@@ -295,6 +300,7 @@ class ChatServiceTests {
                     chatParticipation = any<ChatParticipation>(),
                     lastMessage = any<MessageResponse>(),
                     lastReadMessage = any<MessageResponse>(),
+                    draftMessage = any<MessageResponse>(),
                     unreadMessagesCount = eq(0),
                     unreadMentionsCount = eq(0),
                     user = any<User>()

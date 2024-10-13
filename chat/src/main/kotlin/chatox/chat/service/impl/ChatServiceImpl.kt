@@ -33,6 +33,7 @@ import chatox.chat.model.ChatParticipantsCount
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatType
 import chatox.chat.model.DialogDisplay
+import chatox.chat.model.DraftMessage
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Message
 import chatox.chat.model.SlowMode
@@ -43,6 +44,7 @@ import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
+import chatox.chat.repository.mongodb.DraftMessageRepository
 import chatox.chat.repository.mongodb.PendingChatParticipationRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatParticipantsCountService
@@ -76,6 +78,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val pendingChatParticipationRepository: PendingChatParticipationRepository,
                       private val uploadRepository: UploadRepository,
                       private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
+                      private val draftMessageRepository: DraftMessageRepository,
                       private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
                       private val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String>,
 
@@ -158,6 +161,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     unreadMentionsCount = 0,
                     lastMessage = null as Message?,
                     lastReadMessage = null as Message?,
+                    draftMessage = null as DraftMessage?,
                     chatParticipantsCount = participantsCount
             )
                     .awaitFirst()
@@ -266,6 +270,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     chatParticipation = currentUserChatParticipation,
                     lastMessage = messageResponse,
                     lastReadMessage = messageResponse,
+                    draftMessage = null,
                     unreadMessagesCount =  0,
                     unreadMentionsCount = 0,
                     user = user
@@ -508,12 +513,22 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
             val allChatIds = mutableListOf<String>()
             val groupChatIds = mutableListOf<String>()
+            val dialogChatsIds = mutableListOf<String>()
+            val messagesIds = mutableListOf<String>()
 
             chatParticipations.forEach { chatParticipation ->
                 allChatIds.add(chatParticipation.chatId)
 
                 if (chatParticipation.chatType == ChatType.GROUP) {
                     groupChatIds.add(chatParticipation.chatId)
+                } else if (chatParticipation.chatType == ChatType.DIALOG) {
+                    dialogChatsIds.add(chatParticipation.chatId)
+                }
+
+                unreadMessagesCountMap[chatParticipation.id]?.let { unreadMessagesCount ->
+                    if (unreadMessagesCount.lastReadMessageId != null) {
+                        messagesIds.add(unreadMessagesCount.lastReadMessageId)
+                    }
                 }
             }
 
@@ -522,43 +537,59 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                     .collectList()
                     .awaitFirst()
                     .associateBy { chat -> chat.id }
+            val dialogChatsParticipants = chatParticipationRepository.findByChatIdIn(dialogChatsIds)
+                    .collectList()
+                    .awaitFirst()
+                    .groupBy { chatParticipation -> chatParticipation.chatId }
+            val dialogChatsUsers = userCacheWrapper.findByIds(
+                    dialogChatsParticipants.values
+                            .flatten()
+                            .map { chatParticipation -> chatParticipation.user.id }
+                            .filter { userId -> userId != currentUser.id }
+            )
+                    .collectList()
+                    .awaitFirst()
+                    .associateBy { user -> user.id }
+
+            messagesIds.addAll(chats.values.mapNotNull { chat -> chat.lastMessageId })
+            val messages = messageCacheWrapper.findByIds(messagesIds)
+                    .collectList()
+                    .awaitFirst()
+                    .associateBy { message -> message.id }
+            val draftMessages = draftMessageRepository.findByChatIdInAndSenderId(
+                    chatIds = allChatIds,
+                    senderId = currentUser.id
+            )
+                    .collectList()
+                    .awaitFirst()
+                    .associateBy { draftMessage -> draftMessage.chatId }
+
             val chatParticipantsCount = chatParticipantsCountService.getChatParticipantsCount(groupChatIds)
                     .awaitFirst()
 
-            chatParticipations
+            return@mono chatParticipations
                     .filter { chatParticipation -> chats.containsKey(chatParticipation.chatId) }
                     .map { chatParticipation ->
                         val chat = chats[chatParticipation.chatId]!!
                         val unreadMessagesCount = unreadMessagesCountMap[chat.id]
-
-                        val lastReadMessage = if (unreadMessagesCount?.lastReadMessageId != null) {
-                            messageCacheWrapper.findById(unreadMessagesCount.lastReadMessageId).awaitFirst()
-                        } else null
-
-                        val lastMessage = if (chat.lastMessageId != null) {
-                            messageCacheWrapper.findById(chat.lastMessageId).awaitFirst()
-                        } else null
-
-                        val user = if (chat.type == ChatType.DIALOG) {
-                            val chatParticipants = chatParticipationRepository
-                                    .findByChatIdAndDeletedFalse(chat.id)
-                                    .collectList()
-                                    .awaitFirst()
-                            val otherUserChatParticipation = chatParticipants
-                                    .find { chatParticipant -> chatParticipant.user.id != currentUser.id }
-
-                            if (otherUserChatParticipation != null) {
-                                userCacheWrapper.findById(otherUserChatParticipation.user.id).awaitFirst()
-                            } else {
-                                currentUser
-                            }
-                        } else null
+                        val lastReadMessage = unreadMessagesCount?.lastReadMessageId?.let { messageId ->
+                            messages[messageId]
+                        }
+                        val lastMessage = chat.lastMessageId?.let { messageId -> messages[messageId] }
+                        val draftMessage = draftMessages[chatParticipation.chatId]
+                        val user = getChatUser(
+                                chat = chat,
+                                dialogChatsParticipants = dialogChatsParticipants,
+                                dialogChatsUsers = dialogChatsUsers,
+                                currentUser = currentUser
+                        )
 
                         return@map chatMapper.toChatOfCurrentUserResponse(
                                 chat = chat,
                                 chatParticipation = chatParticipation,
                                 lastReadMessage = lastReadMessage,
                                 lastMessage = lastMessage,
+                                draftMessage = draftMessage,
                                 unreadMessagesCount = unreadMessagesCount?.unreadMessagesCount ?: 0,
                                 unreadMentionsCount = unreadMessagesCount?.unreadMentionsCount ?: 0,
                                 user = user,
@@ -568,6 +599,24 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             }
         }
                 .flatMapMany { Flux.fromIterable(it) }
+    }
+
+    private fun getChatUser(
+            chat: Chat,
+            dialogChatsParticipants: Map<String, List<ChatParticipation>>,
+            dialogChatsUsers: Map<String, User>,
+            currentUser: User
+    ): User? {
+        if (chat.type != ChatType.DIALOG) {
+            return null
+        }
+
+        return dialogChatsParticipants[chat.id]
+                ?.let { chatParticipants ->
+                    chatParticipants.find { chatParticipant -> chatParticipant.user.id != currentUser.id }
+                }
+                ?.let { chatParticipant -> dialogChatsUsers[chatParticipant.user.id] }
+                ?: currentUser
     }
 
     override fun getPendingChatsOfCurrentUser(): Flux<ChatResponse> {

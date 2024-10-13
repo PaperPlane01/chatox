@@ -14,7 +14,8 @@ import org.springframework.data.elasticsearch.annotations.FieldType
 import java.time.ZonedDateTime
 
 @Document(indexName = "message")
-data class MessageElasticsearch(
+data class
+MessageElasticsearch(
         @Id
         override val id: String,
         override val text: String,
