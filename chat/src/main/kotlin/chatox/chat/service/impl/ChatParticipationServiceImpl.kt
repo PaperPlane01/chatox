@@ -27,6 +27,7 @@ import chatox.chat.model.ChatType
 import chatox.chat.model.JoinChatAllowance
 import chatox.chat.model.JoinChatRejectionReason
 import chatox.chat.model.PendingChatParticipation
+import chatox.chat.model.TextInfo
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatInviteRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
@@ -566,6 +567,19 @@ class ChatParticipationServiceImpl(private val chatParticipationRepository: Chat
             return@mono mapPendingChatParticipations(pendingChatParticipations)
         }
                 .flatMapMany { it }
+    }
+
+    override fun getMentionedChatParticipants(chatId: String, textInfo: TextInfo, excludedUsersIds: List<String>): Flux<ChatParticipation> {
+        if (textInfo.userLinks.userLinksPositions.isEmpty()) {
+            return Flux.empty()
+        }
+
+        return chatParticipationRepository.findByChatIdAndUserIdOrSlugIn(
+                chatId = chatId,
+                userIdsOrSlugs = textInfo.userLinks.userLinksPositions.map { userLink -> userLink.userIdOrSlug },
+                includeDeleted = false,
+                excludedUsersIds = excludedUsersIds
+        )
     }
 
     private fun mapChatParticipations(

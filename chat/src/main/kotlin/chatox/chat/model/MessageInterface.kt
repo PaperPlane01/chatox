@@ -1,5 +1,6 @@
 package chatox.chat.model
 
+import chatox.chat.api.request.CreateMessageRequest
 import java.time.ZonedDateTime
 
 interface MessageInterface {
@@ -30,4 +31,15 @@ interface MessageInterface {
     val forwardedById: String?
     val chatParticipationIdInSourceChat: String?
     val mentionedUsers: List<String>
+
+    fun equalsTo(createMessageRequest: CreateMessageRequest): Boolean {
+        return createMessageRequest.text == text
+                && createMessageRequest.referredMessageId == referredMessageId
+                && createMessageRequest.stickerId == sticker?.id
+                && createMessageRequest.uploadAttachments == attachments.map { upload -> upload.id }
+                && ((emoji
+                        .emoji
+                        .values
+                        .firstOrNull() ?: createMessageRequest.emojisSet) == createMessageRequest.emojisSet)
+    }
 }

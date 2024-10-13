@@ -72,12 +72,24 @@ class UnreadMessagesCountCustomRepositoryImpl(
     }
 
     override fun increaseUnreadMentionsCount(chatParticipations: List<String>): Mono<Unit> {
+        return increaseUnreadMentionsCount(chatParticipations, 1)
+    }
+
+    override fun decreaseUnreadMentionsCount(chatParticipations: List<String>): Mono<Unit> {
+        return increaseUnreadMentionsCount(chatParticipations, -1)
+    }
+
+    private fun increaseUnreadMentionsCount(chatParticipations: List<String>, increaseCount: Long): Mono<Unit> {
         val query = Query()
 
         query.addCriteria(Criteria.where(CHAT_PARTICIPATION_ID).`in`(chatParticipations))
 
+        if (increaseCount < 0) {
+            query.addCriteria(Criteria.where(UNREAD_MENTIONS_COUNT).gt(0))
+        }
+
         val update = Update()
-        update.inc(UNREAD_MENTIONS_COUNT, 1)
+        update.inc(UNREAD_MENTIONS_COUNT, increaseCount)
 
         return mono {
             reactiveMongoTemplate.updateMulti(query, update, UnreadMessagesCount::class.java).awaitFirst()
