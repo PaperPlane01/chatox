@@ -38,6 +38,15 @@ export class UploadReferenceMessagesEventsListener {
         await this.handleMessageCreated(message);
     }
 
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: "upload_service_draft_message_created",
+        routingKey: "chat.draft.message.created.#"
+    })
+    public async onDraftMessageCreated(message: Message): Promise<void> {
+        await this.handleMessageCreated(message);
+    }
+
     private async handleMessageCreated(message: Message): Promise<void> {
         if (message.attachments.length === 0) {
             return;
@@ -68,6 +77,15 @@ export class UploadReferenceMessagesEventsListener {
         routingKey: "chat.scheduled.message.updated.#"
     })
     public async onScheduledMessageUpdated(message: Message): Promise<void> {
+        await this.handleMessageUpdated(message);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: "upload_service_draft_message_updated",
+        routingKey: "chat.draft.message.updated.#"
+    })
+    public async onDraftMessageUpdated(message: Message): Promise<void> {
         await this.handleMessageUpdated(message);
     }
 
