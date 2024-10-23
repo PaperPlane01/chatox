@@ -18,6 +18,7 @@ import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.DialogParticipant
+import chatox.chat.model.DraftMessage
 import chatox.chat.model.Message
 import chatox.chat.model.PendingChatParticipation
 import chatox.chat.model.ScheduledMessage
@@ -96,6 +97,11 @@ object TestObjects {
     fun scheduledMessage(): ScheduledMessage = loadResource(
             "model/scheduled-message.json",
             ScheduledMessage::class.java
+    )
+
+    fun draftMessage(): DraftMessage = loadResource(
+            "model/draft-message.json",
+            DraftMessage::class.java
     )
 
     fun user(): User = loadResource(

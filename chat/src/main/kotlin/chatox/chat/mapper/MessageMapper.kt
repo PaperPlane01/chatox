@@ -9,6 +9,7 @@ import chatox.chat.messaging.rabbitmq.event.MessageCreated
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatType
+import chatox.chat.model.DraftMessage
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.MessageInterface
@@ -27,7 +28,9 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.lang.IllegalArgumentException
 import java.time.ZonedDateTime
+import kotlin.reflect.KClass
 
 @Component
 class MessageMapper(private val userService: UserService,
@@ -387,11 +390,85 @@ class MessageMapper(private val userService: UserService,
             chatParticipationId = scheduledMessage.chatParticipationId
     )
 
-    fun mapMessageUpdate(updateMessageRequest: UpdateMessageRequest,
-                         originalMessage: Message,
-                         emojis: EmojiInfo = originalMessage.emoji,
-                         uploads: List<Upload<*>>? = null,
-                         chatUploadsIds: List<String>? = null
+    fun fromDraftMessage(
+            draftMessage: DraftMessage,
+            messageIndex: Long
+    ) = Message(
+            id = draftMessage.id,
+            createdAt = ZonedDateTime.now(),
+            deleted = false,
+            deletedById = null,
+            deletedAt = null,
+            chatId = draftMessage.chatId,
+            updatedAt = null,
+            referredMessageId = draftMessage.referredMessageId,
+            text = draftMessage.text,
+            senderId = draftMessage.senderId,
+            emoji = draftMessage.emoji,
+            attachments = draftMessage.attachments,
+            uploadAttachmentsIds = draftMessage.uploadAttachmentsIds,
+            index = messageIndex,
+            fromScheduled = false,
+            sticker = draftMessage.sticker,
+            chatParticipationId = draftMessage.chatParticipationId
+    )
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T : MessageInterface> mapMessageUpdate(
+            updateMessageRequest: UpdateMessageRequest,
+            originalMessage: T,
+            emojis: EmojiInfo = originalMessage.emoji,
+            mentionedUsers: List<String> = originalMessage.mentionedUsers,
+            uploads: List<Upload<*>> = originalMessage.attachments,
+            chatUploadsIds: List<String> = originalMessage.uploadAttachmentsIds
+    ): T {
+        return when (originalMessage) {
+            is Message -> {
+                mapRegularMessageUpdate(
+                        updateMessageRequest,
+                        originalMessage,
+                        emojis,
+                        mentionedUsers,
+                        uploads,
+                        chatUploadsIds
+                ) as T
+            }
+
+            is DraftMessage -> {
+                return mapDraftMessageUpdate(
+                        updateMessageRequest,
+                        originalMessage,
+                        emojis,
+                        mentionedUsers,
+                        uploads,
+                        chatUploadsIds
+                ) as T
+            }
+
+            is ScheduledMessage -> {
+                return mapScheduledMessageUpdate(
+                        updateMessageRequest,
+                        originalMessage,
+                        emojis,
+                        mentionedUsers,
+                        uploads,
+                        chatUploadsIds
+                ) as T
+            }
+
+            else -> {
+                throw IllegalArgumentException("Unknown message type ${originalMessage::class}")
+            }
+        }
+    }
+
+    fun mapRegularMessageUpdate(
+            updateMessageRequest: UpdateMessageRequest,
+            originalMessage: Message,
+            emojis: EmojiInfo = originalMessage.emoji,
+            mentionedUsers: List<String> = originalMessage.mentionedUsers,
+            uploads: List<Upload<*>>? = originalMessage.attachments,
+            chatUploadsIds: List<String> = originalMessage.uploadAttachmentsIds
     ) = originalMessage.copy(
             text = updateMessageRequest.text,
             updatedAt = ZonedDateTime.now(),
@@ -400,14 +477,35 @@ class MessageMapper(private val userService: UserService,
             uploadAttachmentsIds = chatUploadsIds ?: originalMessage.uploadAttachmentsIds
     )
 
-    fun mapScheduledMessageUpdate(updateMessageRequest: UpdateMessageRequest,
-                                  originalMessage: ScheduledMessage,
-                                  emoji: EmojiInfo = originalMessage.emoji,
-                                  mentionedUsers: List<String> = originalMessage.mentionedUsers
+    fun mapScheduledMessageUpdate(
+            updateMessageRequest: UpdateMessageRequest,
+            originalMessage: ScheduledMessage,
+            emojis: EmojiInfo = originalMessage.emoji,
+            mentionedUsers: List<String> = originalMessage.mentionedUsers,
+            uploads: List<Upload<*>> = originalMessage.attachments,
+            chatUploadsIds: List<String> = originalMessage.uploadAttachmentsIds
     ) = originalMessage.copy(
             text = updateMessageRequest.text,
-            emoji = emoji,
+            emoji = emojis,
             updatedAt = ZonedDateTime.now(),
-            mentionedUsers = mentionedUsers
+            mentionedUsers = mentionedUsers,
+            attachments = uploads,
+            uploadAttachmentsIds = chatUploadsIds
+    )
+
+    fun mapDraftMessageUpdate(
+            updateMessageRequest: UpdateMessageRequest,
+            originalMessage: DraftMessage,
+            emojis: EmojiInfo = originalMessage.emoji,
+            mentionedUsers: List<String> = originalMessage.mentionedUsers,
+            uploads: List<Upload<*>> = originalMessage.attachments,
+            chatUploadsIds: List<String> = originalMessage.uploadAttachmentsIds
+    ) = originalMessage.copy(
+            text = updateMessageRequest.text,
+            emoji = emojis,
+            updatedAt = ZonedDateTime.now(),
+            mentionedUsers = mentionedUsers,
+            attachments = uploads,
+            uploadAttachmentsIds = chatUploadsIds
     )
 }

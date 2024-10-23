@@ -163,4 +163,16 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.user.typing.#",
             userStartedTyping
     )
+
+    fun draftMessageCreated(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.draft.message.created.#",
+            message
+    )
+
+    fun draftMessageUpdated(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.draft.message.updated.#",
+            message
+    )
 }

@@ -2,12 +2,14 @@ package chatox.chat.service.impl
 
 import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.ForwardMessagesRequest
+import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.exception.ForwardingFromDialogsIsNotAllowedException
 import chatox.chat.exception.ForwardingFromMultipleChatsIsNotAllowedException
 import chatox.chat.exception.MessageNotFoundException
 import chatox.chat.exception.MessageValidationException
+import chatox.chat.exception.StickersAreNotAllowedInDraftMessageException
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.exception.metadata.LimitOfScheduledMessagesReachedException
@@ -19,8 +21,10 @@ import chatox.chat.model.Chat
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatType
 import chatox.chat.model.ChatUploadAttachment
+import chatox.chat.model.DraftMessage
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
+import chatox.chat.model.MessageType
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Sticker
 import chatox.chat.model.TextInfo
@@ -30,18 +34,22 @@ import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
+import chatox.chat.repository.mongodb.DraftMessageRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.ScheduledMessageRepository
 import chatox.chat.repository.mongodb.StickerRepository
 import chatox.chat.repository.mongodb.UploadRepository
+import chatox.chat.service.ChatParticipationService
 import chatox.chat.service.ChatUploadAttachmentEntityService
 import chatox.chat.service.CreateMessageService
 import chatox.chat.service.MessageEntityService
 import chatox.chat.service.MessageReadService
+import chatox.chat.service.MessageService
 import chatox.chat.service.TextParserService
 import chatox.chat.util.NTuple2
 import chatox.chat.util.NTuple6
 import chatox.chat.util.NTuple7
+import chatox.chat.util.runAsync
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
@@ -66,6 +74,7 @@ class CreateMessageServiceImpl(
         private val chatParticipationRepository: ChatParticipationRepository,
         private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
         private val chatRepository: ChatRepository,
+        private val draftMessageRepository: DraftMessageRepository,
 
         @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
@@ -73,6 +82,8 @@ class CreateMessageServiceImpl(
         private val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService,
         private val textParser: TextParserService,
         private val messageReadService: MessageReadService,
+        private val messageService: MessageService,
+        private val chatParticipationService: ChatParticipationService,
         private val authenticationHolder: ReactiveAuthenticationHolder<User>,
         private val messageMapper: MessageMapper,
         private val chatEventsPublisher: ChatEventsPublisher
@@ -85,17 +96,34 @@ class CreateMessageServiceImpl(
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
-            return@mono if (createMessageRequest.scheduledAt == null) {
-                createNormalMessage(chatId, createMessageRequest, currentUser).awaitFirst()
+            return@mono if (createMessageRequest.draft) {
+                createOrUpdateDraftMessage(chatId, createMessageRequest, currentUser).awaitFirst()
+            } else if (createMessageRequest.scheduledAt == null) {
+                createRegularMessage(chatId, createMessageRequest, currentUser).awaitFirst()
             } else {
                 createScheduledMessage(chatId, createMessageRequest, currentUser).awaitFirst()
             }
         }
     }
 
-    private fun createNormalMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: JwtPayload): Mono<MessageResponse> {
+    private fun createRegularMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: JwtPayload): Mono<MessageResponse> {
         return mono {
-            val message = createMessageFromRequest(chatId, createMessageRequest, currentUser).awaitFirst()
+            val draftMessage = draftMessageRepository.findByChatIdAndSenderId(
+                    chatId = chatId,
+                    senderId = currentUser.id
+            )
+                    .awaitFirstOrNull()
+
+            val message = if (draftMessage != null && draftMessage.equalsTo(createMessageRequest)) {
+                createMessageFromDraftMessage(draftMessage, currentUser).awaitFirst()
+            } else {
+                createMessageFromRequest(chatId, createMessageRequest, currentUser).awaitFirst()
+            }
+
+            if (draftMessage != null) {
+                draftMessageRepository.delete(draftMessage).awaitFirstOrNull()
+            }
+
             val response = messageMapper.toMessageCreated(
                     message = message,
                     readByCurrentUser = true,
@@ -103,9 +131,52 @@ class CreateMessageServiceImpl(
             )
                     .awaitFirst()
 
-            Mono.fromRunnable<Unit>{ chatEventsPublisher.messageCreated(response) }.subscribe()
+            runAsync { chatEventsPublisher.messageCreated(response) }
 
             return@mono response.toMessageResponse()
+        }
+    }
+
+    private fun createMessageFromDraftMessage(draftMessage: DraftMessage, currentUser: JwtPayload): Mono<Message> {
+        return mono {
+            val messageIndex = chatMessagesCounterRepository.getNextCounterValue(draftMessage.chatId).awaitFirst()
+            val message = messageMapper.fromDraftMessage(draftMessage, messageIndex)
+            messageRepository.save(message).awaitFirst()
+
+            if (message.uploadAttachmentsIds.isNotEmpty()) {
+                val chatUploadAttachments = chatUploadAttachmentRepository
+                        .findAllById(message.uploadAttachmentsIds)
+                        .collectList()
+                        .awaitFirst()
+                chatUploadAttachmentEntityService.linkChatUploadAttachmentsToMessage(
+                        chatUploadAttachments,
+                        message
+                )
+                        .awaitFirstOrNull()
+            }
+
+            val currentUserChatParticipation = chatParticipationRepository.findByChatIdAndUserId(
+                    chatId = message.chatId,
+                    userId = currentUser.id
+            )
+                    .awaitFirst()
+
+            messageReadService
+                    .increaseUnreadMessagesCountForChat(message.chatId, listOf(currentUserChatParticipation.id))
+                    .awaitFirstOrNull()
+
+            if (message.mentionedUsers.isNotEmpty()) {
+                val mentionedChatParticipants = chatParticipationRepository.findByChatIdAndUserIdInAndDeletedFalse(
+                        chatId = message.chatId,
+                        userIds = message.mentionedUsers
+                )
+                        .map { chatParticipation -> chatParticipation.id }
+                        .collectList()
+                        .awaitFirst()
+                messageReadService.increaseUnreadMentionsCount(mentionedChatParticipants).awaitFirstOrNull()
+            }
+
+            return@mono message
         }
     }
 
@@ -142,7 +213,12 @@ class CreateMessageServiceImpl(
                     uploads,
                     mentionedChatParticipants,
                     chatParticipation
-            ) = prepareDataForSavingMessage(chatId, createMessageRequest, currentUser).awaitFirst()
+            ) = prepareDataForSavingMessage(
+                    chatId = chatId,
+                    createMessageRequest = createMessageRequest,
+                    currentUser = currentUser,
+                    messageType = MessageType.SCHEDULED
+            ).awaitFirst()
 
             val scheduledMessage = ScheduledMessage(
                     id = UUID.randomUUID().toString(),
@@ -167,7 +243,127 @@ class CreateMessageServiceImpl(
                     readByCurrentUser = true
             )
                     .awaitFirst()
-            Mono.fromRunnable<Unit> { chatEventsPublisher.scheduledMessageCreated(messageResponse) }.subscribe()
+            runAsync { chatEventsPublisher.scheduledMessageCreated(messageResponse) }
+
+            return@mono messageResponse
+        }
+    }
+
+    private fun createOrUpdateDraftMessage(
+            chatId: String,
+            createMessageRequest: CreateMessageRequest,
+            currentUser: JwtPayload
+    ): Mono<MessageResponse> {
+        return mono {
+            if (createMessageRequest.stickerId != null) {
+                throw StickersAreNotAllowedInDraftMessageException()
+            }
+
+            val draftMessage = draftMessageRepository.findByChatIdAndSenderId(
+                    chatId = chatId,
+                    senderId = currentUser.id
+            ).awaitFirstOrNull()
+
+            return@mono if (draftMessage != null) {
+                updateDraftMessage(draftMessage, createMessageRequest, currentUser).awaitFirst()
+            } else {
+                createDraftMessage(chatId, createMessageRequest, currentUser).awaitFirst()
+            }
+        }
+    }
+
+    private fun createDraftMessage(chatId: String, createMessageRequest: CreateMessageRequest, currentUser: JwtPayload): Mono<MessageResponse> {
+        return mono {
+            val (
+                    sticker,
+                    referredMessage,
+                    emoji,
+                    uploadAttachments,
+                    uploads,
+                    mentionedChatParticipants,
+                    chatParticipation
+            ) = prepareDataForSavingMessage(
+                    chatId = chatId,
+                    createMessageRequest = createMessageRequest,
+                    currentUser = currentUser,
+                    messageType = MessageType.DRAFT
+            ).awaitFirst()
+
+            val draftMessage = DraftMessage(
+                    id = UUID.randomUUID().toString(),
+                    text = createMessageRequest.text,
+                    chatId = chatId,
+                    senderId = currentUser.id,
+                    chatParticipationId = chatParticipation.id,
+                    sticker = sticker,
+                    attachments = uploads,
+                    uploadAttachmentsIds = uploadAttachments.map { attachment -> attachment.id },
+                    createdAt = ZonedDateTime.now(),
+                    index = 1L,
+                    emoji = emoji,
+                    referredMessageId = referredMessage?.id,
+                    mentionedUsers = mentionedChatParticipants.map { it.user.id }
+            )
+            draftMessageRepository.save(draftMessage).awaitFirst()
+
+            val response = messageMapper.toMessageResponse(
+                    message = draftMessage,
+                    mapReferredMessage = true,
+                    readByCurrentUser = true
+            )
+                    .awaitFirst()
+
+            runAsync { chatEventsPublisher.draftMessageCreated(response) }
+
+            return@mono response
+        }
+    }
+
+    private fun updateDraftMessage(
+            existingMessage: DraftMessage,
+            createMessageRequest: CreateMessageRequest,
+            currentUser: JwtPayload
+    ): Mono<MessageResponse> {
+        return mono {
+            val updateResult = messageService.updateMessage(
+                    existingMessage,
+                    updateMessageRequest = UpdateMessageRequest(
+                            _text = createMessageRequest.text,
+                            uploadAttachments = createMessageRequest.uploadAttachments,
+                            emojisSet = createMessageRequest.emojisSet
+                    ),
+                    updatedBy = currentUser
+            )
+                    .awaitFirst()
+
+            val updatedMessage = updateResult.updatedMessage.copy(
+                    referredMessageId = createMessageRequest.referredMessageId
+            )
+            draftMessageRepository.save(updatedMessage).awaitFirst()
+
+            if (updateResult.newChatUploadAttachments.isNotEmpty()) {
+                chatUploadAttachmentEntityService.linkChatUploadAttachmentsToMessage(
+                        updateResult.newChatUploadAttachments,
+                        updateResult.updatedMessage
+                )
+                        .subscribe()
+            }
+
+            if (updateResult.chatUploadsAttachmentsToRemove.isNotEmpty()) {
+                chatUploadAttachmentEntityService.deleteChatUploadAttachments(updateResult.chatUploadsAttachmentsToRemove)
+                        .subscribe()
+            }
+
+            val messageResponse = messageMapper.toMessageResponse(
+                    message = updatedMessage,
+                    mapReferredMessage = true,
+                    readByCurrentUser = true
+            )
+                    .awaitFirst()
+
+            runAsync {
+                chatEventsPublisher.draftMessageUpdated(messageResponse)
+            }
 
             return@mono messageResponse
         }
@@ -388,13 +584,15 @@ class CreateMessageServiceImpl(
             currentUser: JwtPayload,
             chatParticipation: ChatParticipation? = null,
             chatNotCreated: Boolean = false,
+            messageType: MessageType = MessageType.REGULAR
     ): Mono<NTuple7<Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, List<ChatParticipation>, ChatParticipation>> {
         return mono {
             val baseData = prepareBaseDataForSavingMessage(
                     chatId = chatId,
                     createMessageRequest = createMessageRequest,
                     currentUser = currentUser,
-                    chatNotCreated = chatNotCreated
+                    chatNotCreated = chatNotCreated,
+                    messageType = messageType
             ).awaitFirst()
             val returnedTypeParticipation = chatParticipation
                     ?: chatParticipationRepository.findByChatIdAndUserIdAndDeletedFalse(
@@ -419,7 +617,8 @@ class CreateMessageServiceImpl(
             chatId: String,
             createMessageRequest: CreateMessageRequest,
             currentUser: JwtPayload,
-            chatNotCreated: Boolean = false
+            chatNotCreated: Boolean = false,
+            messageType: MessageType = MessageType.REGULAR
     ): Mono<NTuple6<Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, List<ChatParticipation>>> {
         return mono {
             val chat = getChat(chatId, chatNotCreated).awaitFirstOrNull()
@@ -445,7 +644,7 @@ class CreateMessageServiceImpl(
             val mentionedChatParticipants = if (chat != null && chat.type == ChatType.DIALOG) {
                 emptyList()
             } else {
-                getMentionedChatParticipants(textInfo, chatId, currentUser.id)
+                chatParticipationService.getMentionedChatParticipants(chatId, textInfo, listOf(currentUser.id))
                         .collectList()
                         .awaitFirst()
             }
@@ -456,7 +655,8 @@ class CreateMessageServiceImpl(
                 getUploadsAndAttachments(
                         uploadsIds = createMessageRequest.uploadAttachments,
                         chatId = chatId,
-                        currentUserId = currentUser.id
+                        currentUserId = currentUser.id,
+                        messageType = messageType
                 )
                         .awaitFirst()
             }
@@ -496,19 +696,12 @@ class CreateMessageServiceImpl(
         return textParser.parseText(text, emojiSet)
     }
 
-    private fun getMentionedChatParticipants(textInfo: TextInfo, chatId: String, currentUserId: String): Flux<ChatParticipation> {
-        if (textInfo.userLinks.userLinksPositions.isEmpty()) {
-            return Flux.empty()
-        }
-
-        return chatParticipationRepository.findByChatIdAndUserIdOrSlugIn(
-                chatId = chatId,
-                userIdsOrSlugs = textInfo.userLinks.userLinksPositions.map { it.userIdOrSlug },
-                excludedUsersIds = listOf(currentUserId),
-        )
-    }
-
-    private fun getUploadsAndAttachments(uploadsIds: List<String>, chatId: String, currentUserId: String): Mono<NTuple2<List<Upload<Any>>, List<ChatUploadAttachment<Any>>>> {
+    private fun getUploadsAndAttachments(
+            uploadsIds: List<String>,
+            chatId: String,
+            currentUserId: String,
+            messageType: MessageType = MessageType.REGULAR
+    ): Mono<NTuple2<List<Upload<Any>>, List<ChatUploadAttachment<Any>>>> {
         return mono {
             val uploads = uploadRepository.findAllById<Any>(uploadsIds).collectList().awaitFirst()
 
@@ -522,7 +715,8 @@ class CreateMessageServiceImpl(
                         uploadSenderId = currentUserId,
                         messageId = null,
                         createdAt = ZonedDateTime.now(),
-                        uploadId = upload.id
+                        uploadId = upload.id,
+                        messageType = messageType
                 )
             }
 

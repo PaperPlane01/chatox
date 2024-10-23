@@ -128,4 +128,22 @@ export class MessagesController {
         this.log.verbose(messageRead);
         await this.websocketEventsPublisher.publishMessageRead(messageRead);
     }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: `event_service_draft_message_created-${config.EVENTS_SERVICE_PORT}`,
+        routingKey: "chat.draft.message.created.#"
+    })
+    public async onDraftMessageCreated(message: ChatMessage): Promise<void> {
+        await this.websocketEventsPublisher.publishDraftMessageCreated(message);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: `events_service_draft_message_updated-${config.EVENTS_SERVICE_PORT}`,
+        routingKey: "chat.draft.message.updated.#"
+    })
+    public async onDraftMessageUpdated(message: ChatMessage): Promise<void> {
+        await this.websocketEventsPublisher.publishDraftMessageUpdated(message);
+    }
 }
