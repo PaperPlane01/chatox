@@ -95,6 +95,17 @@ export class UploadsService {
         return upload;
     }
 
+    public async getUploadsByIds(uploadIds: string[]): Promise<Array<UploadResponse<any>>> {
+        const uploads = await this.uploadModel.find({
+            id: {
+                $in: uploadIds
+            }
+        })
+            .exec();
+
+        return uploads.map(upload => this.uploadMapper.toUploadResponse(upload));
+    }
+
     private async deleteUploadFromDatabase(upload: UploadDocument<any>): Promise<void> {
         this.log.verbose(`Deleting upload ${upload.id} from database`);
         await upload.deleteOne();

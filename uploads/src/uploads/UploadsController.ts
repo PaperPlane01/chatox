@@ -1,7 +1,8 @@
-import {Controller, Delete, Get, Param, Post, Res} from "@nestjs/common";
+import {Controller, Delete, Get, Param, Post, Query, Res, ValidationPipe} from "@nestjs/common";
 import {Response} from "express";
 import {UploadsService} from "./UploadsService";
 import {ArchivedUploadsService} from "./ArchivedUploadsService";
+import {GetUploadsInfoByIdsRequest} from "./types/requests";
 import {UploadResponse} from "./types/responses";
 import {HasRole, HasScope} from "../auth";
 
@@ -9,6 +10,11 @@ import {HasRole, HasScope} from "../auth";
 export class UploadsController {
     constructor(private readonly uploadsService: UploadsService,
                 private readonly archivedUploadsService: ArchivedUploadsService) {
+    }
+
+    @Get("info")
+    public async getUploadsInfo(@Query(new ValidationPipe({transform: true})) getUploadsRequest: GetUploadsInfoByIdsRequest): Promise<Array<UploadResponse<any>>> {
+        return await this.uploadsService.getUploadsByIds(getUploadsRequest.ids);
     }
 
     @Get(":uploadId/info")
@@ -30,7 +36,7 @@ export class UploadsController {
 
     @HasRole("ROLE_ADMIN")
     @Get("archived/:uploadName")
-    public async getArchivedUpload(@Param("uploadName") uploadName, @Res() response: Response): Promise<void> {
+    public async getArchivedUpload(@Param("uploadName") uploadName: string, @Res() response: Response): Promise<void> {
         await this.archivedUploadsService.getArchivedUpload(uploadName, response);
     }
 }
