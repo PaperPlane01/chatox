@@ -125,6 +125,7 @@ interface TextEditorProps {
 	emojiPickerVariant?: "none" | EmojiPickerVariant,
 	useEmojiCodes?: boolean,
 	emojiPickerExpanded?: boolean,
+	editorKey?: string,
 	setEmojiPickerExpanded?: (emojiPickerExpanded: boolean) => void,
 	onUpdate: (text: string) => void,
 	onEditorReady?: (editor: LexicalEditor) => void
@@ -146,6 +147,7 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 	emojiPickerExpanded,
 	setEmojiPickerExpanded,
 	emojiPickerVariant = "none",
+	editorKey,
 	onUpdate,
 	onEditorReady,
 }) => {
@@ -204,7 +206,9 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 						},
 						editorState: () => $convertFromMarkdownString(initialText, CUSTOM_TRANSFORMERS),
 						onError: error => console.error(error)
-					}}>
+					}}
+									 key={editorKey}
+					>
 						<RichTextPlugin contentEditable={<ContentEditable className={classes.editorInput}/>}
 										placeholder={(
 											<div className={classes.placeholder}>

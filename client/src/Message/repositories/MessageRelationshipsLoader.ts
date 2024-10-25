@@ -1,6 +1,5 @@
-import {MessageRepository} from "./MessageRepository";
 import {MessageEntity, MessageRelationships} from "../types";
-import {AbstractRelationshipsLoader} from "../../repository";
+import {AbstractRelationshipsLoader, Repository} from "../../repository";
 import {Repositories} from "../../repositories";
 import {emptyArray} from "../../utils/array-utils";
 import {UserEntity} from "../../User";
@@ -11,7 +10,7 @@ import {StickerEntity} from "../../Sticker";
 
 export class MessageRelationshipsLoader extends AbstractRelationshipsLoader<MessageEntity, MessageRelationships> {
 	constructor(private readonly repositories: Repositories,
-				private readonly messageRepository: MessageRepository) {
+				private readonly messageRepository: Repository<MessageEntity, MessageRelationships>) {
 		super();
 	}
 

@@ -13,5 +13,7 @@ export interface Upload<MetadataType> {
     name: string,
     isThumbnail: boolean,
     isPreview: boolean,
-    uri: string
+    uri: string,
+    local?: boolean,
+    localId?: string
 }

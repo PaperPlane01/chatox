@@ -1,12 +1,12 @@
-import {EntityPatchLoader} from "../../repository";
-import {MessageEntity} from "../types";
-import {createEmptyEntitiesPatch, EntitiesPatch, populatePatch} from "../../entities-store";
 import {MessageRelationshipsLoader} from "./MessageRelationshipsLoader";
-import {MessageRepository} from "./MessageRepository";
+import {MessageEntity, MessageRelationships} from "../types";
+import {EntityPatchLoader, Repository} from "../../repository";
+import {createEmptyEntitiesPatch, EntitiesPatch, populatePatch} from "../../entities-store";
 
 export class MessageEntityPatchLoader implements EntityPatchLoader<MessageEntity> {
-	constructor(private readonly messageRepository: MessageRepository,
-				private readonly messageRelationshipsLoader: MessageRelationshipsLoader) {
+	constructor(private readonly messageRepository: Repository<MessageEntity, MessageRelationships>,
+				private readonly messageRelationshipsLoader: MessageRelationshipsLoader,
+				private readonly entityName: "messages" | "scheduledMessages" | "draftMessages" = "messages") {
 	}
 
 	async restoreEntityPatchForArray(ids: string[]): Promise<EntitiesPatch> {
@@ -16,7 +16,7 @@ export class MessageEntityPatchLoader implements EntityPatchLoader<MessageEntity
 
 
 	async restoreEntityPatch(id: string): Promise<EntitiesPatch> {
-		const patch = createEmptyEntitiesPatch("messages", "users", "uploads", "stickers", "chatRoles");
+		const patch = createEmptyEntitiesPatch(this.entityName, "users", "uploads", "stickers", "chatRoles");
 
 		const message = await this.messageRepository.findById(id);
 
@@ -26,7 +26,7 @@ export class MessageEntityPatchLoader implements EntityPatchLoader<MessageEntity
 
 		const relationships = await this.messageRelationshipsLoader.loadRelationships(message)
 
-		populatePatch(patch, "messages", [message, ...relationships.messages]);
+		populatePatch(patch, this.entityName, [message, ...relationships.messages]);
 		populatePatch(patch, "users", relationships.users);
 		populatePatch(patch, "chatRoles", relationships.chatRoles);
 		populatePatch(patch, "uploads", relationships.uploads);
@@ -43,11 +43,11 @@ export class MessageEntityPatchLoader implements EntityPatchLoader<MessageEntity
 			};
 		}
 
-		const patch = createEmptyEntitiesPatch("messages", "users", "uploads", "stickers", "chatRoles");
+		const patch = createEmptyEntitiesPatch(this.entityName, "users", "uploads", "stickers", "chatRoles");
 
 		const {users, chatRoles, uploads, messages: referredMessages, stickers} = await this.messageRelationshipsLoader.loadRelationshipsForArray(entities);
 
-		populatePatch(patch, "messages", [...entities, ...referredMessages]);
+		populatePatch(patch, this.entityName, [...entities, ...referredMessages]);
 		populatePatch(patch, "users", users);
 		populatePatch(patch, "chatRoles", chatRoles);
 		populatePatch(patch, "uploads", uploads);

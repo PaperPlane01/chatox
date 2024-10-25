@@ -86,6 +86,7 @@ export const CreateMessageRichTextForm: FunctionComponent = observer(() => {
 								 onChange={text => setFormValue("text", text)}
 								 onSubmit={submitForm}
 								 onEmojiPickerExpanded={setEmojiPickerExpanded}
+								 editorKey={`message-editor-${selectedChatId}`}
 			/>
 		</Fragment>
 	);

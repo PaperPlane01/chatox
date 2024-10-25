@@ -17,7 +17,7 @@ export class MessageDexieRepository extends AbstractDexieRepository<MessageEntit
 	}
 
 	findByChatId(chatId: string): Promise<MessageEntity[]> {
-		return this.table.where(chatId).equals(chatId).toArray();
+		return this.table.where("chatId").equals(chatId).toArray();
 	}
 
 	findByChatIdAndCreatedAtBetween(chatId: string, createdAtBefore: Date, createdAtAfter: Date): Promise<MessageEntity[]> {

@@ -5,5 +5,6 @@ export interface ChatListEntry {
     messageId?: string,
     unreadMessagesCount?: number,
     unreadMentionsCount?: number,
-    chatType: ChatType
+    chatType: ChatType,
+    draftMessageId?: string
 }

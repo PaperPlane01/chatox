@@ -1,5 +1,6 @@
 import {RawEntitiesStore} from "./RawEntitiesStore";
 import {EntitiesAware} from "./EntitiesAware";
+import {Entities, GetEntityType} from "./types";
 import {MessagesStore} from "../Message";
 import {ChatsStore} from "../Chat";
 import {UploadsStore} from "../Upload";
@@ -14,7 +15,6 @@ import {GlobalBansStore} from "../GlobalBan";
 import {RewardsStore, UserRewardsStore} from "../Reward";
 import {UserInteractionsStore} from "../UserInteraction";
 import {ChatInvitesStore} from "../ChatInvite";
-import {Entities, GetEntityType} from "./types";
 import {EntityStore} from "../entity-store";
 
 type EntitiesStores = {
@@ -46,6 +46,7 @@ export class EntitiesStore {
     public userProfilePhotos: UserProfilePhotosStore;
     public chatInvites: ChatInvitesStore;
     public pendingChatParticipations: PendingChatParticipationsStore;
+    public draftMessages: MessagesStore<"draftMessages">;
 
     get stores(): EntitiesStores {
         return {
@@ -71,7 +72,8 @@ export class EntitiesStore {
             userProfilePhotos: this.userProfilePhotos,
             chatInvites: this.chatInvites,
             pendingChatParticipations: this.pendingChatParticipations,
-            chatUploads: undefined
+            chatUploads: undefined,
+            draftMessages: this.draftMessages
         }
     }
 
@@ -98,6 +100,7 @@ export class EntitiesStore {
         this.userProfilePhotos = new UserProfilePhotosStore(rawEntities, "userProfilePhotos", this);
         this.chatInvites = new ChatInvitesStore(rawEntities, "chatInvites", this);
         this.pendingChatParticipations = new PendingChatParticipationsStore(rawEntities, "pendingChatParticipations", this);
+        this.draftMessages = new MessagesStore(rawEntities, "draftMessages", this, userChatRoles);
     }
 
     public setEntitiesStore(entitiesAwareStores: EntitiesAware[]): void {

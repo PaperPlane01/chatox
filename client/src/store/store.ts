@@ -92,7 +92,7 @@ import {
     CreateChatBlockingStore,
     UpdateChatBlockingStore
 } from "../ChatBlocking";
-import {UploadImageStore} from "../Upload";
+import {UploadCacheService, UploadImageStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
 import {EmojiSettingsStore} from "../Emoji";
@@ -219,11 +219,11 @@ const userRegistration = new UserRegistrationStore(
 );
 const appBar = new AppBarStore();
 const markdownPreviewDialog = new MarkdownPreviewDialogStore();
-const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entities);
+const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entities, rawEntities, repositories.getRepository("draftMessages")!);
 const chatCreation = new CreateChatStore(entities);
 const chat = new ChatStore(entities);
 const chatParticipants = new ChatParticipantsStore(entities, chat);
-const messageUploads = new UploadMessageAttachmentsStore(entities);
+const messageUploads = new UploadMessageAttachmentsStore(entities, chat);
 const chatsPreferences = new ChatsPreferencesStore();
 const messagesForwarding = new ForwardMessagesStore(chat, entities);
 const voiceRecording = new RecordVoiceMessageStore(
@@ -231,13 +231,17 @@ const voiceRecording = new RecordVoiceMessageStore(
     language,
     snackbarService
 );
+const uploadCache = new UploadCacheService();
 const messageCreation = new CreateMessageStore(
     chat,
     messageUploads,
     entities,
     chatsPreferences,
     messagesForwarding,
-    voiceRecording
+    voiceRecording,
+    authorization,
+    uploadCache,
+    repositories.getRepository("draftMessages")!
 );
 const pendingChats = new PendingChatsOfCurrentUserStore(entities);
 const messagesSearch = new SearchMessagesStore(entities, chat);

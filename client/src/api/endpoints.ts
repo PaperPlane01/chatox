@@ -68,3 +68,4 @@ export const APPROVE = "approve";
 export const REJECT = "reject";
 export const VOICE = "voice";
 export const NOTIFICATIONS_SETTINGS = "notifications-settings";
+export const INFO = "info";

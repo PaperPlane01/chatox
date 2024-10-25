@@ -1,7 +1,8 @@
 import {AxiosPromise, AxiosRequestConfig} from "axios";
+import {stringify} from "query-string";
 import {axiosInstance} from "../axios-instance";
 import {AudioUploadMetadata, ImageUploadMetadata, Upload, VideoUploadMetadata} from "../types/response";
-import {AUDIOS, FILES, IMAGES, UPLOADS, VIDEOS, VOICE} from "../endpoints";
+import {AUDIOS, FILES, IMAGES, UPLOADS, VIDEOS, VOICE, INFO} from "../endpoints";
 
 export type ProgressCallback = (percentage: number) => void;
 
@@ -62,5 +63,12 @@ export class UploadApi {
         }
 
         return axiosInstance.get(`/${UPLOADS}/${FILES}/${fileName}`, config);
+    }
+    
+    public static getUploadsInfoByIds(ids: string[]): AxiosPromise<Array<Upload<any>>> {
+        const request = {
+            ids: JSON.stringify(ids)
+        };
+        return axiosInstance.get(`/${UPLOADS}/${INFO}?${stringify(request)}`)
     }
 }

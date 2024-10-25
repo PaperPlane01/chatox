@@ -8,7 +8,7 @@ import {isDefined, mergeCustomizer} from "../../utils/object-utils";
 import {UserChatRolesStore} from "../../ChatRole";
 import {RequiredField} from "../../utils/types";
 
-export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
+export class MessagesStore<MessageType extends "messages" | "scheduledMessages" | "draftMessages">
     extends SoftDeletableEntityStore<MessageType, GetEntityType<MessageType>, Message, MessageInsertOptions> {
 
     constructor(rawEntities: RawEntitiesStore,
@@ -78,10 +78,6 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
         ];
     }
 
-    private mergeRelationships(source: RelationshipsIds, ...relationships: RelationshipsIds[]): RelationshipsIds {
-        return mergeWith(source, relationships, mergeCustomizer)
-    }
-
     protected convertToNormalizedForm(denormalizedEntity: Message): GetEntityType<MessageType> {
         return convertMessageToNormalizedForm(denormalizedEntity) as GetEntityType<MessageType>;
     }
@@ -89,12 +85,14 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
     createPatchForArray(denormalizedEntities: Message[], options?: MessageInsertOptions): EntitiesPatch {
         if (this.entityName === "messages") {
             return this.createPatchForNormalMessages(denormalizedEntities, options);
+        } else if (this.entityName === "draftMessages") {
+            return this.createPatchForDraftMessages(denormalizedEntities);
         } else {
             return this.createPatchForScheduledMessage(denormalizedEntities);
         }
     }
 
-    private createPatchForNormalMessages(messages: Message[], insertOptions?: MessageInsertOptions) {
+    private createPatchForNormalMessages(messages: Message[], insertOptions?: MessageInsertOptions): EntitiesPatch {
         const patch = this.createEmptyEntitiesPatch("messages", "chats");
         const patches: EntitiesPatch[] = [];
 
@@ -114,22 +112,15 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
                     chat.lastMessage = message.id;
                 }
 
-                patch.entities.chats[message.chatId] = chat;
-                patch.ids.chats.push(message.chatId);
-
                 if (insertOptions && insertOptions.pinnedMessageId === message.id) {
                     chat.pinnedMessageId = message.id;
                 }
+
+                patch.entities.chats[message.chatId] = chat;
+                patch.ids.chats.push(message.chatId);
             }
 
-            patches.push(this.entities.users.createPatchForArray(
-                [
-                    message.sender,
-                    message.forwardedBy,
-                    ...message.mentionedUsers
-                ]
-                    .filter(isDefined)
-            ));
+            patches.push(this.createUsersPatch(message));
 
             if (message.senderChatRole) {
                 this.userChatRoles.insertInCache({
@@ -164,7 +155,7 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
         return mergeWith(patch, ...patches, mergeCustomizer);
     }
 
-    private createPatchForScheduledMessage(messages: Message[]) {
+    private createPatchForScheduledMessage(messages: Message[]): EntitiesPatch {
         const patch = this.createEmptyEntitiesPatch("scheduledMessages", "chats");
         const patches: EntitiesPatch[] = [];
 
@@ -178,12 +169,18 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
             patch.entities.chats[message.chatId] = chat;
             patch.ids.chats.push(message.chatId);
 
+            patches.push(this.createUsersPatch(message));
+
             if (message.senderChatRole) {
                 patches.push(this.entities.chatRoles.createPatch(message.senderChatRole));
             }
 
             if (message.sticker) {
                 patches.push(this.entities.stickers.createPatch(message.sticker));
+            }
+
+            if (message.attachments.length !== 0) {
+                patches.push(this.entities.uploads.createPatchForArray(message.attachments));
             }
 
             if (message.referredMessage) {
@@ -202,5 +199,51 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages">
         });
 
         return mergeWith(patch, ...patches, mergeCustomizer);
+    }
+
+    private createPatchForDraftMessages(draftMessages: Message[], options?: MessageInsertOptions): EntitiesPatch {
+        const patch = this.createEmptyEntitiesPatch("draftMessages", "chats");
+        const patches: EntitiesPatch[] = [];
+
+        draftMessages.forEach(draftMessage => {
+            patch.entities.draftMessages[draftMessage.id] = convertMessageToNormalizedForm(draftMessage);
+            patch.ids.draftMessages.push(draftMessage.id);
+
+            patches.push(this.createUsersPatch(draftMessage));
+
+            if (options?.setDraftMessageToChat) {
+                const chat = this.entities.chats.findById(draftMessage.chatId);
+                chat.draftMessageId = draftMessage.id;
+                patch.entities.chats[chat.id] = chat;
+                patch.ids.chats.push(chat.id);
+            }
+
+            if (draftMessage.attachments.length !== 0) {
+                patches.push(this.entities.uploads.createPatchForArray(draftMessage.attachments));
+            }
+
+            if (draftMessage.referredMessage) {
+                patches.push(this.createPatchForNormalMessages(
+                    [draftMessage.referredMessage],
+                    {
+                        skipSettingLastMessage: true,
+                        skipUpdatingChat: true
+                    }
+                ));
+            }
+        })
+
+        return mergeWith(patch, ...patches, mergeCustomizer);
+    }
+
+    private createUsersPatch(message: Message): EntitiesPatch {
+        return this.entities.users.createPatchForArray(
+            [
+                message.sender,
+                message.forwardedBy,
+                ...message.mentionedUsers
+            ]
+                .filter(isDefined)
+        );
     }
 }

@@ -20,6 +20,8 @@ export class ChatsPreferencesStore {
 
     messageEditorType: MessageEditorType = MessageEditorType.PLAIN_TEXT;
 
+    saveDraftMessagesToServer: boolean = false;
+
     constructor() {
         makeAutoObservable(this);
 
@@ -61,6 +63,10 @@ export class ChatsPreferencesStore {
 
         if (localStorage.getItem("messageEditorType") !== null) {
             this.messageEditorType = parseMessageEditorType(localStorage.getItem("messageEditorType"));
+        }
+
+        if (localStorage.getItem("saveDraftMessagesToServer") !== null) {
+            this.saveDraftMessagesToServer = localStorage.getItem("saveDraftMessagesToServer") === "true";
         }
     }
 
@@ -110,5 +116,10 @@ export class ChatsPreferencesStore {
     setMessageEditorType = (messageEditorType: MessageEditorType): void => {
         this.messageEditorType = messageEditorType;
         localStorage.setItem("messageEditorType", messageEditorType);
+    }
+
+    setSaveDraftMessagesToServer = (saveDraftMessagesToServer: boolean): void => {
+        this.saveDraftMessagesToServer = saveDraftMessagesToServer;
+        localStorage.setItem("saveDraftMessagesToServer", `${saveDraftMessagesToServer}`);
     }
 }

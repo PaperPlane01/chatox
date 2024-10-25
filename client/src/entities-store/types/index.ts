@@ -35,9 +35,10 @@ export type Entities = "messages"
     | "userInteractions"
     | "userProfilePhotos"
     | "chatInvites"
-    | "pendingChatParticipations";
+    | "pendingChatParticipations"
+    | "draftMessages";
 
-export type PersistentEntities = Extract<Entities, "messages" | "users" | "uploads" | "stickers" | "stickerPacks" | "chatRoles">;
+export type PersistentEntities = Extract<Entities, "messages" | "users" | "uploads" | "stickers" | "stickerPacks" | "chatRoles" | "draftMessages">;
 
 interface EntityMap<T> {
     [key: string]: T;
@@ -68,6 +69,7 @@ export type GetEntityType<Key extends Entities>
     : Key extends "userProfilePhotos" ? UserProfilePhotoEntity
     : Key extends "chatInvites" ? ChatInviteEntity
     : Key extends "pendingChatParticipations" ? PendingChatParticipationEntity
+    : Key extends "draftMessages" ? MessageEntity
     : never;
 //@formatter:on
 

@@ -790,5 +790,7 @@ export const ru: Labels = {
     "notification.settings.for-user-in-chat": "Настройки уведомлений для пользователя {username} в чате {chatName}",
     "common.change": "Изменить",
     "notification.settings.for-user-in-chat.delete": "Удалить настройки уведомлений для пользователя",
-    "notification.settings.for-chat.exceptions": "Исключения в чате {chatName}"
+    "notification.settings.for-chat.exceptions": "Исключения в чате {chatName}",
+    "message.draft": "Драфт",
+    "message.draft.save-to-server": "Сохранять драфт-сообщения на сервер"
 };

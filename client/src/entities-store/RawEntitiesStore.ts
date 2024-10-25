@@ -19,6 +19,7 @@ type DateFieldsMap = {
 
 const SERIALIZABLE_DATE_FIELDS_MAP: DateFieldsMap = {
     messages: ["createdAt", "updatedAt", "scheduledAt"],
+    draftMessages: ["createdAt", "updatedAt", "scheduledAt"],
     users: ["lastSeen", "createdAt", "dateOfBirth"],
     chatRoles: ["createdAt", "updatedAt"]
 };
@@ -48,7 +49,8 @@ export class RawEntitiesStore {
         userInteractions: {},
         userProfilePhotos: {},
         chatInvites: {},
-        pendingChatParticipations: {}
+        pendingChatParticipations: {},
+        draftMessages: {}
     };
 
     ids: EntitiesIds = {
@@ -74,7 +76,8 @@ export class RawEntitiesStore {
         userInteractions: [],
         userProfilePhotos: [],
         chatInvites: [],
-        pendingChatParticipations: []
+        pendingChatParticipations: [],
+        draftMessages: []
     };
 
     constructor(private readonly repositories: Repositories) {
