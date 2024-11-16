@@ -790,5 +790,6 @@ export interface Labels {
     "notification.settings.for-user-in-chat.delete": string,
     "notification.settings.for-chat.exceptions": string,
     "message.draft": string,
-    "message.draft.save-to-server": string
+    "settings.chat.messages.draft": string,
+    "settings.chat.messages.draft.save-to-server": string
 }

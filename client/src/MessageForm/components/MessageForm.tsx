@@ -21,8 +21,18 @@ export const MessageForm: FunctionComponent = observer(() => {
         },
         chatsPreferences: {
             messageEditorType
+        },
+        chatsOfCurrentUser: {
+            pending: chatsOfCurrentUserPending
+        },
+        chat: {
+            pending: chatPending
         }
     } = useStore();
+
+    if (chatPending || chatsOfCurrentUserPending) {
+        return null;
+    }
 
     if (updatedMessageId) {
         return messageEditorType === MessageEditorType.PLAIN_TEXT

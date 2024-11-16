@@ -1,9 +1,12 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent, useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Forward, Reply} from "@mui/icons-material";
 import {Divider} from "@mui/material";
+import {LexicalEditor} from "lexical";
+import {$convertFromMarkdownString} from "@lexical/markdown";
 import {RichTextMessageForm} from "./RichTextMessageForm";
 import {MessageFormMessageCard} from "./MessageFormMessageCard";
+import {TRANSFORMERS} from "../../TextEditor/transformers";
 import {usePermissions, useStore} from "../../store";
 
 export const CreateMessageRichTextForm: FunctionComponent = observer(() => {
@@ -17,12 +20,14 @@ export const CreateMessageRichTextForm: FunctionComponent = observer(() => {
 			selectedChatId,
 			userId,
 			resultMessage,
+			draftMessageConsumed,
 			clearResultMessage,
 			setFormValue,
 			submitForm,
 			setEmojiPickerExpanded,
 			setReferredMessageId,
-			getNextMessageDate
+			getNextMessageDate,
+			setDraftMessageConsumed
 		},
 		messagesForwarding: {
 			forwardModeActive,
@@ -36,6 +41,16 @@ export const CreateMessageRichTextForm: FunctionComponent = observer(() => {
 			canScheduleMessage
 		}
 	} = usePermissions();
+	const [editor, setEditor] = useState<LexicalEditor | null>(null);
+
+	useEffect(() => {
+		if (!draftMessageConsumed) {
+			if (editor) {
+				editor.update(() => $convertFromMarkdownString(formValues.text, TRANSFORMERS));
+				setDraftMessageConsumed(true);
+			}
+		}
+	}, [draftMessageConsumed]);
 
 	if (!selectedChatId && !userId) {
 		return null;
@@ -86,6 +101,7 @@ export const CreateMessageRichTextForm: FunctionComponent = observer(() => {
 								 onChange={text => setFormValue("text", text)}
 								 onSubmit={submitForm}
 								 onEmojiPickerExpanded={setEmojiPickerExpanded}
+								 onEditorReady={setEditor}
 								 editorKey={`message-editor-${selectedChatId}`}
 			/>
 		</Fragment>

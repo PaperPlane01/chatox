@@ -792,5 +792,6 @@ export const ru: Labels = {
     "notification.settings.for-user-in-chat.delete": "Удалить настройки уведомлений для пользователя",
     "notification.settings.for-chat.exceptions": "Исключения в чате {chatName}",
     "message.draft": "Драфт",
-    "message.draft.save-to-server": "Сохранять драфт-сообщения на сервер"
+    "settings.chat.messages.draft": "Драфт-сообщения",
+    "settings.chat.messages.draft.save-to-server": "Сохранять драфт-сообщения на сервер"
 };

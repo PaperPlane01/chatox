@@ -86,7 +86,7 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages" 
         if (this.entityName === "messages") {
             return this.createPatchForNormalMessages(denormalizedEntities, options);
         } else if (this.entityName === "draftMessages") {
-            return this.createPatchForDraftMessages(denormalizedEntities);
+            return this.createPatchForDraftMessages(denormalizedEntities, options);
         } else {
             return this.createPatchForScheduledMessage(denormalizedEntities);
         }

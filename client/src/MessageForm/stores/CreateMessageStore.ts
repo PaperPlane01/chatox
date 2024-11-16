@@ -78,6 +78,10 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
         return this.entities.uploads.findAllById(this.selectedChatDraftMessage.uploads);
     }
 
+    get isFormEmpty(): boolean {
+        return (this.formValues.text ?? "").length === 0 && this.messageUploads.messageAttachmentsFiles.length === 0;
+    }
+
     private routerStore: RouterStore<any>;
 
     lastMessageDates = observable.map<string, Date>();
@@ -85,6 +89,8 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
     pendingDraftMessagesMap = observable.map<string, boolean>();
 
     pendingDraftMessageUploadRestoreMap = observable.map<string, boolean>();
+
+    draftMessageConsumed = true;
 
     constructor(chatStore: ChatStore,
                 messageUploads: UploadMessageAttachmentsStore,
@@ -121,24 +127,31 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
         );
 
         reaction(
-            () => chatStore.selectedChatId,
-            chatId => {
-                if (chatStore.previousChatId && this.validateForm()) {
+            () => chatStore.selectedChat,
+            selectedChat => {
+                if (chatStore.previousChatId) {
                     const chat = this.entities.chats.findById(chatStore.previousChatId);
-                    this.createDraftMessageForChat(
-                        chatStore.previousChatId,
-                        this.formValues,
-                        this.messageUploads.messageAttachmentsFiles,
-                        this.referredMessageId,
-                        chat.draftMessageId
-                    );
+
+                    if (this.validateForm()) {
+                        this.createDraftMessageForChat(
+                            chatStore.previousChatId,
+                            this.formValues,
+                            this.messageUploads.messageAttachmentsFiles,
+                            this.referredMessageId,
+                            chat.draftMessageId
+                        );
+                    } else if (this.isFormEmpty && chat.draftMessageId) {
+                        const draftMessage = this.entities.draftMessages.findById(chat.draftMessageId);
+                        const uploads = this.entities.uploads.findAllById(draftMessage.uploads);
+                        this.cleanupDraftMessage(draftMessage, uploads);
+                    }
                 }
 
                 this.reset();
                 this.messageUploads.reset();
 
-                if (chatId) {
-                    this.restoreFromDraftMessage(chatId);
+                if (selectedChat) {
+                    this.restoreFromDraftMessage(selectedChat.id);
                 }
             }
         );
@@ -187,6 +200,10 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
         ChatApi.startTyping(this.selectedChatId);
     }
 
+    setDraftMessageConsumed = (draftMessageConsumed: boolean): void => {
+        this.draftMessageConsumed = draftMessageConsumed;
+    }
+
     submitForm = (): void => {
         if (!this.selectedChatId && !this.userId) {
             return;
@@ -226,7 +243,7 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
             scheduledAt: this.formValues.scheduledAt ? this.formValues.scheduledAt.toISOString() : undefined
         })
             .then(({data}) => {
-                this.cleanupDraftMessage(draftMessage, draftMessageUploads);
+                this.cleanupDraftMessage(draftMessage, draftMessageUploads, true);
                 this.recordVoiceMessageStore.cleanRecording();
                 const message = this.formValues.scheduledAt
                     ? this.entities.scheduledMessages.insert(data)
@@ -255,9 +272,10 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
 
     private cleanupDraftMessage = async (
         draftMessage?: MessageEntity,
-        draftMessageUploads?: Array<Upload<any>>
+        draftMessageUploads?: Array<Upload<any>>,
+        skipDeletingRemote: boolean = false
     ): Promise<void> => {
-        if (!draftMessage?.local) {
+        if (!draftMessage) {
             return;
         }
 
@@ -273,6 +291,10 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
 
         if (draftMessageUploads && draftMessageUploads.length !== 0) {
             await this.cleanupDraftMessageUploads(draftMessageUploads);
+        }
+
+        if (!draftMessage.local && !skipDeletingRemote) {
+            await MessageApi.deleteDraftMessage(draftMessage.chatId);
         }
     }
 
@@ -505,6 +527,7 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
         });
 
         this.restoreUploadsForDraftMessage(draftMessage);
+        this.setDraftMessageConsumed(false);
     }
 
     private async restoreUploadsForDraftMessage(draftMessage: MessageEntity): Promise<void>{
@@ -541,31 +564,7 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
             const presentUploadsMap = new Map(uploadsInfo.map(upload => [upload.id, upload]));
             const missingUploads = uploads
                 .filter(upload => isDefined(upload.localId) && !presentUploadsMap.has(upload.id));
-            const reuploadMap = new Map<UploadType, Array<UploadedFileContainer>>();
-
-            if (missingUploads.length !== 0) {
-                for (let missingUpload of missingUploads) {
-                    const cachedBlob = await this.uploadCacheService.getLocalFileFromCache(missingUpload.localId!, missingUpload.type);
-
-                    if (!cachedBlob) {
-                        continue;
-                    }
-
-                    const cachedFile = new File([cachedBlob], missingUpload.name);
-                    const fileContainer = new UploadedFileContainer(
-                        cachedFile,
-                        missingUpload.type,
-                        false,
-                        missingUpload.id
-                    );
-
-                    if (reuploadMap.has(missingUpload.type)) {
-                        reuploadMap.get(missingUpload.type)!.push(fileContainer);
-                    } else {
-                        reuploadMap.set(missingUpload.type, [fileContainer]);
-                    }
-                }
-            }
+            const retryUploadMap = await this.restoreUploadsFromCache(missingUploads);
 
             this.messageUploads.setMessageAttachmentsFiles([...presentUploadsMap.values()].map(upload => new UploadedFileContainer(
                 null,
@@ -575,14 +574,46 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
                 upload
             )));
 
-            if (reuploadMap.size !== 0) {
-                this.reuploadAttachments(reuploadMap);
+            if (retryUploadMap.size !== 0) {
+                this.reuploadAttachments(retryUploadMap);
             }
         }
     }
 
-    private reuploadAttachments(reuploadMap: Map<UploadType, Array<UploadedFileContainer>>): void {
-        for (let [uploadType, fileContainers] of reuploadMap) {
+    private async restoreUploadsFromCache(uploads: Array<Upload<any>>): Promise<Map<UploadType, Array<UploadedFileContainer>>> {
+        const retryUploadMap = new Map<UploadType, Array<UploadedFileContainer>>();
+
+        if (uploads.length === 0) {
+            return retryUploadMap;
+        }
+
+        for (let missingUpload of uploads) {
+            const cachedBlob = await this.uploadCacheService.getLocalFileFromCache(missingUpload.localId!, missingUpload.type);
+
+            if (!cachedBlob) {
+                continue;
+            }
+
+            const cachedFile = new File([cachedBlob], missingUpload.name);
+            const fileContainer = new UploadedFileContainer(
+                cachedFile,
+                missingUpload.type,
+                false,
+                missingUpload.id
+            );
+
+            if (retryUploadMap.has(missingUpload.type)) {
+                retryUploadMap.get(missingUpload.type)!.push(fileContainer);
+            } else {
+                retryUploadMap.set(missingUpload.type, [fileContainer]);
+            }
+        }
+
+        return retryUploadMap;
+    }
+
+    private reuploadAttachments(retryUploadMap: Map<UploadType, Array<UploadedFileContainer>>): void {
+        for (let [uploadType, fileContainers] of retryUploadMap) {
             switch (uploadType) {
                 case UploadType.IMAGE:
                 case UploadType.GIF:

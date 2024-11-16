@@ -15,7 +15,7 @@ import {ListItemNode, ListNode} from "@lexical/list";
 import {HeadingNode, QuoteNode} from "@lexical/rich-text";
 import {HorizontalRuleNode} from "@lexical/react/LexicalHorizontalRuleNode";
 import {ContentEditable} from "@lexical/react/LexicalContentEditable";
-import {$convertFromMarkdownString, $convertToMarkdownString, TRANSFORMERS} from "@lexical/markdown";
+import {$convertFromMarkdownString, $convertToMarkdownString} from "@lexical/markdown";
 import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
 import {EditorState, LexicalEditor} from "lexical";
 import {BetterMentionComponentProps, BetterMentionsPlugin, createBetterMentionNode} from "lexical-better-mentions";
@@ -34,7 +34,7 @@ import {
 } from "../plugins";
 import {EnterAction} from "../types";
 import {adornmentStyle} from "../styles";
-import {MENTION} from "../transformers";
+import {TRANSFORMERS} from "../transformers";
 import {EmojiPickerVariant} from "../../EmojiPicker";
 import {useStore} from "../../store";
 import {createBlockquoteStyles} from "../../style";
@@ -131,11 +131,6 @@ interface TextEditorProps {
 	onEditorReady?: (editor: LexicalEditor) => void
 }
 
-const CUSTOM_TRANSFORMERS = [
-	...TRANSFORMERS,
-	MENTION
-];
-
 export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 	initialText,
 	placeholder,
@@ -170,7 +165,7 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 
 	const handleChange = (state: EditorState): void => {
 		state.read(() => {
-			const markdown = $convertToMarkdownString(CUSTOM_TRANSFORMERS);
+			const markdown = $convertToMarkdownString(TRANSFORMERS);
 			onUpdate(markdown);
 		});
 	};
@@ -204,7 +199,7 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 							},
 							quote: classes.blockquote
 						},
-						editorState: () => $convertFromMarkdownString(initialText, CUSTOM_TRANSFORMERS),
+						editorState: () => $convertFromMarkdownString(initialText, TRANSFORMERS),
 						onError: error => console.error(error)
 					}}
 									 key={editorKey}

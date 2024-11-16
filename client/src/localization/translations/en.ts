@@ -792,5 +792,6 @@ export const en: Labels = {
     "notification.settings.for-user-in-chat.delete": "Delete notification settings for this user",
     "notification.settings.for-chat.exceptions": "Exceptions in chat {chatName}",
     "message.draft": "Draft",
-    "message.draft.save-to-server": "Save draft messages to server"
+    "settings.chat.messages.draft": "Draft messages",
+    "settings.chat.messages.draft.save-to-server": "Save draft messages to server"
 };

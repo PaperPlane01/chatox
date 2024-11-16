@@ -20,7 +20,9 @@ interface ChatsPreferencesCardProps {
     hideHeader?: boolean
 }
 
-export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> = observer(({hideHeader = false}) => {
+export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> = observer(({
+    hideHeader = false
+}) => {
     const {
         chatsPreferences: {
             enableVirtualScroll,
@@ -40,7 +42,9 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
             displayUnreadChatsCount,
             setDisplayUnreadChatsCount,
             messageEditorType,
-            setMessageEditorType
+            setMessageEditorType,
+            saveDraftMessagesToServer,
+            setSaveDraftMessagesToServer
         }
     } = useStore();
     const {l} = useLocalization();
@@ -153,6 +157,17 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                         />
                     )}
                 </Fragment>
+                <Divider/>
+                <Typography variant="h6">
+                    {l("settings.chat.messages.draft")}
+                </Typography>
+                <FormControlLabel control={
+                    <Switch checked={saveDraftMessagesToServer}
+                            onChange={() => setSaveDraftMessagesToServer(!saveDraftMessagesToServer)}
+                    />
+                }
+                                  label={l("settings.chat.messages.draft.save-to-server")}
+                />
             </CardContent>
         </Card>
     );
