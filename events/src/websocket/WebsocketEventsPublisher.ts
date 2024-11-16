@@ -12,6 +12,7 @@ import {Socket} from "socket.io";
 import {
     ChatSubscription,
     ChatUnsubscription,
+    DraftMessageDeleted,
     EventType,
     MessageDeleted,
     MessageRead,
@@ -496,5 +497,16 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: message
         };
         await this.connectionsStateHolder.publishEventToUsers([message.sender.id], event);
+    }
+
+    public async publishDraftMessageDeleted(draftMessageDeleted: DraftMessageDeleted): Promise<void> {
+        const event: WebsocketEvent<Omit<DraftMessageDeleted, "senderId">> = {
+            type: EventType.DRAFT_MESSAGE_DELETED,
+            payload: {
+                chatId: draftMessageDeleted.chatId,
+                draftMessageId: draftMessageDeleted.draftMessageId
+            }
+        };
+        await this.connectionsStateHolder.publishEventToUsers([draftMessageDeleted.senderId], event);
     }
 }

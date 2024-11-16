@@ -21,6 +21,7 @@ import chatox.chat.model.UnreadMessagesCount
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
+import chatox.chat.repository.mongodb.DraftMessageRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.UnreadMessagesCountRepository
 import chatox.chat.repository.mongodb.UploadRepository
@@ -51,6 +52,7 @@ import java.util.UUID
 @LogExecution
 class MessageServiceImpl(
         private val messageRepository: MessageMongoRepository,
+        private val draftMessageRepository: DraftMessageRepository,
         private val unreadMessagesCountRepository: UnreadMessagesCountRepository,
         private val uploadRepository: UploadRepository,
         private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
@@ -467,6 +469,31 @@ class MessageServiceImpl(
                     .awaitFirstOrNull()
 
             return@mono
+        }
+    }
+
+    override fun deleteDraftMessage(chatId: String): Mono<Unit> {
+        return mono {
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
+            val draftMessage = draftMessageRepository.findByChatIdAndSenderId(
+                    chatId = chatId,
+                    senderId = currentUser.id
+            )
+                    .awaitFirstOrNull()
+                    ?: return@mono
+
+            val uploadsIds = draftMessage.attachments.map { upload -> upload.id }
+
+            messageEntityService.deleteDraftMessage(draftMessage).awaitFirstOrNull()
+
+            if (uploadsIds.isNotEmpty()) {
+                val uploadsAttachments = chatUploadAttachmentRepository
+                        .findByUploadIdIn(uploadsIds)
+                        .collectList()
+                        .awaitFirst()
+                chatUploadAttachmentEntityService.deleteChatUploadAttachments(uploadsAttachments)
+                        .awaitFirstOrNull()
+            }
         }
     }
 }

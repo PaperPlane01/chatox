@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {RabbitSubscribe} from "@golevelup/nestjs-rabbitmq";
 import {WebsocketEventsPublisher} from "../websocket";
 import {ChatMessage} from "../common/types";
-import {MessageDeleted, MessageRead, MessagesDeleted} from "../websocket/types";
+import {DraftMessageDeleted, MessageDeleted, MessageRead, MessagesDeleted} from "../websocket/types";
 import {config} from "../env-config";
 import {LoggerFactory} from "../logging";
 
@@ -145,5 +145,14 @@ export class MessagesController {
     })
     public async onDraftMessageUpdated(message: ChatMessage): Promise<void> {
         await this.websocketEventsPublisher.publishDraftMessageUpdated(message);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: `events_service_draft_message_deleted-${config.EVENTS_SERVICE_PORT}`,
+        routingKey: "chat.draft.message.deleted.#"
+    })
+    public async onDraftMessageDeleted(draftMessageDeleted: DraftMessageDeleted): Promise<void> {
+        await this.websocketEventsPublisher.publishDraftMessageDeleted(draftMessageDeleted);
     }
 }

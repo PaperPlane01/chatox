@@ -76,6 +76,13 @@ class ChatMessageController(
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
+    @ReactivePermissionCheck("@messagePermissions.canDeleteDraftMessage(#chatId)")
+    @DeleteMapping("/{chatId}/messages/draft")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteDraftMessage(@PathVariable chatId: String) = messageService.deleteDraftMessage(chatId)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
     @ReactivePermissionCheck("@messagePermissions.canDeleteMessage(#messageId, #chatId)")
     @DeleteMapping("/{chatId}/messages/{messageId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

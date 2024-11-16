@@ -9,7 +9,7 @@ import {
     UploadReferenceDocument,
     UploadReferenceType
 } from "../entities";
-import {Message, MessageDeleted, MessagesDeleted} from "../../external/types";
+import {DraftMessageDeleted, Message, MessageDeleted, MessagesDeleted} from "../../external/types";
 
 @Injectable()
 export class UploadReferenceMessagesEventsListener {
@@ -140,9 +140,22 @@ export class UploadReferenceMessagesEventsListener {
         routingKey: "chat.message.deleted.#"
     })
     public async onMessageDeleted(messageDeleted: MessageDeleted): Promise<void> {
+        await this.handleMessageDeleted(messageDeleted.messageId);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: "upload_service_draft_message_deleted",
+        routingKey: "chat.message.draft.deleted.#"
+    })
+    public async onDraftMessageDeleted(draftMessageDeleted: DraftMessageDeleted): Promise<void> {
+        await this.handleMessageDeleted(draftMessageDeleted.draftMessageId);
+    }
+
+    private async handleMessageDeleted(messageId: string): Promise<void> {
         await this.uploadReferenceModel.updateMany(
             {
-                referenceObjectId: messageDeleted.messageId,
+                referenceObjectId: messageId,
                 type: UploadReferenceType.MESSAGE_ATTACHMENT
             },
             {
@@ -152,7 +165,7 @@ export class UploadReferenceMessagesEventsListener {
                 $push: {
                     deletionReasons: new UploadDeletionReason({
                         deletionReasonType: UploadDeletionReasonType.MESSAGE_DELETED_EVENT,
-                        sourceObjectId: messageDeleted.messageId
+                        sourceObjectId: messageId
                     })
                 }
             }

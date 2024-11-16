@@ -3,10 +3,13 @@ package chatox.chat.service.impl
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.exception.MessageNotFoundException
 import chatox.chat.mapper.MessageMapper
+import chatox.chat.messaging.rabbitmq.event.DraftMessageDeleted
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
+import chatox.chat.model.DraftMessage
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.User
+import chatox.chat.repository.mongodb.DraftMessageRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.service.MessageEntityService
 import chatox.chat.util.runAsync
@@ -22,6 +25,7 @@ import java.time.ZonedDateTime
 @Service
 class MessageEntityServiceImpl(
         private val messageRepository: MessageMongoRepository,
+        private val draftMessageRepository: DraftMessageRepository,
         private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
         private val chatEventsPublisher: ChatEventsPublisher,
         private val messageMapper: MessageMapper,
@@ -48,6 +52,21 @@ class MessageEntityServiceImpl(
             }
 
             return@mono
+        }
+    }
+
+    override fun deleteDraftMessage(draftMessage: DraftMessage): Mono<Unit> {
+        return mono {
+            draftMessageRepository.delete(draftMessage).awaitFirstOrNull()
+
+            runAsync {
+                val event = DraftMessageDeleted(
+                        chatId = draftMessage.chatId,
+                        draftMessageId = draftMessage.id,
+                        senderId = draftMessage.senderId
+                )
+                chatEventsPublisher.draftMessageDeleted(event)
+            }
         }
     }
 

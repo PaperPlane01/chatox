@@ -282,7 +282,7 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
     }
 
     fun canReadMessages(chatId: String): Mono<Boolean> {
-        return mono{
+        return mono {
             val chat = chatService.findChatById(chatId).awaitFirst()
 
             if (chat.type == ChatType.GROUP) {
@@ -296,6 +296,19 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 )
                         .awaitFirstOrNull() != null
             }
+        }
+    }
+
+    fun canDeleteDraftMessage(chatId: String): Mono<Boolean> {
+        return mono {
+            val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull() ?: return@mono false
+
+            val chat = chatService.findChatById(chatId).awaitFirst()
+
+            return@mono chatRoleService.getRoleOfUserInChat(
+                    userId = currentUser.id,
+                    chatId = chat.id
+            ).awaitFirstOrNull() != null
         }
     }
 
