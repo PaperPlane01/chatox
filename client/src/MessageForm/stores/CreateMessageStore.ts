@@ -108,19 +108,25 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
         makeObservable<CreateMessageStore>(this, {
             referredMessageId: observable,
             userId: observable,
+            draftMessageConsumed: observable,
             shouldSendReferredMessageId: computed,
             currentUser: computed,
+            isFormEmpty: computed,
+            selectedChatDraftMessage: computed,
+            selectedChatDraftMessageId: computed,
+            selectedChatDraftMessageUploads: computed,
             submitForm: action,
             setUserId: action,
             setReferredMessageId: action,
             sendSticker: action,
-            setLastMessageDateForChat: action
+            setLastMessageDateForChat: action,
+            setDraftMessageConsumed: action
         });
 
         reaction(
             () => this.formValues.text,
             text => {
-                if (text.length !== 0 && this.chatsPreferences.sendTypingNotification) {
+                if (this.formTouched && text.length !== 0 && this.chatsPreferences.sendTypingNotification) {
                     this.startTyping();
                 }
             }
@@ -153,6 +159,28 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
                 if (selectedChat) {
                     this.restoreFromDraftMessage(selectedChat.id);
                 }
+            }
+        );
+
+        reaction(
+            () => this.selectedChatDraftMessage?.text,
+            text => {
+                if (!text || !this.selectedChatId) {
+                    return;
+                }
+
+                this.restoreFromDraftMessage(this.selectedChatId);
+            }
+        );
+
+        reaction(
+            () => this.selectedChatDraftMessage?.uploads,
+            uploads => {
+                if (!uploads || !this.selectedChatId) {
+                    return;
+                }
+
+                this.restoreFromDraftMessage(this.selectedChatId);
             }
         );
     };
@@ -521,10 +549,13 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
         }
 
         const draftMessage = this.entities.draftMessages.findById(chat.draftMessageId);
-        this.setForm({
-            text: draftMessage.text,
-            referredMessageId: draftMessage.referredMessageId
-        });
+        this.setForm(
+            {
+                text: draftMessage.text,
+                referredMessageId: draftMessage.referredMessageId
+            },
+            false
+        );
 
         this.restoreUploadsForDraftMessage(draftMessage);
         this.setDraftMessageConsumed(false);

@@ -50,7 +50,9 @@ export const CreateMessageRichTextForm: FunctionComponent = observer(() => {
 				setDraftMessageConsumed(true);
 			}
 		}
-	}, [draftMessageConsumed]);
+
+		// for some reason, placing only draftMessageConsumed here is not enough
+	}, [draftMessageConsumed, formValues.text]);
 
 	if (!selectedChatId && !userId) {
 		return null;

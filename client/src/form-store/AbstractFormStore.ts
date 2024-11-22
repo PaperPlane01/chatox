@@ -1,4 +1,4 @@
-import { action, observable, makeObservable } from "mobx";
+import {action, makeObservable, observable} from "mobx";
 import {FormStore} from "./FormStore";
 import {FormErrors} from "../utils/types";
 import {ApiError} from "../api";
@@ -13,29 +13,34 @@ export abstract class AbstractFormStore<FormType extends object> implements Form
 
     pending: boolean = false;
 
+    formTouched = false;
+
     protected constructor(protected initialFormValues: FormType, protected initialFormErrors: FormErrors<FormType>) {
-        makeObservable<AbstractFormStore<FormType>, "setFormError" | "setFormErrors" | "setForm" | "setPending" | "setError" | "resetForm">(
+        makeObservable<AbstractFormStore<FormType>, "setFormError" | "setFormErrors" | "setForm" | "setPending" | "setError" | "resetForm" | "setFormTouched">(
             this,
             {
                 formErrors: observable,
                 formValues: observable,
                 error: observable,
                 pending: observable,
+                formTouched: observable,
                 setFormValue: action.bound,
                 setFormError: action.bound,
                 setFormErrors: action.bound,
                 setForm: action.bound,
                 setPending: action.bound,
                 setError: action.bound,
-                resetForm: action.bound
+                resetForm: action.bound,
+                setFormTouched: action.bound
         });
 
         this.formValues = initialFormValues;
         this.formErrors = initialFormErrors;
     }
 
-    public setFormValue<Key extends keyof FormType>(key: Key, value: FormType[Key]): void {
+    public setFormValue<Key extends keyof FormType>(key: Key, value: FormType[Key], formTouched: boolean = true): void {
         this.formValues[key] = value;
+        this.setFormTouched(formTouched);
     }
 
     protected setFormError<Key extends keyof FormType>(key: Key, value: keyof Labels | undefined): void {
@@ -46,8 +51,9 @@ export abstract class AbstractFormStore<FormType extends object> implements Form
         this.formErrors = formErrors;
     }
 
-    protected setForm(form: FormType): void {
+    protected setForm(form: FormType, formTouched: boolean = true): void {
         this.formValues = form;
+        this.setFormTouched(formTouched);
     }
 
     protected setPending(pending: boolean): void {
@@ -58,12 +64,17 @@ export abstract class AbstractFormStore<FormType extends object> implements Form
         this.error = error;
     }
 
+    protected setFormTouched(formTouched: boolean): void {
+        this.formTouched = formTouched;
+    }
+
     public abstract submitForm(): void;
 
     protected abstract validateForm(): boolean;
 
     protected resetForm(): void {
         this.formValues = this.initialFormValues;
+        this.formTouched = false;
         setTimeout(() => this.setFormErrors(this.initialFormErrors));
         this.pending = false;
         this.error = undefined;

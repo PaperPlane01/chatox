@@ -9,6 +9,7 @@ import {
     BalanceUpdated,
     ChatDeleted,
     ChatUpdated,
+    DraftMessageDeleted,
     MessageDeleted,
     MessageRead,
     MessagesDeleted,
@@ -346,6 +347,18 @@ export class WebsocketStore {
             WebsocketEventType.GLOBAL_NOTIFICATIONS_SETTINGS_UPDATED,
             (event: WebsocketEvent<GlobalNotificationsSettings>) => this.handleGlobalNotificationsSettingsUpdated(event.payload)
         );
+        map.set(
+            WebsocketEventType.DRAFT_MESSAGE_CREATED,
+            (event: WebsocketEvent<Message>) => this.handleDraftMessage(event.payload)
+        );
+        map.set(
+            WebsocketEventType.DRAFT_MESSAGE_UPDATED,
+            (event: WebsocketEvent<Message>) => this.handleDraftMessage(event.payload)
+        );
+        map.set(
+            WebsocketEventType.DRAFT_MESSAGE_DELETED,
+            (event: WebsocketEvent<DraftMessageDeleted>) => this.handleDraftMessageDeleted(event.payload)
+        );
         
         return map;
     }
@@ -378,6 +391,16 @@ export class WebsocketStore {
                         currentUserMentioned
                     );
                 }
+            } else {
+                const chat = this.entities.chats.findByIdOptional(message.chatId);
+
+                if (chat?.draftMessageId !== message.id) {
+                    return;
+                }
+
+                chat.draftMessageId = undefined;
+                this.entities.chats.insertEntity(chat);
+                this.entities.draftMessages.deleteById(message.id, {hardDelete: true});
             }
         }
 
@@ -494,6 +517,23 @@ export class WebsocketStore {
 
     private handleGlobalNotificationsSettingsUpdated = (globalNotificationsSettings: GlobalNotificationsSettings): void => {
         this.notificationsSettings.setNotificationsSettings(globalNotificationsSettings);
+    }
+
+    private handleDraftMessage = (draftMessage: Message): void => {
+        this.entities.draftMessages.insert(draftMessage, {setDraftMessageToChat: true});
+    }
+
+    private handleDraftMessageDeleted = (draftMessageDeleted: DraftMessageDeleted): void => {
+        const chat = this.entities.chats.findByIdOptional(draftMessageDeleted.chatId);
+
+        if (chat?.draftMessageId !== draftMessageDeleted.draftMessageId) {
+            return;
+        }
+
+        chat.draftMessageId = undefined;
+        this.entities.chats.insertEntity(chat);
+
+        this.entities.draftMessages.deleteById(draftMessageDeleted.draftMessageId, {hardDelete: true});
     }
 
     subscribeToChat = (chatId: string) => {
