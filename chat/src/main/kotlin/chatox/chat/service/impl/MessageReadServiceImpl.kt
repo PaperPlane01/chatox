@@ -14,6 +14,7 @@ import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.UnreadMessagesCountRepository
 import chatox.chat.service.MessageReadService
+import chatox.chat.util.runAsync
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
@@ -77,7 +78,7 @@ class MessageReadServiceImpl(
                     chatId = message.chatId,
                     userId = currentUser.id
             )
-                    .awaitFirst()
+                    .awaitFirstOrNull() ?: return@mono
             val unreadMessagesCount = unreadMessagesCountRepository.findByChatParticipationId(chatParticipation.id).awaitFirst()
 
             if (unreadMessagesCount.lastReadMessageCreatedAt?.isAfter(message.createdAt) == true) {
@@ -86,11 +87,13 @@ class MessageReadServiceImpl(
 
             if (chat.lastMessageId != null && chat.lastMessageId == messageId) {
                 unreadMessagesCountRepository.resetUnreadMessagesCount(chatParticipation.id, message).awaitFirst()
-            } else {
+            } else if (message.senderId != currentUser.id) {
                 unreadMessagesCountRepository.decreaseUnreadMessagesCount(chatParticipation.id, message).awaitFirstOrNull()
             }
 
-            markMessageAsRead(message, chat).subscribe()
+            if (message.senderId != currentUser.id) {
+                markMessageAsRead(message, chat).subscribe()
+            }
 
             return@mono
         }
@@ -109,11 +112,14 @@ class MessageReadServiceImpl(
                     chatId = chat.id,
                     userId = currentUser.id
             )
-                    .awaitFirst()
+                    .awaitFirstOrNull() ?: return@mono
             val lastMessage = messageCacheWrapper.findById(chat.lastMessageId).awaitFirst()
 
             unreadMessagesCountRepository.resetUnreadMessagesCount(chatParticipation.id, lastMessage).awaitFirstOrNull()
-            markMessageAsRead(lastMessage, chat).subscribe()
+
+            if (lastMessage.senderId != currentUser.id) {
+                markMessageAsRead(lastMessage, chat).subscribe()
+            }
 
             return@mono
         }
@@ -196,7 +202,7 @@ class MessageReadServiceImpl(
                         .awaitFirst()
             }
 
-            Mono.fromRunnable<Unit> {
+            runAsync {
                 chatEventsPublisher.messageRead(MessageReadEvent(
                         messageId = message.id,
                         messageReadAt = ZonedDateTime.now(),
@@ -205,7 +211,6 @@ class MessageReadServiceImpl(
                         messageSenderId = message.senderId
                 ))
             }
-                    .subscribe()
 
             return@mono
         }
