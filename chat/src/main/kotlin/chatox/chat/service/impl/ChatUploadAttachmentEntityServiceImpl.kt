@@ -2,6 +2,8 @@ package chatox.chat.service.impl
 
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.Message
+import chatox.chat.model.MessageInterface
+import chatox.chat.model.MessageType
 import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.service.ChatUploadAttachmentEntityService
@@ -84,13 +86,17 @@ class ChatUploadAttachmentEntityServiceImpl(
         }
     }
 
-    override fun linkChatUploadAttachmentsToMessage(uploadAttachments: List<ChatUploadAttachment<*>>, message: Message): Flux<ChatUploadAttachment<*>> {
+    override fun linkChatUploadAttachmentsToMessage(uploadAttachments: List<ChatUploadAttachment<*>>, message: MessageInterface): Flux<ChatUploadAttachment<*>> {
         return mono {
             var result = uploadAttachments
 
             if (uploadAttachments.isNotEmpty()) {
                 result = uploadAttachments.map { uploadAttachment ->
-                    uploadAttachment.copy(messageId = message.id, createdAt = message.createdAt)
+                    uploadAttachment.copy(
+                            messageId = message.id,
+                            createdAt = message.createdAt,
+                            messageType = MessageType.fromClass(message::class)
+                    )
                 }
                 chatUploadAttachmentRepository.saveAll(result)
                         .collectList()

@@ -6,6 +6,7 @@ import {AudioUploadMetadata, Upload, UploadType} from "../../api/types/response"
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {Labels} from "../../localization";
 import {EntitiesStore} from "../../entities-store";
+import {ChatStore} from "../../Chat";
 
 type UploadFileFunction = (file: File, onUploadProgress?: ProgressCallback) => AxiosPromise<Upload<any>>;
 
@@ -27,7 +28,8 @@ export class UploadMessageAttachmentsStore {
 
     uploadPercentageMap: UploadPercentageMap = {};
 
-    constructor(private readonly entities: EntitiesStore) {
+    constructor(private readonly entities: EntitiesStore,
+                private readonly chat: ChatStore) {
         makeAutoObservable(this);
     }
 
@@ -52,7 +54,11 @@ export class UploadMessageAttachmentsStore {
             .find(fileContainer => fileContainer.expectedUploadType === UploadType.VOICE_MESSAGE);
     }
 
-    setMessageAttachmentsFiles = (messageAttachmentsFiles: UploadedFileContainer[]): void => {
+    setMessageAttachmentsFiles = (messageAttachmentsFiles: UploadedFileContainer[], targetChatId?: string): void => {
+        if (targetChatId && targetChatId !== this.chat.selectedChatId) {
+            return;
+        }
+
         this.messageAttachmentsFiles = messageAttachmentsFiles;
     }
 
@@ -62,6 +68,45 @@ export class UploadMessageAttachmentsStore {
 
     setAttachedFilesDialogOpen = (attachedFilesDialogOpen: boolean): void => {
         this.attachedFilesDialogOpen = attachedFilesDialogOpen;
+    }
+
+    attachImageContainers = (images: UploadedFileContainer[]): void => {
+        this.attachFileContainers(this.sliceFileContainers(images), IMAGE_MAX_SIZE, UploadApi.uploadImage);
+    }
+
+    attachVideoContainers = (videos: UploadedFileContainer[]): void => {
+        this.attachFileContainers(this.sliceFileContainers(videos), VIDEO_MAX_SIZE, UploadApi.uploadVideo);
+    }
+
+    attachAudioContainers = (audios: UploadedFileContainer[]): void => {
+        this.attachFileContainers(this.sliceFileContainers(audios), AUDIO_MAX_SIZE, UploadApi.uploadAudio);
+    }
+
+    attachVoiceMessagesContainers = (voiceMessages: UploadedFileContainer[]): void => {
+        this.attachFileContainers(this.sliceFileContainers(voiceMessages, 1), VIDEO_MAX_SIZE, UploadApi.uploadVoiceMessage);
+    }
+
+    attachAnyFileContainers = (fileContainers: UploadedFileContainer[]): void => {
+        this.attachFileContainers(this.sliceFileContainers(fileContainers), FILE_MAX_SIZE, UploadApi.uploadFile);
+    }
+
+    attachFileContainers = (uploadedFileContainers: UploadedFileContainer[], fileMaxSize: number, uploadFile: UploadFileFunction): void => {
+        let validationErrors: ValidationError[] = [];
+
+        for (let fileContainer of uploadedFileContainers) {
+            const validationError = this.validateFile(fileContainer.file!, fileMaxSize);
+
+            if (validationError) {
+                validationErrors.push(validationError);
+                continue;
+            }
+
+            this.attachFile(fileContainer.file!, uploadFile, fileContainer.expectedUploadType, fileContainer);
+        }
+
+        if (validationErrors.length !== 0) {
+            this.setFileValidationErrors(validationErrors);
+        }
     }
 
     attachImages = (images: FileList): void => {
@@ -121,8 +166,8 @@ export class UploadMessageAttachmentsStore {
         }
     }
 
-    private attachFile = (file: File, uploadFile: UploadFileFunction, expectedUploadType: UploadType): void => {
-        const fileContainer = new UploadedFileContainer(file, expectedUploadType, true);
+    private attachFile = (file: File, uploadFile: UploadFileFunction, expectedUploadType: UploadType, existingContainer?: UploadedFileContainer): void => {
+        const fileContainer = existingContainer ?? new UploadedFileContainer(file, expectedUploadType, true);
         this.messageAttachmentsFiles = [
             ...this.messageAttachmentsFiles,
             fileContainer
@@ -207,5 +252,15 @@ export class UploadMessageAttachmentsStore {
         }
 
         return files;
+    }
+
+    private sliceFileContainers(fileContainers: UploadedFileContainer[], allowedSize: number = 10): UploadedFileContainer[] {
+        const fileAttachmentsRemaining = allowedSize - this.messageAttachmentsFiles.length;
+
+        if (fileContainers.length > allowedSize) {
+            fileContainers = fileContainers.slice(0, fileAttachmentsRemaining);
+        }
+
+        return fileContainers;
     }
 }

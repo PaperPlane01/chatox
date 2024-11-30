@@ -55,6 +55,7 @@ export const UpdateMessageRichTextForm: FunctionComponent = observer(() => {
 								 onSubmit={submitForm}
 								 onEmojiPickerExpanded={setEmojiPickerExpanded}
 								 onEditorReady={setEditor}
+								 editorKey={`update-message-${updatedMessageId}`}
 			/>
 		</Fragment>
 	);

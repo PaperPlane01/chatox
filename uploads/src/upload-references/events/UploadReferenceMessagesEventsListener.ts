@@ -9,7 +9,7 @@ import {
     UploadReferenceDocument,
     UploadReferenceType
 } from "../entities";
-import {Message, MessageDeleted, MessagesDeleted} from "../../external/types";
+import {DraftMessageDeleted, Message, MessageDeleted, MessagesDeleted} from "../../external/types";
 
 @Injectable()
 export class UploadReferenceMessagesEventsListener {
@@ -35,6 +35,15 @@ export class UploadReferenceMessagesEventsListener {
         routingKey: "chat.scheduled.message.created.#"
     })
     public async onScheduledMessageCreated(message: Message): Promise<void> {
+        await this.handleMessageCreated(message);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: "upload_service_draft_message_created",
+        routingKey: "chat.draft.message.created.#"
+    })
+    public async onDraftMessageCreated(message: Message): Promise<void> {
         await this.handleMessageCreated(message);
     }
 
@@ -68,6 +77,15 @@ export class UploadReferenceMessagesEventsListener {
         routingKey: "chat.scheduled.message.updated.#"
     })
     public async onScheduledMessageUpdated(message: Message): Promise<void> {
+        await this.handleMessageUpdated(message);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: "upload_service_draft_message_updated",
+        routingKey: "chat.draft.message.updated.#"
+    })
+    public async onDraftMessageUpdated(message: Message): Promise<void> {
         await this.handleMessageUpdated(message);
     }
 
@@ -122,9 +140,22 @@ export class UploadReferenceMessagesEventsListener {
         routingKey: "chat.message.deleted.#"
     })
     public async onMessageDeleted(messageDeleted: MessageDeleted): Promise<void> {
+        await this.handleMessageDeleted(messageDeleted.messageId);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: "upload_service_draft_message_deleted",
+        routingKey: "chat.message.draft.deleted.#"
+    })
+    public async onDraftMessageDeleted(draftMessageDeleted: DraftMessageDeleted): Promise<void> {
+        await this.handleMessageDeleted(draftMessageDeleted.draftMessageId);
+    }
+
+    private async handleMessageDeleted(messageId: string): Promise<void> {
         await this.uploadReferenceModel.updateMany(
             {
-                referenceObjectId: messageDeleted.messageId,
+                referenceObjectId: messageId,
                 type: UploadReferenceType.MESSAGE_ATTACHMENT
             },
             {
@@ -134,7 +165,7 @@ export class UploadReferenceMessagesEventsListener {
                 $push: {
                     deletionReasons: new UploadDeletionReason({
                         deletionReasonType: UploadDeletionReasonType.MESSAGE_DELETED_EVENT,
-                        sourceObjectId: messageDeleted.messageId
+                        sourceObjectId: messageId
                     })
                 }
             }

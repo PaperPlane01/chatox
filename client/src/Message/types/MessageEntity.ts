@@ -34,5 +34,6 @@ export interface MessageEntity {
     forwardedFromMessageId?: string,
     forwardedById?: string,
     readByAnyone: boolean,
-    mentionedUsers: string[]
+    mentionedUsers: string[],
+    local?: boolean
 }

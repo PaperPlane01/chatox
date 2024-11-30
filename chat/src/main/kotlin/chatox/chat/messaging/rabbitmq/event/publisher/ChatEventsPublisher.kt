@@ -7,6 +7,7 @@ import chatox.chat.messaging.rabbitmq.event.PrivateChatCreated
 import chatox.chat.messaging.rabbitmq.event.ChatDeleted
 import chatox.chat.messaging.rabbitmq.event.ChatParticipationDeleted
 import chatox.chat.messaging.rabbitmq.event.ChatUpdated
+import chatox.chat.messaging.rabbitmq.event.DraftMessageDeleted
 import chatox.chat.messaging.rabbitmq.event.MessageCreated
 import chatox.chat.messaging.rabbitmq.event.MessageReadEvent
 import chatox.chat.messaging.rabbitmq.event.UserLeftChat
@@ -33,8 +34,8 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.events",
             "chat.message.deleted.#",
             hashMapOf(
-                    Pair("chatId", chatId),
-                    Pair("messageId", messageId)
+                    "chatId" to chatId,
+                    "messageId" to messageId
             )
     )
 
@@ -42,9 +43,15 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.events",
             "chat.messages.deleted.#",
             hashMapOf(
-                    Pair("chatId", chatId),
-                    Pair("messagesIds", messagesIds)
+                    "chatId" to chatId,
+                    "messagesIds" to messagesIds
             )
+    )
+
+    fun draftMessageDeleted(draftMessageDeleted: DraftMessageDeleted) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.draft.message.deleted.#",
+            draftMessageDeleted
     )
 
     fun userJoinedChat(chatParticipationResponse: ChatParticipationResponse) = rabbitTemplate.convertAndSend(
@@ -162,5 +169,17 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
             "chat.events",
             "chat.user.typing.#",
             userStartedTyping
+    )
+
+    fun draftMessageCreated(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.draft.message.created.#",
+            message
+    )
+
+    fun draftMessageUpdated(message: MessageResponse) = rabbitTemplate.convertAndSend(
+            "chat.events",
+            "chat.draft.message.updated.#",
+            message
     )
 }

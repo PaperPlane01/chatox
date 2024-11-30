@@ -1,5 +1,6 @@
 export interface MessageInsertOptions {
-    skipSettingLastMessage: boolean,
-    skipUpdatingChat: boolean,
-    pinnedMessageId?: string
+    skipSettingLastMessage?: boolean,
+    skipUpdatingChat?: boolean,
+    pinnedMessageId?: string,
+    setDraftMessageToChat?: boolean
 }

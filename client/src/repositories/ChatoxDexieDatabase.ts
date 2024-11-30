@@ -12,6 +12,7 @@ export class ChatoxDexieDatabase extends Dexie {
 	stickers!: Table<StickerEntity, string>;
 	stickerPacks!: Table<StickerPackEntity, string>;
 	chatRoles!: Table<ChatRoleEntity, string>;
+	draftMessages!: Table<MessageEntity, string>;
 
 	constructor() {
 		super("chatox-dexie-database");
@@ -22,7 +23,8 @@ export class ChatoxDexieDatabase extends Dexie {
 			uploads: "id",
 			stickers: "id, stickerPackId",
 			stickerPacks: "id",
-			chatRoles: "id, chatId"
+			chatRoles: "id, chatId",
+			draftMessages: "id, chatId"
 		});
 	}
 }

@@ -17,10 +17,12 @@ import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.ScheduledMessageRepository
+import chatox.chat.service.ChatUploadAttachmentEntityService
 import chatox.chat.service.MessageReadService
-import chatox.chat.service.TextParserService
+import chatox.chat.service.MessageService
 import chatox.chat.service.ScheduledMessageService
 import chatox.chat.support.cache.MessageDataLocalCache
+import chatox.chat.util.runAsync
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -43,8 +45,9 @@ class ScheduledMessageServiceImpl(
         private val chatParticipationCacheWrapper: ReactiveRepositoryCacheWrapper<ChatParticipation, String>,
 
         private val chatEventsPublisher: ChatEventsPublisher,
-        private val textParser: TextParserService,
         private val messageReadService: MessageReadService,
+        private val messageService: MessageService,
+        private val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService,
         private val messageMapper: MessageMapper
 ) : ScheduledMessageService {
     override fun findScheduledMessageById(messageId: String): Mono<MessageResponse> {
@@ -180,44 +183,35 @@ class ScheduledMessageServiceImpl(
                 throw ChatDeletedException(chat.chatDeletion)
             }
 
-            var scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
-            var emoji = scheduledMessage.emoji
-            var mentionedUsers = scheduledMessage.mentionedUsers
+            val updateResult = findScheduledMessageEntityById(messageId)
+                    .flatMap { existingMessage -> messageService.updateMessage(existingMessage, updateMessageRequest) }
+                    .awaitFirst()
 
-            if (scheduledMessage.text != updateMessageRequest.text) {
-                val textInfo = textParser.parseText(updateMessageRequest.text).awaitFirst()
-                emoji = textInfo.emoji
-
-                mentionedUsers = if (textInfo.userLinks.userLinksPositions.isEmpty()) {
-                    listOf()
-                } else {
-                    chatParticipationRepository.findByChatIdAndUserIdOrSlugIn(
-                            chatId = chatId,
-                            excludedUsersIds = listOf(scheduledMessage.senderId),
-                            userIdsOrSlugs = textInfo.userLinks.userLinksPositions.map { it.userIdOrSlug }
-                    )
-                            .map { it.user.id }
-                            .collectList()
-                            .awaitFirst()
-                }
-            }
-
-            scheduledMessage = messageMapper.mapScheduledMessageUpdate(
-                    updateMessageRequest = updateMessageRequest,
-                    originalMessage = scheduledMessage,
-                    emoji = emoji,
-                    mentionedUsers = mentionedUsers
-            )
-
-            scheduledMessageRepository.save(scheduledMessage).awaitFirst()
+            scheduledMessageRepository.save(updateResult.updatedMessage).awaitFirst()
 
             val messageResponse = messageMapper.toMessageResponse(
-                    message = scheduledMessage,
+                    message = updateResult.updatedMessage,
                     mapReferredMessage = true,
                     readByCurrentUser = true
             )
                     .awaitFirst()
-            chatEventsPublisher.scheduledMessageUpdated(messageResponse)
+
+            if (updateResult.newChatUploadAttachments.isNotEmpty()) {
+                chatUploadAttachmentEntityService.linkChatUploadAttachmentsToMessage(
+                        updateResult.newChatUploadAttachments,
+                        updateResult.updatedMessage
+                )
+                        .subscribe()
+            }
+
+            if (updateResult.chatUploadsAttachmentsToRemove.isNotEmpty()) {
+                chatUploadAttachmentEntityService.deleteChatUploadAttachments(updateResult.chatUploadsAttachmentsToRemove)
+                        .subscribe()
+            }
+
+            runAsync {
+                chatEventsPublisher.scheduledMessageUpdated(messageResponse)
+            }
 
             return@mono messageResponse
         }

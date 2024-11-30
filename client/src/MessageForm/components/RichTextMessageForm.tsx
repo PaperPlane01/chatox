@@ -33,7 +33,8 @@ interface RichTextMessageFormProps {
 	onChange: (text: string) => void,
 	onSubmit: () => void,
 	onEmojiPickerExpanded: (emojiPickerExpanded: boolean) => void,
-	onEditorReady?: (editor: LexicalEditor) => void
+	onEditorReady?: (editor: LexicalEditor) => void,
+	editorKey?: string
 }
 
 export const RichTextMessageForm: FunctionComponent<RichTextMessageFormProps> = observer(({
@@ -52,7 +53,8 @@ export const RichTextMessageForm: FunctionComponent<RichTextMessageFormProps> = 
 	onChange,
 	onEmojiPickerExpanded,
 	onSubmit,
-	onEditorReady
+	onEditorReady,
+	editorKey
 }) => {
 	const {
 		chatsPreferences: {
@@ -128,6 +130,7 @@ export const RichTextMessageForm: FunctionComponent<RichTextMessageFormProps> = 
 					emojiPickerExpanded={emojiPickerExpanded}
 					setEmojiPickerExpanded={onEmojiPickerExpanded}
 					onEditorReady={handleEditorReady}
+					editorKey={editorKey}
 		/>
 	);
 });

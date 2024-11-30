@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {RabbitSubscribe} from "@golevelup/nestjs-rabbitmq";
 import {WebsocketEventsPublisher} from "../websocket";
 import {ChatMessage} from "../common/types";
-import {MessageDeleted, MessageRead, MessagesDeleted} from "../websocket/types";
+import {DraftMessageDeleted, MessageDeleted, MessageRead, MessagesDeleted} from "../websocket/types";
 import {config} from "../env-config";
 import {LoggerFactory} from "../logging";
 
@@ -127,5 +127,32 @@ export class MessagesController {
         this.log.debug("Message read event");
         this.log.verbose(messageRead);
         await this.websocketEventsPublisher.publishMessageRead(messageRead);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: `event_service_draft_message_created-${config.EVENTS_SERVICE_PORT}`,
+        routingKey: "chat.draft.message.created.#"
+    })
+    public async onDraftMessageCreated(message: ChatMessage): Promise<void> {
+        await this.websocketEventsPublisher.publishDraftMessageCreated(message);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: `events_service_draft_message_updated-${config.EVENTS_SERVICE_PORT}`,
+        routingKey: "chat.draft.message.updated.#"
+    })
+    public async onDraftMessageUpdated(message: ChatMessage): Promise<void> {
+        await this.websocketEventsPublisher.publishDraftMessageUpdated(message);
+    }
+
+    @RabbitSubscribe({
+        exchange: "chat.events",
+        queue: `events_service_draft_message_deleted-${config.EVENTS_SERVICE_PORT}`,
+        routingKey: "chat.draft.message.deleted.#"
+    })
+    public async onDraftMessageDeleted(draftMessageDeleted: DraftMessageDeleted): Promise<void> {
+        await this.websocketEventsPublisher.publishDraftMessageDeleted(draftMessageDeleted);
     }
 }

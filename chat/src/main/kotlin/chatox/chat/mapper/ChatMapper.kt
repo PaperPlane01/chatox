@@ -10,6 +10,7 @@ import chatox.chat.model.Chat
 import chatox.chat.model.ChatInterface
 import chatox.chat.model.ChatParticipantsCount
 import chatox.chat.model.ChatParticipation
+import chatox.chat.model.DraftMessage
 import chatox.chat.model.Message
 import chatox.chat.model.User
 import chatox.chat.support.cache.MessageDataLocalCache
@@ -75,6 +76,7 @@ class ChatMapper(
             chatParticipation: ChatParticipation,
             lastMessage: Message?,
             lastReadMessage: Message?,
+            draftMessage: DraftMessage?,
             unreadMessagesCount: Long,
             unreadMentionsCount: Long,
             localUsersCache: MutableMap<String, UserResponse>? = null,
@@ -84,11 +86,12 @@ class ChatMapper(
         return mono {
             var lastReadMessageMapped: MessageResponse? = null
             var lastMessageMapped: MessageResponse? = null
+            var draftMessageMapped: MessageResponse? = null
             var userMapped: UserResponse? = null
 
             if (lastReadMessage != null && !chat.deleted) {
                 lastReadMessageMapped = messageMapper.toMessageResponse(
-                        lastReadMessage,
+                        message = lastReadMessage,
                         readByCurrentUser = true,
                         mapReferredMessage = false,
                         cache = MessageDataLocalCache(usersCache = localUsersCache ?: mutableMapOf()),
@@ -99,11 +102,22 @@ class ChatMapper(
 
             if (lastMessage != null && !chat.deleted) {
                 lastMessageMapped = messageMapper.toMessageResponse(
-                        lastMessage,
+                        message = lastMessage,
                         readByCurrentUser = lastReadMessage?.id == lastMessage.id,
                         mapReferredMessage = false,
                         cache = MessageDataLocalCache(usersCache = localUsersCache ?: mutableMapOf()),
                         readByAnyone = chat.lastMessageReadByAnyoneId == lastMessage.id
+                )
+                        .awaitFirst()
+            }
+
+            if (draftMessage != null && !chat.deleted) {
+                draftMessageMapped = messageMapper.toMessageResponse(
+                        message = draftMessage,
+                        readByCurrentUser = true,
+                        mapReferredMessage = true,
+                        cache = MessageDataLocalCache(usersCache = localUsersCache ?: mutableMapOf()),
+                        readByAnyone = false
                 )
                         .awaitFirst()
             }
@@ -118,6 +132,7 @@ class ChatMapper(
                     user = userMapped,
                     lastMessage = lastMessageMapped,
                     lastReadMessage = lastReadMessageMapped,
+                    draftMessage = draftMessageMapped,
                     unreadMessagesCount = unreadMessagesCount,
                     unreadMentionsCount = unreadMentionsCount,
                     localUsersCache = localUsersCache,
@@ -131,6 +146,7 @@ class ChatMapper(
             chatParticipation: ChatParticipation,
             lastMessage: MessageResponse?,
             lastReadMessage: MessageResponse?,
+            draftMessage: MessageResponse?,
             unreadMessagesCount: Long,
             unreadMentionsCount: Long,
             user: User? = null,
@@ -148,6 +164,7 @@ class ChatMapper(
                     chatParticipation = chatParticipation,
                     lastMessage = lastMessage,
                     lastReadMessage = lastReadMessage,
+                    draftMessage = draftMessage,
                     unreadMessagesCount = unreadMessagesCount,
                     unreadMentionsCount = unreadMentionsCount,
                     user = userMapped,
@@ -161,6 +178,7 @@ class ChatMapper(
             chatParticipation: ChatParticipation,
             lastMessage: MessageResponse?,
             lastReadMessage: MessageResponse?,
+            draftMessage: MessageResponse?,
             unreadMessagesCount: Long,
             unreadMentionsCount: Long,
             localUsersCache: MutableMap<String, UserResponse>? = null,
@@ -186,6 +204,7 @@ class ChatMapper(
                     avatarUri = chat.avatarUri,
                     lastReadMessage = lastReadMessage,
                     lastMessage = lastMessage,
+                    draftMessage = draftMessage,
                     chatParticipation = chatParticipationMinified,
                     unreadMessagesCount = unreadMessagesCount,
                     createdAt = chat.createdAt,

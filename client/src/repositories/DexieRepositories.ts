@@ -2,7 +2,7 @@ import {Repositories} from "./Repositories";
 import {RepositoriesMap} from "./RepositoriesMap";
 import {ChatoxDexieDatabase} from "./ChatoxDexieDatabase";
 import {Entities} from "../entities-store";
-import {MessageDexieRepository} from "../Message/repositories";
+import {DraftMessageDexieRepository, MessageDexieRepository} from "../Message/repositories";
 import {UserDexieRepository} from "../User/repositories";
 import {StickerDexieRepository, StickerPackDexieRepository} from "../Sticker/repositories";
 import {UploadDexieRepository} from "../Upload/repositories";
@@ -19,6 +19,7 @@ export class DexieRepositories implements Repositories {
 		this.repositoriesMap.chatRoles = new ChatRoleDexieRepository(database, this);
 		this.repositoriesMap.stickers = new StickerDexieRepository(database, this);
 		this.repositoriesMap.stickerPacks = new StickerPackDexieRepository(database, this);
+		this.repositoriesMap.draftMessages = new DraftMessageDexieRepository(database, this);
 	}
 
 	getRepository<EntityName extends Entities>(entityName: EntityName): RepositoriesMap[EntityName] | undefined {

@@ -1,19 +1,30 @@
-import {makeAutoObservable, runInAction} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
+import {computedFn} from "mobx-utils";
 import {ChatListEntry, ChatOfCurrentUserEntity} from "../types";
-import {EntitiesStore} from "../../entities-store";
+import {EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {ChatType} from "../../api/types/response";
-import {computedFn} from "mobx-utils";
 import {UserEntity} from "../../User";
 import {getUserDisplayedName} from "../../User/utils/labels";
+import {DraftMessageRepository} from "../../Message/repositories";
+import {isDefined} from "../../utils/object-utils";
 
 export class ChatsOfCurrentUserStore {
     pending = false;
 
     error?: ApiError;
 
-    constructor(private readonly entities: EntitiesStore) {
+    localDraftMessagesLoaded = false;
+
+    constructor(private readonly entities: EntitiesStore,
+                private readonly rawEntities: RawEntitiesStore,
+                private readonly draftMessageRepository: DraftMessageRepository) {
         makeAutoObservable(this);
+
+        reaction(
+            () => this.chatsOfCurrentUser,
+            () => this.loadLocalDraftMessages()
+        );
     }
 
     get chatsOfCurrentUser(): ChatListEntry[] {
@@ -38,7 +49,8 @@ export class ChatsOfCurrentUserStore {
                 messageId: chat.lastMessage,
                 unreadMentionsCount: chat.unreadMentionsCount,
                 unreadMessagesCount: chat.unreadMessagesCount,
-                chatType: chat.type
+                chatType: chat.type,
+                draftMessageId: chat.draftMessageId
             }));
     }
 
@@ -115,5 +127,39 @@ export class ChatsOfCurrentUserStore {
             .then(({data}) => this.entities.chats.insertAll(data))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.pending = false))
+    }
+
+    private async loadLocalDraftMessages(): Promise<void> {
+        if (this.localDraftMessagesLoaded || this.chatsOfCurrentUser.length === 0) {
+            return;
+        }
+
+        const chatsWithoutRemoteDraftMessage = this.chatsOfCurrentUser
+            .filter(chat => !isDefined(chat.draftMessageId))
+            .map(chat => chat.chatId);
+
+        if (chatsWithoutRemoteDraftMessage.length === 0) {
+            return;
+        }
+
+        const draftMessages = await this.draftMessageRepository.findByChatIdIn(chatsWithoutRemoteDraftMessage);
+        const entityPatch = await this.draftMessageRepository.restoreEntityPatchForEntities(draftMessages);
+        this.rawEntities.applyPatch(entityPatch, true, "low");
+
+        const messagesByChatId = new Map(draftMessages.map(draftMessage => [draftMessage.chatId, draftMessage]));
+        const chats = this.entities.chats.findAllById(chatsWithoutRemoteDraftMessage);
+
+       runInAction(() => {
+           chats.forEach(chat => {
+               const draftMessage = messagesByChatId.get(chat.id);
+
+               if (draftMessage) {
+                   chat.draftMessageId = draftMessage.id;
+               }
+           });
+
+           this.entities.chats.insertAllEntities(chats);
+           this.localDraftMessagesLoaded = true;
+       });
     }
 }

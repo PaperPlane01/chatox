@@ -10,3 +10,4 @@ export * from "./MessageRead";
 export * from "./PrivateChatCreated";
 export * from "./BalanceUpdated";
 export * from "./UserStartedTyping";
+export * from "./DraftMessageDeleted";

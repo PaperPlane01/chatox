@@ -334,6 +334,10 @@ export class ChatsStore extends SoftDeletableEntityStore<
                 chat.messages.push(denormalizedEntity.lastMessage.id);
             }
 
+            if (denormalizedEntity.draftMessage) {
+                patches.push(this.entities.draftMessages.createPatch(denormalizedEntity.draftMessage));
+            }
+
             if (denormalizedEntity.avatar) {
                 patches.push(this.entities.uploads.createPatch(denormalizedEntity.avatar));
             }

@@ -16,7 +16,9 @@ interface ChatsOfCurrentUserListItemProps {
     chatId: string,
     messageId?: string,
     linkGenerationStrategy?: ChatLinkPropsGenerationStrategy,
-    ignoreSelection?: boolean
+    ignoreSelection?: boolean,
+    hideDraftMessage?: boolean,
+    draftMessageId?: string
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
@@ -35,7 +37,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         }
     },
     listItemHeaderRoot: {
-        [theme.breakpoints.down('xl')]: {
+        [theme.breakpoints.down("xl")]: {
             padding: theme.spacing(2),
             paddingLeft: 0
         },
@@ -75,7 +77,9 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
     chatId,
     messageId,
     linkGenerationStrategy = "chat",
-    ignoreSelection = false
+    ignoreSelection = false,
+    hideDraftMessage = false,
+    draftMessageId
 }) => {
     const {
         chat: {
@@ -139,7 +143,12 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
                                                 <Typography className={`${classes.truncatedText} ${selected && !ignoreSelection && classes.selected}`}>
                                                     {chatHasTypingUsers
                                                         ? <TypingIndicator chatId={chatId}/>
-                                                        : <ChatListMessagePreview messageId={messageId}/>
+                                                        : (
+                                                            <ChatListMessagePreview messageId={messageId}
+                                                                                    draftMessageId={draftMessageId}
+                                                                                    hideDraftMessage={hideDraftMessage}
+                                                            />
+                                                        )
                                                     }
                                                 </Typography>
                                             </div>

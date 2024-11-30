@@ -30,5 +30,6 @@ export interface ChatOfCurrentUserEntity {
     joinAllowanceSettings: JoinAllowanceMap,
     hideFromSearch: boolean,
     lastMessageReadByAnyoneCreatedAt?: Date,
-    unreadMentionsCount: number
+    unreadMentionsCount: number,
+    draftMessageId?: string
 }

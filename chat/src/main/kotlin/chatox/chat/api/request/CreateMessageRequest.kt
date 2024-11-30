@@ -39,7 +39,9 @@ data class CreateMessageRequest(
         )
         val scheduledAt: ZonedDateTime?,
 
-        val stickerId: String? = null
+        val stickerId: String? = null,
+
+        val draft: Boolean = false
 ) {
         val text: String
                 get() = _text!!
