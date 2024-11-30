@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-public class DefaultAuthenticationHolder<U> extends AbstractAuthenticationHolder<U> {
+public class DefaultAuthenticationHolder<U> implements AuthenticationHolder<U> {
     private final Function<JwtPayload, Optional<U>> userProvider;
 
     @Override
