@@ -21,6 +21,7 @@ import chatox.chat.repository.mongodb.ChatRoleRepository
 import chatox.chat.repository.mongodb.ChatRoleTemplateRepository
 import chatox.chat.service.ChatRoleService
 import chatox.chat.util.NTuple2
+import chatox.chat.util.runAsync
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
@@ -31,13 +32,11 @@ import kotlinx.coroutines.reactor.mono
 import org.bson.types.ObjectId
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 
 @Service
-@Transactional
 @LogExecution
 class ChatRoleServiceImpl(
         private val chatParticipationRepository: ChatParticipationRepository,
@@ -167,26 +166,19 @@ class ChatRoleServiceImpl(
                     ?: throw ChatNotFoundException("Could not find chat with id $chatId")
 
             val chatRoles = chatRoleRepository.findByChatId(chatId).collectList().awaitFirst()
-            val relatedUsers = hashMapOf<String, NTuple2<User?, User?>>()
-
-            for (chatRole in chatRoles) {
-                val createdBy = if (chatRole.createdBy != null) {
-                    userCacheService.findById(chatRole.createdBy).awaitFirst()
-                } else {
-                    null
-                }
-                val updatedBy = if (chatRole.updatedBy != null) {
-                    userCacheService.findById(chatRole.updatedBy).awaitFirst()
-                } else {
-                    null
-                }
-                relatedUsers[chatRole.id] = NTuple2(createdBy, updatedBy)
-            }
+            val usersIds = chatRoles
+                    .flatMap { chatRole -> listOf(chatRole.createdBy, chatRole.updatedBy) }
+                    .filterNotNull()
+            val users = userCacheService
+                    .findByIds(usersIds)
+                    .collectList()
+                    .awaitFirst()
+                    .associateBy { user -> user.id }
 
             return@mono chatRoles.map { chatRole -> chatRoleMapper.toChatRoleResponse(
                     chatRole = chatRole,
-                    createdBy = relatedUsers[chatRole.id]?.t1,
-                    updatedBy = relatedUsers[chatRole.id]?.t2
+                    createdBy = chatRole.createdBy?.let { userId -> users[userId] },
+                    updatedBy = chatRole.updatedBy?.let { userId -> users[userId] }
             ) }
         }
                 .flatMapMany { Flux.fromIterable(it) }
@@ -228,7 +220,7 @@ class ChatRoleServiceImpl(
                     createdBy = currentUser
             )
 
-            Mono.fromRunnable<Unit> { chatRoleEventsPublisher.chatRoleCreated(chatRoleResponse) }.subscribe()
+            runAsync { chatRoleEventsPublisher.chatRoleCreated(chatRoleResponse) }
 
             return@mono chatRoleResponse
         }
@@ -305,7 +297,7 @@ class ChatRoleServiceImpl(
                     updatedBy = currentUser
             )
 
-            Mono.fromRunnable<Unit> { chatRoleEventsPublisher.chatRoleUpdated(chatRoleResponse) }
+            runAsync { chatRoleEventsPublisher.chatRoleUpdated(chatRoleResponse) }
 
             return@mono chatRoleResponse
         }
