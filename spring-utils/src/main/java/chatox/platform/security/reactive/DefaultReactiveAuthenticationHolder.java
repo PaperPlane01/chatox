@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-public class DefaultReactiveAuthenticationHolder<U> extends AbstractReactiveAuthenticationHolder<U> {
+public class DefaultReactiveAuthenticationHolder<U> implements ReactiveAuthenticationHolder<U> {
     private final Function<JwtPayload, Mono<U>> userProvider;
 
     @Override
