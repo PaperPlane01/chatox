@@ -28,7 +28,6 @@ export class TextParserService {
 		const userLinkMatches = parseTextRequest.text.matchAll(USER_LINK);
 
 		for (const nativeEmojiMatch of nativeEmojiMatches) {
-			console.log(nativeEmojiMatch);
 			this.handleNativeEmoji(nativeEmojiMatch, parseTextRequest.emojiSet, result);
 		}
 
