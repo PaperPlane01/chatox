@@ -9,7 +9,7 @@ interface ChatOfCurrentUserSelectProps {
 	selectedChatId?: string,
 	chatType?: ChatType,
 	onChatSelect: (chatId?: string) => void,
-	filter?: (chatId: string) => void
+	filter?: (chatId: string) => boolean
 }
 
 export const ChatOfCurrentUserSelect: FunctionComponent<ChatOfCurrentUserSelectProps> = observer(({
@@ -31,13 +31,7 @@ export const ChatOfCurrentUserSelect: FunctionComponent<ChatOfCurrentUserSelectP
 	} = useEntities();
 	const chatsIds = getChatsInAlphabeticalOrder(chatType)
 		.map(chat => chat.chatId)
-		.filter(chatId => {
-			if (filter) {
-				return filter(chatId);
-			} else {
-				return true;
-			}
-		});
+		.filter(chatId => filter ? filter(chatId) : true);
 
 	return (
 		<Autocomplete renderInput={inputProps => (

@@ -7,19 +7,21 @@ import {FormErrors} from "../../utils/types";
 import {CreateStickerRequest} from "../../api/types/request";
 import {getInitialApiErrorFromResponse, StickerApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
-import {UploadImageStore} from "../../Upload";
+import {containsNotUndefinedValues, isDefined} from "../../utils/object-utils";
 
 const INITIAL_FORM_VALUES: CreateStickerPackFormData = {
     name: "",
     description: "",
     author: "",
+    stickersType: undefined,
     stickers: {}
 };
 const INITIAL_FORM_ERRORS: FormErrors<CreateStickerPackFormData> = {
     name: undefined,
     description: undefined,
     author: undefined,
-    stickers: undefined
+    stickers: undefined,
+    stickersType: undefined
 };
 
 export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackFormData> {
@@ -62,42 +64,53 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
         );
     }
 
+    reset = (): void => {
+        this.resetForm();
+        this.setStickerDialogOpen(false);
+        this.setEditedStickerId(undefined);
+        this.clearStickerUnderCreation();
+    }
+
     initiateStickerCreation = (): void => {
-        this.stickerUnderCreation = new StickerContainer(new UploadImageStore(this.entities));
+        if (!this.formValues.stickersType) {
+            return;
+        }
+
+        this.stickerUnderCreation = new StickerContainer(this.formValues.stickersType);
         this.setStickerDialogOpen(true);
-    };
+    }
 
     clearStickerUnderCreation = (): void => {
         this.stickerUnderCreation = undefined;
-    };
+    }
 
     addSticker = (sticker: StickerContainer): void => {
         this.formValues.stickers[sticker.localId] = sticker;
-    };
+    }
 
     removeSticker = (stickerId: string): void => {
         delete this.formValues.stickers[stickerId];
-    };
+    }
 
     setStickerDialogOpen = (stickerDialogOpen: boolean): void => {
         this.stickerDialogOpen = stickerDialogOpen;
-    };
+    }
 
     setEditedStickerId = (id?: string): void => {
         this.editedStickerId = id;
-    };
+    }
 
     public submitForm(): void {
-        if (!this.validateForm()) {
+        if (!this.formValues.stickersType || !this.validateForm()) {
             return;
         }
 
         const stickers: CreateStickerRequest[] = Object.keys(this.formValues.stickers)
             .map(localStickerId => this.formValues.stickers[localStickerId])
-            .filter(stickerContainer => Boolean(stickerContainer.imageContainer && stickerContainer.imageContainer.uploadedFile))
+            .filter(stickerContainer => isDefined(stickerContainer.uploadContainer?.uploadedFile))
             .map(stickerContainer => ({
                 emojis: stickerContainer.emojis,
-                imageId: stickerContainer.imageContainer!.uploadedFile!.id,
+                uploadId: stickerContainer.uploadContainer!.uploadedFile!.id,
                 keywords: stickerContainer.keywords
             }));
 
@@ -108,6 +121,7 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
             name: this.formValues.name!,
             author: this.formValues.author,
             description: this.formValues.description!,
+            stickersType: this.formValues.stickersType,
             stickers
         })
             .then(({data}) => this.entities.stickerPacks.insert(data))
@@ -120,15 +134,16 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
             description: validateStickerPackDescription(this.formValues.description),
             name: validateStickerPackName(this.formValues.name),
             author: undefined,
-            stickers: undefined
+            stickers: undefined,
+            stickersType: undefined
         };
         const filesContainErrors = Object.keys(this.formValues.stickers)
             .map(localStickerId => Boolean(!this.formValues.stickers[localStickerId].validate()
-                || this.formValues.stickers[localStickerId].imageValidationError
-                || this.formValues.stickers[localStickerId].imageContainer?.error)
+                || this.formValues.stickers[localStickerId].fileValidationError
+                || this.formValues.stickers[localStickerId]?.uploadContainer?.error)
             )
             .reduce((accumulator, current) => accumulator && current);
 
-        return !Boolean(this.formErrors.description || this.formErrors.name || this.formErrors.author || filesContainErrors);
+        return !containsNotUndefinedValues(this.formErrors) && !filesContainErrors;
     }
 }

@@ -791,5 +791,12 @@ export interface Labels {
     "notification.settings.for-chat.exceptions": string,
     "message.draft": string,
     "settings.chat.messages.draft": string,
-    "settings.chat.messages.draft.save-to-server": string
+    "settings.chat.messages.draft.save-to-server": string,
+    "sticker.type": string,
+    "sticker.type.IMAGE_STICKER": string,
+    "sticker.type.WEBP_STICKER": string,
+    "sticker.file": string,
+    "sticker.file.required": string,
+    "sticker.file.too-large": string,
+    "sticker.file.invalid": string
 }

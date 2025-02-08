@@ -40,16 +40,15 @@ export const EditableSticker: FunctionComponent<EditableStickerProps> = observer
             removeSticker
         }
     } = useStore();
-    const {l} = useLocalization();
     const classes = useStyles();
 
-    if (!stickerContainer.imageContainer) {
+    if (!stickerContainer.uploadContainer) {
         return null;
     }
 
     return (
         <div className={classes.imageWrapper}>
-            <img src={stickerContainer.imageContainer.uploadedFile ? stickerContainer.imageContainer.uploadedFile.uri : stickerContainer.imageContainer.url}
+            <img src={stickerContainer.uploadContainer.uploadedFile ? stickerContainer.uploadContainer.uploadedFile.uri : stickerContainer.uploadContainer.url}
                  className={classes.image}
             />
             <div className={classes.buttonsContainer}>

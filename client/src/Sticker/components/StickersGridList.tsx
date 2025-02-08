@@ -7,7 +7,8 @@ import {useEntityById} from "../../entities";
 interface StickersGridListProps {
     stickerPackId: string,
     gridListTileWidth?: number,
-    gridListTileHeight?: number
+    gridListTileHeight?: number,
+    stickerSize?: number,
     onStickerClick?: (stickerId: string) => void
 }
 
@@ -15,6 +16,7 @@ export const StickersGridList: FunctionComponent<StickersGridListProps> = observ
     stickerPackId,
     gridListTileHeight,
     gridListTileWidth,
+    stickerSize,
     onStickerClick
 }) => {
     const stickersPack = useEntityById("stickerPacks", stickerPackId);
@@ -30,13 +32,16 @@ export const StickersGridList: FunctionComponent<StickersGridListProps> = observ
     };
 
     return (
-        <ImageList cols={5}>
+        <ImageList cols={5}
+                   style={{overflow: "hidden"}}
+        >
             {stickers.map(stickerId => (
                 <ImageListItem cols={1}
                               key={stickerId}
                               style={gridListTileStyle}
                 >
                     <Sticker stickerId={stickerId}
+                             size={stickerSize}
                              onClick={() => handleStickerClick(stickerId)}
                     />
                 </ImageListItem>

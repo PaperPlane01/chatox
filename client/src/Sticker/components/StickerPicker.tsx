@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Theme} from "@mui/material";
+import {Tab, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
 import {useSnackbar} from "notistack";
@@ -8,7 +8,7 @@ import {isAfter} from "date-fns";
 import {StickersGridList} from "./StickersGridList";
 import {useLocalization, useStore} from "../../store";
 import {isDefined} from "../../utils/object-utils";
-import {StickerPickerTab} from "./StickerPickerTab";
+import {useEntitiesByIds, useEntitiesSelector} from "../../entities";
 
 interface StickerPickerProps {
     onStickerPicked?: () => void
@@ -23,6 +23,25 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         height: 348,
         paddingLeft: 0,
         paddingRight: 0,
+    },
+    imageWrapper: {
+        display: "inline-block",
+        position: "relative",
+        height: "100%",
+        width: "100%",
+        cursor: "pointer"
+    },
+    image: {
+        maxWidth: "100%",
+        maxHeight: "100%",
+        height: "inherit",
+        objectFit: "contain"
+    },
+    tabRoot: {
+        width: 48,
+        height: 48,
+        minWidth: 48,
+        padding: theme.spacing(1)
     }
 }));
 
@@ -44,6 +63,12 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
     const {l} = useLocalization();
     const classes = useStyles();
     const {enqueueSnackbar} = useSnackbar();
+    const stickerPacks = useEntitiesByIds("stickerPacks", installedStickerPacksIds);
+    const stickerPackPreviews = useEntitiesSelector(
+        "uploads",
+        entities => entities.uploads.findStickers(stickerPacks.map(stickerPack => stickerPack.previewId))
+    );
+    const previewMap = new Map(stickerPackPreviews.map(preview => [preview.id, preview]));
 
     if (installedStickerPacksIds.length === 0) {
         return null;
@@ -74,9 +99,19 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
                 <TabList orientation="horizontal"
                          onChange={(_, newValue) => setSelectedStickerPackId(newValue)}
                 >
-                    {installedStickerPacksIds.map(stickerPackId => (
-                        <StickerPickerTab stickerPackId={stickerPackId}
-                                          key={`${stickerPackId}_tab`}
+                    {stickerPacks.map(stickerPack => (
+                        <Tab value={stickerPack.id}
+                             key={stickerPack.id}
+                             icon={
+                                 <div className={classes.imageWrapper}>
+                                     <img src={`${previewMap.get(stickerPack.previewId)!.uri}?size=64`}
+                                          className={classes.image}
+                                     />
+                                 </div>
+                             }
+                             classes={{
+                                 root: classes.tabRoot
+                             }}
                         />
                     ))}
                 </TabList>
@@ -91,6 +126,7 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
                                           onStickerClick={handleStickerSelection}
                                           gridListTileHeight={64}
                                           gridListTileWidth={64}
+                                          stickerSize={256}
                         />
                     </TabPanel>
                 ))}

@@ -12,7 +12,7 @@ export class StickerRelationshipsLoader extends AbstractRelationshipsLoader<Stic
 	async loadRelationships(entity: StickerEntity): Promise<StickerRelationships> {
 		const relationships: StickerRelationships = this.createEmptyRelationships();
 
-		const upload = await this.repositories.getRepository("uploads")?.findById(entity.imageId);
+		const upload = await this.repositories.getRepository("uploads")?.findById(entity.uploadId);
 
 		if (upload) {
 			relationships.uploads.push(upload);
@@ -24,7 +24,7 @@ export class StickerRelationshipsLoader extends AbstractRelationshipsLoader<Stic
 	async loadRelationshipsForArray(entities: StickerEntity[]): Promise<StickerRelationships> {
 		const relationships: StickerRelationships = this.createEmptyRelationships();
 
-		const uploadsIds = entities.map(sticker => sticker.imageId);
+		const uploadsIds = entities.map(sticker => sticker.uploadId);
 		const uploads = await this.repositories.getRepository("uploads")?.findAllById(uploadsIds) ?? emptyArray<Upload<any>>();
 		relationships.uploads.push(...uploads);
 

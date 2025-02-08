@@ -4,5 +4,7 @@ export enum UploadType {
     VIDEO = "VIDEO",
     FILE = "FILE",
     AUDIO = "AUDIO",
-    VOICE_MESSAGE = "VOICE_MESSAGE"
+    VOICE_MESSAGE = "VOICE_MESSAGE",
+    IMAGE_STICKER = "IMAGE_STICKER",
+    WEBP_STICKER = "WEBP_STICKER"
 }
