@@ -1,7 +1,7 @@
 package chatox.chat.messaging.rabbitmq.event
 
 import chatox.chat.model.ImageUploadMetadata
-import chatox.chat.model.UploadType
+import chatox.platform.upload.UploadType;
 
 data class UploadCreated<MetadataType>(
         val id: String,

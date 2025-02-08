@@ -44,7 +44,7 @@ data class Message(
         @Indexed
         override val index: Long = 0L,
 
-        override val sticker: Sticker<Any>? = null,
+        override val sticker: Sticker? = null,
         override val scheduledAt: ZonedDateTime? = null,
         override val chatParticipationId: String,
         override val forwardedFromMessageId: String? = null,

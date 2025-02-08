@@ -31,7 +31,7 @@ data class ScheduledMessage(
         override val attachments: List<Upload<*>> = listOf(),
         override val emoji: EmojiInfo = EmojiInfo(),
         override val scheduledAt: ZonedDateTime,
-        override val sticker: Sticker<Any>? = null,
+        override val sticker: Sticker? = null,
         override val pinned: Boolean = false,
         override val pinnedById: String? = null,
         override val pinnedAt: ZonedDateTime? = null,

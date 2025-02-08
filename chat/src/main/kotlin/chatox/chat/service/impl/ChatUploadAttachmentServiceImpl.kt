@@ -11,7 +11,6 @@ import chatox.chat.model.GifUploadMetadata
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Message
 import chatox.chat.model.UnreadMessagesCount
-import chatox.chat.model.UploadType
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
@@ -22,6 +21,7 @@ import chatox.chat.service.MessageEntityService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.pagination.PaginationRequest
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.upload.UploadType
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono

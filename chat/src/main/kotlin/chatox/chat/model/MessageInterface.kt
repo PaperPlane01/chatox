@@ -22,7 +22,7 @@ interface MessageInterface {
     val pinnedAt: ZonedDateTime?
     val fromScheduled: Boolean
     val index: Long
-    val sticker: Sticker<Any>?
+    val sticker: Sticker?
     val scheduledAt: ZonedDateTime?
     val chatParticipationId: String?
     val forwardedFromMessageId: String?

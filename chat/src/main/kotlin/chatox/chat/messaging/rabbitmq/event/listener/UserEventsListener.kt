@@ -10,7 +10,6 @@ import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.ChatType
 import chatox.chat.model.ImageUploadMetadata
 import chatox.chat.model.Upload
-import chatox.chat.model.UploadType
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
@@ -20,6 +19,7 @@ import chatox.chat.service.ChatParticipantsCountService
 import chatox.chat.support.UserDisplayedNameHelper
 import chatox.chat.util.mapTo2Lists
 import chatox.platform.security.VerificationLevel
+import chatox.platform.upload.UploadType
 import com.rabbitmq.client.Channel
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull

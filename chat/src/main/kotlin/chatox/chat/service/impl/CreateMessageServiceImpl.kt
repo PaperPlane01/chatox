@@ -585,7 +585,7 @@ class CreateMessageServiceImpl(
             chatParticipation: ChatParticipation? = null,
             chatNotCreated: Boolean = false,
             messageType: MessageType = MessageType.REGULAR
-    ): Mono<NTuple7<Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, List<ChatParticipation>, ChatParticipation>> {
+    ): Mono<NTuple7<Sticker?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, List<ChatParticipation>, ChatParticipation>> {
         return mono {
             val baseData = prepareBaseDataForSavingMessage(
                     chatId = chatId,
@@ -619,11 +619,11 @@ class CreateMessageServiceImpl(
             currentUser: JwtPayload,
             chatNotCreated: Boolean = false,
             messageType: MessageType = MessageType.REGULAR
-    ): Mono<NTuple6<Sticker<Any>?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, List<ChatParticipation>>> {
+    ): Mono<NTuple6<Sticker?, Message?, EmojiInfo, List<ChatUploadAttachment<Any>>, List<Upload<Any>>, List<ChatParticipation>>> {
         return mono {
             val chat = getChat(chatId, chatNotCreated).awaitFirstOrNull()
 
-            var sticker: Sticker<Any>? = null
+            var sticker: Sticker? = null
 
             if (createMessageRequest.stickerId != null) {
                 if (createMessageRequest.text.isNotBlank() || createMessageRequest.uploadAttachments.isNotEmpty()) {

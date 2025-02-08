@@ -12,5 +12,5 @@ data class StickerPackCreated(
         val createdAt: ZonedDateTime,
         val updatedAt: ZonedDateTime?,
         val preview: UploadResponse<Any>,
-        val stickers: List<StickerResponse<Any>>
+        val stickers: List<StickerResponse>
 )
