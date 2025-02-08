@@ -2,8 +2,7 @@ import {Controller, Get, Param, Post, Query, Res, UploadedFile, UseInterceptors}
 import {FileInterceptor} from "@nestjs/platform-express";
 import {Response} from "express";
 import {ImagesUploadService} from "./ImagesUploadService";
-import {ImageSizeRequest} from "./types/request";
-import {MultipartFile} from "../common/types/request";
+import {ImageSizeRequest, MultipartFile} from "../common/types/request";
 import {config} from "../config";
 import {RejectEmptyInterceptor} from "../common/interceptors";
 import {CurrentUser, HasRole, User} from "../auth";

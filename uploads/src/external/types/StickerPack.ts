@@ -5,6 +5,6 @@ export interface StickerPack {
     id: string,
     stickers: Array<{
         id: string,
-        image: UploadResponse<ImageUploadMetadata>
+        upload: UploadResponse<ImageUploadMetadata>
     }>
 }

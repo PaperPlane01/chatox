@@ -18,7 +18,7 @@ export class UploadReferenceStickersEventsListener {
     public async onStickerPackCreated(stickerPack: StickerPack): Promise<void> {
         const uploadReferences = stickerPack.stickers.map(sticker => new this.uploadReferenceModel(
             new UploadReference({
-                uploadId: sticker.image.id,
+                uploadId: sticker.upload.id,
                 referenceObjectId: sticker.id,
                 type: UploadReferenceType.STICKER
             })
