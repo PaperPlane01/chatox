@@ -1,5 +1,6 @@
 package chatox.sticker.model
 
+import chatox.platform.upload.UploadType
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed

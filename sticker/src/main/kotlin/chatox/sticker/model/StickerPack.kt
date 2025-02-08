@@ -1,5 +1,6 @@
 package chatox.sticker.model
 
+import chatox.platform.upload.UploadType
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
@@ -21,5 +22,7 @@ data class StickerPack<PreviewMetadataType>(
         val createdBy: String,
         val createdAt: ZonedDateTime,
         val updatedAt: ZonedDateTime? = null,
-        val preview: Upload<PreviewMetadataType>
+        val preview: Upload<PreviewMetadataType>,
+        val stickersType: UploadType,
+        val animated: Boolean
 )

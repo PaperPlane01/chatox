@@ -7,8 +7,8 @@ import jakarta.validation.constraints.Size
 
 data class CreateStickerRequest(
         @field:NotNull
-        @field:JsonProperty("imageId")
-        private val _imageId: String?,
+        @field:JsonProperty("uploadId")
+        private val _uploadId: String?,
 
         @field:Size(max = 30)
         val keywords: List<String>,
@@ -16,6 +16,6 @@ data class CreateStickerRequest(
         @field:Size(max = 10)
         val emojis: List<EmojiData>
 ) {
-    val imageId: String
-        get() = _imageId!!
+    val uploadId: String
+        get() = _uploadId!!
 }

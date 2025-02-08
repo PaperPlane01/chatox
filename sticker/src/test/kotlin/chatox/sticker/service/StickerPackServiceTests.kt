@@ -2,23 +2,22 @@ package chatox.sticker.service
 
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.upload.UploadType
 import chatox.sticker.api.response.StickerPackResponse
 import chatox.sticker.api.response.StickerResponse
 import chatox.sticker.api.response.UploadResponse
 import chatox.sticker.exception.StickerPackNotFoundException
 import chatox.sticker.mapper.StickerPackMapper
 import chatox.sticker.messaging.rabbitmq.event.producer.StickerEventsProducer
-import chatox.sticker.model.ImageUploadMetadata
 import chatox.sticker.model.Sticker
 import chatox.sticker.model.StickerPack
+import chatox.sticker.model.StickerUploadMetadata
 import chatox.sticker.model.Upload
-import chatox.sticker.model.UploadType
 import chatox.sticker.repository.StickerPackInstallationRepository
 import chatox.sticker.repository.StickerPackRepository
 import chatox.sticker.repository.StickerRepository
 import chatox.sticker.repository.UploadRepository
 import chatox.sticker.security.AuthenticationFacade
-import chatox.sticker.security.CustomUserDetails
 import chatox.sticker.service.impl.StickerPackServiceImpl
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -26,7 +25,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.any
+import org.mockito.Mockito.anyList
+import org.mockito.Mockito.anyString
+import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
@@ -116,7 +118,7 @@ class StickerPackServiceTests {
     }
 
     private companion object Constants {
-        val UPLOAD = Upload<Any>(
+        val UPLOAD = Upload(
                 id = "id",
                 name = "upload.jpg",
                 mimeType = "image/jpeg",
@@ -125,9 +127,9 @@ class StickerPackServiceTests {
                 isPreview = false,
                 isThumbnail = false,
                 originalName = "upload.jpg",
-                meta = ImageUploadMetadata(width = 1920, height = 1080),
+                meta = StickerUploadMetadata(width = 512, height = 512, animated = false),
                 size = 512,
-                type = UploadType.IMAGE
+                type = UploadType.IMAGE_STICKER
         )
 
         val STICKER_PACK = StickerPack(
@@ -144,21 +146,21 @@ class StickerPackServiceTests {
         val STICKER = Sticker(
                 id = "id",
                 stickerPackId = STICKER_PACK.id,
-                image = UPLOAD,
+                upload = UPLOAD,
                 keywords = listOf("keyword"),
                 emojis = listOf(),
                 createdAt = ZonedDateTime.now()
         )
 
-        val UPLOAD_RESPONSE = UploadResponse<Any>(
+        val UPLOAD_RESPONSE = UploadResponse(
                 id = "id",
                 name = "upload.jpg",
                 mimeType = "image/jpeg",
                 extension = "jpg",
                 originalName = "upload.jpg",
-                meta = ImageUploadMetadata(width = 1920, height = 1080),
+                meta = StickerUploadMetadata(width = 512, height = 512, animated = false),
                 size = 512,
-                type = UploadType.IMAGE,
+                type = UploadType.IMAGE_STICKER,
                 preview = null,
                 uri = ""
         )
@@ -166,7 +168,7 @@ class StickerPackServiceTests {
         val STICKER_RESPONSE = StickerResponse(
                 id = "id",
                 stickerPackId = STICKER_PACK.id,
-                image = UPLOAD_RESPONSE,
+                upload = UPLOAD_RESPONSE,
                 keywords = listOf("keyword"),
                 emojis = listOf()
         )

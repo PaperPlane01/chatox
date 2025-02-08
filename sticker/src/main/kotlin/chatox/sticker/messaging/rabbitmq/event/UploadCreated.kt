@@ -1,7 +1,7 @@
 package chatox.sticker.messaging.rabbitmq.event
 
+import chatox.platform.upload.UploadType
 import chatox.sticker.model.ImageUploadMetadata
-import chatox.sticker.model.UploadType
 
 data class UploadCreated<MetadataType>(
         val id: String,

@@ -1,7 +1,7 @@
 package chatox.sticker.api.response
 
+import chatox.platform.upload.UploadType
 import chatox.sticker.model.ImageUploadMetadata
-import chatox.sticker.model.UploadType
 
 data class UploadResponse<MetadataType>(
         val id: String,

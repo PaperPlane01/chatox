@@ -11,7 +11,7 @@ class StickerPackMapper(private val stickerMapper: StickerMapper,
 
     fun <PreviewMetadataType> toStickerPackResponse(
             stickerPack: StickerPack<PreviewMetadataType>,
-            stickers: List<Sticker<Any>>
+            stickers: List<Sticker>
     ) = StickerPackResponse(
             id = stickerPack.id,
             createdAt = stickerPack.createdAt,
@@ -20,6 +20,8 @@ class StickerPackMapper(private val stickerMapper: StickerMapper,
             stickers = stickers.map { sticker -> stickerMapper.toStickerResponse(sticker) },
             name = stickerPack.name,
             description = stickerPack.description,
+            stickersType = stickerPack.stickersType,
+            animated = stickerPack.animated,
             preview = uploadMapper.toUploadResponse(stickerPack.preview)
     )
 }
