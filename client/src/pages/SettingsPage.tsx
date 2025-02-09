@@ -3,11 +3,7 @@ import {Grid} from "@mui/material";
 import {Layout} from "../Layout";
 import {AppBar} from "../AppBar";
 import {SettingsContainer} from "../Settings";
-import {
-    StickerPackDialog,
-    StickerPackInstallationSnackbarManager,
-    StickerPackUninstallationSnackbarManager
-} from "../Sticker";
+import {StickerPackDialog} from "../Sticker";
 
 export const SettingsPage: FunctionComponent = () => (
     <Grid container>
@@ -20,8 +16,6 @@ export const SettingsPage: FunctionComponent = () => (
             </Layout>
         </Grid>
         <StickerPackDialog/>
-        <StickerPackInstallationSnackbarManager/>
-        <StickerPackUninstallationSnackbarManager/>
     </Grid>
 );
 
