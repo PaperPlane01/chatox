@@ -15,6 +15,9 @@ interface StickerPickerProps {
 }
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
+    stickerPickerWrapper: {
+      overflow: "hidden"
+    },
     tabPanelRoot: {
         overflowY: "auto",
         overflowX: "hidden",
@@ -23,6 +26,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         height: 348,
         paddingLeft: 0,
         paddingRight: 0,
+        scrollbarWidth: "thin"
     },
     imageWrapper: {
         display: "inline-block",
@@ -94,8 +98,8 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
     };
 
     return (
-        <div style={{overflow: "hidden"}}>
-            <TabContext value={selectedStickerPackId || installedStickerPacksIds[0]}>
+        <div className={classes.stickerPickerWrapper}>
+            <TabContext value={selectedStickerPackId ?? installedStickerPacksIds[0]}>
                 <TabList orientation="horizontal"
                          onChange={(_, newValue) => setSelectedStickerPackId(newValue)}
                 >
