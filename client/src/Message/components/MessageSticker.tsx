@@ -57,7 +57,6 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
 
     const sticker = useEntityById("stickers", stickerId);
     const upload = useEntitySelector("uploads", entities => entities.uploads.findSticker(sticker.uploadId));
-    const targetSize = upload.meta!.height >= 256 ? 256 : upload.meta!.height;
 
     return (
         <ImageList cols={1}
@@ -66,10 +65,13 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
         >
             <ImageListItem cols={1}>
                 <div className={classes.imageWrapper}
-                     style={{height: heightCache[messageId] ?? undefined}}
+                     style={{
+                         height: heightCache[messageId] ?? undefined,
+                         maxHeight: 256
+                }}
                      ref={imageContainerRef}
                 >
-                    <img src={`${upload.uri}?size=${targetSize}`}
+                    <img src={upload.uri}
                          className={classes.image}
                          onClick={() => setStickerPackId(sticker.stickerPackId)}
                          onLoad={() => setLoaded(true)}
