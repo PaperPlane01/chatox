@@ -47,7 +47,9 @@ export const StickerPackDialog: FunctionComponent = observer(() => {
                 {l("sticker.pack.with-name", {name: stickerPack.name})}
             </DialogTitle>
             <DialogContent>
-                <StickersGridList stickerPackId={stickerPack.id}/>
+                <StickersGridList stickerPackId={stickerPack.id}
+                                  stickerSize={256}
+                />
             </DialogContent>
             <DialogActions>
                 <Button variant="text"
