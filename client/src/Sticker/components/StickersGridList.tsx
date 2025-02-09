@@ -1,6 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ImageList, ImageListItem} from "@mui/material";
+import {ImageList, ImageListItem, Theme} from "@mui/material";
+import {createStyles, makeStyles} from "@mui/styles";
 import {Sticker} from "./Sticker";
 import {useEntityById} from "../../entities";
 
@@ -12,6 +13,14 @@ interface StickersGridListProps {
     onStickerClick?: (stickerId: string) => void
 }
 
+const useStyles = makeStyles((theme: Theme) => createStyles({
+    imageList: {
+        overflow: "hidden",
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1)
+    }
+}));
+
 export const StickersGridList: FunctionComponent<StickersGridListProps> = observer(({
     stickerPackId,
     gridListTileHeight,
@@ -20,6 +29,7 @@ export const StickersGridList: FunctionComponent<StickersGridListProps> = observ
     onStickerClick
 }) => {
     const stickersPack = useEntityById("stickerPacks", stickerPackId);
+    const classes = useStyles();
     const stickers = stickersPack.stickersIds;
     const gridListTileStyle = gridListTileWidth && gridListTileHeight
         ? {width: gridListTileWidth, height: gridListTileHeight}
@@ -33,7 +43,7 @@ export const StickersGridList: FunctionComponent<StickersGridListProps> = observ
 
     return (
         <ImageList cols={5}
-                   style={{overflow: "hidden"}}
+                   className={classes.imageList}
         >
             {stickers.map(stickerId => (
                 <ImageListItem cols={1}
