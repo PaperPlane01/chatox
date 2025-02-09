@@ -12,10 +12,10 @@ import {
 } from "@mui/material";
 import {EditableStickersList} from "./EditableStickersList";
 import {CreateStickerDialog} from "./CreateStickerDialog";
+import {StickersTypeSelect} from "./StickersTypeSelect";
 import {useLocalization, useStore} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
-import {StickersTypeSelect} from "./StickersTypeSelect";
 
 const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     if (error.status === API_UNREACHABLE_STATUS) {
