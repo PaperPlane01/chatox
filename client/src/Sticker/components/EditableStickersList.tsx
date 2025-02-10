@@ -17,9 +17,12 @@ export const EditableStickersList: FunctionComponent<EditableStickersListProps> 
 
     return (
         <ImageList cols={onSmallScreen ? 2 : 4}>
-            {stickerContainers.map(stickerContainer => (
+            {stickerContainers.map((stickerContainer, index) => (
                 <ImageListItem cols={1} key={stickerContainer.localId}>
-                    <EditableSticker stickerContainer={stickerContainer}/>
+                    <EditableSticker stickerContainer={stickerContainer}
+                                     index={index}
+                                     stickersCount={stickerContainers.length}
+                    />
                 </ImageListItem>
             ))}
             <ImageListItem cols={1}>

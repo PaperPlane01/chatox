@@ -8,6 +8,7 @@ import {CreateStickerRequest} from "../../api/types/request";
 import {getInitialApiErrorFromResponse, StickerApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
 import {containsNotUndefinedValues, isDefined} from "../../utils/object-utils";
+import {swapItems} from "../../utils/array-utils";
 
 const INITIAL_FORM_VALUES: CreateStickerPackFormData = {
     name: "",
@@ -31,8 +32,10 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
 
     stickerUnderCreation?: StickerContainer = undefined;
 
+    stickersIds: string[] = [];
+
     get stickerContainers(): StickerContainer[] {
-        return Object.keys(this.formValues.stickers).map(stickerLocalId => this.formValues.stickers[stickerLocalId])
+        return this.stickersIds.map(stickerLocalId => this.formValues.stickers[stickerLocalId])
     }
 
     constructor(private readonly entities: EntitiesStore) {
@@ -42,6 +45,7 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
             stickerDialogOpen: observable,
             editedStickerId: observable,
             stickerUnderCreation: observable,
+            stickersIds: observable,
             stickerContainers: computed,
             initiateStickerCreation: action,
             clearStickerUnderCreation: action,
@@ -86,10 +90,15 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
 
     addSticker = (sticker: StickerContainer): void => {
         this.formValues.stickers[sticker.localId] = sticker;
+
+        if (!this.stickersIds.includes(sticker.localId)) {
+            this.stickersIds.push(sticker.localId);
+        }
     }
 
     removeSticker = (stickerId: string): void => {
         delete this.formValues.stickers[stickerId];
+        this.stickersIds.splice(this.stickersIds.indexOf(stickerId));
     }
 
     setStickerDialogOpen = (stickerDialogOpen: boolean): void => {
@@ -98,6 +107,26 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
 
     setEditedStickerId = (id?: string): void => {
         this.editedStickerId = id;
+    }
+
+    moveStickerBack = (id: string): void => {
+        const index = this.stickersIds.indexOf(id);
+
+        if (index <= 0) {
+            return;
+        }
+
+        swapItems(this.stickersIds, index, index - 1);
+    }
+
+    moveStickerForward = (id: string): void => {
+        const index = this.stickersIds.indexOf(id);
+
+        if (index < 0 || index === this.stickersIds.length - 1) {
+            return;
+        }
+
+        swapItems(this.stickersIds, index, index + 1);
     }
 
     public submitForm(): void {
