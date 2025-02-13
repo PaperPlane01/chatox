@@ -1,6 +1,8 @@
 package chatox.oauth2.service.impl;
 
+import chatox.oauth2.api.request.CreateScopeRequest;
 import chatox.oauth2.domain.Scope;
+import chatox.oauth2.exception.ScopeAlreadyExistsException;
 import chatox.oauth2.respository.ScopeRepository;
 import chatox.oauth2.service.ScopeService;
 import lombok.RequiredArgsConstructor;
@@ -23,5 +25,17 @@ public class ScopeServiceImpl implements ScopeService {
                 .map(Scope::getName)
                 .filter(name -> !name.startsWith("internal"))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void createScope(CreateScopeRequest createScopeRequest) {
+        var existingScope = scopeRepository.findByName(createScopeRequest.getName());
+
+        if (existingScope.isPresent()) {
+            throw new ScopeAlreadyExistsException(createScopeRequest.getName());
+        }
+
+        var scope = Scope.builder().name(createScopeRequest.getName()).build();
+        scopeRepository.save(scope);
     }
 }

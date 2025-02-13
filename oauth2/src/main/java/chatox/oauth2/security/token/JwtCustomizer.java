@@ -6,6 +6,7 @@ import chatox.platform.security.jwt.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.stereotype.Component;
@@ -45,6 +46,10 @@ public class JwtCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> 
                     claims.claim(Claims.GLOBAL_BAN_EXPIRATION_DATE, ban.getExpiresAt().toInstant().getEpochSecond());
                 }
             });
+        } else if (context.getAuthorizationGrantType().equals(AuthorizationGrantType.CLIENT_CREDENTIALS)) {
+            context.getClaims()
+                    .claim(Claims.CLIENT_ID, context.getRegisteredClient().getClientId())
+                    .claim(Claims.SCOPE, context.getRegisteredClient().getScopes());
         }
     }
 }
