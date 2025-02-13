@@ -23,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, JWT_STRATEGY) {
         return {
             id: payload.user_id,
             accountId: payload.account_id,
-            roles: payload.authorities.filter(isUserRole),
+            roles: payload.authorities?.filter(isUserRole) ?? [],
             scope: payload.scope,
             username: payload.user_name
         };

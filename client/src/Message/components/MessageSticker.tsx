@@ -28,7 +28,6 @@ const useStyles = makeStyles(() => createStyles({
 }));
 
 let heightCache: {[messageId: string]: number} = {};
-let stickersCache: {[stickerId: string]: string} = {};
 
 window.addEventListener("resize", () => heightCache = {});
 
@@ -57,8 +56,7 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
     });
 
     const sticker = useEntityById("stickers", stickerId);
-    const image = useEntitySelector("uploads", entities => entities.uploads.findImage(sticker.imageId));
-    const targetSize = image.meta!.height >= 256 ? 256 : image.meta!.height;
+    const upload = useEntitySelector("uploads", entities => entities.uploads.findSticker(sticker.uploadId));
 
     return (
         <ImageList cols={1}
@@ -68,11 +66,12 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
             <ImageListItem cols={1}>
                 <div className={classes.imageWrapper}
                      style={{
-                         height: stickersCache[stickerId] && stickersCache[stickerId]
-                     }}
+                         height: heightCache[messageId] ?? undefined,
+                         maxHeight: 256
+                }}
                      ref={imageContainerRef}
                 >
-                    <img src={`${image.uri}?size=${targetSize}`}
+                    <img src={upload.uri}
                          className={classes.image}
                          onClick={() => setStickerPackId(sticker.stickerPackId)}
                          onLoad={() => setLoaded(true)}

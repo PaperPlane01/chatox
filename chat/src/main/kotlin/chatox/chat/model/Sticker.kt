@@ -5,10 +5,10 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
-data class Sticker<MetadataType>(
+data class Sticker(
         @Id
         val id: String,
-        val image: Upload<MetadataType>,
+        val upload: Upload<StickerUploadMetadata>,
 
         @Indexed
         val stickerPackId: String,

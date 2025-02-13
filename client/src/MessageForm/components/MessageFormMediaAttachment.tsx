@@ -54,7 +54,9 @@ const iconsMap = {
     [UploadType.AUDIO]: <Audiotrack fontSize="large"/>,
     [UploadType.VOICE_MESSAGE]: <Audiotrack fontSize="large"/>,
     [UploadType.FILE]: <FileCopy/>,
-    [UploadType.VIDEO]: <VideoLibrary/>
+    [UploadType.VIDEO]: <VideoLibrary/>,
+    [UploadType.IMAGE_STICKER]: null,
+    [UploadType.WEBP_STICKER]: null
 };
 
 export const MessageFormMediaAttachment: FunctionComponent<CreateMessageFormMediaAttachmentProps> = ({

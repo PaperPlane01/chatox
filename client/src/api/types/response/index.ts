@@ -68,3 +68,5 @@ export * from "./NotificationsSettings";
 export * from "./ChatNotificationsSettings";
 export * from "./UserNotificationsSettings";
 export * from "./GlobalNotificationsSettings";
+export * from "./StickerUploadMetadata";
+export * from "./StickerType";

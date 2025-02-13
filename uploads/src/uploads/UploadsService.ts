@@ -121,34 +121,20 @@ export class UploadsService {
     }
 
     private async deleteUploadFromFileSystem(upload: UploadDocument<any>): Promise<void> {
-        let directory: string;
-
-        switch (upload.type) {
-            case UploadType.AUDIO:
-            case UploadType.VOICE_MESSAGE:
-                directory = config.AUDIOS_DIRECTORY;
-                break;
-            case UploadType.IMAGE:
-            case UploadType.GIF:
-                directory = config.IMAGES_DIRECTORY
-                break;
-            case UploadType.VIDEO:
-                directory = config.VIDEOS_DIRECTORY;
-                break;
-            case UploadType.FILE:
-            default:
-                directory = config.FILES_DIRECTORY;
-                break;
-        }
+        const directory = config.getUploadDirectory(upload.type);
 
        try {
            const uploadPath = path.join(directory, upload.name);
 
            await promises.unlink(uploadPath);
 
+           const thumbnailDirectory = upload.type === UploadType.WEBP_STICKER || UploadType.IMAGE_STICKER
+               ? config.STICKERS_THUMBNAILS_DIRECTORY
+               : config.IMAGES_DIRECTORY;
+
            await forEachAsync(
                upload.thumbnails,
-               async thumbnail => await promises.unlink(path.join(config.IMAGES_THUMBNAILS_DIRECTORY, thumbnail.name))
+               async thumbnail => await promises.unlink(path.join(thumbnailDirectory, thumbnail.name))
            );
 
            if (upload.previewImage) {

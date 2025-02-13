@@ -12,7 +12,7 @@ export class StickersStore extends AbstractEntityStore<"stickers", StickerEntity
         return [
             sticker,
             {
-                uploads: [sticker.imageId]
+                uploads: [sticker.uploadId]
             }
         ];
     }
@@ -21,7 +21,7 @@ export class StickersStore extends AbstractEntityStore<"stickers", StickerEntity
         return {
             id: denormalizedEntity.id,
             emojis: denormalizedEntity.emojis,
-            imageId: denormalizedEntity.image.id,
+            uploadId: denormalizedEntity.upload.id,
             keywords: denormalizedEntity.keywords,
             stickerPackId: denormalizedEntity.stickerPackId
         }
@@ -35,7 +35,7 @@ export class StickersStore extends AbstractEntityStore<"stickers", StickerEntity
             const stickerEntity = this.convertToNormalizedForm(sticker);
             patch.entities.stickers[stickerEntity.id] = stickerEntity;
             patch.ids.stickers.push(stickerEntity.id);
-            patches.push(this.entities.uploads.createPatch(sticker.image));
+            patches.push(this.entities.uploads.createPatch(sticker.upload));
         });
 
         return mergeWith(patch, ...patches, mergeCustomizer);

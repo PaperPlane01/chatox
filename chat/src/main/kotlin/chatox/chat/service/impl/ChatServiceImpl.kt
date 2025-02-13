@@ -39,7 +39,6 @@ import chatox.chat.model.Message
 import chatox.chat.model.SlowMode
 import chatox.chat.model.StandardChatRole
 import chatox.chat.model.Upload
-import chatox.chat.model.UploadType
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
@@ -57,6 +56,7 @@ import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.upload.UploadType
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono

@@ -65,17 +65,18 @@ export const CreateStickerDialog: FunctionComponent<CreateStickerDialogProps> = 
                 <DialogContent>
                     <div className={classes.centered}>
                         <ImageUpload onFileAttached={stickerContainer.uploadFile}
-                                     pending={Boolean(stickerContainer.imageContainer && stickerContainer.imageContainer.pending)}
+                                     pending={Boolean(stickerContainer.uploadContainer?.pending)}
                                      avatarProps={{
                                          width: 200,
                                          height: 200,
                                          shape: "square",
-                                         avatarUri: stickerContainer.imageContainer
-                                             ? stickerContainer.imageContainer.url
+                                         avatarUri: stickerContainer.uploadContainer
+                                             ? stickerContainer.uploadContainer.url
                                              : undefined
                                      }}
                                      uploadButtonLabel={l("sticker.image")}
-                                     validationError={stickerContainer.imageValidationError && l(stickerContainer.imageValidationError)}
+                                     validationError={stickerContainer.fileValidationError && l(stickerContainer.fileValidationError)}
+                                     accept={stickerContainer.acceptedFiles}
                         />
                     </div>
                     <ChipInput value={stickerContainer.emojis}

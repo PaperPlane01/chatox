@@ -1,7 +1,7 @@
 package chatox.chat.repository.mongodb
 
 import chatox.chat.model.ChatUploadAttachment
-import chatox.chat.model.UploadType
+import chatox.platform.upload.UploadType;
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Flux

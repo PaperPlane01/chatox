@@ -25,7 +25,6 @@ import chatox.chat.model.ChatType
 import chatox.chat.model.DraftMessage
 import chatox.chat.model.Message
 import chatox.chat.model.StandardChatRole
-import chatox.chat.model.UploadType
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
@@ -43,6 +42,7 @@ import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.upload.UploadType;
 import chatox.platform.util.JsonLoader.loadResource
 import com.mongodb.client.result.UpdateResult
 import io.mockk.Runs

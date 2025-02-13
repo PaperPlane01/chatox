@@ -1,6 +1,6 @@
 package chatox.chat.messaging.rabbitmq.event
 
-import chatox.chat.model.UploadType
+import chatox.platform.upload.UploadType
 
 data class UploadDeleted(
         val uploadId: String,

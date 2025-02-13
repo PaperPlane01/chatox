@@ -1,5 +1,6 @@
 package chatox.chat.model
 
+import chatox.platform.upload.UploadType
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document

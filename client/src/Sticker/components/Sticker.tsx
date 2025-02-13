@@ -5,6 +5,7 @@ import {useEntityById, useEntitySelector} from "../../entities";
 
 interface StickerProps {
     stickerId: string,
+    size?: number,
     onClick?: () => void
 }
 
@@ -26,12 +27,14 @@ const useStyles = makeStyles(() => createStyles({
 
 export const Sticker: FunctionComponent<StickerProps> = observer(({
     stickerId,
+    size,
     onClick
 }) => {
     const classes = useStyles();
 
     const sticker = useEntityById("stickers", stickerId);
-    const image = useEntitySelector("uploads", entities => entities.uploads.findImage(sticker.imageId));
+    const upload = useEntitySelector("uploads", entities => entities.uploads.findSticker(sticker.uploadId));
+    const sizeQuery = size ? `?size=${size}` : "";
 
     const handleClick = (): void => {
         if (onClick) {
@@ -43,7 +46,7 @@ export const Sticker: FunctionComponent<StickerProps> = observer(({
         <div className={classes.imageWrapper}
              onClick={handleClick}
         >
-            <img src={`${image.uri}?size=512`}
+            <img src={`${upload.uri}${sizeQuery}`}
                  className={classes.image}
             />
         </div>

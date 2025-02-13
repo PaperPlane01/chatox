@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 @Component
 class StickerEventsProducer(private val rabbitTemplate: RabbitTemplate) {
 
-    fun stickerPackCreated(stickerPackResponse: StickerPackResponse<Any>) = rabbitTemplate.convertAndSend(
+    fun stickerPackCreated(stickerPackResponse: StickerPackResponse<*>) = rabbitTemplate.convertAndSend(
             "sticker.events",
             "sticker.pack.created.#",
             stickerPackResponse

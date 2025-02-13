@@ -1,4 +1,4 @@
-import {ImageUploadMetadata, UploadType} from "../../entities";
+import {ImageUploadMetadata, ThumbnailMetadata, UploadType} from "../../entities";
 
 export class UploadResponse<MetadataType> {
     id: string;
@@ -9,7 +9,7 @@ export class UploadResponse<MetadataType> {
     size: number;
     originalName: string;
     previewImage?: UploadResponse<ImageUploadMetadata>;
-    thumbnails: UploadResponse<ImageUploadMetadata>[];
+    thumbnails: UploadResponse<ThumbnailMetadata>[];
     name: string;
     isThumbnail: boolean;
     isPreview: boolean;

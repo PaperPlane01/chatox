@@ -70,3 +70,6 @@ export const VOICE = "voice";
 export const NOTIFICATIONS_SETTINGS = "notifications-settings";
 export const INFO = "info";
 export const DRAFT = "draft";
+export const STICKERS = "stickers";
+export const IMAGE_STICKER = "image";
+export const WEBP_STICKER = "webp";

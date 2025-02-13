@@ -5,8 +5,8 @@ import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatType
 import chatox.chat.model.MessageUploadsCount
 import chatox.chat.model.SendMessagesFeatureAdditionalData
-import chatox.chat.model.UploadType
 import chatox.chat.model.User
+import chatox.platform.upload.UploadType;
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatBlockingService

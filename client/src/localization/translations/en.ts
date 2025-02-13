@@ -793,5 +793,12 @@ export const en: Labels = {
     "notification.settings.for-chat.exceptions": "Exceptions in chat {chatName}",
     "message.draft": "Draft",
     "settings.chat.messages.draft": "Draft messages",
-    "settings.chat.messages.draft.save-to-server": "Save draft messages to server"
+    "settings.chat.messages.draft.save-to-server": "Save draft messages to server",
+    "sticker.type": "Stickers type",
+    "sticker.type.IMAGE_STICKER": "Image stickers",
+    "sticker.type.WEBP_STICKER": "Webp stickers",
+    "sticker.file": "File",
+    "sticker.file.required": "Sticker file is required",
+    "sticker.file.too-large": "Sticker file is too large",
+    "sticker.file.invalid": "Sticker file is invalid"
 };

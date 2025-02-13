@@ -13,13 +13,16 @@ export const EditableStickersList: FunctionComponent<EditableStickersListProps> 
     stickerContainers
 }) => {
     const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down('lg'));
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
     return (
         <ImageList cols={onSmallScreen ? 2 : 4}>
-            {stickerContainers.map(stickerContainer => (
-                <ImageListItem cols={1}>
-                    <EditableSticker stickerContainer={stickerContainer}/>
+            {stickerContainers.map((stickerContainer, index) => (
+                <ImageListItem cols={1} key={stickerContainer.localId}>
+                    <EditableSticker stickerContainer={stickerContainer}
+                                     index={index}
+                                     stickersCount={stickerContainers.length}
+                    />
                 </ImageListItem>
             ))}
             <ImageListItem cols={1}>
@@ -28,4 +31,3 @@ export const EditableStickersList: FunctionComponent<EditableStickersListProps> 
         </ImageList>
     );
 });
-

@@ -6,13 +6,13 @@ import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
 
 @Document
-data class Sticker<MetadataType>(
+data class Sticker(
         @Id
         val id: String,
 
         @Indexed
         val stickerPackId: String,
-        val image: Upload<MetadataType>,
+        val upload: Upload<StickerUploadMetadata>,
         val keywords: List<String>,
         val emojis: List<EmojiData>,
         val createdAt: ZonedDateTime

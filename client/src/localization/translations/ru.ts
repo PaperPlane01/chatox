@@ -793,5 +793,12 @@ export const ru: Labels = {
     "notification.settings.for-chat.exceptions": "Исключения в чате {chatName}",
     "message.draft": "Драфт",
     "settings.chat.messages.draft": "Драфт-сообщения",
-    "settings.chat.messages.draft.save-to-server": "Сохранять драфт-сообщения на сервер"
+    "settings.chat.messages.draft.save-to-server": "Сохранять драфт-сообщения на сервер",
+    "sticker.type": "Тип стикеров",
+    "sticker.type.IMAGE_STICKER": "Картинки",
+    "sticker.type.WEBP_STICKER": "Webp-стикеры",
+    "sticker.file": "Файл",
+    "sticker.file.required": "У стикера должен быть файл",
+    "sticker.file.too-large": "Файл стикера имеет слишком большой размер",
+    "sticker.file.invalid": "Некорректный файл стикера"
 };

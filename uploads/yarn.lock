@@ -4472,6 +4472,11 @@ is-weakref@^1.0.2:
   dependencies:
     call-bind "^1.0.2"
 
+is-webp-extended@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/is-webp-extended/-/is-webp-extended-1.0.3.tgz#995cc6c919ca41d9ff4555311f2eaa4b534b3557"
+  integrity sha512-3u1D1u23L5f+3kRg4/OO0JiemlqWvIWehVVS7ru7Bs6T/ZSVmq844x47TGpbu7pLMvyvdJ5QV8ufbosh1s/0cg==
+
 is-windows@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/is-windows/-/is-windows-1.0.2.tgz#d1850eb9791ecd18e6182ce12a30f396634bb19d"
@@ -6233,6 +6238,11 @@ promise-breaker@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/promise-breaker/-/promise-breaker-6.0.0.tgz#107d2b70f161236abdb4ac5a736c7eb8df489d0f"
   integrity sha512-BthzO9yTPswGf7etOBiHCVuugs2N01/Q/94dIPls48z2zCmrnDptUUZzfIb+41xq0MnYZ/BzmOd6ikDR4ibNZA==
+
+promisify-child-process@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/promisify-child-process/-/promisify-child-process-4.1.2.tgz#83638088b67f8093d14323e2aaa28b5424d3a7e5"
+  integrity sha512-APnkIgmaHNJpkAn7k+CrJSi9WMuff5ctYFbD0CO2XIPkM8yO7d/ShouU2clywbpHV/DUsyc4bpJCsNgddNtx4g==
 
 prompts@^2.0.1:
   version "2.4.2"

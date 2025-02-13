@@ -34,20 +34,38 @@ class RabbitMQConfig {
     fun uploadEvents() = TopicExchange("upload.events")
 
     @Bean
-    fun imageCreatedQueue() = Queue("sticker_service_image_created")
+    fun imageStickerUploadCreatedQueue() = Queue("sticker_service_image_sticker_upload_created")
 
     @Bean
-    fun gifCreatedQueue() = Queue("sticker_service_gif_created")
+    fun webpStickerUploadCreatedQueue() = Queue("sticker_service_webp_sticker_upload_created")
 
     @Bean
-    fun imageCreatedBinding(): Binding = BindingBuilder
-            .bind(imageCreatedQueue())
+    fun lottieStickerUploadCreatedQueue() = Queue("sticker_service_lottie_sticker_upload_created")
+
+    @Bean
+    fun videoStickerUploadCreatedQueue() = Queue("sticker_service_video_sticker_upload_created")
+
+    @Bean
+    fun imageStickerUploadCreatedBinding(): Binding = BindingBuilder
+            .bind(imageStickerUploadCreatedQueue())
             .to(uploadEvents())
-            .with("upload.image.created.#")
+            .with("upload.sticker.image.created.#")
 
     @Bean
-    fun gifCreatedBinding(): Binding = BindingBuilder
-            .bind(gifCreatedQueue())
+    fun webpStickerUploadCreatedBinding(): Binding = BindingBuilder
+            .bind(webpStickerUploadCreatedQueue())
             .to(uploadEvents())
-            .with("upload.gif.created.#")
+            .with("upload.sticker.webp.created.#")
+
+    @Bean
+    fun lottieStickerUploadCreatedBinding(): Binding = BindingBuilder
+            .bind(lottieStickerUploadCreatedQueue())
+            .to(uploadEvents())
+            .with("upload.sticker.lottie.created.#")
+
+    @Bean
+    fun videoStickerUploadCreatedBinding(): Binding = BindingBuilder
+            .bind(videoStickerUploadCreatedQueue())
+            .to(uploadEvents())
+            .with("upload.sticker.video.created.#")
 }
