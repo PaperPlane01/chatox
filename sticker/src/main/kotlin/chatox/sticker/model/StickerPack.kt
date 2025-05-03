@@ -21,8 +21,10 @@ data class StickerPack<PreviewMetadataType>(
         @Indexed
         val createdBy: String,
         val createdAt: ZonedDateTime,
+        val updatedBy: String? = null,
         val updatedAt: ZonedDateTime? = null,
         val preview: Upload<PreviewMetadataType>,
         val stickersType: UploadType,
-        val animated: Boolean
+        val animated: Boolean,
+        val stickerIds: List<String>
 )

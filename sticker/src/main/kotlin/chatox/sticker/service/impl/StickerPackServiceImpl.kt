@@ -7,10 +7,15 @@ import chatox.platform.upload.UploadType
 import chatox.platform.util.runAsync
 import chatox.sticker.api.request.CreateStickerPackRequest
 import chatox.sticker.api.request.CreateStickerRequest
+import chatox.sticker.api.request.UpdateStickerPackRequest
 import chatox.sticker.api.response.StickerPackResponse
-import chatox.sticker.exception.StickerPackNotFoundException
+import chatox.sticker.api.response.StickerResponse
+import chatox.sticker.exception.metadata.StickerNotFoundException
+import chatox.sticker.exception.metadata.StickerPackNotFoundException
 import chatox.sticker.exception.metadata.UploadsNotFoundException
+import chatox.sticker.mapper.StickerMapper
 import chatox.sticker.mapper.StickerPackMapper
+import chatox.sticker.messaging.rabbitmq.event.StickerPackUpdated
 import chatox.sticker.messaging.rabbitmq.event.producer.StickerEventsProducer
 import chatox.sticker.model.Sticker
 import chatox.sticker.model.StickerPack
@@ -39,6 +44,7 @@ class StickerPackServiceImpl(
         private val uploadRepository: UploadRepository,
         private val authenticationHolder: ReactiveAuthenticationHolder<JwtPayload>,
         private val stickerPackMapper: StickerPackMapper,
+        private val stickerMapper: StickerMapper,
         private val stickerEventsProducer: StickerEventsProducer
 ) : StickerPackService {
 
@@ -51,9 +57,25 @@ class StickerPackServiceImpl(
                     .awaitFirst()
                     ?: throw UploadsNotFoundException(listOf(previewId))
             val stickerPackId = ObjectId().toHexString()
-            val stickers = createStickers(createStickerRequests = createStickerPackRequest.stickers, stickerPackId = stickerPackId)
+            val stickers = createStickers(
+                    createStickerRequests = createStickerPackRequest.stickers,
+                    stickerPackId = stickerPackId,
+                    expectedType = createStickerPackRequest.stickersType
+            )
                     .collectList()
                     .awaitFirst()
+
+            val stickerIds = mutableListOf<String>()
+            var animated = false
+
+            for (sticker in stickers) {
+                stickerIds.add(sticker.id)
+
+                if (sticker.upload.meta?.animated == true) {
+                    animated = true
+                }
+            }
+
             val stickerPack = StickerPack(
                     id = stickerPackId,
                     createdBy = currentUser.id,
@@ -62,7 +84,8 @@ class StickerPackServiceImpl(
                     createdAt = ZonedDateTime.now(),
                     name = createStickerPackRequest.name,
                     stickersType = createStickerPackRequest.stickersType,
-                    animated = stickers.any { sticker -> sticker.upload.meta?.animated ?: false },
+                    animated = animated,
+                    stickerIds = stickerIds,
                     preview = stickerPackPreview
             )
             stickerPackRepository.save(stickerPack).awaitFirst()
@@ -78,11 +101,118 @@ class StickerPackServiceImpl(
         }
     }
 
-    private fun createStickers(createStickerRequests: List<CreateStickerRequest>, stickerPackId: String): Flux<Sticker> {
+    override fun updateStickerPack(id: String, updateStickerPackRequest: UpdateStickerPackRequest): Mono<StickerPackResponse<*>> {
+        return mono {
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
+            var stickerPack = findStickerPackByIdInternal(id).awaitFirst()
+            val existingStickers = stickerRepository.findAllById(stickerPack.stickerIds)
+                    .collectList()
+                    .awaitFirst()
+                    .associateBy { sticker -> sticker.id }
+
+            val updates = updateStickerPackRequest.stickers.associateBy { sticker -> sticker.id }
+
+            val existingStickersIds = existingStickers.keys
+            val missingStickers = updates.keys.filterNot { id -> existingStickersIds.contains(id) }
+
+            if (missingStickers.isNotEmpty()) {
+                throw StickerNotFoundException(missingStickers.joinToString { "," })
+            }
+
+            val updatedStickers = mutableMapOf<String, Sticker>()
+            val deletedStickers = mutableMapOf<String, Sticker>()
+
+            existingStickers.forEach { (id, sticker) ->
+                val update = updates[id]
+
+                if (update == null) {
+                    deletedStickers[id] = sticker
+                } else if (!sticker.equalsTo(update)) {
+                    updatedStickers[id] = sticker.copy(
+                            emojis = update.emojis,
+                            keywords = update.keywords
+                    )
+                }
+            }
+
+            if (updatedStickers.isNotEmpty()) {
+                stickerRepository.saveAll(updatedStickers.values).collectList().awaitFirst()
+            }
+
+            val stickers = updates.values
+                    .map { update -> updatedStickers[update.id] ?: existingStickers.getValue(update.id) }
+
+            stickerPack = stickerPack.copy(
+                    name = updateStickerPackRequest.name,
+                    description = updateStickerPackRequest.description,
+                    author = updateStickerPackRequest.author,
+                    stickerIds = stickers.map { sticker -> sticker.id },
+                    updatedAt = ZonedDateTime.now(),
+                    updatedBy = currentUser.id
+            )
+
+            stickerPackRepository.save(stickerPack).awaitFirst()
+
+            if (deletedStickers.isNotEmpty()) {
+                stickerRepository.deleteAll(deletedStickers.values).awaitFirstOrNull()
+            }
+
+            val response = stickerPackMapper.toStickerPackResponse(stickerPack, stickers)
+
+            val stickerPackUpdated = StickerPackUpdated(
+                    stickerPack = response,
+                    removedStickers = deletedStickers.values
+                            .map { sticker -> stickerMapper.toStickerResponse(sticker) }
+            )
+
+            runAsync { stickerEventsProducer.stickerPackUpdated(stickerPackUpdated) }
+
+            return@mono response
+        }
+    }
+
+    override fun addStickersToStickerPack(id: String, createStickerRequests: List<CreateStickerRequest>): Flux<StickerResponse> {
+        return mono {
+            val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
+            var stickerPack = findStickerPackByIdInternal(id).awaitFirst()
+            val stickers = createStickers(
+                    createStickerRequests = createStickerRequests,
+                    stickerPackId = stickerPack.id,
+                    expectedType = stickerPack.stickersType
+            )
+                    .collectList()
+                    .awaitFirst()
+
+            stickerPack = stickerPack.copy(
+                    stickerIds = stickerPack.stickerIds + stickers.map { sticker -> sticker.id },
+                    updatedAt = ZonedDateTime.now(),
+                    updatedBy = currentUser.id
+            )
+
+            stickerPackRepository.save(stickerPack).awaitFirst()
+
+            val response = stickers.map { sticker -> stickerMapper.toStickerResponse(sticker) }
+
+            val stickerPackUpdated = StickerPackUpdated(
+                    stickerPack = stickerPackMapper.toStickerPackResponse(stickerPack, listOf()),
+                    newStickers = response
+            )
+            runAsync { stickerEventsProducer.stickerPackUpdated(stickerPackUpdated) }
+
+            return@mono Flux.fromIterable(response)
+        }
+                .flatMapMany { it }
+    }
+
+    private fun createStickers(
+            createStickerRequests: List<CreateStickerRequest>,
+            stickerPackId: String,
+            expectedType: UploadType
+    ): Flux<Sticker> {
         return mono {
             val uploadsIds = createStickerRequests.map { request -> request.uploadId }.toSet()
             val uploadsMap = uploadRepository.findAllByIdIn(uploadsIds)
-                    .filter { upload -> UploadType.isStickerUploadType(upload.type) }
+                    .filter { upload -> upload.type == expectedType }
                     .map { upload -> upload as Upload<StickerUploadMetadata> }
                     .collectList()
                     .awaitFirst()
@@ -111,7 +241,7 @@ class StickerPackServiceImpl(
     override fun findStickerPackById(id: String): Mono<StickerPackResponse<*>> {
         return mono {
             val stickerPack = findStickerPackByIdInternal(id).awaitFirst()
-            val stickers = stickerRepository.findAllByStickerPackId(id).collectList().awaitFirst()
+            val stickers = stickerRepository.findAllById(stickerPack.stickerIds).collectList().awaitFirst()
 
             return@mono stickerPackMapper.toStickerPackResponse(
                     stickerPack = stickerPack,
@@ -197,8 +327,8 @@ class StickerPackServiceImpl(
 
     private fun mapStickerPacks(stickerPacks: List<StickerPack<*>>): Flux<StickerPackResponse<*>> {
         return mono {
-            val stickerPackIds = stickerPacks.map { stickerPack -> stickerPack.id }
-            val stickersByStickerPack = stickerRepository.findByStickerPackIdIn(stickerPackIds)
+            val stickerIds = stickerPacks.flatMap { stickerPack -> stickerPack.stickerIds }
+            val stickersByStickerPack = stickerRepository.findAllById(stickerIds)
                     .collectList()
                     .awaitFirst()
                     .groupBy { sticker -> sticker.stickerPackId }
@@ -217,5 +347,5 @@ class StickerPackServiceImpl(
     }
 
     private fun findStickerPackByIdInternal(id: String) = stickerPackRepository.findById(id)
-            .switchIfEmpty(Mono.error(StickerPackNotFoundException("Could not find sticker pack with id $id")))
+            .switchIfEmpty(Mono.error(StickerPackNotFoundException(id)))
 }

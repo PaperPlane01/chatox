@@ -1,0 +1,53 @@
+{
+  "id": "67a77e3366735011e3fae0b1",
+  "stickerPackId": "67a77e3366735011e3fae0b0",
+  "keywords": [],
+  "emojis": [
+    {
+      "id": "slightly_smiling_face",
+      "name": "Slightly Smiling Face",
+      "short_names": [
+        "slightly_smiling_face"
+      ],
+      "colons": ":slightly_smiling_face:",
+      "emoticons": [
+        ":)",
+        "(:",
+        ":-)"
+      ],
+      "unified": "1f642",
+      "skin": null,
+      "native": "🙂",
+      "originalSet": "apple"
+    },
+    {
+      "id": "relieved",
+      "name": "Relieved Face",
+      "short_names": [
+        "relieved"
+      ],
+      "colons": ":relieved:",
+      "emoticons": [],
+      "unified": "1f60c",
+      "skin": null,
+      "native": "😌",
+      "originalSet": "apple"
+    }
+  ],
+  "upload": {
+    "id": "67a76ee798adaf80e6abde4f",
+    "name": "67a76ee798adaf80e6abde4f.webp",
+    "extension": "webp",
+    "mimeType": "image/webp",
+    "meta": {
+      "width": 512,
+      "height": 512,
+      "animated": false
+    },
+    "preview": null,
+    "type": "WEBP_STICKER",
+    "originalName": "1.webp",
+    "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a76ee798adaf80e6abde4f.webp",
+    "size": 22080
+  }
+}

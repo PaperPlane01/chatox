@@ -4,7 +4,10 @@ import chatox.platform.pagination.PaginationRequest
 import chatox.platform.pagination.annotation.PaginationConfig
 import chatox.platform.pagination.annotation.SortBy
 import chatox.platform.pagination.annotation.SortDirection
+import chatox.platform.security.reactive.annotation.ReactivePermissionCheck
 import chatox.sticker.api.request.CreateStickerPackRequest
+import chatox.sticker.api.request.CreateStickerRequest
+import chatox.sticker.api.request.UpdateStickerPackRequest
 import chatox.sticker.service.StickerPackService
 import jakarta.validation.Valid
 import org.springframework.security.access.prepost.PreAuthorize
@@ -23,7 +26,27 @@ import org.springframework.web.bind.annotation.RestController
 class StickerPackController(private val stickerPackService: StickerPackService) {
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @PostMapping
-    fun createStickerPack(@RequestBody @Valid createStickerPackRequest: CreateStickerPackRequest) = stickerPackService.createStickerPack(createStickerPackRequest)
+    fun createStickerPack(
+            @RequestBody @Valid createStickerPackRequest: CreateStickerPackRequest
+    ) = stickerPackService.createStickerPack(createStickerPackRequest)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@stickerPackPermissions.canUpdateStickerPack(#stickerPackId)")
+    @PutMapping("/{stickerPackId}")
+    fun updateStickerPack(
+            @PathVariable stickerPackId: String,
+            @RequestBody @Valid updateStickerPackRequest: UpdateStickerPackRequest
+    ) = stickerPackService.updateStickerPack(stickerPackId, updateStickerPackRequest)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@stickerPackPermissions.canUpdateStickerPack(#stickerPackId)")
+    @PostMapping("/{stickerPackId}/stickers")
+    fun addStickersToStickerPack(
+            @PathVariable stickerPackId: String,
+            @RequestBody @Valid createStickerRequests: List<CreateStickerRequest>
+    ) = stickerPackService.addStickersToStickerPack(stickerPackId, createStickerRequests)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @GetMapping("/installed")
