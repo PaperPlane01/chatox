@@ -41,17 +41,12 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.ArgumentsProvider
-import org.junit.jupiter.params.provider.ArgumentsSource
 import org.junit.jupiter.params.provider.ValueSource
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import java.util.concurrent.ThreadLocalRandom
-import java.util.stream.Stream
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("StickerPackServiceImpl tests")
@@ -348,10 +343,10 @@ class StickerPackServiceTests {
 
         @ParameterizedTest
         @ValueSource(strings = [
-            "request/update-sticker-pack-request.json",
             "request/update-sticker-pack-request-with-deleted-stickers.json",
             "request/update-sticker-pack-request-with-updated-stickers.json",
-            "request/update-sticker-pack-request-with-updated-and-deleted-stickers.json"
+            "request/update-sticker-pack-request-with-updated-and-deleted-stickers.json",
+            "request/update-sticker-pack-request-without-sticker-updates.json"
         ])
         @DisplayName("It updates sticker pack")
         fun `It updates sticker pack`(requestFile: String) {
@@ -429,7 +424,7 @@ class StickerPackServiceTests {
                         assertEquals(stickerPackResponse, response)
 
                         if (updates.isEmpty()) {
-                            verify { stickerRepository.saveAll(any<MutableCollection<Sticker>>()) }
+                            verify(exactly = 0) { stickerRepository.saveAll(any<MutableCollection<Sticker>>()) }
                         } else {
                             val updatedStickers = updatedStickersSlot.captured
                             assertEquals(updates.size, updatedStickers.size)

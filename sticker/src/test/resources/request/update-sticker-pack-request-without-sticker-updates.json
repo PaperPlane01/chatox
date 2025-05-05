@@ -1743,6 +1743,53 @@
       ]
     },
     {
+      "id": "67a77e3366735011e3fae0e5",
+      "emojis": [
+        {
+          "id": "sunglasses",
+          "name": "Smiling Face with Sunglasses",
+          "short_names": [
+            "sunglasses"
+          ],
+          "colons": ":sunglasses:",
+          "emoticons": [
+            "8)"
+          ],
+          "unified": "1f60e",
+          "skin": null,
+          "native": "😎",
+          "originalSet": "apple"
+        },
+        {
+          "id": "heavy_dollar_sign",
+          "name": "Heavy Dollar Sign",
+          "short_names": [
+            "heavy_dollar_sign"
+          ],
+          "colons": ":heavy_dollar_sign:",
+          "emoticons": [],
+          "unified": "1f4b2",
+          "skin": null,
+          "native": "💲",
+          "originalSet": "apple"
+        },
+        {
+          "id": "chains",
+          "name": "Chains",
+          "short_names": [
+            "chains"
+          ],
+          "colons": ":chains:",
+          "emoticons": [],
+          "unified": "26d3-fe0f",
+          "skin": null,
+          "native": "⛓️",
+          "originalSet": "apple"
+        }
+      ],
+      "keywords": []
+    },
+    {
       "id": "67a77e3366735011e3fae0e6",
       "emojis": [
         {
