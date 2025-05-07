@@ -12,10 +12,12 @@ import chatox.sticker.api.response.StickerResponse
 import chatox.sticker.exception.metadata.StickerNotFoundException
 import chatox.sticker.exception.metadata.StickerPackNotFoundException
 import chatox.sticker.exception.metadata.UploadsNotFoundException
+import chatox.sticker.external.TextParserApi
 import chatox.sticker.mapper.StickerMapper
 import chatox.sticker.mapper.StickerPackMapper
 import chatox.sticker.messaging.rabbitmq.event.StickerPackUpdated
 import chatox.sticker.messaging.rabbitmq.event.producer.StickerEventsProducer
+import chatox.sticker.model.EmojiData
 import chatox.sticker.model.Sticker
 import chatox.sticker.model.StickerPack
 import chatox.sticker.model.StickerUploadMetadata
@@ -59,6 +61,7 @@ class StickerPackServiceTests {
     val stickerPackMapper: StickerPackMapper = mockk()
     val stickerMapper: StickerMapper = mockk()
     val stickerEventsProducer: StickerEventsProducer = mockk()
+    val textParserApi: TextParserApi = mockk()
 
     lateinit var stickerPackService: StickerPackServiceImpl
 
@@ -72,7 +75,8 @@ class StickerPackServiceTests {
                 authenticationHolder,
                 stickerPackMapper,
                 stickerMapper,
-                stickerEventsProducer
+                stickerEventsProducer,
+                textParserApi
         )
     }
 
@@ -96,6 +100,14 @@ class StickerPackServiceTests {
 
             every { uploadRepository.findById(preview.id) } returns Mono.just(preview)
             every { uploadRepository.findAllByIdIn(any<List<String>>()) } returns Flux.fromIterable(uploads)
+
+            val emojiIds = request.stickers.flatMap { sticker -> sticker.emojis }.toSet()
+            val emojiMap = loadResource(
+                    "response/emoji-map-response.json",
+                    object : TypeReference<Map<String, EmojiData>>() {
+                    }
+            )
+            every { textParserApi.getEmojiInfo(emojiIds) } returns Mono.just(emojiMap)
 
             val resultStickers = loadResource(
                     "model/stickers-array.json",
@@ -135,7 +147,7 @@ class StickerPackServiceTests {
                         savedStickers.forEach { savedSticker ->
                             val requestSticker = requestStickersByUpload[savedSticker.upload.id]
                                     ?: fail("Not found sticker with upload: ${savedSticker.upload.id}")
-                            assertEquals(requestSticker.emojis, savedSticker.emojis)
+                            assertEquals(requestSticker.emojis, savedSticker.emojis.map { emoji -> emoji.id })
                             assertEquals(requestSticker.keywords, savedSticker.keywords)
                         }
 
@@ -210,6 +222,14 @@ class StickerPackServiceTests {
             val uploads = createUploads(uploadsIds)
             every { uploadRepository.findAllByIdIn(any<List<String>>()) } returns Flux.fromIterable(uploads)
 
+            val emojiIds = requests.flatMap { sticker -> sticker.emojis }.toSet()
+            val emojiMap = loadResource(
+                    "response/emoji-map-response.json",
+                    object : TypeReference<Map<String, EmojiData>>() {
+                    }
+            )
+            every { textParserApi.getEmojiInfo(emojiIds) } returns Mono.just(emojiMap)
+
             val savedStickersSlot = slot<List<Sticker>>()
             every { stickerRepository.saveAll(capture(savedStickersSlot)) } answers { Flux.fromIterable(firstArg()) }
 
@@ -245,7 +265,7 @@ class StickerPackServiceTests {
                         savedStickers.forEach { sticker ->
                             val request = requests.find { request -> request.uploadId == sticker.upload.id }
                             assertNotNull(request)
-                            assertEquals(request!!.emojis, sticker.emojis)
+                            assertEquals(request!!.emojis, sticker.emojis.map { emoji -> emoji.id })
                             assertEquals(request.keywords, sticker.keywords)
                             assertNotNull(sticker.createdAt)
                         }
@@ -380,6 +400,14 @@ class StickerPackServiceTests {
             val updatedStickersSlot = slot<MutableCollection<Sticker>>()
 
             if (updates.isNotEmpty()) {
+                val emojiIds = updates.flatMap { update -> update.emojis }.toSet()
+                val emojiMap = loadResource(
+                        "response/emoji-map-response.json",
+                        object : TypeReference<Map<String, EmojiData>>() {
+                        }
+                )
+                every { textParserApi.getEmojiInfo(emojiIds) } returns Mono.just(emojiMap)
+
                 every {
                     stickerRepository.saveAll(capture(updatedStickersSlot))
                 } answers {
@@ -431,7 +459,7 @@ class StickerPackServiceTests {
                             updates.forEach { updateRequest ->
                                 val updatedSticker = updatedStickers.find { sticker -> sticker.id == updateRequest.id }
                                 assertNotNull(updatedSticker)
-                                assertEquals(updateRequest.emojis, updatedSticker!!.emojis)
+                                assertEquals(updateRequest.emojis, updatedSticker!!.emojis.map { emoji -> emoji.id })
                                 assertEquals(updateRequest.keywords, updatedSticker.keywords)
                             }
                         }

@@ -8,11 +8,13 @@ import chatox.platform.util.runAsync
 import chatox.sticker.api.request.CreateStickerPackRequest
 import chatox.sticker.api.request.CreateStickerRequest
 import chatox.sticker.api.request.UpdateStickerPackRequest
+import chatox.sticker.api.request.UpdateStickerRequest
 import chatox.sticker.api.response.StickerPackResponse
 import chatox.sticker.api.response.StickerResponse
 import chatox.sticker.exception.metadata.StickerNotFoundException
 import chatox.sticker.exception.metadata.StickerPackNotFoundException
 import chatox.sticker.exception.metadata.UploadsNotFoundException
+import chatox.sticker.external.TextParserApi
 import chatox.sticker.mapper.StickerMapper
 import chatox.sticker.mapper.StickerPackMapper
 import chatox.sticker.messaging.rabbitmq.event.StickerPackUpdated
@@ -45,7 +47,8 @@ class StickerPackServiceImpl(
         private val authenticationHolder: ReactiveAuthenticationHolder<JwtPayload>,
         private val stickerPackMapper: StickerPackMapper,
         private val stickerMapper: StickerMapper,
-        private val stickerEventsProducer: StickerEventsProducer
+        private val stickerEventsProducer: StickerEventsProducer,
+        private val textParserApi: TextParserApi
 ) : StickerPackService {
 
     override fun createStickerPack(createStickerPackRequest: CreateStickerPackRequest): Mono<StickerPackResponse<*>> {
@@ -119,7 +122,7 @@ class StickerPackServiceImpl(
                 throw StickerNotFoundException(missingStickers.joinToString { "," })
             }
 
-            val updatedStickers = mutableMapOf<String, Sticker>()
+            val stickerUpdates = mutableMapOf<String, UpdateStickerRequest>()
             val deletedStickers = mutableMapOf<String, Sticker>()
 
             existingStickers.forEach { (id, sticker) ->
@@ -128,14 +131,23 @@ class StickerPackServiceImpl(
                 if (update == null) {
                     deletedStickers[id] = sticker
                 } else if (!sticker.equalsTo(update)) {
-                    updatedStickers[id] = sticker.copy(
-                            emojis = update.emojis,
-                            keywords = update.keywords
-                    )
+                    stickerUpdates[update.id] = update
                 }
             }
 
-            if (updatedStickers.isNotEmpty()) {
+            var updatedStickers = mapOf<String, Sticker>()
+
+            if (stickerUpdates.isNotEmpty()) {
+                val emojiIds = stickerUpdates.values.flatMap { update -> update.emojis }.toSet()
+                val emojiInfo = textParserApi.getEmojiInfo(emojiIds).awaitFirst()
+
+                updatedStickers = stickerUpdates.values.map { update ->
+                    existingStickers.getValue(update.id).copy(
+                            emojis = update.emojis.mapNotNull { emojiId -> emojiInfo[emojiId] },
+                            keywords = update.keywords
+                    )
+                }
+                        .associateBy { sticker -> sticker.id }
                 stickerRepository.saveAll(updatedStickers.values).collectList().awaitFirst()
             }
 
@@ -224,12 +236,17 @@ class StickerPackServiceImpl(
                 throw UploadsNotFoundException(missingUploads)
             }
 
+            val emojiIds = createStickerRequests.flatMap { request -> request.emojis }.toSet()
+            val emojisMap = textParserApi.getEmojiInfo(emojiIds).awaitFirst()
+
+            println(emojisMap)
+
             val stickers = createStickerRequests.map { request -> Sticker(
                     id = ObjectId().toHexString(),
                     stickerPackId = stickerPackId,
                     upload = uploadsMap[request.uploadId] ?: throw UploadsNotFoundException(listOf(request.uploadId)),
                     keywords = request.keywords,
-                    emojis = request.emojis,
+                    emojis = request.emojis.mapNotNull { emoji -> emojisMap[emoji] },
                     createdAt = ZonedDateTime.now()
             ) }
 

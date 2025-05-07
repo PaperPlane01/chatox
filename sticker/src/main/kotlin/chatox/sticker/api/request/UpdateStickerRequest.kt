@@ -9,7 +9,7 @@ data class UpdateStickerRequest(
         @field:NotNull
         private val _id: String?,
         val keywords: List<String> = listOf(),
-        val emojis: List<EmojiData> = listOf()
+        val emojis: List<String> = listOf()
 ) {
     val id: String
         get() = _id!!

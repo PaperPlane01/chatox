@@ -1,52 +1,15 @@
 [
   {
     "emojis": [
-      {
-        "id": "face_with_raised_eyebrow",
-        "name": "Face with One Eyebrow Raised",
-        "short_names": [
-          "face_with_raised_eyebrow",
-          "face_with_one_eyebrow_raised"
-        ],
-        "colons": ":face_with_raised_eyebrow:",
-        "emoticons": [],
-        "unified": "1f928",
-        "skin": null,
-        "native": "🤨",
-        "originalSet": "apple"
-      },
-      {
-        "id": "question",
-        "name": "Black Question Mark Ornament",
-        "short_names": [
-          "question"
-        ],
-        "colons": ":question:",
-        "emoticons": [],
-        "unified": "2753",
-        "skin": null,
-        "native": "❓",
-        "originalSet": "apple"
-      }
+      "face_with_raised_eyebrow",
+      "question"
     ],
     "keywords": [],
     "uploadId": "67a77a2798adaf80e6abe102"
   },
   {
     "emojis": [
-      {
-        "id": "scream",
-        "name": "Face Screaming in Fear",
-        "short_names": [
-          "scream"
-        ],
-        "colons": ":scream:",
-        "emoticons": [],
-        "unified": "1f631",
-        "skin": null,
-        "native": "😱",
-        "originalSet": "apple"
-      }
+      "scream"
     ],
     "keywords": [],
     "uploadId": "67a77a4298adaf80e6abe10f"

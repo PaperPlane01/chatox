@@ -21,6 +21,6 @@ data class Sticker(
 ) {
         fun equalsTo(updateStickerRequest: UpdateStickerRequest): Boolean {
                 return updateStickerRequest.keywords == this.keywords
-                        && updateStickerRequest.emojis == this.emojis
+                        && updateStickerRequest.emojis == this.emojis.map { emoji -> emoji.id }
         }
 }

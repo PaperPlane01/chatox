@@ -1,0 +1,779 @@
+{
+  "slightly_smiling_face": {
+    "id": "slightly_smiling_face",
+    "name": "Slightly Smiling Face",
+    "short_names": [
+      "slightly_smiling_face"
+    ],
+    "colons": ":slightly_smiling_face:",
+    "emoticons": [
+      ":)",
+      "(:",
+      ":-)"
+    ],
+    "unified": "1f642",
+    "skin": null,
+    "native": "🙂",
+    "originalSet": "apple"
+  },
+  "relieved": {
+    "id": "relieved",
+    "name": "Relieved Face",
+    "short_names": [
+      "relieved"
+    ],
+    "colons": ":relieved:",
+    "emoticons": [],
+    "unified": "1f60c",
+    "skin": null,
+    "native": "😌",
+    "originalSet": "apple"
+  },
+  "confused": {
+    "id": "confused",
+    "name": "Confused Face",
+    "short_names": [
+      "confused"
+    ],
+    "colons": ":confused:",
+    "emoticons": [
+      ":\\",
+      ":-\\",
+      ":/",
+      ":-/"
+    ],
+    "unified": "1f615",
+    "skin": null,
+    "native": "😕",
+    "originalSet": "apple"
+  },
+  "unamused": {
+    "id": "unamused",
+    "name": "Unamused Face",
+    "short_names": [
+      "unamused"
+    ],
+    "colons": ":unamused:",
+    "emoticons": [],
+    "unified": "1f612",
+    "skin": null,
+    "native": "😒",
+    "originalSet": "apple"
+  },
+  "smirk": {
+    "id": "smirk",
+    "name": "Smirking Face",
+    "short_names": [
+      "smirk"
+    ],
+    "colons": ":smirk:",
+    "emoticons": [],
+    "unified": "1f60f",
+    "skin": null,
+    "native": "😏",
+    "originalSet": "apple"
+  },
+  "rage": {
+    "id": "rage",
+    "name": "Pouting Face",
+    "short_names": [
+      "rage"
+    ],
+    "colons": ":rage:",
+    "emoticons": [],
+    "unified": "1f621",
+    "skin": null,
+    "native": "😡",
+    "originalSet": "apple"
+  },
+  "imp": {
+    "id": "imp",
+    "name": "Imp",
+    "short_names": [
+      "imp"
+    ],
+    "colons": ":imp:",
+    "emoticons": [],
+    "unified": "1f47f",
+    "skin": null,
+    "native": "👿",
+    "originalSet": "apple"
+  },
+  "joy": {
+    "id": "joy",
+    "name": "Face with Tears of Joy",
+    "short_names": [
+      "joy"
+    ],
+    "colons": ":joy:",
+    "emoticons": [],
+    "unified": "1f602",
+    "skin": null,
+    "native": "😂",
+    "originalSet": "apple"
+  },
+  "rolling_on_the_floor_laughing": {
+    "id": "rolling_on_the_floor_laughing",
+    "name": "Rolling on the Floor Laughing",
+    "short_names": [
+      "rolling_on_the_floor_laughing"
+    ],
+    "colons": ":rolling_on_the_floor_laughing:",
+    "emoticons": [],
+    "unified": "1f923",
+    "skin": null,
+    "native": "🤣",
+    "originalSet": "apple"
+  },
+  "grinning": {
+    "id": "grinning",
+    "name": "Grinning Face",
+    "short_names": [
+      "grinning"
+    ],
+    "colons": ":grinning:",
+    "emoticons": [],
+    "unified": "1f600",
+    "skin": null,
+    "native": "😀",
+    "originalSet": "apple"
+  },
+  "smiling_imp": {
+    "id": "smiling_imp",
+    "name": "Smiling Face with Horns",
+    "short_names": [
+      "smiling_imp"
+    ],
+    "colons": ":smiling_imp:",
+    "emoticons": [],
+    "unified": "1f608",
+    "skin": null,
+    "native": "😈",
+    "originalSet": "apple"
+  },
+  "disappointed_relieved": {
+    "id": "disappointed_relieved",
+    "name": "Disappointed but Relieved Face",
+    "short_names": [
+      "disappointed_relieved"
+    ],
+    "colons": ":disappointed_relieved:",
+    "emoticons": [],
+    "unified": "1f625",
+    "skin": null,
+    "native": "😥",
+    "originalSet": "apple"
+  },
+  "gun": {
+    "id": "gun",
+    "name": "Pistol",
+    "short_names": [
+      "gun"
+    ],
+    "colons": ":gun:",
+    "emoticons": [],
+    "unified": "1f52b",
+    "skin": null,
+    "native": "🔫",
+    "originalSet": "apple"
+  },
+  "sunglasses": {
+    "id": "sunglasses",
+    "name": "Smiling Face with Sunglasses",
+    "short_names": [
+      "sunglasses"
+    ],
+    "colons": ":sunglasses:",
+    "emoticons": [
+      "8)"
+    ],
+    "unified": "1f60e",
+    "skin": null,
+    "native": "😎",
+    "originalSet": "apple"
+  },
+  "billed_cap": {
+    "id": "billed_cap",
+    "name": "Billed Cap",
+    "short_names": [
+      "billed_cap"
+    ],
+    "colons": ":billed_cap:",
+    "emoticons": [],
+    "unified": "1f9e2",
+    "skin": null,
+    "native": "🧢",
+    "originalSet": "apple"
+  },
+  "pensive": {
+    "id": "pensive",
+    "name": "Pensive Face",
+    "short_names": [
+      "pensive"
+    ],
+    "colons": ":pensive:",
+    "emoticons": [],
+    "unified": "1f614",
+    "skin": null,
+    "native": "😔",
+    "originalSet": "apple"
+  },
+  "tada": {
+    "id": "tada",
+    "name": "Party Popper",
+    "short_names": [
+      "tada"
+    ],
+    "colons": ":tada:",
+    "emoticons": [],
+    "unified": "1f389",
+    "skin": null,
+    "native": "🎉",
+    "originalSet": "apple"
+  },
+  "zany_face": {
+    "id": "zany_face",
+    "name": "Grinning Face with One Large and One Small Eye",
+    "short_names": [
+      "zany_face",
+      "grinning_face_with_one_large_and_one_small_eye"
+    ],
+    "colons": ":zany_face:",
+    "emoticons": [],
+    "unified": "1f92a",
+    "skin": null,
+    "native": "🤪",
+    "originalSet": "apple"
+  },
+  "pleading_face": {
+    "id": "pleading_face",
+    "name": "Face with Pleading Eyes",
+    "short_names": [
+      "pleading_face"
+    ],
+    "colons": ":pleading_face:",
+    "emoticons": [],
+    "unified": "1f97a",
+    "skin": null,
+    "native": "🥺",
+    "originalSet": "apple"
+  },
+  "smile": {
+    "id": "smile",
+    "name": "Smiling Face with Open Mouth and Smiling Eyes",
+    "short_names": [
+      "smile"
+    ],
+    "colons": ":smile:",
+    "emoticons": [
+      "C:",
+      "c:",
+      ":D",
+      ":-D"
+    ],
+    "unified": "1f604",
+    "skin": null,
+    "native": "😄",
+    "originalSet": "apple"
+  },
+  "grin": {
+    "id": "grin",
+    "name": "Grinning Face with Smiling Eyes",
+    "short_names": [
+      "grin"
+    ],
+    "colons": ":grin:",
+    "emoticons": [],
+    "unified": "1f601",
+    "skin": null,
+    "native": "😁",
+    "originalSet": "apple"
+  },
+  "smiley": {
+    "id": "smiley",
+    "name": "Smiling Face with Open Mouth",
+    "short_names": [
+      "smiley"
+    ],
+    "colons": ":smiley:",
+    "emoticons": [
+      "=)",
+      "=-)"
+    ],
+    "unified": "1f603",
+    "skin": null,
+    "native": "😃",
+    "originalSet": "apple"
+  },
+  "open_mouth": {
+    "id": "open_mouth",
+    "name": "Face with Open Mouth",
+    "short_names": [
+      "open_mouth"
+    ],
+    "colons": ":open_mouth:",
+    "emoticons": [
+      ":o",
+      ":-o",
+      ":O",
+      ":-O"
+    ],
+    "unified": "1f62e",
+    "skin": null,
+    "native": "😮",
+    "originalSet": "apple"
+  },
+  "hushed": {
+    "id": "hushed",
+    "name": "Hushed Face",
+    "short_names": [
+      "hushed"
+    ],
+    "colons": ":hushed:",
+    "emoticons": [],
+    "unified": "1f62f",
+    "skin": null,
+    "native": "😯",
+    "originalSet": "apple"
+  },
+  "flushed": {
+    "id": "flushed",
+    "name": "Flushed Face",
+    "short_names": [
+      "flushed"
+    ],
+    "colons": ":flushed:",
+    "emoticons": [],
+    "unified": "1f633",
+    "skin": null,
+    "native": "😳",
+    "originalSet": "apple"
+  },
+  "cold_sweat": {
+    "id": "cold_sweat",
+    "name": "Face with Open Mouth and Cold Sweat",
+    "short_names": [
+      "cold_sweat"
+    ],
+    "colons": ":cold_sweat:",
+    "emoticons": [],
+    "unified": "1f630",
+    "skin": null,
+    "native": "😰",
+    "originalSet": "apple"
+  },
+  "fearful": {
+    "id": "fearful",
+    "name": "Fearful Face",
+    "short_names": [
+      "fearful"
+    ],
+    "colons": ":fearful:",
+    "emoticons": [],
+    "unified": "1f628",
+    "skin": null,
+    "native": "😨",
+    "originalSet": "apple"
+  },
+  "iphone": {
+    "id": "iphone",
+    "name": "Mobile Phone",
+    "short_names": [
+      "iphone"
+    ],
+    "colons": ":iphone:",
+    "emoticons": [],
+    "unified": "1f4f1",
+    "skin": null,
+    "native": "📱",
+    "originalSet": "apple"
+  },
+  "sob": {
+    "id": "sob",
+    "name": "Loudly Crying Face",
+    "short_names": [
+      "sob"
+    ],
+    "colons": ":sob:",
+    "emoticons": [],
+    "unified": "1f62d",
+    "skin": null,
+    "native": "😭",
+    "originalSet": "apple"
+  },
+  "angry": {
+    "id": "angry",
+    "name": "Angry Face",
+    "short_names": [
+      "angry"
+    ],
+    "colons": ":angry:",
+    "emoticons": [
+      ">:(",
+      ">:-("
+    ],
+    "unified": "1f620",
+    "skin": null,
+    "native": "😠",
+    "originalSet": "apple"
+  },
+  "face_with_rolling_eyes": {
+    "id": "face_with_rolling_eyes",
+    "name": "Face with Rolling Eyes",
+    "short_names": [
+      "face_with_rolling_eyes"
+    ],
+    "colons": ":face_with_rolling_eyes:",
+    "emoticons": [],
+    "unified": "1f644",
+    "skin": null,
+    "native": "🙄",
+    "originalSet": "apple"
+  },
+  "cry": {
+    "id": "cry",
+    "name": "Crying Face",
+    "short_names": [
+      "cry"
+    ],
+    "colons": ":cry:",
+    "emoticons": [
+      ":'("
+    ],
+    "unified": "1f622",
+    "skin": null,
+    "native": "😢",
+    "originalSet": "apple"
+  },
+  "face_with_hand_over_mouth": {
+    "id": "face_with_hand_over_mouth",
+    "name": "Smiling Face with Smiling Eyes and Hand Covering Mouth",
+    "short_names": [
+      "face_with_hand_over_mouth",
+      "smiling_face_with_smiling_eyes_and_hand_covering_mouth"
+    ],
+    "colons": ":face_with_hand_over_mouth:",
+    "emoticons": [],
+    "unified": "1f92d",
+    "skin": null,
+    "native": "🤭",
+    "originalSet": "apple"
+  },
+  "astonished": {
+    "id": "astonished",
+    "name": "Astonished Face",
+    "short_names": [
+      "astonished"
+    ],
+    "colons": ":astonished:",
+    "emoticons": [],
+    "unified": "1f632",
+    "skin": null,
+    "native": "😲",
+    "originalSet": "apple"
+  },
+  "star-struck": {
+    "id": "star-struck",
+    "name": "Grinning Face with Star Eyes",
+    "short_names": [
+      "star-struck",
+      "grinning_face_with_star_eyes"
+    ],
+    "colons": ":star-struck:",
+    "emoticons": [],
+    "unified": "1f929",
+    "skin": null,
+    "native": "🤩",
+    "originalSet": "apple"
+  },
+  "thinking_face": {
+    "id": "thinking_face",
+    "name": "Thinking Face",
+    "short_names": [
+      "thinking_face"
+    ],
+    "colons": ":thinking_face:",
+    "emoticons": [],
+    "unified": "1f914",
+    "skin": null,
+    "native": "🤔",
+    "originalSet": "apple"
+  },
+  "money_with_wings": {
+    "id": "money_with_wings",
+    "name": "Money with Wings",
+    "short_names": [
+      "money_with_wings"
+    ],
+    "colons": ":money_with_wings:",
+    "emoticons": [],
+    "unified": "1f4b8",
+    "skin": null,
+    "native": "💸",
+    "originalSet": "apple"
+  },
+  "money_mouth_face": {
+    "id": "money_mouth_face",
+    "name": "Money-Mouth Face",
+    "short_names": [
+      "money_mouth_face"
+    ],
+    "colons": ":money_mouth_face:",
+    "emoticons": [],
+    "unified": "1f911",
+    "skin": null,
+    "native": "🤑",
+    "originalSet": "apple"
+  },
+  "white_frowning_face": {
+    "id": "white_frowning_face",
+    "name": "White Frowning Face",
+    "short_names": [
+      "white_frowning_face"
+    ],
+    "colons": ":white_frowning_face:",
+    "emoticons": [],
+    "unified": "2639-fe0f",
+    "skin": null,
+    "native": "☹️",
+    "originalSet": "apple"
+  },
+  "smoking": {
+    "id": "smoking",
+    "name": "Smoking Symbol",
+    "short_names": [
+      "smoking"
+    ],
+    "colons": ":smoking:",
+    "emoticons": [],
+    "unified": "1f6ac",
+    "skin": null,
+    "native": "🚬",
+    "originalSet": "apple"
+  },
+  "heart": {
+    "id": "heart",
+    "name": "Heavy Black Heart",
+    "short_names": [
+      "heart"
+    ],
+    "colons": ":heart:",
+    "emoticons": [
+      "<3"
+    ],
+    "unified": "2764-fe0f",
+    "skin": null,
+    "native": "❤️",
+    "originalSet": "apple"
+  },
+  "see_no_evil": {
+    "id": "see_no_evil",
+    "name": "See-No-Evil Monkey",
+    "short_names": [
+      "see_no_evil"
+    ],
+    "colons": ":see_no_evil:",
+    "emoticons": [],
+    "unified": "1f648",
+    "skin": null,
+    "native": "🙈",
+    "originalSet": "apple"
+  },
+  "v": {
+    "id": "v",
+    "name": "Victory Hand",
+    "short_names": [
+      "v"
+    ],
+    "colons": ":v::skin-tone-3:",
+    "emoticons": [],
+    "unified": "270c-1f3fc",
+    "skin": "3",
+    "native": "✌🏼",
+    "originalSet": "apple"
+  },
+  "middle_finger": {
+    "id": "middle_finger",
+    "name": "Reversed Hand with Middle Finger Extended",
+    "short_names": [
+      "middle_finger",
+      "reversed_hand_with_middle_finger_extended"
+    ],
+    "colons": ":middle_finger::skin-tone-3:",
+    "emoticons": [],
+    "unified": "1f595-1f3fc",
+    "skin": "3",
+    "native": "🖕🏼",
+    "originalSet": "apple"
+  },
+  "older_adult": {
+    "id": "older_adult",
+    "name": "Older Adult",
+    "short_names": [
+      "older_adult"
+    ],
+    "colons": ":older_adult::skin-tone-3:",
+    "emoticons": [],
+    "unified": "1f9d3-1f3fc",
+    "skin": "3",
+    "native": "🧓🏼",
+    "originalSet": "apple"
+  },
+  "older_man": {
+    "id": "older_man",
+    "name": "Older Man",
+    "short_names": [
+      "older_man"
+    ],
+    "colons": ":older_man::skin-tone-3:",
+    "emoticons": [],
+    "unified": "1f474-1f3fc",
+    "skin": "3",
+    "native": "👴🏼",
+    "originalSet": "apple"
+  },
+  "skull": {
+    "id": "skull",
+    "name": "Skull",
+    "short_names": [
+      "skull"
+    ],
+    "colons": ":skull:",
+    "emoticons": [],
+    "unified": "1f480",
+    "skin": null,
+    "native": "💀",
+    "originalSet": "apple"
+  },
+  "skull_and_crossbones": {
+    "id": "skull_and_crossbones",
+    "name": "Skull and Crossbones",
+    "short_names": [
+      "skull_and_crossbones"
+    ],
+    "colons": ":skull_and_crossbones:",
+    "emoticons": [],
+    "unified": "2620-fe0f",
+    "skin": null,
+    "native": "☠️",
+    "originalSet": "apple"
+  },
+  "bomb": {
+    "id": "bomb",
+    "name": "Bomb",
+    "short_names": [
+      "bomb"
+    ],
+    "colons": ":bomb:",
+    "emoticons": [],
+    "unified": "1f4a3",
+    "skin": null,
+    "native": "💣",
+    "originalSet": "apple"
+  },
+  "raised_hands": {
+    "id": "raised_hands",
+    "name": "Person Raising Both Hands in Celebration",
+    "short_names": [
+      "raised_hands"
+    ],
+    "colons": ":raised_hands::skin-tone-3:",
+    "emoticons": [],
+    "unified": "1f64c-1f3fc",
+    "skin": "3",
+    "native": "🙌🏼",
+    "originalSet": "apple"
+  },
+  "partying_face": {
+    "id": "partying_face",
+    "name": "Face with Party Horn and Party Hat",
+    "short_names": [
+      "partying_face"
+    ],
+    "colons": ":partying_face:",
+    "emoticons": [],
+    "unified": "1f973",
+    "skin": null,
+    "native": "🥳",
+    "originalSet": "apple"
+  },
+  "confetti_ball": {
+    "id": "confetti_ball",
+    "name": "Confetti Ball",
+    "short_names": [
+      "confetti_ball"
+    ],
+    "colons": ":confetti_ball:",
+    "emoticons": [],
+    "unified": "1f38a",
+    "skin": null,
+    "native": "🎊",
+    "originalSet": "apple"
+  },
+  "heavy_dollar_sign": {
+    "id": "heavy_dollar_sign",
+    "name": "Heavy Dollar Sign",
+    "short_names": [
+      "heavy_dollar_sign"
+    ],
+    "colons": ":heavy_dollar_sign:",
+    "emoticons": [],
+    "unified": "1f4b2",
+    "skin": null,
+    "native": "💲",
+    "originalSet": "apple"
+  },
+  "chains": {
+    "id": "chains",
+    "name": "Chains",
+    "short_names": [
+      "chains"
+    ],
+    "colons": ":chains:",
+    "emoticons": [],
+    "unified": "26d3-fe0f",
+    "skin": null,
+    "native": "⛓️",
+    "originalSet": "apple"
+  },
+  "face_with_raised_eyebrow": {
+    "id": "face_with_raised_eyebrow",
+    "name": "Face with One Eyebrow Raised",
+    "short_names": [
+      "face_with_raised_eyebrow",
+      "face_with_one_eyebrow_raised"
+    ],
+    "colons": ":face_with_raised_eyebrow:",
+    "emoticons": [],
+    "unified": "1f928",
+    "skin": null,
+    "native": "🤨",
+    "originalSet": "apple"
+  },
+  "question": {
+    "id": "question",
+    "name": "Black Question Mark Ornament",
+    "short_names": [
+      "question"
+    ],
+    "colons": ":question:",
+    "emoticons": [],
+    "unified": "2753",
+    "skin": null,
+    "native": "❓",
+    "originalSet": "apple"
+  },
+  "scream": {
+    "id": "scream",
+    "name": "Face Screaming in Fear",
+    "short_names": [
+      "scream"
+    ],
+    "colons": ":scream:",
+    "emoticons": [],
+    "unified": "1f631",
+    "skin": null,
+    "native": "😱",
+    "originalSet": "apple"
+  }
+}
