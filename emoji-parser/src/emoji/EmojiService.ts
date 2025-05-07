@@ -2,6 +2,8 @@ import {Injectable} from "@nestjs/common";
 import {EmojiData, EmojiSet, getEmojiDataFromNative} from "emoji-mart";
 import allEmojiData from "emoji-mart/data/apple.json";
 import {uncompress} from "emoji-mart/dist/utils/data";
+import {GetEmojiInfoRequest} from "./types/request";
+import {EmojiMap} from "../text-parser/types/response";
 
 const nativeEmojiCache = new Map<string, EmojiData>();
 const colonsEmojiCache = new Map<string, EmojiData>();
@@ -10,6 +12,20 @@ uncompress(emojiMartData);
 
 @Injectable()
 export class EmojiService {
+
+	public getEmojiData(request: GetEmojiInfoRequest): EmojiMap {
+		const result: EmojiMap = {};
+
+		request.emojiIds.forEach(emojiId => {
+			const emojiData = this.getEmojiDataFromColons(`:${emojiId}:`, "apple");
+
+			if (emojiData) {
+				result[emojiId] = emojiData;
+			}
+		});
+
+		return result;
+	}
 
 	public getEmojiDataFromNative(nativeEmoji: string, set: EmojiSet): EmojiData | undefined {
 		const cached = nativeEmojiCache.get(nativeEmoji);
