@@ -798,5 +798,16 @@ export interface Labels {
     "sticker.file": string,
     "sticker.file.required": string,
     "sticker.file.too-large": string,
-    "sticker.file.invalid": string
+    "sticker.file.invalid": string,
+    "sticker.pack.update": string,
+    "sticker.pack.update.error.server-unreachable": string,
+    "sticker.pack.update.error.stickers-not-found": string,
+    "sticker.pack.update.error.unknown": string,
+    "sticker.pack.add-new-stickers": string,
+    "sticker.pack.create.login-required": string,
+    "sticker.pack.update.no-permission": string,
+    "sticker.pack.load.error.not-found": string,
+    "sticker.pack.load.error.unknown": string,
+    "sticker.add.new": string,
+    "sticker.pack.update.success": string
 }

@@ -1,10 +1,7 @@
 import {CreateStickerRequest} from "./CreateStickerRequest";
+import {StickerPackRequest} from "./StickerPackRequest";
 import {StickerType} from "../response";
 
-export interface CreateStickerPackRequest {
-    name: string,
-    description: string,
-    author?: string,
-    stickers: CreateStickerRequest[],
+export interface CreateStickerPackRequest extends StickerPackRequest<CreateStickerRequest> {
     stickersType: StickerType
 }

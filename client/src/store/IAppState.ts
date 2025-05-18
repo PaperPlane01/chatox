@@ -117,9 +117,10 @@ import {
     InstallStickerPackStore,
     SearchStickerPacksStore,
     StickerEmojiPickerDialogStore,
-    StickerPackDialogStore,
+    StickerPackDialogStore, StickerPackStore,
     StickerPickerStore,
-    UninstallStickerPackStore
+    UninstallStickerPackStore,
+    UpdateStickerPackStore
 } from "../Sticker";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
 import {
@@ -348,5 +349,7 @@ export interface IAppState {
     deleteChatNotificationsSettings: DeleteChatNotificationSettingsStore,
     chatParticipantsAutoComplete: ChatParticipantsAutoCompleteStore,
     userNotificationExceptionsDialog: UserNotificationExceptionsDialogStore,
-    updateUserNotificationsSettingsInChatDialog: UpdateUserNotificationSettingsInChatDialogStore
+    updateUserNotificationsSettingsInChatDialog: UpdateUserNotificationSettingsInChatDialogStore,
+    stickerPackUpdate: UpdateStickerPackStore,
+    stickerPack: StickerPackStore
 }

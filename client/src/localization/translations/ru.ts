@@ -800,5 +800,16 @@ export const ru: Labels = {
     "sticker.file": "Файл",
     "sticker.file.required": "У стикера должен быть файл",
     "sticker.file.too-large": "Файл стикера имеет слишком большой размер",
-    "sticker.file.invalid": "Некорректный файл стикера"
+    "sticker.file.invalid": "Некорректный файл стикера",
+    "sticker.pack.update": "Обновить набор стикеров {stickerPackName}",
+    "sticker.pack.update.error.server-unreachable": "При обновлении набора стикеров произошла ошибка: сервер не доступен",
+    "sticker.pack.update.error.stickers-not-found": "При обновлении набора стикеров произошла ошибка: стикеры не найдены",
+    "sticker.pack.update.error.unknown": "При обновлении набора стикеров произошла неизвестная ошибка",
+    "sticker.pack.add-new-stickers": "Добавить стикеры",
+    "sticker.pack.create.login-required": "Для создания набора стикеров необходимо войти в свой аккаунт",
+    "sticker.pack.update.no-permission": "У вас нет прав на редактирование данного набора стикеров",
+    "sticker.pack.load.error.not-found": "Набор стикеров не найден",
+    "sticker.pack.load.error.unknown": "При загрузке набора стикеров произошла неизвестная ошибка",
+    "sticker.add.new": "Добавить новые стикеры",
+    "sticker.pack.update.success": "Набор стикеров обновлён"
 };

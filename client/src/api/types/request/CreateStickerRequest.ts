@@ -1,7 +1,5 @@
-import {EmojiData} from "emoji-mart";
+import {StickerRequest} from "./StickerRequest";
 
-export interface CreateStickerRequest {
-    emojis: EmojiData[],
-    keywords: string[],
+export interface CreateStickerRequest extends StickerRequest {
     uploadId: string
 }

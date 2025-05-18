@@ -1,24 +1,29 @@
 import React, {FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
-import {IconButton} from "@mui/material";
+import {IconButton, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {ArrowLeft, ArrowRight, Delete, Edit} from "@mui/icons-material";
 import clsx from "clsx";
 import {StickerContainer} from "../stores";
-import {useStore} from "../../store";
+import {StickerPackFormContext} from "../types";
+import {useStickerPackForm} from "../hooks";
 
 interface EditableStickerProps {
     stickerContainer: StickerContainer,
     index: number,
-    stickersCount: number
+    stickersCount: number,
+    context: StickerPackFormContext
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles((theme: Theme) => createStyles({
     imageWrapper: {
-        display: "inline-block",
-        position: "relative",
+        display: "flex",
+        flexDirection: "column",
         height: "100%",
-        width: "100%"
+        width: "100%",
+        border: `3px ${theme.palette.divider}`,
+        borderRadius: 3,
+        borderStyle: "dashed"
     },
     image: {
         maxWidth: "100%",
@@ -27,9 +32,7 @@ const useStyles = makeStyles(() => createStyles({
         objectFit: "contain"
     },
     buttonsContainer: {
-        position: "absolute",
-        top: 0,
-        left: "60%"
+        alignSelf: "end"
     },
     hovered: {
         boxShadow: "inset 0 0 0 1000px rgba(0, 0, 0, 0.5)"
@@ -39,17 +42,16 @@ const useStyles = makeStyles(() => createStyles({
 export const EditableSticker: FunctionComponent<EditableStickerProps> = observer(({
     stickerContainer,
     index,
-    stickersCount
+    stickersCount,
+    context
 }) => {
     const {
-        stickerPackCreation: {
-            setEditedStickerId,
-            setStickerDialogOpen,
-            removeSticker,
-            moveStickerBack,
-            moveStickerForward
-        }
-    } = useStore();
+        setEditedStickerId,
+        setEditStickerDialogOpen,
+        removeSticker,
+        moveStickerBack,
+        moveStickerForward
+    } = useStickerPackForm(context);
     const [hovered, setHovered] = useState(false);
     const classes = useStyles();
 
@@ -58,22 +60,11 @@ export const EditableSticker: FunctionComponent<EditableStickerProps> = observer
     }
 
     return (
-        <div className={clsx(classes.imageWrapper, {[classes.hovered]: hovered})}
-             onMouseOver={() => setHovered(true)}
-             onMouseOut={() => setHovered(false)}
-             onTouchStart={() => setHovered(true)}
-             onTouchEnd={() => setHovered(false)}
-        >
-            <img src={stickerContainer.uploadContainer.uploadedFile
-                ? stickerContainer.uploadContainer.uploadedFile.uri
-                : stickerContainer.uploadContainer.url
-            }
-                 className={classes.image}
-            />
+        <div className={classes.imageWrapper}>
             <div className={classes.buttonsContainer}>
                 {index !== 0 && (
                     <IconButton size="small"
-                                onClick={() => moveStickerBack(stickerContainer.localId)}
+                                onClick={() => moveStickerBack(stickerContainer.id)}
                                 color="primary"
                     >
                         <ArrowLeft/>
@@ -81,7 +72,7 @@ export const EditableSticker: FunctionComponent<EditableStickerProps> = observer
                 )}
                 {index !== stickersCount - 1 && stickersCount !== 1 && (
                     <IconButton size="small"
-                                onClick={() => moveStickerForward(stickerContainer.localId)}
+                                onClick={() => moveStickerForward(stickerContainer.id)}
                                 color="primary"
                     >
                         <ArrowRight/>
@@ -89,20 +80,32 @@ export const EditableSticker: FunctionComponent<EditableStickerProps> = observer
                 )}
                 <IconButton size="small"
                             onClick={() => {
-                                setEditedStickerId(stickerContainer.localId);
-                                setStickerDialogOpen(true)
+                                setEditedStickerId(stickerContainer.id);
+                                setEditStickerDialogOpen(true)
                             }}
                             color="primary"
                 >
                     <Edit/>
                 </IconButton>
                 <IconButton size="small"
-                            onClick={() => removeSticker(stickerContainer.localId)}
+                            onClick={() => removeSticker(stickerContainer.id)}
                             color="primary"
                 >
                     <Delete/>
                 </IconButton>
             </div>
+            <img src={stickerContainer.uploadContainer.uploadedFile
+                ? stickerContainer.uploadContainer.uploadedFile.uri
+                : stickerContainer.uploadContainer.url
+            }
+                 className={clsx(classes.image, {[classes.hovered]: hovered})}
+                 onMouseOver={() => setHovered(true)}
+                 onMouseOut={() => setHovered(false)}
+                 onTouchStart={() => setHovered(true)}
+                 onTouchEnd={() => setHovered(false)}
+                 onFocus={() => setHovered(true)}
+                 onBlur={() => setHovered(false)}
+            />
         </div>
     );
 });

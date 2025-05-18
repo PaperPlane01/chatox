@@ -1,14 +1,16 @@
-import {action, computed, makeObservable, observable, reaction} from "mobx";
+import {action, computed, makeObservable, reaction} from "mobx";
+import {RouterStore} from "mobx-router";
+import {AbstractStickerPackFormStore} from "./AbstractStickerPackFormStore";
 import {StickerContainer} from "./StickerContainer";
 import {CreateStickerPackFormData} from "../types";
-import {validateStickerPackDescription, validateStickerPackName} from "../validation";
-import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
 import {CreateStickerRequest} from "../../api/types/request";
 import {getInitialApiErrorFromResponse, StickerApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";
-import {containsNotUndefinedValues, isDefined} from "../../utils/object-utils";
-import {swapItems} from "../../utils/array-utils";
+import {createWithUndefinedValues, isDefined} from "../../utils/object-utils";
+import {RouterStoreAware, Routes} from "../../router";
+import {LocaleStore} from "../../localization";
+import {SnackbarService} from "../../Snackbar";
 
 const INITIAL_FORM_VALUES: CreateStickerPackFormData = {
     name: "",
@@ -17,116 +19,48 @@ const INITIAL_FORM_VALUES: CreateStickerPackFormData = {
     stickersType: undefined,
     stickers: {}
 };
-const INITIAL_FORM_ERRORS: FormErrors<CreateStickerPackFormData> = {
-    name: undefined,
-    description: undefined,
-    author: undefined,
-    stickers: undefined,
-    stickersType: undefined
-};
+const INITIAL_FORM_ERRORS: FormErrors<CreateStickerPackFormData> = createWithUndefinedValues(INITIAL_FORM_VALUES);
 
-export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackFormData> {
-    stickerDialogOpen = false;
+export class CreateStickerPackStore extends AbstractStickerPackFormStore<CreateStickerPackFormData>
+    implements RouterStoreAware {
+    get editedSticker(): StickerContainer | undefined {
+        if (this.editedStickerId) {
+            return this.formValues.stickers[this.editedStickerId];
+        }
 
-    editedStickerId?: string = undefined;
-
-    stickerUnderCreation?: StickerContainer = undefined;
-
-    stickersIds: string[] = [];
-
-    get stickerContainers(): StickerContainer[] {
-        return this.stickersIds.map(stickerLocalId => this.formValues.stickers[stickerLocalId])
+        return undefined;
     }
 
-    constructor(private readonly entities: EntitiesStore) {
+    private routerStore?: RouterStore<any> = undefined;
+
+    constructor(private readonly entities: EntitiesStore,
+                private readonly locale: LocaleStore,
+                private readonly snackbarService: SnackbarService) {
         super(INITIAL_FORM_VALUES, INITIAL_FORM_ERRORS);
 
-        makeObservable<CreateStickerPackStore, "validateForm">(this, {
-            stickerDialogOpen: observable,
-            editedStickerId: observable,
-            stickerUnderCreation: observable,
-            stickersIds: observable,
-            stickerContainers: computed,
-            initiateStickerCreation: action,
-            clearStickerUnderCreation: action,
-            addSticker: action,
-            removeSticker: action,
-            setStickerDialogOpen: action,
-            setEditedStickerId: action,
+        makeObservable<CreateStickerPackStore>(this, {
+            editedSticker: computed,
             submitForm: action.bound,
-            validateForm: action.bound
+            addSticker: action.bound,
+            editSticker: action.bound,
         });
 
         reaction(
-            () => this.formValues.name,
-            name => this.setFormError("name", validateStickerPackName(name))
-        );
-
-        reaction(
-            () => this.formValues.description,
-            description => this.setFormError("description", validateStickerPackDescription(description))
+            () => this.formValues.stickersType,
+            stickersType => this.setStickersType(stickersType)
         );
     }
 
-    reset = (): void => {
-        this.resetForm();
-        this.setStickerDialogOpen(false);
-        this.setEditedStickerId(undefined);
-        this.clearStickerUnderCreation();
-    }
+    addSticker(sticker: StickerContainer): void {
+        this.formValues.stickers[sticker.id] = sticker;
 
-    initiateStickerCreation = (): void => {
-        if (!this.formValues.stickersType) {
-            return;
-        }
-
-        this.stickerUnderCreation = new StickerContainer(this.formValues.stickersType);
-        this.setStickerDialogOpen(true);
-    }
-
-    clearStickerUnderCreation = (): void => {
-        this.stickerUnderCreation = undefined;
-    }
-
-    addSticker = (sticker: StickerContainer): void => {
-        this.formValues.stickers[sticker.localId] = sticker;
-
-        if (!this.stickersIds.includes(sticker.localId)) {
-            this.stickersIds.push(sticker.localId);
+        if (!this.stickersIds.includes(sticker.id)) {
+            this.stickersIds.push(sticker.id);
         }
     }
 
-    removeSticker = (stickerId: string): void => {
-        delete this.formValues.stickers[stickerId];
-        this.stickersIds.splice(this.stickersIds.indexOf(stickerId));
-    }
-
-    setStickerDialogOpen = (stickerDialogOpen: boolean): void => {
-        this.stickerDialogOpen = stickerDialogOpen;
-    }
-
-    setEditedStickerId = (id?: string): void => {
-        this.editedStickerId = id;
-    }
-
-    moveStickerBack = (id: string): void => {
-        const index = this.stickersIds.indexOf(id);
-
-        if (index <= 0) {
-            return;
-        }
-
-        swapItems(this.stickersIds, index, index - 1);
-    }
-
-    moveStickerForward = (id: string): void => {
-        const index = this.stickersIds.indexOf(id);
-
-        if (index < 0 || index === this.stickersIds.length - 1) {
-            return;
-        }
-
-        swapItems(this.stickersIds, index, index + 1);
+    editSticker(sticker: StickerContainer): void {
+        this.addSticker(sticker);
     }
 
     public submitForm(): void {
@@ -138,7 +72,7 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
             .map(localStickerId => this.formValues.stickers[localStickerId])
             .filter(stickerContainer => isDefined(stickerContainer.uploadContainer?.uploadedFile))
             .map(stickerContainer => ({
-                emojis: stickerContainer.emojis,
+                emojis: stickerContainer.emojis.map(emoji => emoji.id).filter(isDefined),
                 uploadId: stickerContainer.uploadContainer!.uploadedFile!.id,
                 keywords: stickerContainer.keywords
             }));
@@ -153,26 +87,32 @@ export class CreateStickerPackStore extends AbstractFormStore<CreateStickerPackF
             stickersType: this.formValues.stickersType,
             stickers
         })
-            .then(({data}) => this.entities.stickerPacks.insert(data))
+            .then(({data}) => {
+                this.entities.stickerPacks.insert(data);
+                this.snackbarService.enqueueSnackbar(
+                    this.locale.getCurrentLanguageLabel("sticker.pack.create.success")
+                );
+
+                if (this.routerStore) {
+                    this.routerStore.goTo(Routes.stickerPack, {id: data.id});
+                }
+
+                this.reset();
+            })
             .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
             .finally(() => this.setPending(false));
     }
 
-    protected validateForm(): boolean {
-        this.formErrors = {
-            description: validateStickerPackDescription(this.formValues.description),
-            name: validateStickerPackName(this.formValues.name),
-            author: undefined,
-            stickers: undefined,
-            stickersType: undefined
-        };
-        const filesContainErrors = Object.keys(this.formValues.stickers)
-            .map(localStickerId => Boolean(!this.formValues.stickers[localStickerId].validate()
-                || this.formValues.stickers[localStickerId].fileValidationError
-                || this.formValues.stickers[localStickerId]?.uploadContainer?.error)
+    protected validateStickers(): boolean {
+        return Object.keys(this.formValues.stickers)
+            .map(localStickerId => this.formValues.stickers[localStickerId].validate()
+                && !isDefined(this.formValues.stickers[localStickerId].fileValidationError)
+                && !isDefined(this.formValues.stickers[localStickerId]?.uploadContainer?.error)
             )
             .reduce((accumulator, current) => accumulator && current);
+    }
 
-        return !containsNotUndefinedValues(this.formErrors) && !filesContainErrors;
+    setRouterStore = (routerStore: RouterStore<any>): void => {
+        this.routerStore = routerStore;
     }
 }

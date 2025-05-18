@@ -1,9 +1,14 @@
 import {AxiosPromise} from "axios";
 import {stringify} from "query-string";
-import {CreateStickerPackRequest, PaginationRequest} from "../types/request";
-import {StickerPack} from "../types/response";
+import {
+    CreateStickerPackRequest,
+    CreateStickerRequest,
+    PaginationRequest,
+    UpdateStickerPackRequest
+} from "../types/request";
+import {Sticker, StickerPack} from "../types/response";
 import {axiosInstance} from "../axios-instance";
-import {INSTALLED, MY, STICKER_PACKS} from "../endpoints";
+import {INSTALLED, MY, STICKER_PACKS, STICKERS} from "../endpoints";
 
 export class StickerApi {
     public static createStickerPack(createStickerPackRequest: CreateStickerPackRequest): AxiosPromise<StickerPack> {
@@ -37,5 +42,13 @@ export class StickerApi {
         });
 
         return axiosInstance.get(`/${STICKER_PACKS}?${queryString}`);
+    }
+
+    public static updateStickerPack(id: string, updateStickerPackRequest: UpdateStickerPackRequest): AxiosPromise<StickerPack> {
+        return axiosInstance.put(`/${STICKER_PACKS}/${id}`, updateStickerPackRequest);
+    }
+
+    public static addStickersToStickerPack(id: string, stickers: CreateStickerRequest[]): AxiosPromise<Array<Sticker>> {
+        return axiosInstance.post(`/${STICKER_PACKS}/${id}/${STICKERS}`, stickers);
     }
 }

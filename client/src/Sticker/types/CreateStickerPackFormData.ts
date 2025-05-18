@@ -1,10 +1,6 @@
-import {StickerContainer} from "../stores/StickerContainer";
+import {StickerPackFormData} from "./StickerPackFormData";
 import {StickerType} from "../../api/types/response";
 
-export interface CreateStickerPackFormData {
-    name?: string,
-    description?: string,
-    stickers: {[localStickerId: string]: StickerContainer}
-    author?: string,
+export interface CreateStickerPackFormData extends StickerPackFormData {
     stickersType?: StickerType
 }

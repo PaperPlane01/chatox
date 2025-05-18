@@ -48,6 +48,7 @@ export const StickerEmojiPickerDialog: FunctionComponent<StickerEmojiPickerDialo
                         set={selectedEmojiSet === "native" ? undefined : selectedEmojiSet}
                         native={selectedEmojiSet === "native"}
                         autoFocus={false}
+                        style={{width: "100%"}}
                 />
             </DialogContent>
         </Dialog>

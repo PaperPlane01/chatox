@@ -11,3 +11,5 @@ export * from "./StickersGridList";
 export * from "./StickerPackDialog";
 export * from "./InstalledStickerPacksList";
 export * from "./StickerPicker";
+export * from "./UpdateStickerPackForm";
+export * from "./StickerPackCard";

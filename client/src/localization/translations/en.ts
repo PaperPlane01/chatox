@@ -800,5 +800,16 @@ export const en: Labels = {
     "sticker.file": "File",
     "sticker.file.required": "Sticker file is required",
     "sticker.file.too-large": "Sticker file is too large",
-    "sticker.file.invalid": "Sticker file is invalid"
+    "sticker.file.invalid": "Sticker file is invalid",
+    "sticker.pack.update": "Update sticker pack {stickerPackName}",
+    "sticker.pack.update.error.server-unreachable": "Error occurred when tried to update sticker pack: server is unreachable",
+    "sticker.pack.update.error.stickers-not-found": "Error occurred when tried to update sticker pack: stickers not found",
+    "sticker.pack.update.error.unknown": "Unknown error occurred when tried to update sticker pack",
+    "sticker.pack.add-new-stickers": "Add new stickers",
+    "sticker.pack.create.login-required": "You have to be logged in to create a sticker pack",
+    "sticker.pack.update.no-permission": "You don't have permission to edit this sticker pack",
+    "sticker.pack.load.error.not-found": "Sticker pack not found",
+    "sticker.pack.load.error.unknown": "Unknown error occurred when tried to load sticker pack",
+    "sticker.add.new": "Add new stickers",
+    "sticker.pack.update.success": "Sticker pack has been updated"
 };
