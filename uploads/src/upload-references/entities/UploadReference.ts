@@ -1,8 +1,8 @@
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import * as mongoose from "mongoose";
 import {UploadReferenceType} from "./UploadReferenceType";
-import {PartialBy} from "../../utils/types";
 import {UploadDeletionReason} from "./UploadDeletionReason";
+import {PartialBy} from "../../utils/types";
 
 @Schema({collection: "uploadReferences"})
 export class UploadReference {
@@ -20,7 +20,8 @@ export class UploadReference {
             UploadReferenceType.CHAT_PROFILE_IMAGE,
             UploadReferenceType.MESSAGE_ATTACHMENT,
             UploadReferenceType.USER_PROFILE_IMAGE,
-            UploadReferenceType.STICKER
+            UploadReferenceType.STICKER,
+            UploadReferenceType.MESSAGE_STICKER
         ]
     })
     type: UploadReferenceType;

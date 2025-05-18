@@ -9,3 +9,5 @@ export * from "./UserDeleted";
 export * from "./UserProfilePhotoCreated";
 export * from "./UserProfilePhotoDeleted";
 export * from "./DraftMessageDeleted";
+export * from "./Sticker";
+export * from "./StickerPackUpdated";
