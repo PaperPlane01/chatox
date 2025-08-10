@@ -1,9 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {Grid} from "@mui/material";
-import {Layout} from "../Layout";
-import {AppBar} from "../AppBar";
-import {SettingsContainer} from "../Settings";
-import {StickerPackDialog} from "../Sticker";
+import {Layout} from "../Layout/components";
+import {AppBar} from "../AppBar/components";
+import {SettingsContainer} from "../Settings/components";
+import {DeleteStickerPackDialog, StickerPackDialog} from "../Sticker/components";
 
 export const SettingsPage: FunctionComponent = () => (
     <Grid container>
@@ -16,6 +16,7 @@ export const SettingsPage: FunctionComponent = () => (
             </Layout>
         </Grid>
         <StickerPackDialog/>
+        <DeleteStickerPackDialog/>
     </Grid>
 );
 

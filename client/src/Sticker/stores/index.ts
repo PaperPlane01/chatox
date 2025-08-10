@@ -12,3 +12,4 @@ export * from "./StickerPickerStore";
 export * from "./UpdateStickerPackStore";
 export * from "./StickerPackFormStore";
 export * from "./StickerPackStore";
+export * from "./DeleteStickerPackStore";

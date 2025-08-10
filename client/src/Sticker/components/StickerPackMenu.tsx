@@ -1,9 +1,10 @@
 import React, {Fragment, FunctionComponent, ReactNode, SyntheticEvent, useCallback} from "react";
+import {observer} from "mobx-react";
 import {IconButton, Menu} from "@mui/material";
 import {MoreVert} from "@mui/icons-material";
-import {observer} from "mobx-react";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {EditStickerPackMenuItem} from "./EditStickerPackMenuItem";
+import {DeleteStickerPackMenuItem} from "./DeleteStickerPackMenuItem";
 import {useAuthorization, usePermissions} from "../../store";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 import {useEntityById} from "../../entities";
@@ -22,7 +23,8 @@ export const StickerPackMenu: FunctionComponent<StickerPackMenuProps> = observer
 	const {currentUser} = useAuthorization();
 	const {
 		stickerPacks: {
-			canEditStickerPack
+			canEditStickerPack,
+			canDeleteStickerPack
 		}
 	} = usePermissions();
 
@@ -52,6 +54,14 @@ export const StickerPackMenu: FunctionComponent<StickerPackMenuProps> = observer
 		menuItems.push(
 			<EditStickerPackMenuItem stickerPackId={stickerPackId}
 									 onClick={handleMenuItemClick}
+			/>
+		);
+	}
+
+	if (canDeleteStickerPack(stickerPack)) {
+		menuItems.push(
+			<DeleteStickerPackMenuItem stickerPackId={stickerPackId}
+									   onClick={handleMenuItemClick}
 			/>
 		);
 	}

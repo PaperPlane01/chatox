@@ -811,5 +811,14 @@ export const en: Labels = {
     "sticker.pack.load.error.not-found": "Sticker pack not found",
     "sticker.pack.load.error.unknown": "Unknown error occurred when tried to load sticker pack",
     "sticker.add.new": "Add new stickers",
-    "sticker.pack.update.success": "Sticker pack has been updated"
+    "sticker.pack.update.success": "Sticker pack has been updated",
+    "sticker.pack.delete": "Delete sticker pack",
+    "sticker.pack.delete.with-name": "Delete sticker pack {stickerPackName}",
+    "sticker.pack.delete.consent": "I understand that this action is irreversible and that this sticker pack cannot be restored afterwards",
+    "sticker.pack.delete.delete-messages": "Delete all messages with stickers from this sticker pack",
+    "sticker.pack.delete.success": "Sticker pack has been deleted",
+    "sticker.pack.delete.error.unknown": "Unknown error occurred when tried to delete sticker pack, server responded with {errorStatus} status",
+    "sticker.pack.delete.error.not-found": "Error occurred when tried to delete sticker pack: sticker pack not found",
+    "sticker.pack.delete.error.server-unreachable": "Error occurred when tried to delete sticker pack: server is unreachable",
+    "common.error.field-required": "This field is required"
 };

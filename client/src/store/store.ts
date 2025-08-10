@@ -128,7 +128,8 @@ import {
     StickerPackDialogStore, StickerPackStore,
     StickerPickerStore,
     UninstallStickerPackStore,
-    UpdateStickerPackStore
+    UpdateStickerPackStore,
+    DeleteStickerPackStore
 } from "../Sticker";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
 import {
@@ -578,6 +579,13 @@ const userNotificationExceptionsDialog = new UserNotificationExceptionsDialogSto
 const updateUserNotificationsSettingsInChatDialog = new UpdateUserNotificationSettingsInChatDialogStore(updateChatNotificationsSettings);
 const stickerPackUpdate = new UpdateStickerPackStore(entities, snackbarService, language);
 const stickerPack = new StickerPackStore(entities);
+const stickerPackDeletion = new DeleteStickerPackStore(
+    authorization,
+    entities,
+    installedStickerPacks,
+    stickerPackDialog,
+    stickerPicker
+);
 
 const _store: IAppState = {
     authorization,
@@ -748,7 +756,8 @@ const _store: IAppState = {
     userNotificationExceptionsDialog,
     updateUserNotificationsSettingsInChatDialog,
     stickerPackUpdate,
-    stickerPack
+    stickerPack,
+    stickerPackDeletion
 };
 
 //Hack to avoid loss of application state on HMR

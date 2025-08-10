@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {Grid} from "@mui/material";
-import {Layout} from "../Layout";
-import {AppBar} from "../AppBar";
-import {StickerPackDialog, StickerPacksSearchResults} from "../Sticker";
+import {Layout} from "../Layout/components";
+import {AppBar} from "../AppBar/components";
+import {DeleteStickerPackDialog, StickerPackDialog, StickerPacksSearchResults} from "../Sticker/components";
 
 export const StickerPacksPage: FunctionComponent = () => (
     <Grid container>
@@ -15,6 +15,7 @@ export const StickerPacksPage: FunctionComponent = () => (
             </Layout>
         </Grid>
         <StickerPackDialog/>
+        <DeleteStickerPackDialog/>
     </Grid>
 );
 

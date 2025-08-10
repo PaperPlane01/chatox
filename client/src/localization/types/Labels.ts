@@ -809,5 +809,14 @@ export interface Labels {
     "sticker.pack.load.error.not-found": string,
     "sticker.pack.load.error.unknown": string,
     "sticker.add.new": string,
-    "sticker.pack.update.success": string
+    "sticker.pack.update.success": string,
+    "sticker.pack.delete": string,
+    "sticker.pack.delete.with-name": string,
+    "sticker.pack.delete.consent": string,
+    "sticker.pack.delete.delete-messages": string,
+    "sticker.pack.delete.success": string,
+    "sticker.pack.delete.error.unknown": string,
+    "sticker.pack.delete.error.not-found": string,
+    "sticker.pack.delete.error.server-unreachable": string,
+    "common.error.field-required": string
 }

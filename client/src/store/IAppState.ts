@@ -120,7 +120,8 @@ import {
     StickerPackDialogStore, StickerPackStore,
     StickerPickerStore,
     UninstallStickerPackStore,
-    UpdateStickerPackStore
+    UpdateStickerPackStore,
+    DeleteStickerPackStore
 } from "../Sticker";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
 import {
@@ -351,5 +352,6 @@ export interface IAppState {
     userNotificationExceptionsDialog: UserNotificationExceptionsDialogStore,
     updateUserNotificationsSettingsInChatDialog: UpdateUserNotificationSettingsInChatDialogStore,
     stickerPackUpdate: UpdateStickerPackStore,
-    stickerPack: StickerPackStore
+    stickerPack: StickerPackStore,
+    stickerPackDeletion: DeleteStickerPackStore
 }

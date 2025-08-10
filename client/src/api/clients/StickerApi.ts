@@ -3,6 +3,7 @@ import {stringify} from "query-string";
 import {
     CreateStickerPackRequest,
     CreateStickerRequest,
+    DeleteStickerPackRequest,
     PaginationRequest,
     UpdateStickerPackRequest
 } from "../types/request";
@@ -50,5 +51,14 @@ export class StickerApi {
 
     public static addStickersToStickerPack(id: string, stickers: CreateStickerRequest[]): AxiosPromise<Array<Sticker>> {
         return axiosInstance.post(`/${STICKER_PACKS}/${id}/${STICKERS}`, stickers);
+    }
+
+    public static deleteStickerPack(id: string, request?: DeleteStickerPackRequest): AxiosPromise<void> {
+        return axiosInstance.delete(
+            `/${STICKER_PACKS}/${id}`,
+            {
+                data: request
+            }
+        );
     }
 }

@@ -56,4 +56,12 @@ export const validateStickerEmojis = (emojis: EmojiData[]): keyof Labels | undef
     }
 
     return undefined;
-}
+};
+
+export const validateConsent = (consent: boolean): keyof Labels | undefined => {
+  if (!consent) {
+      return "common.error.field-required";
+  }
+
+  return undefined;
+};

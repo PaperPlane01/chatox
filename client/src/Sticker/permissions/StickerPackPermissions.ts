@@ -9,4 +9,8 @@ export class StickerPackPermissions {
 	canEditStickerPack = computedFn((stickerPack: StickerPackEntity): boolean => {
 		return this.authorization.currentUser?.id === stickerPack.createdById;
 	})
+
+	canDeleteStickerPack = computedFn((stickerPack: StickerPackEntity): boolean => {
+		return this.authorization.currentUser?.id === stickerPack.createdById || this.authorization.currentUserIsAdmin;
+	})
 }

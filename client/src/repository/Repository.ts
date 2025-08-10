@@ -8,4 +8,5 @@ export interface Repository<T extends BaseEntity, R extends Relationships> exten
 	findAllById(ids: string[]): Promise<T[]>
 	upsert(entity: T): Promise<T>,
 	bulkUpsert(entities: T[]): Promise<Array<T>>
+	deleteById(id: string): Promise<void>
 }
