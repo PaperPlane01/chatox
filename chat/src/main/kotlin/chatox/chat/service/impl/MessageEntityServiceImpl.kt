@@ -15,6 +15,7 @@ import chatox.chat.service.MessageEntityService
 import chatox.chat.util.runAsync
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import io.mockk.InternalPlatformDsl.toArray
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -43,7 +44,10 @@ class MessageEntityServiceImpl(
                     attachments = listOf(),
                     uploadAttachmentsIds = listOf(),
                     text = "",
-                    emoji = EmojiInfo()
+                    emoji = EmojiInfo(),
+                    mentionedUsers = listOf(),
+                    sticker = null,
+                    referredMessageId = null
             ))
                     .awaitFirst()
 
@@ -81,7 +85,10 @@ class MessageEntityServiceImpl(
                     text = "",
                     emoji = EmojiInfo(),
                     attachments = listOf(),
-                    uploadAttachmentsIds = listOf()
+                    uploadAttachmentsIds = listOf(),
+                    mentionedUsers = listOf(),
+                    sticker = null,
+                    referredMessageId = null
             ) }).collectList().awaitFirst()
 
             messages.forEach { message ->

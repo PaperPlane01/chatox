@@ -69,4 +69,31 @@ export class UploadReferenceStickersEventsListener {
             }
         );
     }
+
+    @RabbitSubscribe({
+        exchange: "sticker.events",
+        queue: "upload_service_sticker_pack_deleted",
+        routingKey: "sticker.pack.deleted.#"
+    })
+    public async onStickerPackDeleted(stickerPack: StickerPack): Promise<void> {
+        await this.uploadReferenceModel.updateMany(
+            {
+                referenceObjectId: {
+                    $in: stickerPack.stickers.map(sticker => sticker.id)
+                },
+                type: UploadReferenceType.STICKER
+            },
+            {
+                $set: {
+                    scheduledForDeletion: true
+                },
+                $push: {
+                    deletionReasons: new UploadDeletionReason({
+                        deletionReasonType: UploadDeletionReasonType.STICKER_PACK_DELETED_EVENT,
+                        sourceObjectId: stickerPack.id
+                    })
+                }
+            }
+        );
+    }
 }

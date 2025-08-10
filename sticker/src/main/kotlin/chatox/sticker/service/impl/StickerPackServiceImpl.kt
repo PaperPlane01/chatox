@@ -17,6 +17,7 @@ import chatox.sticker.exception.metadata.UploadsNotFoundException
 import chatox.sticker.external.TextParserApi
 import chatox.sticker.mapper.StickerMapper
 import chatox.sticker.mapper.StickerPackMapper
+import chatox.sticker.messaging.rabbitmq.event.StickerPackDeleted
 import chatox.sticker.messaging.rabbitmq.event.StickerPackUpdated
 import chatox.sticker.messaging.rabbitmq.event.producer.StickerEventsProducer
 import chatox.sticker.model.Sticker
@@ -211,9 +212,33 @@ class StickerPackServiceImpl(
             )
             runAsync { stickerEventsProducer.stickerPackUpdated(stickerPackUpdated) }
 
-            return@mono Flux.fromIterable(response)
+            return@mono response
         }
-                .flatMapMany { it }
+                .flatMapIterable { it }
+    }
+
+    override fun deleteStickerPack(id: String, deleteMessages: Boolean): Mono<Unit> {
+        return mono {
+            val stickerPack = findStickerPackByIdInternal(id).awaitFirstOrNull()
+            val stickers = stickerRepository.findAllByStickerPackId(id).collectList().awaitFirst()
+            val stickerPackInstallations = stickerPackInstallationRepository.findAllByStickerPackId(
+                    id
+            )
+                    .collectList()
+                    .awaitFirst()
+
+            stickerPackInstallationRepository.deleteAll(stickerPackInstallations).awaitFirstOrNull()
+            stickerPackRepository.delete(stickerPack as StickerPack<*>).awaitFirstOrNull()
+            stickerRepository.deleteAll(stickers).awaitFirstOrNull()
+
+            runAsync {
+                stickerEventsProducer.stickerPackDeleted(StickerPackDeleted(
+                        id = id,
+                        deleteMessages = deleteMessages,
+                        stickers = stickers.map { sticker -> stickerMapper.toStickerResponse(sticker) }
+                ))
+            }
+        }
     }
 
     private fun createStickers(
@@ -238,8 +263,6 @@ class StickerPackServiceImpl(
 
             val emojiIds = createStickerRequests.flatMap { request -> request.emojis }.toSet()
             val emojisMap = textParserApi.getEmojiInfo(emojiIds).awaitFirst()
-
-            println(emojisMap)
 
             val stickers = createStickerRequests.map { request -> Sticker(
                     id = ObjectId().toHexString(),

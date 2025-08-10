@@ -7,6 +7,7 @@ import chatox.platform.pagination.annotation.SortDirection
 import chatox.platform.security.reactive.annotation.ReactivePermissionCheck
 import chatox.sticker.api.request.CreateStickerPackRequest
 import chatox.sticker.api.request.CreateStickerRequest
+import chatox.sticker.api.request.DeleteStickerPackRequest
 import chatox.sticker.api.request.UpdateStickerPackRequest
 import chatox.sticker.service.StickerPackService
 import jakarta.validation.Valid
@@ -38,6 +39,15 @@ class StickerPackController(private val stickerPackService: StickerPackService) 
             @PathVariable stickerPackId: String,
             @RequestBody @Valid updateStickerPackRequest: UpdateStickerPackRequest
     ) = stickerPackService.updateStickerPack(stickerPackId, updateStickerPackRequest)
+
+    @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@stickerPackPermissions.canDeleteStickerPack(#stickerPackId, #deleteStickerPackRequest)")
+    @DeleteMapping("/{stickerPackId}")
+    fun deleteStickerPack(
+            @PathVariable stickerPackId: String,
+            @RequestBody(required = false) deleteStickerPackRequest: DeleteStickerPackRequest?
+    ) = stickerPackService.deleteStickerPack(stickerPackId, deleteStickerPackRequest?.deleteMessages ?: false)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL

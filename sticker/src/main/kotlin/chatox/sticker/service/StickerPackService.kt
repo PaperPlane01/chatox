@@ -13,6 +13,7 @@ interface StickerPackService {
     fun createStickerPack(createStickerPackRequest: CreateStickerPackRequest): Mono<StickerPackResponse<*>>
     fun updateStickerPack(id: String, updateStickerPackRequest: UpdateStickerPackRequest): Mono<StickerPackResponse<*>>
     fun addStickersToStickerPack(id: String, createStickerRequests: List<CreateStickerRequest>): Flux<StickerResponse>
+    fun deleteStickerPack(id: String, deleteMessages: Boolean): Mono<Unit>
     fun findStickerPackById(id: String): Mono<StickerPackResponse<*>>
     fun installStickerPack(stickerPackId: String): Flux<StickerPackResponse<*>>
     fun uninstallStickerPack(stickerPackId: String): Flux<StickerPackResponse<*>>

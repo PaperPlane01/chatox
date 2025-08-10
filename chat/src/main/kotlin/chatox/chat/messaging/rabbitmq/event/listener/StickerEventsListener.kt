@@ -1,9 +1,11 @@
 package chatox.chat.messaging.rabbitmq.event.listener
 
 import chatox.chat.messaging.rabbitmq.event.StickerPackCreated
+import chatox.chat.messaging.rabbitmq.event.StickerPackDeleted
 import chatox.chat.messaging.rabbitmq.event.StickerPackUpdated
 import chatox.chat.model.Sticker
 import chatox.chat.repository.mongodb.StickerRepository
+import chatox.chat.service.MessageService
 import com.rabbitmq.client.Channel
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -14,7 +16,9 @@ import org.springframework.messaging.handler.annotation.Header
 import org.springframework.stereotype.Component
 
 @Component
-class StickerEventsListener(private val stickerRepository: StickerRepository) {
+class StickerEventsListener(
+        private val stickerRepository: StickerRepository,
+        private val messageService: MessageService) {
 
     @RabbitListener(queues = ["chat_service_sticker_pack_created"])
     fun onStickerPackCreated(stickerPackCreated: StickerPackCreated<*>,
@@ -55,6 +59,22 @@ class StickerEventsListener(private val stickerRepository: StickerRepository) {
             if (stickerPackUpdated.removedStickers.isNotEmpty()) {
                 val deletedStickers = stickerPackUpdated.removedStickers.map { sticker -> sticker.id }
                 stickerRepository.deleteAllById(deletedStickers).awaitFirstOrNull()
+            }
+        }
+                .doOnSuccess { channel.basicAck(deliveryTag, false) }
+                .doOnError { channel.basicNack(deliveryTag, false, true) }
+                .subscribe()
+    }
+
+    @RabbitListener(queues = ["chat_service_sticker_pack_deleted"])
+    fun onStickerPackDeleted(stickerPackDeleted: StickerPackDeleted,
+                             channel: Channel,
+                             @Header(AmqpHeaders.DELIVERY_TAG) deliveryTag: Long) {
+        mono {
+            stickerRepository.deleteAllByStickerPackId(stickerPackDeleted.id).awaitFirstOrNull()
+
+            if (stickerPackDeleted.deleteMessages) {
+                messageService.deleteMessagesWithStickersFromStickerPack(stickerPackDeleted.id).subscribe()
             }
         }
                 .doOnSuccess { channel.basicAck(deliveryTag, false) }

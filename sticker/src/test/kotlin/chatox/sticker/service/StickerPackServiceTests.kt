@@ -20,6 +20,7 @@ import chatox.sticker.messaging.rabbitmq.event.producer.StickerEventsProducer
 import chatox.sticker.model.EmojiData
 import chatox.sticker.model.Sticker
 import chatox.sticker.model.StickerPack
+import chatox.sticker.model.StickerPackInstallation
 import chatox.sticker.model.StickerUploadMetadata
 import chatox.sticker.model.Upload
 import chatox.sticker.repository.StickerPackInstallationRepository
@@ -586,6 +587,39 @@ class StickerPackServiceTests {
             StepVerifier
                     .create(stickerPackService.findStickerPackById(id))
                     .verifyError(StickerPackNotFoundException::class.java)
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteStickerPack() tests")
+    inner class DeleteStickerPackTests {
+
+        @ParameterizedTest
+        @ValueSource(booleans = [false, true])
+        @DisplayName("It deletes sticker pack")
+        fun deleteStickerPack(deleteMessages: Boolean) {
+            val stickerPack = loadResource(
+                    "model/sticker-pack.json",
+                    object : TypeReference<StickerPack<StickerUploadMetadata>>() {
+                    }
+            )
+            val id = stickerPack.id
+
+            every { stickerPackRepository.findById(id) } returns Mono.just(stickerPack)
+
+            val stickerPackInstallations = listOf(
+                    loadResource("model/sticker-pack-installation.json", StickerPackInstallation::class.java)
+            )
+            every {
+                stickerPackInstallationRepository.findAllByStickerPackId(id)
+            } returns Flux.fromIterable(stickerPackInstallations)
+
+            StepVerifier
+                    .create(stickerPackService.deleteStickerPack(id, deleteMessages))
+                    .assertNext {
+
+                    }
+                    .verifyComplete()
         }
     }
 }
