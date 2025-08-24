@@ -188,7 +188,8 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 								h2: classes.heading2,
 								h3: classes.heading3,
 								h4: classes.heading4,
-								h5: classes.heading5
+								h5: classes.heading5,
+								h6: classes.heading6
 							},
 							text: {
 								bold: classes.bold,
