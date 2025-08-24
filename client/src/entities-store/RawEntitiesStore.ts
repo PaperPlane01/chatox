@@ -150,8 +150,13 @@ export class RawEntitiesStore {
         return serialized;
     }
 
-    deleteEntity = (entityName: Entities, id: string): void => {
+    deleteEntity = (entityName: Entities, id: string, skipRemovingFromDatabase: boolean = false): void => {
         this.ids[entityName] = this.ids[entityName].filter(entityId => entityId !== id);
         delete this.entities[entityName][id];
+
+        if (!skipRemovingFromDatabase) {
+            const repository = this.repositories.getRepository(entityName);
+            repository?.deleteById(id);
+        }
     }
 }

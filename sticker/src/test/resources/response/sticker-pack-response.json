@@ -1,0 +1,2806 @@
+{
+  "id": "67a77e3366735011e3fae0b0",
+  "author": "",
+  "createdAt": "2025-02-08T15:54:27.089Z",
+  "updatedAt": null,
+  "name": "Pepe",
+  "preview": {
+    "id": "67a76ee798adaf80e6abde4f",
+    "name": "67a76ee798adaf80e6abde4f.webp",
+    "extension": "webp",
+    "mimeType": "image/webp",
+    "meta": {
+      "width": 512,
+      "height": 512,
+      "animated": false
+    },
+    "preview": null,
+    "type": "WEBP_STICKER",
+    "originalName": "1.webp",
+    "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a76ee798adaf80e6abde4f.webp",
+    "size": 22080
+  },
+  "stickers": [
+    {
+      "id": "67a77e3366735011e3fae0b1",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "slightly_smiling_face",
+          "name": "Slightly Smiling Face",
+          "short_names": [
+            "slightly_smiling_face"
+          ],
+          "colons": ":slightly_smiling_face:",
+          "emoticons": [
+            ":)",
+            "(:",
+            ":-)"
+          ],
+          "unified": "1f642",
+          "skin": null,
+          "native": "🙂",
+          "originalSet": "apple"
+        },
+        {
+          "id": "relieved",
+          "name": "Relieved Face",
+          "short_names": [
+            "relieved"
+          ],
+          "colons": ":relieved:",
+          "emoticons": [],
+          "unified": "1f60c",
+          "skin": null,
+          "native": "😌",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a76ee798adaf80e6abde4f",
+        "name": "67a76ee798adaf80e6abde4f.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "1.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a76ee798adaf80e6abde4f.webp",
+        "size": 22080
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0b2",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "confused",
+          "name": "Confused Face",
+          "short_names": [
+            "confused"
+          ],
+          "colons": ":confused:",
+          "emoticons": [
+            ":\\",
+            ":-\\",
+            ":/",
+            ":-/"
+          ],
+          "unified": "1f615",
+          "skin": null,
+          "native": "😕",
+          "originalSet": "apple"
+        },
+        {
+          "id": "unamused",
+          "name": "Unamused Face",
+          "short_names": [
+            "unamused"
+          ],
+          "colons": ":unamused:",
+          "emoticons": [],
+          "unified": "1f612",
+          "skin": null,
+          "native": "😒",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a76f1f98adaf80e6abde5c",
+        "name": "67a76f1f98adaf80e6abde5c.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "2.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a76f1f98adaf80e6abde5c.webp",
+        "size": 22760
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0b3",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "smirk",
+          "name": "Smirking Face",
+          "short_names": [
+            "smirk"
+          ],
+          "colons": ":smirk:",
+          "emoticons": [],
+          "unified": "1f60f",
+          "skin": null,
+          "native": "😏",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a76f4598adaf80e6abde69",
+        "name": "67a76f4598adaf80e6abde69.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "3.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a76f4598adaf80e6abde69.webp",
+        "size": 21698
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0b4",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "angry"
+      ],
+      "emojis": [
+        {
+          "id": "rage",
+          "name": "Pouting Face",
+          "short_names": [
+            "rage"
+          ],
+          "colons": ":rage:",
+          "emoticons": [],
+          "unified": "1f621",
+          "skin": null,
+          "native": "😡",
+          "originalSet": "apple"
+        },
+        {
+          "id": "imp",
+          "name": "Imp",
+          "short_names": [
+            "imp"
+          ],
+          "colons": ":imp:",
+          "emoticons": [],
+          "unified": "1f47f",
+          "skin": null,
+          "native": "👿",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a76fa998adaf80e6abde76",
+        "name": "67a76fa998adaf80e6abde76.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "5.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a76fa998adaf80e6abde76.webp",
+        "size": 31022
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0b5",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "laughing",
+        "lol",
+        "lmao",
+        "hahaha"
+      ],
+      "emojis": [
+        {
+          "id": "joy",
+          "name": "Face with Tears of Joy",
+          "short_names": [
+            "joy"
+          ],
+          "colons": ":joy:",
+          "emoticons": [],
+          "unified": "1f602",
+          "skin": null,
+          "native": "😂",
+          "originalSet": "apple"
+        },
+        {
+          "id": "rolling_on_the_floor_laughing",
+          "name": "Rolling on the Floor Laughing",
+          "short_names": [
+            "rolling_on_the_floor_laughing"
+          ],
+          "colons": ":rolling_on_the_floor_laughing:",
+          "emoticons": [],
+          "unified": "1f923",
+          "skin": null,
+          "native": "🤣",
+          "originalSet": "apple"
+        },
+        {
+          "id": "grinning",
+          "name": "Grinning Face",
+          "short_names": [
+            "grinning"
+          ],
+          "colons": ":grinning:",
+          "emoticons": [],
+          "unified": "1f600",
+          "skin": null,
+          "native": "😀",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a76fd798adaf80e6abde83",
+        "name": "67a76fd798adaf80e6abde83.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "6.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a76fd798adaf80e6abde83.webp",
+        "size": 24070
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0b6",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "laughing",
+        "lol",
+        "lmao",
+        "hahaha"
+      ],
+      "emojis": [
+        {
+          "id": "joy",
+          "name": "Face with Tears of Joy",
+          "short_names": [
+            "joy"
+          ],
+          "colons": ":joy:",
+          "emoticons": [],
+          "unified": "1f602",
+          "skin": null,
+          "native": "😂",
+          "originalSet": "apple"
+        },
+        {
+          "id": "rolling_on_the_floor_laughing",
+          "name": "Rolling on the Floor Laughing",
+          "short_names": [
+            "rolling_on_the_floor_laughing"
+          ],
+          "colons": ":rolling_on_the_floor_laughing:",
+          "emoticons": [],
+          "unified": "1f923",
+          "skin": null,
+          "native": "🤣",
+          "originalSet": "apple"
+        },
+        {
+          "id": "grinning",
+          "name": "Grinning Face",
+          "short_names": [
+            "grinning"
+          ],
+          "colons": ":grinning:",
+          "emoticons": [],
+          "unified": "1f600",
+          "skin": null,
+          "native": "😀",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7700598adaf80e6abde90",
+        "name": "67a7700598adaf80e6abde90.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "7.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7700598adaf80e6abde90.webp",
+        "size": 26286
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0b7",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "scheming"
+      ],
+      "emojis": [
+        {
+          "id": "smiling_imp",
+          "name": "Smiling Face with Horns",
+          "short_names": [
+            "smiling_imp"
+          ],
+          "colons": ":smiling_imp:",
+          "emoticons": [],
+          "unified": "1f608",
+          "skin": null,
+          "native": "😈",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7702998adaf80e6abde9d",
+        "name": "67a7702998adaf80e6abde9d.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "8.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7702998adaf80e6abde9d.webp",
+        "size": 22734
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0b8",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "disappointed_relieved",
+          "name": "Disappointed but Relieved Face",
+          "short_names": [
+            "disappointed_relieved"
+          ],
+          "colons": ":disappointed_relieved:",
+          "emoticons": [],
+          "unified": "1f625",
+          "skin": null,
+          "native": "😥",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7704f98adaf80e6abdeaa",
+        "name": "67a7704f98adaf80e6abdeaa.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "10.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7704f98adaf80e6abdeaa.webp",
+        "size": 23664
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0b9",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "disappointed_relieved",
+          "name": "Disappointed but Relieved Face",
+          "short_names": [
+            "disappointed_relieved"
+          ],
+          "colons": ":disappointed_relieved:",
+          "emoticons": [],
+          "unified": "1f625",
+          "skin": null,
+          "native": "😥",
+          "originalSet": "apple"
+        },
+        {
+          "id": "gun",
+          "name": "Pistol",
+          "short_names": [
+            "gun"
+          ],
+          "colons": ":gun:",
+          "emoticons": [],
+          "unified": "1f52b",
+          "skin": null,
+          "native": "🔫",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7709b98adaf80e6abdeb7",
+        "name": "67a7709b98adaf80e6abdeb7.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "11.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7709b98adaf80e6abdeb7.webp",
+        "size": 25704
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0ba",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "sunglasses",
+          "name": "Smiling Face with Sunglasses",
+          "short_names": [
+            "sunglasses"
+          ],
+          "colons": ":sunglasses:",
+          "emoticons": [
+            "8)"
+          ],
+          "unified": "1f60e",
+          "skin": null,
+          "native": "😎",
+          "originalSet": "apple"
+        },
+        {
+          "id": "billed_cap",
+          "name": "Billed Cap",
+          "short_names": [
+            "billed_cap"
+          ],
+          "colons": ":billed_cap:",
+          "emoticons": [],
+          "unified": "1f9e2",
+          "skin": null,
+          "native": "🧢",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a770c098adaf80e6abdec4",
+        "name": "67a770c098adaf80e6abdec4.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "12.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a770c098adaf80e6abdec4.webp",
+        "size": 23430
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0bb",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "unamused",
+          "name": "Unamused Face",
+          "short_names": [
+            "unamused"
+          ],
+          "colons": ":unamused:",
+          "emoticons": [],
+          "unified": "1f612",
+          "skin": null,
+          "native": "😒",
+          "originalSet": "apple"
+        },
+        {
+          "id": "pensive",
+          "name": "Pensive Face",
+          "short_names": [
+            "pensive"
+          ],
+          "colons": ":pensive:",
+          "emoticons": [],
+          "unified": "1f614",
+          "skin": null,
+          "native": "😔",
+          "originalSet": "apple"
+        },
+        {
+          "id": "tada",
+          "name": "Party Popper",
+          "short_names": [
+            "tada"
+          ],
+          "colons": ":tada:",
+          "emoticons": [],
+          "unified": "1f389",
+          "skin": null,
+          "native": "🎉",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7713898adaf80e6abded1",
+        "name": "67a7713898adaf80e6abded1.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "13.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7713898adaf80e6abded1.webp",
+        "size": 30738
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0bc",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "joy",
+          "name": "Face with Tears of Joy",
+          "short_names": [
+            "joy"
+          ],
+          "colons": ":joy:",
+          "emoticons": [],
+          "unified": "1f602",
+          "skin": null,
+          "native": "😂",
+          "originalSet": "apple"
+        },
+        {
+          "id": "rolling_on_the_floor_laughing",
+          "name": "Rolling on the Floor Laughing",
+          "short_names": [
+            "rolling_on_the_floor_laughing"
+          ],
+          "colons": ":rolling_on_the_floor_laughing:",
+          "emoticons": [],
+          "unified": "1f923",
+          "skin": null,
+          "native": "🤣",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7716798adaf80e6abdede",
+        "name": "67a7716798adaf80e6abdede.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "14.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7716798adaf80e6abdede.webp",
+        "size": 22970
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0bd",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "zany_face",
+          "name": "Grinning Face with One Large and One Small Eye",
+          "short_names": [
+            "zany_face",
+            "grinning_face_with_one_large_and_one_small_eye"
+          ],
+          "colons": ":zany_face:",
+          "emoticons": [],
+          "unified": "1f92a",
+          "skin": null,
+          "native": "🤪",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7717f98adaf80e6abdeed",
+        "name": "67a7717f98adaf80e6abdeed.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "15.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7717f98adaf80e6abdeed.webp",
+        "size": 21558
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0be",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "pleading_face",
+          "name": "Face with Pleading Eyes",
+          "short_names": [
+            "pleading_face"
+          ],
+          "colons": ":pleading_face:",
+          "emoticons": [],
+          "unified": "1f97a",
+          "skin": null,
+          "native": "🥺",
+          "originalSet": "apple"
+        },
+        {
+          "id": "unamused",
+          "name": "Unamused Face",
+          "short_names": [
+            "unamused"
+          ],
+          "colons": ":unamused:",
+          "emoticons": [],
+          "unified": "1f612",
+          "skin": null,
+          "native": "😒",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7719a98adaf80e6abdefa",
+        "name": "67a7719a98adaf80e6abdefa.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "16.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7719a98adaf80e6abdefa.webp",
+        "size": 21306
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0bf",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "smile",
+          "name": "Smiling Face with Open Mouth and Smiling Eyes",
+          "short_names": [
+            "smile"
+          ],
+          "colons": ":smile:",
+          "emoticons": [
+            "C:",
+            "c:",
+            ":D",
+            ":-D"
+          ],
+          "unified": "1f604",
+          "skin": null,
+          "native": "😄",
+          "originalSet": "apple"
+        },
+        {
+          "id": "grin",
+          "name": "Grinning Face with Smiling Eyes",
+          "short_names": [
+            "grin"
+          ],
+          "colons": ":grin:",
+          "emoticons": [],
+          "unified": "1f601",
+          "skin": null,
+          "native": "😁",
+          "originalSet": "apple"
+        },
+        {
+          "id": "smiley",
+          "name": "Smiling Face with Open Mouth",
+          "short_names": [
+            "smiley"
+          ],
+          "colons": ":smiley:",
+          "emoticons": [
+            "=)",
+            "=-)"
+          ],
+          "unified": "1f603",
+          "skin": null,
+          "native": "😃",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a771bd98adaf80e6abdf07",
+        "name": "67a771bd98adaf80e6abdf07.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "17.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a771bd98adaf80e6abdf07.webp",
+        "size": 25370
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0c0",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "open_mouth",
+          "name": "Face with Open Mouth",
+          "short_names": [
+            "open_mouth"
+          ],
+          "colons": ":open_mouth:",
+          "emoticons": [
+            ":o",
+            ":-o",
+            ":O",
+            ":-O"
+          ],
+          "unified": "1f62e",
+          "skin": null,
+          "native": "😮",
+          "originalSet": "apple"
+        },
+        {
+          "id": "hushed",
+          "name": "Hushed Face",
+          "short_names": [
+            "hushed"
+          ],
+          "colons": ":hushed:",
+          "emoticons": [],
+          "unified": "1f62f",
+          "skin": null,
+          "native": "😯",
+          "originalSet": "apple"
+        },
+        {
+          "id": "flushed",
+          "name": "Flushed Face",
+          "short_names": [
+            "flushed"
+          ],
+          "colons": ":flushed:",
+          "emoticons": [],
+          "unified": "1f633",
+          "skin": null,
+          "native": "😳",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a771d998adaf80e6abdf14",
+        "name": "67a771d998adaf80e6abdf14.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "18.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a771d998adaf80e6abdf14.webp",
+        "size": 22184
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0c1",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "cold_sweat",
+          "name": "Face with Open Mouth and Cold Sweat",
+          "short_names": [
+            "cold_sweat"
+          ],
+          "colons": ":cold_sweat:",
+          "emoticons": [],
+          "unified": "1f630",
+          "skin": null,
+          "native": "😰",
+          "originalSet": "apple"
+        },
+        {
+          "id": "fearful",
+          "name": "Fearful Face",
+          "short_names": [
+            "fearful"
+          ],
+          "colons": ":fearful:",
+          "emoticons": [],
+          "unified": "1f628",
+          "skin": null,
+          "native": "😨",
+          "originalSet": "apple"
+        },
+        {
+          "id": "iphone",
+          "name": "Mobile Phone",
+          "short_names": [
+            "iphone"
+          ],
+          "colons": ":iphone:",
+          "emoticons": [],
+          "unified": "1f4f1",
+          "skin": null,
+          "native": "📱",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7720298adaf80e6abdf21",
+        "name": "67a7720298adaf80e6abdf21.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "19.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7720298adaf80e6abdf21.webp",
+        "size": 22998
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0c2",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "cry",
+        "crying"
+      ],
+      "emojis": [
+        {
+          "id": "sob",
+          "name": "Loudly Crying Face",
+          "short_names": [
+            "sob"
+          ],
+          "colons": ":sob:",
+          "emoticons": [],
+          "unified": "1f62d",
+          "skin": null,
+          "native": "😭",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7723098adaf80e6abdf2e",
+        "name": "67a7723098adaf80e6abdf2e.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "20.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7723098adaf80e6abdf2e.webp",
+        "size": 24548
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0c3",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "grin",
+          "name": "Grinning Face with Smiling Eyes",
+          "short_names": [
+            "grin"
+          ],
+          "colons": ":grin:",
+          "emoticons": [],
+          "unified": "1f601",
+          "skin": null,
+          "native": "😁",
+          "originalSet": "apple"
+        },
+        {
+          "id": "smiley",
+          "name": "Smiling Face with Open Mouth",
+          "short_names": [
+            "smiley"
+          ],
+          "colons": ":smiley:",
+          "emoticons": [
+            "=)",
+            "=-)"
+          ],
+          "unified": "1f603",
+          "skin": null,
+          "native": "😃",
+          "originalSet": "apple"
+        },
+        {
+          "id": "smile",
+          "name": "Smiling Face with Open Mouth and Smiling Eyes",
+          "short_names": [
+            "smile"
+          ],
+          "colons": ":smile:",
+          "emoticons": [
+            "C:",
+            "c:",
+            ":D",
+            ":-D"
+          ],
+          "unified": "1f604",
+          "skin": null,
+          "native": "😄",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7726298adaf80e6abdf3b",
+        "name": "67a7726298adaf80e6abdf3b.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "21.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7726298adaf80e6abdf3b.webp",
+        "size": 24090
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0c4",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "angry",
+          "name": "Angry Face",
+          "short_names": [
+            "angry"
+          ],
+          "colons": ":angry:",
+          "emoticons": [
+            ">:(",
+            ">:-("
+          ],
+          "unified": "1f620",
+          "skin": null,
+          "native": "😠",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7727d98adaf80e6abdf48",
+        "name": "67a7727d98adaf80e6abdf48.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "22.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7727d98adaf80e6abdf48.webp",
+        "size": 23494
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0c5",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "face_with_rolling_eyes",
+          "name": "Face with Rolling Eyes",
+          "short_names": [
+            "face_with_rolling_eyes"
+          ],
+          "colons": ":face_with_rolling_eyes:",
+          "emoticons": [],
+          "unified": "1f644",
+          "skin": null,
+          "native": "🙄",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a772a598adaf80e6abdf55",
+        "name": "67a772a598adaf80e6abdf55.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "23.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a772a598adaf80e6abdf55.webp",
+        "size": 23882
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0c6",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "cry",
+          "name": "Crying Face",
+          "short_names": [
+            "cry"
+          ],
+          "colons": ":cry:",
+          "emoticons": [
+            ":'("
+          ],
+          "unified": "1f622",
+          "skin": null,
+          "native": "😢",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7735c98adaf80e6abdf62",
+        "name": "67a7735c98adaf80e6abdf62.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "24.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7735c98adaf80e6abdf62.webp",
+        "size": 22738
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0c7",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "pleading_face",
+          "name": "Face with Pleading Eyes",
+          "short_names": [
+            "pleading_face"
+          ],
+          "colons": ":pleading_face:",
+          "emoticons": [],
+          "unified": "1f97a",
+          "skin": null,
+          "native": "🥺",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7737198adaf80e6abdf6f",
+        "name": "67a7737198adaf80e6abdf6f.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "25.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7737198adaf80e6abdf6f.webp",
+        "size": 22774
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0c8",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "disappointed_relieved",
+          "name": "Disappointed but Relieved Face",
+          "short_names": [
+            "disappointed_relieved"
+          ],
+          "colons": ":disappointed_relieved:",
+          "emoticons": [],
+          "unified": "1f625",
+          "skin": null,
+          "native": "😥",
+          "originalSet": "apple"
+        },
+        {
+          "id": "cold_sweat",
+          "name": "Face with Open Mouth and Cold Sweat",
+          "short_names": [
+            "cold_sweat"
+          ],
+          "colons": ":cold_sweat:",
+          "emoticons": [],
+          "unified": "1f630",
+          "skin": null,
+          "native": "😰",
+          "originalSet": "apple"
+        },
+        {
+          "id": "face_with_hand_over_mouth",
+          "name": "Smiling Face with Smiling Eyes and Hand Covering Mouth",
+          "short_names": [
+            "face_with_hand_over_mouth",
+            "smiling_face_with_smiling_eyes_and_hand_covering_mouth"
+          ],
+          "colons": ":face_with_hand_over_mouth:",
+          "emoticons": [],
+          "unified": "1f92d",
+          "skin": null,
+          "native": "🤭",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a773bf98adaf80e6abdf7c",
+        "name": "67a773bf98adaf80e6abdf7c.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "26.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a773bf98adaf80e6abdf7c.webp",
+        "size": 21998
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0c9",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "open_mouth",
+          "name": "Face with Open Mouth",
+          "short_names": [
+            "open_mouth"
+          ],
+          "colons": ":open_mouth:",
+          "emoticons": [
+            ":o",
+            ":-o",
+            ":O",
+            ":-O"
+          ],
+          "unified": "1f62e",
+          "skin": null,
+          "native": "😮",
+          "originalSet": "apple"
+        },
+        {
+          "id": "hushed",
+          "name": "Hushed Face",
+          "short_names": [
+            "hushed"
+          ],
+          "colons": ":hushed:",
+          "emoticons": [],
+          "unified": "1f62f",
+          "skin": null,
+          "native": "😯",
+          "originalSet": "apple"
+        },
+        {
+          "id": "astonished",
+          "name": "Astonished Face",
+          "short_names": [
+            "astonished"
+          ],
+          "colons": ":astonished:",
+          "emoticons": [],
+          "unified": "1f632",
+          "skin": null,
+          "native": "😲",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a773d598adaf80e6abdf89",
+        "name": "67a773d598adaf80e6abdf89.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "27.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a773d598adaf80e6abdf89.webp",
+        "size": 20758
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0ca",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "wow",
+        "amazing"
+      ],
+      "emojis": [
+        {
+          "id": "star-struck",
+          "name": "Grinning Face with Star Eyes",
+          "short_names": [
+            "star-struck",
+            "grinning_face_with_star_eyes"
+          ],
+          "colons": ":star-struck:",
+          "emoticons": [],
+          "unified": "1f929",
+          "skin": null,
+          "native": "🤩",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a773ed98adaf80e6abdf96",
+        "name": "67a773ed98adaf80e6abdf96.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "28.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a773ed98adaf80e6abdf96.webp",
+        "size": 24078
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0cb",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "hm",
+        "hmmm",
+        "thinking"
+      ],
+      "emojis": [
+        {
+          "id": "thinking_face",
+          "name": "Thinking Face",
+          "short_names": [
+            "thinking_face"
+          ],
+          "colons": ":thinking_face:",
+          "emoticons": [],
+          "unified": "1f914",
+          "skin": null,
+          "native": "🤔",
+          "originalSet": "apple"
+        },
+        {
+          "id": "smirk",
+          "name": "Smirking Face",
+          "short_names": [
+            "smirk"
+          ],
+          "colons": ":smirk:",
+          "emoticons": [],
+          "unified": "1f60f",
+          "skin": null,
+          "native": "😏",
+          "originalSet": "apple"
+        },
+        {
+          "id": "smiling_imp",
+          "name": "Smiling Face with Horns",
+          "short_names": [
+            "smiling_imp"
+          ],
+          "colons": ":smiling_imp:",
+          "emoticons": [],
+          "unified": "1f608",
+          "skin": null,
+          "native": "😈",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7740598adaf80e6abdfa3",
+        "name": "67a7740598adaf80e6abdfa3.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "29.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7740598adaf80e6abdfa3.webp",
+        "size": 22346
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0cc",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "oh my",
+        "ara-ara"
+      ],
+      "emojis": [
+        {
+          "id": "face_with_hand_over_mouth",
+          "name": "Smiling Face with Smiling Eyes and Hand Covering Mouth",
+          "short_names": [
+            "face_with_hand_over_mouth",
+            "smiling_face_with_smiling_eyes_and_hand_covering_mouth"
+          ],
+          "colons": ":face_with_hand_over_mouth:",
+          "emoticons": [],
+          "unified": "1f92d",
+          "skin": null,
+          "native": "🤭",
+          "originalSet": "apple"
+        },
+        {
+          "id": "smirk",
+          "name": "Smirking Face",
+          "short_names": [
+            "smirk"
+          ],
+          "colons": ":smirk:",
+          "emoticons": [],
+          "unified": "1f60f",
+          "skin": null,
+          "native": "😏",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7742098adaf80e6abdfb0",
+        "name": "67a7742098adaf80e6abdfb0.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "30.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7742098adaf80e6abdfb0.webp",
+        "size": 21604
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0cd",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "money",
+        "dollars"
+      ],
+      "emojis": [
+        {
+          "id": "money_with_wings",
+          "name": "Money with Wings",
+          "short_names": [
+            "money_with_wings"
+          ],
+          "colons": ":money_with_wings:",
+          "emoticons": [],
+          "unified": "1f4b8",
+          "skin": null,
+          "native": "💸",
+          "originalSet": "apple"
+        },
+        {
+          "id": "money_mouth_face",
+          "name": "Money-Mouth Face",
+          "short_names": [
+            "money_mouth_face"
+          ],
+          "colons": ":money_mouth_face:",
+          "emoticons": [],
+          "unified": "1f911",
+          "skin": null,
+          "native": "🤑",
+          "originalSet": "apple"
+        },
+        {
+          "id": "smirk",
+          "name": "Smirking Face",
+          "short_names": [
+            "smirk"
+          ],
+          "colons": ":smirk:",
+          "emoticons": [],
+          "unified": "1f60f",
+          "skin": null,
+          "native": "😏",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7743798adaf80e6abdfbd",
+        "name": "67a7743798adaf80e6abdfbd.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "31.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7743798adaf80e6abdfbd.webp",
+        "size": 30426
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0ce",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "wtf"
+      ],
+      "emojis": [
+        {
+          "id": "rage",
+          "name": "Pouting Face",
+          "short_names": [
+            "rage"
+          ],
+          "colons": ":rage:",
+          "emoticons": [],
+          "unified": "1f621",
+          "skin": null,
+          "native": "😡",
+          "originalSet": "apple"
+        },
+        {
+          "id": "white_frowning_face",
+          "name": "White Frowning Face",
+          "short_names": [
+            "white_frowning_face"
+          ],
+          "colons": ":white_frowning_face:",
+          "emoticons": [],
+          "unified": "2639-fe0f",
+          "skin": null,
+          "native": "☹️",
+          "originalSet": "apple"
+        },
+        {
+          "id": "angry",
+          "name": "Angry Face",
+          "short_names": [
+            "angry"
+          ],
+          "colons": ":angry:",
+          "emoticons": [
+            ">:(",
+            ">:-("
+          ],
+          "unified": "1f620",
+          "skin": null,
+          "native": "😠",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7744e98adaf80e6abdfca",
+        "name": "67a7744e98adaf80e6abdfca.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "32.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7744e98adaf80e6abdfca.webp",
+        "size": 23158
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0cf",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "smirk",
+          "name": "Smirking Face",
+          "short_names": [
+            "smirk"
+          ],
+          "colons": ":smirk:",
+          "emoticons": [],
+          "unified": "1f60f",
+          "skin": null,
+          "native": "😏",
+          "originalSet": "apple"
+        },
+        {
+          "id": "smiling_imp",
+          "name": "Smiling Face with Horns",
+          "short_names": [
+            "smiling_imp"
+          ],
+          "colons": ":smiling_imp:",
+          "emoticons": [],
+          "unified": "1f608",
+          "skin": null,
+          "native": "😈",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7747298adaf80e6abdfd7",
+        "name": "67a7747298adaf80e6abdfd7.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "33.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7747298adaf80e6abdfd7.webp",
+        "size": 22422
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0d0",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "weird"
+      ],
+      "emojis": [
+        {
+          "id": "confused",
+          "name": "Confused Face",
+          "short_names": [
+            "confused"
+          ],
+          "colons": ":confused:",
+          "emoticons": [
+            ":\\",
+            ":-\\",
+            ":/",
+            ":-/"
+          ],
+          "unified": "1f615",
+          "skin": null,
+          "native": "😕",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7748498adaf80e6abdfe4",
+        "name": "67a7748498adaf80e6abdfe4.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "34.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7748498adaf80e6abdfe4.webp",
+        "size": 22548
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0d1",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "smoke",
+        "smoking"
+      ],
+      "emojis": [
+        {
+          "id": "smoking",
+          "name": "Smoking Symbol",
+          "short_names": [
+            "smoking"
+          ],
+          "colons": ":smoking:",
+          "emoticons": [],
+          "unified": "1f6ac",
+          "skin": null,
+          "native": "🚬",
+          "originalSet": "apple"
+        },
+        {
+          "id": "pensive",
+          "name": "Pensive Face",
+          "short_names": [
+            "pensive"
+          ],
+          "colons": ":pensive:",
+          "emoticons": [],
+          "unified": "1f614",
+          "skin": null,
+          "native": "😔",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a774e698adaf80e6abdff1",
+        "name": "67a774e698adaf80e6abdff1.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "35.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a774e698adaf80e6abdff1.webp",
+        "size": 32244
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0d2",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "heart",
+        "love"
+      ],
+      "emojis": [
+        {
+          "id": "heart",
+          "name": "Heavy Black Heart",
+          "short_names": [
+            "heart"
+          ],
+          "colons": ":heart:",
+          "emoticons": [
+            "<3"
+          ],
+          "unified": "2764-fe0f",
+          "skin": null,
+          "native": "❤️",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a774fe98adaf80e6abdffe",
+        "name": "67a774fe98adaf80e6abdffe.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "36.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a774fe98adaf80e6abdffe.webp",
+        "size": 24056
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0d3",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "see_no_evil",
+          "name": "See-No-Evil Monkey",
+          "short_names": [
+            "see_no_evil"
+          ],
+          "colons": ":see_no_evil:",
+          "emoticons": [],
+          "unified": "1f648",
+          "skin": null,
+          "native": "🙈",
+          "originalSet": "apple"
+        },
+        {
+          "id": "open_mouth",
+          "name": "Face with Open Mouth",
+          "short_names": [
+            "open_mouth"
+          ],
+          "colons": ":open_mouth:",
+          "emoticons": [
+            ":o",
+            ":-o",
+            ":O",
+            ":-O"
+          ],
+          "unified": "1f62e",
+          "skin": null,
+          "native": "😮",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7752998adaf80e6abe00b",
+        "name": "67a7752998adaf80e6abe00b.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "37.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7752998adaf80e6abe00b.webp",
+        "size": 23208
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0d4",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "v",
+          "name": "Victory Hand",
+          "short_names": [
+            "v"
+          ],
+          "colons": ":v::skin-tone-3:",
+          "emoticons": [],
+          "unified": "270c-1f3fc",
+          "skin": "3",
+          "native": "✌🏼",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7781698adaf80e6abe018",
+        "name": "67a7781698adaf80e6abe018.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "38.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7781698adaf80e6abe018.webp",
+        "size": 23662
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0d5",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "middle_finger",
+          "name": "Reversed Hand with Middle Finger Extended",
+          "short_names": [
+            "middle_finger",
+            "reversed_hand_with_middle_finger_extended"
+          ],
+          "colons": ":middle_finger::skin-tone-3:",
+          "emoticons": [],
+          "unified": "1f595-1f3fc",
+          "skin": "3",
+          "native": "🖕🏼",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7782a98adaf80e6abe025",
+        "name": "67a7782a98adaf80e6abe025.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "39.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7782a98adaf80e6abe025.webp",
+        "size": 22560
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0d6",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "old"
+      ],
+      "emojis": [
+        {
+          "id": "older_adult",
+          "name": "Older Adult",
+          "short_names": [
+            "older_adult"
+          ],
+          "colons": ":older_adult::skin-tone-3:",
+          "emoticons": [],
+          "unified": "1f9d3-1f3fc",
+          "skin": "3",
+          "native": "🧓🏼",
+          "originalSet": "apple"
+        },
+        {
+          "id": "older_man",
+          "name": "Older Man",
+          "short_names": [
+            "older_man"
+          ],
+          "colons": ":older_man::skin-tone-3:",
+          "emoticons": [],
+          "unified": "1f474-1f3fc",
+          "skin": "3",
+          "native": "👴🏼",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7784298adaf80e6abe032",
+        "name": "67a7784298adaf80e6abe032.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "40.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7784298adaf80e6abe032.webp",
+        "size": 29312
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0d7",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "dead",
+        "shot"
+      ],
+      "emojis": [
+        {
+          "id": "skull",
+          "name": "Skull",
+          "short_names": [
+            "skull"
+          ],
+          "colons": ":skull:",
+          "emoticons": [],
+          "unified": "1f480",
+          "skin": null,
+          "native": "💀",
+          "originalSet": "apple"
+        },
+        {
+          "id": "skull_and_crossbones",
+          "name": "Skull and Crossbones",
+          "short_names": [
+            "skull_and_crossbones"
+          ],
+          "colons": ":skull_and_crossbones:",
+          "emoticons": [],
+          "unified": "2620-fe0f",
+          "skin": null,
+          "native": "☠️",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7786098adaf80e6abe03f",
+        "name": "67a7786098adaf80e6abe03f.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "42.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7786098adaf80e6abe03f.webp",
+        "size": 26542
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0d8",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "open_mouth",
+          "name": "Face with Open Mouth",
+          "short_names": [
+            "open_mouth"
+          ],
+          "colons": ":open_mouth:",
+          "emoticons": [
+            ":o",
+            ":-o",
+            ":O",
+            ":-O"
+          ],
+          "unified": "1f62e",
+          "skin": null,
+          "native": "😮",
+          "originalSet": "apple"
+        },
+        {
+          "id": "hushed",
+          "name": "Hushed Face",
+          "short_names": [
+            "hushed"
+          ],
+          "colons": ":hushed:",
+          "emoticons": [],
+          "unified": "1f62f",
+          "skin": null,
+          "native": "😯",
+          "originalSet": "apple"
+        },
+        {
+          "id": "astonished",
+          "name": "Astonished Face",
+          "short_names": [
+            "astonished"
+          ],
+          "colons": ":astonished:",
+          "emoticons": [],
+          "unified": "1f632",
+          "skin": null,
+          "native": "😲",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7787898adaf80e6abe04c",
+        "name": "67a7787898adaf80e6abe04c.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "43.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7787898adaf80e6abe04c.webp",
+        "size": 22722
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0d9",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "thinking_face",
+          "name": "Thinking Face",
+          "short_names": [
+            "thinking_face"
+          ],
+          "colons": ":thinking_face:",
+          "emoticons": [],
+          "unified": "1f914",
+          "skin": null,
+          "native": "🤔",
+          "originalSet": "apple"
+        },
+        {
+          "id": "fearful",
+          "name": "Fearful Face",
+          "short_names": [
+            "fearful"
+          ],
+          "colons": ":fearful:",
+          "emoticons": [],
+          "unified": "1f628",
+          "skin": null,
+          "native": "😨",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7789c98adaf80e6abe059",
+        "name": "67a7789c98adaf80e6abe059.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "44.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7789c98adaf80e6abe059.webp",
+        "size": 20632
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0da",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "cold_sweat",
+          "name": "Face with Open Mouth and Cold Sweat",
+          "short_names": [
+            "cold_sweat"
+          ],
+          "colons": ":cold_sweat:",
+          "emoticons": [],
+          "unified": "1f630",
+          "skin": null,
+          "native": "😰",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a778b798adaf80e6abe066",
+        "name": "67a778b798adaf80e6abe066.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "45.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a778b798adaf80e6abe066.webp",
+        "size": 22226
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0db",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "grin",
+          "name": "Grinning Face with Smiling Eyes",
+          "short_names": [
+            "grin"
+          ],
+          "colons": ":grin:",
+          "emoticons": [],
+          "unified": "1f601",
+          "skin": null,
+          "native": "😁",
+          "originalSet": "apple"
+        },
+        {
+          "id": "smile",
+          "name": "Smiling Face with Open Mouth and Smiling Eyes",
+          "short_names": [
+            "smile"
+          ],
+          "colons": ":smile:",
+          "emoticons": [
+            "C:",
+            "c:",
+            ":D",
+            ":-D"
+          ],
+          "unified": "1f604",
+          "skin": null,
+          "native": "😄",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a778cc98adaf80e6abe073",
+        "name": "67a778cc98adaf80e6abe073.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "46.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a778cc98adaf80e6abe073.webp",
+        "size": 24774
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0dc",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "open_mouth",
+          "name": "Face with Open Mouth",
+          "short_names": [
+            "open_mouth"
+          ],
+          "colons": ":open_mouth:",
+          "emoticons": [
+            ":o",
+            ":-o",
+            ":O",
+            ":-O"
+          ],
+          "unified": "1f62e",
+          "skin": null,
+          "native": "😮",
+          "originalSet": "apple"
+        },
+        {
+          "id": "hushed",
+          "name": "Hushed Face",
+          "short_names": [
+            "hushed"
+          ],
+          "colons": ":hushed:",
+          "emoticons": [],
+          "unified": "1f62f",
+          "skin": null,
+          "native": "😯",
+          "originalSet": "apple"
+        },
+        {
+          "id": "astonished",
+          "name": "Astonished Face",
+          "short_names": [
+            "astonished"
+          ],
+          "colons": ":astonished:",
+          "emoticons": [],
+          "unified": "1f632",
+          "skin": null,
+          "native": "😲",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a778f898adaf80e6abe080",
+        "name": "67a778f898adaf80e6abe080.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "47.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a778f898adaf80e6abe080.webp",
+        "size": 22796
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0dd",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "skull",
+          "name": "Skull",
+          "short_names": [
+            "skull"
+          ],
+          "colons": ":skull:",
+          "emoticons": [],
+          "unified": "1f480",
+          "skin": null,
+          "native": "💀",
+          "originalSet": "apple"
+        },
+        {
+          "id": "skull_and_crossbones",
+          "name": "Skull and Crossbones",
+          "short_names": [
+            "skull_and_crossbones"
+          ],
+          "colons": ":skull_and_crossbones:",
+          "emoticons": [],
+          "unified": "2620-fe0f",
+          "skin": null,
+          "native": "☠️",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7791d98adaf80e6abe08d",
+        "name": "67a7791d98adaf80e6abe08d.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "48.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7791d98adaf80e6abe08d.webp",
+        "size": 21208
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0de",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "bomb",
+          "name": "Bomb",
+          "short_names": [
+            "bomb"
+          ],
+          "colons": ":bomb:",
+          "emoticons": [],
+          "unified": "1f4a3",
+          "skin": null,
+          "native": "💣",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7793698adaf80e6abe09a",
+        "name": "67a7793698adaf80e6abe09a.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "49.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7793698adaf80e6abe09a.webp",
+        "size": 20174
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0df",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "hm",
+        "hmm",
+        "hmmm"
+      ],
+      "emojis": [
+        {
+          "id": "thinking_face",
+          "name": "Thinking Face",
+          "short_names": [
+            "thinking_face"
+          ],
+          "colons": ":thinking_face:",
+          "emoticons": [],
+          "unified": "1f914",
+          "skin": null,
+          "native": "🤔",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7795998adaf80e6abe0a7",
+        "name": "67a7795998adaf80e6abe0a7.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "50.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7795998adaf80e6abe0a7.webp",
+        "size": 20920
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0e0",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "disappointed_relieved",
+          "name": "Disappointed but Relieved Face",
+          "short_names": [
+            "disappointed_relieved"
+          ],
+          "colons": ":disappointed_relieved:",
+          "emoticons": [],
+          "unified": "1f625",
+          "skin": null,
+          "native": "😥",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7797098adaf80e6abe0b4",
+        "name": "67a7797098adaf80e6abe0b4.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "51.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7797098adaf80e6abe0b4.webp",
+        "size": 27794
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0e1",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "gun",
+          "name": "Pistol",
+          "short_names": [
+            "gun"
+          ],
+          "colons": ":gun:",
+          "emoticons": [],
+          "unified": "1f52b",
+          "skin": null,
+          "native": "🔫",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7798098adaf80e6abe0c1",
+        "name": "67a7798098adaf80e6abe0c1.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "53.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7798098adaf80e6abe0c1.webp",
+        "size": 18528
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0e2",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "dream",
+        "dreaming"
+      ],
+      "emojis": [
+        {
+          "id": "relieved",
+          "name": "Relieved Face",
+          "short_names": [
+            "relieved"
+          ],
+          "colons": ":relieved:",
+          "emoticons": [],
+          "unified": "1f60c",
+          "skin": null,
+          "native": "😌",
+          "originalSet": "apple"
+        },
+        {
+          "id": "thinking_face",
+          "name": "Thinking Face",
+          "short_names": [
+            "thinking_face"
+          ],
+          "colons": ":thinking_face:",
+          "emoticons": [],
+          "unified": "1f914",
+          "skin": null,
+          "native": "🤔",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a7799798adaf80e6abe0ce",
+        "name": "67a7799798adaf80e6abe0ce.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "54.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a7799798adaf80e6abe0ce.webp",
+        "size": 18924
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0e3",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "smirk",
+          "name": "Smirking Face",
+          "short_names": [
+            "smirk"
+          ],
+          "colons": ":smirk:",
+          "emoticons": [],
+          "unified": "1f60f",
+          "skin": null,
+          "native": "😏",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a779b598adaf80e6abe0db",
+        "name": "67a779b598adaf80e6abe0db.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "55.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a779b598adaf80e6abe0db.webp",
+        "size": 17660
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0e4",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [
+        "hooray"
+      ],
+      "emojis": [
+        {
+          "id": "raised_hands",
+          "name": "Person Raising Both Hands in Celebration",
+          "short_names": [
+            "raised_hands"
+          ],
+          "colons": ":raised_hands::skin-tone-3:",
+          "emoticons": [],
+          "unified": "1f64c-1f3fc",
+          "skin": "3",
+          "native": "🙌🏼",
+          "originalSet": "apple"
+        },
+        {
+          "id": "tada",
+          "name": "Party Popper",
+          "short_names": [
+            "tada"
+          ],
+          "colons": ":tada:",
+          "emoticons": [],
+          "unified": "1f389",
+          "skin": null,
+          "native": "🎉",
+          "originalSet": "apple"
+        },
+        {
+          "id": "partying_face",
+          "name": "Face with Party Horn and Party Hat",
+          "short_names": [
+            "partying_face"
+          ],
+          "colons": ":partying_face:",
+          "emoticons": [],
+          "unified": "1f973",
+          "skin": null,
+          "native": "🥳",
+          "originalSet": "apple"
+        },
+        {
+          "id": "confetti_ball",
+          "name": "Confetti Ball",
+          "short_names": [
+            "confetti_ball"
+          ],
+          "colons": ":confetti_ball:",
+          "emoticons": [],
+          "unified": "1f38a",
+          "skin": null,
+          "native": "🎊",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a779c698adaf80e6abe0e8",
+        "name": "67a779c698adaf80e6abe0e8.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "56.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a779c698adaf80e6abe0e8.webp",
+        "size": 20262
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0e5",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "sunglasses",
+          "name": "Smiling Face with Sunglasses",
+          "short_names": [
+            "sunglasses"
+          ],
+          "colons": ":sunglasses:",
+          "emoticons": [
+            "8)"
+          ],
+          "unified": "1f60e",
+          "skin": null,
+          "native": "😎",
+          "originalSet": "apple"
+        },
+        {
+          "id": "heavy_dollar_sign",
+          "name": "Heavy Dollar Sign",
+          "short_names": [
+            "heavy_dollar_sign"
+          ],
+          "colons": ":heavy_dollar_sign:",
+          "emoticons": [],
+          "unified": "1f4b2",
+          "skin": null,
+          "native": "💲",
+          "originalSet": "apple"
+        },
+        {
+          "id": "chains",
+          "name": "Chains",
+          "short_names": [
+            "chains"
+          ],
+          "colons": ":chains:",
+          "emoticons": [],
+          "unified": "26d3-fe0f",
+          "skin": null,
+          "native": "⛓️",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a779fc98adaf80e6abe0f5",
+        "name": "67a779fc98adaf80e6abe0f5.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "57.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a779fc98adaf80e6abe0f5.webp",
+        "size": 21240
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0e6",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "face_with_raised_eyebrow",
+          "name": "Face with One Eyebrow Raised",
+          "short_names": [
+            "face_with_raised_eyebrow",
+            "face_with_one_eyebrow_raised"
+          ],
+          "colons": ":face_with_raised_eyebrow:",
+          "emoticons": [],
+          "unified": "1f928",
+          "skin": null,
+          "native": "🤨",
+          "originalSet": "apple"
+        },
+        {
+          "id": "question",
+          "name": "Black Question Mark Ornament",
+          "short_names": [
+            "question"
+          ],
+          "colons": ":question:",
+          "emoticons": [],
+          "unified": "2753",
+          "skin": null,
+          "native": "❓",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a77a2798adaf80e6abe102",
+        "name": "67a77a2798adaf80e6abe102.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "59.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a77a2798adaf80e6abe102.webp",
+        "size": 25836
+      }
+    },
+    {
+      "id": "67a77e3366735011e3fae0e7",
+      "stickerPackId": "67a77e3366735011e3fae0b0",
+      "keywords": [],
+      "emojis": [
+        {
+          "id": "scream",
+          "name": "Face Screaming in Fear",
+          "short_names": [
+            "scream"
+          ],
+          "colons": ":scream:",
+          "emoticons": [],
+          "unified": "1f631",
+          "skin": null,
+          "native": "😱",
+          "originalSet": "apple"
+        }
+      ],
+      "upload": {
+        "id": "67a77a4298adaf80e6abe10f",
+        "name": "67a77a4298adaf80e6abe10f.webp",
+        "extension": "webp",
+        "mimeType": "image/webp",
+        "meta": {
+          "width": 512,
+          "height": 512,
+          "animated": false
+        },
+        "preview": null,
+        "type": "WEBP_STICKER",
+        "originalName": "65.webp",
+        "uri": "http://localhost:8080/api/v1/uploads/stickers/webp/67a77a4298adaf80e6abe10f.webp",
+        "size": 20220
+      }
+    }
+  ],
+  "stickersType": "WEBP_STICKER",
+  "animated": false,
+  "description": "Pepe the frog",
+  "createdById": "9d588b8f-205c-4123-afa3-2e72af7f00c8"
+}

@@ -2,6 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
+import {StickerPackMenu} from "./StickerPackMenu";
 import {useEntityById, useEntitySelector} from "../../entities";
 import {Avatar} from "../../Avatar";
 
@@ -45,6 +46,7 @@ export const StickerPacksListItem: FunctionComponent<StickerPacksListItemProps> 
             <ListItemText primary={stickerPack.name}
                           secondary={stickerPack.author ? stickerPack.author : null}
             />
+            <StickerPackMenu stickerPackId={stickerPackId}/>
         </ListItem>
     );
 });

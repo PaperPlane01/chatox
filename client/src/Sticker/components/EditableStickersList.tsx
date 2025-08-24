@@ -4,30 +4,40 @@ import {ImageList, ImageListItem, useMediaQuery, useTheme} from "@mui/material";
 import {EditableSticker} from "./EditableSticker";
 import {AddStickerButton} from "./AddStickerButton";
 import {StickerContainer} from "../stores";
+import {StickerPackFormContext} from "../types";
 
 interface EditableStickersListProps {
-    stickerContainers: StickerContainer[]
+    stickerContainers: StickerContainer[],
+    context: StickerPackFormContext,
+    hideAddStickerButton?: boolean
 }
 
 export const EditableStickersList: FunctionComponent<EditableStickersListProps> = observer(({
-    stickerContainers
+    stickerContainers,
+    context,
+    hideAddStickerButton = false
 }) => {
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
     return (
-        <ImageList cols={onSmallScreen ? 2 : 4}>
+        <ImageList cols={onSmallScreen ? 2 : 6}>
             {stickerContainers.map((stickerContainer, index) => (
-                <ImageListItem cols={1} key={stickerContainer.localId}>
+                <ImageListItem cols={1}
+                               key={stickerContainer.id}
+                >
                     <EditableSticker stickerContainer={stickerContainer}
                                      index={index}
                                      stickersCount={stickerContainers.length}
+                                     context={context}
                     />
                 </ImageListItem>
             ))}
-            <ImageListItem cols={1}>
-                <AddStickerButton/>
-            </ImageListItem>
+            {!hideAddStickerButton && (
+                <ImageListItem cols={1}>
+                    <AddStickerButton context={context}/>
+                </ImageListItem>
+            )}
         </ImageList>
     );
 });

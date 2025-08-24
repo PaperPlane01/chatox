@@ -8,6 +8,7 @@ import {GlobalBanPermissions} from "../../GlobalBan";
 import {ChatRolePermissions} from "../../ChatRole/permissions";
 import {UserPermissions} from "../../User/permissions";
 import {ChatInvitePermissions} from "../../ChatInvite/permissions";
+import {StickerPackPermissions} from "../../Sticker/permissions";
 
 class PermissionsContext {
     constructor(public readonly messages: MessagePermissions,
@@ -17,7 +18,8 @@ class PermissionsContext {
                 public readonly globalBans: GlobalBanPermissions,
                 public readonly chatRoles: ChatRolePermissions,
                 public readonly users: UserPermissions,
-                public readonly chatInvites: ChatInvitePermissions) {
+                public readonly chatInvites: ChatInvitePermissions,
+                public readonly stickerPacks: StickerPackPermissions) {
     }
 }
 
@@ -51,6 +53,7 @@ const chatRoles = new ChatRolePermissions(
 );
 const users = new UserPermissions(store.authorization);
 const chatInvites = new ChatInvitePermissions(store.authorization, store.userChatRoles);
+const stickerPacks = new StickerPackPermissions(store.authorization);
 
 export const permissionsContext = createContext(
     new PermissionsContext(
@@ -61,6 +64,7 @@ export const permissionsContext = createContext(
         globalBans,
         chatRoles,
         users,
-        chatInvites
+        chatInvites,
+        stickerPacks
     )
 );

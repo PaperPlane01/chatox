@@ -14,7 +14,7 @@ data class CreateStickerRequest(
         val keywords: List<String>,
 
         @field:Size(max = 10)
-        val emojis: List<EmojiData>
+        val emojis: List<String>
 ) {
     val uploadId: String
         get() = _uploadId!!

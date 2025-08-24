@@ -45,4 +45,10 @@ export abstract class AbstractDexieRepository<T extends BaseEntity, R extends Re
 		});
 		return entity;
 	}
+
+	async deleteById(id: string): Promise<void> {
+		await this.database.transaction("rw", this.table, async () => {
+			await this.table.delete(id);
+		});
+	}
 }

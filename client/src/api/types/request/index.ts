@@ -47,3 +47,6 @@ export * from "./PendingChatParticipantsRequest";
 export * from "./UpdateNotificationsSettingsRequest";
 export * from "./UpdateChatNotificationsSettingsRequest";
 export * from "./UpdateGlobalNotificationsSettingsRequest";
+export * from "./UpdateStickerRequest";
+export * from "./UpdateStickerPackRequest";
+export * from "./DeleteStickerPackRequest";

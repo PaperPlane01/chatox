@@ -13,5 +13,6 @@ data class StickerPackResponse<PreviewMetadataType>(
         val stickers: List<StickerResponse>,
         val stickersType: UploadType,
         val animated: Boolean,
-        val description: String
+        val description: String,
+        val createdById: String
 )

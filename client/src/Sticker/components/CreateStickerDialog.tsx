@@ -4,13 +4,16 @@ import {Button, Dialog, DialogActions, DialogContent} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Emoji} from "emoji-mart";
 import {StickerEmojiPickerDialog} from "./StickerEmojiPickerDialog";
+import {useStickerPackForm} from "../hooks";
+import {StickerPackFormContext} from "../types";
 import {StickerContainer} from "../stores";
 import {ImageUpload} from "../../Upload";
 import {ChipInput} from "../../ChipInput";
 import {useLocalization, useStore} from "../../store";
 
 interface CreateStickerDialogProps {
-    stickerContainer: StickerContainer
+    stickerContainer: StickerContainer,
+    context: StickerPackFormContext
 }
 
 const useStyles = makeStyles(() => createStyles({
@@ -23,15 +26,10 @@ const useStyles = makeStyles(() => createStyles({
 }));
 
 export const CreateStickerDialog: FunctionComponent<CreateStickerDialogProps> = observer(({
-    stickerContainer
+    stickerContainer,
+    context
 }) => {
     const {
-        stickerPackCreation: {
-            stickerDialogOpen,
-            addSticker,
-            clearStickerUnderCreation,
-            setStickerDialogOpen
-        },
         stickerEmojiPickerDialog: {
             setStickerEmojiPickerDialogOpen
         },
@@ -39,25 +37,31 @@ export const CreateStickerDialog: FunctionComponent<CreateStickerDialogProps> = 
             selectedEmojiSet
         }
     } = useStore();
+    const {
+        createStickerDialogOpen,
+        addSticker,
+        clearStickerUnderCreation,
+        setCreateStickerDialogOpen
+    } = useStickerPackForm(context)
     const {l} = useLocalization();
     const classes = useStyles();
 
     const handleAdd = (): void => {
         if (stickerContainer.validate()) {
             addSticker(stickerContainer);
-            setStickerDialogOpen(false);
+            setCreateStickerDialogOpen(false);
             clearStickerUnderCreation();
         }
     };
 
     const handleClose = (): void => {
-        setStickerDialogOpen(false);
+        setCreateStickerDialogOpen(false);
         clearStickerUnderCreation();
     };
 
     return (
         <Fragment>
-            <Dialog open={stickerDialogOpen}
+            <Dialog open={createStickerDialogOpen}
                     onClose={handleClose}
                     fullWidth
                     maxWidth="sm"
@@ -85,6 +89,7 @@ export const CreateStickerDialog: FunctionComponent<CreateStickerDialogProps> = 
                                InputProps={{
                                    onChange: () => {}
                                }}
+                               label={l("sticker.emojis")}
                                renderLabel={emoji => (
                                    <Emoji size={16}
                                           emoji={emoji}

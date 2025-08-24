@@ -24,4 +24,5 @@ interface MessageService {
     fun findPinnedMessageByChat(chatId: String): Mono<MessageResponse>
     fun deleteMultipleMessages(deleteMultipleMessagesRequest: DeleteMultipleMessagesRequest): Mono<Unit>
     fun deleteDraftMessage(chatId: String): Mono<Unit>
+    fun deleteMessagesWithStickersFromStickerPack(stickerPackId: String): Mono<Unit>
 }

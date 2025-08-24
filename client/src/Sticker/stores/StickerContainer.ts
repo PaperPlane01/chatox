@@ -4,15 +4,21 @@ import {v4} from "uuid";
 import {EmojiData} from "emoji-mart";
 import {AxiosPromise} from "axios";
 import {validateStickerEmojis, validateStickerKeywords} from "../validation";
+import {StickerEntity} from "../types";
 import {getMaxFileSize, UploadedFileContainer} from "../../utils/file-utils";
+import {ApiError, getInitialApiErrorFromResponse, ProgressCallback, UploadApi} from "../../api";
 import {StickerType, StickerUploadMetadata, Upload, UploadType} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {Labels} from "../../localization";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
-import {ApiError, getInitialApiErrorFromResponse, ProgressCallback, UploadApi} from "../../api";
+
+interface StickerContainerOptions {
+    sticker: StickerEntity,
+    upload: Upload<StickerUploadMetadata>
+}
 
 export class StickerContainer {
-    localId = v4();
+    id = v4();
 
     keywords: string[] = [];
 
@@ -27,6 +33,8 @@ export class StickerContainer {
 
     uploadContainer: UploadedFileContainer<StickerUploadMetadata> | undefined = undefined;
 
+    stickerType: StickerType;
+
     get acceptedFiles(): string {
         return this.stickerType === UploadType.IMAGE_STICKER ? "image/png" : "image/webp";
     }
@@ -39,8 +47,25 @@ export class StickerContainer {
         return this.uploadContainer?.error;
     }
 
-    constructor(readonly stickerType: StickerType) {
+    constructor(options: StickerType | StickerContainerOptions) {
         makeAutoObservable(this);
+
+        if (typeof options === "string") {
+            this.stickerType = options;
+        } else {
+            const {sticker, upload} = options;
+            this.id = sticker.id;
+            this.keywords = sticker.keywords;
+            this.emojis = sticker.emojis;
+            this.stickerType = upload.type as unknown as StickerType;
+            this.uploadContainer = new UploadedFileContainer(
+                undefined,
+                this.stickerType,
+                false,
+                upload.id,
+                upload
+            );
+        }
     }
 
     getEmojiByIndex = computedFn((index: number) => this.emojis[index]);

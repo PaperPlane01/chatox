@@ -8,20 +8,20 @@ import {
     ConfirmChatDeletionDialog,
     SpecifyChatDeletionReasonDialog
 } from "../Chat";
-import {UpdateChatParticipantDialog} from "../ChatParticipant";
-import {ChatAppBar} from "../ChatAppBar";
+import {UpdateChatParticipantDialog} from "../ChatParticipant/components";
+import {ChatAppBar} from "../ChatAppBar/components";
 import {
     MessageDialog,
     MessagesListWrapper,
     PinMessageSnackbarManager,
     ScheduleMessageDialog,
     UnpinMessageSnackbarManager
-} from "../Message";
-import {AttachedFilesDialog} from "../MessageForm";
-import {BlockUserInChatByIdOrSlugDialog, CreateChatBlockingDialog} from "../ChatBlocking";
-import {BanUserGloballyDialog} from "../GlobalBan";
-import {ReportChatDialog, ReportMessageDialog} from "../Report";
-import {StickerPackDialog} from "../Sticker";
+} from "../Message/components";
+import {AttachedFilesDialog} from "../MessageForm/components";
+import {BlockUserInChatByIdOrSlugDialog, CreateChatBlockingDialog} from "../ChatBlocking/components";
+import {BanUserGloballyDialog} from "../GlobalBan/components";
+import {ReportChatDialog, ReportMessageDialog} from "../Report/components";
+import {DeleteStickerPackDialog, StickerPackDialog} from "../Sticker/components";
 import {useStore} from "../store";
 import {ChatType} from "../api/types/response";
 
@@ -76,6 +76,7 @@ export const ChatPage: FunctionComponent = observer(() => {
             <ConfirmChatDeletionDialog/>
             <SpecifyChatDeletionReasonDialog/>
             <CreateChatBlockingDialog/>
+            <DeleteStickerPackDialog/>
         </Fragment>
     );
 });

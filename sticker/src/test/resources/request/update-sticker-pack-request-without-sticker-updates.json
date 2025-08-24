@@ -1,0 +1,497 @@
+{
+  "name": "Pepe updated",
+  "description": "Pepe the frog updated",
+  "author": "Updated author",
+  "stickers": [
+    {
+      "id": "67a77e3366735011e3fae0b1",
+      "emojis": [
+        "slightly_smiling_face",
+        "relieved"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0b2",
+      "emojis": [
+        "confused",
+        "unamused"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0b3",
+      "emojis": [
+        "smirk"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0b4",
+      "emojis": [
+        "rage",
+        "imp"
+      ],
+      "keywords": [
+        "angry"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0b5",
+      "emojis": [
+        "joy",
+        "rolling_on_the_floor_laughing",
+        "grinning"
+      ],
+      "keywords": [
+        "laughing",
+        "lol",
+        "lmao",
+        "hahaha"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0b6",
+      "emojis": [
+        "joy",
+        "rolling_on_the_floor_laughing",
+        "grinning"
+      ],
+      "keywords": [
+        "laughing",
+        "lol",
+        "lmao",
+        "hahaha"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0b7",
+      "emojis": [
+        "smiling_imp"
+      ],
+      "keywords": [
+        "scheming"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0b8",
+      "emojis": [
+        "disappointed_relieved"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0b9",
+      "emojis": [
+        "disappointed_relieved",
+        "gun"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0ba",
+      "emojis": [
+        "sunglasses",
+        "billed_cap"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0bb",
+      "emojis": [
+        "unamused",
+        "pensive",
+        "tada"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0bc",
+      "emojis": [
+        "joy",
+        "rolling_on_the_floor_laughing"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0bd",
+      "emojis": [
+        "zany_face"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0be",
+      "emojis": [
+        "pleading_face",
+        "unamused"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0bf",
+      "emojis": [
+        "smile",
+        "grin",
+        "smiley"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0c0",
+      "emojis": [
+        "open_mouth",
+        "hushed",
+        "flushed"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0c1",
+      "emojis": [
+        "cold_sweat",
+        "fearful",
+        "iphone"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0c2",
+      "emojis": [
+        "sob"
+      ],
+      "keywords": [
+        "cry",
+        "crying"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0c3",
+      "emojis": [
+        "grin",
+        "smiley",
+        "smile"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0c4",
+      "emojis": [
+        "angry"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0c5",
+      "emojis": [
+        "face_with_rolling_eyes"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0c6",
+      "emojis": [
+        "cry"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0c7",
+      "emojis": [
+        "pleading_face"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0c8",
+      "emojis": [
+        "disappointed_relieved",
+        "cold_sweat",
+        "face_with_hand_over_mouth"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0c9",
+      "emojis": [
+        "open_mouth",
+        "hushed",
+        "astonished"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0ca",
+      "emojis": [
+        "star-struck"
+      ],
+      "keywords": [
+        "wow",
+        "amazing"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0cb",
+      "emojis": [
+        "thinking_face",
+        "smirk",
+        "smiling_imp"
+      ],
+      "keywords": [
+        "hm",
+        "hmmm",
+        "thinking"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0cc",
+      "emojis": [
+        "face_with_hand_over_mouth",
+        "smirk"
+      ],
+      "keywords": [
+        "oh my",
+        "ara-ara"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0cd",
+      "emojis": [
+        "money_with_wings",
+        "money_mouth_face",
+        "smirk"
+      ],
+      "keywords": [
+        "money",
+        "dollars"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0ce",
+      "emojis": [
+        "rage",
+        "white_frowning_face",
+        "angry"
+      ],
+      "keywords": [
+        "wtf"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0cf",
+      "emojis": [
+        "smirk",
+        "smiling_imp"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0d0",
+      "emojis": [
+        "confused"
+      ],
+      "keywords": [
+        "weird"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0d1",
+      "emojis": [
+        "smoking",
+        "pensive"
+      ],
+      "keywords": [
+        "smoke",
+        "smoking"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0d2",
+      "emojis": [
+        "heart"
+      ],
+      "keywords": [
+        "heart",
+        "love"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0d3",
+      "emojis": [
+        "see_no_evil",
+        "open_mouth"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0d4",
+      "emojis": [
+        "v"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0d5",
+      "emojis": [
+        "middle_finger"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0d6",
+      "emojis": [
+        "older_adult",
+        "older_man"
+      ],
+      "keywords": [
+        "old"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0d7",
+      "emojis": [
+        "skull",
+        "skull_and_crossbones"
+      ],
+      "keywords": [
+        "dead",
+        "shot"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0d8",
+      "emojis": [
+        "open_mouth",
+        "hushed",
+        "astonished"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0d9",
+      "emojis": [
+        "thinking_face",
+        "fearful"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0da",
+      "emojis": [
+        "cold_sweat"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0db",
+      "emojis": [
+        "grin",
+        "smile"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0dc",
+      "emojis": [
+        "open_mouth",
+        "hushed",
+        "astonished"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0dd",
+      "emojis": [
+        "skull",
+        "skull_and_crossbones"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0de",
+      "emojis": [
+        "bomb"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0df",
+      "emojis": [
+        "thinking_face"
+      ],
+      "keywords": [
+        "hm",
+        "hmm",
+        "hmmm"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0e0",
+      "emojis": [
+        "disappointed_relieved"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0e1",
+      "emojis": [
+        "gun"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0e2",
+      "emojis": [
+        "relieved",
+        "thinking_face"
+      ],
+      "keywords": [
+        "dream",
+        "dreaming"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0e3",
+      "emojis": [
+        "smirk"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0e4",
+      "emojis": [
+        "raised_hands",
+        "tada",
+        "partying_face",
+        "confetti_ball"
+      ],
+      "keywords": [
+        "hooray"
+      ]
+    },
+    {
+      "id": "67a77e3366735011e3fae0e5",
+      "emojis": [
+        "sunglasses",
+        "heavy_dollar_sign",
+        "chains"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0e6",
+      "emojis": [
+        "face_with_raised_eyebrow",
+        "question"
+      ],
+      "keywords": []
+    },
+    {
+      "id": "67a77e3366735011e3fae0e7",
+      "emojis": [
+        "scream"
+      ],
+      "keywords": []
+    }
+  ]
+}

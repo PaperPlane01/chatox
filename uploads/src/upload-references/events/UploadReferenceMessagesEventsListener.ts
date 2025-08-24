@@ -48,7 +48,7 @@ export class UploadReferenceMessagesEventsListener {
     }
 
     private async handleMessageCreated(message: Message): Promise<void> {
-        if (message.attachments.length === 0) {
+        if (message.attachments.length === 0 && !message.sticker) {
             return;
         }
 
@@ -56,10 +56,22 @@ export class UploadReferenceMessagesEventsListener {
             referenceObjectId: message.id,
             uploadId: attachment.id,
             type: UploadReferenceType.MESSAGE_ATTACHMENT
-        }))
-            .map(uploadReference => new this.uploadReferenceModel(uploadReference));
+        }));
+        const stickerReference = message.sticker
+            ? new UploadReference({
+                referenceObjectId: message.id,
+                uploadId: message.sticker.upload.id,
+                type: UploadReferenceType.MESSAGE_STICKER
+            })
+            : undefined;
 
-        await this.uploadReferenceModel.bulkSave(uploadReferences);
+        if (stickerReference) {
+            uploadReferences.push(stickerReference);
+        }
+
+        await this.uploadReferenceModel.bulkSave(
+            uploadReferences.map(reference=> new this.uploadReferenceModel(reference))
+        );
     }
 
     @RabbitSubscribe({
@@ -156,7 +168,12 @@ export class UploadReferenceMessagesEventsListener {
         await this.uploadReferenceModel.updateMany(
             {
                 referenceObjectId: messageId,
-                type: UploadReferenceType.MESSAGE_ATTACHMENT
+                type: {
+                    $in: [
+                        UploadReferenceType.MESSAGE_ATTACHMENT,
+                        UploadReferenceType.MESSAGE_STICKER
+                    ]
+                }
             },
             {
                 $set: {

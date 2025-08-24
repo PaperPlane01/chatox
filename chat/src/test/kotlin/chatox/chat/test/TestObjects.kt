@@ -54,9 +54,9 @@ object TestObjects {
             ChatParticipationResponse::class.java
     )
 
-    fun sticker(): Sticker<Any> = loadResource(
+    fun sticker(): Sticker = loadResource(
             "model/sticker.json",
-            object : TypeReference<Sticker<Any>>() {}
+            object : TypeReference<Sticker>() {}
     )
 
     fun message(): Message = loadResource(

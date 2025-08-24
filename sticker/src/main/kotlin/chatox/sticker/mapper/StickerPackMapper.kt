@@ -22,6 +22,7 @@ class StickerPackMapper(private val stickerMapper: StickerMapper,
             description = stickerPack.description,
             stickersType = stickerPack.stickersType,
             animated = stickerPack.animated,
-            preview = uploadMapper.toUploadResponse(stickerPack.preview)
+            preview = uploadMapper.toUploadResponse(stickerPack.preview),
+            createdById = stickerPack.createdBy
     )
 }

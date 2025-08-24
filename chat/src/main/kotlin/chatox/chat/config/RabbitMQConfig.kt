@@ -181,8 +181,26 @@ class RabbitMQConfig {
     fun stickerPackCreated() = Queue("chat_service_sticker_pack_created")
 
     @Bean
+    fun stickerPackUpdated() = Queue("chat_service_sticker_pack_updated")
+
+    @Bean
+    fun stickerPackDeleted() = Queue("chat_service_sticker_pack_deleted")
+
+    @Bean
     fun stickerPackCreatedBinding(): Binding = BindingBuilder
             .bind(stickerPackCreated())
             .to(stickerEvents())
             .with("sticker.pack.created.#")
+
+    @Bean
+    fun stickerPackUpdatedBinding(): Binding = BindingBuilder
+            .bind(stickerPackUpdated())
+            .to(stickerEvents())
+            .with("sticker.pack.updated.#")
+
+    @Bean
+    fun stickerPackDeletedBinding(): Binding = BindingBuilder
+            .bind(stickerPackDeleted())
+            .to(stickerEvents())
+            .with("sticker.pack.deleted.#")
 }

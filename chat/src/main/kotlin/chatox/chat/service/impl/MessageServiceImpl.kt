@@ -42,6 +42,9 @@ import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
+import org.springframework.data.domain.Sort.Direction
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -493,6 +496,28 @@ class MessageServiceImpl(
                         .awaitFirst()
                 chatUploadAttachmentEntityService.deleteChatUploadAttachments(uploadsAttachments)
                         .awaitFirstOrNull()
+            }
+        }
+    }
+
+    override fun deleteMessagesWithStickersFromStickerPack(stickerPackId: String): Mono<Unit> {
+        return mono {
+            val pageSize = 100
+            var currentPageNumber = 0
+            var endReached = false
+
+            while (!endReached) {
+                val pageRequest = PageRequest.of(currentPageNumber, pageSize, Sort.by(Direction.DESC, "createdAt"))
+                val messages = messageRepository.findByStickerStickerPackId(stickerPackId, pageRequest)
+                        .collectList()
+                        .awaitFirst()
+                messageEntityService.deleteMultipleMessages(messages).awaitFirstOrNull()
+
+                if (messages.size == pageSize) {
+                    currentPageNumber += 1
+                } else {
+                    endReached = true
+                }
             }
         }
     }

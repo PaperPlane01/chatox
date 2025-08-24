@@ -38,13 +38,14 @@ export class InstalledStickerPacksStore {
             }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.pending = false));
-    };
+    }
 
     addInstalledStickerPack = (stickerPackId: string): void => {
         this.installedStickerPacksIds.push(stickerPackId);
-    };
+    }
 
     removeInstalledStickerPack = (stickerPackId: string): void => {
-        this.installedStickerPacksIds = this.installedStickerPacksIds.filter(currentStickerPackId => currentStickerPackId !== stickerPackId);
-    };
+        this.installedStickerPacksIds = this.installedStickerPacksIds
+            .filter(currentStickerPackId => currentStickerPackId !== stickerPackId);
+    }
 }

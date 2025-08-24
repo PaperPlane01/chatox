@@ -28,7 +28,8 @@ import {
     UpdateChatStore
 } from "../Chat";
 import {
-    ApproveJoinChatRequestsStore, ChatParticipantsAutoCompleteStore,
+    ApproveJoinChatRequestsStore,
+    ChatParticipantsAutoCompleteStore,
     ChatParticipantsSearchStore,
     ChatParticipantsStore,
     JoinChatRequestsStore,
@@ -124,9 +125,11 @@ import {
     InstallStickerPackStore,
     SearchStickerPacksStore,
     StickerEmojiPickerDialogStore,
-    StickerPackDialogStore,
+    StickerPackDialogStore, StickerPackStore,
     StickerPickerStore,
-    UninstallStickerPackStore
+    UninstallStickerPackStore,
+    UpdateStickerPackStore,
+    DeleteStickerPackStore
 } from "../Sticker";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
 import {
@@ -386,7 +389,7 @@ const websocket = new WebsocketStore(
     notificationsSettings,
     snackbarService
 );
-const stickerPackCreation = new CreateStickerPackStore(entities);
+const stickerPackCreation = new CreateStickerPackStore(entities, language, snackbarService);
 const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
 const installedStickerPacks = new InstalledStickerPacksStore(authorization, entities);
 const stickerPackInstallation = new InstallStickerPackStore(installedStickerPacks, language, snackbarService);
@@ -574,6 +577,15 @@ const deleteChatNotificationsSettings = new DeleteChatNotificationSettingsStore(
 const chatParticipantsAutoComplete = new ChatParticipantsAutoCompleteStore(entities);
 const userNotificationExceptionsDialog = new UserNotificationExceptionsDialogStore();
 const updateUserNotificationsSettingsInChatDialog = new UpdateUserNotificationSettingsInChatDialogStore(updateChatNotificationsSettings);
+const stickerPackUpdate = new UpdateStickerPackStore(entities, snackbarService, language);
+const stickerPack = new StickerPackStore(entities);
+const stickerPackDeletion = new DeleteStickerPackStore(
+    authorization,
+    entities,
+    installedStickerPacks,
+    stickerPackDialog,
+    stickerPicker
+);
 
 const _store: IAppState = {
     authorization,
@@ -742,7 +754,10 @@ const _store: IAppState = {
     deleteChatNotificationsSettings,
     chatParticipantsAutoComplete,
     userNotificationExceptionsDialog,
-    updateUserNotificationsSettingsInChatDialog
+    updateUserNotificationsSettingsInChatDialog,
+    stickerPackUpdate,
+    stickerPack,
+    stickerPackDeletion
 };
 
 //Hack to avoid loss of application state on HMR
