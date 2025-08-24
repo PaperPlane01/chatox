@@ -3,10 +3,13 @@ package chatox.platform.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JsonLoader {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
