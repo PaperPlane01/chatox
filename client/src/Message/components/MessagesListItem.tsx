@@ -413,7 +413,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                                                     findSenderFunction={findMessageSenderFunction}
                             />
                         )}
-                        {message.messageDeleted
+                        {message.deleted
                             ? (
                                 <div className={classes.cardContentWithPadding}>
                                     <i>{l("message.deleted")}</i>
