@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle} from "@mui/material";
 import {StickersGridList} from "./StickersGridList";
 import {StickerPackInstallationButtons} from "./StickerPackInstallationButtons";
+import {StickerPackMenu} from "./StickerPackMenu";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
@@ -33,6 +34,9 @@ export const StickerPackDialog: FunctionComponent = observer(() => {
         >
             <DialogTitle>
                 {l("sticker.pack.with-name", {name: stickerPack.name})}
+                <div style={{float: "right"}}>
+                    <StickerPackMenu stickerPackId={stickerPack.id}/>
+                </div>
             </DialogTitle>
             <DialogContent>
                 <StickersGridList stickerPackId={stickerPack.id}
