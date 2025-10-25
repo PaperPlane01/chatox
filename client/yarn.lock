@@ -769,6 +769,18 @@
   dependencies:
     "@lexical/offset" "0.14.2"
 
+"@lottiefiles/dotlottie-react@^0.17.5":
+  version "0.17.5"
+  resolved "https://registry.yarnpkg.com/@lottiefiles/dotlottie-react/-/dotlottie-react-0.17.5.tgz#51b8f5d7e57585221725763f5aee05d83945e2e1"
+  integrity sha512-7CRfJOvA5EjPgiQok972Tg9zCY0/XsIhagiDCdb4zlywExmwYZoN4KOjf4KvwJVMRCrYtHp/txoXPG7se9ijfA==
+  dependencies:
+    "@lottiefiles/dotlottie-web" "0.54.1"
+
+"@lottiefiles/dotlottie-web@0.54.1":
+  version "0.54.1"
+  resolved "https://registry.yarnpkg.com/@lottiefiles/dotlottie-web/-/dotlottie-web-0.54.1.tgz#fea1a5ddf7db8c4c94487eddd15ebf1ce3309332"
+  integrity sha512-Xq6wKvQ1hJUAalctrrVSZNIPStJBEAzSsQl4rtinPEfl6LBZdos0GGfVLdyGjZZYODzoG28SMN09YKAC9Kz6RQ==
+
 "@material-ui/types@^6.0.1":
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/@material-ui/types/-/types-6.0.2.tgz#a6d384196c6e2e130eb2765b62d944c0b1ea1015"

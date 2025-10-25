@@ -11,6 +11,8 @@ import {StickerContainer} from "../stores";
 import {ImageUpload} from "../../Upload";
 import {ChipInput} from "../../ChipInput";
 import {useLocalization, useStore} from "../../store";
+import {StickerUpload} from "./StickerUpload";
+import {EditableStickerPreview} from "./EditableStickerPreview";
 
 interface EditStickerDialogProps {
 	stickerContainer: StickerContainer,
@@ -72,29 +74,10 @@ export const EditStickerDialog: FunctionComponent<EditStickerDialogProps> = obse
 				<DialogContent>
 					<div className={classes.centered}>
 						{!hideUploadInput && (
-							<ImageUpload onFileAttached={stickerContainer.uploadFile}
-										 pending={Boolean(stickerContainer.uploadContainer?.pending)}
-										 avatarProps={{
-											 width: 200,
-											 height: 200,
-											 shape: "square",
-											 avatarUri: stickerContainer.uploadContainer
-												 ? stickerContainer.uploadContainer.url
-												 : undefined
-										 }}
-										 uploadButtonLabel={l("sticker.image")}
-										 validationError={stickerContainer.fileValidationError
-											 && l(stickerContainer.fileValidationError)}
-										 accept={stickerContainer.acceptedFiles}
-							/>
+							<StickerUpload stickerContainer={stickerContainer}/>
 						)}
 						{hideUploadInput && stickerContainer.uploadContainer && (
-							<img src={stickerContainer.uploadContainer.url}
-								 style={{
-									 width: 200,
-									 height: 200
-								 }}
-							/>
+							<EditableStickerPreview stickerContainer={stickerContainer}/>
 						)}
 					</div>
 					<ChipInput value={stickerContainer.emojis}

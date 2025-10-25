@@ -6,7 +6,7 @@ import {isDefined} from "../../utils/object-utils";
 type UseEntityById = <T extends Exclude<Entities, "chatUploads">, ID extends string | undefined | null>(
 	entityName: T,
 	id: ID
-) => ID extends string ? GetEntityType<T> : undefined;
+) => ID extends string ? GetEntityType<T> : (GetEntityType<T> | undefined);
 
 export const useEntityById: UseEntityById = (entityName, entityId) => {
 	const {

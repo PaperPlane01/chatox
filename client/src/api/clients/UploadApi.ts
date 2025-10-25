@@ -8,7 +8,19 @@ import {
     Upload,
     VideoUploadMetadata
 } from "../types/response";
-import {AUDIOS, FILES, IMAGE_STICKER, IMAGES, INFO, STICKERS, UPLOADS, VIDEOS, VOICE, WEBP_STICKER} from "../endpoints";
+import {
+    AUDIOS,
+    FILES,
+    IMAGE_STICKER,
+    IMAGES,
+    INFO,
+    LOTTIE_STICKER,
+    STICKERS,
+    UPLOADS,
+    VIDEOS,
+    VOICE,
+    WEBP_STICKER
+} from "../endpoints";
 
 export type ProgressCallback = (percentage: number) => void;
 
@@ -39,6 +51,10 @@ export class UploadApi {
 
     public static uploadWebpSticker(file: File, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<StickerUploadMetadata>> {
         return UploadApi.doUpload<StickerUploadMetadata>(file, `/${UPLOADS}/${STICKERS}/${WEBP_STICKER}`, onUploadProgress);
+    }
+
+    public static uploadLottieSticker(file: File, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<StickerUploadMetadata>> {
+        return UploadApi.doUpload<StickerUploadMetadata>(file, `/${UPLOADS}/${STICKERS}/${LOTTIE_STICKER}`, onUploadProgress);
     }
 
     public static doUpload<MetadataType>(file: File, url: string, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<MetadataType>> {

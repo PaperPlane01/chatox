@@ -1,9 +1,9 @@
-import React, {FunctionComponent, useState} from "react";
+import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {IconButton, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {ArrowLeft, ArrowRight, Delete, Edit} from "@mui/icons-material";
-import clsx from "clsx";
+import {EditableStickerPreview} from "./EditableStickerPreview";
 import {StickerContainer} from "../stores";
 import {StickerPackFormContext} from "../types";
 import {useStickerPackForm} from "../hooks";
@@ -25,17 +25,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         borderRadius: 3,
         borderStyle: "dashed"
     },
-    image: {
-        maxWidth: "100%",
-        maxHeight: "100%",
-        height: "inherit",
-        objectFit: "contain"
-    },
     buttonsContainer: {
         alignSelf: "end"
-    },
-    hovered: {
-        boxShadow: "inset 0 0 0 1000px rgba(0, 0, 0, 0.5)"
     }
 }));
 
@@ -52,7 +43,6 @@ export const EditableSticker: FunctionComponent<EditableStickerProps> = observer
         moveStickerBack,
         moveStickerForward
     } = useStickerPackForm(context);
-    const [hovered, setHovered] = useState(false);
     const classes = useStyles();
 
     if (!stickerContainer.uploadContainer) {
@@ -94,18 +84,7 @@ export const EditableSticker: FunctionComponent<EditableStickerProps> = observer
                     <Delete/>
                 </IconButton>
             </div>
-            <img src={stickerContainer.uploadContainer.uploadedFile
-                ? stickerContainer.uploadContainer.uploadedFile.uri
-                : stickerContainer.uploadContainer.url
-            }
-                 className={clsx(classes.image, {[classes.hovered]: hovered})}
-                 onMouseOver={() => setHovered(true)}
-                 onMouseOut={() => setHovered(false)}
-                 onTouchStart={() => setHovered(true)}
-                 onTouchEnd={() => setHovered(false)}
-                 onFocus={() => setHovered(true)}
-                 onBlur={() => setHovered(false)}
-            />
+            <EditableStickerPreview stickerContainer={stickerContainer}/>
         </div>
     );
 });

@@ -8,6 +8,7 @@ interface ImportMetaEnv {
 	readonly VITE_FILE_MAX_SIZE: number
 	readonly VITE_IMAGE_STICKER_MAX_SIZE: number
 	readonly VITE_WEBP_STICKER_MAX_SIZE: number
+	readonly VITE_LOTTIE_STICKER_MAX_SIZE: number
 	readonly VITE_GOOGLE_CLIENT_ID: string
 	readonly VITE_GOOGLE_CLIENT_SCOPE: string
 	readonly VITE_GOOGLE_CLIENT_REDIRECT_URI: string

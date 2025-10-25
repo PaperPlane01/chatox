@@ -4,10 +4,10 @@ import {Button, Dialog, DialogActions, DialogContent} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Emoji} from "emoji-mart";
 import {StickerEmojiPickerDialog} from "./StickerEmojiPickerDialog";
+import {StickerUpload} from "./StickerUpload";
 import {useStickerPackForm} from "../hooks";
 import {StickerPackFormContext} from "../types";
 import {StickerContainer} from "../stores";
-import {ImageUpload} from "../../Upload";
 import {ChipInput} from "../../ChipInput";
 import {useLocalization, useStore} from "../../store";
 
@@ -68,20 +68,7 @@ export const CreateStickerDialog: FunctionComponent<CreateStickerDialogProps> = 
             >
                 <DialogContent>
                     <div className={classes.centered}>
-                        <ImageUpload onFileAttached={stickerContainer.uploadFile}
-                                     pending={Boolean(stickerContainer.uploadContainer?.pending)}
-                                     avatarProps={{
-                                         width: 200,
-                                         height: 200,
-                                         shape: "square",
-                                         avatarUri: stickerContainer.uploadContainer
-                                             ? stickerContainer.uploadContainer.url
-                                             : undefined
-                                     }}
-                                     uploadButtonLabel={l("sticker.image")}
-                                     validationError={stickerContainer.fileValidationError && l(stickerContainer.fileValidationError)}
-                                     accept={stickerContainer.acceptedFiles}
-                        />
+                        <StickerUpload stickerContainer={stickerContainer}/>
                     </div>
                     <ChipInput value={stickerContainer.emojis}
                                onDelete={index => stickerContainer.removeEmojiByIndex(index)}

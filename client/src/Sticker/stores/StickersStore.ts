@@ -2,7 +2,7 @@ import {mergeWith} from "lodash";
 import {StickerEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch, RelationshipsIds} from "../../entities-store";
-import {Sticker} from "../../api/types/response";
+import {Sticker, StickerType} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
 
 export class StickersStore extends AbstractEntityStore<"stickers", StickerEntity, Sticker> {
@@ -23,7 +23,8 @@ export class StickersStore extends AbstractEntityStore<"stickers", StickerEntity
             emojis: denormalizedEntity.emojis,
             uploadId: denormalizedEntity.upload.id,
             keywords: denormalizedEntity.keywords,
-            stickerPackId: denormalizedEntity.stickerPackId
+            stickerPackId: denormalizedEntity.stickerPackId,
+            stickerType: denormalizedEntity.upload.type as StickerType
         }
     }
 

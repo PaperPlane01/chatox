@@ -1,15 +1,14 @@
 import React from "react";
 import {createRoot} from "react-dom/client";
 import {Provider} from "mobx-react";
-import {toJS} from "mobx";
+import {setWasmUrl} from "@lottiefiles/dotlottie-react";
+import wasmUrl from "@lottiefiles/dotlottie-web/dist/dotlottie-player.wasm?url";
 import {App} from "./App";
 import {rootStore, store} from "./store";
 import {RouterStoreAware} from "./router";
 import * as serviceWorker from "./serviceWorker";
 
-if (import.meta.env.DEV) {
-    (window as any).toJS = toJS; // expose for convenient debugging
-}
+setWasmUrl(wasmUrl);
 
 const routerStore = rootStore.router;
 const routerStoreAware: RouterStoreAware[] = [
@@ -40,9 +39,7 @@ if (localStorage.getItem("accessToken")) {
 }
 
 if (import.meta.env.DEV) {
-    import("mobx").then(mobxModule => {
-        (window as any).toJS = mobxModule.toJS;
-    });
+    import("mobx").then(mobxModule => (window as any).toJS = mobxModule.toJS) // expose for convenient debugging
 }
 
 // If you want your app to work offline and load faster, you can change

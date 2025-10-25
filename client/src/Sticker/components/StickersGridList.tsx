@@ -51,6 +51,7 @@ export const StickersGridList: FunctionComponent<StickersGridListProps> = observ
                               style={gridListTileStyle}
                 >
                     <Sticker stickerId={stickerId}
+                             stickerType={stickersPack.stickersType}
                              size={stickerSize}
                              onClick={() => handleStickerClick(stickerId)}
                     />

@@ -2,8 +2,10 @@ import React, {FunctionComponent, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {ImageList, ImageListItem} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
+import {Sticker} from "../../Sticker";
 import {useStore} from "../../store";
-import {useEntityById, useEntitySelector} from "../../entities";
+import {useEntityById} from "../../entities";
+import {UploadType, isLottieSticker} from "../../api/types/response";
 
 interface MessageStickerProps {
     stickerId: string,
@@ -12,7 +14,7 @@ interface MessageStickerProps {
 }
 
 const useStyles = makeStyles(() => createStyles({
-    imageWrapper: {
+    stickerWrapper: {
         display: "inline-block",
         position: "relative",
         height: "100%",
@@ -56,7 +58,9 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
     });
 
     const sticker = useEntityById("stickers", stickerId);
-    const upload = useEntitySelector("uploads", entities => entities.uploads.findSticker(sticker.uploadId));
+    const isLottie = isLottieSticker(sticker.stickerType);
+    const height = isLottie ? 256 : (heightCache[messageId] ?? undefined);
+    const width = isLottie ? 256 : undefined;
 
     return (
         <ImageList cols={1}
@@ -64,17 +68,18 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
                    gap={0}
         >
             <ImageListItem cols={1}>
-                <div className={classes.imageWrapper}
+                <div className={classes.stickerWrapper}
                      style={{
-                         height: heightCache[messageId] ?? undefined,
+                         height,
+                         width,
                          maxHeight: 256
                 }}
                      ref={imageContainerRef}
                 >
-                    <img src={upload.uri}
-                         className={classes.image}
-                         onClick={() => setStickerPackId(sticker.stickerPackId)}
-                         onLoad={() => setLoaded(true)}
+                    <Sticker stickerType={sticker.stickerType}
+                             stickerId={stickerId}
+                             onClick={() => setStickerPackId(sticker.stickerPackId)}
+                             onLoad={() => setLoaded(true)}
                     />
                 </div>
             </ImageListItem>
