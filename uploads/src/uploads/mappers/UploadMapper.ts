@@ -46,7 +46,7 @@ export class UploadMapper {
             case UploadType.VIDEO_STICKER:
                 return `${apiHost}/api/v1/uploads/stickers/video/${upload.name}`;
             case UploadType.LOTTIE_STICKER:
-                return `/${apiHost}/api/v1/uploads/stickers/lottie/${upload.name}`;
+                return `${apiHost}/api/v1/uploads/stickers/lottie/${upload.name}`;
             default:
                 return `${apiHost}/api/v1/uploads/images/${upload.name}`;
         }

@@ -77,4 +77,30 @@ export class StickersUploadController {
 			sizeRequest
 		);
 	}
+
+	@HasRole("ROLE_USER")
+	@UseInterceptors(
+		RejectEmptyInterceptor,
+		FileInterceptor(
+			"file",
+			{
+				limits: {
+					fileSize: config.LOTTIE_STICKER_MAX_SIZE_BYTES
+				}
+			}
+		)
+	)
+	@Post("lottie")
+	public async uploadLottieSticker(@UploadedFile() file: MultipartFile,
+									 @CurrentUser() user: User): Promise<UploadResponse<StickerUploadMetadata>> {
+		return await this.stickersUploadService.uploadLottieSticker(file, user);
+	}
+
+	@Get("lottie/:stickerName")
+	public async getLottieSticker(
+		@Param("stickerName") name: string,
+		@Res() response: Response
+	): Promise<void> {
+		await this.stickersUploadService.getLottieSticker(name, response);
+	}
 }

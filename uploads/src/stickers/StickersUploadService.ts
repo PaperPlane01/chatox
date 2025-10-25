@@ -17,18 +17,18 @@ import {PathLike, promises as fileSystem} from "fs";
 import path from "path";
 import {FileTypeResult} from "file-type";
 import {isAnimatedWebP, isWebP} from "is-webp-extended";
-import {LottieService} from "./LottieService";
 import {config} from "../config";
 import {ImageUploadMetadata, StickerUploadMetadata, Upload, UploadDocument, UploadType} from "../uploads";
 import {UploadMapper} from "../uploads/mappers";
 import {ImageSizeRequest, MultipartFile} from "../common/types/request";
 import {User} from "../auth";
 import {UploadResponse} from "../uploads/types/responses";
-import {createFileFromBuffer, getFileType, streamFileToResponse} from "../utils/file-utils";
+import {createFileFromBuffer, exists, getFileType, streamFileToResponse} from "../utils/file-utils";
 import {GraphicsMagicService} from "../graphics-magic";
 import {mapAsync} from "../utils/map-async";
 import {generateFileInfoCacheKey} from "../utils/cache-utils";
 import {RedisFileInfo} from "../common/types";
+import {LottieService} from "../lottie";
 
 const ALLOWED_IMAGE_STICKER_FORMATS = [
 	"png",
@@ -38,7 +38,7 @@ const ALLOWED_IMAGE_STICKER_FORMATS = [
 const STICKER_THUMBNAIL_SIZES = [64, 128, 256];
 const VALID_STICKER_SIZE = 512;
 
-type LottieStickerFormat = "json" | "lottie";
+type LottieStickerFormat = "json" | "lottie" | "tgs";
 
 @Injectable()
 export class StickersUploadService {
@@ -272,19 +272,18 @@ export class StickersUploadService {
 	public async uploadLottieSticker(
 		file: MultipartFile,
 		user: User
-	): Promise<UploadResponse<ImageUploadMetadata>> {
+	): Promise<UploadResponse<StickerUploadMetadata>> {
 		const id = new Types.ObjectId();
 		const idString = id.toHexString();
-		const stickerPath = await this.saveLottieStickerToFileSystem(idString, file);
-		const fileStats = await fileSystem.stat(stickerPath);
+		const tgsPath = await this.convertToTgs(idString, file);
 		const sticker = new Upload<StickerUploadMetadata>({
 			_id: id,
-			size: fileStats.size,
+			size: 0,
 			originalName: `${idString}.lottie`,
 			name: `${idString}.lottie`,
 			isPreview: false,
 			isThumbnail: false,
-			mimeType: "application/gzip",
+			mimeType: "application/zip+dotlottie",
 			extension: "lottie",
 			meta: {
 				width: -1,
@@ -294,8 +293,8 @@ export class StickersUploadService {
 			type: UploadType.LOTTIE_STICKER,
 			userId: user.id
 		});
-		const preview = await this.createLottieStickerPreviewAndValidateSize(
-			stickerPath,
+		const preview = await this.createTgsStickerPreview(
+			tgsPath,
 			idString,
 			sticker
 		);
@@ -304,39 +303,61 @@ export class StickersUploadService {
 			...sticker.meta,
 			...preview.meta
 		}
+		const dotLottiePath = path.join(config.LOTTIE_STICKERS_DIRECTORY, `${idString}.lottie`);
+		await this.convertTgsToDotLottie(tgsPath, dotLottiePath, sticker);
+		const fileStats = await fileSystem.stat(dotLottiePath);
+
+		sticker.size = fileStats.size;
 		await new this.uploadModel(sticker).save();
 
 		return this.uploadMapper.toUploadResponse(sticker);
 	}
 
-	private async saveLottieStickerToFileSystem(id: string, file: MultipartFile): Promise<string> {
+	private async convertToTgs(id: string, file: MultipartFile): Promise<string> {
 		const temporaryFilePath = path.join(config.LOTTIE_STICKERS_DIRECTORY, `${id}.tmp`);
 		await createFileFromBuffer(temporaryFilePath, file.buffer);
 
-		let stickerPath: string;
 		let stickerFormat: LottieStickerFormat;
+		let fileName: string;
 
 		if (await this.isValidJson(temporaryFilePath)) {
-			stickerPath = path.join(config.LOTTIE_STICKERS_DIRECTORY, `${id}.json`);
 			stickerFormat = "json";
-		} else {
-			stickerPath = path.join(config.LOTTIE_STICKERS_DIRECTORY, `${id}.lottie`);
+			fileName = `${id}.json`;
+		} else if ((await getFileType(temporaryFilePath)).ext === "zip") {
 			stickerFormat = "lottie";
+			fileName = `${id}.lottie`;
+		} else {
+			stickerFormat = "tgs";
+			fileName = `${id}.tgs`;
 		}
 
+		const stickerPath = path.join(config.LOTTIE_STICKERS_DIRECTORY, fileName);
+		const finalPath = path.join(config.LOTTIE_STICKERS_DIRECTORY, `${id}.tgs`);
+
 		await fileSystem.rename(temporaryFilePath, stickerPath);
-
-		let finalPath = stickerPath;
-
+		
 		try {
-			if (stickerFormat === "json") {
-				finalPath = path.join(config.LOTTIE_STICKERS_DIRECTORY, `${id}.lottie`);
-				await this.lottieService.convertJsonToLottie(stickerPath, finalPath);
+			if (stickerFormat === "lottie") {
+				await this.lottieService.convertDotLottieToTgs(stickerPath, finalPath, `${id}.lottie`);
+			} else if (stickerFormat === "json") {
+				await this.lottieService.convertJsonToTgs(stickerPath, finalPath, `${id}.json`);
+			}
+
+			await this.lottieService.checkStickerValidity(finalPath, fileName);
+
+			if (stickerFormat !== "tgs") {
+				await fileSystem.unlink(stickerPath);
 			}
 
 			return finalPath;
 		} catch (error) {
-			await fileSystem.unlink(stickerPath);
+			if (await exists(stickerPath)) {
+				await fileSystem.unlink(stickerPath);
+			}
+
+			if (await exists(finalPath)) {
+				await fileSystem.unlink(finalPath);
+			}
 
 			if (error instanceof HttpException) {
 				throw error;
@@ -347,7 +368,7 @@ export class StickersUploadService {
 		}
 	}
 
-	private async createLottieStickerPreviewAndValidateSize(
+	private async createTgsStickerPreview(
 		stickerPath: string,
 		stickerId: string,
 		sticker: Upload<StickerUploadMetadata>
@@ -355,7 +376,20 @@ export class StickersUploadService {
 		const previewId = new Types.ObjectId();
 		const previewIdString = previewId.toHexString();
 		const previewPath = path.join(config.IMAGES_DIRECTORY, `${previewIdString}.png`);
-		await this.lottieService.createPng(stickerPath, previewPath);
+
+		try {
+			await this.lottieService.convertTgsToPng(stickerPath, previewPath, `${stickerId}.tgs`);
+		} catch (error) {
+			if (await exists(stickerPath)) {
+				await fileSystem.unlink(stickerPath);
+			}
+
+			if (await exists(previewPath)) {
+				await fileSystem.unlink(previewPath);
+			}
+
+			throw new InternalServerErrorException("Could not process sticker file");
+		}
 
 		const dimensions = await this.graphicsMagicService.getImageDimensions(previewPath);
 
@@ -366,7 +400,6 @@ export class StickersUploadService {
 				`Both width and height of a lottie sticker must be ${VALID_STICKER_SIZE} pixels`
 			);
 		}
-
 
 		const stats = await fileSystem.stat(previewPath);
 		const preview = new Upload<ImageUploadMetadata>({
@@ -445,6 +478,25 @@ export class StickersUploadService {
 		}
 	}
 
+	private async convertTgsToDotLottie(
+		tgsPath: PathLike,
+		dotLottiePath: PathLike,
+		sticker: Upload<StickerUploadMetadata>
+	): Promise<void> {
+		try {
+			await this.lottieService.convertTgsToDotLottie(tgsPath, dotLottiePath, sticker.name);
+		} catch (error) {
+			await fileSystem.unlink(tgsPath);
+			await fileSystem.unlink(dotLottiePath);
+
+			if (error instanceof HttpException) {
+				throw error;
+			} else {
+				throw new InternalServerErrorException();
+			}
+		}
+	}
+
 	public async uploadVideoSticker(
 		file: MultipartFile
 	): Promise<UploadResponse<ImageUploadMetadata>> {
@@ -502,7 +554,40 @@ export class StickersUploadService {
 	}
 
 	public async getLottieSticker(name: string, response: Response): Promise<void> {
-		throw new NotImplementedException("Lottie stickers are not yet supported");
+		response.setHeader("Cache-Control", "max-age=31536000");
+		const cacheKey = generateFileInfoCacheKey(name);
+		const cachedFileInfo: RedisFileInfo | undefined = await this.cacheManager.get(cacheKey);
+
+		if (cachedFileInfo) {
+			response.setHeader("Content-Type", cachedFileInfo.mimeType);
+			await streamFileToResponse(
+				path.join(config.LOTTIE_STICKERS_DIRECTORY, cachedFileInfo.name),
+				response,
+				this.log
+			);
+			return;
+		}
+
+		const sticker = await this.uploadModel.findOne({
+			name,
+			type: UploadType.LOTTIE_STICKER
+		})
+			.exec();
+
+		if (!sticker) {
+			throw new NotFoundException(`Could not find sticker ${name}`);
+		}
+
+		const redisFileInfo: RedisFileInfo = {
+			name,
+			mimeType: sticker.mimeType,
+			thumbnail: false
+		};
+		await this.cacheManager.set(cacheKey, redisFileInfo);
+
+		response.setHeader("Content-Type", sticker.mimeType);
+
+		await streamFileToResponse(path.join(config.LOTTIE_STICKERS_DIRECTORY, name), response, this.log);
 	}
 
 	public async getVideoSticker(id: string, response: Response): Promise<void> {

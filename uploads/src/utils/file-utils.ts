@@ -34,3 +34,12 @@ export const createFileFromBuffer = async (path: PathLike, buffer: Buffer): Prom
     await fileSystem.writeFile(fileHandle, buffer);
     await fileHandle.close();
 };
+
+export const exists = async (path: PathLike): Promise<boolean> => {
+    try {
+        await fileSystem.access(path);
+        return true;
+    } catch (error) {
+        return false;
+    }
+};
