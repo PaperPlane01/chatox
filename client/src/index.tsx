@@ -8,7 +8,7 @@ import {rootStore, store} from "./store";
 import {RouterStoreAware} from "./router";
 import * as serviceWorker from "./serviceWorker";
 
-setWasmUrl(wasmUrl);
+setWasmUrl(import.meta.env.VITE_PUBLIC_URL + wasmUrl);
 
 const routerStore = rootStore.router;
 const routerStoreAware: RouterStoreAware[] = [
