@@ -121,15 +121,17 @@ import {
 import {ReportType} from "../api/types/response";
 import {
     CreateStickerPackStore,
+    DeleteStickerPackStore,
     InstalledStickerPacksStore,
     InstallStickerPackStore,
     SearchStickerPacksStore,
+    StickerAnimationDataStore,
     StickerEmojiPickerDialogStore,
-    StickerPackDialogStore, StickerPackStore,
+    StickerPackDialogStore,
+    StickerPackStore,
     StickerPickerStore,
     UninstallStickerPackStore,
-    UpdateStickerPackStore,
-    DeleteStickerPackStore
+    UpdateStickerPackStore
 } from "../Sticker";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
 import {
@@ -391,12 +393,16 @@ const websocket = new WebsocketStore(
 );
 const stickerPackCreation = new CreateStickerPackStore(entities, language, snackbarService);
 const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
-const installedStickerPacks = new InstalledStickerPacksStore(authorization, entities);
+
+const stickerAnimationData = new StickerAnimationDataStore(entities, referencedEntities, repositories);
+const installedStickerPacks = new InstalledStickerPacksStore(authorization, entities, stickerAnimationData);
+const stickerPicker = new StickerPickerStore(installedStickerPacks, authorization);
+stickerAnimationData.setStickerPicker(stickerPicker);
+
 const stickerPackInstallation = new InstallStickerPackStore(installedStickerPacks, language, snackbarService);
 const stickerPackUninstallation = new UninstallStickerPackStore(installedStickerPacks, language, snackbarService);
 const stickerPacksSearch = new SearchStickerPacksStore(entities);
 const stickerPackDialog = new StickerPackDialogStore();
-const stickerPicker = new StickerPickerStore(installedStickerPacks, authorization);
 const emojiPickerTabs = new EmojiPickerTabsStore();
 const blacklistedUsers = new BlacklistedUsersStore(entities);
 const addUserToBlacklist = new AddUserToBlacklistStore(blacklistedUsers);
@@ -757,7 +763,8 @@ const _store: IAppState = {
     updateUserNotificationsSettingsInChatDialog,
     stickerPackUpdate,
     stickerPack,
-    stickerPackDeletion
+    stickerPackDeletion,
+    stickerAnimationData
 };
 
 //Hack to avoid loss of application state on HMR

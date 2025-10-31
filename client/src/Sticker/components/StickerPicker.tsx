@@ -125,8 +125,6 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
                     >
                         <StickersGridList stickerPackId={stickerPackId}
                                           onStickerClick={handleStickerSelection}
-                                          gridListTileHeight={64}
-                                          gridListTileWidth={64}
                                           stickerSize={256}
                         />
                     </TabPanel>

@@ -6,7 +6,7 @@ import {ChatBlockingEntity} from "../../ChatBlocking";
 import {Upload} from "../../api/types/response";
 import {GlobalBanEntity} from "../../GlobalBan/types";
 import {ChatWithCreatorIdEntity, ReportEntity} from "../../Report/types";
-import {StickerEntity, StickerPackEntity} from "../../Sticker";
+import {StickerAnimationData, StickerEntity, StickerPackEntity} from "../../Sticker";
 import {ChatRoleEntity} from "../../ChatRole/types";
 import {RequiredField} from "../../utils/types";
 import {RewardEntity, UserRewardEntity} from "../../Reward/types";
@@ -36,9 +36,10 @@ export type Entities = "messages"
     | "userProfilePhotos"
     | "chatInvites"
     | "pendingChatParticipations"
-    | "draftMessages";
+    | "draftMessages"
+    | "stickerAnimationData";
 
-export type PersistentEntities = Extract<Entities, "messages" | "users" | "uploads" | "stickers" | "stickerPacks" | "chatRoles" | "draftMessages">;
+export type PersistentEntities = Extract<Entities, "messages" | "users" | "uploads" | "stickers" | "stickerPacks" | "chatRoles" | "draftMessages" | "stickerAnimationData">;
 
 interface EntityMap<T> {
     [key: string]: T;
@@ -70,6 +71,7 @@ export type GetEntityType<Key extends Entities>
     : Key extends "chatInvites" ? ChatInviteEntity
     : Key extends "pendingChatParticipations" ? PendingChatParticipationEntity
     : Key extends "draftMessages" ? MessageEntity
+    : Key extends "stickerAnimationData" ? StickerAnimationData
     : never;
 //@formatter:on
 

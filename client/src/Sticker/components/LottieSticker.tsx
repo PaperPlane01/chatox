@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import {DotLottieWorkerReact} from "@lottiefiles/dotlottie-react";
 import {BaseStickerProps} from "./BaseStickerProps";
 import {createStyles, makeStyles} from "@mui/styles";
+import {useAnimationData} from "../hooks";
 import {stickerWrapperStyle} from "../styles";
 import {useEntityById, useEntitySelector} from "../../entities";
 
@@ -18,6 +19,7 @@ export const LottieSticker: FunctionComponent<BaseStickerProps> = observer(({
 	const sticker = useEntityById("stickers", stickerId);
 	const upload = useEntitySelector("uploads", entities => entities.uploads.findSticker(sticker.uploadId));
 	const classes = useStyles();
+	const animationData = useAnimationData(stickerId);
 
 	const handleLoad = (): void => {
 		if (onLoad) {
@@ -29,7 +31,8 @@ export const LottieSticker: FunctionComponent<BaseStickerProps> = observer(({
 		<div className={classes.stickerWrapper}
 			 onClick={onClick}
 		>
-			<DotLottieWorkerReact src={upload.uri}
+			<DotLottieWorkerReact src={animationData ? undefined : upload.uri}
+								  data={animationData}
 								  loop
 								  autoplay
 								  useFrameInterpolation={false}
@@ -42,5 +45,5 @@ export const LottieSticker: FunctionComponent<BaseStickerProps> = observer(({
 								  dotLottieRefCallback={dotLottie => dotLottie?.addEventListener("render", handleLoad)}
 			/>
 		</div>
-	)
+	);
 });
