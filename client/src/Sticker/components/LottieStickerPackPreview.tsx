@@ -16,8 +16,9 @@ export const LottieStickerPackPreview: FunctionComponent<BaseStickerPackPreviewP
 							  autoplay
 							  loop
 							  useFrameInterpolation={false}
-							  layout={{
-								  fit: "contain"
+							  renderConfig={{
+								  freezeOnOffscreen: true,
+								  autoResize: true
 							  }}
 		/>
 	</div>
