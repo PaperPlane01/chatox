@@ -66,7 +66,7 @@ class UploadEventsListener(private val uploadRepository: UploadRepository, priva
             channel: Channel,
             @Header(AmqpHeaders.DELIVERY_TAG) deliveryTag: Long) {
         mono {
-            uploadRepository.save(uploadMapper.fromUploadCreated(uploadCreated)).awaitFirst()
+            uploadRepository.save(uploadMapper.fromUploadCreated(uploadCreated, uploadCreated.previewImage)).awaitFirst()
         }
                 .doOnSuccess { channel.basicAck(deliveryTag, false) }
                 .doOnError { error ->
