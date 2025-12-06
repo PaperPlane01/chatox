@@ -24,10 +24,10 @@ class UploadMapper(private val uploadsProperties: ChatoxUploadsConfigProperties)
     )
 
     fun <MetadataType>fromUploadCreated(uploadCreated: UploadCreated<MetadataType>,
-                                        preview: Upload<ImageUploadMetadata>? = null
+                                        preview: UploadCreated<ImageUploadMetadata>? = null
     ): Upload<MetadataType> = Upload(
             id = uploadCreated.id,
-            imagePreview = preview,
+            imagePreview = if (preview != null) fromUploadCreated(preview) else null,
             meta = uploadCreated.meta,
             extension = uploadCreated.extension,
             name = uploadCreated.name,
