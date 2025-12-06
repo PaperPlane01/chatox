@@ -824,5 +824,10 @@ export const ru: Labels = {
     "common.error.field-required": "Данное поле обязательно к заполнению",
     "file.upload": "Загрузить файл",
     "sticker.lottie.error.invalid": "Некорректный файл lottie",
-    "sticker.lottie.error.unknown": "При загрузке файла произошла неизвестная ошибка"
+    "sticker.lottie.error.unknown": "При загрузке файла произошла неизвестная ошибка",
+    "sticker.preferences": "Настройки стикеров",
+    "sticker.preferences.autoplay": "Воспроизводить автоматически",
+    "sticker.preferences.loop": "Зацикливать анимацию",
+    "sticker.preferences.loops-count": "Количество циклов анимации",
+    "sticker.preferences.loops-count.zero": "0 — бесконечный цикл"
 };

@@ -130,6 +130,7 @@ import {
     StickerPackDialogStore,
     StickerPackStore,
     StickerPickerStore,
+    StickersPreferencesStore,
     UninstallStickerPackStore,
     UpdateStickerPackStore
 } from "../Sticker";
@@ -592,6 +593,7 @@ const stickerPackDeletion = new DeleteStickerPackStore(
     stickerPackDialog,
     stickerPicker
 );
+const stickersPreferences = new StickersPreferencesStore();
 
 const _store: IAppState = {
     authorization,
@@ -764,7 +766,8 @@ const _store: IAppState = {
     stickerPackUpdate,
     stickerPack,
     stickerPackDeletion,
-    stickerAnimationData
+    stickerAnimationData,
+    stickersPreferences
 };
 
 //Hack to avoid loss of application state on HMR

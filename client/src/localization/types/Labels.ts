@@ -822,5 +822,10 @@ export interface Labels {
     "common.error.field-required": string,
     "file.upload": string,
     "sticker.lottie.error.invalid": string,
-    "sticker.lottie.error.unknown": string
+    "sticker.lottie.error.unknown": string,
+    "sticker.preferences": string,
+    "sticker.preferences.autoplay": string,
+    "sticker.preferences.loop": string,
+    "sticker.preferences.loops-count": string,
+    "sticker.preferences.loops-count.zero": string
 }

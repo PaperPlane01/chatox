@@ -824,5 +824,10 @@ export const en: Labels = {
     "common.error.field-required": "This field is required",
     "file.upload": "Upload file",
     "sticker.lottie.error.invalid": "Invalid lottie file",
-    "sticker.lottie.error.unknown": "Unknown error occurred when tried to upload file"
+    "sticker.lottie.error.unknown": "Unknown error occurred when tried to upload file",
+    "sticker.preferences": "Stickers preferences",
+    "sticker.preferences.autoplay": "Autoplay",
+    "sticker.preferences.loop": "Loop animation",
+    "sticker.preferences.loops-count": "Animation loops count",
+    "sticker.preferences.loops-count.zero": "0 means infinite looping"
 };

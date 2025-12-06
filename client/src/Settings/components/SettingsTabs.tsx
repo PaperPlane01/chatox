@@ -5,6 +5,7 @@ import {TabContext, TabList, TabPanel} from "@mui/lab";
 import {Block, ChatBubble, Image, Language, Notifications, Palette, Person, Security} from "@mui/icons-material";
 import {SecurityTabWrapper} from "./SecurityTabWrapper";
 import {AppearanceTabWrapper} from "./AppearanceTabWrapper";
+import {StickersTabWrapper} from "./StickersTabWrapper";
 import {SettingsTab} from "../types";
 import {HasAnyRole, HasRole} from "../../Authorization";
 import {EditProfileForm} from "../../User";
@@ -12,7 +13,6 @@ import {ChatsPreferencesCard} from "../../Chat";
 import {LanguagePicker} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {InstalledStickerPacksList} from "../../Sticker";
 import {BlacklistedUsersList} from "../../Blacklist";
 import {createTabStyles} from "../../style";
 import {GlobalNotificationsSettingsUpdate} from "../../Notification";
@@ -35,7 +35,7 @@ export const SettingsTabs: FunctionComponent = observer(() => {
 
     return (
         <div className={classes.tabsContainer}>
-            <TabContext value={activeTab ? activeTab : SettingsTab.PROFILE}>
+            <TabContext value={activeTab ?? SettingsTab.PROFILE}>
                 <TabList orientation="vertical"
                          variant="fullWidth"
                          className={classes.tabs}
@@ -197,7 +197,7 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                                     </Typography>
                                 }
                     >
-                        <InstalledStickerPacksList/>
+                        <StickersTabWrapper/>
                     </HasAnyRole>
                 </TabPanel>
                 <TabPanel value={SettingsTab.BLACKLIST}

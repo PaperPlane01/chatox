@@ -122,6 +122,7 @@ import {
     StickerPackDialogStore,
     StickerPackStore,
     StickerPickerStore,
+    StickersPreferencesStore,
     UninstallStickerPackStore,
     UpdateStickerPackStore
 } from "../Sticker";
@@ -356,5 +357,6 @@ export interface IAppState {
     stickerPackUpdate: UpdateStickerPackStore,
     stickerPack: StickerPackStore,
     stickerPackDeletion: DeleteStickerPackStore,
-    stickerAnimationData: StickerAnimationDataStore
+    stickerAnimationData: StickerAnimationDataStore,
+    stickersPreferences: StickersPreferencesStore
 }
