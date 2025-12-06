@@ -16,7 +16,7 @@ export class DotLottieZipWorker {
 		const animationEntry = (await zipReader.getEntries()).find(entry => entry.filename === "animations/main.json");
 
 		if (!animationEntry || !this.isFileEntry(animationEntry)) {
-			return;
+			return undefined;
 		}
 
 		const textWriter = new TextWriter();
