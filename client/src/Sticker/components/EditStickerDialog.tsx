@@ -8,7 +8,6 @@ import {StickerEmojiPickerDialog} from "./StickerEmojiPickerDialog";
 import {useStickerPackForm} from "../hooks";
 import {StickerPackFormContext} from "../types";
 import {StickerContainer} from "../stores";
-import {ImageUpload} from "../../Upload";
 import {ChipInput} from "../../ChipInput";
 import {useLocalization, useStore} from "../../store";
 import {StickerUpload} from "./StickerUpload";
