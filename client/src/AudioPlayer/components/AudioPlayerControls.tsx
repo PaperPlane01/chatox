@@ -11,6 +11,7 @@ import {WaveForm} from "./WaveForm";
 import {AudioType} from "../types";
 import {useStore} from "../../store";
 import {UploadType} from "../../api/types/response";
+import {useEntitySelector} from "../../entities";
 
 interface AudioPlayerControlsProps {
     audioId: string,
@@ -86,12 +87,6 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
     waveFormViewBox
 }) => {
     const {
-        entities: {
-            uploads: {
-                findAudio,
-                findVoiceMessage
-            }
-        },
         audioPlayer: {
             playing,
             currentTrackId,
@@ -111,9 +106,12 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
     });
 
     const voiceMessage = audioType === UploadType.VOICE_MESSAGE;
-    const audio = voiceMessage
-        ? findVoiceMessage(audioId)
-        : findAudio(audioId);
+    const audio = useEntitySelector(
+        "uploads",
+            entities => voiceMessage
+                ? entities.uploads.findVoiceMessage(audioId)
+                : entities.uploads.findAudio(audioId)
+    );
     const sliderMarks: Mark[] = [
         {
             value: 0,
