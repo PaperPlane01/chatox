@@ -50,7 +50,8 @@ export class RawEntitiesStore {
         userProfilePhotos: {},
         chatInvites: {},
         pendingChatParticipations: {},
-        draftMessages: {}
+        draftMessages: {},
+        stickerAnimationData: {}
     };
 
     ids: EntitiesIds = {
@@ -77,7 +78,8 @@ export class RawEntitiesStore {
         userProfilePhotos: [],
         chatInvites: [],
         pendingChatParticipations: [],
-        draftMessages: []
+        draftMessages: [],
+        stickerAnimationData: []
     };
 
     constructor(private readonly repositories: Repositories) {

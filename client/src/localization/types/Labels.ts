@@ -795,6 +795,7 @@ export interface Labels {
     "sticker.type": string,
     "sticker.type.IMAGE_STICKER": string,
     "sticker.type.WEBP_STICKER": string,
+    "sticker.type.LOTTIE_STICKER": string,
     "sticker.file": string,
     "sticker.file.required": string,
     "sticker.file.too-large": string,
@@ -818,5 +819,13 @@ export interface Labels {
     "sticker.pack.delete.error.unknown": string,
     "sticker.pack.delete.error.not-found": string,
     "sticker.pack.delete.error.server-unreachable": string,
-    "common.error.field-required": string
+    "common.error.field-required": string,
+    "file.upload": string,
+    "sticker.lottie.error.invalid": string,
+    "sticker.lottie.error.unknown": string,
+    "sticker.preferences": string,
+    "sticker.preferences.autoplay": string,
+    "sticker.preferences.loop": string,
+    "sticker.preferences.loops-count": string,
+    "sticker.preferences.loops-count.zero": string
 }

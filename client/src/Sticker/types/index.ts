@@ -6,3 +6,4 @@ export * from "./StickerRelationships";
 export * from "./StickerPackFormData";
 export * from "./StickerPackFormContext";
 export * from "./DeleteStickerPackFormData";
+export * from "./StickerAnimationData";

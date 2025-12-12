@@ -113,15 +113,19 @@ import {
 } from "../Report";
 import {
     CreateStickerPackStore,
+    DeleteStickerPackStore,
     InstalledStickerPacksStore,
     InstallStickerPackStore,
     SearchStickerPacksStore,
+    StickerAnimationDataStore,
     StickerEmojiPickerDialogStore,
-    StickerPackDialogStore, StickerPackStore,
+    StickerPackDialogStore,
+    StickerPackStore,
     StickerPickerStore,
+    StickerPreviewDialogStore,
+    StickersPreferencesStore,
     UninstallStickerPackStore,
-    UpdateStickerPackStore,
-    DeleteStickerPackStore
+    UpdateStickerPackStore
 } from "../Sticker";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
 import {
@@ -353,5 +357,8 @@ export interface IAppState {
     updateUserNotificationsSettingsInChatDialog: UpdateUserNotificationSettingsInChatDialogStore,
     stickerPackUpdate: UpdateStickerPackStore,
     stickerPack: StickerPackStore,
-    stickerPackDeletion: DeleteStickerPackStore
+    stickerPackDeletion: DeleteStickerPackStore,
+    stickerAnimationData: StickerAnimationDataStore,
+    stickersPreferences: StickersPreferencesStore,
+    stickerPreviewDialog: StickerPreviewDialogStore
 }

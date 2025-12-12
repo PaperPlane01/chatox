@@ -42,7 +42,7 @@ export class EnvConfig {
     LOTTIE_STICKERS_DIRECTORY: string;
 
     @Env({type: "number", required: false})
-    LOTTIE_STICKER_MAX_SIZE_BYTES = 64000; // 64 kilobytes default
+    LOTTIE_STICKER_MAX_SIZE_BYTES = 640000; // 640 kilobytes default
 
     @Env({type: "string", required: true})
     VIDEO_STICKERS_DIRECTORY: string;

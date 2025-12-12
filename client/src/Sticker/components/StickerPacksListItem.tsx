@@ -3,8 +3,9 @@ import {observer} from "mobx-react";
 import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {StickerPackMenu} from "./StickerPackMenu";
-import {useEntityById, useEntitySelector} from "../../entities";
-import {Avatar} from "../../Avatar";
+import {StickerPackPreview} from "./StickerPackPreview";
+import {useEntityById} from "../../entities";
+import {ImageUploadMetadata, StickerUploadMetadata, Upload} from "../../api/types/response";
 
 interface StickerPacksListItemProps {
     stickerPackId: string,
@@ -24,7 +25,7 @@ export const StickerPacksListItem: FunctionComponent<StickerPacksListItemProps> 
     const classes = useStyles();
 
     const stickerPack = useEntityById("stickerPacks", stickerPackId);
-    const stickerPackPreview = useEntitySelector("uploads", entities => entities.uploads.findImage(stickerPack.previewId));
+    const stickerPackPreview = useEntityById("uploads", stickerPack.previewId) as Upload<StickerUploadMetadata | ImageUploadMetadata>;
 
     const handleClick = (): void => {
         if (onClick) {
@@ -37,10 +38,10 @@ export const StickerPacksListItem: FunctionComponent<StickerPacksListItemProps> 
                   className={classes.stickerPacksListItem}
         >
             <ListItemAvatar>
-                <Avatar avatarLetter=""
-                        avatarColor=""
-                        shape="square"
-                        avatarUri={`${stickerPackPreview.uri}?size=256`}
+                <StickerPackPreview stickersType={stickerPack.stickersType}
+                                    upload={stickerPackPreview}
+                                    width={40}
+                                    height={40}
                 />
             </ListItemAvatar>
             <ListItemText primary={stickerPack.name}

@@ -2,7 +2,7 @@ import Dexie, {Table} from "dexie";
 import {MessageEntity} from "../Message";
 import {UserEntity} from "../User";
 import {Upload} from "../api/types/response";
-import {StickerEntity, StickerPackEntity} from "../Sticker";
+import {StickerAnimationData, StickerEntity, StickerPackEntity} from "../Sticker";
 import {ChatRoleEntity} from "../ChatRole/types";
 
 export class ChatoxDexieDatabase extends Dexie {
@@ -13,6 +13,7 @@ export class ChatoxDexieDatabase extends Dexie {
 	stickerPacks!: Table<StickerPackEntity, string>;
 	chatRoles!: Table<ChatRoleEntity, string>;
 	draftMessages!: Table<MessageEntity, string>;
+	stickerAnimationData!: Table<StickerAnimationData, string>;
 
 	constructor() {
 		super("chatox-dexie-database");
@@ -24,7 +25,8 @@ export class ChatoxDexieDatabase extends Dexie {
 			stickers: "id, stickerPackId",
 			stickerPacks: "id",
 			chatRoles: "id, chatId",
-			draftMessages: "id, chatId"
+			draftMessages: "id, chatId",
+			stickerAnimationData: "id"
 		});
 	}
 }

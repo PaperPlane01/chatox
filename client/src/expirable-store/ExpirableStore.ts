@@ -9,17 +9,22 @@ export class ExpirableStore<K, V> {
 
     constructor(private readonly timeToLive: Duration, private readonly onExpire?: ExpireCallback<K>) {
         makeObservable<ExpirableStore<K, V>>(this, {
-            insert: action,
-            get: action
+            insert: action.bound,
+            set: action.bound,
+            get: action.bound
         });
     }
 
-    insert = (key: K, value: V): void => {
+    set(key: K, value: V): void {
         this.storage.set(key, value);
         this.initiateDeleteTimeout(key, value);
     }
 
-    private initiateDeleteTimeout = (key: K, value: V): void => {
+    insert(key: K, value: V): void {
+       this.set(key, value);
+    }
+
+    private initiateDeleteTimeout(key: K, value: V): void {
         const currentDate = new Date();
         const timeoutDuration = differenceInMilliseconds(this.timeToLive.addToDate(currentDate), currentDate);
 
@@ -34,7 +39,7 @@ export class ExpirableStore<K, V> {
         }), timeoutDuration);
     }
 
-    get = (key: K): V | undefined => {
+    get(key: K): V | undefined {
         return this.storage.get(key);
     }
 }

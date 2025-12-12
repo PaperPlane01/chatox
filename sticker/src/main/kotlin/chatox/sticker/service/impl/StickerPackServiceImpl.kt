@@ -273,7 +273,9 @@ class StickerPackServiceImpl(
                     createdAt = ZonedDateTime.now()
             ) }
 
-            return@mono stickerRepository.saveAll(stickers)
+            stickerRepository.saveAll(stickers).collectList().awaitFirst()
+
+            return@mono Flux.fromIterable(stickers)
         }
                 .flatMapMany { it }
     }

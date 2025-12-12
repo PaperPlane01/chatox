@@ -797,6 +797,7 @@ export const en: Labels = {
     "sticker.type": "Stickers type",
     "sticker.type.IMAGE_STICKER": "Image stickers",
     "sticker.type.WEBP_STICKER": "Webp stickers",
+    "sticker.type.LOTTIE_STICKER": "Lottie stickers",
     "sticker.file": "File",
     "sticker.file.required": "Sticker file is required",
     "sticker.file.too-large": "Sticker file is too large",
@@ -820,5 +821,13 @@ export const en: Labels = {
     "sticker.pack.delete.error.unknown": "Unknown error occurred when tried to delete sticker pack, server responded with {errorStatus} status",
     "sticker.pack.delete.error.not-found": "Error occurred when tried to delete sticker pack: sticker pack not found",
     "sticker.pack.delete.error.server-unreachable": "Error occurred when tried to delete sticker pack: server is unreachable",
-    "common.error.field-required": "This field is required"
+    "common.error.field-required": "This field is required",
+    "file.upload": "Upload file",
+    "sticker.lottie.error.invalid": "Invalid lottie file",
+    "sticker.lottie.error.unknown": "Unknown error occurred when tried to upload file",
+    "sticker.preferences": "Stickers preferences",
+    "sticker.preferences.autoplay": "Autoplay",
+    "sticker.preferences.loop": "Loop animation",
+    "sticker.preferences.loops-count": "Animation loops count",
+    "sticker.preferences.loops-count.zero": "0 means infinite looping"
 };

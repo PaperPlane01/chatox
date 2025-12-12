@@ -18,7 +18,7 @@ import {ChatInvitesStore} from "../ChatInvite";
 import {EntityStore} from "../entity-store";
 
 type EntitiesStores = {
-    [Entity in Entities]: Entity extends "chatUploads"
+    [Entity in Entities]: Entity extends "chatUploads" | "stickerAnimationData"
         ? any
         : EntityStore<Entity, GetEntityType<Entity>, any, any>
 }
@@ -73,7 +73,8 @@ export class EntitiesStore {
             chatInvites: this.chatInvites,
             pendingChatParticipations: this.pendingChatParticipations,
             chatUploads: undefined,
-            draftMessages: this.draftMessages
+            draftMessages: this.draftMessages,
+            stickerAnimationData: undefined
         }
     }
 

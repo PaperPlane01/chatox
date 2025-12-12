@@ -797,6 +797,7 @@ export const ru: Labels = {
     "sticker.type": "Тип стикеров",
     "sticker.type.IMAGE_STICKER": "Картинки",
     "sticker.type.WEBP_STICKER": "Webp-стикеры",
+    "sticker.type.LOTTIE_STICKER": "Lottie-стикеры",
     "sticker.file": "Файл",
     "sticker.file.required": "У стикера должен быть файл",
     "sticker.file.too-large": "Файл стикера имеет слишком большой размер",
@@ -820,5 +821,13 @@ export const ru: Labels = {
     "sticker.pack.delete.error.unknown": "При удалении набора стикеров произошла неизвестная ошибка, сервер ответил со статусом {errorStatus}",
     "sticker.pack.delete.error.not-found": "При удалении набора стикеров произошла ошибка: набор стикеров не найден",
     "sticker.pack.delete.error.server-unreachable": "При удалении набора стикеров произошла ошибка: сервер недоступен",
-    "common.error.field-required": "Данное поле обязательно к заполнению"
+    "common.error.field-required": "Данное поле обязательно к заполнению",
+    "file.upload": "Загрузить файл",
+    "sticker.lottie.error.invalid": "Некорректный файл lottie",
+    "sticker.lottie.error.unknown": "При загрузке файла произошла неизвестная ошибка",
+    "sticker.preferences": "Настройки стикеров",
+    "sticker.preferences.autoplay": "Воспроизводить автоматически",
+    "sticker.preferences.loop": "Зацикливать анимацию",
+    "sticker.preferences.loops-count": "Количество циклов анимации",
+    "sticker.preferences.loops-count.zero": "0 — бесконечный цикл"
 };

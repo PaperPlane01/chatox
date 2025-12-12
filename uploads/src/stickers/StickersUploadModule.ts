@@ -2,17 +2,18 @@ import {Module} from "@nestjs/common";
 import {MongooseModule} from "@nestjs/mongoose";
 import {StickersUploadController} from "./StickersUploadController";
 import {StickersUploadService} from "./StickersUploadService";
-import {LottieService} from "./LottieService";
 import {uploadSchemaFactory, UploadsModule} from "../uploads";
 import {GraphicsMagicModule} from "../graphics-magic";
+import {LottieModule} from "../lottie";
 
 @Module({
 	controllers: [StickersUploadController],
-	providers: [StickersUploadService, LottieService],
+	providers: [StickersUploadService],
 	imports: [
 		MongooseModule.forFeatureAsync([uploadSchemaFactory]),
 		UploadsModule,
-		GraphicsMagicModule
+		GraphicsMagicModule,
+		LottieModule
 	]
 })
 export class StickersUploadModule {

@@ -7,6 +7,7 @@ import {Link} from "mobx-router";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
 import {SecurityTabWrapper} from "./SecurityTabWrapper";
 import {AppearanceTabWrapper} from "./AppearanceTabWrapper";
+import {StickersTabWrapper} from "./StickersTabWrapper";
 import {SettingsTab} from "../types";
 import {EditProfileForm} from "../../User";
 import {LanguagePicker} from "../../localization";
@@ -14,7 +15,6 @@ import {Routes} from "../../router";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {ChatsPreferencesCard} from "../../Chat";
 import {HasAnyRole} from "../../Authorization";
-import {InstalledStickerPacksList} from "../../Sticker";
 import {GlobalNotificationsSettingsUpdate} from "../../Notification";
 
 const useStyles = makeStyles(() => createStyles({
@@ -175,7 +175,7 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                                 </Typography>
                             }
                 >
-                    <InstalledStickerPacksList/>
+                    <StickersTabWrapper/>
                 </HasAnyRole>
             </SettingsFullScreenDialog>
         </Fragment>

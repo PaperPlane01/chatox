@@ -104,7 +104,8 @@ const UPLOAD_MAX_SIZES: Map<UploadType, number> = new Map([
     [UploadType.VIDEO, import.meta.env.VITE_VIDEO_MAX_SIZE],
     [UploadType.VOICE_MESSAGE, import.meta.env.VITE_AUDIO_MAX_SIZE],
     [UploadType.IMAGE_STICKER, import.meta.env.VITE_IMAGE_STICKER_MAX_SIZE],
-    [UploadType.WEBP_STICKER, import.meta.env.VITE_WEBP_STICKER_MAX_SIZE]
+    [UploadType.WEBP_STICKER, import.meta.env.VITE_WEBP_STICKER_MAX_SIZE],
+    [UploadType.LOTTIE_STICKER, import.meta.env.VITE_LOTTIE_STICKER_MAX_SIZE]
 ]);
 
 export const getMaxFileSize = (uploadType: UploadType): number => UPLOAD_MAX_SIZES.get(uploadType)!

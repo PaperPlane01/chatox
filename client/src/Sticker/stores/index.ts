@@ -13,3 +13,6 @@ export * from "./UpdateStickerPackStore";
 export * from "./StickerPackFormStore";
 export * from "./StickerPackStore";
 export * from "./DeleteStickerPackStore";
+export * from "./StickerAnimationDataStore";
+export * from "./StickersPreferencesStore";
+export * from "./StickerPreviewDialogStore";

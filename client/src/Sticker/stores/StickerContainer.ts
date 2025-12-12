@@ -1,5 +1,4 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {computedFn} from "mobx-utils";
 import {v4} from "uuid";
 import {EmojiData} from "emoji-mart";
 import {AxiosPromise} from "axios";
@@ -36,7 +35,15 @@ export class StickerContainer {
     stickerType: StickerType;
 
     get acceptedFiles(): string {
-        return this.stickerType === UploadType.IMAGE_STICKER ? "image/png" : "image/webp";
+        switch (this.stickerType) {
+            case UploadType.IMAGE_STICKER:
+                return "image/png";
+            case UploadType.WEBP_STICKER:
+                return "image/webp";
+            case UploadType.LOTTIE_STICKER:
+            default:
+                return ".lottie,.tgs,.json";
+        }
     }
 
     get pending(): boolean {
@@ -48,7 +55,7 @@ export class StickerContainer {
     }
 
     constructor(options: StickerType | StickerContainerOptions) {
-        makeAutoObservable(this);
+        makeAutoObservable(this, {}, {autoBind: true});
 
         if (typeof options === "string") {
             this.stickerType = options;
@@ -56,7 +63,7 @@ export class StickerContainer {
             const {sticker, upload} = options;
             this.id = sticker.id;
             this.keywords = sticker.keywords;
-            this.emojis = sticker.emojis;
+            this.emojis = sticker.emojiIds.map(emojiId => sticker.emojis[emojiId]);
             this.stickerType = upload.type as unknown as StickerType;
             this.uploadContainer = new UploadedFileContainer(
                 undefined,
@@ -68,9 +75,7 @@ export class StickerContainer {
         }
     }
 
-    getEmojiByIndex = computedFn((index: number) => this.emojis[index]);
-
-    uploadFile = (file: File): void => {
+    uploadFile(file: File): void {
         this.uploadContainer = new UploadedFileContainer(file, this.stickerType)
 
         if (!this.validateFile()) {
@@ -98,39 +103,41 @@ export class StickerContainer {
             }))
     }
 
-    private updateProgress = (progress: number): void => {
+    private updateProgress(progress: number): void {
         runInAction(() => {
             if (this.uploadContainer) {
                 this.uploadContainer.uploadPercentage = progress;
             }
-        })
+        });
     }
 
     private getUploadFunction(): (upload: File, progressCallback?: ProgressCallback) => AxiosPromise<Upload<StickerUploadMetadata>> {
         if (this.stickerType === UploadType.IMAGE_STICKER) {
             return UploadApi.uploadImageSticker;
+        } else if (this.stickerType === UploadType.LOTTIE_STICKER) {
+            return UploadApi.uploadLottieSticker;
         } else {
             return UploadApi.uploadWebpSticker;
         }
     }
 
-    addEmoji = (emoji: EmojiData): void => {
+    addEmoji(emoji: EmojiData): void {
         this.emojis.push(emoji);
     }
 
-    removeEmojiByIndex = (indexToRemove: number): void => {
+    removeEmojiByIndex(indexToRemove: number): void {
         this.emojis = this.emojis.filter((_, index) => index !== indexToRemove);
     }
 
-    addKeyword = (keyword: string): void => {
+    addKeyword(keyword: string): void {
         this.keywords.push(keyword);
     }
 
-    removeKeywordByIndex = (indexToRemove: number): void => {
+    removeKeywordByIndex(indexToRemove: number): void {
         this.keywords = this.keywords.filter((_, index) => index !== indexToRemove);
     }
 
-    validate = (): boolean => {
+    validate(): boolean {
         this.errors = {
             emojis: validateStickerEmojis(this.emojis),
             keywords: validateStickerKeywords(this.keywords),
@@ -139,7 +146,7 @@ export class StickerContainer {
         return this.validateFile() && !containsNotUndefinedValues(this.errors);
     }
 
-    private validateFile = (): boolean => {
+    private validateFile(): boolean {
         if (!this.uploadContainer) {
             this.fileValidationError = "sticker.file.required";
         }
@@ -150,7 +157,7 @@ export class StickerContainer {
             this.fileValidationError = "sticker.file.too-large";
         }
 
-        return !Boolean(this.fileValidationError);
+        return !this.fileValidationError;
     }
 
 }

@@ -6,6 +6,7 @@ import {TabContext, TabList, TabPanel} from "@mui/lab";
 import {useSnackbar} from "notistack";
 import {isAfter} from "date-fns";
 import {StickersGridList} from "./StickersGridList";
+import {StickerPackPreview} from "./StickerPackPreview";
 import {useLocalization, useStore} from "../../store";
 import {isDefined} from "../../utils/object-utils";
 import {useEntitiesByIds, useEntitiesSelector} from "../../entities";
@@ -34,12 +35,6 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         height: "100%",
         width: "100%",
         cursor: "pointer"
-    },
-    image: {
-        maxWidth: "100%",
-        maxHeight: "100%",
-        height: "inherit",
-        objectFit: "contain"
     },
     tabRoot: {
         width: 48,
@@ -108,8 +103,10 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
                              key={stickerPack.id}
                              icon={
                                  <div className={classes.imageWrapper}>
-                                     <img src={`${previewMap.get(stickerPack.previewId)!.uri}?size=64`}
-                                          className={classes.image}
+                                     <StickerPackPreview stickersType={stickerPack.stickersType}
+                                                         upload={previewMap.get(stickerPack.previewId)!}
+                                                         width="100%"
+                                                         height="100%"
                                      />
                                  </div>
                              }
@@ -128,8 +125,6 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
                     >
                         <StickersGridList stickerPackId={stickerPackId}
                                           onStickerClick={handleStickerSelection}
-                                          gridListTileHeight={64}
-                                          gridListTileWidth={64}
                                           stickerSize={256}
                         />
                     </TabPanel>
