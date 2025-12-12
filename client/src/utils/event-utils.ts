@@ -13,7 +13,7 @@ export const isScrolledToBottom = (event: UIEvent<HTMLDivElement>): boolean => {
     return Math.abs(scrollHeight - (scrollTop + clientHeight)) <= 1;
 };
 
-const getPointerEvent = () => (typeof window === 'object' ? window?.PointerEvent ?? null : null);
+const getPointerEvent = () => window?.PointerEvent ?? null;
 
 export const isPointerEvent = <Target extends Element>(event: SyntheticEvent<Target>): event is ReactMouseEvent<Target> => {
     if (!event.nativeEvent) {
