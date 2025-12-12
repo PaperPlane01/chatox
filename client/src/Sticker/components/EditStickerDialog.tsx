@@ -4,14 +4,14 @@ import {Button, Dialog, DialogActions, DialogContent} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Emoji} from "emoji-mart";
 import {noop} from "lodash";
+import {EditableStickerPreview} from "./EditableStickerPreview";
 import {StickerEmojiPickerDialog} from "./StickerEmojiPickerDialog";
+import {StickerUpload} from "./StickerUpload";
 import {useStickerPackForm} from "../hooks";
 import {StickerPackFormContext} from "../types";
 import {StickerContainer} from "../stores";
 import {ChipInput} from "../../ChipInput";
 import {useLocalization, useStore} from "../../store";
-import {StickerUpload} from "./StickerUpload";
-import {EditableStickerPreview} from "./EditableStickerPreview";
 
 interface EditStickerDialogProps {
 	stickerContainer: StickerContainer,

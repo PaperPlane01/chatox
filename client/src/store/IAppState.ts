@@ -121,7 +121,8 @@ import {
     StickerEmojiPickerDialogStore,
     StickerPackDialogStore,
     StickerPackStore,
-    StickerPickerStore, StickerPreviewDialogStore,
+    StickerPickerStore,
+    StickerPreviewDialogStore,
     StickersPreferencesStore,
     UninstallStickerPackStore,
     UpdateStickerPackStore
