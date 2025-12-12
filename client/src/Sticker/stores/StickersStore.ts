@@ -2,8 +2,8 @@ import {mergeWith} from "lodash";
 import {StickerEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch, RelationshipsIds} from "../../entities-store";
-import {Sticker, StickerType} from "../../api/types/response";
-import {mergeCustomizer} from "../../utils/object-utils";
+import {EmojiMap, Sticker, StickerType} from "../../api/types/response";
+import {isDefined, mergeCustomizer} from "../../utils/object-utils";
 
 export class StickersStore extends AbstractEntityStore<"stickers", StickerEntity, Sticker> {
     findByIdWithRelationships(id: string): readonly [StickerEntity, RelationshipsIds] {
@@ -18,9 +18,20 @@ export class StickersStore extends AbstractEntityStore<"stickers", StickerEntity
     }
 
     protected convertToNormalizedForm(denormalizedEntity: Sticker): StickerEntity {
+        const emojiIds: string[] = [];
+        const emojis: EmojiMap = {};
+
+        denormalizedEntity.emojis.forEach(emoji => {
+            if (isDefined(emoji.id)) {
+                emojiIds.push(emoji.id);
+                emojis[emoji.id] = emoji;
+            }
+        });
+
         return {
             id: denormalizedEntity.id,
-            emojis: denormalizedEntity.emojis,
+            emojiIds,
+            emojis,
             uploadId: denormalizedEntity.upload.id,
             keywords: denormalizedEntity.keywords,
             stickerPackId: denormalizedEntity.stickerPackId,

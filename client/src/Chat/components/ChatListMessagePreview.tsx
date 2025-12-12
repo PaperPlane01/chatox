@@ -93,9 +93,9 @@ const renderSticker = (
     <Fragment>
         {senderName}
         {": "}
-        {sticker.emojis.length !== 0 && (
+        {sticker.emojiIds.length !== 0 && (
             <Emoji size={20}
-                   emoji={sticker.emojis[0].id!}
+                   emoji={sticker.emojis[sticker.emojiIds[0]].id!}
                    set={emojiSet === "native" ? undefined : emojiSet}
                    native={emojiSet === "native"}
             />

@@ -63,7 +63,7 @@ export class StickerContainer {
             const {sticker, upload} = options;
             this.id = sticker.id;
             this.keywords = sticker.keywords;
-            this.emojis = sticker.emojis;
+            this.emojis = sticker.emojiIds.map(emojiId => sticker.emojis[emojiId]);
             this.stickerType = upload.type as unknown as StickerType;
             this.uploadContainer = new UploadedFileContainer(
                 undefined,
