@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent, useEffect} from "react";
+import React, {Fragment, FunctionComponent, ReactNode, useEffect} from "react";
 import {observer} from "mobx-react";
 import {Badge, CircularProgress, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from "@mui/material";
 import {AttachFile, VideoLibrary} from "@mui/icons-material";
@@ -8,8 +8,9 @@ import {AttachImageMenuItem} from "./AttachImageMenuItem";
 import {ShowAttachedFilesMenuItem} from "./ShowAttachedFiledMenuItem";
 import {AttachAudioMenuItem} from "./AttachAudioMenuItem";
 import {AttachFileMenuItem} from "./AttachFileMenuItem";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, usePermissions, useStore} from "../../store";
 import {createAttachFileButtonStyles} from "../../style";
+import {isDefined} from "../../utils/object-utils";
 
 interface AttachFilesButtonProps {
     className?: string
@@ -27,6 +28,9 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
             messageAttachmentsFiles,
             fileValidationErrors,
             setFileValidationErrors
+        },
+        chat: {
+            selectedChatId
         }
     } = useStore();
     const {l} = useLocalization();
@@ -36,6 +40,14 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
     });
     const classes = useStyles();
     const {enqueueSnackbar} = useSnackbar();
+    const {
+        messages: {
+            canSendImages,
+            canSendAudios,
+            canSendVideos,
+            canSendFiles
+        }
+    } = usePermissions();
 
     useEffect(
         () => {
@@ -49,12 +61,61 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
         [fileValidationErrors]
     );
 
+    if (!isDefined(selectedChatId)) {
+        return null;
+    }
+
+    const menuItems: ReactNode[] = [];
+
+    if (canSendImages(selectedChatId)) {
+        menuItems.push(
+            <AttachImageMenuItem onClick={attachFileMenuPopupState.close}
+                                 buttonClassName={classes.attachFileButton}
+            />
+        );
+    }
+
+    if (canSendVideos(selectedChatId)) {
+        menuItems.push(
+            <MenuItem component="button"
+                      disabled
+            >
+                <ListItemIcon>
+                    <VideoLibrary/>
+                </ListItemIcon>
+                <ListItemText>
+                    {l("file.video")}
+                </ListItemText>
+            </MenuItem>
+        );
+    }
+
+    if (canSendAudios(selectedChatId)) {
+        menuItems.push(
+            <AttachAudioMenuItem onClick={attachFileMenuPopupState.close}
+                                 buttonClassName={classes.attachFileButton}
+            />
+        );
+    }
+
+    if (canSendFiles(selectedChatId)) {
+        menuItems.push(
+            <AttachFileMenuItem onClick={attachFileMenuPopupState.close}
+                                buttonClassName={classes.attachFileButton}
+            />
+        );
+    }
+
+    if (menuItems.length === 0) {
+        return null;
+    }
+
     return (
         <Fragment>
-            <IconButton
-                className={className}
-                {...bindToggle(attachFileMenuPopupState)}
-                size="large">
+            <IconButton className={className}
+                        size="large"
+                        {...bindToggle(attachFileMenuPopupState)}
+            >
                 <Badge badgeContent={uploadPending && <CircularProgress size={14} color="primary"/>}
                        anchorOrigin={{
                            vertical: "bottom",
@@ -71,25 +132,7 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
             <Menu {...bindMenu(attachFileMenuPopupState)}
                 keepMounted
             >
-                <AttachImageMenuItem onClick={attachFileMenuPopupState.close}
-                                     buttonClassName={classes.attachFileButton}
-                />
-                <MenuItem component="button"
-                          disabled
-                >
-                    <ListItemIcon>
-                        <VideoLibrary/>
-                    </ListItemIcon>
-                    <ListItemText>
-                        {l("file.video")}
-                    </ListItemText>
-                </MenuItem>
-                <AttachAudioMenuItem onClick={attachFileMenuPopupState.close}
-                                     buttonClassName={classes.attachFileButton}
-                />
-                <AttachFileMenuItem onClick={attachFileMenuPopupState.close}
-                                    buttonClassName={classes.attachFileButton}
-                />
+                {menuItems}
                 {messageAttachmentsFiles.length !== 0 && (
                     <Fragment>
                         <Divider/>
@@ -99,4 +142,4 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
             </Menu>
         </Fragment>
     );
-})
+});
