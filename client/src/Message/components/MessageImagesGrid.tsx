@@ -2,7 +2,7 @@ import React, {FunctionComponent, useCallback, useEffect, useRef, useState} from
 import {observer} from "mobx-react";
 import PhotoAlbum, {Photo} from "react-photo-album";
 import {Lightbox} from "yet-another-react-lightbox";
-import {useStore} from "../../store";
+import {useEntitiesSelector} from "../../entities";
 
 interface MessageImagesGridProps {
     imagesIds: string[],
@@ -20,21 +20,17 @@ export const MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = obse
     messageId,
     onImagesLoaded
 }) => {
-    const {
-        entities: {
-            uploads: {
-                findImage
-            }
-        }
-    } = useStore();
-
+    const uploads = useEntitiesSelector(
+        "uploads",
+        entities => imagesIds.map(id => entities.uploads.findImage(id))
+    );
     const [currentImage, setCurrentImage] = useState(0);
     const [viewerIsOpen, setViewerIsOpen] = useState(false);
     const [loadedImages, setLoadedImages] = useState<string[]>([]);
     const galleryParentRef = useRef<HTMLDivElement>(null);
 
     useEffect( () => {
-        if (galleryParentRef && galleryParentRef.current && !heightCache[messageId] && loadedImages.length === imagesIds.length) {
+        if (galleryParentRef?.current && !heightCache[messageId] && loadedImages.length === imagesIds.length) {
             heightCache[messageId] = galleryParentRef.current.getBoundingClientRect().height;
 
             if (onImagesLoaded) {
@@ -53,8 +49,7 @@ export const MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = obse
         setViewerIsOpen(false);
     };
 
-    const images: Array<Photo & {id: string, actualUrl: string}> = imagesIds
-        .map(id => findImage(id))
+    const images: Array<Photo & {id: string, actualUrl: string}> = uploads
         .map(image => ({
             id: image.id,
             src: `${image.uri}?size=512`,
