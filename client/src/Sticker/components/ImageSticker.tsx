@@ -2,6 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {createStyles, makeStyles} from "@mui/styles";
 import {BaseStickerProps} from "./BaseStickerProps";
+import {useStickerLongClick} from "../hooks";
 import {stickerWrapperStyle} from "../styles";
 import {useEntityById, useEntitySelector} from "../../entities";
 
@@ -19,16 +20,18 @@ export const ImageSticker: FunctionComponent<BaseStickerProps> = observer(({
 	stickerId,
 	size,
 	onClick,
+	onLongClick,
 	onLoad
 }) => {
 	const sticker = useEntityById("stickers", stickerId);
 	const upload = useEntitySelector("uploads", entities => entities.uploads.findSticker(sticker.uploadId));
 	const classes = useStyles();
 	const sizeQuery = size ? `?size=${size}` : "";
+	const longPressHandlers = useStickerLongClick({stickerId, onClick, onLongClick});
 
 	return (
 		<div className={classes.stickerWrapper}
-			 onClick={onClick}
+			 {...longPressHandlers}
 		>
 			<img src={`${upload.uri}${sizeQuery}`}
 				 className={classes.image}

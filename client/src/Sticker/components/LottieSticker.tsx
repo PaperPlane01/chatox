@@ -1,9 +1,9 @@
 import React, {FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
+import {createStyles, makeStyles} from "@mui/styles";
 import {type DotLottieWorker, DotLottieWorkerReact} from "@lottiefiles/dotlottie-react";
 import {BaseStickerProps} from "./BaseStickerProps";
-import {createStyles, makeStyles} from "@mui/styles";
-import {useAnimationData} from "../hooks";
+import {useAnimationData, useStickerLongClick} from "../hooks";
 import {stickerWrapperStyle} from "../styles";
 import {useEntityById, useEntitySelector} from "../../entities";
 import {useStore} from "../../store";
@@ -15,7 +15,10 @@ const useStyles = makeStyles(() => createStyles({
 
 export const LottieSticker: FunctionComponent<BaseStickerProps> = observer(({
 	stickerId,
+	forceAutoplay = false,
+	forceLoop = false,
 	onClick,
+	onLongClick,
 	onLoad
 }) => {
 	const sticker = useEntityById("stickers", stickerId);
@@ -31,6 +34,7 @@ export const LottieSticker: FunctionComponent<BaseStickerProps> = observer(({
 			loopsCount
 		}
 	} = useStore();
+	const longPressHandlers = useStickerLongClick({stickerId, onClick, onLongClick});
 
 	const handleLoad = (): void => {
 		if (onLoad) {
@@ -46,18 +50,18 @@ export const LottieSticker: FunctionComponent<BaseStickerProps> = observer(({
 
 	// For some reason setting loopCount property to DotLottieWorkerReact doesn't work,
 	// so we have to handle the playback count ourselves.
-	if (isDefined(loopsCount) && loopsCount > 0 && isDefined(dotLottie) && playsCount === loopsCount) {
+	if (!forceLoop && isDefined(loopsCount) && loopsCount > 0 && isDefined(dotLottie) && playsCount === loopsCount) {
 		dotLottie.freeze().then(() => dotLottie.setFrame(0));
 	}
 
 	return (
 		<div className={classes.stickerWrapper}
-			 onClick={onClick}
+			 {...longPressHandlers}
 		>
 			<DotLottieWorkerReact src={animationData ? undefined : upload.uri}
 								  data={animationData}
-								  loop={loop}
-								  autoplay={autoplay}
+								  loop={forceLoop || loop}
+								  autoplay={forceAutoplay || autoplay}
 								  useFrameInterpolation={false}
 								  layout={{
 									  fit: "contain"
@@ -69,7 +73,7 @@ export const LottieSticker: FunctionComponent<BaseStickerProps> = observer(({
 									  setDotLottie(dotLottie);
 									  dotLottie?.addEventListener("render", handleLoad);
 
-									  if (isDefined(loopsCount) && loopsCount > 0) {
+									  if (!forceLoop && isDefined(loopsCount) && loopsCount > 0) {
 										  dotLottie?.addEventListener("loop", handleLoop);
 									  }
 								  }}

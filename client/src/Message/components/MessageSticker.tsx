@@ -41,6 +41,9 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
     const {
         stickerPackDialog: {
             setStickerPackId
+        },
+        stickerPreviewDialog: {
+            openDialog
         }
     } = useStore();
     const classes = useStyles();
@@ -79,6 +82,7 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
                     <Sticker stickerType={sticker.stickerType}
                              stickerId={stickerId}
                              onClick={() => setStickerPackId(sticker.stickerPackId)}
+                             onLongClick={() => openDialog(stickerId)}
                              onLoad={() => setLoaded(true)}
                     />
                 </div>

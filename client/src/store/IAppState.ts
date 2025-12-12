@@ -121,7 +121,7 @@ import {
     StickerEmojiPickerDialogStore,
     StickerPackDialogStore,
     StickerPackStore,
-    StickerPickerStore,
+    StickerPickerStore, StickerPreviewDialogStore,
     StickersPreferencesStore,
     UninstallStickerPackStore,
     UpdateStickerPackStore
@@ -358,5 +358,6 @@ export interface IAppState {
     stickerPack: StickerPackStore,
     stickerPackDeletion: DeleteStickerPackStore,
     stickerAnimationData: StickerAnimationDataStore,
-    stickersPreferences: StickersPreferencesStore
+    stickersPreferences: StickersPreferencesStore,
+    stickerPreviewDialog: StickerPreviewDialogStore
 }

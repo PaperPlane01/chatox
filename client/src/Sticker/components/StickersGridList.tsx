@@ -4,6 +4,7 @@ import {ImageList, ImageListItem, Theme, useMediaQuery} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {Sticker} from "./Sticker";
 import {useEntityById} from "../../entities";
+import {useStore} from "../../store";
 
 interface StickersGridListProps {
     stickerPackId: string,
@@ -24,6 +25,11 @@ export const StickersGridList: FunctionComponent<StickersGridListProps> = observ
     stickerSize,
     onStickerClick
 }) => {
+    const {
+        stickerPreviewDialog: {
+            openDialog
+        }
+    } = useStore();
     const stickersPack = useEntityById("stickerPacks", stickerPackId);
     const classes = useStyles();
     const onSmallScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
@@ -51,6 +57,7 @@ export const StickersGridList: FunctionComponent<StickersGridListProps> = observ
                              stickerType={stickersPack.stickersType}
                              size={stickerSize}
                              onClick={() => handleStickerClick(stickerId)}
+                             onLongClick={() => openDialog(stickerId)}
                     />
                 </ImageListItem>
             ))}

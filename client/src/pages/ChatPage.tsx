@@ -21,7 +21,7 @@ import {AttachedFilesDialog} from "../MessageForm/components";
 import {BlockUserInChatByIdOrSlugDialog, CreateChatBlockingDialog} from "../ChatBlocking/components";
 import {BanUserGloballyDialog} from "../GlobalBan/components";
 import {ReportChatDialog, ReportMessageDialog} from "../Report/components";
-import {DeleteStickerPackDialog, StickerPackDialog} from "../Sticker/components";
+import {DeleteStickerPackDialog, StickerPackDialog, StickerPreviewDialog} from "../Sticker/components";
 import {useStore} from "../store";
 import {ChatType} from "../api/types/response";
 
@@ -77,6 +77,7 @@ export const ChatPage: FunctionComponent = observer(() => {
             <SpecifyChatDeletionReasonDialog/>
             <CreateChatBlockingDialog/>
             <DeleteStickerPackDialog/>
+            <StickerPreviewDialog/>
         </Fragment>
     );
 });
