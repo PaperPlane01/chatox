@@ -1,11 +1,11 @@
+import {useEffect} from "react";
 import {Entities, EntitiesStore, GetEntityType} from "../../entities-store";
 import {useStore} from "../../store";
-import {useEffect} from "react";
 
-type UseEntitiesSelector = <T extends Exclude<Entities, "chatUploads">>(
+type UseEntitiesSelector = <T extends Exclude<Entities, "chatUploads">, R extends GetEntityType<T>>(
 	entityName: T,
-	select: (entities: EntitiesStore) => Array<GetEntityType<T>>
-) => Array<GetEntityType<T>>;
+	select: (entities: EntitiesStore) => Array<R>
+) => Array<R>;
 
 export const useEntitiesSelector: UseEntitiesSelector = (entityName, select) => {
 	const {
