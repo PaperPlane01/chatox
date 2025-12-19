@@ -1,15 +1,16 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Tab, Theme} from "@mui/material";
+import {Tab, Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
 import {useSnackbar} from "notistack";
 import {isAfter} from "date-fns";
 import {StickersGridList} from "./StickersGridList";
 import {StickerPackPreview} from "./StickerPackPreview";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, usePermissions, useStore} from "../../store";
 import {isDefined} from "../../utils/object-utils";
 import {useEntitiesByIds, useEntitiesSelector} from "../../entities";
+import {commonStyles} from "../../style";
 
 interface StickerPickerProps {
     onStickerPicked?: () => void
@@ -41,7 +42,8 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         height: 48,
         minWidth: 48,
         padding: theme.spacing(1)
-    }
+    },
+    centered: commonStyles.centered
 }));
 
 export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({onStickerPicked}) => {
@@ -68,10 +70,17 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
         entities => entities.uploads.findStickers(stickerPacks.map(stickerPack => stickerPack.previewId))
     );
     const previewMap = new Map(stickerPackPreviews.map(preview => [preview.id, preview]));
+    const {
+        messages: {
+            canSendStickers
+        }
+    } = usePermissions();
 
-    if (installedStickerPacksIds.length === 0) {
+    if (installedStickerPacksIds.length === 0 || !isDefined(selectedChatId)) {
         return null;
     }
+
+    const ableToSendStickers = canSendStickers(selectedChatId);
 
     const handleStickerSelection = (stickerId: string): void => {
         if (!selectedChatId) {
@@ -123,10 +132,21 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
                               }}
                               key={`${stickerPackId}_tabPanel`}
                     >
-                        <StickersGridList stickerPackId={stickerPackId}
-                                          onStickerClick={handleStickerSelection}
-                                          stickerSize={256}
-                        />
+                        {ableToSendStickers
+                            ? (
+                                <StickersGridList stickerPackId={stickerPackId}
+                                                  onStickerClick={handleStickerSelection}
+                                                  stickerSize={256}
+                                />
+                            )
+                            : (
+                                <Typography variant="body2"
+                                            className={classes.centered}
+                                >
+                                    {l("sticker.send.not-allowed")}
+                                </Typography>
+                            )
+                        }
                     </TabPanel>
                 ))}
             </TabContext>

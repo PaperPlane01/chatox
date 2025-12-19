@@ -827,5 +827,6 @@ export interface Labels {
     "sticker.preferences.autoplay": string,
     "sticker.preferences.loop": string,
     "sticker.preferences.loops-count": string,
-    "sticker.preferences.loops-count.zero": string
+    "sticker.preferences.loops-count.zero": string,
+    "sticker.send.not-allowed": string
 }

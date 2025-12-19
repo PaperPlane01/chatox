@@ -829,5 +829,6 @@ export const en: Labels = {
     "sticker.preferences.autoplay": "Autoplay",
     "sticker.preferences.loop": "Loop animation",
     "sticker.preferences.loops-count": "Animation loops count",
-    "sticker.preferences.loops-count.zero": "0 means infinite looping"
+    "sticker.preferences.loops-count.zero": "0 means infinite looping",
+    "sticker.send.not-allowed": "Can't send stickers in this chat"
 };

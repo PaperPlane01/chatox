@@ -829,5 +829,6 @@ export const ru: Labels = {
     "sticker.preferences.autoplay": "Воспроизводить автоматически",
     "sticker.preferences.loop": "Зацикливать анимацию",
     "sticker.preferences.loops-count": "Количество циклов анимации",
-    "sticker.preferences.loops-count.zero": "0 — бесконечный цикл"
+    "sticker.preferences.loops-count.zero": "0 — бесконечный цикл",
+    "sticker.send.not-allowed": "Вы не можете отправлять стикеры в этом чате"
 };
