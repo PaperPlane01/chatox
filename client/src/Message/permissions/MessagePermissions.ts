@@ -6,13 +6,10 @@ import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
 import {UserChatRolesStore} from "../../ChatRole";
 import {ChatParticipationEntity} from "../../ChatParticipant";
-import {CurrentUser} from "../../api/types/response";
+import {CurrentUser, SendMessagesFeatureData} from "../../api/types/response";
 import {ChatRoleEntity} from "../../ChatRole/types";
 import {isBetween} from "../../utils/number-utils";
 import {isDefined} from "../../utils/object-utils";
-
-type SendMessagesPermission = "allowedToSendAudios" | "allowedToSendStickers" | "allowedToSendImages"
-    | "allowedToSendFiles" | "allowedToSendVoiceMessages" | "allowedToSendVideos";
 
 export class MessagePermissions {
     constructor(private readonly entities: EntitiesStore,
@@ -91,7 +88,7 @@ export class MessagePermissions {
         "allowedToSendAudios"
     ));
 
-    private checkSendMessagesFeature = computedFn((chatId: string, feature: SendMessagesPermission): boolean => {
+    private checkSendMessagesFeature = computedFn((chatId: string, feature: keyof SendMessagesFeatureData["additional"]): boolean => {
         if (!this.currentUser || this.authorization.isCurrentUserBannedGlobally()) {
             return false;
         }
