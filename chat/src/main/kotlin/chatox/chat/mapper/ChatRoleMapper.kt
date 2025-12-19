@@ -29,20 +29,14 @@ class ChatRoleMapper(private val userMapper: UserMapper,
             val createdBy: UserResponse? = if (chatRole.createdBy == null) {
                 null
             } else {
-                if (localUsersCache.containsKey(chatRole.createdBy)) {
-                    localUsersCache[chatRole.createdBy]!!
-                } else {
-                    userService.findUserByIdAndPutInLocalCache(chatRole.createdBy!!, localUsersCache).awaitFirst()
-                }
+                localUsersCache[chatRole.createdBy]
+                        ?: userService.findUserByIdAndPutInLocalCache(chatRole.createdBy, localUsersCache).awaitFirst()
             }
             val updatedBy = if (chatRole.updatedBy == null) {
                 null
             } else {
-                if (localUsersCache.containsKey(chatRole.updatedBy)) {
-                    localUsersCache[chatRole.createdBy]!!
-                } else {
-                    userService.findUserByIdAndPutInLocalCache(chatRole.updatedBy!!, localUsersCache).awaitFirst()
-                }
+                localUsersCache[chatRole.updatedBy]
+                        ?: userService.findUserByIdAndPutInLocalCache(chatRole.updatedBy, localUsersCache).awaitFirst()
             }
 
             return@mono toChatRoleResponse(
