@@ -31,24 +31,20 @@ export const MessageFile: FunctionComponent<MessageFileProps> = observer(({
     const {
         messageFileDownload: {
             downloadFile,
-            downloadProgressMap
+            getDownloadProgress
         }
     } = useStore();
     const classes = useStyles();
-
     const file = useEntityById("uploads", chatUploadId);
-
-    const handleDownloadButtonClick = (): void => {
-        if (!downloadProgressMap[file.name] || !downloadProgressMap[file.name].downloading) {
-            downloadFile(file.name, file.originalName);
-        }
-    }
+    const {downloading, percentage} = getDownloadProgress(file.id);
 
     return (
         <div className={classes.fileContainer}>
-            <IconButton onClick={handleDownloadButtonClick} size="large">
-                <Badge badgeContent={downloadProgressMap[file.name] && downloadProgressMap[file.name].downloading && (
-                    <CircularProgress color="primary" variant="determinate" value={downloadProgressMap[file.name].percentage} size={15}/>
+            <IconButton onClick={() => downloadFile(file)}
+                        size="large"
+            >
+                <Badge badgeContent={downloading && (
+                    <CircularProgress color="primary" variant="determinate" value={percentage} size={15}/>
                 )}
                        anchorOrigin={{
                            horizontal: "right",

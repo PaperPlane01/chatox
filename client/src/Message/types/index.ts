@@ -11,3 +11,4 @@ export * from "./FetchMessagesOptions";
 export * from "./MessagesCleanupState";
 export * from "./CleanedUpMessageMetadata";
 export * from "./CleanedUpMessagesMetadata";
+export * from "./DownloadProgress";
