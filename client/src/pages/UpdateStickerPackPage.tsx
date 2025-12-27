@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {CircularProgress, Grid, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {AppBar} from "../AppBar/components";
-import {UpdateStickerPackForm} from "../Sticker/components";
+import {UpdateStickerPackForm} from "../StickerPackForm/components";
 import {getLoadErrorText} from "../Sticker/utils";
 import {HasRole} from "../Authorization/components";
 import {Layout} from "../Layout/components";

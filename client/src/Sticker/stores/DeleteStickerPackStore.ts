@@ -4,6 +4,7 @@ import {InstalledStickerPacksStore} from "./InstalledStickerPacksStore";
 import {StickerPackDialogStore} from "./StickerPackDialogStore";
 import {StickerPickerStore} from "./StickerPickerStore";
 import {DeleteStickerPackFormData} from "../types";
+import {validateConsent} from "../validation";
 import {AbstractFormStore} from "../../form-store";
 import {RouterStoreAware, Routes} from "../../router";
 import {containsNotUndefinedValues, createWithUndefinedValues, isDefined} from "../../utils/object-utils";
@@ -12,7 +13,6 @@ import {AuthorizationStore} from "../../Authorization";
 import {getInitialApiErrorFromResponse, StickerApi} from "../../api";
 import {DeleteStickerPackRequest} from "../../api/types/request";
 import {EntitiesStore} from "../../entities-store";
-import {validateConsent} from "../validation";
 
 const INITIAL_FORM_VALUES: DeleteStickerPackFormData = {
 	consent: false,

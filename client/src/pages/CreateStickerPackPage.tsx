@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Grid, Typography} from "@mui/material";
 import {AppBar} from "../AppBar";
-import {CreateStickerPackForm} from "../Sticker";
+import {CreateStickerPackForm} from "../StickerPackForm/components";
 import {HasRole} from "../Authorization";
 import {Layout} from "../Layout";
 import {useLocalization} from "../store";

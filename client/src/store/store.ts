@@ -120,21 +120,19 @@ import {
 } from "../Report";
 import {ReportType} from "../api/types/response";
 import {
-    CreateStickerPackStore,
     DeleteStickerPackStore,
     InstalledStickerPacksStore,
     InstallStickerPackStore,
     SearchStickerPacksStore,
     StickerAnimationDataStore,
-    StickerEmojiPickerDialogStore,
     StickerPackDialogStore,
     StickerPackStore,
     StickerPickerStore,
     StickerPreviewDialogStore,
     StickersPreferencesStore,
-    UninstallStickerPackStore,
-    UpdateStickerPackStore
+    UninstallStickerPackStore
 } from "../Sticker";
+import {CreateStickerPackStore, StickerEmojiPickerDialogStore, UpdateStickerPackStore} from "../StickerPackForm/stores";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
 import {
     AllChatsMessagesSearchStore,

@@ -1,9 +1,3 @@
-export * from "./CreateStickerDialog";
-export * from "./EditableSticker";
-export * from "./EditableStickersList";
-export * from "./StickerEmojiPickerDialog";
-export * from "./CreateStickerPackForm";
-export * from "./AddStickerButton";
 export * from "./Sticker";
 export * from "./StickerPacksListItem";
 export * from "./StickerPacksSearchResults";
@@ -11,7 +5,6 @@ export * from "./StickersGridList";
 export * from "./StickerPackDialog";
 export * from "./InstalledStickerPacksList";
 export * from "./StickerPicker";
-export * from "./UpdateStickerPackForm";
 export * from "./StickerPackCard";
 export * from "./DeleteStickerPackDialog";
 export * from "./StickersPreferencesCard";
