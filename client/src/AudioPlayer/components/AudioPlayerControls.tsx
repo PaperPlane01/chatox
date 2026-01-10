@@ -90,13 +90,13 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
         audioPlayer: {
             playing,
             currentTrackId,
-            currentPosition,
+            currentTimeFraction,
             volume,
             setCurrentTrackId,
             setCurrentTrackType,
             setPlaying,
             setVolume,
-            setSeekTo
+            setSeekToFraction
         }
     } = useStore();
     const classes = useStyles();
@@ -117,7 +117,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
             value: 0,
             label: currentTrackId === audioId
                 ? format(
-                    new Date(0, 0, 0, 0, 0, Math.round((audio.meta!.duration / 1000) * currentPosition)),
+                    new Date(0, 0, 0, 0, 0, Math.round((audio.meta!.duration / 1000) * currentTimeFraction)),
                     "mm:ss"
                 )
                 : format(
@@ -169,7 +169,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                     ? (
                         <div className={classes.playerWaveFormContainer}>
                             <WaveForm waveForm={audio.meta!.waveForm!}
-                                      playerProgress={currentPosition}
+                                      playerProgress={currentTimeFraction}
                                       audioId={audioId}
                                       currentlyPlaying={audioId === currentTrackId}
                                       viewBox={waveFormViewBox}
@@ -182,7 +182,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                         </Typography>
                     )
                 }
-                <Slider value={currentTrackId === audioId ? currentPosition : 0}
+                <Slider value={currentTrackId === audioId ? currentTimeFraction : 0}
                         max={1}
                         marks={sliderMarks}
                         classes={{
@@ -194,7 +194,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                         }}
                         onChange={(_, value) => {
                             if (currentTrackId === audioId) {
-                                setSeekTo(value as number);
+                                setSeekToFraction(value as number);
                             }
                         }}
                         step={0.01}

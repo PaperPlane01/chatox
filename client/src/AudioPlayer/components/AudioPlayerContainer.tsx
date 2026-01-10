@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import ReactPlayer from "react-player";
 import {useStore} from "../../store";
 import {useEntityById} from "../../entities";
+import {isDefined} from "../../utils/object-utils";
 
 export const AudioPlayerContainer: FunctionComponent = observer(() => {
     const {
@@ -10,21 +11,20 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
             currentTrackId,
             playing,
             volume,
-            setCurrentPosition,
+            setCurrentTime,
             setPlaying,
-            seekTo
+            seekToTime
         }
     } = useStore();
-
-    const playerRef = useRef<ReactPlayer>(null);
+    const playerRef = useRef<HTMLVideoElement | null>(null);
 
     useEffect(
         () => {
-            if (playerRef.current && seekTo !== undefined && playing) {
-                playerRef.current.seekTo(seekTo, "fraction");
+            if (playerRef.current && isDefined(seekToTime) && playing) {
+                playerRef.current.fastSeek(seekToTime);
             }
         },
-        [seekTo]
+        [seekToTime]
     );
 
     const audio = useEntityById("uploads", currentTrackId);
@@ -33,10 +33,16 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
         return null;
     }
 
+    const handleTimeUpdate = (): void => {
+        if (playerRef?.current) {
+            setCurrentTime(playerRef.current.currentTime);
+        }
+    }
+
     return (
-        <ReactPlayer url={`${audio.uri}/stream`}
+        <ReactPlayer src={`${audio.uri}/stream`}
                      playing={playing}
-                     onProgress={progress => setCurrentPosition(progress.played)}
+                     onTimeUpdate={handleTimeUpdate}
                      style={{
                          display: "none"
                      }}
@@ -44,7 +50,7 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
                      height={0}
                      onEnded={() => {
                          setPlaying(false);
-                         setCurrentPosition(0);
+                         setCurrentTime(0);
                      }}
                      volume={volume}
                      ref={playerRef}
