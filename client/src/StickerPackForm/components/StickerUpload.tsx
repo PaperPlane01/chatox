@@ -3,7 +3,8 @@ import {observer} from "mobx-react";
 import {StickerUploadProps} from "./StickerUploadProps";
 import {ImageStickerUpload} from "./ImageStickerUpload";
 import {LottieStickerUpload} from "./LottieStickerUpload";
-import {isImageSticker, isLottieSticker} from "../../api/types/response";
+import {VideoStickerUpload} from "./VideoStickerUpload";
+import {isImageSticker, isLottieSticker, isVideoSticker} from "../../api/types/response";
 
 export const StickerUpload: FunctionComponent<StickerUploadProps> = observer(({
 	stickerContainer
@@ -12,6 +13,8 @@ export const StickerUpload: FunctionComponent<StickerUploadProps> = observer(({
 		return <ImageStickerUpload stickerContainer={stickerContainer}/>;
 	} else if (isLottieSticker(stickerContainer.stickerType)) {
 		return <LottieStickerUpload stickerContainer={stickerContainer}/>;
+	} else if (isVideoSticker(stickerContainer.stickerType)) {
+		return <VideoStickerUpload stickerContainer={stickerContainer}/>
 	} else {
 		return null;
 	}

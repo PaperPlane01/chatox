@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Image} from "@mui/icons-material";
-import {DotLottieWorkerReact} from "@lottiefiles/dotlottie-react";
 import {HttpStatusCode} from "axios";
+import {Videocam} from "@mui/icons-material";
+import ReactPlayer from "react-player";
 import {AnimatedStickerUpload} from "./AnimatedStickerUpload";
 import {StickerUploadProps} from "./StickerUploadProps";
 import {useStickerUploadStyles} from "../styles";
@@ -11,28 +11,30 @@ import {TranslationFunction} from "../../localization";
 
 const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
 	if (error.status === HttpStatusCode.BadRequest) {
-		return l("sticker.lottie.error.invalid");
+		return l("sticker.video.error.invalid");
 	} else if (error.status === API_UNREACHABLE_STATUS) {
 		return l("common.error.server-unreachable");
 	} else {
-		return l("sticker.lottie.error.unknown");
+		return l("sticker.video.error.unknown");
 	}
 };
 
-export const LottieStickerUpload: FunctionComponent<StickerUploadProps> = observer(({
+export const VideoStickerUpload: FunctionComponent<StickerUploadProps> = observer(({
 	stickerContainer
 }) => {
 	const classes = useStickerUploadStyles();
 
 	return (
 		<AnimatedStickerUpload stickerContainer={stickerContainer}
-							   icon={<Image/>}
-							   renderPreview={uploadContainer => (
-								   <DotLottieWorkerReact src={uploadContainer?.uploadedFile?.uri ?? uploadContainer.url}
-														 autoplay
-														 loop
-														 className={classes.stickerPreview}
-														 useFrameInterpolation={false}
+							   icon={<Videocam/>}
+							   renderPreview={uploadContainer=> (
+								   <ReactPlayer src={uploadContainer?.uploadedFile?.uri ?? uploadContainer.url}
+												autoPlay
+												loop
+												muted
+												playsInline
+												controls={false}
+												className={classes.stickerPreview}
 								   />
 							   )}
 							   renderErrorText={getErrorLabel}

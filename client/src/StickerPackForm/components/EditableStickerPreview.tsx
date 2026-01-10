@@ -5,7 +5,8 @@ import clsx from "clsx";
 import {EditableStickerPreviewProps} from "./EditableStickerPreviewProps";
 import {EditableImageStickerPreview} from "./EditableImageStickerPreview";
 import {EditableLottieStickerPreview} from "./EditableLottieStickerPreview";
-import {isImageSticker, isLottieSticker} from "../../api/types/response";
+import {EditableVideoStickerPreview} from "./EditableVideoStickerPreview";
+import {isImageSticker, isLottieSticker, isVideoSticker} from "../../api/types/response";
 
 const useStyles = makeStyles(() => createStyles({
 	hovered: {
@@ -19,14 +20,14 @@ export const EditableStickerPreview: FunctionComponent<EditableStickerPreviewPro
 	const classes = useStyles();
 	const [hovered, setHovered] = useState(false);
 
-	let stickerPreview: ReactNode;
+	let stickerPreview: ReactNode = null;
 
 	if (isImageSticker(stickerContainer.stickerType)) {
 		stickerPreview = <EditableImageStickerPreview stickerContainer={stickerContainer}/>
 	} else if (isLottieSticker(stickerContainer.stickerType)) {
 		stickerPreview = <EditableLottieStickerPreview stickerContainer={stickerContainer}/>;
-	} else {
-		stickerPreview = null;
+	} else if (isVideoSticker(stickerContainer.stickerType)) {
+		stickerPreview = <EditableVideoStickerPreview stickerContainer={stickerContainer}/>
 	}
 
 	return (
