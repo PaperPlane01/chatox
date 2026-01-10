@@ -103,4 +103,28 @@ export class StickersUploadController {
 	): Promise<void> {
 		await this.stickersUploadService.getLottieSticker(name, response);
 	}
+
+	@HasRole("ROLE_USER")
+	@UseInterceptors(
+		RejectEmptyInterceptor,
+		FileInterceptor(
+			"file",
+			{
+				limits: {
+					fileSize: config.VIDEO_STICKERS_MAX_SIZE_BYTES
+				}
+			}
+		)
+	)
+	@Post("video")
+	public async uploadVideoSticker(@UploadedFile() file: MultipartFile,
+									@CurrentUser() user: User): Promise<UploadResponse<StickerUploadMetadata>> {
+		return await this.stickersUploadService.uploadVideoSticker(file, user);
+	}
+
+	@Get("video/:stickerName")
+	public async getVideoSticker(@Param("stickerName") name: string,
+								 @Res() response: Response): Promise<void> {
+		await this.stickersUploadService.getVideoSticker(name, response);
+	}
 }
