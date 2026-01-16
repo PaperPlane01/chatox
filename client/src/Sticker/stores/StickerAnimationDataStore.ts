@@ -88,6 +88,10 @@ export class StickerAnimationDataStore {
 						animationData
 					}
 				);
+				stickerAnimationDataRepository.upsert({
+					id: stickerId,
+					animationData
+				});
 			}
 		}
 
