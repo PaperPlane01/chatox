@@ -17,7 +17,14 @@ import path from "path";
 import {FileTypeResult} from "file-type";
 import {isAnimatedWebP, isWebP} from "is-webp-extended";
 import {config} from "../config";
-import {ImageUploadMetadata, StickerUploadMetadata, Upload, UploadDocument, UploadType} from "../uploads";
+import {
+	ImageUploadMetadata,
+	StickerUploadMetadata,
+	Upload,
+	UploadDocument,
+	UploadType,
+	VideoUploadMetadata
+} from "../uploads";
 import {UploadMapper} from "../uploads/mappers";
 import {ImageSizeRequest, MultipartFile} from "../common/types/request";
 import {User} from "../auth";
@@ -514,16 +521,27 @@ export class StickersUploadService {
 			throw new BadRequestException("Invalid video sticker format");
 		}
 
-		const videoMetadata = await this.ffmpegService.getVideoMetadata(temporaryFilePath);
+		let videoMetadata: VideoUploadMetadata;
 
-		if (videoMetadata.width !== VALID_STICKER_SIZE && videoMetadata.height !== VALID_STICKER_SIZE) {
+		try {
+			videoMetadata = await this.ffmpegService.getVideoMetadata(temporaryFilePath);
+		} catch (error) {
 			await fileSystem.unlink(temporaryFilePath);
-			throw new BadRequestException("Invalid sticker size");
+
+			if (error instanceof HttpException) {
+				throw error;
+			}
+
+			this.log.error(error);
+
+			throw new InternalServerErrorException("Could not process video sticker file");
 		}
 
-		if (videoMetadata.hasAudio) {
+		const validationError = this.validateVideoSticker(videoMetadata);
+
+		if (validationError) {
 			await fileSystem.unlink(temporaryFilePath);
-			throw new BadRequestException("Sticker video cannot have sound");
+			throw new BadRequestException(validationError);
 		}
 
 		const name = `${idString}.${fileInfo.ext}`;
@@ -540,7 +558,8 @@ export class StickersUploadService {
 			name,
 			size: stats.size,
 			meta: {
-				...videoMetadata,
+				width: videoMetadata.width,
+				height: videoMetadata.height,
 				animated: true
 			},
 			originalName: name,
@@ -558,6 +577,26 @@ export class StickersUploadService {
 		]);
 
 		return this.uploadMapper.toUploadResponse(sticker);
+	}
+
+	private validateVideoSticker(metadata: VideoUploadMetadata): string | undefined {
+		if (metadata.width !== VALID_STICKER_SIZE || metadata.height !== VALID_STICKER_SIZE) {
+			return `Width or height of video sticker must me ${VALID_STICKER_SIZE} pixels`;
+		}
+
+		if (metadata.hasAudio) {
+			return "Video stickers must not have audio stream";
+		}
+
+		if (metadata.duration > 3000) {
+			return "Video sticker duration must not exceed 3 seconds";
+		}
+
+		if ((metadata.framerate ?? 0) > 60) {
+			return "Video sticker framerate must not exceed 60 FPS";
+		}
+
+		return undefined;
 	}
 
 	public async getImageSticker(

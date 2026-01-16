@@ -36,17 +36,37 @@ export class FfmpegService {
 
 					const stream = streams[0];
 					const hasAudio = Boolean(streams.find(stream => stream.codec_type === "audio"));
-					const {width, height} = stream;
+					const {width, height, avg_frame_rate} = stream;
+					const framerate = this.getFramerate(avg_frame_rate);
 					const duration = data.format.duration * 1000;
 
 					resolve({
 						width,
 						height,
 						duration,
-						hasAudio
+						hasAudio,
+						framerate
 					});
 				});
 		});
+	}
+
+	private getFramerate(framerateString: string): number | undefined {
+		if (!framerateString.includes("/")) {
+			return undefined;
+		}
+
+		const split = framerateString.split("/");
+
+		if (split.length !== 2) {
+			return undefined;
+		}
+
+		const numerator = Number(split[0]);
+		const denomiator = Number(split[1]);
+		const result = numerator / denomiator;
+
+		return isNaN(result) ? undefined : result;
 	}
 
 	public createVideoPreview(videoPath: string): Promise<Upload<ImageUploadMetadata>> {
