@@ -798,6 +798,7 @@ export const en: Labels = {
     "sticker.type.IMAGE_STICKER": "Image stickers",
     "sticker.type.WEBP_STICKER": "Webp stickers",
     "sticker.type.LOTTIE_STICKER": "Lottie stickers",
+    "sticker.type.VIDEO_STICKER": "Video stickers",
     "sticker.file": "File",
     "sticker.file.required": "Sticker file is required",
     "sticker.file.too-large": "Sticker file is too large",
@@ -830,5 +831,7 @@ export const en: Labels = {
     "sticker.preferences.loop": "Loop animation",
     "sticker.preferences.loops-count": "Animation loops count",
     "sticker.preferences.loops-count.zero": "0 means infinite looping",
-    "sticker.send.not-allowed": "Can't send stickers in this chat"
+    "sticker.send.not-allowed": "Can't send stickers in this chat",
+    "sticker.video.error.invalid": "Invalid video file",
+    "sticker.video.error.unknown": "Unknown error occurred when tried to upload file"
 };

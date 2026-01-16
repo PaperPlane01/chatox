@@ -5,8 +5,7 @@ import {
 	Injectable,
 	InternalServerErrorException,
 	Logger,
-	NotFoundException,
-	NotImplementedException
+	NotFoundException
 } from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
@@ -18,7 +17,14 @@ import path from "path";
 import {FileTypeResult} from "file-type";
 import {isAnimatedWebP, isWebP} from "is-webp-extended";
 import {config} from "../config";
-import {ImageUploadMetadata, StickerUploadMetadata, Upload, UploadDocument, UploadType} from "../uploads";
+import {
+	ImageUploadMetadata,
+	StickerUploadMetadata,
+	Upload,
+	UploadDocument,
+	UploadType,
+	VideoUploadMetadata
+} from "../uploads";
 import {UploadMapper} from "../uploads/mappers";
 import {ImageSizeRequest, MultipartFile} from "../common/types/request";
 import {User} from "../auth";
@@ -29,6 +35,7 @@ import {mapAsync} from "../utils/map-async";
 import {generateFileInfoCacheKey} from "../utils/cache-utils";
 import {RedisFileInfo} from "../common/types";
 import {LottieService} from "../lottie";
+import {FfmpegService} from "../ffmpeg";
 
 const ALLOWED_IMAGE_STICKER_FORMATS = [
 	"png",
@@ -49,7 +56,8 @@ export class StickersUploadService {
 		private readonly uploadMapper: UploadMapper,
 		@Inject(CACHE_MANAGER) private readonly cacheManager: Store,
 		private readonly graphicsMagicService: GraphicsMagicService,
-		private readonly lottieService: LottieService) {
+		private readonly lottieService: LottieService,
+		private readonly ffmpegService: FfmpegService) {
 	}
 
 	public async uploadImageSticker(file: MultipartFile, user: User): Promise<UploadResponse<StickerUploadMetadata>> {
@@ -498,9 +506,97 @@ export class StickersUploadService {
 	}
 
 	public async uploadVideoSticker(
-		file: MultipartFile
-	): Promise<UploadResponse<ImageUploadMetadata>> {
-		throw new NotImplementedException("Video stickers are not yet supported");
+		file: MultipartFile,
+		currentUser: User
+	): Promise<UploadResponse<StickerUploadMetadata>> {
+		const id = new Types.ObjectId();
+		const idString = id.toHexString();
+		const temporaryFilePath = path.join(config.VIDEO_STICKERS_DIRECTORY, `${idString}.tmp`);
+		await createFileFromBuffer(temporaryFilePath, file.buffer);
+
+		const fileInfo = await getFileType(temporaryFilePath);
+
+		if (fileInfo.ext !== "webm") {
+			await fileSystem.unlink(temporaryFilePath);
+			throw new BadRequestException("Invalid video sticker format");
+		}
+
+		let videoMetadata: VideoUploadMetadata;
+
+		try {
+			videoMetadata = await this.ffmpegService.getVideoMetadata(temporaryFilePath);
+		} catch (error) {
+			await fileSystem.unlink(temporaryFilePath);
+
+			if (error instanceof HttpException) {
+				throw error;
+			}
+
+			this.log.error(error);
+
+			throw new InternalServerErrorException("Could not process video sticker file");
+		}
+
+		const validationError = this.validateVideoSticker(videoMetadata);
+
+		if (validationError) {
+			await fileSystem.unlink(temporaryFilePath);
+			throw new BadRequestException(validationError);
+		}
+
+		const name = `${idString}.${fileInfo.ext}`;
+		const stickerPath = path.join(config.VIDEO_STICKERS_DIRECTORY, name);
+		await fileSystem.rename(temporaryFilePath, stickerPath);
+
+		const preview = await this.ffmpegService.createVideoPreview(stickerPath);
+		const stats = await fileSystem.stat(stickerPath);
+
+		const sticker = new Upload<StickerUploadMetadata>({
+			_id: id,
+			mimeType: fileInfo.mime,
+			extension: fileInfo.ext,
+			name,
+			size: stats.size,
+			meta: {
+				width: videoMetadata.width,
+				height: videoMetadata.height,
+				animated: true
+			},
+			originalName: name,
+			previewImage: preview,
+			thumbnails: preview.thumbnails,
+			isThumbnail: false,
+			isPreview: false,
+			userId: currentUser.id,
+			type: UploadType.VIDEO_STICKER
+		});
+		await Promise.all([
+			new this.uploadModel(sticker).save(),
+			new this.uploadModel(preview).save(),
+			...preview.thumbnails.map(thumbnail => new this.uploadModel(thumbnail).save())
+		]);
+
+		return this.uploadMapper.toUploadResponse(sticker);
+	}
+
+	private validateVideoSticker(metadata: VideoUploadMetadata): string | undefined {
+		if (metadata.width !== VALID_STICKER_SIZE || metadata.height !== VALID_STICKER_SIZE) {
+			return `Width or height of video sticker must me ${VALID_STICKER_SIZE} pixels`;
+		}
+
+		if (metadata.hasAudio) {
+			return "Video stickers must not have audio stream";
+		}
+
+		if (metadata.duration > 3000) {
+			return "Video sticker duration must not exceed 3 seconds";
+		}
+
+		if ((metadata.framerate ?? 0) > 60) {
+			return "Video sticker framerate must not exceed 60 FPS";
+		}
+
+		return undefined;
 	}
 
 	public async getImageSticker(
@@ -554,14 +650,25 @@ export class StickersUploadService {
 	}
 
 	public async getLottieSticker(name: string, response: Response): Promise<void> {
+		await this.getAnimatedSticker(name, UploadType.LOTTIE_STICKER, response);
+	}
+
+	public async getVideoSticker(name: string, response: Response): Promise<void> {
+		await this.getAnimatedSticker(name, UploadType.VIDEO_STICKER, response);
+	}
+
+	private async getAnimatedSticker(name: string, type: UploadType.LOTTIE_STICKER | UploadType.VIDEO_STICKER, response: Response): Promise<void> {
 		response.setHeader("Cache-Control", "max-age=31536000");
 		const cacheKey = generateFileInfoCacheKey(name);
 		const cachedFileInfo: RedisFileInfo | undefined = await this.cacheManager.get(cacheKey);
+		const directory = type === UploadType.LOTTIE_STICKER
+			? config.LOTTIE_STICKERS_DIRECTORY
+			: config.VIDEO_STICKERS_DIRECTORY;
 
 		if (cachedFileInfo) {
 			response.setHeader("Content-Type", cachedFileInfo.mimeType);
 			await streamFileToResponse(
-				path.join(config.LOTTIE_STICKERS_DIRECTORY, cachedFileInfo.name),
+				path.join(directory, cachedFileInfo.name),
 				response,
 				this.log
 			);
@@ -570,7 +677,7 @@ export class StickersUploadService {
 
 		const sticker = await this.uploadModel.findOne({
 			name,
-			type: UploadType.LOTTIE_STICKER
+			type
 		})
 			.exec();
 
@@ -587,10 +694,6 @@ export class StickersUploadService {
 
 		response.setHeader("Content-Type", sticker.mimeType);
 
-		await streamFileToResponse(path.join(config.LOTTIE_STICKERS_DIRECTORY, name), response, this.log);
-	}
-
-	public async getVideoSticker(id: string, response: Response): Promise<void> {
-		throw new NotImplementedException("Video stickers are not yet supported");
+		await streamFileToResponse(path.join(directory, name), response, this.log);
 	}
 }

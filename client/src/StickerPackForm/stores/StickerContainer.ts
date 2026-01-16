@@ -10,6 +10,7 @@ import {StickerType, StickerUploadMetadata, Upload, UploadType} from "../../api/
 import {FormErrors} from "../../utils/types";
 import {Labels} from "../../localization";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
+import {UPLOADS} from "../../api/endpoints";
 
 interface StickerContainerOptions {
     sticker: StickerEntity,
@@ -40,6 +41,8 @@ export class StickerContainer {
                 return "image/png";
             case UploadType.WEBP_STICKER:
                 return "image/webp";
+            case UploadType.VIDEO_STICKER:
+                return ".webm";
             case UploadType.LOTTIE_STICKER:
             default:
                 return ".lottie,.tgs,.json";
@@ -112,12 +115,16 @@ export class StickerContainer {
     }
 
     private getUploadFunction(): (upload: File, progressCallback?: ProgressCallback) => AxiosPromise<Upload<StickerUploadMetadata>> {
-        if (this.stickerType === UploadType.IMAGE_STICKER) {
-            return UploadApi.uploadImageSticker;
-        } else if (this.stickerType === UploadType.LOTTIE_STICKER) {
-            return UploadApi.uploadLottieSticker;
-        } else {
-            return UploadApi.uploadWebpSticker;
+        switch (this.stickerType) {
+            case UploadType.IMAGE_STICKER:
+                return UploadApi.uploadImageSticker;
+            case UploadType.VIDEO_STICKER:
+                return UploadApi.uploadVideoSticker;
+            case UploadType.LOTTIE_STICKER:
+                return UploadApi.uploadLottieSticker;
+            case UploadType.WEBP_STICKER:
+            default:
+                return UploadApi.uploadWebpSticker;
         }
     }
 

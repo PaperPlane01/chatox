@@ -74,3 +74,4 @@ export const STICKERS = "stickers";
 export const IMAGE_STICKER = "image";
 export const WEBP_STICKER = "webp";
 export const LOTTIE_STICKER = "lottie";
+export const VIDEO_STICKER = "video";

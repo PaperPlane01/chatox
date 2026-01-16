@@ -57,7 +57,8 @@ const iconsMap = {
     [UploadType.VIDEO]: <VideoLibrary/>,
     [UploadType.IMAGE_STICKER]: null,
     [UploadType.WEBP_STICKER]: null,
-    [UploadType.LOTTIE_STICKER]: null
+    [UploadType.LOTTIE_STICKER]: null,
+    [UploadType.VIDEO_STICKER]: null
 };
 
 export const MessageFormMediaAttachment: FunctionComponent<CreateMessageFormMediaAttachmentProps> = ({

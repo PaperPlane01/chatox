@@ -798,6 +798,7 @@ export const ru: Labels = {
     "sticker.type.IMAGE_STICKER": "Картинки",
     "sticker.type.WEBP_STICKER": "Webp-стикеры",
     "sticker.type.LOTTIE_STICKER": "Lottie-стикеры",
+    "sticker.type.VIDEO_STICKER": "Видео-стикеры",
     "sticker.file": "Файл",
     "sticker.file.required": "У стикера должен быть файл",
     "sticker.file.too-large": "Файл стикера имеет слишком большой размер",
@@ -830,5 +831,7 @@ export const ru: Labels = {
     "sticker.preferences.loop": "Зацикливать анимацию",
     "sticker.preferences.loops-count": "Количество циклов анимации",
     "sticker.preferences.loops-count.zero": "0 — бесконечный цикл",
-    "sticker.send.not-allowed": "Вы не можете отправлять стикеры в этом чате"
+    "sticker.send.not-allowed": "Вы не можете отправлять стикеры в этом чате",
+    "sticker.video.error.invalid": "Некорректный видео файл",
+    "sticker.video.error.unknown": "При загрузке файла произошла неизвестная ошибка"
 };

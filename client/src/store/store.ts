@@ -294,7 +294,7 @@ const passwordChange = new PasswordChangeStore(
     authorization
 );
 const emoji = new EmojiSettingsStore();
-const audioPlayer = new AudioPlayerStore();
+const audioPlayer = new AudioPlayerStore(entities);
 const messageFileDownload = new DownloadMessageFileStore();
 const passwordRecoveryDialog = new PasswordRecoveryDialogStore();
 const passwordRecoveryEmailConfirmationCodeSending = new SendPasswordRecoveryEmailConfirmationCodeStore(

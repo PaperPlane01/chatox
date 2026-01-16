@@ -5,6 +5,7 @@ import {StickersUploadService} from "./StickersUploadService";
 import {uploadSchemaFactory, UploadsModule} from "../uploads";
 import {GraphicsMagicModule} from "../graphics-magic";
 import {LottieModule} from "../lottie";
+import {FfmpegModule} from "../ffmpeg";
 
 @Module({
 	controllers: [StickersUploadController],
@@ -13,7 +14,8 @@ import {LottieModule} from "../lottie";
 		MongooseModule.forFeatureAsync([uploadSchemaFactory]),
 		UploadsModule,
 		GraphicsMagicModule,
-		LottieModule
+		LottieModule,
+		FfmpegModule
 	]
 })
 export class StickersUploadModule {

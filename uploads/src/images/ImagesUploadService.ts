@@ -8,6 +8,7 @@ import {promises as fileSystem} from "fs";
 import path from "path";
 import {FileTypeResult} from "file-type";
 import {getInfo} from "gify-parse";
+import {STANDARD_THUMBNAIL_SIZES} from "./constants";
 import {RedisFileInfo} from "../common/types";
 import {ImageSizeRequest, MultipartFile} from "../common/types/request";
 import {config} from "../config";
@@ -37,8 +38,6 @@ const SUPPORTED_IMAGES_FORMATS = [
 ];
 
 const isImageFormatSupported = (imageFormat: string) => SUPPORTED_IMAGES_FORMATS.includes(imageFormat.trim().toLowerCase());
-
-const STANDARD_THUMBNAIL_SIZES = [64, 128, 256, 300, 400, 512, 1024, 2048];
 
 @Injectable()
 export class ImagesUploadService {

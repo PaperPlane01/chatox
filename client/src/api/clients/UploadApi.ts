@@ -16,7 +16,7 @@ import {
     INFO,
     LOTTIE_STICKER,
     STICKERS,
-    UPLOADS,
+    UPLOADS, VIDEO_STICKER,
     VIDEOS,
     VOICE,
     WEBP_STICKER
@@ -55,6 +55,10 @@ export class UploadApi {
 
     public static uploadLottieSticker(file: File, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<StickerUploadMetadata>> {
         return UploadApi.doUpload<StickerUploadMetadata>(file, `/${UPLOADS}/${STICKERS}/${LOTTIE_STICKER}`, onUploadProgress);
+    }
+
+    public static uploadVideoSticker(file: File, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<StickerUploadMetadata>> {
+        return UploadApi.doUpload<StickerUploadMetadata>(file, `/${UPLOADS}/${STICKERS}/${VIDEO_STICKER}`, onUploadProgress);
     }
 
     public static doUpload<MetadataType>(file: File, url: string, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<MetadataType>> {

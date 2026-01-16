@@ -796,6 +796,7 @@ export interface Labels {
     "sticker.type.IMAGE_STICKER": string,
     "sticker.type.WEBP_STICKER": string,
     "sticker.type.LOTTIE_STICKER": string,
+    "sticker.type.VIDEO_STICKER": string,
     "sticker.file": string,
     "sticker.file.required": string,
     "sticker.file.too-large": string,
@@ -828,5 +829,7 @@ export interface Labels {
     "sticker.preferences.loop": string,
     "sticker.preferences.loops-count": string,
     "sticker.preferences.loops-count.zero": string,
-    "sticker.send.not-allowed": string
+    "sticker.send.not-allowed": string,
+    "sticker.video.error.invalid": string,
+    "sticker.video.error.unknown": string
 }
