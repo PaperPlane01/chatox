@@ -53,11 +53,13 @@ export const StickerPreviewDialog: FunctionComponent = observer(() => {
 		>
 			<DialogContent>
 				<div className={classes.centered}>
-					<Sticker stickerType={sticker.stickerType}
-							 stickerId={sticker.id}
-							 forceAutoplay
-							 forceLoop
-					/>
+					<div>
+						<Sticker stickerType={sticker.stickerType}
+								 stickerId={sticker.id}
+								 forceAutoplay
+								 forceLoop
+						/>
+					</div>
 				</div>
 				{sticker.emojiIds.length !== 0 && (
 					<Fragment>
