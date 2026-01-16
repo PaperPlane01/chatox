@@ -5,7 +5,7 @@ import {createStyles, makeStyles} from "@mui/styles";
 import {Sticker} from "../../Sticker";
 import {useStore} from "../../store";
 import {useEntityById} from "../../entities";
-import {UploadType, isLottieSticker} from "../../api/types/response";
+import {isLottieSticker} from "../../api/types/response";
 
 interface MessageStickerProps {
     stickerId: string,
@@ -20,12 +20,6 @@ const useStyles = makeStyles(() => createStyles({
         height: "100%",
         width: "100%",
         cursor: "pointer"
-    },
-    image: {
-        maxWidth: "100%",
-        maxHeight: "100%",
-        height: "inherit",
-        objectFit: "contain"
     }
 }));
 
