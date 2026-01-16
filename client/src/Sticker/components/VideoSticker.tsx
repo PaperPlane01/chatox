@@ -42,10 +42,10 @@ export const VideoSticker: FunctionComponent<BaseStickerProps> = observer(({
 		}
 
 		if (playsCount !== loopsCount) {
-			playerRef?.current?.play();
+			playerRef.current?.play();
 			setPlaysCount(prevState => prevState + 1);
-		} else {
-			playerRef?.current?.fastSeek(0);
+		} else if (playerRef?.current) {
+			playerRef.current.currentTime = 0;
 		}
 	};
 

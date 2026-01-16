@@ -21,7 +21,7 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
     useEffect(
         () => {
             if (playerRef.current && isDefined(seekToTime) && playing) {
-                playerRef.current.fastSeek(seekToTime);
+                playerRef.current.currentTime = seekToTime;
             }
         },
         [seekToTime]
@@ -34,10 +34,10 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
     }
 
     const handleTimeUpdate = (): void => {
-        if (playerRef?.current) {
+        if (playerRef.current) {
             setCurrentTime(playerRef.current.currentTime);
         }
-    }
+    };
 
     return (
         <ReactPlayer src={`${audio.uri}/stream`}
