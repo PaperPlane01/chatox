@@ -79,6 +79,7 @@ import {
     EmojiPickerTabsStore,
     RecordVoiceMessageStore,
     ScheduleMessageStore,
+    StickerSuggestionsStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
@@ -594,6 +595,7 @@ const stickerPackDeletion = new DeleteStickerPackStore(
 );
 const stickersPreferences = new StickersPreferencesStore();
 const stickerPreviewDialog = new StickerPreviewDialogStore();
+const stickerSuggestions = new StickerSuggestionsStore(installedStickerPacks, messageCreation, rawEntities, emoji, repositories);
 
 const _store: IAppState = {
     authorization,
@@ -768,7 +770,8 @@ const _store: IAppState = {
     stickerPackDeletion,
     stickerAnimationData,
     stickersPreferences,
-    stickerPreviewDialog
+    stickerPreviewDialog,
+    stickerSuggestions
 };
 
 //Hack to avoid loss of application state on HMR

@@ -197,7 +197,7 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
         this.referredMessageId = referredMessageId;
     }
 
-    sendSticker = (stickerId: string): void => {
+    sendSticker = (stickerId: string, clearTextAfter: boolean = false): void => {
         if (!this.selectedChatId || this.pending) {
             return;
         }
@@ -215,6 +215,11 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
                 const message = this.entities.messages.insert(data);
                 this.setLastMessageDateForChat(data.chatId, message.createdAt);
                 this.sendForwardedMessages(data.chatId);
+
+                if (clearTextAfter) {
+                    this.setResultMessage(message);
+                    this.setFormValue("text", "");
+                }
             })
             .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
             .finally(() => this.setPending(false));

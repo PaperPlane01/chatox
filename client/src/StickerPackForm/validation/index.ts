@@ -1,4 +1,5 @@
 import {EmojiData} from "emoji-mart";
+import {KEYWORD_MAX_LENGTH} from "../constants";
 import {Labels} from "../../localization";
 import {isStringEmpty} from "../../utils/string-utils";
 
@@ -27,7 +28,7 @@ export const validateStickerPackDescription = (description: string | undefined):
 }
 
 export const validateStickerKeyword = (keyword: string): keyof Labels | undefined => {
-    if (keyword.length > 30) {
+    if (keyword.length > KEYWORD_MAX_LENGTH) {
         return "sticker.keywords.too-long";
     }
 

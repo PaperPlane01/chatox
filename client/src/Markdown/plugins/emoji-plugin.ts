@@ -3,23 +3,16 @@ import {Node} from "unist";
 import {visit} from "unist-util-visit";
 import {Element, Text} from "hast";
 import {ElementContent, Position} from "react-markdown/lib/ast-to-react";
-import createRegEmojiRegExp from "emoji-regex";
 import {EmojiData, EmojiSet, getEmojiDataFromNative} from "emoji-mart";
-import allEmojiData from "emoji-mart/data/apple.json";
-import {uncompress} from "emoji-mart/dist-es/utils/data";
+import {allEmojiData} from "../../Emoji/data";
+import {EMOJI_REGEXP} from "../../Emoji/rules";
+import {getEmojiDataFromColons} from "../../Emoji/utils";
 import {EmojiPosition, MessageEmoji} from "../../api/types/response";
 
 interface EmojiNodeProperties {
 	hName: string,
 	hProperties: EmojiData
 }
-
-const emojiData = allEmojiData;
-uncompress(emojiData);
-
-const NATIVE_EMOJI_REGEXP = createRegEmojiRegExp();
-const COLONS_EMOJI_REGEXP = /:[^:\s]*(?:::[^:\s]*)*:/;
-const EMOJI_REGEXP = new RegExp(`(${NATIVE_EMOJI_REGEXP.source})|(${COLONS_EMOJI_REGEXP.source})`, 'g');
 
 export const emojiPlugin = (
 	set: EmojiSet,
@@ -162,22 +155,6 @@ const addEmojiNodesByRegExp = (
 	if (emojiEncountered) {
 		insertChildNodes(parent, index, nodes as unknown as ElementContent[]);
 	}
-};
-
-const getEmojiDataFromColons = (colons: string, set: EmojiSet): EmojiData | undefined => {
-	const code = colons.slice(1, colons.length - 1);
-	const rawEmojiData: any = emojiData.emojis[code as keyof typeof emojiData.emojis];
-
-	if (!rawEmojiData) {
-		return undefined;
-	}
-
-	const unified= rawEmojiData.unified as string;
-	const nativeEmoji = unified.split("-")
-		.map(unicode => String.fromCodePoint(parseInt(unicode, 16)))
-		.join();
-
-	return getEmojiDataFromNative(nativeEmoji, set, allEmojiData);
 };
 
 const createTextNode = (value: string, start: number, end: number, line: number): Text => ({

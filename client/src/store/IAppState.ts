@@ -75,6 +75,7 @@ import {
     EmojiPickerTabsStore,
     RecordVoiceMessageStore,
     ScheduleMessageStore,
+    StickerSuggestionsStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
@@ -358,5 +359,6 @@ export interface IAppState {
     stickerPackDeletion: DeleteStickerPackStore,
     stickerAnimationData: StickerAnimationDataStore,
     stickersPreferences: StickersPreferencesStore,
-    stickerPreviewDialog: StickerPreviewDialogStore
+    stickerPreviewDialog: StickerPreviewDialogStore,
+    stickerSuggestions: StickerSuggestionsStore
 }

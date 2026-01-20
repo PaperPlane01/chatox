@@ -5,3 +5,4 @@ export * from "./UpdateScheduledMessageStore";
 export * from "./UploadMessageAttachmentsStore";
 export * from "./EmojiPickerTabsStore";
 export * from "./ScheduleMessageStore";
+export * from "./StickerSuggestionsStore";

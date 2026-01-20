@@ -22,7 +22,7 @@ export class ChatoxDexieDatabase extends Dexie {
 			messages: "id, chatId, createdAt, [chatId+createdAt]",
 			users: "id",
 			uploads: "id",
-			stickers: "id, stickerPackId",
+			stickers: "id, stickerPackId, *keywords, *emojiIds",
 			stickerPacks: "id",
 			chatRoles: "id, chatId",
 			draftMessages: "id, chatId",
