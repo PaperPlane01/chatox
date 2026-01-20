@@ -9,7 +9,7 @@ interface UseStickerLongClick {
 
 export const useStickerLongClick = ({stickerId, onClick, onLongClick}: UseStickerLongClick): LongPressHandlers => {
 	const createLongPressHandlers = useLongPress(
-		onLongClick ?? null,
+		onLongClick ?? onClick ?? null,
 		{
 			onCancel: (_, {reason}) => reason === LongPressCallbackReason.CancelledByRelease && onClick && onClick(),
 			filterEvents: event => isPointerEvent(event) ? event.button !== 2 : true

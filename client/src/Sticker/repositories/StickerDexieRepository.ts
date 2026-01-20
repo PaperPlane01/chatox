@@ -13,6 +13,7 @@ export class StickerDexieRepository extends AbstractDexieRepository<StickerEntit
 	constructor(database: ChatoxDexieDatabase, repositories: Repositories) {
 		super(database.stickers, database);
 		this.relationshipsLoader = new StickerRelationshipsLoader(repositories);
+		this.entityPatchLoader = new StickerEntityPatchLoader(this, this.relationshipsLoader);
 	}
 
 	async findByStickerPack(stickerPackId: string): Promise<Array<StickerEntity>> {
@@ -21,6 +22,18 @@ export class StickerDexieRepository extends AbstractDexieRepository<StickerEntit
 
 	async findByStickerPackIdIn(stickerPacksIds: string[]): Promise<Array<StickerEntity>> {
 		return this.table.where("stickerPackId").anyOf(stickerPacksIds).toArray();
+	}
+
+	async findByKeyword(keyword: string, stickerPacksIds: string[]): Promise<Array<StickerEntity>> {
+		return this.table.where("keywords").equalsIgnoreCase(keyword)
+			.and(sticker => stickerPacksIds.includes(sticker.stickerPackId))
+			.toArray();
+	}
+
+	async findByEmojiId(emojiId: string, stickerPacksIds: string[]): Promise<Array<StickerEntity>> {
+		return this.table.where("emojiIds").equals(emojiId)
+			.and(sticker => stickerPacksIds.includes(sticker.stickerPackId))
+			.toArray();
 	}
 
 	async restoreEntityPatch(id: string): Promise<EntitiesPatch> {
