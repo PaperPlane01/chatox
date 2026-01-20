@@ -1,7 +1,7 @@
 import {EmojiData} from "emoji-mart";
+import {KEYWORD_MAX_LENGTH} from "../constants";
 import {Labels} from "../../localization";
 import {isStringEmpty} from "../../utils/string-utils";
-import {KEYWORD_MAX_LENGTH} from "../constants";
 
 export const validateStickerPackName = (name: string | undefined): keyof Labels | undefined => {
     if (isStringEmpty(name)) {
