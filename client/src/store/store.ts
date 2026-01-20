@@ -78,7 +78,8 @@ import {
     CreateMessageStore,
     EmojiPickerTabsStore,
     RecordVoiceMessageStore,
-    ScheduleMessageStore, StickerSuggestionsStore,
+    ScheduleMessageStore,
+    StickerSuggestionsStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
