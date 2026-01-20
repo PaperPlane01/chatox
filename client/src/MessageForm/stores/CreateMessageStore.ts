@@ -139,7 +139,6 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
                     const chat = this.entities.chats.findById(chatStore.previousChatId);
 
                     if (this.validateForm()) {
-                        console.log("creating draft message")
                         this.createDraftMessageForChat(
                             chatStore.previousChatId,
                             this.formValues,
