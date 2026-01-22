@@ -1,4 +1,13 @@
-import React, {Fragment, FunctionComponent, MouseEvent, ReactNode, useEffect, useRef, useState} from "react";
+import React, {
+    Fragment,
+    FunctionComponent,
+    MouseEvent,
+    ReactNode,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState
+} from "react";
 import {observer} from "mobx-react";
 import {Card, CardActions, CardContent, CardHeader, lighten, Theme, Tooltip, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
@@ -30,12 +39,15 @@ import {useLuminosity} from "../../utils/hooks";
 import {commonStyles} from "../../style";
 import {UploadType} from "../../api/types/response";
 import {isDefined} from "../../utils/object-utils";
+import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+
+type MenuItemClickCallback = (menuItemType: MessageMenuItemType | ScheduledMessageMenuItemType) => void;
 
 interface MessagesListItemProps {
     messageId: string,
     lastMessageReadByAnyoneCreatedAt?: Date,
     fullWidth?: boolean,
-    onMenuItemClick?: (menuItemType: MessageMenuItemType | ScheduledMessageMenuItemType) => void,
+    onMenuItemClick?: MenuItemClickCallback,
     onVisibilityChange?: (visible: boolean) => void,
     hideAttachments?: boolean,
     messagesListHeight?: number,
@@ -182,6 +194,14 @@ let messageCardDimensionsCache: {[messageId: string]: {width: number, height: nu
 
 window.addEventListener("resize", () => messageCardDimensionsCache = {});
 
+const renderMenu = (messageId: string, scheduledMessage: boolean, onMenuItemClick?: MenuItemClickCallback) => {
+    if (scheduledMessage) {
+        return <ScheduledMessageMenu messageId={messageId} onMenuItemClick={onMenuItemClick}/>;
+    } else {
+        return <MessageMenu messageId={messageId} onMenuItemClick={onMenuItemClick}/>;
+    }
+};
+
 //TODO: Refactor this mess into smaller components
 export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observer(({
     messageId,
@@ -245,23 +265,19 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
         }, [allImagesLoaded, stickerLoaded, messageId, width, height]
     );
 
-    useEffect(() => {
-        return () => {
-            if (onVisibilityChange) {
-                onVisibilityChange(false);
-            }
-        }
-    });
+    useEffect(() => () => onVisibilityChange?.(false));
 
     const sender = useMessageSenderById(message.sender, findMessageSenderFunction);
     const forwardedBy = useMessageSenderById(message.forwardedById, findMessageSenderFunction);
+    const forwardedByName = forwardedBy && getUserDisplayedName(forwardedBy);
     const messageCreatedAt = message.createdAt;
     const createAtLabel = !scheduledMessage
         ? getCreatedAtLabel(messageCreatedAt, dateFnsLocale)
         : getScheduledAtLabel(message.scheduledAt!, dateFnsLocale, l);
     const senderChatRole = useEntityById("chatRoles", message.senderRoleId);
     const color = randomColor({seed: sender.id, luminosity});
-    const avatarLetter = `${sender.firstName[0]}${sender.lastName ? sender.lastName[0] : ""}`;
+    const avatarLetter = getUserAvatarLabel(sender);
+    const senderName = getUserDisplayedName(sender);
     const sentByCurrentUser = currentUser && isDefined(message.forwardedById)
         ? message.forwardedById === currentUser.id
         : message.sender === currentUser?.id;
@@ -292,11 +308,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
         [classes.avatarContainer]: !sentByCurrentUser
     });
 
-    const handleMenuItemClick = (menuItemType: MessageMenuItemType | ScheduledMessageMenuItemType): void => {
-        if (onMenuItemClick) {
-            onMenuItemClick(menuItemType);
-        }
-    };
+    const renderedMenu = menu ?? renderMenu(messageId, scheduledMessage, onMenuItemClick);
 
     const handleVisibilityChange = (visible: boolean): void => {
         if (visible && !message.readByCurrentUser) {
@@ -341,7 +353,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                         <Link router={routerStore}
                               className={userAvatarLinkClasses}
                               route={Routes.userPage}
-                              params={{slug: sender.slug || sender.id}}
+                              params={{slug: sender.slug ?? sender.id}}
                         >
                             <Avatar avatarLetter={avatarLetter}
                                     avatarColor={color}
@@ -357,7 +369,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                            <Link router={routerStore}
                                  className={classes.undecoratedLink}
                                  route={Routes.userPage}
-                                 params={{slug: sender.slug || sender.id}}
+                                 params={{slug: sender.slug ?? sender.id}}
                            >
                                {message.forwarded && (
                                    <Typography variant="body1"
@@ -372,17 +384,17 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                                    </Typography>
                                )}
                                <Typography variant="body1" style={{color}}>
-                                   <strong>{sender.firstName} {sender.lastName && sender.lastName}</strong>
-                                   {forwardedBy && (
+                                   <strong>{senderName}</strong>
+                                   {forwardedByName && (
                                        <strong>
                                            {l("message.forwarded.by")}
                                            {" "}
-                                           {forwardedBy.firstName} {forwardedBy.lastName && forwardedBy.lastName}
+                                           {forwardedByName}
                                        </strong>
                                    )}
                                </Typography>
                            </Link>
-                           {senderChatRole && senderChatRole.features.showRoleNameInMessages.enabled && (
+                           {senderChatRole?.features.showRoleNameInMessages.enabled && (
                                <Typography variant="caption" color="textSecondary" className={classes.senderChatRole}>
                                    {getChatRoleTranslation(senderChatRole.name, l)}
                                </Typography>
@@ -394,18 +406,13 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                                     action: classes.cardHeaderAction,
                                     content: classes.cardHeaderContent
                                 }}
-                                action={menu
-                                    ? menu
-                                    : scheduledMessage
-                                        ? <ScheduledMessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>
-                                        : <MessageMenu messageId={messageId} onMenuItemClick={handleMenuItemClick}/>
-                                }
+                                action={renderedMenu}
                     />
                     <CardContent classes={{
                         root: classes.cardContentRoot
                     }}
                                  ref={messagesListItemRef}
-                                 style={messageCardDimensionsCache[messageId] && messageCardDimensionsCache[messageId]}
+                                 style={messageCardDimensionsCache[messageId]}
                     >
                         {message.referredMessageId && (
                             <ReferredMessageContent messageId={message.referredMessageId}
