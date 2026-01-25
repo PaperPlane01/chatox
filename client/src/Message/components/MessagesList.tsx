@@ -133,10 +133,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     return (
         <Fragment>
             <PinnedMessage ref={refs.pinnedMessageRef}
-                           width={refs.messagesListRef && refs.messagesListRef.current
-                               ? refs.messagesListRef.current.getBoundingClientRect().width
-                               : undefined
-                           }
+                           width={refs.messagesListRef?.current?.getBoundingClientRect().width}
             />
             <div id="messagesList"
                  style={style}
