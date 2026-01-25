@@ -65,7 +65,7 @@ export const MessageImagesGrid: FunctionComponent<MessageImagesGridProps> = obse
 
     return (
         <div ref={galleryParentRef}
-             style={{height: heightCache[messageId] && heightCache[messageId]}}
+             style={{height: heightCache[messageId]}}
         >
             <PhotoAlbum photos={images}
                         layout="rows"
