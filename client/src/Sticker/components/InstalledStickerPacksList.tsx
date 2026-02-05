@@ -66,13 +66,6 @@ export const InstalledStickerPacksList: FunctionComponent = observer(() => {
                                     {l("sticker.pack.explore-more")}
                                 </Link>
                             </Typography>
-                            <Typography>
-                                <Link route={Routes.createStickerPack}
-                                      router={routerStore}
-                                >
-                                    {l("sticker.pack.create")}
-                                </Link>
-                            </Typography>
                         </Fragment>
                     )
                 }

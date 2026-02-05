@@ -1,12 +1,13 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {IconButton, Theme} from "@mui/material";
+import {IconButton, Theme, Typography} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {ArrowLeft, ArrowRight, Delete, Edit} from "@mui/icons-material";
 import {EditableStickerPreview} from "./EditableStickerPreview";
 import {StickerContainer} from "../stores";
 import {StickerPackFormContext} from "../types";
 import {useStickerPackForm} from "../hooks";
+import {useLocalization} from "../../store";
 
 interface EditableStickerProps {
     stickerContainer: StickerContainer,
@@ -43,6 +44,7 @@ export const EditableSticker: FunctionComponent<EditableStickerProps> = observer
         moveStickerBack,
         moveStickerForward
     } = useStickerPackForm(context);
+    const {l} = useLocalization();
     const classes = useStyles();
 
     if (!stickerContainer.uploadContainer) {
@@ -85,6 +87,11 @@ export const EditableSticker: FunctionComponent<EditableStickerProps> = observer
                 </IconButton>
             </div>
             <EditableStickerPreview stickerContainer={stickerContainer}/>
+            {stickerContainer.fileValidationError && (
+                <Typography style={{color: "red"}}>
+                    {l(stickerContainer.fileValidationError)}
+                </Typography>
+            )}
         </div>
     );
 });

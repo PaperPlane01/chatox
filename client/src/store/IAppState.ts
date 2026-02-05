@@ -125,7 +125,12 @@ import {
     StickersPreferencesStore,
     UninstallStickerPackStore
 } from "../Sticker";
-import {CreateStickerPackStore, StickerEmojiPickerDialogStore, UpdateStickerPackStore} from "../StickerPackForm/stores";
+import {
+    CreateStickerPackStore,
+    ImportStickerPackStore,
+    StickerEmojiPickerDialogStore,
+    UpdateStickerPackStore
+} from "../StickerPackForm/stores";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
 import {
     AllChatsMessagesSearchStore,
@@ -360,5 +365,6 @@ export interface IAppState {
     stickerAnimationData: StickerAnimationDataStore,
     stickersPreferences: StickersPreferencesStore,
     stickerPreviewDialog: StickerPreviewDialogStore,
-    stickerSuggestions: StickerSuggestionsStore
+    stickerSuggestions: StickerSuggestionsStore,
+    stickerPackImport: ImportStickerPackStore
 }

@@ -39,6 +39,7 @@ const ChatInvitePage = lazy(() => import("../pages/ChatInvitePage"));
 const PendingChatsListPage = lazy(() => import("../pages/PendingChatsListPage"));
 const UpdateStickerPackPage = lazy(() => import("../pages/UpdateStickerPackPage"));
 const StickerPackPage = lazy(() => import("../pages/StickerPackPage"));
+const ImportStickerPackPage = lazy(() => import("../pages/ImportStickerPackPage"));
 
 export const Routes = {
     home: new Route({
@@ -441,6 +442,16 @@ export const Routes = {
         onExit: () => {
             store.stickerPackUpdate.reset();
         }
+    }),
+    stickerPackImport: new Route({
+        path: "/import-sticker-pack",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <ImportStickerPackPage/>
+                </Suspense>
+            </ErrorBoundary>
+        )
     })
 };
 

@@ -5,25 +5,17 @@ import {CreateStickerDialog} from "./CreateStickerDialog";
 import {EditStickerDialog} from "./EditStickerDialog";
 import {StickersTypeSelect} from "./StickersTypeSelect";
 import {StickerPackFormFields} from "./StickerPackFormFields";
+import {getCreateStickerPackText} from "../utils";
 import {useLocalization, useStore} from "../../store";
-import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {TranslationFunction} from "../../localization";
-
-const getErrorText = (error: ApiError, l: TranslationFunction): string => {
-    if (error.status === API_UNREACHABLE_STATUS) {
-        return l("sticker.pack.create.error.server-unreachable");
-    } else {
-        return l("sticker.pack.create.error.unknown", {errorStatus: error.status});
-    }
-};
 
 export const CreateStickerPackForm: FunctionComponent = observer(() => {
     const {
         stickerPackCreation: {
-            formValues,
+            stickersType,
             pending,
             stickerUnderCreation,
             editedSticker,
+            setStickersType,
             submitForm,
             reset
         }
@@ -35,12 +27,14 @@ export const CreateStickerPackForm: FunctionComponent = observer(() => {
             <Card>
                 <CardHeader title={l("sticker.pack.create")}/>
                 <CardContent>
-                    {!formValues.stickersType && (
-                        <StickersTypeSelect/>
+                    {!stickersType && (
+                        <StickersTypeSelect value={stickersType}
+                                            onChange={setStickersType}
+                        />
                     )}
-                    {formValues.stickersType && (
+                    {stickersType && (
                         <StickerPackFormFields context="stickerPackCreation"
-                                               getErrorText={getErrorText}
+                                               getErrorText={getCreateStickerPackText}
                         />
                     )}
                 </CardContent>
@@ -51,7 +45,7 @@ export const CreateStickerPackForm: FunctionComponent = observer(() => {
                     >
                         {l("cancel")}
                     </Button>
-                    {formValues.stickersType && (
+                    {stickersType && (
                         <Button onClick={submitForm}
                                 variant="contained"
                                 color="primary"

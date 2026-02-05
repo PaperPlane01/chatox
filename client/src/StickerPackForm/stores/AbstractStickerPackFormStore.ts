@@ -137,6 +137,10 @@ export abstract class AbstractStickerPackFormStore<F extends StickerPackFormData
 		swapItems(stickersIds, index, index + 1);
 	}
 
+	setStickersIds = (ids: string[]): void => {
+		this.stickersIds = ids;
+	}
+
 	protected validateForm(): boolean {
 		this.setFormErrors({
 			description: validateStickerPackDescription(this.formValues.description),

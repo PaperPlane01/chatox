@@ -1,4 +1,5 @@
-import {BlobReader, Entry, FileEntry, TextWriter, ZipReader} from "@zip.js/zip.js";
+import {BlobReader, TextWriter, ZipReader} from "@zip.js/zip.js";
+import {isFileEntry} from "./utils";
 
 export class DotLottieZipWorker {
 
@@ -15,15 +16,11 @@ export class DotLottieZipWorker {
 
 		const animationEntry = (await zipReader.getEntries()).find(entry => entry.filename === "animations/main.json");
 
-		if (!animationEntry || !this.isFileEntry(animationEntry)) {
+		if (!animationEntry || !isFileEntry(animationEntry)) {
 			return undefined;
 		}
 
 		const textWriter = new TextWriter();
 		return await animationEntry.getData(textWriter);
-	}
-
-	private isFileEntry(entry: Entry): entry is FileEntry {
-		return typeof (entry as any).getData === "function";
 	}
 }

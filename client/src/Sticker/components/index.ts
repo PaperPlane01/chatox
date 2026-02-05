@@ -9,3 +9,4 @@ export * from "./StickerPackCard";
 export * from "./DeleteStickerPackDialog";
 export * from "./StickersPreferencesCard";
 export * from "./StickerPreviewDialog";
+export * from "./CreateStickerPackSpeedDial";

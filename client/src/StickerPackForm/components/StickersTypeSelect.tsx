@@ -1,17 +1,19 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {FormControl, InputLabel, MenuItem, Select} from "@mui/material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization} from "../../store";
 import {STICKER_TYPES, StickerType} from "../../api/types/response";
 import {Labels} from "../../localization";
 
-export const StickersTypeSelect: FunctionComponent = observer(() => {
-	const {
-		stickerPackCreation: {
-			formValues,
-			setFormValue
-		}
-	} = useStore();
+interface StickersTypeSelectProps {
+	value?: StickerType,
+	onChange: (value: StickerType) => void
+}
+
+export const StickersTypeSelect: FunctionComponent<StickersTypeSelectProps> = observer(({
+	value,
+	onChange
+}) => {
 	const {l} = useLocalization();
 
 	return (
@@ -19,8 +21,8 @@ export const StickersTypeSelect: FunctionComponent = observer(() => {
 			<InputLabel id="stickerTypeLabel">{l("sticker.type")}</InputLabel>
 			<Select id="stickerTypeSelect"
 					labelId="stickerTypeLabel"
-					value={formValues.stickersType}
-					onChange={event => setFormValue("stickersType", event.target.value as StickerType)}
+					value={value}
+					onChange={event => onChange(event.target.value as StickerType)}
 					fullWidth
 			>
 				{STICKER_TYPES.map(stickerType => (

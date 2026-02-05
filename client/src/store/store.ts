@@ -133,7 +133,12 @@ import {
     StickersPreferencesStore,
     UninstallStickerPackStore
 } from "../Sticker";
-import {CreateStickerPackStore, StickerEmojiPickerDialogStore, UpdateStickerPackStore} from "../StickerPackForm/stores";
+import {
+    CreateStickerPackStore,
+    ImportStickerPackStore,
+    StickerEmojiPickerDialogStore,
+    UpdateStickerPackStore
+} from "../StickerPackForm/stores";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
 import {
     AllChatsMessagesSearchStore,
@@ -596,6 +601,7 @@ const stickerPackDeletion = new DeleteStickerPackStore(
 const stickersPreferences = new StickersPreferencesStore();
 const stickerPreviewDialog = new StickerPreviewDialogStore();
 const stickerSuggestions = new StickerSuggestionsStore(installedStickerPacks, messageCreation, rawEntities, emoji, repositories);
+const stickerPackImport = new ImportStickerPackStore(stickerPackCreation, language, snackbarService);
 
 const _store: IAppState = {
     authorization,
@@ -771,7 +777,8 @@ const _store: IAppState = {
     stickerAnimationData,
     stickersPreferences,
     stickerPreviewDialog,
-    stickerSuggestions
+    stickerSuggestions,
+    stickerPackImport
 };
 
 //Hack to avoid loss of application state on HMR
