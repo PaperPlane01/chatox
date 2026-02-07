@@ -1,21 +1,24 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Tab} from "@mui/material";
+import {Tab, Theme} from "@mui/material";
 import {createStyles, makeStyles} from "@mui/styles";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
 import {EmojiData} from "emoji-mart";
+import {EmojiPicker} from "./EmojiPicker";
 import {StickerPicker} from "../../Sticker";
 import {useLocalization, useStore} from "../../store";
-import {EmojiPicker} from "./EmojiPicker";
 
 interface EmojiAndStickerPickerProps {
     onEmojiPicked: (emoji: EmojiData) => void,
     onStickerPicked: () => void
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles((theme: Theme) => createStyles({
     pickerContainer: {
-        width: "100%"
+        width: "100%",
+        [theme.breakpoints.up("lg")]: {
+            maxWidth: 500
+        }
     },
     tabPanelRoot: {
         padding: 0
