@@ -833,5 +833,15 @@ export const en: Labels = {
     "sticker.preferences.loops-count.zero": "0 means infinite looping",
     "sticker.send.not-allowed": "Can't send stickers in this chat",
     "sticker.video.error.invalid": "Invalid video file",
-    "sticker.video.error.unknown": "Unknown error occurred when tried to upload file"
+    "sticker.video.error.unknown": "Unknown error occurred when tried to upload file",
+    "sticker.pack.import": "Import sticker pack",
+    "sticker.pack.import.stage.READING_ARCHIVE": "Read files from archive",
+    "sticker.pack.import.stage.READING_ARCHIVE.progress": "Read files: {progress} / {length}",
+    "sticker.pack.import.stage.READING_ARCHIVE.current-file": "Reading file {fileName}",
+    "sticker.pack.import.stage.READING_ARCHIVE.error": "Error occurred when tried to read stickers from archive",
+    "sticker.pack.import.stage.UPLOADING_FILES": "Uploading files",
+    "sticker.pack.import.stage.UPLOADING_FILES.progress": "Uploaded files: {progress} / {length}",
+    "sticker.pack.import.stage.UPLOADING_FILES.current-file": "Uploading file {fileName}",
+    "sticker.pack.import.stage.CREATING_STICKER_PACK": "Create sticker pack",
+    "sticker.pack.import.select-file": "Select zip archive with stickers"
 };

@@ -1,8 +1,8 @@
-import {StickerContainer} from "../stores";
+import {StickersMap} from "./StickersMap";
 
 export interface StickerPackFormData {
 	name?: string
 	description?: string
-	stickers: {[stickerId: string]: StickerContainer}
+	stickers: StickersMap
 	author?: string
 }

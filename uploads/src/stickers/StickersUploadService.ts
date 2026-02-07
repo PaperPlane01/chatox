@@ -580,8 +580,8 @@ export class StickersUploadService {
 	}
 
 	private validateVideoSticker(metadata: VideoUploadMetadata): string | undefined {
-		if (metadata.width !== VALID_STICKER_SIZE || metadata.height !== VALID_STICKER_SIZE) {
-			return `Width or height of video sticker must me ${VALID_STICKER_SIZE} pixels`;
+		if (metadata.width !== VALID_STICKER_SIZE && metadata.height !== VALID_STICKER_SIZE) {
+			return `Width or height of video sticker must be ${VALID_STICKER_SIZE} pixels`;
 		}
 
 		if (metadata.hasAudio) {

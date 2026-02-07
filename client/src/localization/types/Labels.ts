@@ -831,5 +831,15 @@ export interface Labels {
     "sticker.preferences.loops-count.zero": string,
     "sticker.send.not-allowed": string,
     "sticker.video.error.invalid": string,
-    "sticker.video.error.unknown": string
+    "sticker.video.error.unknown": string,
+    "sticker.pack.import": string,
+    "sticker.pack.import.stage.READING_ARCHIVE": string,
+    "sticker.pack.import.stage.READING_ARCHIVE.progress": string,
+    "sticker.pack.import.stage.READING_ARCHIVE.current-file": string,
+    "sticker.pack.import.stage.READING_ARCHIVE.error": string,
+    "sticker.pack.import.stage.UPLOADING_FILES": string,
+    "sticker.pack.import.stage.UPLOADING_FILES.progress": string,
+    "sticker.pack.import.stage.UPLOADING_FILES.current-file": string,
+    "sticker.pack.import.stage.CREATING_STICKER_PACK": string,
+    "sticker.pack.import.select-file": string
 }

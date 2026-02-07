@@ -1,7 +1,7 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {v4} from "uuid";
 import {EmojiData} from "emoji-mart";
-import {AxiosPromise} from "axios";
+import {AxiosError, AxiosPromise} from "axios";
 import {validateStickerEmojis, validateStickerKeywords} from "../validation";
 import {StickerEntity} from "../../Sticker";
 import {getMaxFileSize, UploadedFileContainer} from "../../utils/file-utils";
@@ -10,7 +10,6 @@ import {StickerType, StickerUploadMetadata, Upload, UploadType} from "../../api/
 import {FormErrors} from "../../utils/types";
 import {Labels} from "../../localization";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
-import {UPLOADS} from "../../api/endpoints";
 
 interface StickerContainerOptions {
     sticker: StickerEntity,
@@ -78,7 +77,7 @@ export class StickerContainer {
         }
     }
 
-    uploadFile(file: File): void {
+    async uploadFile(file: File): Promise<void> {
         this.uploadContainer = new UploadedFileContainer(file, this.stickerType)
 
         if (!this.validateFile()) {
@@ -88,22 +87,26 @@ export class StickerContainer {
         this.uploadContainer.pending = true;
         const uploadFunction = this.getUploadFunction();
 
-        uploadFunction(file, this.updateProgress)
-            .then(({data}) => runInAction(() => {
+        try {
+            const {data} = await uploadFunction(file, this.updateProgress);
+            runInAction(() => {
                 if (this.uploadContainer) {
                     this.uploadContainer.uploadedFile = data;
                 }
-            }))
-            .catch(error => runInAction(() => {
+            });
+        } catch (error) {
+            runInAction(() => {
                 if (this.uploadContainer) {
-                    this.uploadContainer.error = getInitialApiErrorFromResponse(error);
+                    this.uploadContainer.error = getInitialApiErrorFromResponse(error as AxiosError);
                 }
-            }))
-            .finally(() => runInAction(() => {
-                if (this.uploadContainer) {
-                    this.uploadContainer.pending = false;
-                }
-            }))
+            });
+        } finally {
+           runInAction(() => {
+               if (this.uploadContainer) {
+                   this.uploadContainer.pending = false;
+               }
+           })
+        }
     }
 
     private updateProgress(progress: number): void {

@@ -1,8 +1,8 @@
-import {action, computed, makeObservable, reaction} from "mobx";
+import {action, computed, makeObservable} from "mobx";
 import {RouterStore} from "mobx-router";
 import {AbstractStickerPackFormStore} from "./AbstractStickerPackFormStore";
 import {StickerContainer} from "./StickerContainer";
-import {CreateStickerPackFormData} from "../types";
+import {StickerPackFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {CreateStickerRequest} from "../../api/types/request";
 import {getInitialApiErrorFromResponse, StickerApi} from "../../api";
@@ -11,17 +11,17 @@ import {createWithUndefinedValues, isDefined} from "../../utils/object-utils";
 import {RouterStoreAware, Routes} from "../../router";
 import {LocaleStore} from "../../localization";
 import {SnackbarService} from "../../Snackbar";
+import {StickerPackEntity} from "../../Sticker";
 
-const INITIAL_FORM_VALUES: CreateStickerPackFormData = {
+const INITIAL_FORM_VALUES: StickerPackFormData = {
     name: "",
     description: "",
     author: "",
-    stickersType: undefined,
     stickers: {}
 };
-const INITIAL_FORM_ERRORS: FormErrors<CreateStickerPackFormData> = createWithUndefinedValues(INITIAL_FORM_VALUES);
+const INITIAL_FORM_ERRORS: FormErrors<StickerPackFormData> = createWithUndefinedValues(INITIAL_FORM_VALUES);
 
-export class CreateStickerPackStore extends AbstractStickerPackFormStore<CreateStickerPackFormData>
+export class CreateStickerPackStore extends AbstractStickerPackFormStore<StickerPackFormData>
     implements RouterStoreAware {
     get editedSticker(): StickerContainer | undefined {
         if (this.editedStickerId) {
@@ -32,6 +32,7 @@ export class CreateStickerPackStore extends AbstractStickerPackFormStore<CreateS
     }
 
     private routerStore?: RouterStore<any> = undefined;
+    private onStickerPackCreated?: (stickerPack: StickerPackEntity) => void;
 
     constructor(private readonly entities: EntitiesStore,
                 private readonly locale: LocaleStore,
@@ -44,11 +45,6 @@ export class CreateStickerPackStore extends AbstractStickerPackFormStore<CreateS
             addSticker: action.bound,
             editSticker: action.bound,
         });
-
-        reaction(
-            () => this.formValues.stickersType,
-            stickersType => this.setStickersType(stickersType)
-        );
     }
 
     addSticker(sticker: StickerContainer): void {
@@ -63,8 +59,12 @@ export class CreateStickerPackStore extends AbstractStickerPackFormStore<CreateS
         this.addSticker(sticker);
     }
 
+    setOnStickerPackCreated(onStickerPackCreated?: (stickerPack: StickerPackEntity) => void): void {
+        this.onStickerPackCreated = onStickerPackCreated;
+    }
+
     public submitForm(): void {
-        if (!this.formValues.stickersType || !this.validateForm()) {
+        if (!this.stickersType || !this.validateForm()) {
             return;
         }
 
@@ -84,11 +84,11 @@ export class CreateStickerPackStore extends AbstractStickerPackFormStore<CreateS
             name: this.formValues.name!,
             author: this.formValues.author,
             description: this.formValues.description!,
-            stickersType: this.formValues.stickersType,
+            stickersType: this.stickersType,
             stickers
         })
             .then(({data}) => {
-                this.entities.stickerPacks.insert(data);
+                const stickerPack = this.entities.stickerPacks.insert(data);
                 this.snackbarService.enqueueSnackbar(
                     this.locale.getCurrentLanguageLabel("sticker.pack.create.success")
                 );
@@ -97,10 +97,16 @@ export class CreateStickerPackStore extends AbstractStickerPackFormStore<CreateS
                     this.routerStore.goTo(Routes.stickerPack, {id: data.id});
                 }
 
+                this.onStickerPackCreated?.(stickerPack);
                 this.reset();
             })
             .catch(error => this.setError(getInitialApiErrorFromResponse(error)))
             .finally(() => this.setPending(false));
+    }
+
+    reset() {
+        super.reset();
+        this.onStickerPackCreated = undefined;
     }
 
     protected validateStickers(): boolean {

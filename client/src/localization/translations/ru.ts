@@ -833,5 +833,15 @@ export const ru: Labels = {
     "sticker.preferences.loops-count.zero": "0 — бесконечный цикл",
     "sticker.send.not-allowed": "Вы не можете отправлять стикеры в этом чате",
     "sticker.video.error.invalid": "Некорректный видео файл",
-    "sticker.video.error.unknown": "При загрузке файла произошла неизвестная ошибка"
+    "sticker.video.error.unknown": "При загрузке файла произошла неизвестная ошибка",
+    "sticker.pack.import": "Импортировать набор стикеров",
+    "sticker.pack.import.stage.READING_ARCHIVE": "Чтение файлов из архива",
+    "sticker.pack.import.stage.READING_ARCHIVE.progress": "Обработано файлов: {progress} / {length}",
+    "sticker.pack.import.stage.READING_ARCHIVE.current-file": "Обрабатываемый файл: {fileName}",
+    "sticker.pack.import.stage.READING_ARCHIVE.error": "При чтении файлов из архива произошла ошибка",
+    "sticker.pack.import.stage.UPLOADING_FILES": "Загрузка файлов",
+    "sticker.pack.import.stage.UPLOADING_FILES.progress": "Загружено файлов: {progress} / {length}",
+    "sticker.pack.import.stage.UPLOADING_FILES.current-file": "Загружаемый файл: {fileName}",
+    "sticker.pack.import.stage.CREATING_STICKER_PACK": "Создание набора стикеров",
+    "sticker.pack.import.select-file": "Выберите zip-архив со стикерами"
 };
