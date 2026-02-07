@@ -55,7 +55,7 @@ export const StickerSuggestions: FunctionComponent<StickerSuggestionsProps> = ob
 					>
 						<Sticker stickerId={sticker.id}
 								 stickerType={sticker.stickerType}
-								 onClick={() => onStickerClick && onStickerClick(sticker.id)}
+								 onClick={() => onStickerClick?.(sticker.id)}
 								 onLongClick={() => openDialog(sticker.id)}
 						/>
 					</div>
