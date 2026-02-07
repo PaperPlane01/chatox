@@ -105,6 +105,8 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
         <div className={classes.stickerPickerWrapper}>
             <TabContext value={selectedStickerPackId ?? installedStickerPacksIds[0]}>
                 <TabList orientation="horizontal"
+                         variant="scrollable"
+                         scrollButtons="auto"
                          onChange={(_, newValue) => setSelectedStickerPackId(newValue)}
                 >
                     {stickerPacks.map(stickerPack => (
