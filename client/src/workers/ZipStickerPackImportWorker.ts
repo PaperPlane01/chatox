@@ -7,6 +7,7 @@ export class ZipStickerPackImportWorker {
 	async loadFiles(
 		zipArchive: File,
 		acceptedFormats: string[],
+		maxSize: number,
 		onLengthReceived?: (length: number) => void,
 		onFileReadStarted?: (fileName: string) => void,
 		onFileReadEnded?: (fileName: string) => void
@@ -22,8 +23,10 @@ export class ZipStickerPackImportWorker {
 				: entries.filter(isFileEntry);
 			onLengthReceived?.(files.length);
 			const result: ZipImportFile[] = [];
+			const size = files.length > maxSize ? maxSize : files.length;
 
-			for (const entry of files) {
+			for (let currentFile = 0; currentFile < size; currentFile++) {
+				const entry = files[currentFile];
 				const fileName = this.removeDirectoryName(rootDirectory?.filename, entry.filename);
 				const extension = fileName.substring(fileName.lastIndexOf("."));
 

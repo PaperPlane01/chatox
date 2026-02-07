@@ -3,6 +3,7 @@ import {proxy, transfer} from "comlink";
 import {chunk} from "lodash";
 import {CreateStickerPackStore} from "./CreateStickerPackStore";
 import {StickerContainer} from "./StickerContainer";
+import {STICKER_PACK_MAX_SIZE} from "../constants";
 import {getStageNumber, StickerPackImportStage, StickersMap} from "../types";
 import {getStickerPackImportWorker} from "../../workers";
 import {ZipImportFile, ZipImportResponse} from "../../workers/types";
@@ -15,6 +16,7 @@ import {LocaleStore} from "../../localization";
 interface LoadFilesOptions {
 	zipArchive: File,
 	acceptedFormats: string[],
+	maxSize: number,
 	onLengthReceived?: (length: number) => void,
 	onFileReadStarted?: (fileName: string) => void,
 	onFileReadEnded?: (fileName: string) => void
@@ -115,6 +117,7 @@ export class ImportStickerPackStore {
 		const {files, rootName} = await this.loadFiles({
 			zipArchive: transfer(zipArchive, [arrayBuffer]),
 			acceptedFormats: this.acceptedFormats,
+			maxSize: STICKER_PACK_MAX_SIZE,
 			onLengthReceived: proxy(this.setLength),
 			onFileReadStarted: proxy(this.setCurrentFile),
 			onFileReadEnded: proxy(() => this.increaseProgress())
@@ -157,6 +160,7 @@ export class ImportStickerPackStore {
 			return await stickerPackImportWorker.loadFiles(
 				options.zipArchive,
 				options.acceptedFormats,
+				options.maxSize,
 				options.onLengthReceived,
 				options.onFileReadStarted,
 				options.onFileReadEnded
