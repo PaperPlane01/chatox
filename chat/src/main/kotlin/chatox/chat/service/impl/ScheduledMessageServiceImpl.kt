@@ -40,7 +40,7 @@ class ScheduledMessageServiceImpl(
         private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
         private val chatParticipationRepository: ChatParticipationRepository,
 
-        @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+        @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val chatParticipationCacheWrapper: ReactiveRepositoryCacheWrapper<ChatParticipation, String>,
 

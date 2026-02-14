@@ -28,7 +28,6 @@ import chatox.sticker.repository.StickerPackRepository
 import chatox.sticker.repository.StickerRepository
 import chatox.sticker.repository.UploadRepository
 import chatox.sticker.service.impl.StickerPackServiceImpl
-import com.fasterxml.jackson.core.type.TypeReference
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
@@ -49,6 +48,7 @@ import org.junit.jupiter.params.provider.ValueSource
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
+import tools.jackson.core.type.TypeReference
 import java.util.concurrent.ThreadLocalRandom
 
 @ExtendWith(MockKExtension::class)

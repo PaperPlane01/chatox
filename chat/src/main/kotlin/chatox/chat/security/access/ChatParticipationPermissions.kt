@@ -23,7 +23,7 @@ class ChatParticipationPermissions(private val chatBlockingService: ChatBlocking
                                    private val chatRoleService: ChatRoleService,
                                    private val chatParticipationService: ChatParticipationService,
 
-                                   @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+                                   @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
                                    private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
                                    private val authenticationHolder: ReactiveAuthenticationHolder<User>) {
 

@@ -1,5 +1,5 @@
 {
-  "_id": "681dc90630f0a13c4ae64c18",
+  "id": "681dc90630f0a13c4ae64c18",
   "_class": "chatox.sticker.model.StickerPackInstallation",
   "createdAt": "2025-05-10T09:21:10.428Z",
   "stickerPackId": "681b626af07afc5001616cd0",

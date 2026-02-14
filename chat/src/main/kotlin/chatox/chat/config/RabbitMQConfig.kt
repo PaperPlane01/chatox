@@ -1,33 +1,30 @@
 package chatox.chat.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.core.TopicExchange
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import tools.jackson.databind.json.JsonMapper
 
 @Configuration
 class RabbitMQConfig {
 
-    @Autowired
     @Bean
     fun rabbitTemplate(connectionFactory: ConnectionFactory,
-                       messageConverter: Jackson2JsonMessageConverter): RabbitTemplate {
+                       messageConverter: JacksonJsonMessageConverter): RabbitTemplate {
         val rabbitTemplate = RabbitTemplate(connectionFactory)
         rabbitTemplate.messageConverter = messageConverter
         return rabbitTemplate
     }
 
-    @Autowired
     @Bean
-    fun jackson2JsonMessageConverter(objectMapper: ObjectMapper): Jackson2JsonMessageConverter {
-        return Jackson2JsonMessageConverter(objectMapper)
+    fun jacksonJsonMessageConverter(jsonMapper: JsonMapper): JacksonJsonMessageConverter {
+        return JacksonJsonMessageConverter(jsonMapper)
     }
 
     @Bean

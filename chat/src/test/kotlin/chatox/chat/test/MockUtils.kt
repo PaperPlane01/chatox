@@ -9,7 +9,7 @@ import chatox.chat.service.TextParserService
 import io.mockk.every
 import reactor.core.publisher.Mono
 
-fun mockFindStickerById(stickerId: String?, stickerRepository: StickerRepository, sticker: Sticker<Any>): Sticker<Any>? {
+fun mockFindStickerById(stickerId: String?, stickerRepository: StickerRepository, sticker: Sticker): Sticker? {
     return if (stickerId != null) {
         every { stickerRepository.findById(stickerId) } returns Mono.just(sticker)
         sticker

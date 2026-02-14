@@ -35,3 +35,10 @@ ribbon:
 gateway:
   base:
     url: ${GATEWAY_URL:http://localhost:8080}
+logging:
+  level:
+    org:
+      springframework:
+        security:
+          oauth2:
+            client: debug

@@ -10,15 +10,16 @@ spring:
     mongodb:
       repositories:
         type: reactive
-      database: chatox_sticker_service
-      host: ${MONGODB_HOST:localhost}
-      port: ${MONGODB_PORT:27017}
   rabbitmq:
     listener:
       direct:
         acknowledge-mode: manual
       simple:
         acknowledge-mode: manual
+  mongodb:
+    database: chatox_sticker_service
+    host: ${MONGODB_HOST:localhost}
+    port: ${MONGODB_PORT:27017}
 
 eureka:
   client:
@@ -47,3 +48,8 @@ chatox:
     webp-stickers: ${API_HOST:http://localhost:8080}/api/v1/uploads/stickers/webp
     video-stickers: ${API_HOST:http://localhost:8080}/api/v1/uploads/stickers/video
     lottie-stickers: ${API_HOST:http://localhost:8080}/api/v1/uploads/stickers/lottie
+
+mongration:
+  # disable until Spring Boot 4 support is added https://github.com/KuliginStepan/mongration/issues/26
+  enabled: false
+  mode: reactive

@@ -67,7 +67,7 @@ class MessageServiceImpl(
         private val messageReadService: MessageReadService,
         private val messageCacheService: ReactiveCacheService<Message, String>,
 
-        @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+        @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val chatEventsPublisher: ChatEventsPublisher,
         private val messageMapper: MessageMapper

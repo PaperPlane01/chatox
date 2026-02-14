@@ -33,7 +33,7 @@ class MessageReadServiceImpl(
         private val chatRepository: ChatRepository,
         private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
 
-        @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+        @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val authenticationHolder: ReactiveAuthenticationHolder<User>,
         private val chatEventsPublisher: ChatEventsPublisher) : MessageReadService {

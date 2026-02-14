@@ -36,7 +36,7 @@ class NotificationsSettingsServiceImpl(
         private val userGlobalNotificationsSettingsRepository: UserGlobalNotificationsSettingsRepository,
         private val chatParticipationRepository: ChatParticipationRepository,
 
-        @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+        @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val notificationsSettingsMapper: NotificationsSettingsMapper,
         private val notificationsSettingsEventsPublisher: NotificationsSettingsEventsPublisher,

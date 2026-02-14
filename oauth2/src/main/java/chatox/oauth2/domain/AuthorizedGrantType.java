@@ -24,8 +24,4 @@ public class AuthorizedGrantType {
 
     @Enumerated(EnumType.STRING)
     private GrantType name;
-
-    public AuthorizationGrantType toAuthorizationGrantType() {
-        return name.toAuthorizationGrantType();
-    }
 }

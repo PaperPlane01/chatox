@@ -76,7 +76,7 @@ class CreateMessageServiceImpl(
         private val chatRepository: ChatRepository,
         private val draftMessageRepository: DraftMessageRepository,
 
-        @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+        @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val messageEntityService: MessageEntityService,
         private val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService,

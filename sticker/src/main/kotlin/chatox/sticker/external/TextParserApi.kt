@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono
 
 @Component
 class TextParserApi(
-        @Qualifier(TextParserServiceConfig.TEXT_PARSER_SERVICE_WEB_CLIENT) private val webClient: WebClient.Builder) {
+        @param:Qualifier(TextParserServiceConfig.TEXT_PARSER_SERVICE_WEB_CLIENT) private val webClient: WebClient.Builder) {
     private val log = LoggerFactory.getLogger(TextParserApi::class.java)
 
     private companion object {

@@ -1,5 +1,6 @@
 package chatox.oauth2.security.password;
 
+import chatox.oauth2.domain.GrantType;
 import chatox.oauth2.security.token.TokenGeneratorHelper;
 import chatox.oauth2.service.AccountService;
 import chatox.oauth2.service.ClientService;
@@ -9,7 +10,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken;
 
@@ -30,7 +30,9 @@ public class PasswordGrantAuthenticationProvider implements AuthenticationProvid
             throw new BadCredentialsException("Bad credentials");
         }
 
-        if (!client.getAuthorizationGrantTypes().contains(AuthorizationGrantType.PASSWORD)) {
+        if (client.getAuthorizationGrantTypes().stream()
+                .noneMatch(grantType -> grantType.getValue()
+                        .equals(GrantType.password.name()))) {
             throw new BadCredentialsException("Unsupported grant type");
         }
 

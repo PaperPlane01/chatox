@@ -1,8 +1,7 @@
 package chatox.user.cache
 
-import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.DefaultReactiveRepositoryCacheWrapper
-import chatox.user.api.response.UserResponse
+import chatox.platform.cache.ReactiveCacheService
 import chatox.user.config.RedisConfig
 import chatox.user.domain.User
 import chatox.user.mapper.UserMapper
@@ -17,18 +16,18 @@ import reactor.core.publisher.Mono
 
 @Component
 class UserReactiveRepositoryCacheWrapper(
-        @Autowired
-        @Qualifier(RedisConfig.USER_BY_ID_CACHE)
+        @param:Autowired
+        @param:Qualifier(RedisConfig.USER_BY_ID_CACHE)
         private val userByIdCache: ReactiveCacheService<User, String>,
 
-        @Autowired
-        @Qualifier(RedisConfig.USER_BY_SLUG_CACHE)
+        @param:Autowired
+        @param:Qualifier(RedisConfig.USER_BY_SLUG_CACHE)
         private val userBySlugCache: ReactiveCacheService<User, String>,
 
-        @Autowired
+        @param:Autowired
         private val userRepository: UserRepository,
 
-        @Autowired
+        @param:Autowired
         private val userMapper: UserMapper
 ) : DefaultReactiveRepositoryCacheWrapper<User, String, UserRepository>(userByIdCache, userRepository) {
 

@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono
 
 @Component
 class NotificationsSettingsMapper(
-        @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+        @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String>,
         private val chatParticipationRepository: ChatParticipationRepository,

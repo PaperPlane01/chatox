@@ -1,39 +1,41 @@
 package chatox.platform.util;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.FileCopyUtils;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.EnumFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JsonLoader {
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static JsonMapper jsonMapper = JsonMapper.builder()
+            .findAndAddModules()
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
+            .build();
 
-    static {
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.findAndRegisterModules();
+    public static JsonMapper getJsonMapper() {
+        return jsonMapper;
     }
 
-    public static ObjectMapper getObjectMapper() {
-        return objectMapper;
-    }
-
-    public static void setObjectMapper(ObjectMapper objectMapper) {
-        JsonLoader.objectMapper = objectMapper;
+    public static void setJsonMapper(JsonMapper jsonMapper) {
+        JsonLoader.jsonMapper = jsonMapper;
     }
 
     @SneakyThrows
     public static <T> T loadResource(String fileName, Class<T> targetClass) {
-        return objectMapper.readValue(loadJsonFromResource(fileName), targetClass);
+        return jsonMapper.readValue(loadJsonFromResource(fileName), targetClass);
     }
 
     @SneakyThrows
     public static <T> T loadResource(String fileName, TypeReference<T> typeReference) {
-        return objectMapper.readValue(loadJsonFromResource(fileName), typeReference);
+        return jsonMapper.readValue(loadJsonFromResource(fileName), typeReference);
     }
 
     @SneakyThrows

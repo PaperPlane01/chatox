@@ -82,13 +82,13 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                       private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
                       private val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String>,
 
-                      @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+                      @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
                       private val chatByIdCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
                       
-                      @Qualifier(CacheWrappersConfig.CHAT_BY_SLUG_CACHE_WRAPPER)
+                      @param:Qualifier(CacheWrappersConfig.CHAT_BY_SLUG_CACHE_WRAPPER)
                       private val chatBySlugCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
 
-                      @Qualifier(RedisConfig.CHAT_BY_SLUG_CACHE_SERVICE)
+                      @param:Qualifier(RedisConfig.CHAT_BY_SLUG_CACHE_SERVICE)
                       private val chatBySlugCacheService: ReactiveCacheService<Chat, String>,
                       private val chatMapper: ChatMapper,
                       private val chatParticipationMapper: ChatParticipationMapper,
@@ -308,7 +308,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 chatParticipantsCountService.setHideFromSearch(chat.id, hideFromSearch).awaitFirst()
             }
 
-            if (slug != null && slug != chat.slug && slug != chat.id) {
+            if (slug != chat.slug && slug != chat.id) {
                 chatBySlugCacheService.delete(chat.slug).awaitFirstOrNull()
             }
 
@@ -336,7 +336,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
         }
     }
 
-    private fun getAvatar(updateChatRequest: UpdateChatRequest, chat: Chat): Mono<Upload<ImageUploadMetadata>?> {
+    private fun getAvatar(updateChatRequest: UpdateChatRequest, chat: Chat): Mono<Upload<ImageUploadMetadata>> {
         return mono {
             return@mono when (updateChatRequest.avatarId) {
                 null -> null
@@ -346,7 +346,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                             updateChatRequest.avatarId,
                             UploadType.IMAGE
                     )
-                            .awaitFirstOrNull<Upload<ImageUploadMetadata>?>()
+                            .awaitFirstOrNull<Upload<ImageUploadMetadata>>()
                             ?: throw UploadNotFoundException("Could not find image with id ${updateChatRequest.avatarId}")
                 }
             }
