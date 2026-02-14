@@ -6,13 +6,16 @@ import chatox.oauth2.exception.InvalidAccessTokenException;
 import chatox.oauth2.security.token.TokenGeneratorFactory;
 import chatox.oauth2.security.token.TokenGeneratorHelper;
 import chatox.oauth2.service.AccountService;
+import chatox.oauth2.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +30,7 @@ import java.time.temporal.ChronoUnit;
 public class TokenExchangeController {
     private final JdbcOAuth2AuthorizationService oAuth2AuthorizationService;
     private final AccountService accountService;
+    private final ClientService clientService;
     private final TokenGeneratorHelper tokenGeneratorHelper;
     private final TokenGeneratorFactory tokenGeneratorFactory;
 
@@ -41,7 +45,19 @@ public class TokenExchangeController {
             throw new InvalidAccessTokenException("Access token is either invalid or expired");
         }
 
-        var client = createStubRegisteredClient(accessToken);
+        var client = clientService.findByClientId(accessToken.getRegisteredClientId());
+
+        if (client == null) {
+            throw new BadCredentialsException("Bad credentials");
+        }
+
+        var tokenSettings = TokenSettings.builder()
+                .accessTokenTimeToLive(client.getTokenSettings().getAccessTokenTimeToLive())
+                .accessTokenFormat(OAuth2TokenFormat.SELF_CONTAINED)
+                .build();
+        client = RegisteredClient.from(client)
+                .tokenSettings(tokenSettings)
+                .build();
 
         OAuth2TokenContext context;
 
@@ -66,18 +82,6 @@ public class TokenExchangeController {
         return ExchangeTokenResponse.builder()
                 .jwt(jwt.getTokenValue())
                 .build();
-    }
-
-    private RegisteredClient createStubRegisteredClient(OAuth2Authorization accessToken) {
-        var registeredClient = RegisteredClient
-                .withId(accessToken.getRegisteredClientId())
-                .clientId(accessToken.getRegisteredClientId())
-                .authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
-                .scopes(scope -> scope.addAll(accessToken.getAuthorizedScopes()))
-                .tokenSettings(TokenSettings.builder()
-                .accessTokenTimeToLive(Duration.of(900, ChronoUnit.SECONDS))
-                .build());
-        return registeredClient.build();
     }
 
 }

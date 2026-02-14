@@ -1,5 +1,6 @@
 package chatox.oauth2.api.request;
 
+import chatox.oauth2.domain.GrantType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.util.List;
 public class CreateClientRequest {
     private String name;
     private String secret;
-    private List<String> authorizedGrantTypes;
+    private List<GrantType> authorizedGrantTypes;
     private List<String> scope;
     private String redirectUri;
     private Integer accessTokenValidity;

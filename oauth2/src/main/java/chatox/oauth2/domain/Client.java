@@ -23,6 +23,7 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -96,7 +97,7 @@ public class Client {
                         .map(AuthorizedGrantType::toAuthorizationGrantType)
                         .toList()
                 ))
-                .scopes(scopes -> scopes.addAll(scope.stream().map(Scope::getName).toList()))
+                .scopes(scopes -> scopes.addAll(scope.stream().map(Scope::getName).collect(Collectors.toSet())))
                 .tokenSettings(tokenSettings.build())
                 .build();
     }

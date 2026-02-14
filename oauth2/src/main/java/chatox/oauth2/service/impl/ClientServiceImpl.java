@@ -6,6 +6,7 @@ import chatox.oauth2.api.response.ClientResponse;
 import chatox.oauth2.domain.Account;
 import chatox.oauth2.domain.AuthorizedGrantType;
 import chatox.oauth2.domain.Client;
+import chatox.oauth2.domain.GrantType;
 import chatox.oauth2.domain.Scope;
 import chatox.oauth2.exception.AccountNotFoundException;
 import chatox.oauth2.exception.ClientNotFoundException;
@@ -52,16 +53,24 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public ClientResponse createClient(CreateClientRequest createClientRequest) {
+        return createClient(createClientRequest, false);
+    }
+
+    @Override
+    public ClientResponse createInternalClient(CreateClientRequest createClientRequest) {
+        return createClient(createClientRequest, true);
+    }
+
+    private ClientResponse createClient(CreateClientRequest createClientRequest, boolean internal) {
         var owner = authenticationFacade.getCurrentUserDetails().getAccount();
         var authorizedGrantTypes = createClientRequest.getAuthorizedGrantTypes()
                 .stream()
-                .map(this::findAuthorizedGrantTypeByName)
+                .map(this::findAuthorizedGrantType)
                 .collect(Collectors.toList());
         var scope = createClientRequest.getScope()
                 .stream()
-                .map(this::findScopeByName)
+                .map(name -> findScopeByName(name, !internal))
                 .collect(Collectors.toList());
-
 
         var client = Client.builder()
                 .createdAt(ZonedDateTime.now())
@@ -110,18 +119,18 @@ public class ClientServiceImpl implements ClientService {
                 .orElseThrow(() -> new AccountNotFoundException("Could not find account with id " + id));
     }
 
-    private AuthorizedGrantType findAuthorizedGrantTypeByName(String name) {
-        return authorizedGrantTypeRepository.findByName(name)
-                .orElseThrow(() -> new InvalidAuthorizedGrantTypeException("Chatox does not support " + name + " grant type"));
+    private AuthorizedGrantType findAuthorizedGrantType(GrantType grantType) {
+        return authorizedGrantTypeRepository.findByName(grantType)
+                .orElseThrow(() -> new InvalidAuthorizedGrantTypeException("Chatox does not support " + grantType + " grant type"));
     }
 
-    private Scope findScopeByName(String name) {
+    private Scope findScopeByName(String name, boolean rejectInternal) {
         var scope = scopeRepository.findByName(name);
 
         if (scope.isPresent()) {
             var scopeValue = scope.get();
 
-            if (scopeValue.getName().startsWith("internal")) {
+            if (rejectInternal && scopeValue.getName().startsWith("internal")) {
                 throw new InternalUsesScopeException("Scope " + name + " is used for internal purposes only. External " +
                         "clients are not allowed to use this scope");
             }

@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface ClientService extends RegisteredClientRepository {
     ClientResponse createClient(CreateClientRequest createClientRequest);
+    ClientResponse createInternalClient(CreateClientRequest createClientRequest);
     ClientResponse updateClient(String id, UpdateClientRequest updateClientRequest);
     ClientResponse findClientById(String id);
     List<ClientResponse> findClientsOfCurrentUser();
