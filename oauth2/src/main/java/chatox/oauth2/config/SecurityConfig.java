@@ -15,11 +15,12 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.sql.DataSource;
@@ -38,28 +39,29 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager customAuthenticationManager() {
-        try {
-            return authenticationConfiguration.getAuthenticationManager();
-        } catch (Exception exception) {
-            throw new RuntimeException(exception);
-        }
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public AuthorizationServerSettings authorizationServerSettings() {
+        return AuthorizationServerSettings.builder().build();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            PasswordGrantAuthenticationProvider passwordGrantAuthenticationProvider,
                                            PasswordGrantAuthorizationConverter passwordGrantAuthorizationConverter,
-                                           ChatoxAuthenticationManager chatoxAuthenticationManager) throws Exception {
+                                           ChatoxAuthenticationManager chatoxAuthenticationManager) {
         http
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/**").permitAll())
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/**"))
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                 .oauth2ResourceServer(resourceServer -> {
+                    resourceServer.bearerTokenResolver(new DefaultBearerTokenResolver());
                     resourceServer.authenticationManagerResolver(request -> chatoxAuthenticationManager);
                     resourceServer.configure(http);
                 });
 
-        var authorizationServerConfigurer =
-                new OAuth2AuthorizationServerConfigurer();
+        var authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
         authorizationServerConfigurer.tokenEndpoint(tokenEndpoint -> {
             tokenEndpoint.authenticationProviders(providers -> providers.add(passwordGrantAuthenticationProvider));
             tokenEndpoint.accessTokenRequestConverters(converters -> converters.add(passwordGrantAuthorizationConverter));
@@ -70,7 +72,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Autowired
     public static JdbcOAuth2AuthorizationService oAuth2AuthorizationService(
             JdbcTemplate jdbcTemplate,
             ClientService clientService) {

@@ -38,7 +38,7 @@ class MessageMapper(private val userService: UserService,
                     private val stickerMapper: StickerMapper,
                     private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
 
-                    @Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
+                    @param:Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
                     private val chatRoleCacheWrapper: ReactiveRepositoryCacheWrapper<ChatRole, String>,
                     private val chatParticipationCacheWrapper: ReactiveRepositoryCacheWrapper<ChatParticipation, String>,
                     private val chatRoleMapper: ChatRoleMapper) {

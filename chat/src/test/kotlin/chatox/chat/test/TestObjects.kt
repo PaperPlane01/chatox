@@ -30,7 +30,7 @@ import chatox.chat.model.User
 import chatox.chat.model.UserGlobalNotificationsSettings
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.util.JsonLoader.loadResource
-import com.fasterxml.jackson.core.type.TypeReference
+import tools.jackson.core.type.TypeReference
 
 object TestObjects {
 

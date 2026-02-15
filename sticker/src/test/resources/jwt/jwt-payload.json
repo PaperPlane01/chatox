@@ -12,7 +12,11 @@
   "iat": 1692855935,
   "email": null,
   "authorities": [
-    "ROLE_USER",
-    "ROLE_ADMIN"
+    {
+      "authority": "ROLE_USER"
+    },
+    {
+      "authority": "ROLE_ADMIN"
+    }
   ]
 }

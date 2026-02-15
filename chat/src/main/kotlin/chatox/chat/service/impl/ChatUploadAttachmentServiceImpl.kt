@@ -37,7 +37,7 @@ class ChatUploadAttachmentServiceImpl(
         private val unreadMessagesCountRepository: UnreadMessagesCountRepository,
         private val messageRepository: MessageMongoRepository,
 
-        @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+        @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
         private val chatUploadAttachmentMapper: ChatUploadAttachmentMapper,
         private val authenticationHolder: ReactiveAuthenticationHolder<User>,
@@ -104,7 +104,7 @@ class ChatUploadAttachmentServiceImpl(
                 .flatMapMany { it }
     }
 
-    private fun getUnreadMessagesCount(chatId: String): Mono<UnreadMessagesCount?> {
+    private fun getUnreadMessagesCount(chatId: String): Mono<UnreadMessagesCount> {
         return mono {
             val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull()
 

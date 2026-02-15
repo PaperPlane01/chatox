@@ -43,16 +43,16 @@ class ChatRoleServiceImpl(
         private val chatRoleRepository: ChatRoleRepository,
         private val chatRoleTemplateRepository: ChatRoleTemplateRepository,
 
-        @Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+        @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
         private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
 
-        @Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
+        @param:Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
         private val chatRoleCacheWrapper: ReactiveRepositoryCacheWrapper<ChatRole, String>,
 
-        @Qualifier(RedisConfig.CHAT_ROLE_CACHE_SERVICE)
+        @param:Qualifier(RedisConfig.CHAT_ROLE_CACHE_SERVICE)
         private val chatRoleByIdCacheService: ReactiveCacheService<ChatRole, String>,
 
-        @Qualifier(RedisConfig.DEFAULT_ROLE_OF_CHAT_CACHE_SERVICE)
+        @param:Qualifier(RedisConfig.DEFAULT_ROLE_OF_CHAT_CACHE_SERVICE)
         private val defaultChatRoleCacheService: ReactiveCacheService<ChatRole, String>,
         private val userCacheService: ReactiveRepositoryCacheWrapper<User, String>,
         private val chatRoleMapper: ChatRoleMapper,

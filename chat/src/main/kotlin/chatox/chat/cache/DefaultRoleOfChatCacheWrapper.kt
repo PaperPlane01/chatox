@@ -19,7 +19,7 @@ import java.util.function.Function
 
 @Component(CacheWrappersConfig.DEFAULT_ROLE_OF_CHAT_CACHE_WRAPPER)
 class DefaultRoleOfChatCacheWrapper @Autowired constructor(
-        @Qualifier(RedisConfig.DEFAULT_ROLE_OF_CHAT_CACHE_SERVICE)
+        @param:Qualifier(RedisConfig.DEFAULT_ROLE_OF_CHAT_CACHE_SERVICE)
         private val cacheService: ReactiveCacheService<ChatRole, String>,
         private val chatRoleRepository: ChatRoleRepository
 ) : ReactiveRepositoryCacheWrapper<ChatRole, String> {

@@ -1,5 +1,6 @@
 package chatox.oauth2.security.token;
 
+import chatox.oauth2.domain.GrantType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -64,7 +65,7 @@ public class TokenGeneratorHelper {
                 .refreshToken(refreshToken)
                 .principalName(userDetails.getUsername())
                 .authorizedScopes(registeredClient.getScopes())
-                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
+                .authorizationGrantType(new AuthorizationGrantType(GrantType.password.name()))
                 .build();
     }
 
@@ -92,7 +93,7 @@ public class TokenGeneratorHelper {
                         null,
                         userDetails.getAuthorities()
                 ))
-                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
+                .authorizationGrantType(new AuthorizationGrantType(GrantType.password.name()))
                 .authorizationServerContext(ChatoxAuthorizationServiceContext.INSTANCE)
                 .build();
     }

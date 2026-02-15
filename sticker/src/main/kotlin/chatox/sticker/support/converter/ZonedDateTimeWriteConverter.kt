@@ -5,7 +5,7 @@ import java.time.ZonedDateTime
 import java.util.Date
 
 class ZonedDateTimeWriteConverter : Converter<ZonedDateTime, Date> {
-    override fun convert(zonedDateTime: ZonedDateTime): Date? {
+    override fun convert(zonedDateTime: ZonedDateTime): Date {
         return Date.from(zonedDateTime.toInstant())
     }
 }

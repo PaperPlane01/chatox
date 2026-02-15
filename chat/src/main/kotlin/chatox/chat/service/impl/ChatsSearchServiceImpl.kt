@@ -107,6 +107,7 @@ class ChatsSearchServiceImpl(private val chatElasticsearchRepository: ChatElasti
     private fun getDialogDisplay(chat: Chat) = chatParticipationRepository
             .findByChatId(chat.id)
             .collectList()
+            .filter { it.isNotEmpty() }
             .map { dialogParticipants ->
                 val firstParticipant = dialogParticipants[0]
                 val secondParticipant = if (dialogParticipants.size == 1) {

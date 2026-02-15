@@ -29,5 +29,6 @@ class UploadCustomRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplat
                 .map(::asSticker)
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun asSticker(upload: Upload<*>) = upload as Upload<StickerUploadMetadata>
 }

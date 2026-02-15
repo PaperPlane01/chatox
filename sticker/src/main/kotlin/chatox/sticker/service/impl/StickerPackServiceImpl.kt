@@ -241,6 +241,7 @@ class StickerPackServiceImpl(
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun createStickers(
             createStickerRequests: List<CreateStickerRequest>,
             stickerPackId: String,

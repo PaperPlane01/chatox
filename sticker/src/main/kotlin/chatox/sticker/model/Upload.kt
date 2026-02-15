@@ -18,11 +18,11 @@ data class Upload<MetadataType>(
         val mimeType: String,
         val size: Int,
 
-        @JsonProperty("isPreview")
+        @param:JsonProperty("isPreview")
         val isPreview: Boolean = false,
         val isThumbnail: Boolean,
 
-        @JsonProperty("imagePreview")
+        @param:JsonProperty("imagePreview")
         val imagePreview: Upload<ImageUploadMetadata>?,
 
         @Indexed

@@ -28,7 +28,7 @@ class ChatParticipationMapper(private val userMapper: UserMapper,
                               private val chatParticipationRepository: ChatParticipationRepository,
                               private val userDisplayedNameHelper: UserDisplayedNameHelper,
 
-                              @Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
+                              @param:Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
                               private val chatRoleCacheWrapper: ReactiveRepositoryCacheWrapper<ChatRole, String>) {
 
     private lateinit var chatBlockingService: ChatBlockingService

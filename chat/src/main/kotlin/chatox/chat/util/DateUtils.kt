@@ -12,7 +12,7 @@ fun isDateBeforeOrEquals(dateToCheck: Date, dateToCompareWith: Date): Boolean {
 }
 
 fun isDateBeforeOrEquals(dateToCheck: ZonedDateTime, dateToCompareWith: ZonedDateTime): Boolean {
-    return dateToCheck.isBefore(dateToCompareWith) || dateToCheck === dateToCompareWith;
+    return dateToCheck.isBefore(dateToCompareWith) || dateToCheck == dateToCompareWith;
 }
 
 fun isDateAfterOrEquals(dateToCheck: Date, dateToCompareWith: Date): Boolean {

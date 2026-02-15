@@ -25,7 +25,7 @@ class ChatPermissions(private val chatRoleService: ChatRoleService,
                       private val authenticationHolder: ReactiveAuthenticationHolder<User>,
                       private val userBlacklistItemCacheWrapper: ReactiveRepositoryCacheWrapper<UserBlacklistItem, String>,
 
-                      @Qualifier(CacheWrappersConfig.CHAT_BY_SLUG_CACHE_WRAPPER)
+                      @param:Qualifier(CacheWrappersConfig.CHAT_BY_SLUG_CACHE_WRAPPER)
                       private val chatBySlugCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>) {
     private lateinit var chatService: ChatService
 

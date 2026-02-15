@@ -2,7 +2,7 @@ package chatox.user.util
 
 import reactor.core.publisher.Mono
 
-fun <O, ID> findAndPutToCache(
+fun <O: Any, ID> findAndPutToCache(
         objectProvider: () -> Mono<O>,
         id: ID,
         cache: MutableMap<ID, O>
