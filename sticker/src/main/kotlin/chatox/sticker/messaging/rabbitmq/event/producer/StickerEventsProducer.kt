@@ -10,20 +10,20 @@ import org.springframework.stereotype.Component
 class StickerEventsProducer(private val rabbitTemplate: RabbitTemplate) {
 
     fun stickerPackCreated(stickerPackResponse: StickerPackResponse<*>) = rabbitTemplate.convertAndSend(
-            "sticker.events",
-            "sticker.pack.created.#",
-            stickerPackResponse
+        "sticker.events",
+        "sticker.pack.created.#",
+        stickerPackResponse
     )
 
     fun stickerPackUpdated(stickerPackUpdated: StickerPackUpdated) = rabbitTemplate.convertAndSend(
-            "sticker.events",
-            "sticker.pack.updated.#",
-            stickerPackUpdated
+        "sticker.events",
+        "sticker.pack.updated.#",
+        stickerPackUpdated
     )
 
     fun stickerPackDeleted(stickerPackDeleted: StickerPackDeleted) = rabbitTemplate.convertAndSend(
-            "sticker.events",
-            "sticker.pack.deleted.#",
-            stickerPackDeleted
+        "sticker.events",
+        "sticker.pack.deleted.#",
+        stickerPackDeleted
     )
 }

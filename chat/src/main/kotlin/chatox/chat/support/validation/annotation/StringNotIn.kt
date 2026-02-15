@@ -9,9 +9,9 @@ import kotlin.reflect.KClass
 @Retention(value = AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [StringNotInValidator::class])
 annotation class StringNotIn(
-        val value: Array<String> = [],
-        val message: String = "This value is not allowed",
+    val value: Array<String> = [],
+    val message: String = "This value is not allowed",
 
-        val groups: Array<KClass<*>> = [],
-        val payload: Array<KClass<out Payload>> = []
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = []
 )

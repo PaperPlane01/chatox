@@ -7,19 +7,19 @@ import java.time.ZonedDateTime
 
 @Document
 data class PendingChatParticipation(
-        @Id
-        val id: String,
+    @Id
+    val id: String,
 
-        @Indexed
-        val chatId: String,
+    @Indexed
+    val chatId: String,
 
-        @Indexed
-        val userId: String,
+    @Indexed
+    val userId: String,
 
-        @Indexed
-        val createdAt: ZonedDateTime,
+    @Indexed
+    val createdAt: ZonedDateTime,
 
-        val inviteId: String? = null,
+    val inviteId: String? = null,
 
-        val restoredChatParticipationId: String? = null
+    val restoredChatParticipationId: String? = null
 )

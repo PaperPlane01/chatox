@@ -30,42 +30,46 @@ class UnreadMessagesCountMigrations {
 
             while (true) {
                 val aggregation = Aggregation.newAggregation(
-                        Aggregation.lookup()
-                                .from("chat")
-                                .localField("chatId")
-                                .foreignField("_id")
-                                .pipeline(Aggregation.project( "lastMessageId", "lastMessageCreatedAt"))
-                                .`as`("chat"),
-                        Aggregation.project()
-                                .and("user").`as`("user")
-                                .and(ArrayOperators.ArrayElemAt.arrayOf("chat").elementAt(0)).`as`("chat"),
-                        Aggregation.skip(page * pageSize),
-                        Aggregation.limit(pageSize),
+                    Aggregation.lookup()
+                        .from("chat")
+                        .localField("chatId")
+                        .foreignField("_id")
+                        .pipeline(Aggregation.project("lastMessageId", "lastMessageCreatedAt"))
+                        .`as`("chat"),
+                    Aggregation.project()
+                        .and("user").`as`("user")
+                        .and(ArrayOperators.ArrayElemAt.arrayOf("chat").elementAt(0)).`as`("chat"),
+                    Aggregation.skip(page * pageSize),
+                    Aggregation.limit(pageSize),
                 )
 
                 val result = reactiveMongoTemplate.aggregate(
-                        aggregation,
-                        "chatParticipation",
-                        LastMessageIdAndDateByChatParticipationQueryResult::class.java
+                    aggregation,
+                    "chatParticipation",
+                    LastMessageIdAndDateByChatParticipationQueryResult::class.java
                 )
-                        .collectList()
-                        .awaitFirst()
+                    .collectList()
+                    .awaitFirst()
 
                 val bulkOperations = reactiveMongoTemplate.bulkOps(
-                        BulkOperations.BulkMode.UNORDERED,
-                        UnreadMessagesCount::class.java
+                    BulkOperations.BulkMode.UNORDERED,
+                    UnreadMessagesCount::class.java
                 )
 
-                result.forEach { chatParticipationWithLastMessageData -> bulkOperations.insert(UnreadMessagesCount(
-                        id = ObjectId().toHexString(),
-                        chatParticipationId = chatParticipationWithLastMessageData.id,
-                        chatId = chatParticipationWithLastMessageData.chat.id,
-                        userId = chatParticipationWithLastMessageData.user.id,
-                        unreadMessagesCount = 0,
-                        lastReadMessageId = chatParticipationWithLastMessageData.chat.lastMessageId,
-                        lastReadMessageCreatedAt = chatParticipationWithLastMessageData.chat.lastMessageCreatedAt,
-                        lastMessageReadAt = ZonedDateTime.now()
-                )) }
+                result.forEach { chatParticipationWithLastMessageData ->
+                    bulkOperations.insert(
+                        UnreadMessagesCount(
+                            id = ObjectId().toHexString(),
+                            chatParticipationId = chatParticipationWithLastMessageData.id,
+                            chatId = chatParticipationWithLastMessageData.chat.id,
+                            userId = chatParticipationWithLastMessageData.user.id,
+                            unreadMessagesCount = 0,
+                            lastReadMessageId = chatParticipationWithLastMessageData.chat.lastMessageId,
+                            lastReadMessageCreatedAt = chatParticipationWithLastMessageData.chat.lastMessageCreatedAt,
+                            lastMessageReadAt = ZonedDateTime.now()
+                        )
+                    )
+                }
 
                 bulkOperations.execute().awaitFirst()
 
@@ -81,25 +85,25 @@ class UnreadMessagesCountMigrations {
     }
 
     private data class LastMessageIdAndDateByChatParticipationQueryResult(
-            val _id: String,
-            val user: UserProjection,
-            val chat: ChatProjection
+        val _id: String,
+        val user: UserProjection,
+        val chat: ChatProjection
     ) {
         val id: String
             get() = _id
     }
 
     private data class ChatProjection(
-            val _id: String,
-            val lastMessageId: String?,
-            val lastMessageCreatedAt: ZonedDateTime?
+        val _id: String,
+        val lastMessageId: String?,
+        val lastMessageCreatedAt: ZonedDateTime?
     ) {
         val id: String
             get() = _id
     }
 
     private data class UserProjection(
-            val _id: String
+        val _id: String
     ) {
         val id: String
             get() = _id

@@ -9,10 +9,10 @@ import kotlin.reflect.KClass
 @Retention(value = AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [AllowFieldToBeBlankIfOneOfFieldsIsNotEmptyValidator::class])
 annotation class AllowFieldToBeBlankIfOneOfFieldsIsNotEmpty(
-        val checkedField: String,
-        val otherFields: Array<String>,
-        val message: String = "",
+    val checkedField: String,
+    val otherFields: Array<String>,
+    val message: String = "",
 
-        val groups: Array<KClass<*>> = [],
-        val payload: Array<KClass<out Payload>> = []
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = []
 )

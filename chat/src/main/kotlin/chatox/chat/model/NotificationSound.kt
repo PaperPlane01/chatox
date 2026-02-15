@@ -3,8 +3,8 @@ package chatox.chat.model
 import com.fasterxml.jackson.annotation.JsonProperty
 
 enum class NotificationSound {
-   @JsonProperty("ding")
-   DING,
+    @JsonProperty("ding")
+    DING,
 
     @JsonProperty("happy-pop-1")
     HAPPY_POP_1,

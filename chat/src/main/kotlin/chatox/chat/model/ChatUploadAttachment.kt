@@ -8,28 +8,28 @@ import java.time.ZonedDateTime
 
 @Document
 data class ChatUploadAttachment<UploadMetadataType>(
-        @Id
-        val id: String,
-        val type: UploadType,
+    @Id
+    val id: String,
+    val type: UploadType,
 
-        val upload: Upload<UploadMetadataType>,
+    val upload: Upload<UploadMetadataType>,
 
-        @Indexed
-        val uploadId: String,
+    @Indexed
+    val uploadId: String,
 
-        @Indexed
-        val messageId: String? = null,
+    @Indexed
+    val messageId: String? = null,
 
-        @Indexed
-        val messageType: MessageType = MessageType.REGULAR,
+    @Indexed
+    val messageType: MessageType = MessageType.REGULAR,
 
-        @Indexed
-        val chatId: String? = null,
+    @Indexed
+    val chatId: String? = null,
 
-        @Indexed
-        val uploadCreatorId: String? = null,
+    @Indexed
+    val uploadCreatorId: String? = null,
 
-        @Indexed
-        val uploadSenderId: String? = null,
-        val createdAt: ZonedDateTime
+    @Indexed
+    val uploadSenderId: String? = null,
+    val createdAt: ZonedDateTime
 )

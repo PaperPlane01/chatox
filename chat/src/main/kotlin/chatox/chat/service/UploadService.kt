@@ -7,7 +7,7 @@ import chatox.chat.model.Upload
 import reactor.core.publisher.Mono
 
 interface UploadService {
-    fun <MetadataType>saveUpload(uploadCreated: UploadCreated<MetadataType>): Mono<UploadResponse<MetadataType>>
+    fun <MetadataType> saveUpload(uploadCreated: UploadCreated<MetadataType>): Mono<UploadResponse<MetadataType>>
     fun findUploadEntity(id: String): Mono<Upload<Any>>
     fun deleteUpload(uploadDeleted: UploadDeleted): Mono<Unit>
 }

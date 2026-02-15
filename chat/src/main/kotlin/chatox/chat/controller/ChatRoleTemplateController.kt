@@ -20,7 +20,7 @@ class ChatRoleTemplateController(private val chatRoleTemplateService: ChatRoleTe
 
     @PostMapping
     fun createChatRoleTemplate(
-            @RequestBody @Valid createChatRoleTemplateRequest: CreateChatRoleTemplateRequest
+        @RequestBody @Valid createChatRoleTemplateRequest: CreateChatRoleTemplateRequest
     ) = chatRoleTemplateService.createChatRoleTemplate(createChatRoleTemplateRequest)
 
     @GetMapping
@@ -28,7 +28,7 @@ class ChatRoleTemplateController(private val chatRoleTemplateService: ChatRoleTe
 
     @PutMapping("/{id}")
     fun updateChatRoleTemplate(
-            @PathVariable id: String,
-            @RequestBody @Valid updateChatRoleTemplateRequest: UpdateChatRoleTemplateRequest
+        @PathVariable id: String,
+        @RequestBody @Valid updateChatRoleTemplateRequest: UpdateChatRoleTemplateRequest
     ) = chatRoleTemplateService.updateChatRoleTemplate(id, updateChatRoleTemplateRequest)
 }

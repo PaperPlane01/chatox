@@ -7,20 +7,20 @@ import java.time.ZonedDateTime
 
 @Document(collection = "chatRole")
 data class ChatRole(
-        @Id
-        val id: String,
+    @Id
+    val id: String,
 
-        @Indexed
-        val chatId: String,
-        val name: String,
-        val features: ChatFeatures,
-        val default: Boolean,
-        val level: Int,
+    @Indexed
+    val chatId: String,
+    val name: String,
+    val features: ChatFeatures,
+    val default: Boolean,
+    val level: Int,
 
-        @Indexed
-        val templateId: String? = null,
-        val createdAt: ZonedDateTime,
-        val createdBy: String? = null,
-        val updatedAt: ZonedDateTime? = null,
-        val updatedBy: String? = null
+    @Indexed
+    val templateId: String? = null,
+    val createdAt: ZonedDateTime,
+    val createdBy: String? = null,
+    val updatedAt: ZonedDateTime? = null,
+    val updatedBy: String? = null
 )

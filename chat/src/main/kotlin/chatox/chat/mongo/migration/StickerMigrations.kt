@@ -24,20 +24,20 @@ class StickerMigrations {
             val addUploadField = AggregationUpdate.update().set("upload").toValue("\$image")
 
             reactiveMongoTemplate.updateMulti(
-                    Query(),
-                    addUploadField,
-                    Sticker::class.java
+                Query(),
+                addUploadField,
+                Sticker::class.java
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             val addAnimatedField = Update().set("upload.meta.animated", false)
 
             reactiveMongoTemplate.updateMulti(
-                    Query(),
-                    addAnimatedField,
-                    Sticker::class.java
+                Query(),
+                addAnimatedField,
+                Sticker::class.java
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             log.info("Finished executing migration: create \"upload\" field")
 

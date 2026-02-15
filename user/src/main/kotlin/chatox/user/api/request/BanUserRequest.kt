@@ -11,15 +11,15 @@ import java.time.ZonedDateTime
 @RequireCommentIfGlobalBanReasonIs(reasons = [GlobalBanReason.OTHER])
 @RequireExpirationDateIfBanIsNotPermanent
 data class BanUserRequest(
-        @field:Future
-        val expiresAt: ZonedDateTime?,
+    @field:Future
+    val expiresAt: ZonedDateTime?,
 
-        @field:NotNull
-        @field:JsonProperty("reason")
-        private val _reason: GlobalBanReason?,
-        val permanent: Boolean = false,
-        val comment: String?
+    @field:NotNull
+    @field:JsonProperty("reason")
+    private val _reason: GlobalBanReason?,
+    val permanent: Boolean = false,
+    val comment: String?
 ) {
     val reason: GlobalBanReason
-                get() = _reason!!
+        get() = _reason!!
 }

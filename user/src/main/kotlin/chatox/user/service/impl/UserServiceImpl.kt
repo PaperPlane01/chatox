@@ -31,20 +31,22 @@ import reactor.core.publisher.Mono
 
 @Service
 @Transactional
-class UserServiceImpl(private val userRepository: UserRepository,
-                      private val userSessionRepository: UserSessionRepository,
-                      private val uploadRepository: UploadRepository,
-                      private val userProfilePhotoService: UserProfilePhotoService,
-                      private val userMapper: UserMapper,
-                      private val userEventsProducer: UserEventsProducer,
-                      private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-                      private val userCacheWrapper: UserReactiveRepositoryCacheWrapper) : UserService {
+class UserServiceImpl(
+    private val userRepository: UserRepository,
+    private val userSessionRepository: UserSessionRepository,
+    private val uploadRepository: UploadRepository,
+    private val userProfilePhotoService: UserProfilePhotoService,
+    private val userMapper: UserMapper,
+    private val userEventsProducer: UserEventsProducer,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>,
+    private val userCacheWrapper: UserReactiveRepositoryCacheWrapper
+) : UserService {
 
     override fun deleteUsersByAccount(accountId: String): Flux<Void> {
         return userRepository.findByAccountId(accountId)
-                .map { user -> user.copy(deleted = true) }
-                .map { user -> userRepository.save(user) }
-                .flatMap { Flux.empty<Void>() }
+            .map { user -> user.copy(deleted = true) }
+            .map { user -> userRepository.save(user) }
+            .flatMap { Flux.empty<Void>() }
     }
 
     override fun createUser(createUserRequest: CreateUserRequest): Mono<UserResponse> {
@@ -57,10 +59,10 @@ class UserServiceImpl(private val userRepository: UserRepository,
             }
 
             val userResponse = userMapper.toUserResponse(
-                    user = user,
-                    mapAccountId = true,
-                    mapAccountRegistrationType = true,
-                    mapEmail = true
+                user = user,
+                mapAccountId = true,
+                mapAccountRegistrationType = true,
+                mapEmail = true
             )
             userEventsProducer.userCreated(userResponse)
 
@@ -79,26 +81,27 @@ class UserServiceImpl(private val userRepository: UserRepository,
             var userProfilePhoto: UserProfilePhoto? = null
 
             if (updateUserRequest.avatarId != null
-                    && (user.avatar == null || user.avatar?.id != updateUserRequest.avatarId)) {
+                && (user.avatar == null || user.avatar?.id != updateUserRequest.avatarId)
+            ) {
                 userProfilePhoto = createAvatar(updateUserRequest.avatarId, user).awaitFirst()
                 avatar = userProfilePhoto.upload
             }
 
             user = userMapper.mapUserUpdate(
-                    originalUser = user,
-                    avatar = avatar,
-                    updateUserRequest = updateUserRequest
+                originalUser = user,
+                avatar = avatar,
+                updateUserRequest = updateUserRequest
             )
             user = userRepository.save(user).awaitFirst()
 
             val online = userSessionRepository.countByUserIdAndDisconnectedAtNull(user.id).awaitFirst() != 0L
 
             val userResponse = userMapper.toUserResponse(
-                    user = user,
-                    online = online,
-                    mapEmail = true,
-                    mapAccountRegistrationType = true,
-                    mapAccountId = true
+                user = user,
+                online = online,
+                mapEmail = true,
+                mapAccountRegistrationType = true,
+                mapAccountId = true
             )
             userEventsProducer.userUpdated(userResponse)
 
@@ -109,10 +112,10 @@ class UserServiceImpl(private val userRepository: UserRepository,
     private fun createAvatar(uploadId: String, user: User): Mono<UserProfilePhoto> {
         return mono {
             val avatarUpload = uploadRepository.findByIdAndType<ImageUploadMetadata>(uploadId, UploadType.IMAGE)
-                    .awaitFirstOrNull()
-                    ?: throw UploadNotFoundException(
-                            "Could not find image with $uploadId"
-                    )
+                .awaitFirstOrNull()
+                ?: throw UploadNotFoundException(
+                    "Could not find image with $uploadId"
+                )
 
             return@mono userProfilePhotoService.createUserProfilePhoto(user, avatarUpload).awaitFirst()
         }
@@ -120,12 +123,12 @@ class UserServiceImpl(private val userRepository: UserRepository,
 
     override fun deleteUser(id: String): Mono<Void> {
         return findById(id)
-                .map { user -> user.copy(deleted = true) }
-                .map { user -> userRepository.save(user) }
-                .flatMap {
-                    userEventsProducer.userDeleted(id)
-                    Mono.empty()
-                }
+            .map { user -> user.copy(deleted = true) }
+            .map { user -> userRepository.save(user) }
+            .flatMap {
+                userEventsProducer.userDeleted(id)
+                Mono.empty()
+            }
     }
 
     override fun findUserByIdOrSlug(idOrSlug: String): Mono<UserResponse> {
@@ -134,62 +137,64 @@ class UserServiceImpl(private val userRepository: UserRepository,
             val online = userSessionRepository.countByUserIdAndDisconnectedAtNull(user.id).awaitFirst() != 0L
 
             userMapper.toUserResponse(
-                    user = user,
-                    online = online
+                user = user,
+                online = online
             )
         }
     }
 
     override fun findUsersByAccount(accountId: String): Flux<UserResponse> {
         return userRepository.findByAccountId(accountId)
-                .map { user -> userMapper.toUserResponse(user) }
+            .map { user -> userMapper.toUserResponse(user) }
     }
 
     override fun isSlugAvailable(slug: String): Mono<SlugAvailabilityResponse> {
         return userRepository.findBySlug(slug)
-                .map { SlugAvailabilityResponse(available = false) }
-                .switchIfEmpty(Mono.just(SlugAvailabilityResponse(available = true)))
+            .map { SlugAvailabilityResponse(available = false) }
+            .switchIfEmpty(Mono.just(SlugAvailabilityResponse(available = true)))
     }
 
     override fun updateEmail(accountId: String, email: String): Mono<Void> {
         return mono {
             val users = userRepository
-                    .findByAccountId(accountId)
-                    .map { user -> user.copy(email = email) }
-                    .collectList()
-                    .awaitFirst()
+                .findByAccountId(accountId)
+                .map { user -> user.copy(email = email) }
+                .collectList()
+                .awaitFirst()
             userRepository.saveAll(users).awaitFirst()
 
             Mono.fromRunnable<Void> {
                 users.forEach { user ->
-                    userEventsProducer.userUpdated(userMapper.toUserResponse(
+                    userEventsProducer.userUpdated(
+                        userMapper.toUserResponse(
                             user = user,
                             mapEmail = true
-                    ))
+                        )
+                    )
                 }
             }
-                    .subscribe()
+                .subscribe()
 
             return@mono Mono.empty<Void>()
         }
-                .flatMap { it }
+            .flatMap { it }
     }
 
     override fun assertUserExists(id: String): Mono<Unit> {
         return mono {
-           userCacheWrapper.findById(
-                   id
-           ) { id -> UserNotFoundException("Could not find user with id $id") }
-                   .awaitFirstOrNull()
+            userCacheWrapper.findById(
+                id
+            ) { id -> UserNotFoundException("Could not find user with id $id") }
+                .awaitFirstOrNull()
 
             return@mono
         }
     }
 
     private fun findById(id: String) = userRepository.findById(id)
-            .switchIfEmpty(Mono.error(UserNotFoundException("Could not find user with id $id")))
+        .switchIfEmpty(Mono.error(UserNotFoundException("Could not find user with id $id")))
 
     private fun findByIdOrSlug(idOrSlug: String) = userRepository.findByIdOrSlug(idOrSlug, idOrSlug)
-            .switchIfEmpty(Mono.error(UserNotFoundException("Could not find user with id or slug $idOrSlug")))
+        .switchIfEmpty(Mono.error(UserNotFoundException("Could not find user with id or slug $idOrSlug")))
 
 }

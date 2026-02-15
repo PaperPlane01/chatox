@@ -38,8 +38,8 @@ interface MessageInterface {
                 && createMessageRequest.stickerId == sticker?.id
                 && createMessageRequest.uploadAttachments == attachments.map { upload -> upload.id }
                 && ((emoji
-                        .emoji
-                        .values
-                        .firstOrNull() ?: createMessageRequest.emojisSet) == createMessageRequest.emojisSet)
+            .emoji
+            .values
+            .firstOrNull() ?: createMessageRequest.emojisSet) == createMessageRequest.emojisSet)
     }
 }

@@ -17,42 +17,51 @@ import org.springframework.stereotype.Component
 
 @Component
 class StickerEventsListener(
-        private val stickerRepository: StickerRepository,
-        private val messageService: MessageService) {
+    private val stickerRepository: StickerRepository,
+    private val messageService: MessageService
+) {
 
     @RabbitListener(queues = ["chat_service_sticker_pack_created"])
-    fun onStickerPackCreated(stickerPackCreated: StickerPackCreated<*>,
-                             channel: Channel,
-                             @Header(AmqpHeaders.DELIVERY_TAG) deliveryTag: Long) {
+    fun onStickerPackCreated(
+        stickerPackCreated: StickerPackCreated<*>,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) deliveryTag: Long
+    ) {
         mono {
-            val stickers = stickerPackCreated.stickers.map { sticker -> Sticker(
+            val stickers = stickerPackCreated.stickers.map { sticker ->
+                Sticker(
                     id = sticker.id,
                     upload = sticker.upload.toUpload(),
                     stickerPackId = stickerPackCreated.id,
                     emojis = sticker.emojis,
                     keywords = sticker.keywords
-            ) }
+                )
+            }
 
             stickerRepository.saveAll(stickers).collectList().awaitFirst()
         }
-                .doOnSuccess { channel.basicAck(deliveryTag, false) }
-                .doOnError { channel.basicNack(deliveryTag, false, true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(deliveryTag, false) }
+            .doOnError { channel.basicNack(deliveryTag, false, true) }
+            .subscribe()
     }
 
     @RabbitListener(queues = ["chat_service_sticker_pack_updated"])
-    fun onStickerPackUpdated(stickerPackUpdated: StickerPackUpdated,
-                             channel: Channel,
-                             @Header(AmqpHeaders.DELIVERY_TAG) deliveryTag: Long) {
+    fun onStickerPackUpdated(
+        stickerPackUpdated: StickerPackUpdated,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) deliveryTag: Long
+    ) {
         mono {
             if (stickerPackUpdated.newStickers.isNotEmpty()) {
-                val newStickers = stickerPackUpdated.newStickers.map { sticker -> Sticker(
+                val newStickers = stickerPackUpdated.newStickers.map { sticker ->
+                    Sticker(
                         id = sticker.id,
                         upload = sticker.upload.toUpload(),
                         stickerPackId = stickerPackUpdated.stickerPack.id,
                         emojis = sticker.emojis,
                         keywords = sticker.keywords
-                ) }
+                    )
+                }
                 stickerRepository.saveAll(newStickers).collectList().awaitFirst()
             }
 
@@ -61,15 +70,17 @@ class StickerEventsListener(
                 stickerRepository.deleteAllById(deletedStickers).awaitFirstOrNull()
             }
         }
-                .doOnSuccess { channel.basicAck(deliveryTag, false) }
-                .doOnError { channel.basicNack(deliveryTag, false, true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(deliveryTag, false) }
+            .doOnError { channel.basicNack(deliveryTag, false, true) }
+            .subscribe()
     }
 
     @RabbitListener(queues = ["chat_service_sticker_pack_deleted"])
-    fun onStickerPackDeleted(stickerPackDeleted: StickerPackDeleted,
-                             channel: Channel,
-                             @Header(AmqpHeaders.DELIVERY_TAG) deliveryTag: Long) {
+    fun onStickerPackDeleted(
+        stickerPackDeleted: StickerPackDeleted,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) deliveryTag: Long
+    ) {
         mono {
             stickerRepository.deleteAllByStickerPackId(stickerPackDeleted.id).awaitFirstOrNull()
 
@@ -77,8 +88,8 @@ class StickerEventsListener(
                 messageService.deleteMessagesWithStickersFromStickerPack(stickerPackDeleted.id).subscribe()
             }
         }
-                .doOnSuccess { channel.basicAck(deliveryTag, false) }
-                .doOnError { channel.basicNack(deliveryTag, false, true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(deliveryTag, false) }
+            .doOnError { channel.basicNack(deliveryTag, false, true) }
+            .subscribe()
     }
 }

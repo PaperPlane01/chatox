@@ -85,7 +85,7 @@ class ChatServiceTests {
     val draftMessageRepository: DraftMessageRepository = mockk()
     val uploadRepository: UploadRepository = mockk()
     val chatMessagesCounterRepository: ChatMessagesCounterRepository = mockk()
-    val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>  = mockk()
+    val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String> = mockk()
     val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String> = mockk()
     val chatByIdCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String> = mockk()
     val chatBySlugCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String> = mockk()
@@ -113,26 +113,26 @@ class ChatServiceTests {
     @BeforeEach
     fun setUp() {
         chatService = ChatServiceImpl(
-                chatRepository,
-                chatParticipationRepository,
-                pendingChatParticipationRepository,
-                uploadRepository,
-                chatMessagesCounterRepository,
-                draftMessageRepository,
-                messageCacheWrapper,
-                userCacheWrapper,
-                chatByIdCacheWrapper,
-                chatBySlugCacheWrapper,
-                chatBySlugCacheService,
-                chatMapper,
-                chatParticipationMapper,
-                messageMapper,
-                authenticationHolder,
-                chatEventsPublisher,
-                createMessageService,
-                chatRoleService,
-                chatParticipantsCountService,
-                messageReadService
+            chatRepository,
+            chatParticipationRepository,
+            pendingChatParticipationRepository,
+            uploadRepository,
+            chatMessagesCounterRepository,
+            draftMessageRepository,
+            messageCacheWrapper,
+            userCacheWrapper,
+            chatByIdCacheWrapper,
+            chatBySlugCacheWrapper,
+            chatBySlugCacheService,
+            chatMapper,
+            chatParticipationMapper,
+            messageMapper,
+            authenticationHolder,
+            chatEventsPublisher,
+            createMessageService,
+            chatRoleService,
+            chatParticipantsCountService,
+            messageReadService
         )
     }
 
@@ -150,7 +150,9 @@ class ChatServiceTests {
         @DisplayName("It creates chat")
         fun `It creates chat`(requestFile: String) {
             val messagesCounterSlot = slot<ChatMessagesCounter>()
-            every { chatMessagesCounterRepository.save(capture(messagesCounterSlot)) } returns Mono.just(chatMessagesCounter)
+            every { chatMessagesCounterRepository.save(capture(messagesCounterSlot)) } returns Mono.just(
+                chatMessagesCounter
+            )
 
             val createdChatSlot = slot<Chat>()
             every { chatRepository.save(capture(createdChatSlot)) } returns Mono.just(chat)
@@ -160,29 +162,33 @@ class ChatServiceTests {
             every {
                 messageReadService.initializeUnreadMessagesCount(any())
             } returns Mono.just(uncreadMessagesCount)
-            every { chatParticipationMapper.toChatParticipationResponse(
+            every {
+                chatParticipationMapper.toChatParticipationResponse(
                     chatParticipation = any(),
                     chatRole = any()
-            ) } returns Mono.just(chatParticipationResponse)
+                )
+            } returns Mono.just(chatParticipationResponse)
             every { chatEventsPublisher.userJoinedChat(any()) } just Runs
-            every { chatParticipantsCountService.initializeForChat(
+            every {
+                chatParticipantsCountService.initializeForChat(
                     any(),
                     any(),
                     any()
-            ) } returns Mono.just(chatParticipantsCount)
+                )
+            } returns Mono.just(chatParticipantsCount)
 
             val mappedChatSlot = slot<Chat>()
             val mappedChatParticipationSlot = slot<ChatParticipation>()
             every {
                 chatMapper.toChatOfCurrentUserResponse(
-                        chat = capture(mappedChatSlot),
-                        chatParticipation = capture(mappedChatParticipationSlot),
-                        unreadMessagesCount = eq(0),
-                        unreadMentionsCount = eq(0),
-                        lastMessage = any() as Message?,
-                        lastReadMessage = any() as Message?,
-                        draftMessage = any() as DraftMessage?,
-                        chatParticipantsCount = eq(chatParticipantsCount)
+                    chat = capture(mappedChatSlot),
+                    chatParticipation = capture(mappedChatParticipationSlot),
+                    unreadMessagesCount = eq(0),
+                    unreadMentionsCount = eq(0),
+                    lastMessage = any() as Message?,
+                    lastReadMessage = any() as Message?,
+                    draftMessage = any() as DraftMessage?,
+                    chatParticipantsCount = eq(chatParticipantsCount)
                 )
             } returns Mono.just(chatOfCurrenUser)
 
@@ -190,22 +196,23 @@ class ChatServiceTests {
             val expectedResponse = chatOfCurrenUser
 
             StepVerifier
-                    .create(chatService.createChat(request))
-                    .assertNext { chatResponse ->
-                        assertEquals(expectedResponse, chatResponse)
+                .create(chatService.createChat(request))
+                .assertNext { chatResponse ->
+                    assertEquals(expectedResponse, chatResponse)
 
-                        val capturedCreatedChat = createdChatSlot.captured
+                    val capturedCreatedChat = createdChatSlot.captured
 
-                        assertEquals(request.name, capturedCreatedChat.name)
-                        assertEquals(request.slug ?: capturedCreatedChat.id, capturedCreatedChat.slug)
-                        assertEquals(request.description, capturedCreatedChat.description)
+                    assertEquals(request.name, capturedCreatedChat.name)
+                    assertEquals(request.slug ?: capturedCreatedChat.id, capturedCreatedChat.slug)
+                    assertEquals(request.description, capturedCreatedChat.description)
 
-                        verify(exactly = 1) { chatMessagesCounterRepository.save(any()) }
-                        assertEquals(capturedCreatedChat.id, messagesCounterSlot.captured.chatId)
+                    verify(exactly = 1) { chatMessagesCounterRepository.save(any()) }
+                    assertEquals(capturedCreatedChat.id, messagesCounterSlot.captured.chatId)
 
-                        verify(exactly = 1) { chatRoleService.createRolesForChat(eq(capturedCreatedChat)) }
+                    verify(exactly = 1) { chatRoleService.createRolesForChat(eq(capturedCreatedChat)) }
 
-                        verify(exactly = 1) { chatParticipationRepository.save(match { savedChatParticipation ->
+                    verify(exactly = 1) {
+                        chatParticipationRepository.save(match { savedChatParticipation ->
                             assertEquals(capturedCreatedChat.id, savedChatParticipation.chatId)
                             assertEquals(user, savedChatParticipation.user)
                             assertEquals(user.displayedName, savedChatParticipation.userDisplayedName)
@@ -216,31 +223,34 @@ class ChatServiceTests {
                             assertEquals(ownerRole, savedChatParticipation.role)
 
                             return@match true
-                        }) }
-
-                        verify(exactly = 1) { chatParticipantsCountService.initializeForChat(
-                                match { chatId ->
-                                    assertEquals(capturedCreatedChat.id, chatId)
-                                    return@match true
-                                },
-                                match { participantsCount ->
-                                    assertEquals(1, participantsCount)
-                                    return@match true
-                                },
-                                match { onlineParticipantsCount ->
-                                    val expectedOnlineParticipantsCount = if (user.online ?: false) {
-                                        1
-                                    } else {
-                                        0
-                                    }
-                                    assertEquals(expectedOnlineParticipantsCount, onlineParticipantsCount)
-                                    return@match true
-                                }
-                        ) }
-
-                        assertEquals(capturedCreatedChat, mappedChatSlot.captured)
+                        })
                     }
-                    .verifyComplete()
+
+                    verify(exactly = 1) {
+                        chatParticipantsCountService.initializeForChat(
+                            match { chatId ->
+                                assertEquals(capturedCreatedChat.id, chatId)
+                                return@match true
+                            },
+                            match { participantsCount ->
+                                assertEquals(1, participantsCount)
+                                return@match true
+                            },
+                            match { onlineParticipantsCount ->
+                                val expectedOnlineParticipantsCount = if (user.online ?: false) {
+                                    1
+                                } else {
+                                    0
+                                }
+                                assertEquals(expectedOnlineParticipantsCount, onlineParticipantsCount)
+                                return@match true
+                            }
+                        )
+                    }
+
+                    assertEquals(capturedCreatedChat, mappedChatSlot.captured)
+                }
+                .verifyComplete()
         }
     }
 
@@ -248,10 +258,10 @@ class ChatServiceTests {
     @Nested
     inner class CreatePrivateChatTests {
         private val otherUser = user.copy(
-                id = UUID.randomUUID().toString(),
-                slug = "otherUserSlug",
-                firstName = "Other user first name",
-                lastName = "Other user last name"
+            id = UUID.randomUUID().toString(),
+            slug = "otherUserSlug",
+            firstName = "Other user first name",
+            lastName = "Other user last name"
         )
         private val dialogParticipant = TestObjects.dialogParticipant()
         private val chatRole = TestObjects.chatRole()
@@ -261,8 +271,8 @@ class ChatServiceTests {
         @Test
         fun `It creates private chat`() {
             val request = loadResource(
-                    "requests/create-private-chat-request.json",
-                    CreatePrivateChatRequest::class.java
+                "requests/create-private-chat-request.json",
+                CreatePrivateChatRequest::class.java
             ).copy(_userId = otherUser.id)
 
             every { userCacheWrapper.findById(otherUser.id) } returns Mono.just(otherUser)
@@ -271,11 +281,13 @@ class ChatServiceTests {
             every { chatRoleService.createUserRoleForChat(any()) } returns Mono.just(chatRole)
 
             val messageChatParticipationSlot = slot<ChatParticipation>()
-            every { createMessageService.createFirstMessageForPrivateChat(
+            every {
+                createMessageService.createFirstMessageForPrivateChat(
                     any(),
                     eq(request.message),
                     capture(messageChatParticipationSlot)
-            ) } returns Mono.just(message)
+                )
+            } returns Mono.just(message)
             every { messageMapper.toMessageResponse(message, any(), any()) } returns Mono.just(messageResponse)
 
             val chatParticipationsSlot = slot<List<ChatParticipation>>()
@@ -285,17 +297,20 @@ class ChatServiceTests {
 
             every {
                 messageReadService.initializeUnreadMessagesCount(
-                        chatParticipation = any(),
-                        lastMessage = any()
+                    chatParticipation = any(),
+                    lastMessage = any()
                 )
             } returns Mono.just(uncreadMessagesCount)
 
             val chatSlot = slot<Chat>()
             every { chatRepository.save(capture(chatSlot)) } returns Mono.just(chat)
             every { chatParticipationMapper.toDialogParticipant(any()) } returns dialogParticipant
-            every { chatParticipationMapper.toChatParticipationResponse(any()) } returns Mono.just(chatParticipationResponse)
+            every { chatParticipationMapper.toChatParticipationResponse(any()) } returns Mono.just(
+                chatParticipationResponse
+            )
             every { chatEventsPublisher.privateChatCreated(any()) } just Runs
-            every { chatMapper.toChatOfCurrentUserResponse(
+            every {
+                chatMapper.toChatOfCurrentUserResponse(
                     chat = any<Chat>(),
                     chatParticipation = any<ChatParticipation>(),
                     lastMessage = any<MessageResponse>(),
@@ -304,77 +319,79 @@ class ChatServiceTests {
                     unreadMessagesCount = eq(0),
                     unreadMentionsCount = eq(0),
                     user = any<User>()
-            ) } returns Mono.just(chatOfCurrenUser)
+                )
+            } returns Mono.just(chatOfCurrenUser)
 
             val expectedResponse = chatOfCurrenUser
 
             StepVerifier
-                    .create(chatService.createPrivateChat(request))
-                    .assertNext { response ->
-                        assertEquals(expectedResponse, response)
+                .create(chatService.createPrivateChat(request))
+                .assertNext { response ->
+                    assertEquals(expectedResponse, response)
 
-                        verify(exactly = 1) {
-                            chatRepository.save(match { savedChat ->
-                                assertEquals(
-                                        "dialog-${user.id}-${otherUser.id}",
-                                        savedChat.name
-                                )
-                                assertEquals(ChatType.DIALOG, savedChat.type)
-                                assertEquals(message.id, savedChat.lastMessageId)
-                                assertEquals(message.createdAt, savedChat.lastMessageDate)
+                    verify(exactly = 1) {
+                        chatRepository.save(match { savedChat ->
+                            assertEquals(
+                                "dialog-${user.id}-${otherUser.id}",
+                                savedChat.name
+                            )
+                            assertEquals(ChatType.DIALOG, savedChat.type)
+                            assertEquals(message.id, savedChat.lastMessageId)
+                            assertEquals(message.createdAt, savedChat.lastMessageDate)
 
-                                val currentUserDialogDisplay = savedChat.dialogDisplay[0]
-                                assertEquals(user.id, currentUserDialogDisplay.userId)
+                            val currentUserDialogDisplay = savedChat.dialogDisplay[0]
+                            assertEquals(user.id, currentUserDialogDisplay.userId)
 
-                                val otherUserDialogDisplay = savedChat.dialogDisplay[1]
-                                assertEquals(otherUser.id, otherUserDialogDisplay.userId)
+                            val otherUserDialogDisplay = savedChat.dialogDisplay[1]
+                            assertEquals(otherUser.id, otherUserDialogDisplay.userId)
 
-                                return@match true
-                            })
-                        }
-
-                        verify(exactly = 1) { chatParticipationRepository.saveAll(any<List<ChatParticipation>>()) }
-
-                        verify(exactly = 1) {
-                            chatMessagesCounterRepository.save(match { savedMessagesCounter ->
-                                assertEquals(chatSlot.captured.id, savedMessagesCounter.chatId)
-                                assertEquals(1, savedMessagesCounter.messagesCount)
-
-                                return@match true
-                        }) }
-
-                        verify(exactly = 0) { chatParticipantsCountService.initializeForChat(any(), any(), any()) }
-
-                        val capturedChatParticipations = chatParticipationsSlot.captured
-                        assertEquals(2, capturedChatParticipations.size)
-
-                        val currentUserChatParticipation = capturedChatParticipations[0]
-                        assertEquals(user, currentUserChatParticipation.user)
-                        assertEquals(user.displayedName, currentUserChatParticipation.userDisplayedName)
-                        assertEquals(user.slug, currentUserChatParticipation.userSlug)
-                        assertEquals(chatRole, currentUserChatParticipation.role)
-                        assertEquals(chatRole.id, currentUserChatParticipation.roleId)
-
-                        val otherUserChatParticipation = capturedChatParticipations[1]
-                        assertEquals(otherUser, otherUserChatParticipation.user)
-                        assertEquals(otherUser.displayedName, otherUserChatParticipation.userDisplayedName)
-                        assertEquals(otherUser.slug, otherUserChatParticipation.userSlug)
-                        assertEquals(chatRole, otherUserChatParticipation.role)
-                        assertEquals(chatRole.id, otherUserChatParticipation.roleId)
-
-                        verifySequence {
-                            messageReadService.initializeUnreadMessagesCount(currentUserChatParticipation, message)
-                            messageReadService.initializeUnreadMessagesCount(otherUserChatParticipation, message)
-                        }
-
-                        verifySequence {
-                            chatParticipationMapper.toDialogParticipant(eq(otherUserChatParticipation))
-                            chatParticipationMapper.toDialogParticipant(eq(currentUserChatParticipation))
-                            chatParticipationMapper.toChatParticipationResponse(eq(currentUserChatParticipation))
-                            chatParticipationMapper.toChatParticipationResponse(eq(otherUserChatParticipation))
-                        }
+                            return@match true
+                        })
                     }
-                    .verifyComplete()
+
+                    verify(exactly = 1) { chatParticipationRepository.saveAll(any<List<ChatParticipation>>()) }
+
+                    verify(exactly = 1) {
+                        chatMessagesCounterRepository.save(match { savedMessagesCounter ->
+                            assertEquals(chatSlot.captured.id, savedMessagesCounter.chatId)
+                            assertEquals(1, savedMessagesCounter.messagesCount)
+
+                            return@match true
+                        })
+                    }
+
+                    verify(exactly = 0) { chatParticipantsCountService.initializeForChat(any(), any(), any()) }
+
+                    val capturedChatParticipations = chatParticipationsSlot.captured
+                    assertEquals(2, capturedChatParticipations.size)
+
+                    val currentUserChatParticipation = capturedChatParticipations[0]
+                    assertEquals(user, currentUserChatParticipation.user)
+                    assertEquals(user.displayedName, currentUserChatParticipation.userDisplayedName)
+                    assertEquals(user.slug, currentUserChatParticipation.userSlug)
+                    assertEquals(chatRole, currentUserChatParticipation.role)
+                    assertEquals(chatRole.id, currentUserChatParticipation.roleId)
+
+                    val otherUserChatParticipation = capturedChatParticipations[1]
+                    assertEquals(otherUser, otherUserChatParticipation.user)
+                    assertEquals(otherUser.displayedName, otherUserChatParticipation.userDisplayedName)
+                    assertEquals(otherUser.slug, otherUserChatParticipation.userSlug)
+                    assertEquals(chatRole, otherUserChatParticipation.role)
+                    assertEquals(chatRole.id, otherUserChatParticipation.roleId)
+
+                    verifySequence {
+                        messageReadService.initializeUnreadMessagesCount(currentUserChatParticipation, message)
+                        messageReadService.initializeUnreadMessagesCount(otherUserChatParticipation, message)
+                    }
+
+                    verifySequence {
+                        chatParticipationMapper.toDialogParticipant(eq(otherUserChatParticipation))
+                        chatParticipationMapper.toDialogParticipant(eq(currentUserChatParticipation))
+                        chatParticipationMapper.toChatParticipationResponse(eq(currentUserChatParticipation))
+                        chatParticipationMapper.toChatParticipationResponse(eq(otherUserChatParticipation))
+                    }
+                }
+                .verifyComplete()
         }
 
         @Test
@@ -382,13 +399,13 @@ class ChatServiceTests {
             every { userCacheWrapper.findById(any()) } returns Mono.empty()
 
             val request = loadResource(
-                    "requests/create-private-chat-request.json",
-                    CreatePrivateChatRequest::class.java
+                "requests/create-private-chat-request.json",
+                CreatePrivateChatRequest::class.java
             )
 
             StepVerifier
-                    .create(chatService.createPrivateChat(request))
-                    .verifyError(UserNotFoundException::class.java)
+                .create(chatService.createPrivateChat(request))
+                .verifyError(UserNotFoundException::class.java)
         }
     }
 
@@ -424,9 +441,11 @@ class ChatServiceTests {
             val slugChanged = request.slug != null && request.slug != chat.slug && request.slug != chat.id
 
             if (slugChanged) {
-                every { chatRepository.existsBySlugOrId(
+                every {
+                    chatRepository.existsBySlugOrId(
                         eq(request.slug), eq(request.slug)
-                ) } returns Mono.just(false)
+                    )
+                } returns Mono.just(false)
                 every { chatBySlugCacheService.delete(eq(chat.slug)) } returns Mono.empty()
             }
 
@@ -443,8 +462,8 @@ class ChatServiceTests {
             if (hideFromSearchChanged) {
                 every {
                     chatParticipantsCountService.setHideFromSearch(
-                            eq(chat.id),
-                            eq(request.hideFromSearch ?: false)
+                        eq(chat.id),
+                        eq(request.hideFromSearch ?: false)
                     )
                 } returns Mono.just(chatParticipantsCount)
             }
@@ -455,59 +474,61 @@ class ChatServiceTests {
             every {
                 chatParticipantsCountService.getChatParticipantsCount(eq(chat.id))
             } returns Mono.just(chatParticipantsCount)
-            every { chatMapper.toChatResponse(
+            every {
+                chatMapper.toChatResponse(
                     chat = any<Chat>(),
                     chatParticipantsCount = eq(chatParticipantsCount)
-            ) } returns chatResponse
+                )
+            } returns chatResponse
             every { chatMapper.toChatUpdated(any()) } returns chatUpdated
             every { chatEventsPublisher.chatUpdated(any()) } just Runs
 
             val expectedResponse = chatResponse
 
             StepVerifier
-                    .create(chatService.updateChat(chatId, request))
-                    .assertNext { chatResponse ->
-                        assertEquals(expectedResponse, chatResponse)
+                .create(chatService.updateChat(chatId, request))
+                .assertNext { chatResponse ->
+                    assertEquals(expectedResponse, chatResponse)
 
-                        verify(exactly = 1) { chatRepository.save(any()) }
+                    verify(exactly = 1) { chatRepository.save(any()) }
 
-                        val savedChat = chatSlot.captured
+                    val savedChat = chatSlot.captured
 
-                        assertEquals(request.name, savedChat.name)
-                        assertEquals(request.description, savedChat.description)
+                    assertEquals(request.name, savedChat.name)
+                    assertEquals(request.description, savedChat.description)
 
-                        val expectedTags = request.tags ?: listOf()
-                        assertEquals(expectedTags, savedChat.tags)
+                    val expectedTags = request.tags ?: listOf()
+                    assertEquals(expectedTags, savedChat.tags)
 
-                        val expectedSlug = if (request.slug != null) {
-                            request.slug
-                        } else {
-                            savedChat.id
-                        }
-                        assertEquals(expectedSlug, savedChat.slug)
-
-                        val expectedAvatarId = if (request.avatarId != null) {
-                            if (options.ensureSameAvatar) chat.avatar?.id else upload.id
-                        } else null
-                        assertEquals(expectedAvatarId, savedChat.avatar?.id)
-
-                        val expectedJoinAllowanceSettings = request.joinAllowanceSettings ?: mapOf()
-                        assertEquals(expectedJoinAllowanceSettings, savedChat.joinAllowanceSettings)
-
-                        val expectedHideFromSearch = request.hideFromSearch ?: false
-                        assertEquals(expectedHideFromSearch, savedChat.hideFromSearch)
-
-                        verify(exactly = 1) { chatEventsPublisher.chatUpdated(any()) }
-
-                        verifySequence {
-                            chatMapper.toChatUpdated(eq(savedChat))
-                            chatMapper.toChatResponse(
-                                    chat = eq(savedChat),
-                                    chatParticipantsCount = eq(chatParticipantsCount)
-                            )
-                        }
+                    val expectedSlug = if (request.slug != null) {
+                        request.slug
+                    } else {
+                        savedChat.id
                     }
-                    .verifyComplete()
+                    assertEquals(expectedSlug, savedChat.slug)
+
+                    val expectedAvatarId = if (request.avatarId != null) {
+                        if (options.ensureSameAvatar) chat.avatar?.id else upload.id
+                    } else null
+                    assertEquals(expectedAvatarId, savedChat.avatar?.id)
+
+                    val expectedJoinAllowanceSettings = request.joinAllowanceSettings ?: mapOf()
+                    assertEquals(expectedJoinAllowanceSettings, savedChat.joinAllowanceSettings)
+
+                    val expectedHideFromSearch = request.hideFromSearch ?: false
+                    assertEquals(expectedHideFromSearch, savedChat.hideFromSearch)
+
+                    verify(exactly = 1) { chatEventsPublisher.chatUpdated(any()) }
+
+                    verifySequence {
+                        chatMapper.toChatUpdated(eq(savedChat))
+                        chatMapper.toChatResponse(
+                            chat = eq(savedChat),
+                            chatParticipantsCount = eq(chatParticipantsCount)
+                        )
+                    }
+                }
+                .verifyComplete()
         }
 
         @Test
@@ -517,41 +538,43 @@ class ChatServiceTests {
             every { chatByIdCacheWrapper.findById(eq(chatId)) } returns Mono.empty()
 
             val request = loadResource(
-                    "requests/update-chat-request.json",
-                    UpdateChatRequest::class.java
+                "requests/update-chat-request.json",
+                UpdateChatRequest::class.java
             )
 
             StepVerifier
-                    .create(chatService.updateChat(chatId, request))
-                    .expectError(ChatNotFoundException::class.java)
-                    .verify()
+                .create(chatService.updateChat(chatId, request))
+                .expectError(ChatNotFoundException::class.java)
+                .verify()
         }
 
         @Test
         fun `It throws exception if chat is deleted`() {
             val chatId = "chatId"
 
-            every { chatByIdCacheWrapper.findById(chatId) } returns Mono.just(chat.copy(
+            every { chatByIdCacheWrapper.findById(chatId) } returns Mono.just(
+                chat.copy(
                     deleted = true
-            ))
+                )
+            )
 
             val request = loadResource(
-                    "requests/update-chat-request.json",
-                    UpdateChatRequest::class.java
+                "requests/update-chat-request.json",
+                UpdateChatRequest::class.java
             )
 
             StepVerifier
-                    .create(chatService.updateChat(chatId, request))
-                    .expectError(ChatDeletedException::class.java)
-                    .verify()
+                .create(chatService.updateChat(chatId, request))
+                .expectError(ChatDeletedException::class.java)
+                .verify()
         }
 
         @Test
         fun `It throws exception if slug already taken`() {
             val chatId = "chatId"
             val request = loadResource(
-                    "requests/update-chat-request-full.json",
-                    UpdateChatRequest::class.java
+                "requests/update-chat-request-full.json",
+                UpdateChatRequest::class.java
             )
 
             every { chatByIdCacheWrapper.findById(eq(chatId)) } returns Mono.just(chat)
@@ -560,17 +583,17 @@ class ChatServiceTests {
             } returns Mono.just(true)
 
             StepVerifier
-                    .create(chatService.updateChat(chatId, request))
-                    .expectError(SlugIsAlreadyInUseException::class.java)
-                    .verify()
+                .create(chatService.updateChat(chatId, request))
+                .expectError(SlugIsAlreadyInUseException::class.java)
+                .verify()
         }
 
         @Test
         fun `It throws exception if avatar is not found`() {
             val chatId = "chatId"
             val request = loadResource(
-                    "requests/update-chat-request-full.json",
-                    UpdateChatRequest::class.java
+                "requests/update-chat-request-full.json",
+                UpdateChatRequest::class.java
             )
 
             every { chatByIdCacheWrapper.findById(eq(chatId)) } returns Mono.just(chat)
@@ -582,16 +605,16 @@ class ChatServiceTests {
             } returns Mono.empty()
 
             StepVerifier
-                    .create(chatService.updateChat(chatId, request))
-                    .expectError(UploadNotFoundException::class.java)
-                    .verify()
+                .create(chatService.updateChat(chatId, request))
+                .expectError(UploadNotFoundException::class.java)
+                .verify()
         }
     }
 
     data class UpdateChatTestOptions(
-            val ensureSameAvatar: Boolean = false,
-            val ensureSameSlug: Boolean = false,
-            val ensureSameHideFromSearch: Boolean = false
+        val ensureSameAvatar: Boolean = false,
+        val ensureSameSlug: Boolean = false,
+        val ensureSameHideFromSearch: Boolean = false
     )
 
     @DisplayName("deleteChat() tests")
@@ -602,8 +625,8 @@ class ChatServiceTests {
         fun `It marks chat as deleted`() {
             val chatId = "chatId"
             val jwtPayload = loadResource(
-                    "jwt/jwt-payload.json",
-                    JwtPayload::class.java
+                "jwt/jwt-payload.json",
+                JwtPayload::class.java
             )
             jwtPayload.id = chat.createdById
 
@@ -612,37 +635,43 @@ class ChatServiceTests {
 
             val savedChatSlot = slot<Chat>()
             every { chatRepository.save(capture(savedChatSlot)) } returns Mono.just(chat)
-            every { chatParticipationRepository.updateChatDeleted(
+            every {
+                chatParticipationRepository.updateChatDeleted(
                     eq(chatId),
                     eq(true)
-            ) } returns Mono.just(UpdateResult.acknowledged(
+                )
+            } returns Mono.just(
+                UpdateResult.acknowledged(
                     1,
                     1,
                     BsonString("")
-            ))
+                )
+            )
             every { chatEventsPublisher.chatDeleted(any()) } just Runs
 
             StepVerifier
-                    .create(chatService.deleteChat(chatId, null))
-                    .assertNext {
-                        verify(exactly = 1) { chatRepository.save(any()) }
+                .create(chatService.deleteChat(chatId, null))
+                .assertNext {
+                    verify(exactly = 1) { chatRepository.save(any()) }
 
-                        val savedChat = savedChatSlot.captured
+                    val savedChat = savedChatSlot.captured
 
-                        assertTrue(savedChat.deleted)
-                        assertNotNull(savedChat.deletedAt)
-                        assertNotNull(savedChat.deletedById)
-                        assertNull(savedChat.chatDeletion)
+                    assertTrue(savedChat.deleted)
+                    assertNotNull(savedChat.deletedAt)
+                    assertNotNull(savedChat.deletedById)
+                    assertNull(savedChat.chatDeletion)
 
-                        verify(exactly = 1) { chatEventsPublisher.chatDeleted( match { chatDeleted ->
+                    verify(exactly = 1) {
+                        chatEventsPublisher.chatDeleted(match { chatDeleted ->
                             assertEquals(chatId, chatDeleted.id)
                             assertEquals(null, chatDeleted.reason)
                             assertEquals(null, chatDeleted.comment)
 
                             return@match true
-                        }) }
+                        })
                     }
-                    .verifyComplete()
+                }
+                .verifyComplete()
 
         }
 
@@ -651,8 +680,8 @@ class ChatServiceTests {
         fun `It saves chat deletion reason and comment if chat is deleted not by its owner`(requestFile: String) {
             val chatId = "chatId"
             val jwtPayload = loadResource(
-                    "jwt/jwt-payload.json",
-                    JwtPayload::class.java
+                "jwt/jwt-payload.json",
+                JwtPayload::class.java
             )
             jwtPayload.id = "other_user-${chat.createdById}"
 
@@ -661,55 +690,61 @@ class ChatServiceTests {
 
             val savedChatSlot = slot<Chat>()
             every { chatRepository.save(capture(savedChatSlot)) } returns Mono.just(chat)
-            every { chatParticipationRepository.updateChatDeleted(
+            every {
+                chatParticipationRepository.updateChatDeleted(
                     eq(chatId),
                     eq(true)
-            ) } returns Mono.just(UpdateResult.acknowledged(
+                )
+            } returns Mono.just(
+                UpdateResult.acknowledged(
                     1,
                     1,
                     BsonString("")
-            ))
+                )
+            )
             every { chatEventsPublisher.chatDeleted(any()) } just Runs
 
             val request = loadResource(
-                    requestFile,
-                    DeleteChatRequest::class.java
+                requestFile,
+                DeleteChatRequest::class.java
             )
 
             StepVerifier
-                    .create(chatService.deleteChat(chatId, request))
-                    .assertNext {
-                        verify(exactly = 1) { chatRepository.save(any()) }
+                .create(chatService.deleteChat(chatId, request))
+                .assertNext {
+                    verify(exactly = 1) { chatRepository.save(any()) }
 
-                        val savedChat = savedChatSlot.captured
+                    val savedChat = savedChatSlot.captured
 
-                        assertTrue(savedChat.deleted)
-                        assertNotNull(savedChat.deletedAt)
-                        assertNotNull(savedChat.deletedById)
-                        assertNotNull(savedChat.chatDeletion)
+                    assertTrue(savedChat.deleted)
+                    assertNotNull(savedChat.deletedAt)
+                    assertNotNull(savedChat.deletedById)
+                    assertNotNull(savedChat.chatDeletion)
 
-                        val chatDeletion = savedChat.chatDeletion!!
+                    val chatDeletion = savedChat.chatDeletion!!
 
-                        assertEquals(request.reason, chatDeletion.deletionReason)
-                        assertEquals(request.comment, chatDeletion.comment)
+                    assertEquals(request.reason, chatDeletion.deletionReason)
+                    assertEquals(request.comment, chatDeletion.comment)
 
-                        verify(exactly = 1) { chatEventsPublisher.chatDeleted( match { chatDeleted ->
+                    verify(exactly = 1) {
+                        chatEventsPublisher.chatDeleted(match { chatDeleted ->
                             assertEquals(chatId, chatDeleted.id)
                             assertEquals(request.reason, chatDeleted.reason)
                             assertEquals(request.comment, chatDeleted.comment)
 
                             return@match true
-                        }) }
+                        })
                     }
-                    .verifyComplete()
+                }
+                .verifyComplete()
         }
 
         @Test
         fun `It throws error if chat is deleted not by its creator and delete chat request is null`() {
             val chatId = "chatId"
             val jwtPayload = loadResource(
-                    "jwt/jwt-payload.json",
-                    JwtPayload::class.java
+                "jwt/jwt-payload.json",
+                JwtPayload::class.java
             )
             jwtPayload.id = "other_user-${chat.createdById}"
 
@@ -717,17 +752,17 @@ class ChatServiceTests {
             every { authenticationHolder.requireCurrentUserDetails() } returns Mono.just(jwtPayload)
 
             StepVerifier
-                    .create(chatService.deleteChat(chatId, null))
-                    .expectError(InvalidChatDeletionReasonException::class.java)
-                    .verify()
+                .create(chatService.deleteChat(chatId, null))
+                .expectError(InvalidChatDeletionReasonException::class.java)
+                .verify()
         }
 
         @Test
         fun `It throws error if chat deletion reason is OTHER and no comment is provided`() {
             val chatId = "chatId"
             val jwtPayload = loadResource(
-                    "jwt/jwt-payload.json",
-                    JwtPayload::class.java
+                "jwt/jwt-payload.json",
+                JwtPayload::class.java
             )
             jwtPayload.id = "other_user-${chat.createdById}"
 
@@ -737,9 +772,9 @@ class ChatServiceTests {
             val request = DeleteChatRequest(_reason = ChatDeletionReason.OTHER, comment = null)
 
             StepVerifier
-                    .create(chatService.deleteChat(chatId, request))
-                    .expectError(InvalidChatDeletionCommentException::class.java)
-                    .verify()
+                .create(chatService.deleteChat(chatId, request))
+                .expectError(InvalidChatDeletionCommentException::class.java)
+                .verify()
         }
     }
 
@@ -758,17 +793,19 @@ class ChatServiceTests {
             every {
                 chatParticipantsCountService.getChatParticipantsCount(any<String>())
             } returns Mono.just(chatParticipantsCount)
-            every { chatMapper.toChatResponse(
+            every {
+                chatMapper.toChatResponse(
                     chat = eq(chat),
                     currentUserId = eq(user.id),
                     user = null,
                     chatParticipantsCount = eq(chatParticipantsCount)
-            ) } returns chatResponse
+                )
+            } returns chatResponse
 
             StepVerifier
-                    .create(chatService.findChatBySlugOrId(slug))
-                    .expectNext(chatResponse)
-                    .verifyComplete()
+                .create(chatService.findChatBySlugOrId(slug))
+                .expectNext(chatResponse)
+                .verifyComplete()
         }
 
         @Test
@@ -781,17 +818,19 @@ class ChatServiceTests {
             every {
                 chatParticipantsCountService.getChatParticipantsCount(any<String>())
             } returns Mono.just(chatParticipantsCount)
-            every { chatMapper.toChatResponse(
+            every {
+                chatMapper.toChatResponse(
                     chat = eq(returnedChat),
                     currentUserId = null,
                     user = null,
                     chatParticipantsCount = eq(chatParticipantsCount)
-            ) } returns chatResponse
+                )
+            } returns chatResponse
 
             StepVerifier
-                    .create(chatService.findChatBySlugOrId(slug))
-                    .expectNext(chatResponse)
-                    .verifyComplete()
+                .create(chatService.findChatBySlugOrId(slug))
+                .expectNext(chatResponse)
+                .verifyComplete()
         }
 
         @Test
@@ -799,10 +838,10 @@ class ChatServiceTests {
             val otherUserId = "other-user-id"
             val otherUser = chatParticipation.user.copy(id = otherUserId)
             val chatParticipations = listOf(
-                    chatParticipation,
-                    chatParticipation.copy(
-                            user = otherUser
-                    )
+                chatParticipation,
+                chatParticipation.copy(
+                    user = otherUser
+                )
             )
 
             val chatId = "dialog-id"
@@ -812,16 +851,18 @@ class ChatServiceTests {
             every { authenticationHolder.currentUser } returns Mono.just(user)
             every { chatParticipationRepository.findByChatId(chat.id) } returns Flux.fromIterable(chatParticipations)
             every { userCacheWrapper.findById(otherUserId) } returns Mono.just(otherUser)
-            every { chatMapper.toChatResponse(
+            every {
+                chatMapper.toChatResponse(
                     chat = eq(returnedChat),
                     currentUserId = eq(user.id),
                     user = eq(otherUser)
-            ) } returns chatResponse
+                )
+            } returns chatResponse
 
             StepVerifier
-                    .create(chatService.findChatBySlugOrId(chatId))
-                    .expectNext(chatResponse)
-                    .verifyComplete()
+                .create(chatService.findChatBySlugOrId(chatId))
+                .expectNext(chatResponse)
+                .verifyComplete()
         }
 
         @Test
@@ -831,9 +872,9 @@ class ChatServiceTests {
             every { chatBySlugCacheWrapper.findById(chatId) } returns Mono.empty()
 
             StepVerifier
-                    .create(chatService.findChatBySlugOrId(chatId))
-                    .expectError(ChatNotFoundException::class.java)
-                    .verify()
+                .create(chatService.findChatBySlugOrId(chatId))
+                .expectError(ChatNotFoundException::class.java)
+                .verify()
         }
 
         @Test
@@ -843,9 +884,9 @@ class ChatServiceTests {
             every { chatBySlugCacheWrapper.findById(chatId) } returns Mono.just(chat.copy(deleted = true))
 
             StepVerifier
-                    .create(chatService.findChatBySlugOrId(chatId))
-                    .expectError(ChatDeletedException::class.java)
-                    .verify()
+                .create(chatService.findChatBySlugOrId(chatId))
+                .expectError(ChatDeletedException::class.java)
+                .verify()
         }
 
         @Test
@@ -856,9 +897,9 @@ class ChatServiceTests {
             every { authenticationHolder.currentUser } returns Mono.empty()
 
             StepVerifier
-                    .create(chatService.findChatBySlugOrId(chatId))
-                    .expectError(AccessDeniedException::class.java)
-                    .verify()
+                .create(chatService.findChatBySlugOrId(chatId))
+                .expectError(AccessDeniedException::class.java)
+                .verify()
         }
     }
 
@@ -876,9 +917,9 @@ class ChatServiceTests {
             every { chatByIdCacheWrapper.findById(eq(chatId)) } returns Mono.just(returnedChat)
 
             StepVerifier
-                    .create(chatService.isChatCreatedByUser(chatId, userId))
-                    .expectNext(true)
-                    .verifyComplete()
+                .create(chatService.isChatCreatedByUser(chatId, userId))
+                .expectNext(true)
+                .verifyComplete()
         }
 
         @Test
@@ -891,9 +932,9 @@ class ChatServiceTests {
             every { chatByIdCacheWrapper.findById(eq(chatId)) } returns Mono.just(returnedChat)
 
             StepVerifier
-                    .create(chatService.isChatCreatedByUser(chatId, userId))
-                    .expectNext(false)
-                    .verifyComplete()
+                .create(chatService.isChatCreatedByUser(chatId, userId))
+                .expectNext(false)
+                .verifyComplete()
         }
 
         @Test
@@ -904,9 +945,9 @@ class ChatServiceTests {
             every { chatByIdCacheWrapper.findById(eq(chatId)) } returns Mono.empty()
 
             StepVerifier
-                    .create(chatService.isChatCreatedByUser(chatId, userId))
-                    .expectError(ChatNotFoundException::class.java)
-                    .verify()
+                .create(chatService.isChatCreatedByUser(chatId, userId))
+                .expectError(ChatNotFoundException::class.java)
+                .verify()
         }
     }
 
@@ -923,9 +964,9 @@ class ChatServiceTests {
             val expectedResponse = AvailabilityResponse(available = true)
 
             StepVerifier
-                    .create(chatService.checkChatSlugAvailability(slug))
-                    .expectNext(expectedResponse)
-                    .verifyComplete()
+                .create(chatService.checkChatSlugAvailability(slug))
+                .expectNext(expectedResponse)
+                .verifyComplete()
         }
 
         @Test
@@ -937,59 +978,60 @@ class ChatServiceTests {
             val expectedResponse = AvailabilityResponse(available = false)
 
             StepVerifier
-                    .create(chatService.checkChatSlugAvailability(slug))
-                    .expectNext(expectedResponse)
-                    .verifyComplete()        }
+                .create(chatService.checkChatSlugAvailability(slug))
+                .expectNext(expectedResponse)
+                .verifyComplete()
+        }
     }
 
     companion object {
         @JvmStatic
         fun createChatRequestProvider(): Stream<Arguments> = Stream.of(
-                Arguments.of("requests/create-chat-request.json"),
-                Arguments.of("requests/create-chat-request-with-slug.json"),
-                Arguments.of("requests/create-chat-request-with-slug-and-description.json")
+            Arguments.of("requests/create-chat-request.json"),
+            Arguments.of("requests/create-chat-request-with-slug.json"),
+            Arguments.of("requests/create-chat-request-with-slug-and-description.json")
         )
 
         @JvmStatic
         fun updateChatRequestProvider(): Stream<Arguments> = Stream.of(
-                Arguments.of(
-                        "requests/update-chat-request.json",
-                       UpdateChatTestOptions()
-                ),
-                Arguments.of(
-                        "requests/update-chat-request.json",
-                        UpdateChatTestOptions(ensureSameAvatar = true)
-                ),
-                Arguments.of(
-                        "requests/update-chat-request.json",
-                        UpdateChatTestOptions(ensureSameAvatar = true, ensureSameSlug = false)
-                ),
-                Arguments.of(
-                        "requests/update-chat-request.json",
-                        UpdateChatTestOptions(ensureSameAvatar = true, ensureSameSlug = true)
-                ),
-                Arguments.of(
-                        "requests/update-chat-request-with-avatar.json",
-                        UpdateChatTestOptions()
-                ),
-                Arguments.of(
-                        "requests/update-chat-request-with-slow-mode.json",
-                        UpdateChatTestOptions()
-                ),
-                Arguments.of(
-                        "requests/update-chat-request-full.json",
-                        UpdateChatTestOptions()
-                ),
-                Arguments.of(
-                        "requests/update-chat-request-full.json",
-                        UpdateChatTestOptions(ensureSameHideFromSearch = true)
-                )
+            Arguments.of(
+                "requests/update-chat-request.json",
+                UpdateChatTestOptions()
+            ),
+            Arguments.of(
+                "requests/update-chat-request.json",
+                UpdateChatTestOptions(ensureSameAvatar = true)
+            ),
+            Arguments.of(
+                "requests/update-chat-request.json",
+                UpdateChatTestOptions(ensureSameAvatar = true, ensureSameSlug = false)
+            ),
+            Arguments.of(
+                "requests/update-chat-request.json",
+                UpdateChatTestOptions(ensureSameAvatar = true, ensureSameSlug = true)
+            ),
+            Arguments.of(
+                "requests/update-chat-request-with-avatar.json",
+                UpdateChatTestOptions()
+            ),
+            Arguments.of(
+                "requests/update-chat-request-with-slow-mode.json",
+                UpdateChatTestOptions()
+            ),
+            Arguments.of(
+                "requests/update-chat-request-full.json",
+                UpdateChatTestOptions()
+            ),
+            Arguments.of(
+                "requests/update-chat-request-full.json",
+                UpdateChatTestOptions(ensureSameHideFromSearch = true)
+            )
         )
 
         @JvmStatic
         fun deleteChatRequestProvider(): Stream<Arguments> = Stream.of(
-                Arguments.of("requests/delete-chat-request.json"),
-                Arguments.of("requests/delete-chat-request-with-no-comment.json")
+            Arguments.of("requests/delete-chat-request.json"),
+            Arguments.of("requests/delete-chat-request-with-no-comment.json")
         )
     }
 }

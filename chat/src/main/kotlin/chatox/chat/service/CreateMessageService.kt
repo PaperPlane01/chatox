@@ -10,6 +10,11 @@ import reactor.core.publisher.Mono
 
 interface CreateMessageService {
     fun createMessage(chatId: String, createMessageRequest: CreateMessageRequest): Mono<MessageResponse>
-    fun createFirstMessageForPrivateChat(chatId: String, createMessageRequest: CreateMessageRequest, chatParticipation: ChatParticipation): Mono<Message>
+    fun createFirstMessageForPrivateChat(
+        chatId: String,
+        createMessageRequest: CreateMessageRequest,
+        chatParticipation: ChatParticipation
+    ): Mono<Message>
+
     fun forwardMessages(chatId: String, forwardMessagesRequest: ForwardMessagesRequest): Flux<MessageResponse>
 }

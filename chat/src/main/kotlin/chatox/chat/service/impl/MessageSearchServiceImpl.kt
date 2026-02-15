@@ -22,42 +22,50 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Service
-class MessageSearchServiceImpl(private val messageElasticsearchRepository: MessageElasticsearchRepository,
-                               private val messageMongoRepository: MessageMongoRepository,
-                               private val chatParticipationRepository: ChatParticipationRepository,
-                               private val messageMapper: MessageMapper,
-                               private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-                               private val elasticsearchSync: ElasticsearchSynchronizationProperties
+class MessageSearchServiceImpl(
+    private val messageElasticsearchRepository: MessageElasticsearchRepository,
+    private val messageMongoRepository: MessageMongoRepository,
+    private val chatParticipationRepository: ChatParticipationRepository,
+    private val messageMapper: MessageMapper,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>,
+    private val elasticsearchSync: ElasticsearchSynchronizationProperties
 ) : MessageSearchService {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
-    override fun searchMessages(text: String, chatId: String, paginationRequest: PaginationRequest): Flux<MessageResponse> {
+    override fun searchMessages(
+        text: String,
+        chatId: String,
+        paginationRequest: PaginationRequest
+    ): Flux<MessageResponse> {
         val messages = messageElasticsearchRepository.findByTextAndChatId(
-                text = text,
-                chatId = chatId,
-                pageable = paginationRequest.toPageRequest()
+            text = text,
+            chatId = chatId,
+            pageable = paginationRequest.toPageRequest()
         )
 
         return messageMapper.mapMessages(messages)
     }
 
-    override fun searchMessagesInChatsOfCurrentUser(text: String, paginationRequest: PaginationRequest): Flux<MessageResponse> {
+    override fun searchMessagesInChatsOfCurrentUser(
+        text: String,
+        paginationRequest: PaginationRequest
+    ): Flux<MessageResponse> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val chatIds = chatParticipationRepository
-                    .findAllByUserIdAndDeletedFalse(currentUser.id)
-                    .collectList()
-                    .awaitFirst()
-                    .map { chatParticipation -> chatParticipation.chatId }
+                .findAllByUserIdAndDeletedFalse(currentUser.id)
+                .collectList()
+                .awaitFirst()
+                .map { chatParticipation -> chatParticipation.chatId }
             val messages = messageElasticsearchRepository.findByTextAndChatIdIn(
-                    text = text,
-                    chatIds = chatIds,
-                    pageable = paginationRequest.toPageRequest()
+                text = text,
+                chatIds = chatIds,
+                pageable = paginationRequest.toPageRequest()
             )
 
             return@mono messageMapper.mapMessages(messages)
         }
-                .flatMapMany { it }
+            .flatMapMany { it }
     }
 
     override fun importMessagesToElasticsearch(deleteBeforeImport: Boolean): Mono<Unit> {
@@ -76,9 +84,9 @@ class MessageSearchServiceImpl(private val messageElasticsearchRepository: Messa
                 log.info("Importing page {} of messages", currentPage)
                 val pageRequest = PageRequest.of(currentPage, pageSize)
                 val messages = messageMongoRepository.findAllBy(pageRequest)
-                        .collectList()
-                        .awaitFirst()
-                        .map { message -> message.toElasticsearch() }
+                    .collectList()
+                    .awaitFirst()
+                    .map { message -> message.toElasticsearch() }
                 messageElasticsearchRepository.saveAll(messages).collectList().awaitFirst()
 
                 if (messages.size < pageSize) {

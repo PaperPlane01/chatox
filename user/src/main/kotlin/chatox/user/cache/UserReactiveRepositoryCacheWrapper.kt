@@ -16,19 +16,19 @@ import reactor.core.publisher.Mono
 
 @Component
 class UserReactiveRepositoryCacheWrapper(
-        @param:Autowired
-        @param:Qualifier(RedisConfig.USER_BY_ID_CACHE)
-        private val userByIdCache: ReactiveCacheService<User, String>,
+    @param:Autowired
+    @param:Qualifier(RedisConfig.USER_BY_ID_CACHE)
+    private val userByIdCache: ReactiveCacheService<User, String>,
 
-        @param:Autowired
-        @param:Qualifier(RedisConfig.USER_BY_SLUG_CACHE)
-        private val userBySlugCache: ReactiveCacheService<User, String>,
+    @param:Autowired
+    @param:Qualifier(RedisConfig.USER_BY_SLUG_CACHE)
+    private val userBySlugCache: ReactiveCacheService<User, String>,
 
-        @param:Autowired
-        private val userRepository: UserRepository,
+    @param:Autowired
+    private val userRepository: UserRepository,
 
-        @param:Autowired
-        private val userMapper: UserMapper
+    @param:Autowired
+    private val userMapper: UserMapper
 ) : DefaultReactiveRepositoryCacheWrapper<User, String, UserRepository>(userByIdCache, userRepository) {
 
     fun findBySlug(slug: String, putInCacheIfAbsent: Boolean): Mono<User> {
@@ -36,7 +36,7 @@ class UserReactiveRepositoryCacheWrapper(
             var user = userBySlugCache.find(slug).awaitFirstOrNull()
 
             if (user == null) {
-               user = userRepository.findBySlug(slug).awaitFirstOrNull()
+                user = userRepository.findBySlug(slug).awaitFirstOrNull()
 
                 if (putInCacheIfAbsent) {
                     userBySlugCache.put(user).awaitFirst()

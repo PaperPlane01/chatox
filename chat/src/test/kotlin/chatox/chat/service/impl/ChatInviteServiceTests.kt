@@ -2,7 +2,6 @@ package chatox.chat.service.impl
 
 import chatox.chat.mapper.ChatInviteMapper
 import chatox.chat.model.Chat
-import chatox.chat.model.ChatParticipation
 import chatox.chat.model.JoinChatAllowance
 import chatox.chat.model.JoinChatRejectionReason
 import chatox.chat.model.User
@@ -49,14 +48,14 @@ class ChatInviteServiceTests {
     @BeforeEach
     fun setUp() {
         chatInviteService = ChatInviteServiceImpl(
-                chatInviteRepository,
-                chatParticipationRepository,
-                pendingChatParticipationRepository,
-                chatCacheWrapper,
-                userCacheWrapper,
-                chatInviteMapper,
-                chatParticipantsCountService,
-                authenticationHolder
+            chatInviteRepository,
+            chatParticipationRepository,
+            pendingChatParticipationRepository,
+            chatCacheWrapper,
+            userCacheWrapper,
+            chatInviteMapper,
+            chatParticipantsCountService,
+            authenticationHolder
         )
     }
 
@@ -73,100 +72,112 @@ class ChatInviteServiceTests {
         @DisplayName("It returns WRONG_USER_ID reason if chat invite is created for another user")
         fun `It returns WRONG_USER_ID rejection reason if chat invite is created for another user`() {
             val invite = chatInvite.copy(
-                    userId = jwtPayload.id + "-${Math.random()}"
+                userId = jwtPayload.id + "-${Math.random()}"
             )
 
             StepVerifier
-                    .create(chatInviteService.getChatInviteUsageInfo(invite))
-                    .assertNext { chatInviteUsage ->
-                        assertFalse(chatInviteUsage.canBeUsed)
-                        assertEquals(JoinChatRejectionReason.WRONG_USER_ID, chatInviteUsage.rejectionReason)
-                    }
-                    .verifyComplete()
+                .create(chatInviteService.getChatInviteUsageInfo(invite))
+                .assertNext { chatInviteUsage ->
+                    assertFalse(chatInviteUsage.canBeUsed)
+                    assertEquals(JoinChatRejectionReason.WRONG_USER_ID, chatInviteUsage.rejectionReason)
+                }
+                .verifyComplete()
         }
 
         @Test
-        @DisplayName("It returns INSUFFICIENT_VERIFICATION_LEVEL reason if " +
-                "chat invite does not allow to join users with the specified verification level")
+        @DisplayName(
+            "It returns INSUFFICIENT_VERIFICATION_LEVEL reason if " +
+                    "chat invite does not allow to join users with the specified verification level"
+        )
         fun `It returns INSUFFICIENT_VERIFICATION_LEVEL reason if chat invite does not allow to join users with the specified verification level`() {
             val invite = chatInvite.copy(
-                    joinAllowanceSettings = mapOf(
-                            Pair(
-                                    VerificationLevel.fromJwtPayload(jwtPayload),
-                                    JoinChatAllowance.NOT_ALLOWED
-                            )
+                joinAllowanceSettings = mapOf(
+                    Pair(
+                        VerificationLevel.fromJwtPayload(jwtPayload),
+                        JoinChatAllowance.NOT_ALLOWED
                     )
+                )
             )
 
             StepVerifier
-                    .create(chatInviteService.getChatInviteUsageInfo(invite))
-                    .assertNext { chatInviteUsage ->
-                        assertFalse(chatInviteUsage.canBeUsed)
-                        assertEquals(
-                                JoinChatRejectionReason.INSUFFICIENT_VERIFICATION_LEVEL,
-                                chatInviteUsage.rejectionReason
-                        )
-                    }
-                    .verifyComplete()
+                .create(chatInviteService.getChatInviteUsageInfo(invite))
+                .assertNext { chatInviteUsage ->
+                    assertFalse(chatInviteUsage.canBeUsed)
+                    assertEquals(
+                        JoinChatRejectionReason.INSUFFICIENT_VERIFICATION_LEVEL,
+                        chatInviteUsage.rejectionReason
+                    )
+                }
+                .verifyComplete()
         }
 
         @Test
         @DisplayName("It returns AWAITING_APPROVAL reason if there is pending chat participation with current user")
         fun `It returns AWAITING_APPROVAL reason if there is pending chat participation with current user`() {
-            every { pendingChatParticipationRepository.existsByChatIdAndUserId(
+            every {
+                pendingChatParticipationRepository.existsByChatIdAndUserId(
                     chatId = chatInvite.chatId,
                     userId = jwtPayload.id
-            ) } returns Mono.just(true)
+                )
+            } returns Mono.just(true)
 
             StepVerifier
-                    .create(chatInviteService.getChatInviteUsageInfo(chatInvite))
-                    .assertNext { chatInviteUsage ->
-                        assertFalse(chatInviteUsage.canBeUsed)
-                        assertEquals(JoinChatRejectionReason.AWAITING_APPROVAL, chatInviteUsage.rejectionReason)
-                    }
-                    .verifyComplete()
+                .create(chatInviteService.getChatInviteUsageInfo(chatInvite))
+                .assertNext { chatInviteUsage ->
+                    assertFalse(chatInviteUsage.canBeUsed)
+                    assertEquals(JoinChatRejectionReason.AWAITING_APPROVAL, chatInviteUsage.rejectionReason)
+                }
+                .verifyComplete()
         }
 
         @Test
         @DisplayName("It returns ALREADY_CHAT_PARTICIPANT if current user is already a participant of this chat")
         fun `It returns ALREADY_CHAT_PARTICIPANT if current user is already a participant of this chat`() {
-            every { pendingChatParticipationRepository.existsByChatIdAndUserId(
+            every {
+                pendingChatParticipationRepository.existsByChatIdAndUserId(
                     chatId = chatInvite.chatId,
                     userId = jwtPayload.id
-            ) } returns Mono.just(false)
-            every { chatParticipationRepository.existsByChatIdAndUserIdAndDeletedFalse(
+                )
+            } returns Mono.just(false)
+            every {
+                chatParticipationRepository.existsByChatIdAndUserIdAndDeletedFalse(
                     chatId = chatInvite.chatId,
                     userId = jwtPayload.id
-            ) } returns Mono.just(true)
+                )
+            } returns Mono.just(true)
 
             StepVerifier
-                    .create(chatInviteService.getChatInviteUsageInfo(chatInvite))
-                    .assertNext { chatInviteUsage ->
-                        assertFalse(chatInviteUsage.canBeUsed)
-                        assertEquals(JoinChatRejectionReason.ALREADY_CHAT_PARTICIPANT, chatInviteUsage.rejectionReason)
-                    }
-                    .verifyComplete()
+                .create(chatInviteService.getChatInviteUsageInfo(chatInvite))
+                .assertNext { chatInviteUsage ->
+                    assertFalse(chatInviteUsage.canBeUsed)
+                    assertEquals(JoinChatRejectionReason.ALREADY_CHAT_PARTICIPANT, chatInviteUsage.rejectionReason)
+                }
+                .verifyComplete()
         }
 
         @Test
         @DisplayName("It returns canBeUsed = true if all checks have been passed")
         fun `It returns canBeUsed = true if all checks have been passed`() {
-            every { pendingChatParticipationRepository.existsByChatIdAndUserId(
+            every {
+                pendingChatParticipationRepository.existsByChatIdAndUserId(
                     chatId = chatInvite.chatId,
                     userId = jwtPayload.id
-            ) } returns Mono.just(false)
-            every { chatParticipationRepository.existsByChatIdAndUserIdAndDeletedFalse(
+                )
+            } returns Mono.just(false)
+            every {
+                chatParticipationRepository.existsByChatIdAndUserIdAndDeletedFalse(
                     chatId = chatInvite.chatId,
                     userId = jwtPayload.id
-            ) } returns Mono.just(false)
+                )
+            } returns Mono.just(false)
 
             StepVerifier
-                    .create(chatInviteService.getChatInviteUsageInfo(chatInvite))
-                    .assertNext { chatInviteUsage ->
-                        assertTrue(chatInviteUsage.canBeUsed)
-                        assertNull(chatInviteUsage.rejectionReason)
-                    }
-                    .verifyComplete()
+                .create(chatInviteService.getChatInviteUsageInfo(chatInvite))
+                .assertNext { chatInviteUsage ->
+                    assertTrue(chatInviteUsage.canBeUsed)
+                    assertNull(chatInviteUsage.rejectionReason)
+                }
+                .verifyComplete()
         }
     }
 }

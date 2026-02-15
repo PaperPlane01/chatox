@@ -9,32 +9,32 @@ import org.springframework.stereotype.Component
 @Component
 class UserEventsProducer(private val rabbitTemplate: RabbitTemplate) {
     fun userCreated(userResponse: UserResponse) = rabbitTemplate.convertAndSend(
-            "user.events",
-            "user.created.#",
-            userResponse
+        "user.events",
+        "user.created.#",
+        userResponse
     )
 
     fun userUpdated(userResponse: UserResponse) = rabbitTemplate.convertAndSend(
-            "user.events",
-            "user.updated.#",
-            userResponse
+        "user.events",
+        "user.updated.#",
+        userResponse
     )
 
     fun userDeleted(id: String) = rabbitTemplate.convertAndSend(
-            "user.events",
-            "user.deleted.#",
-            hashMapOf(Pair("id", id))
+        "user.events",
+        "user.deleted.#",
+        hashMapOf(Pair("id", id))
     )
 
     fun userWentOnline(userOnline: UserOnline) = rabbitTemplate.convertAndSend(
-            "user.events",
-            "user.online.#",
-            userOnline
+        "user.events",
+        "user.online.#",
+        userOnline
     )
 
     fun userWentOffline(userOffline: UserOffline) = rabbitTemplate.convertAndSend(
-            "user.events",
-            "user.offline.#",
-            userOffline
+        "user.events",
+        "user.offline.#",
+        userOffline
     )
 }

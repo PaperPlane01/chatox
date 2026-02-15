@@ -6,12 +6,12 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
 data class UserInteractionsCount(
-        @Id
-        val id: String,
+    @Id
+    val id: String,
 
-        @Indexed
-        val userId: String,
-        val likesCount: Long,
-        val dislikesCount: Long,
-        val lovesCount: Long
+    @Indexed
+    val userId: String,
+    val likesCount: Long,
+    val dislikesCount: Long,
+    val lovesCount: Long
 )

@@ -48,12 +48,12 @@ class NotificationsSettingsServiceTests {
     @BeforeEach
     fun setUp() {
         notificationsSettingsService = NotificationsSettingsServiceImpl(
-                userGlobalNotificationsSettingsRepository,
-                chatParticipationRepository,
-                chatCacheWrapper,
-                notificationsSettingsMapper,
-                notificationsSettingsEventsPublisher,
-                authenticationHolder
+            userGlobalNotificationsSettingsRepository,
+            chatParticipationRepository,
+            chatCacheWrapper,
+            notificationsSettingsMapper,
+            notificationsSettingsEventsPublisher,
+            authenticationHolder
         )
 
         every { authenticationHolder.requireCurrentUserDetails() } returns Mono.just(jwtPayload)
@@ -77,21 +77,21 @@ class NotificationsSettingsServiceTests {
 
             every {
                 notificationsSettingsMapper.toGlobalNotificationsSettingsResponse(
-                        globalNotificationsSettings = capture(globalNotificationsSettingsSlot),
-                        exceptions = capture(exceptionsSlot),
-                        currentUserId = jwtPayload.id
+                    globalNotificationsSettings = capture(globalNotificationsSettingsSlot),
+                    exceptions = capture(exceptionsSlot),
+                    currentUserId = jwtPayload.id
                 )
             } returns Mono.just(globalNotificationsSettingsResponse)
 
             StepVerifier
-                    .create(notificationsSettingsService.getNotificationsSettingsOfCurrentUser())
-                    .assertNext { response ->
-                        assertEquals(globalNotificationsSettingsResponse, response)
+                .create(notificationsSettingsService.getNotificationsSettingsOfCurrentUser())
+                .assertNext { response ->
+                    assertEquals(globalNotificationsSettingsResponse, response)
 
-                        assertEquals(globalNotificationsSettings, globalNotificationsSettingsSlot.captured)
-                        assertEquals(emptyList<ChatParticipation>(), exceptionsSlot.captured)
-                    }
-                    .verifyComplete()
+                    assertEquals(globalNotificationsSettings, globalNotificationsSettingsSlot.captured)
+                    assertEquals(emptyList<ChatParticipation>(), exceptionsSlot.captured)
+                }
+                .verifyComplete()
         }
 
         @Test
@@ -108,21 +108,21 @@ class NotificationsSettingsServiceTests {
 
             every {
                 notificationsSettingsMapper.toGlobalNotificationsSettingsResponse(
-                        globalNotificationsSettings = capture(globalNotificationsSettingsSlot),
-                        exceptions = capture(exceptionsSlot),
-                        currentUserId = jwtPayload.id
+                    globalNotificationsSettings = capture(globalNotificationsSettingsSlot),
+                    exceptions = capture(exceptionsSlot),
+                    currentUserId = jwtPayload.id
                 )
             } returns Mono.just(globalNotificationsSettingsResponse)
 
             StepVerifier
-                    .create(notificationsSettingsService.getNotificationsSettingsOfCurrentUser())
-                    .assertNext { response ->
-                        assertEquals(globalNotificationsSettingsResponse, response)
+                .create(notificationsSettingsService.getNotificationsSettingsOfCurrentUser())
+                .assertNext { response ->
+                    assertEquals(globalNotificationsSettingsResponse, response)
 
-                        assertEquals(GlobalNotificationSettings.DEFAULT, globalNotificationsSettingsSlot.captured)
-                        assertEquals(emptyList<ChatParticipation>(), exceptionsSlot.captured)
-                    }
-                    .verifyComplete()
+                    assertEquals(GlobalNotificationSettings.DEFAULT, globalNotificationsSettingsSlot.captured)
+                    assertEquals(emptyList<ChatParticipation>(), exceptionsSlot.captured)
+                }
+                .verifyComplete()
         }
     }
 
@@ -138,15 +138,15 @@ class NotificationsSettingsServiceTests {
 
             val request = TestObjects.updateGlobalNotificationsSettingsRequest()
             val expectedNotificationsSettings = UserGlobalNotificationsSettings(
-                    id = jwtPayload.id,
-                    groupChats = NotificationsSettings(
-                            level = request.groupChats.level,
-                            sound = request.groupChats.sound
-                    ),
-                    dialogs = NotificationsSettings(
-                            level = request.dialogChats.level,
-                            sound = request.dialogChats.sound
-                    )
+                id = jwtPayload.id,
+                groupChats = NotificationsSettings(
+                    level = request.groupChats.level,
+                    sound = request.groupChats.sound
+                ),
+                dialogs = NotificationsSettings(
+                    level = request.dialogChats.level,
+                    sound = request.dialogChats.sound
+                )
             )
             every {
                 userGlobalNotificationsSettingsRepository.save(eq(expectedNotificationsSettings))
@@ -154,17 +154,19 @@ class NotificationsSettingsServiceTests {
             every {
                 chatParticipationRepository.findWithCustomNotificationsSettings(jwtPayload.id)
             } returns Flux.empty()
-            every { notificationsSettingsMapper.toGlobalNotificationsSettingsResponse(
+            every {
+                notificationsSettingsMapper.toGlobalNotificationsSettingsResponse(
                     globalNotificationsSettings = eq(expectedNotificationsSettings),
                     exceptions = eq(emptyList()),
                     currentUserId = eq(jwtPayload.id)
-            ) } returns Mono.just(globalNotificationsSettingsResponse)
+                )
+            } returns Mono.just(globalNotificationsSettingsResponse)
             every { notificationsSettingsEventsPublisher.globalNotificationsSettingsUpdated(any()) } just Runs
 
             StepVerifier
-                    .create(notificationsSettingsService.updateGlobalNotificationsSettings(request))
-                    .assertNext { response -> assertEquals(globalNotificationsSettingsResponse, response) }
-                    .verifyComplete()
+                .create(notificationsSettingsService.updateGlobalNotificationsSettings(request))
+                .assertNext { response -> assertEquals(globalNotificationsSettingsResponse, response) }
+                .verifyComplete()
         }
     }
 
@@ -179,10 +181,12 @@ class NotificationsSettingsServiceTests {
             val chatParticipation = TestObjects.chatParticipation()
 
             every { chatCacheWrapper.findById(chatId) } returns Mono.just(chat)
-            every { chatParticipationRepository.findByChatIdAndUserIdAndDeletedFalse(
+            every {
+                chatParticipationRepository.findByChatIdAndUserIdAndDeletedFalse(
                     eq(chat.id),
                     eq(jwtPayload.id)
-            ) } returns Mono.just(chatParticipation)
+                )
+            } returns Mono.just(chatParticipation)
 
             val chatParticipationSlot = slot<ChatParticipation>()
             every {
@@ -190,11 +194,13 @@ class NotificationsSettingsServiceTests {
             } returns Mono.just(chatParticipation)
 
             val chatNotificationsSettingsResponse = TestObjects.chatNotificationsSettingsResponse()
-            every { notificationsSettingsMapper.toChatNotificationsSettingsResponse(
+            every {
+                notificationsSettingsMapper.toChatNotificationsSettingsResponse(
                     any(),
                     eq(chat),
                     eq(jwtPayload.id)
-            ) } returns Mono.just(chatNotificationsSettingsResponse)
+                )
+            } returns Mono.just(chatNotificationsSettingsResponse)
             every {
                 notificationsSettingsEventsPublisher.chatNotificationsSettingsUpdated(any())
             } just Runs
@@ -202,17 +208,19 @@ class NotificationsSettingsServiceTests {
             val request = TestObjects.updateChatNotificationsSettingsRequest()
 
             StepVerifier
-                    .create(notificationsSettingsService.updateNotificationsSettingsForChat(
-                            chatId,
-                            request
-                    ))
-                    .assertNext {
-                        val capturedChatParticipation = chatParticipationSlot.captured
+                .create(
+                    notificationsSettingsService.updateNotificationsSettingsForChat(
+                        chatId,
+                        request
+                    )
+                )
+                .assertNext {
+                    val capturedChatParticipation = chatParticipationSlot.captured
 
-                        assertEquals(request.sound, capturedChatParticipation.notificationsSettings?.sound)
-                        assertEquals(request.level, capturedChatParticipation.notificationsSettings?.level)
-                    }
-                    .verifyComplete()
+                    assertEquals(request.sound, capturedChatParticipation.notificationsSettings?.sound)
+                    assertEquals(request.level, capturedChatParticipation.notificationsSettings?.level)
+                }
+                .verifyComplete()
         }
     }
 }

@@ -12,29 +12,33 @@ import reactor.core.publisher.Flux
 
 @Repository
 class MessageCustomElasticsearchRepositoryImpl(
-        private val elasticsearchRestTemplate: ReactiveElasticsearchTemplate
+    private val elasticsearchRestTemplate: ReactiveElasticsearchTemplate
 ) : MessageCustomElasticsearchRepository {
     override fun findByTextAndChatId(text: String, chatId: String, pageable: Pageable): Flux<MessageElasticsearch> {
         val criteria = Criteria("text").matches(text)
-                .and(
-                        Criteria("chatId").`is`(chatId)
-                )
+            .and(
+                Criteria("chatId").`is`(chatId)
+            )
         val query = CriteriaQuery(criteria, pageable)
         return find(query)
     }
 
-    override fun findByTextAndChatIdIn(text: String, chatIds: List<String>, pageable: Pageable): Flux<MessageElasticsearch> {
+    override fun findByTextAndChatIdIn(
+        text: String,
+        chatIds: List<String>,
+        pageable: Pageable
+    ): Flux<MessageElasticsearch> {
         val criteria = Criteria("text").matches(text)
-                .and(
-                        Criteria("chatId").`in`(chatIds)
-                )
+            .and(
+                Criteria("chatId").`in`(chatIds)
+            )
         val query = CriteriaQuery(criteria, pageable)
         return find(query)
     }
 
     private fun find(query: Query): Flux<MessageElasticsearch> {
         return elasticsearchRestTemplate
-                .search(query, MessageElasticsearch::class.java)
-                .map { searchHit -> searchHit.content }
+            .search(query, MessageElasticsearch::class.java)
+            .map { searchHit -> searchHit.content }
     }
 }

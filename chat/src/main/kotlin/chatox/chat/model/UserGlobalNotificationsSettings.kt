@@ -5,8 +5,8 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
 data class UserGlobalNotificationsSettings(
-        @Id
-        val id: String,
-        override val groupChats: NotificationsSettings,
-        override val dialogs: NotificationsSettings
+    @Id
+    val id: String,
+    override val groupChats: NotificationsSettings,
+    override val dialogs: NotificationsSettings
 ) : GlobalNotificationSettings

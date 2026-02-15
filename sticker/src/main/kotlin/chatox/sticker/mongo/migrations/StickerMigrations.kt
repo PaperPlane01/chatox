@@ -1,6 +1,5 @@
 package chatox.sticker.mongo.migrations
 
-import chatox.platform.upload.UploadType
 import chatox.sticker.model.Sticker
 import com.kuliginstepan.mongration.annotation.Changelog
 import com.kuliginstepan.mongration.annotation.Changeset
@@ -9,9 +8,6 @@ import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate
-import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators
-import org.springframework.data.mongodb.core.aggregation.Fields
-import org.springframework.data.mongodb.core.aggregation.ProjectionOperation
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import reactor.core.publisher.Mono
@@ -26,22 +22,22 @@ class StickerMigrations {
             log.info("Starting executing migration: create \"upload\" field")
 
             val addUploadField = AggregationUpdate.update().set("upload")
-                    .toValue("\$image")
+                .toValue("\$image")
 
             reactiveMongoTemplate.updateMulti(
-                    Query(),
-                    addUploadField,
-                    Sticker::class.java
+                Query(),
+                addUploadField,
+                Sticker::class.java
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             val addAnimatedField = Update().set("upload.meta.animated", false)
             reactiveMongoTemplate.updateMulti(
-                    Query(),
-                    addAnimatedField,
-                    Sticker::class.java
+                Query(),
+                addAnimatedField,
+                Sticker::class.java
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             log.info("Finished executing migration: create \"upload\" field")
 

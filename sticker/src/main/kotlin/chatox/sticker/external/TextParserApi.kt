@@ -16,7 +16,8 @@ import reactor.core.publisher.Mono
 
 @Component
 class TextParserApi(
-        @param:Qualifier(TextParserServiceConfig.TEXT_PARSER_SERVICE_WEB_CLIENT) private val webClient: WebClient.Builder) {
+    @param:Qualifier(TextParserServiceConfig.TEXT_PARSER_SERVICE_WEB_CLIENT) private val webClient: WebClient.Builder
+) {
     private val log = LoggerFactory.getLogger(TextParserApi::class.java)
 
     private companion object {
@@ -30,13 +31,13 @@ class TextParserApi(
         return mono {
             try {
                 return@mono webClient.build()
-                        .post()
-                        .uri("$API_ROOT/$EMOJI_INFO")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(BodyInserters.fromValue(request))
-                        .retrieve()
-                        .bodyToMono(object : ParameterizedTypeReference<Map<String, EmojiData>>() {})
-                        .awaitFirst()
+                    .post()
+                    .uri("$API_ROOT/$EMOJI_INFO")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(BodyInserters.fromValue(request))
+                    .retrieve()
+                    .bodyToMono(object : ParameterizedTypeReference<Map<String, EmojiData>>() {})
+                    .awaitFirst()
             } catch (exception: Exception) {
                 log.error("Error occurred when tried to get emoji info", exception)
                 return@mono mapOf()

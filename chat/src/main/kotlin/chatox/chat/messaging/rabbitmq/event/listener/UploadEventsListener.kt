@@ -19,77 +19,91 @@ class UploadEventsListener(private val uploadService: UploadService) {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     @RabbitListener(queues = ["chat_service_image_created"])
-    fun onImageCreated(uploadCreated: UploadCreated<ImageUploadMetadata>,
-                       channel: Channel,
-                       @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onImageCreated(
+        uploadCreated: UploadCreated<ImageUploadMetadata>,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         if (!uploadCreated.isPreview && !uploadCreated.isThumbnail) {
             uploadService.saveUpload(uploadCreated)
-                    .doOnSuccess { channel.basicAck(tag, false) }
-                    .doOnError { channel.basicNack(tag, true, true) }
-                    .subscribe()
+                .doOnSuccess { channel.basicAck(tag, false) }
+                .doOnError { channel.basicNack(tag, true, true) }
+                .subscribe()
         } else {
             channel.basicAck(tag, false)
         }
     }
 
     @RabbitListener(queues = ["chat_service_video_created"])
-    fun onVideoCreated(uploadCreated: UploadCreated<VideoUploadMetadata>,
-                       channel: Channel,
-                       @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onVideoCreated(
+        uploadCreated: UploadCreated<VideoUploadMetadata>,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         uploadService.saveUpload(uploadCreated)
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, true, true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, true, true) }
+            .subscribe()
     }
 
     @RabbitListener(queues = ["chat_service_audio_created"])
-    fun onAudioCreated(uploadCreated: UploadCreated<AudioUploadMetadata>,
-                       channel: Channel,
-                       @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onAudioCreated(
+        uploadCreated: UploadCreated<AudioUploadMetadata>,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         uploadService.saveUpload(uploadCreated)
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, true, true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, true, true) }
+            .subscribe()
     }
 
     @RabbitListener(queues = ["chat_service_gif_created"])
-    fun onGifCreated(uploadCreated: UploadCreated<GifUploadMetadata>,
-                     channel: Channel,
-                     @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onGifCreated(
+        uploadCreated: UploadCreated<GifUploadMetadata>,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         uploadService.saveUpload(uploadCreated)
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, true, true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, true, true) }
+            .subscribe()
     }
 
     @RabbitListener(queues = ["chat_service_file_created"])
-    fun onFileCreated(uploadCreated: UploadCreated<Any>,
-                      channel: Channel,
-                      @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onFileCreated(
+        uploadCreated: UploadCreated<Any>,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         uploadService.saveUpload(uploadCreated)
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, true, true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, true, true) }
+            .subscribe()
     }
 
     @RabbitListener(queues = ["chat_service_voice_message_created"])
-    fun onVoiceMessageCreated(uploadCreated: UploadCreated<AudioUploadMetadata>,
-                              channel: Channel,
-                              @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onVoiceMessageCreated(
+        uploadCreated: UploadCreated<AudioUploadMetadata>,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         uploadService.saveUpload(uploadCreated)
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, true, true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, true, true) }
+            .subscribe()
     }
 
     @RabbitListener(queues = ["chat_service_upload_deleted"])
-    fun onUploadDeleted(uploadDeleted: UploadDeleted,
-                        channel: Channel,
-                        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onUploadDeleted(
+        uploadDeleted: UploadDeleted,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         log.info("Received UploadDeleted event with upload ${uploadDeleted.uploadId}")
         uploadService.deleteUpload(uploadDeleted)
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, true, true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, true, true) }
+            .subscribe()
     }
 }

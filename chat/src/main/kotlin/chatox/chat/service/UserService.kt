@@ -6,6 +6,13 @@ import reactor.core.publisher.Mono
 
 interface UserService {
     fun findUserById(id: String): Mono<UserResponse>
-    fun findUserByIdAndPutInLocalCache(id: String?, localCache: MutableMap<String, UserResponse>? = null): Mono<UserResponse>
-    fun findAllByIdAndPutInLocalCache(ids: List<String>, localCache: MutableMap<String, UserResponse>? = null): Flux<UserResponse>
+    fun findUserByIdAndPutInLocalCache(
+        id: String?,
+        localCache: MutableMap<String, UserResponse>? = null
+    ): Mono<UserResponse>
+
+    fun findAllByIdAndPutInLocalCache(
+        ids: List<String>,
+        localCache: MutableMap<String, UserResponse>? = null
+    ): Flux<UserResponse>
 }

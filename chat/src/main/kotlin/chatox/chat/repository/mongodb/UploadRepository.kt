@@ -8,7 +8,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 interface UploadRepository : ReactiveMongoRepository<Upload<Any>, String>, UploadCustomRepository {
-    fun <MedataType>save(upload: Upload<MedataType>): Mono<Upload<MedataType>>
-    fun <MetadataType>findByIdAndType(id: String, type: UploadType): Mono<Upload<MetadataType>>
-    fun <Any>findAllById(ids: List<String>): Flux<Upload<Any>>
+    fun <MedataType> save(upload: Upload<MedataType>): Mono<Upload<MedataType>>
+    fun <MetadataType> findByIdAndType(id: String, type: UploadType): Mono<Upload<MetadataType>>
+    fun <Any> findAllById(ids: List<String>): Flux<Upload<Any>>
 }

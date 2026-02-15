@@ -10,30 +10,30 @@ import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 
 data class UpdateChatRequest(
-        @field:NotBlank
-        @field:Size(max = 30)
-        @field:JsonProperty("name")
-        private val _name: String?,
-        val avatarId: String? = null,
+    @field:NotBlank
+    @field:Size(max = 30)
+    @field:JsonProperty("name")
+    private val _name: String?,
+    val avatarId: String? = null,
 
-        @field:Size(max = 25)
-        @field:Pattern(regexp = "^[a-zA-Z0-9_.]+$")
-        @field:StringNotIn(["my", "popular", "invites"])
-        val slug: String? = null,
+    @field:Size(max = 25)
+    @field:Pattern(regexp = "^[a-zA-Z0-9_.]+$")
+    @field:StringNotIn(["my", "popular", "invites"])
+    val slug: String? = null,
 
-        @field:Size(max = 1000)
-        val description: String? = null,
+    @field:Size(max = 1000)
+    val description: String? = null,
 
-        @field:Size(max = 15)
-        val tags: List<@NotBlank @Size(max = 15) String>? = null,
+    @field:Size(max = 15)
+    val tags: List<@NotBlank @Size(max = 15) String>? = null,
 
-        @field:Valid
-        val slowMode: UpdateSlowModeRequest? = null,
+    @field:Valid
+    val slowMode: UpdateSlowModeRequest? = null,
 
-        val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance>? = null,
+    val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance>? = null,
 
-        val hideFromSearch: Boolean? = null
+    val hideFromSearch: Boolean? = null
 ) {
-        val name: String
-                get() = _name!!
+    val name: String
+        get() = _name!!
 }

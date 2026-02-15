@@ -8,11 +8,13 @@ import java.math.BigDecimal
 
 @ResponseStatus(HttpStatus.PAYMENT_REQUIRED)
 class InsufficientBalanceException(requiredAmount: BigDecimal, actualAmount: BigDecimal) : MetadataEnhancedException(
-        ExceptionMetadata.builder()
-                .errorCode("INSUFFICIENT_BALANCE")
-                .additional(mutableMapOf(
-                        Pair("requiredAmount", requiredAmount.toString()),
-                        Pair("actualAmount", actualAmount.toString())
-                ))
-                .build()
+    ExceptionMetadata.builder()
+        .errorCode("INSUFFICIENT_BALANCE")
+        .additional(
+            mutableMapOf(
+                Pair("requiredAmount", requiredAmount.toString()),
+                Pair("actualAmount", actualAmount.toString())
+            )
+        )
+        .build()
 )

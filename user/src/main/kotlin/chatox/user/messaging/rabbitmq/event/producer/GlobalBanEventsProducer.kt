@@ -7,14 +7,14 @@ import org.springframework.stereotype.Component
 @Component
 class GlobalBanEventsProducer(private val rabbitTemplate: RabbitTemplate) {
     fun globalBanCreated(globalBanResponse: GlobalBanResponse) = rabbitTemplate.convertAndSend(
-            "global.ban.events",
-            "global.ban.created.#",
-            globalBanResponse
+        "global.ban.events",
+        "global.ban.created.#",
+        globalBanResponse
     )
 
     fun globalBanUpdated(globalBanResponse: GlobalBanResponse) = rabbitTemplate.convertAndSend(
-            "global.ban.events",
-            "global.ban.updated.#",
-            globalBanResponse
+        "global.ban.events",
+        "global.ban.updated.#",
+        globalBanResponse
     )
 }

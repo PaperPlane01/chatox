@@ -13,20 +13,22 @@ import reactor.core.publisher.Mono
 
 interface UserProfilePhotoService {
     fun createUserProfilePhoto(
-            userId: String,
-            createUserProfilePhotoRequest: CreateUserProfilePhotoRequest
+        userId: String,
+        createUserProfilePhotoRequest: CreateUserProfilePhotoRequest
     ): Mono<UserProfilePhotoResponse>
+
     fun createUserProfilePhoto(user: User, photo: Upload<ImageUploadMetadata>): Mono<UserProfilePhoto>
 
     fun deleteUserProfilePhoto(userId: String, userProfilePhotoId: String): Mono<Unit>
     fun getUserProfilePhotos(userId: String): Flux<UserProfilePhotoResponse>
     fun setUserProfilePhotoAsAvatar(
-            userId: String,
-            userProfilePhotoId: String,
-            setUserProfilePhotoAsAvatarRequest: SetUserProfilePhotoAsAvatarRequest
+        userId: String,
+        userProfilePhotoId: String,
+        setUserProfilePhotoAsAvatarRequest: SetUserProfilePhotoAsAvatarRequest
     ): Mono<Unit>
+
     fun deleteMultipleUserProfilePhotos(
-            userId: String,
-            deleteMultipleUserProfilePhotosRequest: DeleteMultipleUserProfilePhotosRequest
+        userId: String,
+        deleteMultipleUserProfilePhotosRequest: DeleteMultipleUserProfilePhotosRequest
     ): Mono<Unit>
 }

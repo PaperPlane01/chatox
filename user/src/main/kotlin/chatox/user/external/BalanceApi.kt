@@ -11,10 +11,10 @@ class BalanceApi(private val webClient: WebClient) {
 
     fun getBalanceOfUser(userId: String): Mono<BalanceResponse> {
         return webClient.get()
-                .uri("/api/v1/balance?userId=${userId}")
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .toEntity(BalanceResponse::class.java)
-                .mapNotNull { entity -> entity.body }
+            .uri("/api/v1/balance?userId=${userId}")
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .toEntity(BalanceResponse::class.java)
+            .mapNotNull { entity -> entity.body }
     }
 }

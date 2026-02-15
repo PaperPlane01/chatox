@@ -16,8 +16,8 @@ class UploadCustomRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplat
 
     override fun findStickerById(id: String): Mono<Upload<StickerUploadMetadata>> {
         return mongoTemplate.findById(id, Upload::class.java)
-                .filter { upload -> UploadType.isStickerUploadType(upload.type) }
-                .map(::asSticker)
+            .filter { upload -> UploadType.isStickerUploadType(upload.type) }
+            .map(::asSticker)
     }
 
     override fun findStickersByIdIn(ids: List<String>): Flux<Upload<StickerUploadMetadata>> {
@@ -25,8 +25,8 @@ class UploadCustomRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplat
         query.addCriteria(Criteria.where("_id").`in`(ids))
 
         return mongoTemplate.find(query, Upload::class.java)
-                .filter { upload -> UploadType.isStickerUploadType(upload.type) }
-                .map(::asSticker)
+            .filter { upload -> UploadType.isStickerUploadType(upload.type) }
+            .map(::asSticker)
     }
 
     @Suppress("UNCHECKED_CAST")

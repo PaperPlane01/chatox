@@ -10,8 +10,9 @@ import reactor.core.publisher.Mono
 
 @Component
 class UserInteractionPermissions(
-        private val userBlacklistService: UserBlacklistService,
-        private val authenticationHolder: ReactiveAuthenticationHolder<User>) {
+    private val userBlacklistService: UserBlacklistService,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>
+) {
 
     fun canCreateInteraction(userId: String): Mono<Boolean> {
         return mono {

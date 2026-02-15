@@ -14,12 +14,16 @@ import reactor.core.publisher.Mono
 
 @Service
 class UserAvatarServiceImpl(
-        private val userRepository: UserRepository,
-        private val userEventsProducer: UserEventsProducer,
-        private val userMapper: UserMapper
-): UserAvatarService {
+    private val userRepository: UserRepository,
+    private val userEventsProducer: UserEventsProducer,
+    private val userMapper: UserMapper
+) : UserAvatarService {
 
-    override fun saveAvatar(user: User, avatar: Upload<ImageUploadMetadata>, publishUserUpdatedEvent: Boolean): Mono<User> {
+    override fun saveAvatar(
+        user: User,
+        avatar: Upload<ImageUploadMetadata>,
+        publishUserUpdatedEvent: Boolean
+    ): Mono<User> {
         return mono {
             val updatedUser = userRepository.save(user.copy(avatar = avatar)).awaitFirst()
 
@@ -27,7 +31,7 @@ class UserAvatarServiceImpl(
                 Mono.fromRunnable<Unit> {
                     userEventsProducer.userUpdated(userMapper.toUserResponse(updatedUser))
                 }
-                        .subscribe()
+                    .subscribe()
             }
 
             return@mono updatedUser
@@ -42,7 +46,7 @@ class UserAvatarServiceImpl(
                 Mono.fromRunnable<Unit> {
                     userEventsProducer.userUpdated(userMapper.toUserResponse(updatedUser))
                 }
-                        .subscribe()
+                    .subscribe()
             }
 
             return@mono updatedUser

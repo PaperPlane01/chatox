@@ -31,24 +31,29 @@ import org.springframework.messaging.handler.annotation.Header
 import org.springframework.stereotype.Component
 
 @Component
-class UserEventsListener(private val userRepository: UserRepository,
-                         private val chatParticipationRepository: ChatParticipationRepository,
-                         private val uploadRepository: UploadRepository,
-                         private val chatRepository: ChatRepository,
-                         private val chatParticipationMapper: ChatParticipationMapper,
-                         private val chatEventsPublisher: ChatEventsPublisher,
-                         private val userDisplayedNameHelper: UserDisplayedNameHelper,
-                         private val chatParticipantsCountService: ChatParticipantsCountService) {
+class UserEventsListener(
+    private val userRepository: UserRepository,
+    private val chatParticipationRepository: ChatParticipationRepository,
+    private val uploadRepository: UploadRepository,
+    private val chatRepository: ChatRepository,
+    private val chatParticipationMapper: ChatParticipationMapper,
+    private val chatEventsPublisher: ChatEventsPublisher,
+    private val userDisplayedNameHelper: UserDisplayedNameHelper,
+    private val chatParticipantsCountService: ChatParticipantsCountService
+) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     @RabbitListener(queues = ["chat_service_user_created"])
-    fun onUserCreated(userCreated: UserCreated,
-                      channel: Channel,
-                      @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onUserCreated(
+        userCreated: UserCreated,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         mono {
             log.info("User ${userCreated.id} has been created")
             log.debug("Created user name is {}", userCreated)
-            userRepository.save(User(
+            userRepository.save(
+                User(
                     id = userCreated.id,
                     deleted = false,
                     accountId = userCreated.accountId,
@@ -66,17 +71,20 @@ class UserEventsListener(private val userRepository: UserRepository,
                     accountRegistrationType = userCreated.accountRegistrationType,
                     externalAvatarUri = userCreated.externalAvatarUri,
                     verificationLevel = VerificationLevel.getVerificationLevel(userCreated.anonymous, userCreated.email)
-            )).awaitFirst()
+                )
+            ).awaitFirst()
         }
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, false, true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, false, true) }
+            .subscribe()
     }
 
     @RabbitListener(queues = ["chat_service_user_updated"])
-    fun onUserUpdated(userUpdated: UserUpdated,
-                      channel: Channel,
-                      @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onUserUpdated(
+        userUpdated: UserUpdated,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         mono {
             log.info("User with id ${userUpdated.id} has been updated")
             var user = userRepository.findById(userUpdated.id).awaitFirstOrNull()
@@ -86,13 +94,14 @@ class UserEventsListener(private val userRepository: UserRepository,
 
                 if (userUpdated.avatar != null) {
                     avatar = uploadRepository.findByIdAndType<ImageUploadMetadata>(
-                            userUpdated.avatar.id,
-                            UploadType.IMAGE
+                        userUpdated.avatar.id,
+                        UploadType.IMAGE
                     )
-                            .awaitFirstOrNull()
+                        .awaitFirstOrNull()
                 }
 
-                user = userRepository.save(user.copy(
+                user = userRepository.save(
+                    user.copy(
                         avatarUri = userUpdated.avatarUri,
                         firstName = userUpdated.firstName,
                         lastName = userUpdated.lastName,
@@ -103,40 +112,43 @@ class UserEventsListener(private val userRepository: UserRepository,
                         avatar = avatar,
                         email = userUpdated.email,
                         verificationLevel = VerificationLevel.getVerificationLevel(user.anonymoys, user.email)
-                ))
-                        .awaitFirst()
+                    )
+                )
+                    .awaitFirst()
                 chatParticipationRepository
-                        .updateChatParticipationsOfUser(user)
-                        .awaitFirst()
+                    .updateChatParticipationsOfUser(user)
+                    .awaitFirst()
                 val dialogChats = chatRepository
-                        .findByDialogDisplayOtherParticipantUserId(user.id)
-                        .map { chat ->
-                            val dialogDisplays = chat.dialogDisplay.map { dialogDisplay ->
-                                if (dialogDisplay.otherParticipant.userId != user.id) {
-                                    dialogDisplay
-                                } else {
-                                    dialogDisplay.copy(
-                                            otherParticipant = dialogDisplay.otherParticipant.copy(
-                                                    userDisplayedName = userDisplayedNameHelper.getDisplayedName(user),
-                                                    userSlug = user.slug
-                                            )
+                    .findByDialogDisplayOtherParticipantUserId(user.id)
+                    .map { chat ->
+                        val dialogDisplays = chat.dialogDisplay.map { dialogDisplay ->
+                            if (dialogDisplay.otherParticipant.userId != user.id) {
+                                dialogDisplay
+                            } else {
+                                dialogDisplay.copy(
+                                    otherParticipant = dialogDisplay.otherParticipant.copy(
+                                        userDisplayedName = userDisplayedNameHelper.getDisplayedName(user),
+                                        userSlug = user.slug
                                     )
-                                }
+                                )
                             }
-                            chat.copy(dialogDisplay = dialogDisplays)
                         }
+                        chat.copy(dialogDisplay = dialogDisplays)
+                    }
                 chatRepository.saveAll(dialogChats).collectList().awaitFirst()
             }
         }
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, false, true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, false, true) }
+            .subscribe()
     }
 
     @RabbitListener(queues = ["chat_service_user_deleted"])
-    fun onUserDeleted(userDeleted: UserDeleted,
-                      channel: Channel,
-                      @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onUserDeleted(
+        userDeleted: UserDeleted,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         mono {
             val user = userRepository.findById(userDeleted.id).awaitFirstOrNull();
 
@@ -144,58 +156,63 @@ class UserEventsListener(private val userRepository: UserRepository,
                 userRepository.save(user.copy(deleted = true)).awaitFirst()
             }
         }
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, false, true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, false, true) }
+            .subscribe()
     }
 
     @RabbitListener(queues = ["chat_service_user_went_online"])
-    fun onUserWentOnline(userWentOnline: UserWentOnline,
-                         channel: Channel,
-                         @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onUserWentOnline(
+        userWentOnline: UserWentOnline,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         mono {
             log.info("userWentOnline event received")
             var user = userRepository.findById(userWentOnline.userId).awaitFirstOrNull()
 
             if (user != null) {
                 user = user.copy(
-                        online = true,
-                        lastSeen = userWentOnline.lastSeen
+                    online = true,
+                    lastSeen = userWentOnline.lastSeen
                 )
                 userRepository.save(user).awaitFirst()
                 val chatParticipations = chatParticipationRepository.findAllByUserIdAndDeletedFalse(user.id)
-                        .collectList()
-                        .awaitFirst()
+                    .collectList()
+                    .awaitFirst()
                 val (updatedChatParticipations, chatIds) = mapTo2Lists(
-                        chatParticipations,
-                        { it.copy(userOnline = true, user = user) },
-                        { if (it.chatType == ChatType.GROUP) it.chatId else null }
+                    chatParticipations,
+                    { it.copy(userOnline = true, user = user) },
+                    { if (it.chatType == ChatType.GROUP) it.chatId else null }
                 )
 
                 chatParticipationRepository.saveAll(updatedChatParticipations).subscribe()
 
-                chatIds.filterNotNull().forEach { chatId -> chatParticipantsCountService
+                chatIds.filterNotNull().forEach { chatId ->
+                    chatParticipantsCountService
                         .increaseOnlineParticipantsCount(chatId)
                         .subscribe()
                 }
 
                 chatEventsPublisher.chatParticipantsWentOnline(
-                        chatParticipants = updatedChatParticipations.map { chatParticipation ->
-                            chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst()
-                        }
+                    chatParticipants = updatedChatParticipations.map { chatParticipation ->
+                        chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst()
+                    }
                 )
             }
 
         }
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, false, false) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, false, false) }
+            .subscribe()
     }
 
     @RabbitListener(queues = ["chat_service_user_went_offline"])
-    fun onUserWentOffline(userWentOffline: UserWentOffline,
-                          channel: Channel,
-                          @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onUserWentOffline(
+        userWentOffline: UserWentOffline,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         log.info("userWentOffline event received")
         log.debug("{}", userWentOffline)
         mono {
@@ -203,41 +220,42 @@ class UserEventsListener(private val userRepository: UserRepository,
 
             if (user != null) {
                 user = user.copy(
-                        online = false,
-                        lastSeen = userWentOffline.lastSeen
+                    online = false,
+                    lastSeen = userWentOffline.lastSeen
                 )
                 userRepository.save(user).awaitFirst()
                 log.debug("User has been updated")
                 val chatParticipations = chatParticipationRepository.findAllByUserIdAndDeletedFalse(user.id)
-                        .collectList()
-                        .awaitFirst()
+                    .collectList()
+                    .awaitFirst()
                 val (updatedChatParticipations, chatIds) = mapTo2Lists(
-                        chatParticipations,
-                        { it.copy(userOnline = false, user = user) },
-                        { if (it.chatType == ChatType.GROUP) it.chatId else null }
+                    chatParticipations,
+                    { it.copy(userOnline = false, user = user) },
+                    { if (it.chatType == ChatType.GROUP) it.chatId else null }
                 )
 
                 chatParticipationRepository
-                        .saveAll(updatedChatParticipations)
-                        .collectList()
-                        .awaitFirst()
+                    .saveAll(updatedChatParticipations)
+                    .collectList()
+                    .awaitFirst()
 
-                chatIds.filterNotNull().forEach { chatId -> chatParticipantsCountService
+                chatIds.filterNotNull().forEach { chatId ->
+                    chatParticipantsCountService
                         .decreaseOnlineParticipantsCount(chatId)
                         .subscribe()
                 }
 
                 chatEventsPublisher.chatParticipantsWentOffline(
-                        chatParticipants = updatedChatParticipations.map { chatParticipation ->
-                            chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst()
-                        }
+                    chatParticipants = updatedChatParticipations.map { chatParticipation ->
+                        chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst()
+                    }
                 )
                 log.debug("Chat participations have been updated")
             }
 
         }
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, false, false) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, false, false) }
+            .subscribe()
     }
 }

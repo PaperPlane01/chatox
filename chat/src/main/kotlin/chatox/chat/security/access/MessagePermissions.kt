@@ -6,7 +6,6 @@ import chatox.chat.model.ChatType
 import chatox.chat.model.MessageUploadsCount
 import chatox.chat.model.SendMessagesFeatureAdditionalData
 import chatox.chat.model.User
-import chatox.platform.upload.UploadType;
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.UploadRepository
 import chatox.chat.service.ChatBlockingService
@@ -19,6 +18,7 @@ import chatox.chat.util.BoundMode
 import chatox.chat.util.isBetween
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.upload.UploadType
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -29,11 +29,13 @@ import java.time.Duration
 import java.time.ZonedDateTime
 
 @Component
-class MessagePermissions(private val chatBlockingService: ChatBlockingService,
-                         private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-                         private val chatRoleService: ChatRoleService,
-                         private val uploadRepository: UploadRepository,
-                         private val messageRepository: MessageMongoRepository) {
+class MessagePermissions(
+    private val chatBlockingService: ChatBlockingService,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>,
+    private val chatRoleService: ChatRoleService,
+    private val uploadRepository: UploadRepository,
+    private val messageRepository: MessageMongoRepository
+) {
     private lateinit var messageService: MessageService
     private lateinit var scheduledMessageService: ScheduledMessageService
     private lateinit var chatService: ChatService
@@ -62,15 +64,15 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
             }
 
             val features = chatRoleService.getRoleOfUserInChat(
-                    userId = currentUser.id,
-                    chatId = chatId
+                userId = currentUser.id,
+                chatId = chatId
             )
-                    .awaitFirstOrNull()
-                    ?.features
-                    ?: return@mono false
+                .awaitFirstOrNull()
+                ?.features
+                ?: return@mono false
 
             return@mono features.sendMessages.enabled
-         }
+        }
     }
 
     fun canCreateMessage(chatId: String): Mono<Boolean> = canCreateMessage(chatId, null)
@@ -83,8 +85,9 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 return@mono false
             }
 
-            val features = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()?.features
-                    ?: return@mono false
+            val features = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId)
+                .awaitFirstOrNull()?.features
+                ?: return@mono false
 
             if (!features.sendMessages.enabled) {
                 return@mono false
@@ -104,9 +107,9 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 checkUploadsPermissions(createMessageRequest, features.sendMessages.additional).awaitFirst()
             }
 
-           return@mono scheduledMessageCheck
-                   && uploadsCheck
-                   && checkSlowMode(chatId, currentUser).awaitFirst()
+            return@mono scheduledMessageCheck
+                    && uploadsCheck
+                    && checkSlowMode(chatId, currentUser).awaitFirst()
         }
     }
 
@@ -119,10 +122,10 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
             }
 
             val lastMessage = messageRepository.findFirstByChatIdAndSenderIdOrderByCreatedAtDesc(
-                    chatId = chatId,
-                    senderId = user.id
+                chatId = chatId,
+                senderId = user.id
             )
-                    .awaitFirstOrNull() ?: return@mono true
+                .awaitFirstOrNull() ?: return@mono true
             val nextDate = lastMessage.createdAt.plus(Duration.of(chat.slowMode.interval, chat.slowMode.unit))
 
             return@mono nextDate.isBefore(ZonedDateTime.now())
@@ -138,8 +141,9 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 return@mono false
             }
 
-            val features = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()?.features
-                    ?: return@mono false
+            val features = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId)
+                .awaitFirstOrNull()?.features
+                ?: return@mono false
 
             return@mono features.scheduleMessages.enabled
         }
@@ -171,17 +175,18 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 return@mono true
             }
 
-            val chatRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
+            val chatRole =
+                chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
 
             if (message.sender.id == currentUser.id) {
                 return@mono chatRole.features.deleteOwnMessages.enabled
             } else {
                 val otherUserRole = chatRoleService.getRoleOfUserInChat(
-                        userId = message.sender.id,
-                        chatId = chatId
+                    userId = message.sender.id,
+                    chatId = chatId
                 )
-                        .awaitFirstOrNull() ?: return@mono true
+                    .awaitFirstOrNull() ?: return@mono true
 
                 return@mono canDeleteOtherUserMessage(chatRole, otherUserRole)
             }
@@ -198,9 +203,9 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
         }
 
         return isBetween(
-                currentUserRole.level,
-                Bound(otherUserRole.features.messageDeletionsImmunity.additional.fromLevel, BoundMode.INCLUSIVE),
-                Bound(otherUserRole.features.messageDeletionsImmunity.additional.upToLevel, BoundMode.INCLUSIVE)
+            currentUserRole.level,
+            Bound(otherUserRole.features.messageDeletionsImmunity.additional.fromLevel, BoundMode.INCLUSIVE),
+            Bound(otherUserRole.features.messageDeletionsImmunity.additional.upToLevel, BoundMode.INCLUSIVE)
         )
     }
 
@@ -213,7 +218,8 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
             }
 
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            val userRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
+            val userRole =
+                chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
 
             return@mono userRole.features.pinMessages.enabled
@@ -229,7 +235,8 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
             }
 
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            val userRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
+            val userRole =
+                chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
 
             return@mono userRole.features.pinMessages.enabled
@@ -239,7 +246,8 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
     fun canSeeScheduledMessages(chatId: String): Mono<Boolean> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            val userRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
+            val userRole =
+                chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
 
             return@mono userRole.features.scheduleMessages.enabled
@@ -249,7 +257,8 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
     fun canUpdateScheduledMessage(messageId: String, chatId: String): Mono<Boolean> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            val userRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
+            val userRole =
+                chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
             val message = scheduledMessageService.findScheduledMessageById(messageId).awaitFirst()
 
@@ -263,7 +272,8 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
     fun canDeleteScheduledMessage(messageId: String, chatId: String): Mono<Boolean> {
         return mono {
             val currenUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            val userRole = chatRoleService.getRoleOfUserInChat(userId = currenUser.id, chatId = chatId).awaitFirstOrNull()
+            val userRole =
+                chatRoleService.getRoleOfUserInChat(userId = currenUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
             val message = scheduledMessageService.findScheduledMessageById(messageId).awaitFirst()
 
@@ -291,10 +301,10 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
                 val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull() ?: return@mono false
 
                 return@mono chatRoleService.getRoleOfUserInChat(
-                        userId = currentUser.id,
-                        chatId = chatId
+                    userId = currentUser.id,
+                    chatId = chatId
                 )
-                        .awaitFirstOrNull() != null
+                    .awaitFirstOrNull() != null
             }
         }
     }
@@ -306,8 +316,8 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
             val chat = chatService.findChatById(chatId).awaitFirst()
 
             return@mono chatRoleService.getRoleOfUserInChat(
-                    userId = currentUser.id,
-                    chatId = chat.id
+                userId = currentUser.id,
+                chatId = chat.id
             ).awaitFirstOrNull() != null
         }
     }
@@ -322,7 +332,10 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
         }
     }
 
-    private fun checkUploadsPermissions(createMessageRequest: CreateMessageRequest, messageFeatures: SendMessagesFeatureAdditionalData): Mono<Boolean> {
+    private fun checkUploadsPermissions(
+        createMessageRequest: CreateMessageRequest,
+        messageFeatures: SendMessagesFeatureAdditionalData
+    ): Mono<Boolean> {
         return mono {
             if (createMessageRequest.uploadAttachments.isEmpty()) {
                 return@mono true
@@ -373,22 +386,22 @@ class MessagePermissions(private val chatBlockingService: ChatBlockingService,
 
             val uploads = uploadRepository.findAllById<Any>(uploadsIds).collectList().awaitFirst()
             val uploadsCountMap = mutableMapOf(
-                    Pair(UploadType.IMAGE, 0),
-                    Pair(UploadType.AUDIO, 0),
-                    Pair(UploadType.FILE, 0),
-                    Pair(UploadType.VIDEO, 0),
-                    Pair(UploadType.VOICE_MESSAGE, 0)
+                Pair(UploadType.IMAGE, 0),
+                Pair(UploadType.AUDIO, 0),
+                Pair(UploadType.FILE, 0),
+                Pair(UploadType.VIDEO, 0),
+                Pair(UploadType.VOICE_MESSAGE, 0)
             )
 
             for (upload in uploads) {
-               uploadsCountMap[upload.type] = uploadsCountMap[upload.type]!! + 1
+                uploadsCountMap[upload.type] = uploadsCountMap[upload.type]!! + 1
             }
 
             return@mono MessageUploadsCount(
-                    images = uploadsCountMap[UploadType.IMAGE]!!,
-                    audios = uploadsCountMap[UploadType.AUDIO]!!,
-                    files = uploadsCountMap[UploadType.FILE]!!,
-                    videos = uploadsCountMap[UploadType.VIDEO]!!
+                images = uploadsCountMap[UploadType.IMAGE]!!,
+                audios = uploadsCountMap[UploadType.AUDIO]!!,
+                files = uploadsCountMap[UploadType.FILE]!!,
+                videos = uploadsCountMap[UploadType.VIDEO]!!
             )
         }
     }

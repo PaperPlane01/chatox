@@ -6,13 +6,13 @@ import java.time.ZonedDateTime
 
 @Document(collection = "chatRoleTemplate")
 data class ChatRoleTemplate(
-        @Id
-        val id: String,
-        val name: String,
-        val createdAt: ZonedDateTime,
-        val level: Int,
-        val createdBy: String? = null,
-        val updatedAt: ZonedDateTime? = null,
-        val updatedBy: String? = null,
-        val features: ChatFeatures
+    @Id
+    val id: String,
+    val name: String,
+    val createdAt: ZonedDateTime,
+    val level: Int,
+    val createdBy: String? = null,
+    val updatedAt: ZonedDateTime? = null,
+    val updatedBy: String? = null,
+    val features: ChatFeatures
 )

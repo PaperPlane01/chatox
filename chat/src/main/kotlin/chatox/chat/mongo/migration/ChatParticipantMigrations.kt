@@ -34,29 +34,29 @@ class ChatParticipantMigrations {
             while (true) {
                 log.info("Processing page $page")
                 val aggregation = Aggregation.newAggregation(
-                        Aggregation.lookup()
-                                .from("chat")
-                                .localField("chatId")
-                                .foreignField("_id")
-                                .pipeline(Aggregation.project("type"))
-                                .`as`("chat"),
-                        Aggregation.project()
-                                .and(ArrayElemAt.arrayOf("chat").elementAt(0))
-                                .`as`("chat"),
-                        Aggregation.skip(page * pageSize),
-                        Aggregation.limit(pageSize),
+                    Aggregation.lookup()
+                        .from("chat")
+                        .localField("chatId")
+                        .foreignField("_id")
+                        .pipeline(Aggregation.project("type"))
+                        .`as`("chat"),
+                    Aggregation.project()
+                        .and(ArrayElemAt.arrayOf("chat").elementAt(0))
+                        .`as`("chat"),
+                    Aggregation.skip(page * pageSize),
+                    Aggregation.limit(pageSize),
                 )
                 val result = reactiveMongoTemplate.aggregate(
-                        aggregation,
-                        "chatParticipation",
-                        ChatTypeByChatParticipationQueryResult::class.java
+                    aggregation,
+                    "chatParticipation",
+                    ChatTypeByChatParticipationQueryResult::class.java
                 )
-                        .collectList()
-                        .awaitFirst()
+                    .collectList()
+                    .awaitFirst()
 
                 val bulkOperations = reactiveMongoTemplate.bulkOps(
-                        BulkOperations.BulkMode.UNORDERED,
-                        ChatParticipation::class.java
+                    BulkOperations.BulkMode.UNORDERED,
+                    ChatParticipation::class.java
                 )
 
                 result.forEach { updatedData ->
@@ -83,16 +83,16 @@ class ChatParticipantMigrations {
     }
 
     private data class ChatTypeByChatParticipationQueryResult(
-            private val _id: String,
-            val chat: ChatTypeQueryResult
+        private val _id: String,
+        val chat: ChatTypeQueryResult
     ) {
         val id: String
             get() = _id
     }
 
     private data class ChatTypeQueryResult(
-            private val _id: String,
-            val type: ChatType
+        private val _id: String,
+        val type: ChatType
     ) {
         val chatId: String
             get() = _id
@@ -104,39 +104,41 @@ class ChatParticipantMigrations {
             log.info("Execute migration: populate chat participants and online participants count")
 
             val aggregation = Aggregation.newAggregation(
-                    Aggregation.match(
-                            Criteria.where("deleted").`is`(false)
-                                    .and("chatType").`is`(ChatType.GROUP)
-                    ),
-                    Aggregation.project("chatId", "userOnline"),
-                    Aggregation.group("chatId")
-                            .count().`as`("participantsCount")
-                            .sum(
-                                    ConditionalOperators
-                                            .`when`("userOnline")
-                                            .then(1)
-                                            .otherwise(0)
-                            )
-                            .`as`("onlineParticipantsCount")
+                Aggregation.match(
+                    Criteria.where("deleted").`is`(false)
+                        .and("chatType").`is`(ChatType.GROUP)
+                ),
+                Aggregation.project("chatId", "userOnline"),
+                Aggregation.group("chatId")
+                    .count().`as`("participantsCount")
+                    .sum(
+                        ConditionalOperators
+                            .`when`("userOnline")
+                            .then(1)
+                            .otherwise(0)
+                    )
+                    .`as`("onlineParticipantsCount")
             )
 
             val chatParticipantsCount = reactiveMongoTemplate.aggregate(
-                    aggregation,
-                    "chatParticipation",
-                    ChatParticipantsCountResult::class.java
+                aggregation,
+                "chatParticipation",
+                ChatParticipantsCountResult::class.java
             )
-                    .collectList()
-                    .awaitFirst()
-                    .map { result -> ChatParticipantsCount(
-                            id = ObjectId().toHexString(),
-                            chatId = result.chatId,
-                            participantsCount = result.participantsCount,
-                            onlineParticipantsCount = result.onlineParticipantsCount
-                    ) }
+                .collectList()
+                .awaitFirst()
+                .map { result ->
+                    ChatParticipantsCount(
+                        id = ObjectId().toHexString(),
+                        chatId = result.chatId,
+                        participantsCount = result.participantsCount,
+                        onlineParticipantsCount = result.onlineParticipantsCount
+                    )
+                }
 
             val bulkOperations = reactiveMongoTemplate.bulkOps(
-                    BulkOperations.BulkMode.UNORDERED,
-                    ChatParticipantsCount::class.java
+                BulkOperations.BulkMode.UNORDERED,
+                ChatParticipantsCount::class.java
             )
 
             chatParticipantsCount.forEach { document -> bulkOperations.insert(document) }
@@ -150,9 +152,9 @@ class ChatParticipantMigrations {
     }
 
     private data class ChatParticipantsCountResult(
-            private val _id: String,
-            val participantsCount: Int,
-            val onlineParticipantsCount: Int
+        private val _id: String,
+        val participantsCount: Int,
+        val onlineParticipantsCount: Int
     ) {
         val chatId: String
             get() = _id

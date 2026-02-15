@@ -25,16 +25,18 @@ class ChatRoleController(private val chatRoleService: ChatRoleService) {
     //language=SpEL
     @ReactivePermissionCheck("@chatRolePermissions.canCreateChatRole(#chatId, #createChatRoleRequest)")
     @PostMapping("/{chatId}/roles")
-    fun createChatRole(@PathVariable chatId: String,
-                       @RequestBody @Valid createChatRoleRequest: CreateChatRoleRequest
-    ) = chatRoleService.createChatRole(chatId,createChatRoleRequest)
+    fun createChatRole(
+        @PathVariable chatId: String,
+        @RequestBody @Valid createChatRoleRequest: CreateChatRoleRequest
+    ) = chatRoleService.createChatRole(chatId, createChatRoleRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatRolePermissions.canUpdateChatRole(#chatId, #updateChatRoleRequest)")
     @PutMapping("/{chatId}/roles/{roleId}")
-    fun updateChatRole(@PathVariable chatId: String,
-                       @PathVariable roleId: String,
-                       @RequestBody @Valid updateChatRoleRequest: UpdateChatRoleRequest
+    fun updateChatRole(
+        @PathVariable chatId: String,
+        @PathVariable roleId: String,
+        @RequestBody @Valid updateChatRoleRequest: UpdateChatRoleRequest
     ) = chatRoleService.updateChatRole(chatId, roleId, updateChatRoleRequest)
 }

@@ -14,44 +14,46 @@ import reactor.core.publisher.Mono
 
 @Component
 class UserInteractionCostMapper(
-        private val userCacheWrapper: UserReactiveRepositoryCacheWrapper,
-        private val userService: UserService,
-        private val userMapper: UserMapper) {
+    private val userCacheWrapper: UserReactiveRepositoryCacheWrapper,
+    private val userService: UserService,
+    private val userMapper: UserMapper
+) {
 
     fun toUserInteractionCostResponse(userInteractionCost: UserInteractionCost) = UserInteractionCostResponse(
-            cost = userInteractionCost.cost,
-            type = userInteractionCost.type
+        cost = userInteractionCost.cost,
+        type = userInteractionCost.type
     )
 
-    fun toUserInteractionCostFullResponse(userInteractionCost: UserInteractionCost,
-                                          localUsersCache: MutableMap<String, UserResponse> = mutableMapOf()
+    fun toUserInteractionCostFullResponse(
+        userInteractionCost: UserInteractionCost,
+        localUsersCache: MutableMap<String, UserResponse> = mutableMapOf()
     ): Mono<UserInteractionCostFullResponse> {
         return mono {
             val createdBy = if (userInteractionCost.createdById == null) {
                 null
             } else findAndPutToCache(
-                    { userCacheWrapper.findById(userInteractionCost.createdById).map(userMapper::toUserResponse) },
-                    userInteractionCost.createdById,
-                    localUsersCache
+                { userCacheWrapper.findById(userInteractionCost.createdById).map(userMapper::toUserResponse) },
+                userInteractionCost.createdById,
+                localUsersCache
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             val updatedBy = if (userInteractionCost.updatedById == null) {
                 null
             } else findAndPutToCache(
-                    { userCacheWrapper.findById(userInteractionCost.updatedById).map(userMapper::toUserResponse) },
-                    userInteractionCost.updatedById,
-                    localUsersCache
+                { userCacheWrapper.findById(userInteractionCost.updatedById).map(userMapper::toUserResponse) },
+                userInteractionCost.updatedById,
+                localUsersCache
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             return@mono UserInteractionCostFullResponse(
-                    type = userInteractionCost.type,
-                    cost = userInteractionCost.cost,
-                    createdAt =  userInteractionCost.createdAt,
-                    createdBy = createdBy,
-                    updatedAt = userInteractionCost.updatedAt,
-                    updatedBy = updatedBy
+                type = userInteractionCost.type,
+                cost = userInteractionCost.cost,
+                createdAt = userInteractionCost.createdAt,
+                createdBy = createdBy,
+                updatedAt = userInteractionCost.updatedAt,
+                updatedBy = updatedBy
             )
         }
     }

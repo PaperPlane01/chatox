@@ -95,9 +95,9 @@ class CacheWrappersConfig {
     @Bean
     @Qualifier(CHAT_BY_SLUG_CACHE_WRAPPER)
     fun chatBySlugCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(
-            chatBySlugCacheService,
-            chatRepository,
-            ::findChat
+        chatBySlugCacheService,
+        chatRepository,
+        ::findChat
     )
 
     private fun findChat(chatRepository: ChatRepository, id: String): Mono<Chat> {
@@ -105,52 +105,55 @@ class CacheWrappersConfig {
     }
 
     @Bean
-    fun chatBlockingCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(chatBlockingCacheService, chatBlockingRepository)
+    fun chatBlockingCacheWrapper() =
+        DefaultReactiveRepositoryCacheWrapper(chatBlockingCacheService, chatBlockingRepository)
 
     @Bean
     fun userCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(
-            userCacheService,
-            userRepository
+        userCacheService,
+        userRepository
     ) { user -> user.id }
 
     @Bean
     fun messageCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(
-            messageCacheService,
-            messageRepository
+        messageCacheService,
+        messageRepository
     ) { message -> message.id }
 
     @Bean
-    fun userBlacklistItemCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(userBlacklistItemCacheService, userBlacklistItemRepository)
+    fun userBlacklistItemCacheWrapper() =
+        DefaultReactiveRepositoryCacheWrapper(userBlacklistItemCacheService, userBlacklistItemRepository)
 
     @Bean
     @Qualifier(CHAT_ROLE_CACHE_WRAPPER)
     fun chatRoleCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(chatRoleCacheService, chatRoleRepository)
 
     @Bean
-    fun chatParticipationCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(chatParticipationCacheService, chatParticipationRepository)
+    fun chatParticipationCacheWrapper() =
+        DefaultReactiveRepositoryCacheWrapper(chatParticipationCacheService, chatParticipationRepository)
 
     @Bean
     fun chatUploadAttachmentCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(
-            chatUploadAttachmentCacheService,
-            chatUploadAttachmentRepository
+        chatUploadAttachmentCacheService,
+        chatUploadAttachmentRepository
     ) { chatUploadAttachment -> chatUploadAttachment.id }
 
     @Bean
     fun chatParticipantsCountCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(
-            chatParticipantsCountCacheService,
-            chatParticipantsCountRepository,
-            ::findChatParticipantsCount,
-            ::findChatParticipantsCountByChatIds
+        chatParticipantsCountCacheService,
+        chatParticipantsCountRepository,
+        ::findChatParticipantsCount,
+        ::findChatParticipantsCountByChatIds
     ) { chatParticipantsCount -> chatParticipantsCount.chatId }
 
     private fun findChatParticipantsCount(
-            chatParticipantsCountRepository: ChatParticipantsCountRepository,
-            chatId: String
+        chatParticipantsCountRepository: ChatParticipantsCountRepository,
+        chatId: String
     ) = chatParticipantsCountRepository.findByChatId(chatId)
 
     private fun findChatParticipantsCountByChatIds(
-            chatParticipantsCountRepository: ChatParticipantsCountRepository,
-            chatIds: List<String>
+        chatParticipantsCountRepository: ChatParticipantsCountRepository,
+        chatIds: List<String>
     ) = chatParticipantsCountRepository.findByChatIdIn(chatIds)
 
     companion object {

@@ -41,83 +41,83 @@ class RedisConfig {
     @Bean
     @Qualifier(CHAT_BY_ID_CACHE_SERVICE)
     fun chatByIdCacheService() = RedisReactiveCacheService(
-            chatRedisTemplate(),
-            cacheKeyGenerator(),
-            Chat::class.java
+        chatRedisTemplate(),
+        cacheKeyGenerator(),
+        Chat::class.java
     ) { chat -> chat.id }
 
     @Bean
     @Qualifier(CHAT_BY_SLUG_CACHE_SERVICE)
     fun chatBySlugCacheService() = RedisReactiveCacheService(
-            chatRedisTemplate(),
-            cacheKeyGenerator(),
-            Chat::class.java
+        chatRedisTemplate(),
+        cacheKeyGenerator(),
+        Chat::class.java
     ) { chat -> chat.slug }
 
     @Bean
     fun userCacheService() = RedisReactiveCacheService(
-            userRedisTemplate(),
-            cacheKeyGenerator(),
-            User::class.java
+        userRedisTemplate(),
+        cacheKeyGenerator(),
+        User::class.java
     ) { user -> user.id }
 
     @Bean
     fun chatBlockingCacheService() = RedisReactiveCacheService(
-            chatBlockingRedisTemplate(),
-            cacheKeyGenerator(),
-            ChatBlocking::class.java
+        chatBlockingRedisTemplate(),
+        cacheKeyGenerator(),
+        ChatBlocking::class.java
     ) { chatBlocking -> chatBlocking.id }
 
     @Bean
     fun messageCacheService() = RedisReactiveCacheService(
-            messageRedisTemplate(),
-            cacheKeyGenerator(),
-            Message::class.java
+        messageRedisTemplate(),
+        cacheKeyGenerator(),
+        Message::class.java
     ) { message -> message.id }
 
     @Bean
     fun userBlackListItemCacheService() = RedisReactiveCacheService(
-            userBlacklistItemRedisTemplate(),
-            cacheKeyGenerator(),
-            UserBlacklistItem::class.java,
-            ::generateBlacklistItemCacheId
+        userBlacklistItemRedisTemplate(),
+        cacheKeyGenerator(),
+        UserBlacklistItem::class.java,
+        ::generateBlacklistItemCacheId
     )
 
     @Bean
     @Qualifier(CHAT_ROLE_CACHE_SERVICE)
     fun chatRoleCacheService() = RedisReactiveCacheService(
-            chatRoleRedisTemplate(),
-            cacheKeyGenerator(),
-            ChatRole::class.java
+        chatRoleRedisTemplate(),
+        cacheKeyGenerator(),
+        ChatRole::class.java
     ) { chatRole -> chatRole.id }
 
     @Bean
     @Qualifier(DEFAULT_ROLE_OF_CHAT_CACHE_SERVICE)
     fun defaultChatRoleCacheService() = RedisReactiveCacheService(
-            chatRoleRedisTemplate(),
-            cacheKeyGenerator(),
-            ChatRole::class.java
+        chatRoleRedisTemplate(),
+        cacheKeyGenerator(),
+        ChatRole::class.java
     ) { chatRole -> chatRole.chatId }
 
     @Bean
     fun chatParticipationCacheService() = RedisReactiveCacheService(
-            chatParticipationRedisTemplate(),
-            cacheKeyGenerator(),
-            ChatParticipation::class.java
+        chatParticipationRedisTemplate(),
+        cacheKeyGenerator(),
+        ChatParticipation::class.java
     ) { chatParticipation -> chatParticipation.id }
 
     @Bean
     fun chatUploadAttachmentCacheService() = RedisReactiveCacheService(
-            chatUploadAttachmentRedisTemplate(),
-            cacheKeyGenerator(),
-            ChatUploadAttachment::class.java
+        chatUploadAttachmentRedisTemplate(),
+        cacheKeyGenerator(),
+        ChatUploadAttachment::class.java
     ) { chatUploadAttachment -> chatUploadAttachment.id }
 
     @Bean
     fun chatParticipantsCountCacheService() = RedisReactiveCacheService(
-            chatParticipantsCountRedisTemplate(),
-            cacheKeyGenerator(),
-            ChatParticipantsCount::class.java
+        chatParticipantsCountRedisTemplate(),
+        cacheKeyGenerator(),
+        ChatParticipantsCount::class.java
     ) { chatParticipantsCount -> chatParticipantsCount.chatId }
 
     @Bean
@@ -153,10 +153,11 @@ class RedisConfig {
     @Bean
     fun chatParticipantsCountRedisTemplate() = createRedisTemplate(ChatParticipantsCount::class)
 
-    private fun <T: Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
+    private fun <T : Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
         val stringRedisSerializer = StringRedisSerializer()
         val jsonRedisSerializer = JacksonJsonRedisSerializer(jsonMapper, clazz.java)
-        val redisSerializationContext = RedisSerializationContext.newSerializationContext<String, T>(stringRedisSerializer)
+        val redisSerializationContext =
+            RedisSerializationContext.newSerializationContext<String, T>(stringRedisSerializer)
                 .value(jsonRedisSerializer)
                 .build()
 

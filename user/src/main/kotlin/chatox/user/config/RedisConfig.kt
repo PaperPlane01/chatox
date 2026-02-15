@@ -30,23 +30,23 @@ class RedisConfig {
 
     @Bean(name = [USER_BY_ID_CACHE])
     fun userByIdCacheService() = RedisReactiveCacheService(
-            userRedisTemplate(),
-            cacheKeyGenerator(),
-            User::class.java
+        userRedisTemplate(),
+        cacheKeyGenerator(),
+        User::class.java
     ) { user -> user.id }
 
     @Bean(name = [USER_BY_SLUG_CACHE])
     fun userBySlugCache() = RedisReactiveCacheService(
-            userRedisTemplate(),
-            cacheKeyGenerator(),
-            User::class.java
+        userRedisTemplate(),
+        cacheKeyGenerator(),
+        User::class.java
     ) { user -> user.slug }
 
     @Bean
     fun userInteractionCostCache() = RedisReactiveCacheService(
-            userInteractionCostRedisTemplate(),
-            cacheKeyGenerator(),
-            UserInteractionCost::class.java
+        userInteractionCostRedisTemplate(),
+        cacheKeyGenerator(),
+        UserInteractionCost::class.java
     ) { userInteractionCost -> userInteractionCost.type.name }
 
     @Bean
@@ -58,10 +58,11 @@ class RedisConfig {
     @Bean
     fun cacheKeyGenerator() = DefaultCacheKeyGenerator(applicationName, CacheKeyGenerator.ClassKeyMode.SIMPLE)
 
-    private fun <T: Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
+    private fun <T : Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
         val stringRedisSerializer = StringRedisSerializer()
         val jsonRedisSerializer = JacksonJsonRedisSerializer(jsonMapper, clazz.java)
-        val redisSerializationContext = RedisSerializationContext.newSerializationContext<String, T>(stringRedisSerializer)
+        val redisSerializationContext =
+            RedisSerializationContext.newSerializationContext<String, T>(stringRedisSerializer)
                 .value(jsonRedisSerializer)
                 .build()
 

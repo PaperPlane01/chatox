@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.ResponseStatus
 
 @ResponseStatus(HttpStatus.FORBIDDEN)
 class JoinChatRejectedException(reason: JoinChatRejectionReason) : MetadataEnhancedException(
-        ExceptionMetadata.builder()
-                .errorCode("JOIN_CHAT_REJECTED")
-                .additional(mapOf(
-                        Pair("reason", reason.name)
-                ))
-                .build()
+    ExceptionMetadata.builder()
+        .errorCode("JOIN_CHAT_REJECTED")
+        .additional(
+            mapOf(
+                Pair("reason", reason.name)
+            )
+        )
+        .build()
 )

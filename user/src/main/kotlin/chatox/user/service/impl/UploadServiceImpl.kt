@@ -9,9 +9,9 @@ import chatox.user.messaging.rabbitmq.event.UploadCreated
 import chatox.user.repository.UploadRepository
 import chatox.user.repository.UserRepository
 import chatox.user.service.UploadService
-import kotlinx.coroutines.reactor.mono
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -19,13 +19,15 @@ import reactor.core.publisher.Mono
 
 @Service
 @Transactional
-class UploadServiceImpl(private val uploadRepository: UploadRepository,
-                        private val userRepository: UserRepository,
-                        private val uploadMapper: UploadMapper) : UploadService {
+class UploadServiceImpl(
+    private val uploadRepository: UploadRepository,
+    private val userRepository: UserRepository,
+    private val uploadMapper: UploadMapper
+) : UploadService {
 
     private val log = LoggerFactory.getLogger(this.javaClass)
 
-    override fun <MetadataType>saveUpload(uploadCreated: UploadCreated<MetadataType>): Mono<UploadResponse<MetadataType>> {
+    override fun <MetadataType> saveUpload(uploadCreated: UploadCreated<MetadataType>): Mono<UploadResponse<MetadataType>> {
         return mono {
             log.info("Saving upload ${uploadCreated.name}")
 
@@ -35,9 +37,9 @@ class UploadServiceImpl(private val uploadRepository: UploadRepository,
             if (uploadCreated.previewImage != null) {
                 log.info("Saving preview of ${uploadCreated.name}")
                 preview = uploadMapper.fromUploadCreated(
-                        uploadCreated = uploadCreated.previewImage,
-                        preview = null,
-                        user = null
+                    uploadCreated = uploadCreated.previewImage,
+                    preview = null,
+                    user = null
                 )
                 preview = uploadRepository.save(preview).awaitFirst()
             }
@@ -47,9 +49,9 @@ class UploadServiceImpl(private val uploadRepository: UploadRepository,
             }
 
             var upload = uploadMapper.fromUploadCreated(
-                    uploadCreated = uploadCreated,
-                    preview = preview,
-                    user = user
+                uploadCreated = uploadCreated,
+                preview = preview,
+                user = user
             )
             upload = uploadRepository.save(upload).awaitFirst()
 
