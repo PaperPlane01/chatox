@@ -425,7 +425,7 @@ class ChatServiceTests {
 
             if (slugChanged) {
                 every { chatRepository.existsBySlugOrId(
-                        eq(request.slug!!), eq(request.slug!!)
+                        eq(request.slug), eq(request.slug)
                 ) } returns Mono.just(false)
                 every { chatBySlugCacheService.delete(eq(chat.slug)) } returns Mono.empty()
             }
@@ -434,11 +434,11 @@ class ChatServiceTests {
 
             if (avatarChanged) {
                 every {
-                    uploadRepository.findByIdAndType<Any>(eq(request.avatarId!!), eq(UploadType.IMAGE))
+                    uploadRepository.findByIdAndType<Any>(eq(request.avatarId), eq(UploadType.IMAGE))
                 } returns Mono.just(upload)
             }
 
-            val hideFromSearchChanged = request.hideFromSearch ?: false != chat.hideFromSearch
+            val hideFromSearchChanged = (request.hideFromSearch ?: false) != chat.hideFromSearch
 
             if (hideFromSearchChanged) {
                 every {
@@ -648,7 +648,6 @@ class ChatServiceTests {
 
         @ParameterizedTest
         @MethodSource("chatox.chat.service.impl.ChatServiceTests#deleteChatRequestProvider")
-        @DisplayName("It updates chat")
         fun `It saves chat deletion reason and comment if chat is deleted not by its owner`(requestFile: String) {
             val chatId = "chatId"
             val jwtPayload = loadResource(
