@@ -18,7 +18,7 @@ class CacheWrappersConfig {
 
     @Bean
     fun stickerPackCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(
-            stickerPackCacheService,
-            stickerPackRepository
+        stickerPackCacheService,
+        stickerPackRepository
     ) { stickerPack -> stickerPack.id }
 }

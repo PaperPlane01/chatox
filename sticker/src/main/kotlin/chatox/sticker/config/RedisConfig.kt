@@ -29,18 +29,19 @@ class RedisConfig {
 
     @Bean
     fun stickerPackReactiveCacheService() = RedisReactiveCacheService(
-            stickerPackRedisTemplate(),
-            cacheKeyGenerator(),
-            StickerPack::class.java
+        stickerPackRedisTemplate(),
+        cacheKeyGenerator(),
+        StickerPack::class.java
     ) { stickerPack -> stickerPack.id }
 
     @Bean
     fun stickerPackRedisTemplate() = createRedisTemplate(StickerPack::class)
 
-    private fun <T: Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
+    private fun <T : Any> createRedisTemplate(clazz: KClass<T>): ReactiveRedisTemplate<String, T> {
         val stringRedisSerializer = StringRedisSerializer()
         val jsonRedisSerializer = JacksonJsonRedisSerializer(jsonMapper, clazz.java)
-        val redisSerializationContext = RedisSerializationContext.newSerializationContext<String, T>(stringRedisSerializer)
+        val redisSerializationContext =
+            RedisSerializationContext.newSerializationContext<String, T>(stringRedisSerializer)
                 .value(jsonRedisSerializer)
                 .build()
 

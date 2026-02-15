@@ -7,11 +7,13 @@ import org.springframework.web.bind.annotation.ResponseStatus
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 class StickerPackNotFoundException(stickerPackId: String) : MetadataEnhancedException(
-        "Could not find sticker pack $stickerPackId",
-        ExceptionMetadata.builder()
-                .errorCode("STICKER_PACK_NOT_FOUND")
-                .additional(mapOf(
-                        "stickerPackId" to stickerPackId
-                ))
-                .build()
+    "Could not find sticker pack $stickerPackId",
+    ExceptionMetadata.builder()
+        .errorCode("STICKER_PACK_NOT_FOUND")
+        .additional(
+            mapOf(
+                "stickerPackId" to stickerPackId
+            )
+        )
+        .build()
 )

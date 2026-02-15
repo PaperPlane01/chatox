@@ -69,15 +69,15 @@ class StickerPackServiceTests {
     @BeforeEach
     fun setUp() {
         stickerPackService = StickerPackServiceImpl(
-                stickerRepository,
-                stickerPackInstallationRepository,
-                stickerPackRepository,
-                uploadRepository,
-                authenticationHolder,
-                stickerPackMapper,
-                stickerMapper,
-                stickerEventsProducer,
-                textParserApi
+            stickerRepository,
+            stickerPackInstallationRepository,
+            stickerPackRepository,
+            uploadRepository,
+            authenticationHolder,
+            stickerPackMapper,
+            stickerMapper,
+            stickerEventsProducer,
+            textParserApi
         )
     }
 
@@ -92,8 +92,8 @@ class StickerPackServiceTests {
             every { authenticationHolder.requireCurrentUserDetails() } returns Mono.just(user)
 
             val request = loadResource(
-                    "request/create-sticker-pack-request.json",
-                    CreateStickerPackRequest::class.java
+                "request/create-sticker-pack-request.json",
+                CreateStickerPackRequest::class.java
             )
             val uploadsIds = request.stickers.map { sticker -> sticker.uploadId }
             val uploads = createUploads(uploadsIds)
@@ -104,32 +104,32 @@ class StickerPackServiceTests {
 
             val emojiIds = request.stickers.flatMap { sticker -> sticker.emojis }.toSet()
             val emojiMap = loadResource(
-                    "response/emoji-map-response.json",
-                    object : TypeReference<Map<String, EmojiData>>() {
-                    }
+                "response/emoji-map-response.json",
+                object : TypeReference<Map<String, EmojiData>>() {
+                }
             )
             every { textParserApi.getEmojiInfo(emojiIds) } returns Mono.just(emojiMap)
 
             val resultStickers = loadResource(
-                    "model/stickers-array.json",
-                    object : TypeReference<List<Sticker>>() {
-                    }
+                "model/stickers-array.json",
+                object : TypeReference<List<Sticker>>() {
+                }
             )
             val stickersSlot = slot<List<Sticker>>()
             every { stickerRepository.saveAll(capture(stickersSlot)) } returns Flux.fromIterable(resultStickers)
 
             val resultStickerPack = loadResource(
-                    "model/sticker-pack.json",
-                    object : TypeReference<StickerPack<StickerUploadMetadata>>() {
-                    }
+                "model/sticker-pack.json",
+                object : TypeReference<StickerPack<StickerUploadMetadata>>() {
+                }
             )
             val stickerPackSlot = slot<StickerPack<StickerUploadMetadata>>()
             every { stickerPackRepository.save(capture(stickerPackSlot)) } returns Mono.just(resultStickerPack)
 
             val resultResponse = loadResource(
-                    "response/sticker-pack-response.json",
-                    object : TypeReference<StickerPackResponse<StickerUploadMetadata>>() {
-                    }
+                "response/sticker-pack-response.json",
+                object : TypeReference<StickerPackResponse<StickerUploadMetadata>>() {
+                }
             )
             val mappedStickerPackSlot = slot<StickerPack<StickerUploadMetadata>>()
             every { stickerPackMapper.toStickerPackResponse(capture(mappedStickerPackSlot), resultStickers) } returns
@@ -137,37 +137,37 @@ class StickerPackServiceTests {
             every { stickerEventsProducer.stickerPackCreated(resultResponse) } returns Unit
 
             StepVerifier
-                    .create(stickerPackService.createStickerPack(request))
-                    .assertNext { response ->
-                        assertEquals(resultResponse, response)
+                .create(stickerPackService.createStickerPack(request))
+                .assertNext { response ->
+                    assertEquals(resultResponse, response)
 
-                        val savedStickers = stickersSlot.captured
-                        assertEquals(request.stickers.size, savedStickers.size)
-                        val requestStickersByUpload = request.stickers
-                                .associateBy { requestSticker -> requestSticker.uploadId }
-                        savedStickers.forEach { savedSticker ->
-                            val requestSticker = requestStickersByUpload[savedSticker.upload.id]
-                                    ?: fail("Not found sticker with upload: ${savedSticker.upload.id}")
-                            assertEquals(requestSticker.emojis, savedSticker.emojis.map { emoji -> emoji.id })
-                            assertEquals(requestSticker.keywords, savedSticker.keywords)
-                        }
-
-                        val savedStickerPack = stickerPackSlot.captured
-                        assertEquals(request.stickersType, savedStickerPack.stickersType)
-                        assertEquals(request.name, savedStickerPack.name)
-                        assertEquals(request.description, savedStickerPack.description)
-                        assertEquals(request.author, savedStickerPack.author)
-                        assertFalse(savedStickerPack.animated)
-                        assertEquals(user.id, savedStickerPack.createdBy)
-                        val expectedStickerIds = resultStickers.map { sticker -> sticker.id }
-                        assertEquals(expectedStickerIds, savedStickerPack.stickerIds)
-
-                        val mappedStickerPack = mappedStickerPackSlot.captured
-                        assertEquals(savedStickerPack, mappedStickerPack)
-
-                        verify(exactly = 1) { stickerEventsProducer.stickerPackCreated(response) }
+                    val savedStickers = stickersSlot.captured
+                    assertEquals(request.stickers.size, savedStickers.size)
+                    val requestStickersByUpload = request.stickers
+                        .associateBy { requestSticker -> requestSticker.uploadId }
+                    savedStickers.forEach { savedSticker ->
+                        val requestSticker = requestStickersByUpload[savedSticker.upload.id]
+                            ?: fail("Not found sticker with upload: ${savedSticker.upload.id}")
+                        assertEquals(requestSticker.emojis, savedSticker.emojis.map { emoji -> emoji.id })
+                        assertEquals(requestSticker.keywords, savedSticker.keywords)
                     }
-                    .verifyComplete()
+
+                    val savedStickerPack = stickerPackSlot.captured
+                    assertEquals(request.stickersType, savedStickerPack.stickersType)
+                    assertEquals(request.name, savedStickerPack.name)
+                    assertEquals(request.description, savedStickerPack.description)
+                    assertEquals(request.author, savedStickerPack.author)
+                    assertFalse(savedStickerPack.animated)
+                    assertEquals(user.id, savedStickerPack.createdBy)
+                    val expectedStickerIds = resultStickers.map { sticker -> sticker.id }
+                    assertEquals(expectedStickerIds, savedStickerPack.stickerIds)
+
+                    val mappedStickerPack = mappedStickerPackSlot.captured
+                    assertEquals(savedStickerPack, mappedStickerPack)
+
+                    verify(exactly = 1) { stickerEventsProducer.stickerPackCreated(response) }
+                }
+                .verifyComplete()
         }
 
         @Test
@@ -177,13 +177,13 @@ class StickerPackServiceTests {
             every { authenticationHolder.requireCurrentUserDetails() } returns Mono.just(user)
 
             val request = loadResource(
-                    "request/create-sticker-pack-request.json",
-                    CreateStickerPackRequest::class.java
+                "request/create-sticker-pack-request.json",
+                CreateStickerPackRequest::class.java
             )
             val uploadsIds = request.stickers.map { sticker -> sticker.uploadId }
             val uploads = createUploads(uploadsIds).subList(
-                    0,
-                    uploadsIds.size - ThreadLocalRandom.current().nextInt(1, uploadsIds.size - 1)
+                0,
+                uploadsIds.size - ThreadLocalRandom.current().nextInt(1, uploadsIds.size - 1)
             )
             val preview = request.previewId?.let { id -> createUploads(listOf(id))[0] } ?: uploads[0]
 
@@ -191,8 +191,8 @@ class StickerPackServiceTests {
             every { uploadRepository.findAllByIdIn(any<List<String>>()) } returns Flux.fromIterable(uploads)
 
             StepVerifier
-                    .create(stickerPackService.createStickerPack(request))
-                    .verifyError(UploadsNotFoundException::class.java)
+                .create(stickerPackService.createStickerPack(request))
+                .verifyError(UploadsNotFoundException::class.java)
         }
     }
 
@@ -207,17 +207,17 @@ class StickerPackServiceTests {
             every { authenticationHolder.requireCurrentUserDetails() } returns Mono.just(user)
 
             val stickerPack = loadResource(
-                    "model/sticker-pack.json",
-                    object : TypeReference<StickerPack<StickerUploadMetadata>>() {
-                    }
+                "model/sticker-pack.json",
+                object : TypeReference<StickerPack<StickerUploadMetadata>>() {
+                }
             )
             val id = stickerPack.id
             every { stickerPackRepository.findById(id) } returns Mono.just(stickerPack)
 
             val requests = loadResource(
-                    "request/create-sticker-requests.json",
-                    object : TypeReference<List<CreateStickerRequest>>() {
-                    }
+                "request/create-sticker-requests.json",
+                object : TypeReference<List<CreateStickerRequest>>() {
+                }
             )
             val uploadsIds = requests.map { request -> request.uploadId }
             val uploads = createUploads(uploadsIds)
@@ -225,9 +225,9 @@ class StickerPackServiceTests {
 
             val emojiIds = requests.flatMap { sticker -> sticker.emojis }.toSet()
             val emojiMap = loadResource(
-                    "response/emoji-map-response.json",
-                    object : TypeReference<Map<String, EmojiData>>() {
-                    }
+                "response/emoji-map-response.json",
+                object : TypeReference<Map<String, EmojiData>>() {
+                }
             )
             every { textParserApi.getEmojiInfo(emojiIds) } returns Mono.just(emojiMap)
 
@@ -241,9 +241,9 @@ class StickerPackServiceTests {
             every { stickerMapper.toStickerResponse(any()) } returns mappedSticker
 
             val mappedStickerPack = loadResource(
-                    "response/sticker-pack-response.json",
-                    object : TypeReference<StickerPackResponse<StickerUploadMetadata>>() {
-                    }
+                "response/sticker-pack-response.json",
+                object : TypeReference<StickerPackResponse<StickerUploadMetadata>>() {
+                }
             )
             val mappedStickerPackSlot = slot<StickerPack<StickerUploadMetadata>>()
             every {
@@ -254,36 +254,36 @@ class StickerPackServiceTests {
             every { stickerEventsProducer.stickerPackUpdated(capture(stickerPackUpdatedSlot)) } returns Unit
 
             StepVerifier
-                    .create(stickerPackService.addStickersToStickerPack(id, requests))
-                    .recordWith { ArrayList() }
-                    .thenConsumeWhile { true }
-                    .consumeRecordedWith { resultStickers ->
-                        assertEquals(requests.size, resultStickers.size)
-                        resultStickers.forEach { sticker -> assertEquals(mappedSticker, sticker) }
+                .create(stickerPackService.addStickersToStickerPack(id, requests))
+                .recordWith { ArrayList() }
+                .thenConsumeWhile { true }
+                .consumeRecordedWith { resultStickers ->
+                    assertEquals(requests.size, resultStickers.size)
+                    resultStickers.forEach { sticker -> assertEquals(mappedSticker, sticker) }
 
-                        val savedStickers = savedStickersSlot.captured
-                        assertEquals(requests.size, savedStickers.size)
-                        savedStickers.forEach { sticker ->
-                            val request = requests.find { request -> request.uploadId == sticker.upload.id }
-                            assertNotNull(request)
-                            assertEquals(request!!.emojis, sticker.emojis.map { emoji -> emoji.id })
-                            assertEquals(request.keywords, sticker.keywords)
-                            assertNotNull(sticker.createdAt)
-                        }
-
-                        val savedStickerPack = savedStickerPackSlot.captured
-                        assertNotNull(savedStickerPack.updatedAt)
-                        assertEquals(user.id, savedStickerPack.updatedBy)
-                        assertTrue(savedStickerPack.stickerIds.containsAll(savedStickers.map { sticker -> sticker.id }))
-
-                        val capturedMappedStickerPack = mappedStickerPackSlot.captured
-                        assertEquals(savedStickerPack, capturedMappedStickerPack)
-
-                        val stickerPackUpdated = stickerPackUpdatedSlot.captured
-                        assertEquals(requests.size, stickerPackUpdated.newStickers.size)
-                        assertTrue(stickerPackUpdated.removedStickers.isEmpty())
+                    val savedStickers = savedStickersSlot.captured
+                    assertEquals(requests.size, savedStickers.size)
+                    savedStickers.forEach { sticker ->
+                        val request = requests.find { request -> request.uploadId == sticker.upload.id }
+                        assertNotNull(request)
+                        assertEquals(request!!.emojis, sticker.emojis.map { emoji -> emoji.id })
+                        assertEquals(request.keywords, sticker.keywords)
+                        assertNotNull(sticker.createdAt)
                     }
-                    .verifyComplete()
+
+                    val savedStickerPack = savedStickerPackSlot.captured
+                    assertNotNull(savedStickerPack.updatedAt)
+                    assertEquals(user.id, savedStickerPack.updatedBy)
+                    assertTrue(savedStickerPack.stickerIds.containsAll(savedStickers.map { sticker -> sticker.id }))
+
+                    val capturedMappedStickerPack = mappedStickerPackSlot.captured
+                    assertEquals(savedStickerPack, capturedMappedStickerPack)
+
+                    val stickerPackUpdated = stickerPackUpdatedSlot.captured
+                    assertEquals(requests.size, stickerPackUpdated.newStickers.size)
+                    assertTrue(stickerPackUpdated.removedStickers.isEmpty())
+                }
+                .verifyComplete()
         }
 
         @Test
@@ -293,17 +293,17 @@ class StickerPackServiceTests {
             every { authenticationHolder.requireCurrentUserDetails() } returns Mono.just(user)
 
             val requests = loadResource(
-                    "request/create-sticker-requests.json",
-                    object : TypeReference<List<CreateStickerRequest>>() {
-                    }
+                "request/create-sticker-requests.json",
+                object : TypeReference<List<CreateStickerRequest>>() {
+                }
             )
             val id = "123"
 
             every { stickerPackRepository.findById(id) } returns Mono.empty()
 
             StepVerifier
-                    .create(stickerPackService.addStickersToStickerPack(id, requests))
-                    .verifyError(StickerPackNotFoundException::class.java)
+                .create(stickerPackService.addStickersToStickerPack(id, requests))
+                .verifyError(StickerPackNotFoundException::class.java)
         }
 
         @Test
@@ -313,38 +313,39 @@ class StickerPackServiceTests {
             every { authenticationHolder.requireCurrentUserDetails() } returns Mono.just(user)
 
             val stickerPack = loadResource(
-                    "model/sticker-pack.json",
-                    object : TypeReference<StickerPack<StickerUploadMetadata>>() {
-                    }
+                "model/sticker-pack.json",
+                object : TypeReference<StickerPack<StickerUploadMetadata>>() {
+                }
             )
             val id = stickerPack.id
             every { stickerPackRepository.findById(id) } returns Mono.just(stickerPack)
 
             val requests = loadResource(
-                    "request/create-sticker-requests.json",
-                    object : TypeReference<List<CreateStickerRequest>>() {
-                    }
+                "request/create-sticker-requests.json",
+                object : TypeReference<List<CreateStickerRequest>>() {
+                }
             )
             val uploadsIds = requests.map { sticker -> sticker.uploadId }
             val uploads = createUploads(uploadsIds).subList(
-                    0,
-                    uploadsIds.size - ThreadLocalRandom.current().nextInt(1, uploadsIds.size)
+                0,
+                uploadsIds.size - ThreadLocalRandom.current().nextInt(1, uploadsIds.size)
             )
 
             every { uploadRepository.findAllByIdIn(any<List<String>>()) } returns Flux.fromIterable(uploads)
 
             StepVerifier
-                    .create(stickerPackService.addStickersToStickerPack(id, requests))
-                    .verifyError(UploadsNotFoundException::class.java)
+                .create(stickerPackService.addStickersToStickerPack(id, requests))
+                .verifyError(UploadsNotFoundException::class.java)
         }
     }
 
-    fun createUploads(ids: List<String>) = ids.map { id -> Upload(
+    fun createUploads(ids: List<String>) = ids.map { id ->
+        Upload(
             id = id,
             meta = StickerUploadMetadata(
-                    width = 512,
-                    height = 512,
-                    animated = false
+                width = 512,
+                height = 512,
+                animated = false
             ),
             mimeType = "image/webp",
             name = "$id.webp",
@@ -356,28 +357,31 @@ class StickerPackServiceTests {
             size = 2000,
             userId = null,
             type = UploadType.WEBP_STICKER
-    ) }
+        )
+    }
 
     @Nested
     @DisplayName("updateStickerPack() tests")
     inner class UpdateStickerPackTests {
 
         @ParameterizedTest
-        @ValueSource(strings = [
-            "request/update-sticker-pack-request-with-deleted-stickers.json",
-            "request/update-sticker-pack-request-with-updated-stickers.json",
-            "request/update-sticker-pack-request-with-updated-and-deleted-stickers.json",
-            "request/update-sticker-pack-request-without-sticker-updates.json"
-        ])
+        @ValueSource(
+            strings = [
+                "request/update-sticker-pack-request-with-deleted-stickers.json",
+                "request/update-sticker-pack-request-with-updated-stickers.json",
+                "request/update-sticker-pack-request-with-updated-and-deleted-stickers.json",
+                "request/update-sticker-pack-request-without-sticker-updates.json"
+            ]
+        )
         @DisplayName("It updates sticker pack")
         fun `It updates sticker pack`(requestFile: String) {
             val user = loadResource("jwt/jwt-payload.json", JwtPayload::class.java)
             every { authenticationHolder.requireCurrentUserDetails() } returns Mono.just(user)
 
             val existingStickerPack = loadResource(
-                    "model/sticker-pack.json",
-                    object : TypeReference<StickerPack<StickerUploadMetadata>>() {
-                    }
+                "model/sticker-pack.json",
+                object : TypeReference<StickerPack<StickerUploadMetadata>>() {
+                }
             )
             val id = existingStickerPack.id
 
@@ -385,9 +389,9 @@ class StickerPackServiceTests {
 
             val existingStickersIds = existingStickerPack.stickerIds
             val existingStickers = loadResource(
-                    "model/stickers-array.json",
-                    object : TypeReference<List<Sticker>>() {
-                    }
+                "model/stickers-array.json",
+                object : TypeReference<List<Sticker>>() {
+                }
             )
             every { stickerRepository.findAllById(existingStickersIds) } returns Flux.fromIterable(existingStickers)
 
@@ -395,7 +399,7 @@ class StickerPackServiceTests {
 
             val updates = request.stickers.filter { stickerUpdate ->
                 val existingSticker = existingStickers
-                        .find { existingSticker -> existingSticker.id == stickerUpdate.id }
+                    .find { existingSticker -> existingSticker.id == stickerUpdate.id }
                 return@filter !existingSticker!!.equalsTo(stickerUpdate)
             }
             val updatedStickersSlot = slot<MutableCollection<Sticker>>()
@@ -403,9 +407,9 @@ class StickerPackServiceTests {
             if (updates.isNotEmpty()) {
                 val emojiIds = updates.flatMap { update -> update.emojis }.toSet()
                 val emojiMap = loadResource(
-                        "response/emoji-map-response.json",
-                        object : TypeReference<Map<String, EmojiData>>() {
-                        }
+                    "response/emoji-map-response.json",
+                    object : TypeReference<Map<String, EmojiData>>() {
+                    }
                 )
                 every { textParserApi.getEmojiInfo(emojiIds) } returns Mono.just(emojiMap)
 
@@ -431,9 +435,9 @@ class StickerPackServiceTests {
             val mappedStickerPackSlot = slot<StickerPack<StickerUploadMetadata>>()
             val mappedStickersSlot = slot<List<Sticker>>()
             val stickerPackResponse = loadResource(
-                    "response/sticker-pack-response.json",
-                    object : TypeReference<StickerPackResponse<StickerUploadMetadata>>() {
-                    }
+                "response/sticker-pack-response.json",
+                object : TypeReference<StickerPackResponse<StickerUploadMetadata>>() {
+                }
             )
             every {
                 stickerPackMapper.toStickerPackResponse(capture(mappedStickerPackSlot), capture(mappedStickersSlot))
@@ -448,51 +452,51 @@ class StickerPackServiceTests {
             every { stickerEventsProducer.stickerPackUpdated(capture(stickerPackUpdatedSlot)) } returns Unit
 
             StepVerifier
-                    .create(stickerPackService.updateStickerPack(id, request))
-                    .assertNext { response ->
-                        assertEquals(stickerPackResponse, response)
+                .create(stickerPackService.updateStickerPack(id, request))
+                .assertNext { response ->
+                    assertEquals(stickerPackResponse, response)
 
-                        if (updates.isEmpty()) {
-                            verify(exactly = 0) { stickerRepository.saveAll(any<MutableCollection<Sticker>>()) }
-                        } else {
-                            val updatedStickers = updatedStickersSlot.captured
-                            assertEquals(updates.size, updatedStickers.size)
-                            updates.forEach { updateRequest ->
-                                val updatedSticker = updatedStickers.find { sticker -> sticker.id == updateRequest.id }
-                                assertNotNull(updatedSticker)
-                                assertEquals(updateRequest.emojis, updatedSticker!!.emojis.map { emoji -> emoji.id })
-                                assertEquals(updateRequest.keywords, updatedSticker.keywords)
-                            }
+                    if (updates.isEmpty()) {
+                        verify(exactly = 0) { stickerRepository.saveAll(any<MutableCollection<Sticker>>()) }
+                    } else {
+                        val updatedStickers = updatedStickersSlot.captured
+                        assertEquals(updates.size, updatedStickers.size)
+                        updates.forEach { updateRequest ->
+                            val updatedSticker = updatedStickers.find { sticker -> sticker.id == updateRequest.id }
+                            assertNotNull(updatedSticker)
+                            assertEquals(updateRequest.emojis, updatedSticker!!.emojis.map { emoji -> emoji.id })
+                            assertEquals(updateRequest.keywords, updatedSticker.keywords)
                         }
-
-                        if (deletedStickersIds.isEmpty()) {
-                           verify(exactly = 0) { stickerRepository.deleteAll(any<List<Sticker>>()) }
-                        } else {
-                            val deletedStickers = deletedStickersSlot.captured
-                            assertEquals(deletedStickersIds.size, deletedStickers.size)
-                            val actualIds = deletedStickers.map { deletedSticker -> deletedSticker.id }
-                            assertTrue(deletedStickersIds.containsAll(actualIds))
-                        }
-
-                        val updatedStickerPack = updatedStickerPackSlot.captured
-                        assertEquals(request.name, updatedStickerPack.name)
-                        assertEquals(request.author, updatedStickerPack.author)
-                        assertEquals(request.description, updatedStickerPack.description)
-                        assertEquals(request.stickers.map { sticker -> sticker.id }, updatedStickerPack.stickerIds)
-                        assertEquals(user.id, updatedStickerPack.updatedBy)
-                        assertNotNull(updatedStickerPack.updatedAt)
-                        assertEquals(existingStickerPack.stickersType, updatedStickerPack.stickersType)
-                        assertEquals(existingStickerPack.animated, updatedStickerPack.animated)
-
-                        val mappedStickerPack = mappedStickerPackSlot.captured
-                        assertEquals(updatedStickerPack, mappedStickerPack)
-
-                        val stickerPackUpdated = stickerPackUpdatedSlot.captured
-                        assertEquals(stickerPackResponse, stickerPackUpdated.stickerPack)
-                        assertEquals(deletedStickersIds.size, stickerPackUpdated.removedStickers.size)
-                        assertTrue(stickerPackUpdated.newStickers.isEmpty())
                     }
-                    .verifyComplete()
+
+                    if (deletedStickersIds.isEmpty()) {
+                        verify(exactly = 0) { stickerRepository.deleteAll(any<List<Sticker>>()) }
+                    } else {
+                        val deletedStickers = deletedStickersSlot.captured
+                        assertEquals(deletedStickersIds.size, deletedStickers.size)
+                        val actualIds = deletedStickers.map { deletedSticker -> deletedSticker.id }
+                        assertTrue(deletedStickersIds.containsAll(actualIds))
+                    }
+
+                    val updatedStickerPack = updatedStickerPackSlot.captured
+                    assertEquals(request.name, updatedStickerPack.name)
+                    assertEquals(request.author, updatedStickerPack.author)
+                    assertEquals(request.description, updatedStickerPack.description)
+                    assertEquals(request.stickers.map { sticker -> sticker.id }, updatedStickerPack.stickerIds)
+                    assertEquals(user.id, updatedStickerPack.updatedBy)
+                    assertNotNull(updatedStickerPack.updatedAt)
+                    assertEquals(existingStickerPack.stickersType, updatedStickerPack.stickersType)
+                    assertEquals(existingStickerPack.animated, updatedStickerPack.animated)
+
+                    val mappedStickerPack = mappedStickerPackSlot.captured
+                    assertEquals(updatedStickerPack, mappedStickerPack)
+
+                    val stickerPackUpdated = stickerPackUpdatedSlot.captured
+                    assertEquals(stickerPackResponse, stickerPackUpdated.stickerPack)
+                    assertEquals(deletedStickersIds.size, stickerPackUpdated.removedStickers.size)
+                    assertTrue(stickerPackUpdated.newStickers.isEmpty())
+                }
+                .verifyComplete()
         }
 
         @Test
@@ -502,16 +506,16 @@ class StickerPackServiceTests {
             every { authenticationHolder.requireCurrentUserDetails() } returns Mono.just(user)
 
             val request = loadResource(
-                    "request/update-sticker-pack-request.json",
-                    UpdateStickerPackRequest::class.java
+                "request/update-sticker-pack-request.json",
+                UpdateStickerPackRequest::class.java
             )
             val id = "123"
 
             every { stickerPackRepository.findById(id) } returns Mono.empty()
 
             StepVerifier
-                    .create(stickerPackService.updateStickerPack(id, request))
-                    .verifyError(StickerPackNotFoundException::class.java)
+                .create(stickerPackService.updateStickerPack(id, request))
+                .verifyError(StickerPackNotFoundException::class.java)
         }
 
         @Test
@@ -521,9 +525,9 @@ class StickerPackServiceTests {
             every { authenticationHolder.requireCurrentUserDetails() } returns Mono.just(user)
 
             val existingStickerPack = loadResource(
-                    "model/sticker-pack.json",
-                    object : TypeReference<StickerPack<StickerUploadMetadata>>() {
-                    }
+                "model/sticker-pack.json",
+                object : TypeReference<StickerPack<StickerUploadMetadata>>() {
+                }
             )
             val id = existingStickerPack.id
 
@@ -531,13 +535,13 @@ class StickerPackServiceTests {
             every { stickerRepository.findAllById(existingStickerPack.stickerIds) } returns Flux.empty()
 
             val request = loadResource(
-                    "request/update-sticker-pack-request.json",
-                    UpdateStickerPackRequest::class.java
+                "request/update-sticker-pack-request.json",
+                UpdateStickerPackRequest::class.java
             )
 
             StepVerifier
-                    .create(stickerPackService.updateStickerPack(id, request))
-                    .verifyError(StickerNotFoundException::class.java)
+                .create(stickerPackService.updateStickerPack(id, request))
+                .verifyError(StickerNotFoundException::class.java)
         }
     }
 
@@ -549,32 +553,32 @@ class StickerPackServiceTests {
         @DisplayName("It finds sticker pack by id")
         fun `It finds sticker pack by id`() {
             val stickerPack = loadResource(
-                    "model/sticker-pack.json",
-                    object : TypeReference<StickerPack<StickerUploadMetadata>>() {
-                    }
+                "model/sticker-pack.json",
+                object : TypeReference<StickerPack<StickerUploadMetadata>>() {
+                }
             )
             val id = stickerPack.id
 
             every { stickerPackRepository.findById(id) } returns Mono.just(stickerPack)
 
             val stickers = loadResource(
-                    "model/stickers-array.json",
-                    object : TypeReference<List<Sticker>>() {
-                    }
+                "model/stickers-array.json",
+                object : TypeReference<List<Sticker>>() {
+                }
             )
             every { stickerRepository.findAllById(stickerPack.stickerIds) } returns Flux.fromIterable(stickers)
 
             val expectedResponse = loadResource(
-                    "response/sticker-pack-response.json",
-                    object : TypeReference<StickerPackResponse<StickerUploadMetadata>>() {
-                    }
+                "response/sticker-pack-response.json",
+                object : TypeReference<StickerPackResponse<StickerUploadMetadata>>() {
+                }
             )
             every { stickerPackMapper.toStickerPackResponse(stickerPack, stickers) } returns expectedResponse
 
             StepVerifier
-                    .create(stickerPackService.findStickerPackById(id))
-                    .assertNext { response -> assertEquals(expectedResponse, response) }
-                    .verifyComplete()
+                .create(stickerPackService.findStickerPackById(id))
+                .assertNext { response -> assertEquals(expectedResponse, response) }
+                .verifyComplete()
         }
 
         @Test
@@ -585,8 +589,8 @@ class StickerPackServiceTests {
             every { stickerPackRepository.findById(id) } returns Mono.empty()
 
             StepVerifier
-                    .create(stickerPackService.findStickerPackById(id))
-                    .verifyError(StickerPackNotFoundException::class.java)
+                .create(stickerPackService.findStickerPackById(id))
+                .verifyError(StickerPackNotFoundException::class.java)
         }
     }
 
@@ -599,27 +603,27 @@ class StickerPackServiceTests {
         @DisplayName("It deletes sticker pack")
         fun deleteStickerPack(deleteMessages: Boolean) {
             val stickerPack = loadResource(
-                    "model/sticker-pack.json",
-                    object : TypeReference<StickerPack<StickerUploadMetadata>>() {
-                    }
+                "model/sticker-pack.json",
+                object : TypeReference<StickerPack<StickerUploadMetadata>>() {
+                }
             )
             val id = stickerPack.id
 
             every { stickerPackRepository.findById(id) } returns Mono.just(stickerPack)
 
             val stickerPackInstallations = listOf(
-                    loadResource("model/sticker-pack-installation.json", StickerPackInstallation::class.java)
+                loadResource("model/sticker-pack-installation.json", StickerPackInstallation::class.java)
             )
             every {
                 stickerPackInstallationRepository.findAllByStickerPackId(id)
             } returns Flux.fromIterable(stickerPackInstallations)
 
             StepVerifier
-                    .create(stickerPackService.deleteStickerPack(id, deleteMessages))
-                    .assertNext {
+                .create(stickerPackService.deleteStickerPack(id, deleteMessages))
+                .assertNext {
 
-                    }
-                    .verifyComplete()
+                }
+                .verifyComplete()
         }
     }
 }

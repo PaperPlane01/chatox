@@ -11,32 +11,33 @@ import org.springframework.stereotype.Component
 class UploadMapper(private val uploadsProperties: ChatoxUploadsConfigProperties) {
 
     fun <MetadataType> toUploadResponse(upload: Upload<MetadataType>): UploadResponse<MetadataType> = UploadResponse(
-            id = upload.id,
-            type = upload.type,
-            name = upload.name,
-            extension = upload.extension,
-            mimeType = upload.mimeType,
-            meta = upload.meta,
-            preview = if (upload.imagePreview != null) toUploadResponse(upload.imagePreview) else null,
-            uri = uploadsProperties.getUploadUrl(upload.type, upload.name),
-            originalName = upload.originalName,
-            size = upload.size
+        id = upload.id,
+        type = upload.type,
+        name = upload.name,
+        extension = upload.extension,
+        mimeType = upload.mimeType,
+        meta = upload.meta,
+        preview = if (upload.imagePreview != null) toUploadResponse(upload.imagePreview) else null,
+        uri = uploadsProperties.getUploadUrl(upload.type, upload.name),
+        originalName = upload.originalName,
+        size = upload.size
     )
 
-    fun <MetadataType>fromUploadCreated(uploadCreated: UploadCreated<MetadataType>,
-                                        preview: UploadCreated<ImageUploadMetadata>? = null
+    fun <MetadataType> fromUploadCreated(
+        uploadCreated: UploadCreated<MetadataType>,
+        preview: UploadCreated<ImageUploadMetadata>? = null
     ): Upload<MetadataType> = Upload(
-            id = uploadCreated.id,
-            imagePreview = if (preview != null) fromUploadCreated(preview) else null,
-            meta = uploadCreated.meta,
-            extension = uploadCreated.extension,
-            name = uploadCreated.name,
-            isPreview = uploadCreated.isPreview,
-            isThumbnail = uploadCreated.isThumbnail,
-            mimeType = uploadCreated.mimeType,
-            size = uploadCreated.size,
-            type = uploadCreated.type,
-            userId = uploadCreated.userId,
-            originalName = uploadCreated.originalName
+        id = uploadCreated.id,
+        imagePreview = if (preview != null) fromUploadCreated(preview) else null,
+        meta = uploadCreated.meta,
+        extension = uploadCreated.extension,
+        name = uploadCreated.name,
+        isPreview = uploadCreated.isPreview,
+        isThumbnail = uploadCreated.isThumbnail,
+        mimeType = uploadCreated.mimeType,
+        size = uploadCreated.size,
+        type = uploadCreated.type,
+        userId = uploadCreated.userId,
+        originalName = uploadCreated.originalName
     )
 }

@@ -8,23 +8,23 @@ import java.time.ZonedDateTime
 
 @Document
 data class StickerPack<PreviewMetadataType>(
-        @Id
-        val id: String,
+    @Id
+    val id: String,
 
-        @Indexed
-        val name: String,
+    @Indexed
+    val name: String,
 
-        @Indexed
-        val author: String?,
-        val description: String,
+    @Indexed
+    val author: String?,
+    val description: String,
 
-        @Indexed
-        val createdBy: String,
-        val createdAt: ZonedDateTime,
-        val updatedBy: String? = null,
-        val updatedAt: ZonedDateTime? = null,
-        val preview: Upload<PreviewMetadataType>,
-        val stickersType: UploadType,
-        val animated: Boolean,
-        val stickerIds: List<String>
+    @Indexed
+    val createdBy: String,
+    val createdAt: ZonedDateTime,
+    val updatedBy: String? = null,
+    val updatedAt: ZonedDateTime? = null,
+    val preview: Upload<PreviewMetadataType>,
+    val stickersType: UploadType,
+    val animated: Boolean,
+    val stickerIds: List<String>
 )

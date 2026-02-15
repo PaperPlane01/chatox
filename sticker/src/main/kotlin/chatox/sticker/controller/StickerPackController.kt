@@ -28,7 +28,7 @@ class StickerPackController(private val stickerPackService: StickerPackService) 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @PostMapping
     fun createStickerPack(
-            @RequestBody @Valid createStickerPackRequest: CreateStickerPackRequest
+        @RequestBody @Valid createStickerPackRequest: CreateStickerPackRequest
     ) = stickerPackService.createStickerPack(createStickerPackRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
@@ -36,8 +36,8 @@ class StickerPackController(private val stickerPackService: StickerPackService) 
     @ReactivePermissionCheck("@stickerPackPermissions.canUpdateStickerPack(#stickerPackId)")
     @PutMapping("/{stickerPackId}")
     fun updateStickerPack(
-            @PathVariable stickerPackId: String,
-            @RequestBody @Valid updateStickerPackRequest: UpdateStickerPackRequest
+        @PathVariable stickerPackId: String,
+        @RequestBody @Valid updateStickerPackRequest: UpdateStickerPackRequest
     ) = stickerPackService.updateStickerPack(stickerPackId, updateStickerPackRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
@@ -45,8 +45,8 @@ class StickerPackController(private val stickerPackService: StickerPackService) 
     @ReactivePermissionCheck("@stickerPackPermissions.canDeleteStickerPack(#stickerPackId, #deleteStickerPackRequest)")
     @DeleteMapping("/{stickerPackId}")
     fun deleteStickerPack(
-            @PathVariable stickerPackId: String,
-            @RequestBody(required = false) deleteStickerPackRequest: DeleteStickerPackRequest?
+        @PathVariable stickerPackId: String,
+        @RequestBody(required = false) deleteStickerPackRequest: DeleteStickerPackRequest?
     ) = stickerPackService.deleteStickerPack(stickerPackId, deleteStickerPackRequest?.deleteMessages ?: false)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
@@ -54,8 +54,8 @@ class StickerPackController(private val stickerPackService: StickerPackService) 
     @ReactivePermissionCheck("@stickerPackPermissions.canUpdateStickerPack(#stickerPackId)")
     @PostMapping("/{stickerPackId}/stickers")
     fun addStickersToStickerPack(
-            @PathVariable stickerPackId: String,
-            @RequestBody @Valid createStickerRequests: List<CreateStickerRequest>
+        @PathVariable stickerPackId: String,
+        @RequestBody @Valid createStickerRequests: List<CreateStickerRequest>
     ) = stickerPackService.addStickersToStickerPack(stickerPackId, createStickerRequests)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
@@ -68,7 +68,8 @@ class StickerPackController(private val stickerPackService: StickerPackService) 
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @DeleteMapping("/installed/{stickerPackId}")
-    fun uninstallStickerPack(@PathVariable stickerPackId: String) = stickerPackService.uninstallStickerPack(stickerPackId)
+    fun uninstallStickerPack(@PathVariable stickerPackId: String) =
+        stickerPackService.uninstallStickerPack(stickerPackId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @GetMapping("/my")
@@ -79,11 +80,11 @@ class StickerPackController(private val stickerPackService: StickerPackService) 
 
     @GetMapping
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["createdAt", "id", "name"], defaultValue = "createdAt"),
-            sortingDirection = SortDirection(defaultValue = "desc")
+        sortBy = SortBy(allowed = ["createdAt", "id", "name"], defaultValue = "createdAt"),
+        sortingDirection = SortDirection(defaultValue = "desc")
     )
     fun searchStickerPacks(
-            @RequestParam(value = "name", required = false) name: String?,
-            paginationRequest: PaginationRequest
+        @RequestParam(value = "name", required = false) name: String?,
+        paginationRequest: PaginationRequest
     ) = stickerPackService.searchStickerPacks(name ?: "", paginationRequest)
 }

@@ -13,14 +13,15 @@ import reactor.core.publisher.Mono
 
 @Component
 class StickerPackPermissions(
-        private val authenticationHolder: ReactiveAuthenticationHolder<JwtPayload>,
-        private val stickerPackRepository: StickerPackRepository) {
+    private val authenticationHolder: ReactiveAuthenticationHolder<JwtPayload>,
+    private val stickerPackRepository: StickerPackRepository
+) {
 
     fun canUpdateStickerPack(stickerPackId: String): Mono<Boolean> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val stickerPack = stickerPackRepository.findById(stickerPackId).awaitFirstOrNull()
-                    ?: throw StickerPackNotFoundException(stickerPackId)
+                ?: throw StickerPackNotFoundException(stickerPackId)
 
             return@mono currentUser.id == stickerPack.createdBy
         }
@@ -30,7 +31,7 @@ class StickerPackPermissions(
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val stickerPack = stickerPackRepository.findById(stickerPackId).awaitFirstOrNull()
-                    ?: throw StickerPackNotFoundException(stickerPackId)
+                ?: throw StickerPackNotFoundException(stickerPackId)
 
             return@mono if (request?.deleteMessages == true) {
                 currentUser.isAdmin

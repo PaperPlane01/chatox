@@ -15,7 +15,10 @@ import tools.jackson.databind.json.JsonMapper
 class RabbitMQConfig {
 
     @Bean
-    fun rabbitTemplate(connectionFactory: ConnectionFactory, messageConverter: JacksonJsonMessageConverter): RabbitTemplate {
+    fun rabbitTemplate(
+        connectionFactory: ConnectionFactory,
+        messageConverter: JacksonJsonMessageConverter
+    ): RabbitTemplate {
         val rabbitTemplate = RabbitTemplate(connectionFactory)
         rabbitTemplate.messageConverter = messageConverter
 
@@ -44,25 +47,25 @@ class RabbitMQConfig {
 
     @Bean
     fun imageStickerUploadCreatedBinding(): Binding = BindingBuilder
-            .bind(imageStickerUploadCreatedQueue())
-            .to(uploadEvents())
-            .with("upload.sticker.image.created.#")
+        .bind(imageStickerUploadCreatedQueue())
+        .to(uploadEvents())
+        .with("upload.sticker.image.created.#")
 
     @Bean
     fun webpStickerUploadCreatedBinding(): Binding = BindingBuilder
-            .bind(webpStickerUploadCreatedQueue())
-            .to(uploadEvents())
-            .with("upload.sticker.webp.created.#")
+        .bind(webpStickerUploadCreatedQueue())
+        .to(uploadEvents())
+        .with("upload.sticker.webp.created.#")
 
     @Bean
     fun lottieStickerUploadCreatedBinding(): Binding = BindingBuilder
-            .bind(lottieStickerUploadCreatedQueue())
-            .to(uploadEvents())
-            .with("upload.sticker.lottie.created.#")
+        .bind(lottieStickerUploadCreatedQueue())
+        .to(uploadEvents())
+        .with("upload.sticker.lottie.created.#")
 
     @Bean
     fun videoStickerUploadCreatedBinding(): Binding = BindingBuilder
-            .bind(videoStickerUploadCreatedQueue())
-            .to(uploadEvents())
-            .with("upload.sticker.video.created.#")
+        .bind(videoStickerUploadCreatedQueue())
+        .to(uploadEvents())
+        .with("upload.sticker.video.created.#")
 }

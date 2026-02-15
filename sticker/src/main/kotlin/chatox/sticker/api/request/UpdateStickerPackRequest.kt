@@ -7,23 +7,23 @@ import jakarta.validation.constraints.Size
 import org.hibernate.validator.constraints.Length
 
 data class UpdateStickerPackRequest(
-        @field:NotBlank
-        @field:Size(max = 50)
-        @field:JsonProperty("name")
-        private val _name: String?,
+    @field:NotBlank
+    @field:Size(max = 50)
+    @field:JsonProperty("name")
+    private val _name: String?,
 
-        @field:Length(max = 50)
-        val author: String?,
+    @field:Length(max = 50)
+    val author: String?,
 
-        @field:NotBlank
-        @field:Size(max = 500)
-        @field:JsonProperty("description")
-        private val _description: String?,
+    @field:NotBlank
+    @field:Size(max = 500)
+    @field:JsonProperty("description")
+    private val _description: String?,
 
-        @field:Size(max = 500)
-        @field:NotEmpty
-        @field:JsonProperty("stickers")
-        private val _stickers: List<UpdateStickerRequest>?,
+    @field:Size(max = 500)
+    @field:NotEmpty
+    @field:JsonProperty("stickers")
+    private val _stickers: List<UpdateStickerRequest>?,
 ) {
     val name: String
         get() = _name!!
