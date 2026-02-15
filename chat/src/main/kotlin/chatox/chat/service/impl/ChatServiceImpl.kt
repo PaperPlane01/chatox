@@ -73,32 +73,34 @@ import java.util.UUID
 
 @Service
 @LogExecution
-class ChatServiceImpl(private val chatRepository: ChatRepository,
-                      private val chatParticipationRepository: ChatParticipationRepository,
-                      private val pendingChatParticipationRepository: PendingChatParticipationRepository,
-                      private val uploadRepository: UploadRepository,
-                      private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
-                      private val draftMessageRepository: DraftMessageRepository,
-                      private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
-                      private val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String>,
+class ChatServiceImpl(
+    private val chatRepository: ChatRepository,
+    private val chatParticipationRepository: ChatParticipationRepository,
+    private val pendingChatParticipationRepository: PendingChatParticipationRepository,
+    private val uploadRepository: UploadRepository,
+    private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
+    private val draftMessageRepository: DraftMessageRepository,
+    private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
+    private val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String>,
 
-                      @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
-                      private val chatByIdCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
-                      
-                      @param:Qualifier(CacheWrappersConfig.CHAT_BY_SLUG_CACHE_WRAPPER)
-                      private val chatBySlugCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
+    @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+    private val chatByIdCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
 
-                      @param:Qualifier(RedisConfig.CHAT_BY_SLUG_CACHE_SERVICE)
-                      private val chatBySlugCacheService: ReactiveCacheService<Chat, String>,
-                      private val chatMapper: ChatMapper,
-                      private val chatParticipationMapper: ChatParticipationMapper,
-                      private val messageMapper: MessageMapper,
-                      private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-                      private val chatEventsPublisher: ChatEventsPublisher,
-                      private val createMessageService: CreateMessageService,
-                      private val chatRoleService: ChatRoleService,
-                      private val chatParticipantsCountService: ChatParticipantsCountService,
-                      private val messageReadService: MessageReadService) : ChatService {
+    @param:Qualifier(CacheWrappersConfig.CHAT_BY_SLUG_CACHE_WRAPPER)
+    private val chatBySlugCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
+
+    @param:Qualifier(RedisConfig.CHAT_BY_SLUG_CACHE_SERVICE)
+    private val chatBySlugCacheService: ReactiveCacheService<Chat, String>,
+    private val chatMapper: ChatMapper,
+    private val chatParticipationMapper: ChatParticipationMapper,
+    private val messageMapper: MessageMapper,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>,
+    private val chatEventsPublisher: ChatEventsPublisher,
+    private val createMessageService: CreateMessageService,
+    private val chatRoleService: ChatRoleService,
+    private val chatParticipantsCountService: ChatParticipantsCountService,
+    private val messageReadService: MessageReadService
+) : ChatService {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     override fun createChat(createChatRequest: CreateChatRequest): Mono<ChatOfCurrentUserResponse> {
@@ -106,19 +108,19 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
             val chatId = UUID.randomUUID().toString()
             val chat = Chat(
-                    id = chatId,
-                    slug = createChatRequest.slug ?: chatId,
-                    name = createChatRequest.name,
-                    description = createChatRequest.description,
-                    tags = createChatRequest.tags,
-                    createdAt = ZonedDateTime.now(),
-                    createdById = currentUser.id,
-                    type = ChatType.GROUP
+                id = chatId,
+                slug = createChatRequest.slug ?: chatId,
+                name = createChatRequest.name,
+                description = createChatRequest.description,
+                tags = createChatRequest.tags,
+                createdAt = ZonedDateTime.now(),
+                createdById = currentUser.id,
+                type = ChatType.GROUP
             )
             val chatMessagesCounter = ChatMessagesCounter(
-                    id = UUID.randomUUID().toString(),
-                    chatId = chat.id,
-                    messagesCount = 0L
+                id = UUID.randomUUID().toString(),
+                chatId = chat.id,
+                messagesCount = 0L
             )
             chatMessagesCounterRepository.save(chatMessagesCounter).awaitFirst()
             chatRepository.save(chat).awaitFirst()
@@ -128,110 +130,110 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
             val creatorDisplayedName = currentUser.displayedName
             val creatorChatParticipation = ChatParticipation(
-                    id = ObjectId().toHexString(),
-                    user = currentUser,
-                    chatId = chat.id,
-                    chatType = ChatType.GROUP,
-                    role = ownerRole,
-                    roleId = ownerRole.id,
-                    createdAt = ZonedDateTime.now(),
-                    userDisplayedName = creatorDisplayedName,
-                    userSlug = currentUser.slug,
-                    userOnline = currentUser.online ?: false
+                id = ObjectId().toHexString(),
+                user = currentUser,
+                chatId = chat.id,
+                chatType = ChatType.GROUP,
+                role = ownerRole,
+                roleId = ownerRole.id,
+                createdAt = ZonedDateTime.now(),
+                userDisplayedName = creatorDisplayedName,
+                userSlug = currentUser.slug,
+                userOnline = currentUser.online ?: false
             )
             chatParticipationRepository.save(creatorChatParticipation).awaitFirst()
             messageReadService.initializeUnreadMessagesCount(creatorChatParticipation).awaitFirst()
             val participantsCount = chatParticipantsCountService.initializeForChat(
-                    chatId = chat.id,
-                    participantsCount = 1,
-                    onlineParticipantsCount = if (currentUser.online == true) 1 else 0
+                chatId = chat.id,
+                participantsCount = 1,
+                onlineParticipantsCount = if (currentUser.online == true) 1 else 0
             )
-                    .awaitFirst()
+                .awaitFirst()
             chatEventsPublisher.userJoinedChat(
-                    chatParticipationMapper.toChatParticipationResponse(
-                            chatParticipation = creatorChatParticipation,
-                            chatRole = ownerRole
-                    ).awaitFirst()
+                chatParticipationMapper.toChatParticipationResponse(
+                    chatParticipation = creatorChatParticipation,
+                    chatRole = ownerRole
+                ).awaitFirst()
             )
 
             return@mono chatMapper.toChatOfCurrentUserResponse(
-                    chat = chat,
-                    chatParticipation = creatorChatParticipation,
-                    unreadMessagesCount = 0,
-                    unreadMentionsCount = 0,
-                    lastMessage = null as Message?,
-                    lastReadMessage = null as Message?,
-                    draftMessage = null as DraftMessage?,
-                    chatParticipantsCount = participantsCount
+                chat = chat,
+                chatParticipation = creatorChatParticipation,
+                unreadMessagesCount = 0,
+                unreadMentionsCount = 0,
+                lastMessage = null as Message?,
+                lastReadMessage = null as Message?,
+                draftMessage = null as DraftMessage?,
+                chatParticipantsCount = participantsCount
             )
-                    .awaitFirst()
+                .awaitFirst()
         }
     }
 
     override fun createPrivateChat(createPrivateChatRequest: CreatePrivateChatRequest): Mono<ChatOfCurrentUserResponse> {
         return mono {
             val user = userCacheWrapper.findById(createPrivateChatRequest.userId).awaitFirstOrNull()
-                    ?: throw UserNotFoundException("Could not find user with id ${createPrivateChatRequest.userId}")
+                ?: throw UserNotFoundException("Could not find user with id ${createPrivateChatRequest.userId}")
             val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
 
             val chatId = UUID.randomUUID().toString()
             val chat = Chat(
-                    id = chatId,
-                    createdById = currentUser.id,
-                    createdAt = ZonedDateTime.now(),
-                    type = ChatType.DIALOG,
-                    name = "dialog-${currentUser.id}-${user.id}",
-                    deleted = false,
-                    slug = chatId
+                id = chatId,
+                createdById = currentUser.id,
+                createdAt = ZonedDateTime.now(),
+                type = ChatType.DIALOG,
+                name = "dialog-${currentUser.id}-${user.id}",
+                deleted = false,
+                slug = chatId
             )
 
             val chatMessagesCounter = ChatMessagesCounter(
-                    id = UUID.randomUUID().toString(),
-                    chatId = chatId,
-                    messagesCount = 1L
+                id = UUID.randomUUID().toString(),
+                chatId = chatId,
+                messagesCount = 1L
             )
             chatMessagesCounterRepository.save(chatMessagesCounter).awaitFirst()
             val userRole = chatRoleService.createUserRoleForChat(chat).awaitFirst()
 
             var currentUserChatParticipation = ChatParticipation(
-                    id = ObjectId().toHexString(),
-                    chatId = chatId,
-                    chatType = ChatType.DIALOG,
-                    deleted = false,
-                    createdAt = ZonedDateTime.now(),
-                    user = currentUser,
-                    role = userRole,
-                    roleId = userRole.id,
-                    chatDeleted = false,
-                    userOnline = currentUser.online ?: false,
-                    userDisplayedName = currentUser.displayedName,
-                    userSlug = currentUser.slug,
+                id = ObjectId().toHexString(),
+                chatId = chatId,
+                chatType = ChatType.DIALOG,
+                deleted = false,
+                createdAt = ZonedDateTime.now(),
+                user = currentUser,
+                role = userRole,
+                roleId = userRole.id,
+                chatDeleted = false,
+                userOnline = currentUser.online ?: false,
+                userDisplayedName = currentUser.displayedName,
+                userSlug = currentUser.slug,
             )
             val otherUserChatParticipation = ChatParticipation(
-                    id = ObjectId().toHexString(),
-                    chatId = chatId,
-                    chatType = ChatType.DIALOG,
-                    deleted = false,
-                    createdAt = ZonedDateTime.now(),
-                    user = user,
-                    role = userRole,
-                    roleId = userRole.id,
-                    chatDeleted = false,
-                    userOnline = user.online ?: false,
-                    userDisplayedName = user.displayedName,
-                    userSlug = user.slug
+                id = ObjectId().toHexString(),
+                chatId = chatId,
+                chatType = ChatType.DIALOG,
+                deleted = false,
+                createdAt = ZonedDateTime.now(),
+                user = user,
+                role = userRole,
+                roleId = userRole.id,
+                chatDeleted = false,
+                userOnline = user.online ?: false,
+                userDisplayedName = user.displayedName,
+                userSlug = user.slug
             )
 
             val message = createMessageService.createFirstMessageForPrivateChat(
-                    chatId = chatId,
-                    createMessageRequest = createPrivateChatRequest.message,
-                    chatParticipation = currentUserChatParticipation
+                chatId = chatId,
+                createMessageRequest = createPrivateChatRequest.message,
+                chatParticipation = currentUserChatParticipation
             )
-                    .awaitFirst()
+                .awaitFirst()
             currentUserChatParticipation = currentUserChatParticipation.copy(
-                    lastReadMessageAt = message.createdAt,
-                    lastReadMessageCreatedAt = message.createdAt,
-                    lastReadMessageId = message.id
+                lastReadMessageAt = message.createdAt,
+                lastReadMessageCreatedAt = message.createdAt,
+                lastReadMessageId = message.id
             )
 
             val chatParticipations = mutableListOf(currentUserChatParticipation, otherUserChatParticipation)
@@ -242,40 +244,46 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             }
 
             val dialogParticipantsDisplay = listOf(
-                    DialogDisplay(currentUser.id, chatParticipationMapper.toDialogParticipant(otherUserChatParticipation)),
-                    DialogDisplay(user.id, chatParticipationMapper.toDialogParticipant(currentUserChatParticipation))
+                DialogDisplay(currentUser.id, chatParticipationMapper.toDialogParticipant(otherUserChatParticipation)),
+                DialogDisplay(user.id, chatParticipationMapper.toDialogParticipant(currentUserChatParticipation))
             )
 
-            chatRepository.save(chat.copy(
+            chatRepository.save(
+                chat.copy(
                     lastMessageId = message.id,
                     lastMessageDate = message.createdAt,
                     dialogDisplay = dialogParticipantsDisplay
-            )).awaitFirst()
+                )
+            ).awaitFirst()
 
             val messageResponse = messageMapper.toMessageResponse(
-                    message = message,
-                    readByCurrentUser = true,
-                    mapReferredMessage = true
+                message = message,
+                readByCurrentUser = true,
+                mapReferredMessage = true
             )
-                    .awaitFirst()
+                .awaitFirst()
             val privateChatCreated = PrivateChatCreated(
-                    id = chat.id,
-                    chatParticipations = chatParticipations.map { chatParticipation -> chatParticipationMapper.toChatParticipationResponse(chatParticipation).awaitFirst() },
-                    message = messageResponse
+                id = chat.id,
+                chatParticipations = chatParticipations.map { chatParticipation ->
+                    chatParticipationMapper.toChatParticipationResponse(
+                        chatParticipation
+                    ).awaitFirst()
+                },
+                message = messageResponse
             )
             chatEventsPublisher.privateChatCreated(privateChatCreated)
 
             return@mono chatMapper.toChatOfCurrentUserResponse(
-                    chat = chat,
-                    chatParticipation = currentUserChatParticipation,
-                    lastMessage = messageResponse,
-                    lastReadMessage = messageResponse,
-                    draftMessage = null,
-                    unreadMessagesCount =  0,
-                    unreadMentionsCount = 0,
-                    user = user
+                chat = chat,
+                chatParticipation = currentUserChatParticipation,
+                lastMessage = messageResponse,
+                lastReadMessage = messageResponse,
+                draftMessage = null,
+                unreadMessagesCount = 0,
+                unreadMentionsCount = 0,
+                user = user
             )
-                    .awaitFirst()
+                .awaitFirst()
         }
     }
 
@@ -294,14 +302,14 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             val hideFromSearchChanged = hideFromSearch != chat.hideFromSearch
 
             chat = chat.copy(
-                    name = updateChatRequest.name,
-                    avatar = avatar,
-                    slug = slug,
-                    tags = updateChatRequest.tags ?: arrayListOf(),
-                    description = updateChatRequest.description,
-                    slowMode = slowMode,
-                    joinAllowanceSettings = updateChatRequest.joinAllowanceSettings ?: mapOf(),
-                    hideFromSearch = hideFromSearch
+                name = updateChatRequest.name,
+                avatar = avatar,
+                slug = slug,
+                tags = updateChatRequest.tags ?: arrayListOf(),
+                description = updateChatRequest.description,
+                slowMode = slowMode,
+                joinAllowanceSettings = updateChatRequest.joinAllowanceSettings ?: mapOf(),
+                hideFromSearch = hideFromSearch
             )
 
             if (hideFromSearchChanged) {
@@ -326,7 +334,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
                     if (!slugAvailability.available) {
                         throw SlugIsAlreadyInUseException(
-                                "Slug ${updateChatRequest.slug} is already used by another chat"
+                            "Slug ${updateChatRequest.slug} is already used by another chat"
                         )
                     }
 
@@ -343,11 +351,11 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 chat.avatar?.id -> chat.avatar
                 else -> {
                     uploadRepository.findByIdAndType<ImageUploadMetadata>(
-                            updateChatRequest.avatarId,
-                            UploadType.IMAGE
+                        updateChatRequest.avatarId,
+                        UploadType.IMAGE
                     )
-                            .awaitFirstOrNull<Upload<ImageUploadMetadata>>()
-                            ?: throw UploadNotFoundException("Could not find image with id ${updateChatRequest.avatarId}")
+                        .awaitFirstOrNull<Upload<ImageUploadMetadata>>()
+                        ?: throw UploadNotFoundException("Could not find image with id ${updateChatRequest.avatarId}")
                 }
             }
         }
@@ -358,9 +366,9 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             null
         } else {
             SlowMode(
-                    enabled = updateChatRequest.slowMode.enabled,
-                    interval = updateChatRequest.slowMode.interval,
-                    unit = updateChatRequest.slowMode.unit
+                enabled = updateChatRequest.slowMode.enabled,
+                interval = updateChatRequest.slowMode.interval,
+                unit = updateChatRequest.slowMode.unit
             )
         }
     }
@@ -371,12 +379,12 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             val chatUpdatedEvent = chatMapper.toChatUpdated(chat)
             chatEventsPublisher.chatUpdated(chatUpdatedEvent)
             val chatParticipantsCount = chatParticipantsCountService
-                    .getChatParticipantsCount(chat.id)
-                    .awaitFirstOrNull()
+                .getChatParticipantsCount(chat.id)
+                .awaitFirstOrNull()
 
             return@mono chatMapper.toChatResponse(
-                    chat = chat,
-                    chatParticipantsCount = chatParticipantsCount
+                chat = chat,
+                chatParticipantsCount = chatParticipantsCount
             )
         }
     }
@@ -395,42 +403,43 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
                 if (deleteChatRequest == null) {
                     throw InvalidChatDeletionReasonException(
-                            "Chat deletion reason must be specified if chat is deleted not by its creator"
+                        "Chat deletion reason must be specified if chat is deleted not by its creator"
                     )
                 }
 
                 if (deleteChatRequest.reason == ChatDeletionReason.OTHER
-                        && ObjectUtils.isEmpty(deleteChatRequest.comment)) {
+                    && ObjectUtils.isEmpty(deleteChatRequest.comment)
+                ) {
                     throw InvalidChatDeletionCommentException(
-                            "Chat deletion comment must be specified if chat deletion reason is ${ChatDeletionReason.OTHER}"
+                        "Chat deletion comment must be specified if chat deletion reason is ${ChatDeletionReason.OTHER}"
                     )
                 }
 
                 chatDeletion = ChatDeletion(
-                        id = ObjectId().toHexString(),
-                        deletionReason = deleteChatRequest.reason,
-                        comment = deleteChatRequest.comment
+                    id = ObjectId().toHexString(),
+                    deletionReason = deleteChatRequest.reason,
+                    comment = deleteChatRequest.comment
                 )
             }
 
             chat = chat.copy(
-                    deleted = true,
-                    deletedAt = ZonedDateTime.now(),
-                    deletedById = currentUser.id,
-                    chatDeletion = chatDeletion
+                deleted = true,
+                deletedAt = ZonedDateTime.now(),
+                deletedById = currentUser.id,
+                chatDeletion = chatDeletion
             )
             chatRepository.save(chat).awaitFirst()
             chatParticipationRepository.updateChatDeleted(
-                    chatId = id,
-                    chatDeleted = true
+                chatId = id,
+                chatDeleted = true
             )
-                    .awaitFirst()
+                .awaitFirst()
             chatEventsPublisher.chatDeleted(
-                    ChatDeleted(
-                            id = id,
-                            reason = chatDeletion?.deletionReason,
-                            comment = chatDeletion?.comment
-                    )
+                ChatDeleted(
+                    id = id,
+                    reason = chatDeletion?.deletionReason,
+                    comment = chatDeletion?.comment
+                )
             )
 
             return@mono
@@ -440,7 +449,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     override fun findChatBySlugOrId(slugOrId: String): Mono<ChatResponse> {
         return mono {
             val chat = chatBySlugCacheWrapper.findById(slugOrId).awaitFirstOrNull()
-                    ?: throw ChatNotFoundException("Could not find chat with id or slug $slugOrId")
+                ?: throw ChatNotFoundException("Could not find chat with id or slug $slugOrId")
 
             if (chat.deleted) {
                 throw ChatDeletedException(chat.chatDeletion)
@@ -458,7 +467,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 chatParticipants.first { chatParticipation -> chatParticipation.user.id == currentUser.id }
 
                 val otherUserChatParticipation = chatParticipants
-                        .firstOrNull { chatParticipation -> chatParticipation.user.id != currentUser.id }
+                    .firstOrNull { chatParticipation -> chatParticipation.user.id != currentUser.id }
 
                 otherUser = if (otherUserChatParticipation != null) {
                     userCacheWrapper.findById(otherUserChatParticipation.user.id).awaitFirst()
@@ -471,14 +480,14 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 null
             } else {
                 chatParticipantsCountService.getChatParticipantsCount(chat.id)
-                        .awaitFirstOrNull()
+                    .awaitFirstOrNull()
             }
 
             return@mono chatMapper.toChatResponse(
-                    chat = chat,
-                    currentUserId = currentUser?.id,
-                    user = otherUser,
-                    chatParticipantsCount = chatParticipantsCount
+                chat = chat,
+                currentUserId = currentUser?.id,
+                user = otherUser,
+                chatParticipantsCount = chatParticipantsCount
             )
         }
     }
@@ -486,30 +495,32 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     override fun searchChats(query: String, paginationRequest: PaginationRequest): Flux<ChatResponse> {
         return mono {
             val chats = chatRepository.searchChats(query, listOf(ChatType.GROUP), paginationRequest.toPageRequest())
-                    .collectList()
-                    .awaitFirst()
+                .collectList()
+                .awaitFirst()
             val chatIds = chats.map { chat -> chat.id }
             val chatParticipantsCount = chatParticipantsCountService.getChatParticipantsCount(chatIds)
-                    .awaitFirst()
+                .awaitFirst()
 
-            return@mono chats.map { chat -> chatMapper.toChatResponse(
+            return@mono chats.map { chat ->
+                chatMapper.toChatResponse(
                     chat = chat,
                     chatParticipantsCount = chatParticipantsCount[chat.id] ?: ChatParticipantsCount.EMPTY
-            ) }
+                )
+            }
         }
-                .flatMapMany { Flux.fromIterable(it) }
+            .flatMapMany { Flux.fromIterable(it) }
     }
 
     override fun getChatsOfCurrentUser(): Flux<ChatOfCurrentUserResponse> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
             val chatParticipations = chatParticipationRepository
-                    .findAllByUserIdAndDeletedFalse(currentUser.id)
-                    .collectList()
-                    .awaitFirst()
+                .findAllByUserIdAndDeletedFalse(currentUser.id)
+                .collectList()
+                .awaitFirst()
             val unreadMessagesCountMap = messageReadService
-                    .groupUnreadMessagesCountByChats(chatParticipations.map { it.id })
-                    .awaitFirst()
+                .groupUnreadMessagesCountByChats(chatParticipations.map { it.id })
+                .awaitFirst()
 
             val allChatIds = mutableListOf<String>()
             val groupChatIds = mutableListOf<String>()
@@ -533,143 +544,147 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             }
 
             val chats = chatByIdCacheWrapper
-                    .findByIds(allChatIds)
-                    .collectList()
-                    .awaitFirst()
-                    .associateBy { chat -> chat.id }
+                .findByIds(allChatIds)
+                .collectList()
+                .awaitFirst()
+                .associateBy { chat -> chat.id }
             val dialogChatsParticipants = chatParticipationRepository.findByChatIdIn(dialogChatsIds)
-                    .collectList()
-                    .awaitFirst()
-                    .groupBy { chatParticipation -> chatParticipation.chatId }
+                .collectList()
+                .awaitFirst()
+                .groupBy { chatParticipation -> chatParticipation.chatId }
             val dialogChatsUsers = userCacheWrapper.findByIds(
-                    dialogChatsParticipants.values
-                            .flatten()
-                            .map { chatParticipation -> chatParticipation.user.id }
-                            .filter { userId -> userId != currentUser.id }
+                dialogChatsParticipants.values
+                    .flatten()
+                    .map { chatParticipation -> chatParticipation.user.id }
+                    .filter { userId -> userId != currentUser.id }
             )
-                    .collectList()
-                    .awaitFirst()
-                    .associateBy { user -> user.id }
+                .collectList()
+                .awaitFirst()
+                .associateBy { user -> user.id }
 
             messagesIds.addAll(chats.values.mapNotNull { chat -> chat.lastMessageId })
             val messages = messageCacheWrapper.findByIds(messagesIds)
-                    .collectList()
-                    .awaitFirst()
-                    .associateBy { message -> message.id }
+                .collectList()
+                .awaitFirst()
+                .associateBy { message -> message.id }
             val draftMessages = draftMessageRepository.findByChatIdInAndSenderId(
-                    chatIds = allChatIds,
-                    senderId = currentUser.id
+                chatIds = allChatIds,
+                senderId = currentUser.id
             )
-                    .collectList()
-                    .awaitFirst()
-                    .associateBy { draftMessage -> draftMessage.chatId }
+                .collectList()
+                .awaitFirst()
+                .associateBy { draftMessage -> draftMessage.chatId }
 
             val chatParticipantsCount = chatParticipantsCountService.getChatParticipantsCount(groupChatIds)
-                    .awaitFirst()
+                .awaitFirst()
 
             return@mono chatParticipations
-                    .filter { chatParticipation -> chats.containsKey(chatParticipation.chatId) }
-                    .map { chatParticipation ->
-                        val chat = chats[chatParticipation.chatId]!!
-                        val unreadMessagesCount = unreadMessagesCountMap[chat.id]
-                        val lastReadMessage = unreadMessagesCount?.lastReadMessageId?.let { messageId ->
-                            messages[messageId]
-                        }
-                        val lastMessage = chat.lastMessageId?.let { messageId -> messages[messageId] }
-                        val draftMessage = draftMessages[chatParticipation.chatId]
-                        val user = getChatUser(
-                                chat = chat,
-                                dialogChatsParticipants = dialogChatsParticipants,
-                                dialogChatsUsers = dialogChatsUsers,
-                                currentUser = currentUser
-                        )
+                .filter { chatParticipation -> chats.containsKey(chatParticipation.chatId) }
+                .map { chatParticipation ->
+                    val chat = chats[chatParticipation.chatId]!!
+                    val unreadMessagesCount = unreadMessagesCountMap[chat.id]
+                    val lastReadMessage = unreadMessagesCount?.lastReadMessageId?.let { messageId ->
+                        messages[messageId]
+                    }
+                    val lastMessage = chat.lastMessageId?.let { messageId -> messages[messageId] }
+                    val draftMessage = draftMessages[chatParticipation.chatId]
+                    val user = getChatUser(
+                        chat = chat,
+                        dialogChatsParticipants = dialogChatsParticipants,
+                        dialogChatsUsers = dialogChatsUsers,
+                        currentUser = currentUser
+                    )
 
-                        return@map chatMapper.toChatOfCurrentUserResponse(
-                                chat = chat,
-                                chatParticipation = chatParticipation,
-                                lastReadMessage = lastReadMessage,
-                                lastMessage = lastMessage,
-                                draftMessage = draftMessage,
-                                unreadMessagesCount = unreadMessagesCount?.unreadMessagesCount ?: 0,
-                                unreadMentionsCount = unreadMessagesCount?.unreadMentionsCount ?: 0,
-                                user = user,
-                                chatParticipantsCount = chatParticipantsCount[chat.id] ?: ChatParticipantsCount.EMPTY
-                        )
-                                .awaitFirst()
-            }
+                    return@map chatMapper.toChatOfCurrentUserResponse(
+                        chat = chat,
+                        chatParticipation = chatParticipation,
+                        lastReadMessage = lastReadMessage,
+                        lastMessage = lastMessage,
+                        draftMessage = draftMessage,
+                        unreadMessagesCount = unreadMessagesCount?.unreadMessagesCount ?: 0,
+                        unreadMentionsCount = unreadMessagesCount?.unreadMentionsCount ?: 0,
+                        user = user,
+                        chatParticipantsCount = chatParticipantsCount[chat.id] ?: ChatParticipantsCount.EMPTY
+                    )
+                        .awaitFirst()
+                }
         }
-                .flatMapMany { Flux.fromIterable(it) }
+            .flatMapMany { Flux.fromIterable(it) }
     }
 
     private fun getChatUser(
-            chat: Chat,
-            dialogChatsParticipants: Map<String, List<ChatParticipation>>,
-            dialogChatsUsers: Map<String, User>,
-            currentUser: User
+        chat: Chat,
+        dialogChatsParticipants: Map<String, List<ChatParticipation>>,
+        dialogChatsUsers: Map<String, User>,
+        currentUser: User
     ): User? {
         if (chat.type != ChatType.DIALOG) {
             return null
         }
 
         return dialogChatsParticipants[chat.id]
-                ?.let { chatParticipants ->
-                    chatParticipants.find { chatParticipant -> chatParticipant.user.id != currentUser.id }
-                }
-                ?.let { chatParticipant -> dialogChatsUsers[chatParticipant.user.id] }
-                ?: currentUser
+            ?.let { chatParticipants ->
+                chatParticipants.find { chatParticipant -> chatParticipant.user.id != currentUser.id }
+            }
+            ?.let { chatParticipant -> dialogChatsUsers[chatParticipant.user.id] }
+            ?: currentUser
     }
 
     override fun getPendingChatsOfCurrentUser(): Flux<ChatResponse> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
             val pendingChatParticipations = pendingChatParticipationRepository.findByUserIdOrderByCreatedAtAsc(
-                    userId = currentUser.id
+                userId = currentUser.id
             )
-                    .collectList()
-                    .awaitFirst()
+                .collectList()
+                .awaitFirst()
 
-            val chatIdsAndDates = pendingChatParticipations.associate { pendingChatParticipation -> Pair(
+            val chatIdsAndDates = pendingChatParticipations.associate { pendingChatParticipation ->
+                Pair(
                     pendingChatParticipation.chatId,
                     pendingChatParticipation.createdAt
-            ) }
+                )
+            }
             val chatIds = chatIdsAndDates.keys.toList()
             val chats = chatRepository.findByIdInAndTypeInAndDeletedFalse(
-                    ids = chatIds,
-                    types = listOf(ChatType.GROUP)
+                ids = chatIds,
+                types = listOf(ChatType.GROUP)
             )
-                    .collectList()
-                    .awaitFirst()
+                .collectList()
+                .awaitFirst()
             val chatParticipantsCount = chatParticipantsCountService
-                    .getChatParticipantsCount(chatIds)
-                    .awaitFirst()
+                .getChatParticipantsCount(chatIds)
+                .awaitFirst()
 
             return@mono chats
-                    .map { chat -> chatMapper.toChatResponse(
-                            chat = chat,
-                            currentUserId = currentUser.id,
-                            chatParticipantsCount = chatParticipantsCount[chat.id] ?: ChatParticipantsCount.EMPTY
-                    ) }
-                    .sortedByDescending { chat -> chatIdsAndDates[chat.id] }
+                .map { chat ->
+                    chatMapper.toChatResponse(
+                        chat = chat,
+                        currentUserId = currentUser.id,
+                        chatParticipantsCount = chatParticipantsCount[chat.id] ?: ChatParticipantsCount.EMPTY
+                    )
+                }
+                .sortedByDescending { chat -> chatIdsAndDates[chat.id] }
         }
-                .flatMapMany { Flux.fromIterable(it) }
+            .flatMapMany { Flux.fromIterable(it) }
     }
 
     override fun isChatCreatedByUser(chatId: String, userId: String): Mono<Boolean> {
         return chatByIdCacheWrapper.findById(chatId)
-                .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
-                .map { it.createdById == userId }
+            .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
+            .map { it.createdById == userId }
     }
 
     override fun checkChatSlugAvailability(slug: String): Mono<AvailabilityResponse> {
         return chatRepository.existsBySlugOrId(slug, slug)
-                .map { AvailabilityResponse(available = !it) }
+            .map { AvailabilityResponse(available = !it) }
     }
 
     override fun getPopularChats(paginationRequest: PaginationRequest): Flux<ChatResponse> {
         return mono {
             val participantsCount = chatParticipantsCountService
-                    .getPopularChatsParticipantsCount(paginationRequest)
-                    .awaitFirst()
+                .getPopularChatsParticipantsCount(paginationRequest)
+                .awaitFirst()
             val chatIds = participantsCount.keys.toList()
             val chats = chatByIdCacheWrapper.findByIds(chatIds).collectList().awaitFirst()
 
@@ -680,13 +695,15 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
                 currentUserId = currentUser.id
             }
 
-            return@mono chats.map { chat -> chatMapper.toChatResponse(
+            return@mono chats.map { chat ->
+                chatMapper.toChatResponse(
                     chat = chat,
                     currentUserId = currentUserId,
                     chatParticipantsCount = participantsCount[chat.id] ?: ChatParticipantsCount.EMPTY
-            ) }
+                )
+            }
         }
-                .flatMapMany { Flux.fromIterable(it) }
+            .flatMapMany { Flux.fromIterable(it) }
     }
 
     override fun findChatEntityById(id: String): Mono<Chat> {
@@ -695,7 +712,7 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
 
     override fun findChatById(id: String): Mono<ChatResponseWithCreatorId> {
         return findChatByIdInternal(id)
-                .map { chat -> chatMapper.toChatResponseWithCreatorId(chat) }
+            .map { chat -> chatMapper.toChatResponseWithCreatorId(chat) }
     }
 
     override fun deleteMultipleChats(deleteMultipleChatsRequest: DeleteMultipleChatsRequest): Mono<Unit> {
@@ -705,26 +722,29 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
             var chats = chatRepository.findAllById(chatIds).collectList().awaitFirst()
             val chatDeletionsMap = transformChatDeletionsToMap(deleteMultipleChatsRequest.chatDeletions)
 
-            chats = chats.map { chat -> chat.copy(
+            chats = chats.map { chat ->
+                chat.copy(
                     deletedById = currentUser.id,
-                    deletedAt =  ZonedDateTime.now(),
+                    deletedAt = ZonedDateTime.now(),
                     chatDeletion = ChatDeletion(
-                            id = UUID.randomUUID().toString(),
-                            comment = chatDeletionsMap[chat.id]!!.comment,
-                            deletionReason = chatDeletionsMap[chat.id]!!.reason
+                        id = UUID.randomUUID().toString(),
+                        comment = chatDeletionsMap[chat.id]!!.comment,
+                        deletionReason = chatDeletionsMap[chat.id]!!.reason
                     )
-            ) }
-
-            chatRepository.saveAll(chats).collectList().awaitFirst()
-            chats.forEach { chat -> Mono.fromRunnable<Void> {
-                chatEventsPublisher.chatDeleted(
-                        ChatDeleted(
-                                id = chat.id,
-                                comment = chat.chatDeletion?.comment,
-                                reason = chat.chatDeletion?.deletionReason
-                        )
                 )
             }
+
+            chatRepository.saveAll(chats).collectList().awaitFirst()
+            chats.forEach { chat ->
+                Mono.fromRunnable<Void> {
+                    chatEventsPublisher.chatDeleted(
+                        ChatDeleted(
+                            id = chat.id,
+                            comment = chat.chatDeletion?.comment,
+                            reason = chat.chatDeletion?.deletionReason
+                        )
+                    )
+                }
                     .subscribe()
             }
 
@@ -741,5 +761,5 @@ class ChatServiceImpl(private val chatRepository: ChatRepository,
     }
 
     private fun findChatByIdInternal(id: String) = chatByIdCacheWrapper.findById(id)
-            .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
+        .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $id")))
 }

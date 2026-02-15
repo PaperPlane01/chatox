@@ -6,12 +6,12 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.validation.constraints.NotNull
 
 data class UpdateChatNotificationsSettingsRequest(
-        @field:JsonProperty("level")
-        @field:NotNull
-        private val _level: NotificationLevel,
+    @field:JsonProperty("level")
+    @field:NotNull
+    private val _level: NotificationLevel,
 
-        val sound: NotificationSound,
-        val userExceptions: Map<String, UpdateNotificationsSettingsRequest>? = null
+    val sound: NotificationSound,
+    val userExceptions: Map<String, UpdateNotificationsSettingsRequest>? = null
 ) {
     val level: NotificationLevel
         get() = _level!!

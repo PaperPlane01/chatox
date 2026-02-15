@@ -10,26 +10,26 @@ import org.springframework.stereotype.Component
 class NotificationsSettingsEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
 
     fun globalNotificationsSettingsUpdated(
-            globalNotificationsSettingsUpdated: GlobalNotificationsSettingsUpdated
+        globalNotificationsSettingsUpdated: GlobalNotificationsSettingsUpdated
     ) = rabbitTemplate.convertAndSend(
-            "notification.events",
-            "notification.settings.global.updated.#",
-            globalNotificationsSettingsUpdated
+        "notification.events",
+        "notification.settings.global.updated.#",
+        globalNotificationsSettingsUpdated
     )
 
     fun chatNotificationsSettingsUpdated(
-            chatNotificationsSettingsUpdated: ChatNotificationsSettingsUpdated
+        chatNotificationsSettingsUpdated: ChatNotificationsSettingsUpdated
     ) = rabbitTemplate.convertAndSend(
-            "notification.events",
-            "notification.settings.chat.updated.#",
-            chatNotificationsSettingsUpdated
+        "notification.events",
+        "notification.settings.chat.updated.#",
+        chatNotificationsSettingsUpdated
     )
 
     fun chatNotificationsSettingsDeleted(
-            chatNotificationsSettingsDeleted: ChatNotificationsSettingsDeleted
+        chatNotificationsSettingsDeleted: ChatNotificationsSettingsDeleted
     ) = rabbitTemplate.convertAndSend(
-            "notification.events",
-            "notification.settings.chat.deleted.#",
-            chatNotificationsSettingsDeleted
+        "notification.events",
+        "notification.settings.chat.deleted.#",
+        chatNotificationsSettingsDeleted
     )
 }

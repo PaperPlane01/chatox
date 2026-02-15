@@ -9,9 +9,9 @@ import kotlin.reflect.KClass
 @Retention(value = AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [StringInValidator::class])
 annotation class StringIn(
-        val value: Array<String> = [],
-        val message: String = "",
+    val value: Array<String> = [],
+    val message: String = "",
 
-        val groups: Array<KClass<*>> = [],
-        val payload: Array<KClass<out Payload>> = []
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = []
 )

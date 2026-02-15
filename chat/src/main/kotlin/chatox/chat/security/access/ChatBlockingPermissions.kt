@@ -12,15 +12,20 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class ChatBlockingPermissions(private val chatRoleService: ChatRoleService,
-                              private val authenticationHolder: ReactiveAuthenticationHolder<User>) {
+class ChatBlockingPermissions(
+    private val chatRoleService: ChatRoleService,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>
+) {
 
     fun canBlockUser(chatId: String, createChatBlockingRequest: CreateChatBlockingRequest): Mono<Boolean> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            val currentUserRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
+            val currentUserRole =
+                chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
-            val otherUserRole = chatRoleService.getRoleOfUserInChat(userId = createChatBlockingRequest.userId, chatId = chatId).awaitFirstOrNull()
+            val otherUserRole =
+                chatRoleService.getRoleOfUserInChat(userId = createChatBlockingRequest.userId, chatId = chatId)
+                    .awaitFirstOrNull()
                     ?: throw ChatParticipationNotFoundException("User $${createChatBlockingRequest.userId} is not a participant of chat $chatId")
 
             if (!currentUserRole.features.blockUsers.enabled) {
@@ -43,15 +48,16 @@ class ChatBlockingPermissions(private val chatRoleService: ChatRoleService,
 
     fun canUnblockUser(chatId: String): Mono<Boolean> {
         return authenticationHolder.currentUserDetails
-                .flatMap { chatRoleService.getRoleOfUserInChat(chatId, it.id) }
-                .map { it.features.blockUsers.enabled }
-                .switchIfEmpty(Mono.just(false))
+            .flatMap { chatRoleService.getRoleOfUserInChat(chatId, it.id) }
+            .map { it.features.blockUsers.enabled }
+            .switchIfEmpty(Mono.just(false))
     }
 
     fun canSeeChatBlockings(chatId: String): Mono<Boolean> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            val chatRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
+            val chatRole =
+                chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
 
             return@mono chatRole.features.blockUsers.enabled
@@ -60,7 +66,7 @@ class ChatBlockingPermissions(private val chatRoleService: ChatRoleService,
 
     fun canUpdateBlocking(chatId: String): Mono<Boolean> {
         return authenticationHolder.requireCurrentUserDetails()
-                .flatMap { chatRoleService.getRoleOfUserInChat(userId = it.id, chatId = chatId) }
-                .map { it.features.blockUsers.enabled }
+            .flatMap { chatRoleService.getRoleOfUserInChat(userId = it.id, chatId = chatId) }
+            .map { it.features.blockUsers.enabled }
     }
 }

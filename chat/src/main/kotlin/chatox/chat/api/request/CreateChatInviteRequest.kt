@@ -8,18 +8,18 @@ import jakarta.validation.constraints.Size
 import java.time.ZonedDateTime
 
 data class CreateChatInviteRequest(
-        val active: Boolean?,
+    val active: Boolean?,
 
-        @field:Size(max = 50)
-        val name: String?,
+    @field:Size(max = 50)
+    val name: String?,
 
-        @field:Future
-        val expiresAt: ZonedDateTime?,
+    @field:Future
+    val expiresAt: ZonedDateTime?,
 
-        @field:Positive
-        val maxUseTimes: Long?,
+    @field:Positive
+    val maxUseTimes: Long?,
 
-        val userId: String?,
+    val userId: String?,
 
-        val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance>?
+    val joinAllowanceSettings: Map<VerificationLevel, JoinChatAllowance>?
 )

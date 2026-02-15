@@ -22,6 +22,6 @@ class MessageController(private val messageService: MessageService) {
     @DeleteMapping
     @PreAuthorize("hasRole('ADMIN')")
     fun deleteMultipleMessages(
-            @RequestBody @Valid deleteMultipleMessagesRequest: DeleteMultipleMessagesRequest
+        @RequestBody @Valid deleteMultipleMessagesRequest: DeleteMultipleMessagesRequest
     ) = messageService.deleteMultipleMessages(deleteMultipleMessagesRequest)
 }

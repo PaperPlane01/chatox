@@ -33,75 +33,95 @@ import reactor.core.publisher.Mono
 
 @Service
 class ChatUploadAttachmentServiceImpl(
-        private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
-        private val unreadMessagesCountRepository: UnreadMessagesCountRepository,
-        private val messageRepository: MessageMongoRepository,
+    private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
+    private val unreadMessagesCountRepository: UnreadMessagesCountRepository,
+    private val messageRepository: MessageMongoRepository,
 
-        @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
-        private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
-        private val chatUploadAttachmentMapper: ChatUploadAttachmentMapper,
-        private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-        private val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService,
-        private val messageEntityService: MessageEntityService
+    @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+    private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
+    private val chatUploadAttachmentMapper: ChatUploadAttachmentMapper,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>,
+    private val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService,
+    private val messageEntityService: MessageEntityService
 ) : ChatUploadAttachmentService {
 
-    override fun findChatUploadAttachments(chatId: String, paginationRequest: PaginationRequest): Flux<ChatUploadAttachmentResponse<Any>> {
+    override fun findChatUploadAttachments(
+        chatId: String,
+        paginationRequest: PaginationRequest
+    ): Flux<ChatUploadAttachmentResponse<Any>> {
         return mono {
             val unreadMessagesCount = getUnreadMessagesCount(chatId).awaitFirstOrNull();
             val chatUploadAttachments = chatUploadAttachmentRepository
-                    .findByChatId(chatId, paginationRequest.toPageRequest())
-                    .collectList()
-                    .awaitFirst()
+                .findByChatId(chatId, paginationRequest.toPageRequest())
+                .collectList()
+                .awaitFirst()
             val lastReadMessageCreatedAt = chatCacheWrapper
-                    .findById(chatId)
-                    .awaitFirstOrNull()?.lastMessageReadByAnyoneCreatedAt
+                .findById(chatId)
+                .awaitFirstOrNull()?.lastMessageReadByAnyoneCreatedAt
 
             return@mono chatUploadAttachmentMapper.mapChatUploadAttachments(
-                    chatUploadAttachments,
-                    unreadMessagesCount,
-                    lastReadMessageCreatedAt
+                chatUploadAttachments,
+                unreadMessagesCount,
+                lastReadMessageCreatedAt
             )
         }
-                .flatMapMany { it }
+            .flatMapMany { it }
     }
 
-    override fun findImages(chatId: String, paginationRequest: PaginationRequest): Flux<ChatUploadAttachmentResponse<ImageUploadMetadata>> {
+    override fun findImages(
+        chatId: String,
+        paginationRequest: PaginationRequest
+    ): Flux<ChatUploadAttachmentResponse<ImageUploadMetadata>> {
         return findByType(chatId, UploadType.IMAGE, paginationRequest)
     }
 
-    override fun findGifs(chatId: String, paginationRequest: PaginationRequest): Flux<ChatUploadAttachmentResponse<GifUploadMetadata>> {
+    override fun findGifs(
+        chatId: String,
+        paginationRequest: PaginationRequest
+    ): Flux<ChatUploadAttachmentResponse<GifUploadMetadata>> {
         return findByType(chatId, UploadType.GIF, paginationRequest)
     }
 
-    override fun findFiles(chatId: String, paginationRequest: PaginationRequest): Flux<ChatUploadAttachmentResponse<Any>> {
+    override fun findFiles(
+        chatId: String,
+        paginationRequest: PaginationRequest
+    ): Flux<ChatUploadAttachmentResponse<Any>> {
         return findByType(chatId, UploadType.FILE, paginationRequest)
     }
 
-    override fun findAudios(chatId: String, paginationRequest: PaginationRequest): Flux<ChatUploadAttachmentResponse<AudioUploadMetadata>> {
+    override fun findAudios(
+        chatId: String,
+        paginationRequest: PaginationRequest
+    ): Flux<ChatUploadAttachmentResponse<AudioUploadMetadata>> {
         return findByType(chatId, UploadType.AUDIO, paginationRequest)
     }
 
-    private fun <UploadMetadataType> findByType(chatId: String, type: UploadType, paginationRequest: PaginationRequest): Flux<ChatUploadAttachmentResponse<UploadMetadataType>> {
+    private fun <UploadMetadataType> findByType(
+        chatId: String,
+        type: UploadType,
+        paginationRequest: PaginationRequest
+    ): Flux<ChatUploadAttachmentResponse<UploadMetadataType>> {
         return mono {
             val unreadMessagesCount = getUnreadMessagesCount(chatId).awaitFirstOrNull()
-            val attachments = chatUploadAttachmentRepository.findByChatIdAndTypeAndMessageIdIsNotNull<UploadMetadataType>(
+            val attachments =
+                chatUploadAttachmentRepository.findByChatIdAndTypeAndMessageIdIsNotNull<UploadMetadataType>(
                     chatId = chatId,
                     type = type,
                     pageable = paginationRequest.toPageRequest()
-            )
+                )
                     .collectList()
                     .awaitFirst()
             val lastReadMessageCreatedAt = chatCacheWrapper
-                    .findById(chatId)
-                    .awaitFirstOrNull()?.lastMessageReadByAnyoneCreatedAt
+                .findById(chatId)
+                .awaitFirstOrNull()?.lastMessageReadByAnyoneCreatedAt
 
             return@mono chatUploadAttachmentMapper.mapChatUploadAttachments(
-                    attachments,
-                    unreadMessagesCount,
-                    lastReadMessageCreatedAt
+                attachments,
+                unreadMessagesCount,
+                lastReadMessageCreatedAt
             )
         }
-                .flatMapMany { it }
+            .flatMapMany { it }
     }
 
     private fun getUnreadMessagesCount(chatId: String): Mono<UnreadMessagesCount> {
@@ -119,34 +139,34 @@ class ChatUploadAttachmentServiceImpl(
     override fun deleteChatUploadAttachment(id: String, chatId: String): Mono<Unit> {
         return mono {
             val chatUploadAttachment = chatUploadAttachmentRepository.findByIdAndChatId(
-                    id = id,
-                    chatId = chatId
+                id = id,
+                chatId = chatId
             )
-                    .awaitFirstOrNull()
-                    ?: throw ChatUploadAttachmentNotFoundException("Could not find chat upload attachment with id $id and chatId $chatId")
+                .awaitFirstOrNull()
+                ?: throw ChatUploadAttachmentNotFoundException("Could not find chat upload attachment with id $id and chatId $chatId")
 
             if (chatUploadAttachment.messageId != null) {
                 val message = messageRepository.findById(chatUploadAttachment.messageId).awaitFirst()
 
                 if (message.attachments.none { attachment -> attachment.id != chatUploadAttachment.uploadId }
-                        && StringUtils.isBlank(message.text)) {
+                    && StringUtils.isBlank(message.text)) {
                     messageEntityService.deleteMessage(
-                            message.copy(
-                                    attachments = listOf(),
-                                    uploadAttachmentsIds = listOf()
-                            )
+                        message.copy(
+                            attachments = listOf(),
+                            uploadAttachmentsIds = listOf()
+                        )
                     )
-                            .awaitFirstOrNull()
+                        .awaitFirstOrNull()
                 } else {
                     messageEntityService.updateMessage(
-                            message.copy(
-                                    attachments = message.attachments
-                                            .filter { attachment -> attachment.id != chatUploadAttachment.uploadId },
-                                    uploadAttachmentsIds = message.uploadAttachmentsIds
-                                            .filter { uploadAttachmentId -> uploadAttachmentId != chatUploadAttachment.id }
-                            )
+                        message.copy(
+                            attachments = message.attachments
+                                .filter { attachment -> attachment.id != chatUploadAttachment.uploadId },
+                            uploadAttachmentsIds = message.uploadAttachmentsIds
+                                .filter { uploadAttachmentId -> uploadAttachmentId != chatUploadAttachment.id }
+                        )
                     )
-                            .awaitFirst()
+                        .awaitFirst()
                 }
             }
 
@@ -154,21 +174,24 @@ class ChatUploadAttachmentServiceImpl(
         }
     }
 
-    override fun deleteChatUploadAttachments(chatId: String, deleteMultipleChatUploadAttachmentsRequest: DeleteMultipleChatUploadAttachmentsRequest): Mono<Unit> {
+    override fun deleteChatUploadAttachments(
+        chatId: String,
+        deleteMultipleChatUploadAttachmentsRequest: DeleteMultipleChatUploadAttachmentsRequest
+    ): Mono<Unit> {
         return mono {
             val chatUploadAttachmentsIdsToDelete = deleteMultipleChatUploadAttachmentsRequest.chatUploadAttachmentsIds
             val chatUploadAttachments = chatUploadAttachmentRepository
-                    .findByChatIdAndIdIn(chatId, chatUploadAttachmentsIdsToDelete)
-                    .collectList()
-                    .awaitFirst()
+                .findByChatIdAndIdIn(chatId, chatUploadAttachmentsIdsToDelete)
+                .collectList()
+                .awaitFirst()
 
             if (chatUploadAttachments.size != chatUploadAttachmentsIdsToDelete.size) {
                 throw ChatUploadAttachmentNotFoundException("Could not find some chat upload attachments")
             }
 
             val messagesIds = chatUploadAttachments
-                    .filter { chatUploadAttachment -> chatUploadAttachment.messageId != null }
-                    .map { chatUploadAttachment -> chatUploadAttachment.messageId!! }
+                .filter { chatUploadAttachment -> chatUploadAttachment.messageId != null }
+                .map { chatUploadAttachment -> chatUploadAttachment.messageId!! }
             val messagesToDelete = mutableListOf<Message>()
             val messagesToUpdate = mutableListOf<Message>()
 
@@ -182,21 +205,31 @@ class ChatUploadAttachmentServiceImpl(
                 }
             }
 
-            messagesToDelete.forEach { message -> messageEntityService.deleteMessage(
+            messagesToDelete.forEach { message ->
+                messageEntityService.deleteMessage(
                     message.copy(
-                            attachments = listOf(),
-                            uploadAttachmentsIds = listOf()
+                        attachments = listOf(),
+                        uploadAttachmentsIds = listOf()
                     )
-            )
+                )
                     .awaitFirstOrNull()
             }
 
-            messagesToUpdate.forEach { message -> messageEntityService.updateMessage(
+            messagesToUpdate.forEach { message ->
+                messageEntityService.updateMessage(
                     message.copy(
-                            attachments = message.attachments.filter { attachment -> !chatUploadAttachmentsIdsToDelete.contains(attachment.id) },
-                            uploadAttachmentsIds = message.uploadAttachmentsIds.filter { attachmentId -> !chatUploadAttachmentsIdsToDelete.contains(attachmentId) }
+                        attachments = message.attachments.filter { attachment ->
+                            !chatUploadAttachmentsIdsToDelete.contains(
+                                attachment.id
+                            )
+                        },
+                        uploadAttachmentsIds = message.uploadAttachmentsIds.filter { attachmentId ->
+                            !chatUploadAttachmentsIdsToDelete.contains(
+                                attachmentId
+                            )
+                        }
                     )
-            )
+                )
                     .awaitFirstOrNull()
             }
 

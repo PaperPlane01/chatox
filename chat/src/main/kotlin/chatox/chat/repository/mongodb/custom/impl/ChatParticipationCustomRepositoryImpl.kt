@@ -14,7 +14,8 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Repository
-class ChatParticipationCustomRepositoryImpl(private val reactiveMongoTemplate: ReactiveMongoTemplate) : ChatParticipationCustomRepository {
+class ChatParticipationCustomRepositoryImpl(private val reactiveMongoTemplate: ReactiveMongoTemplate) :
+    ChatParticipationCustomRepository {
 
     override fun updateChatParticipationsOfUser(user: User): Mono<UpdateResult> {
         val query = Query()
@@ -32,7 +33,7 @@ class ChatParticipationCustomRepositoryImpl(private val reactiveMongoTemplate: R
         update.set("user", user)
 
         return reactiveMongoTemplate
-                .updateMulti(query, update, ChatParticipation::class.java)
+            .updateMulti(query, update, ChatParticipation::class.java)
     }
 
     override fun updateChatDeleted(chatId: String, chatDeleted: Boolean): Mono<UpdateResult> {
@@ -43,29 +44,42 @@ class ChatParticipationCustomRepositoryImpl(private val reactiveMongoTemplate: R
         update.set("chatDeleted", chatDeleted)
 
         return reactiveMongoTemplate
-                .updateMulti(query, update, ChatParticipation::class.java)
+            .updateMulti(query, update, ChatParticipation::class.java)
     }
 
-    override fun searchChatParticipants(chatId: String, searchQuery: String, pageable: Pageable): Flux<ChatParticipation> {
+    override fun searchChatParticipants(
+        chatId: String,
+        searchQuery: String,
+        pageable: Pageable
+    ): Flux<ChatParticipation> {
         val query = Query().with(pageable)
 
         query.addCriteria(Criteria.where("chatId").`is`(chatId))
-        query.addCriteria(Criteria().orOperator(
+        query.addCriteria(
+            Criteria().orOperator(
                 Criteria.where("userDisplayedName").regex(searchQuery, "i"),
                 Criteria.where("userSlug").regex(searchQuery, "i")
-        ))
+            )
+        )
 
         return reactiveMongoTemplate.find(query, ChatParticipation::class.java)
     }
 
-    override fun findByChatIdAndUserIdOrSlugIn(chatId: String, userIdsOrSlugs: List<String>, includeDeleted: Boolean, excludedUsersIds: List<String>): Flux<ChatParticipation> {
+    override fun findByChatIdAndUserIdOrSlugIn(
+        chatId: String,
+        userIdsOrSlugs: List<String>,
+        includeDeleted: Boolean,
+        excludedUsersIds: List<String>
+    ): Flux<ChatParticipation> {
         val query = Query()
 
         query.addCriteria(Criteria.where("chatId").`is`(chatId))
-        query.addCriteria(Criteria().orOperator(
+        query.addCriteria(
+            Criteria().orOperator(
                 Criteria.where("user._id").`in`(userIdsOrSlugs),
                 Criteria.where("userSlug").`in`(userIdsOrSlugs)
-        ))
+            )
+        )
 
         if (!includeDeleted) {
             query.addCriteria(Criteria.where("deleted").`is`(false))

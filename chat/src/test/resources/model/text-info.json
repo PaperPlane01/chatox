@@ -11,7 +11,9 @@
       "grinning": {
         "id": "grinning",
         "name": "Grinning Face",
-        "short_names": ["grinning"],
+        "short_names": [
+          "grinning"
+        ],
         "colons": ":grinning:",
         "emoticons": [],
         "unified": "1f600",

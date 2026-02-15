@@ -12,8 +12,8 @@ enum class JoinChatAllowance {
 
         @JvmStatic
         fun getAllowance(
-                verificationLevel: VerificationLevel,
-                allowanceMap: Map<VerificationLevel, JoinChatAllowance>?
+            verificationLevel: VerificationLevel,
+            allowanceMap: Map<VerificationLevel, JoinChatAllowance>?
         ): JoinChatAllowance = allowanceMap?.get(verificationLevel) ?: ALLOWED
     }
 }

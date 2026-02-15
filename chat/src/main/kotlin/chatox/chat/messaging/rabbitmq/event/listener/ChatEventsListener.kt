@@ -20,14 +20,16 @@ class ChatEventsListener(private val chatRepository: ChatRepository) {
         mono {
             val chat = chatRepository.findById(message.chatId).awaitFirst()
 
-            chatRepository.save(chat.copy(
+            chatRepository.save(
+                chat.copy(
                     lastMessageId = message.id,
                     lastMessageDate = message.createdAt
-            ))
-                    .awaitFirst()
+                )
+            )
+                .awaitFirst()
         }
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, false, true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, false, true) }
+            .subscribe()
     }
 }

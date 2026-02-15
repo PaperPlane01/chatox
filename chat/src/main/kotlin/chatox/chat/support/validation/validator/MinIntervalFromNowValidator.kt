@@ -33,12 +33,14 @@ class MinIntervalFromNowValidator : ConstraintValidator<MinIntervalFromNow, Any>
 
                 return difference >= constraintAnnotation.value
             }
+
             is Date -> {
                 val zonedDateTime = ZonedDateTime.ofInstant(value.toInstant(), ZoneId.of("UTC"))
                 val difference = constraintAnnotation.chronoUnit.between(zonedDateTime, now)
 
                 return difference >= constraintAnnotation.value
             }
+
             is Long -> {
                 val date = Date(value)
                 val zonedDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("UTC"))
@@ -46,6 +48,7 @@ class MinIntervalFromNowValidator : ConstraintValidator<MinIntervalFromNow, Any>
 
                 return difference >= constraintAnnotation.value
             }
+
             else -> {
                 log.warn("MinIntervalFromNow annotation works only with ZonedDateTime, Date and Long values, but provided value is instance of ${value.javaClass.name}. This value is considered to be invalid.")
 

@@ -27,87 +27,94 @@ class ChatBlockingController(private val chatBlockingService: ChatBlockingServic
     //language=SpEL
     @ReactivePermissionCheck("@chatBlockingPermissions.canBlockUser(#chatId, #createChatBlockingRequest)")
     @PostMapping("/{chatId}/blockings")
-    fun createChatBlocking(@PathVariable chatId: String,
-                           @RequestBody @Valid createChatBlockingRequest: CreateChatBlockingRequest
+    fun createChatBlocking(
+        @PathVariable chatId: String,
+        @RequestBody @Valid createChatBlockingRequest: CreateChatBlockingRequest
     ) = chatBlockingService.blockUser(chatId, createChatBlockingRequest)
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatBlockingPermissions.canSeeChatBlockings(#chatId)")
     @PaginationConfig(
-            sortBy = SortBy(
-                    allowed = [
-                        "createdAt",
-                        "blockedUntil"
-                    ],
-                    defaultValue = "createdAt"
-            ),
-            sortingDirection = SortDirection(defaultValue = "desc")
+        sortBy = SortBy(
+            allowed = [
+                "createdAt",
+                "blockedUntil"
+            ],
+            defaultValue = "createdAt"
+        ),
+        sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping("/{chatId}/blockings")
-    fun getAllBlockingsByChat(@PathVariable chatId: String,
-                              paginationRequest: PaginationRequest
+    fun getAllBlockingsByChat(
+        @PathVariable chatId: String,
+        paginationRequest: PaginationRequest
     ) = chatBlockingService.getAllBlockingsByChat(chatId, paginationRequest)
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatBlockingPermissions.canSeeChatBlockings(#chatId)")
     @PaginationConfig(
-            sortBy = SortBy(
-                    allowed = [
-                        "createdAt",
-                        "blockedUntil"
-                    ],
-                    defaultValue = "createdAt"
-            ),
-            sortingDirection = SortDirection(defaultValue = "desc")
+        sortBy = SortBy(
+            allowed = [
+                "createdAt",
+                "blockedUntil"
+            ],
+            defaultValue = "createdAt"
+        ),
+        sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping("/{chatId}/blockings/active")
-    fun getActiveBlockingsByChat(@PathVariable chatId: String,
-                                 paginationRequest: PaginationRequest
+    fun getActiveBlockingsByChat(
+        @PathVariable chatId: String,
+        paginationRequest: PaginationRequest
     ) = chatBlockingService.getActiveBlockingsByChat(chatId, paginationRequest)
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatBlockingPermissions.canSeeChatBlockings(#chatId)")
     @PaginationConfig(
-            sortBy = SortBy(
-                    allowed = [
-                        "createdAt",
-                        "blockedUntil"
-                    ],
-                    defaultValue = "createdAt"
-            ),
-            sortingDirection = SortDirection(defaultValue = "desc")
+        sortBy = SortBy(
+            allowed = [
+                "createdAt",
+                "blockedUntil"
+            ],
+            defaultValue = "createdAt"
+        ),
+        sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping("/{chatId}/blockings/nonActive")
-    fun getNonActiveBlockingsByChat(@PathVariable chatId: String,
-                                    paginationRequest: PaginationRequest
+    fun getNonActiveBlockingsByChat(
+        @PathVariable chatId: String,
+        paginationRequest: PaginationRequest
     ) = chatBlockingService.getNonActiveBlockingsByChat(chatId, paginationRequest)
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatBlockingPermissions.canSeeChatBlockings(#chatId)")
     @GetMapping("/{chatId}/blockings/{blockingId}")
-    fun findChatBlockingById(@PathVariable chatId: String,
-                             @PathVariable blockingId: String
+    fun findChatBlockingById(
+        @PathVariable chatId: String,
+        @PathVariable blockingId: String
     ) = chatBlockingService.getBlockingById(chatId, blockingId)
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatBlockingPermissions.canUpdateBlocking(#chatId)")
     @PutMapping("/{chatId}/blockings/{blockingId}")
-    fun updateChatBlocking(@PathVariable chatId: String,
-                           @PathVariable blockingId: String,
-                           @RequestBody @Valid updateChatBlockingRequest: UpdateChatBlockingRequest
+    fun updateChatBlocking(
+        @PathVariable chatId: String,
+        @PathVariable blockingId: String,
+        @RequestBody @Valid updateChatBlockingRequest: UpdateChatBlockingRequest
     ) = chatBlockingService.updateBlocking(chatId, blockingId, updateChatBlockingRequest)
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatBlockingPermissions.canUnblockUser(#chatId)")
     @DeleteMapping("/{chatId}/blockings/{blockingId}")
-    fun cancelChatBlocking(@PathVariable chatId: String,
-                           @PathVariable blockingId: String
+    fun cancelChatBlocking(
+        @PathVariable chatId: String,
+        @PathVariable blockingId: String
     ) = chatBlockingService.unblockUser(chatId, blockingId)
 }
 

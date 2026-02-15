@@ -9,7 +9,6 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.data.elasticsearch.client.elc.ReactiveElasticsearchTemplate
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate
 import org.springframework.data.mongodb.core.query.Criteria
@@ -23,8 +22,8 @@ class MessageMigrations {
 
     @Changeset(order = 1, author = "mongration")
     fun addUploadFieldToMessageStickers(
-            mongoTemplate: ReactiveMongoTemplate,
-            @Qualifier("messageCacheService") messageCache: ReactiveCacheService<Message, String>
+        mongoTemplate: ReactiveMongoTemplate,
+        @Qualifier("messageCacheService") messageCache: ReactiveCacheService<Message, String>
     ): Mono<Unit> {
         return mono {
             log.info("Starting migration: add upload field to message stickers")
@@ -33,20 +32,20 @@ class MessageMigrations {
             val addUploadField = AggregationUpdate.update().set("sticker.upload").toValue("\$sticker.image")
 
             mongoTemplate.updateMulti(
-                    filter,
-                    addUploadField,
-                    Message::class.java
+                filter,
+                addUploadField,
+                Message::class.java
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             val addAnimatedField = Update().set("sticker.upload.meta.animated", false)
 
             mongoTemplate.updateMulti(
-                    filter,
-                    addAnimatedField,
-                    Message::class.java
+                filter,
+                addAnimatedField,
+                Message::class.java
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             log.info("Clearing messages cache")
             messageCache.deleteAll().awaitFirstOrNull()

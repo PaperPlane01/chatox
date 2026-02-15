@@ -28,34 +28,46 @@ import java.time.ZonedDateTime
 
 @Service
 class MessageReadServiceImpl(
-        private val unreadMessagesCountRepository: UnreadMessagesCountRepository,
-        private val chatParticipationRepository: ChatParticipationRepository,
-        private val chatRepository: ChatRepository,
-        private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
+    private val unreadMessagesCountRepository: UnreadMessagesCountRepository,
+    private val chatParticipationRepository: ChatParticipationRepository,
+    private val chatRepository: ChatRepository,
+    private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
 
-        @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
-        private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
-        private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-        private val chatEventsPublisher: ChatEventsPublisher) : MessageReadService {
+    @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+    private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>,
+    private val chatEventsPublisher: ChatEventsPublisher
+) : MessageReadService {
 
     override fun groupUnreadMessagesCountByChats(chatParticipationsIds: List<String>): Mono<Map<String, UnreadMessagesCount>> {
         return mono {
             val unreadMessagesCounts = unreadMessagesCountRepository.findByChatParticipationIdIn(
-                    chatParticipationsIds
+                chatParticipationsIds
             )
-                    .collectList()
-                    .awaitFirst()
+                .collectList()
+                .awaitFirst()
 
             return@mono unreadMessagesCounts.associateBy { it.chatId }
         }
     }
 
-    override fun increaseUnreadMessagesCountForChat(chatId: String, excludedChatParticipations: List<String>): Mono<Unit> {
+    override fun increaseUnreadMessagesCountForChat(
+        chatId: String,
+        excludedChatParticipations: List<String>
+    ): Mono<Unit> {
         return increaseUnreadMessagesCountForChat(chatId, 1, excludedChatParticipations)
     }
 
-    override fun increaseUnreadMessagesCountForChat(chatId: String, increaseCount: Long, excludedChatParticipations: List<String>): Mono<Unit> {
-        return unreadMessagesCountRepository.increaseUnreadMessagesCountForChat(chatId, increaseCount, excludedChatParticipations)
+    override fun increaseUnreadMessagesCountForChat(
+        chatId: String,
+        increaseCount: Long,
+        excludedChatParticipations: List<String>
+    ): Mono<Unit> {
+        return unreadMessagesCountRepository.increaseUnreadMessagesCountForChat(
+            chatId,
+            increaseCount,
+            excludedChatParticipations
+        )
     }
 
     override fun increaseUnreadMentionsCount(chatParticipationsIds: List<String>): Mono<Unit> {
@@ -70,16 +82,17 @@ class MessageReadServiceImpl(
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val chat = chatCacheWrapper.findById(chatId).awaitFirstOrNull()
-                    ?: throw ChatNotFoundException("Could not find chat with id $chatId")
-            val message = messageCacheWrapper.findById(messageId).filter { it.chatId == chatId } .awaitFirstOrNull()
-                    ?: throw MessageNotFoundException("Could not find message with id $messageId")
+                ?: throw ChatNotFoundException("Could not find chat with id $chatId")
+            val message = messageCacheWrapper.findById(messageId).filter { it.chatId == chatId }.awaitFirstOrNull()
+                ?: throw MessageNotFoundException("Could not find message with id $messageId")
 
             val chatParticipation = chatParticipationRepository.findByChatIdAndUserId(
-                    chatId = message.chatId,
-                    userId = currentUser.id
+                chatId = message.chatId,
+                userId = currentUser.id
             )
-                    .awaitFirstOrNull() ?: return@mono
-            val unreadMessagesCount = unreadMessagesCountRepository.findByChatParticipationId(chatParticipation.id).awaitFirst()
+                .awaitFirstOrNull() ?: return@mono
+            val unreadMessagesCount =
+                unreadMessagesCountRepository.findByChatParticipationId(chatParticipation.id).awaitFirst()
 
             if (unreadMessagesCount.lastReadMessageCreatedAt?.isAfter(message.createdAt) == true) {
                 return@mono
@@ -88,7 +101,8 @@ class MessageReadServiceImpl(
             if (chat.lastMessageId != null && chat.lastMessageId == messageId) {
                 unreadMessagesCountRepository.resetUnreadMessagesCount(chatParticipation.id, message).awaitFirst()
             } else if (message.senderId != currentUser.id) {
-                unreadMessagesCountRepository.decreaseUnreadMessagesCount(chatParticipation.id, message).awaitFirstOrNull()
+                unreadMessagesCountRepository.decreaseUnreadMessagesCount(chatParticipation.id, message)
+                    .awaitFirstOrNull()
             }
 
             if (message.senderId != currentUser.id) {
@@ -109,10 +123,10 @@ class MessageReadServiceImpl(
 
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val chatParticipation = chatParticipationRepository.findByChatIdAndUserId(
-                    chatId = chat.id,
-                    userId = currentUser.id
+                chatId = chat.id,
+                userId = currentUser.id
             )
-                    .awaitFirstOrNull() ?: return@mono
+                .awaitFirstOrNull() ?: return@mono
             val lastMessage = messageCacheWrapper.findById(chat.lastMessageId).awaitFirst()
 
             unreadMessagesCountRepository.resetUnreadMessagesCount(chatParticipation.id, lastMessage).awaitFirstOrNull()
@@ -136,18 +150,21 @@ class MessageReadServiceImpl(
     override fun initializeUnreadMessagesCount(chatParticipation: ChatParticipation): Mono<UnreadMessagesCount> {
         return mono {
             val unreadMessagesCount = UnreadMessagesCount(
-                    id = ObjectId().toHexString(),
-                    unreadMessagesCount = 0,
-                    chatId = chatParticipation.chatId,
-                    chatParticipationId = chatParticipation.id,
-                    userId = chatParticipation.user.id,
+                id = ObjectId().toHexString(),
+                unreadMessagesCount = 0,
+                chatId = chatParticipation.chatId,
+                chatParticipationId = chatParticipation.id,
+                userId = chatParticipation.user.id,
             )
 
             return@mono unreadMessagesCountRepository.save(unreadMessagesCount).awaitFirst()
         }
     }
 
-    override fun initializeUnreadMessagesCount(chatParticipation: ChatParticipation, lastMessageId: String?): Mono<UnreadMessagesCount> {
+    override fun initializeUnreadMessagesCount(
+        chatParticipation: ChatParticipation,
+        lastMessageId: String?
+    ): Mono<UnreadMessagesCount> {
         return mono {
             val lastMessage = if (lastMessageId != null) {
                 messageCacheWrapper.findById(lastMessageId).awaitFirst()
@@ -159,7 +176,10 @@ class MessageReadServiceImpl(
         }
     }
 
-    override fun initializeUnreadMessagesCount(chatParticipation: ChatParticipation, lastMessage: Message?): Mono<UnreadMessagesCount> {
+    override fun initializeUnreadMessagesCount(
+        chatParticipation: ChatParticipation,
+        lastMessage: Message?
+    ): Mono<UnreadMessagesCount> {
         return mono {
             val message = if (lastMessage != null) {
                 lastMessage
@@ -174,18 +194,18 @@ class MessageReadServiceImpl(
             }
 
             val unreadMessagesCount = UnreadMessagesCount(
-                    id = ObjectId().toHexString(),
-                    unreadMessagesCount = 0,
-                    chatId = chatParticipation.chatId,
-                    chatParticipationId = chatParticipation.id,
-                    userId = chatParticipation.user.id,
-                    lastReadMessageId = message?.id,
-                    lastReadMessageCreatedAt = message?.createdAt,
-                    lastMessageReadAt = if (message != null) {
-                        ZonedDateTime.now()
-                    } else {
-                        null
-                    }
+                id = ObjectId().toHexString(),
+                unreadMessagesCount = 0,
+                chatId = chatParticipation.chatId,
+                chatParticipationId = chatParticipation.id,
+                userId = chatParticipation.user.id,
+                lastReadMessageId = message?.id,
+                lastReadMessageCreatedAt = message?.createdAt,
+                lastMessageReadAt = if (message != null) {
+                    ZonedDateTime.now()
+                } else {
+                    null
+                }
             )
 
             return@mono unreadMessagesCountRepository.save(unreadMessagesCount).awaitFirst()
@@ -195,21 +215,25 @@ class MessageReadServiceImpl(
     private fun markMessageAsRead(message: Message, chat: Chat): Mono<Unit> {
         return mono {
             if (chat.lastMessageReadByAnyoneCreatedAt == null || chat.lastMessageReadByAnyoneCreatedAt.isBefore(message.createdAt)) {
-                chatRepository.save(chat.copy(
+                chatRepository.save(
+                    chat.copy(
                         lastMessageReadByAnyoneId = message.id,
                         lastMessageReadByAnyoneCreatedAt = message.createdAt
-                ))
-                        .awaitFirst()
+                    )
+                )
+                    .awaitFirst()
             }
 
             runAsync {
-                chatEventsPublisher.messageRead(MessageReadEvent(
+                chatEventsPublisher.messageRead(
+                    MessageReadEvent(
                         messageId = message.id,
                         messageReadAt = ZonedDateTime.now(),
                         messageCreatedAt = message.createdAt,
                         chatId = message.chatId,
                         messageSenderId = message.senderId
-                ))
+                    )
+                )
             }
 
             return@mono

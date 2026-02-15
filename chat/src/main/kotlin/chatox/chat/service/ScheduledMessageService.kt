@@ -11,7 +11,16 @@ interface ScheduledMessageService {
     fun findScheduledMessageById(messageId: String): Mono<MessageResponse>
     fun findScheduledMessagesByChat(chatId: String): Flux<MessageResponse>
     fun publishScheduledMessage(chatId: String, messageId: String): Mono<MessageResponse>
-    fun publishScheduledMessage(scheduledMessage: ScheduledMessage, localUsersCache: MutableMap<String, UserResponse>? = null, localReferredMessagesCache: MutableMap<String, MessageResponse>? = null): Mono<MessageResponse>
+    fun publishScheduledMessage(
+        scheduledMessage: ScheduledMessage,
+        localUsersCache: MutableMap<String, UserResponse>? = null,
+        localReferredMessagesCache: MutableMap<String, MessageResponse>? = null
+    ): Mono<MessageResponse>
+
     fun deleteScheduledMessage(chatId: String, messageId: String): Mono<Unit>
-    fun updateScheduledMessage(chatId: String, messageId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse>
+    fun updateScheduledMessage(
+        chatId: String,
+        messageId: String,
+        updateMessageRequest: UpdateMessageRequest
+    ): Mono<MessageResponse>
 }

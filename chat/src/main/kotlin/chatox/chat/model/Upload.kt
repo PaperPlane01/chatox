@@ -6,21 +6,21 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 
 data class Upload<MetadataType>(
-        @Id
-        val id: String,
-        val name: String,
-        val originalName: String,
-        val type: UploadType,
-        val meta: MetadataType?,
-        val extension: String?,
-        val mimeType: String,
-        val size: Int,
-        @param:JsonProperty("isPreview")
-        val isPreview: Boolean = false,
-        val isThumbnail: Boolean,
-        @param:JsonProperty("imagePreview")
-        val imagePreview: Upload<ImageUploadMetadata>?,
+    @Id
+    val id: String,
+    val name: String,
+    val originalName: String,
+    val type: UploadType,
+    val meta: MetadataType?,
+    val extension: String?,
+    val mimeType: String,
+    val size: Int,
+    @param:JsonProperty("isPreview")
+    val isPreview: Boolean = false,
+    val isThumbnail: Boolean,
+    @param:JsonProperty("imagePreview")
+    val imagePreview: Upload<ImageUploadMetadata>?,
 
-        @Indexed
-        val userId: String? = null
+    @Indexed
+    val userId: String? = null
 )

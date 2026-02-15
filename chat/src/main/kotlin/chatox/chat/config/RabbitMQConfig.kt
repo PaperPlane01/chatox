@@ -15,8 +15,10 @@ import tools.jackson.databind.json.JsonMapper
 class RabbitMQConfig {
 
     @Bean
-    fun rabbitTemplate(connectionFactory: ConnectionFactory,
-                       messageConverter: JacksonJsonMessageConverter): RabbitTemplate {
+    fun rabbitTemplate(
+        connectionFactory: ConnectionFactory,
+        messageConverter: JacksonJsonMessageConverter
+    ): RabbitTemplate {
         val rabbitTemplate = RabbitTemplate(connectionFactory)
         rabbitTemplate.messageConverter = messageConverter
         return rabbitTemplate
@@ -53,45 +55,45 @@ class RabbitMQConfig {
 
     @Bean
     fun userCreatedBinding(): Binding = BindingBuilder
-            .bind(userCreatedQueue())
-            .to(userEvents())
-            .with("user.created.#")
+        .bind(userCreatedQueue())
+        .to(userEvents())
+        .with("user.created.#")
 
     @Bean
     fun userUpdatedBinding(): Binding = BindingBuilder
-            .bind(userUpdatedQueue())
-            .to(userEvents())
-            .with("user.updated.#")
+        .bind(userUpdatedQueue())
+        .to(userEvents())
+        .with("user.updated.#")
 
     @Bean
     fun userDeletedBinding(): Binding = BindingBuilder
-            .bind(userDeletedQueue())
-            .to(userEvents())
-            .with("user.deleted.#")
+        .bind(userDeletedQueue())
+        .to(userEvents())
+        .with("user.deleted.#")
 
     @Bean
     fun userWentOnlineBinding(): Binding = BindingBuilder
-            .bind(userWentOnlineQueue())
-            .to(userEvents())
-            .with("user.online.#")
+        .bind(userWentOnlineQueue())
+        .to(userEvents())
+        .with("user.online.#")
 
     @Bean
     fun userWentOfflineBinding(): Binding = BindingBuilder
-            .bind(userWentOfflineQueue())
-            .to(userEvents())
-            .with("user.offline.#")
+        .bind(userWentOfflineQueue())
+        .to(userEvents())
+        .with("user.offline.#")
 
     @Bean
     fun userAddedToBlacklistBinding(): Binding = BindingBuilder
-            .bind(userAddedToBlacklist())
-            .to(userEvents())
-            .with("user.blacklist.added.#")
+        .bind(userAddedToBlacklist())
+        .to(userEvents())
+        .with("user.blacklist.added.#")
 
     @Bean
     fun userRemovedFromBlacklistBinding(): Binding = BindingBuilder
-            .bind(userRemovedFromBlacklist())
-            .to(userEvents())
-            .with("user.blacklist.removed.#")
+        .bind(userRemovedFromBlacklist())
+        .to(userEvents())
+        .with("user.blacklist.removed.#")
 
     @Bean
     fun chatEvents() = TopicExchange("chat.events")
@@ -101,9 +103,9 @@ class RabbitMQConfig {
 
     @Bean
     fun messageCreatedBinding(): Binding = BindingBuilder
-            .bind(messageCreatedQueue())
-            .to(chatEvents())
-            .with("chat.message.created.#")
+        .bind(messageCreatedQueue())
+        .to(chatEvents())
+        .with("chat.message.created.#")
 
     @Bean
     fun uploadEvents() = TopicExchange("upload.events")
@@ -131,45 +133,45 @@ class RabbitMQConfig {
 
     @Bean
     fun imageCreatedBinding(): Binding = BindingBuilder
-            .bind(imageCreated())
-            .to(uploadEvents())
-            .with("upload.image.created.#")
+        .bind(imageCreated())
+        .to(uploadEvents())
+        .with("upload.image.created.#")
 
     @Bean
     fun gifCreatedBinding(): Binding = BindingBuilder
-            .bind(gifCreated())
-            .to(uploadEvents())
-            .with("upload.gif.created.#")
+        .bind(gifCreated())
+        .to(uploadEvents())
+        .with("upload.gif.created.#")
 
     @Bean
     fun videoCreatedBinding(): Binding = BindingBuilder
-            .bind(videoCreated())
-            .to(uploadEvents())
-            .with("upload.video.created.#")
+        .bind(videoCreated())
+        .to(uploadEvents())
+        .with("upload.video.created.#")
 
     @Bean
     fun audioCreatedBinding(): Binding = BindingBuilder
-            .bind(audioCreated())
-            .to(uploadEvents())
-            .with("upload.audio.created.#")
+        .bind(audioCreated())
+        .to(uploadEvents())
+        .with("upload.audio.created.#")
 
     @Bean
     fun fileCreatedBinding(): Binding = BindingBuilder
-            .bind(fileCreated())
-            .to(uploadEvents())
-            .with("upload.file.created.#")
+        .bind(fileCreated())
+        .to(uploadEvents())
+        .with("upload.file.created.#")
 
     @Bean
     fun voiceMessageCreatedBinding(): Binding = BindingBuilder
-            .bind(voiceMessageCreated())
-            .to(uploadEvents())
-            .with("upload.voice.message.created.#")
+        .bind(voiceMessageCreated())
+        .to(uploadEvents())
+        .with("upload.voice.message.created.#")
 
     @Bean
     fun uploadDeletedBinding(): Binding = BindingBuilder
-            .bind(uploadDeleted())
-            .to(uploadEvents())
-            .with("upload.deleted.#")
+        .bind(uploadDeleted())
+        .to(uploadEvents())
+        .with("upload.deleted.#")
 
     @Bean
     fun stickerEvents() = TopicExchange("sticker.events")
@@ -185,19 +187,19 @@ class RabbitMQConfig {
 
     @Bean
     fun stickerPackCreatedBinding(): Binding = BindingBuilder
-            .bind(stickerPackCreated())
-            .to(stickerEvents())
-            .with("sticker.pack.created.#")
+        .bind(stickerPackCreated())
+        .to(stickerEvents())
+        .with("sticker.pack.created.#")
 
     @Bean
     fun stickerPackUpdatedBinding(): Binding = BindingBuilder
-            .bind(stickerPackUpdated())
-            .to(stickerEvents())
-            .with("sticker.pack.updated.#")
+        .bind(stickerPackUpdated())
+        .to(stickerEvents())
+        .with("sticker.pack.updated.#")
 
     @Bean
     fun stickerPackDeletedBinding(): Binding = BindingBuilder
-            .bind(stickerPackDeleted())
-            .to(stickerEvents())
-            .with("sticker.pack.deleted.#")
+        .bind(stickerPackDeleted())
+        .to(stickerEvents())
+        .with("sticker.pack.deleted.#")
 }

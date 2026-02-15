@@ -1,7 +1,6 @@
 package chatox.chat.service.impl
 
 import chatox.chat.model.ChatUploadAttachment
-import chatox.chat.model.Message
 import chatox.chat.model.MessageInterface
 import chatox.chat.model.MessageType
 import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
@@ -19,9 +18,9 @@ import reactor.core.publisher.Mono
 
 @Service
 class ChatUploadAttachmentEntityServiceImpl(
-        private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
-        private val messageRepository: MessageMongoRepository,
-        private val messageEntityService: MessageEntityService
+    private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
+    private val messageRepository: MessageMongoRepository,
+    private val messageEntityService: MessageEntityService
 ) : ChatUploadAttachmentEntityService {
     override fun deleteChatUploadAttachment(chatUploadAttachment: ChatUploadAttachment<*>): Mono<Unit> {
         return mono {
@@ -38,8 +37,8 @@ class ChatUploadAttachmentEntityServiceImpl(
     }
 
     override fun deleteChatUploadAttachmentsAndUpdateRelatedMessages(
-            chatUploadAttachments: List<ChatUploadAttachment<*>>,
-            messagesIdsToSkip: List<String>
+        chatUploadAttachments: List<ChatUploadAttachment<*>>,
+        messagesIdsToSkip: List<String>
     ): Mono<Unit> {
         return mono {
             if (chatUploadAttachments.isEmpty()) {
@@ -47,36 +46,37 @@ class ChatUploadAttachmentEntityServiceImpl(
             }
 
             val (messagesIds, uploadIds, attachmentsIds) = mapTo3Lists(
-                    chatUploadAttachments.filter {
-                        attachment -> attachment.messageId != null
-                            && !messagesIdsToSkip.contains(attachment.messageId) },
-                    { chatUploadAttachment -> chatUploadAttachment.messageId!! },
-                    { chatUploadAttachment -> chatUploadAttachment.uploadId },
-                    { chatUploadAttachment -> chatUploadAttachment.id }
+                chatUploadAttachments.filter { attachment ->
+                    attachment.messageId != null
+                            && !messagesIdsToSkip.contains(attachment.messageId)
+                },
+                { chatUploadAttachment -> chatUploadAttachment.messageId!! },
+                { chatUploadAttachment -> chatUploadAttachment.uploadId },
+                { chatUploadAttachment -> chatUploadAttachment.id }
             )
             val messages = messageRepository.findAllById(messagesIds).collectList().awaitFirst()
 
             messages.forEach { message ->
                 if (StringUtils.isBlank(message.text) && message.attachments.all { upload -> uploadIds.contains(upload.id) }) {
                     messageEntityService.deleteMessage(
-                            message.copy(
-                                    attachments = listOf(),
-                                    uploadAttachmentsIds = listOf()
-                            )
+                        message.copy(
+                            attachments = listOf(),
+                            uploadAttachmentsIds = listOf()
+                        )
                     )
-                            .awaitFirstOrNull()
+                        .awaitFirstOrNull()
                 } else {
                     messageEntityService.updateMessage(
-                            message.copy(
-                                    attachments = message.attachments.filter {
-                                        upload -> !uploadIds.contains(upload.id)
-                                    },
-                                    uploadAttachmentsIds = message.uploadAttachmentsIds.filter {
-                                        uploadAttachmentId -> !attachmentsIds.contains(uploadAttachmentId)
-                                    }
-                            )
+                        message.copy(
+                            attachments = message.attachments.filter { upload ->
+                                !uploadIds.contains(upload.id)
+                            },
+                            uploadAttachmentsIds = message.uploadAttachmentsIds.filter { uploadAttachmentId ->
+                                !attachmentsIds.contains(uploadAttachmentId)
+                            }
+                        )
                     )
-                            .awaitFirstOrNull()
+                        .awaitFirstOrNull()
                 }
             }
 
@@ -86,21 +86,24 @@ class ChatUploadAttachmentEntityServiceImpl(
         }
     }
 
-    override fun linkChatUploadAttachmentsToMessage(uploadAttachments: List<ChatUploadAttachment<*>>, message: MessageInterface): Flux<ChatUploadAttachment<*>> {
+    override fun linkChatUploadAttachmentsToMessage(
+        uploadAttachments: List<ChatUploadAttachment<*>>,
+        message: MessageInterface
+    ): Flux<ChatUploadAttachment<*>> {
         return mono {
             var result = uploadAttachments
 
             if (uploadAttachments.isNotEmpty()) {
                 result = uploadAttachments.map { uploadAttachment ->
                     uploadAttachment.copy(
-                            messageId = message.id,
-                            createdAt = message.createdAt,
-                            messageType = MessageType.fromClass(message::class)
+                        messageId = message.id,
+                        createdAt = message.createdAt,
+                        messageType = MessageType.fromClass(message::class)
                     )
                 }
                 chatUploadAttachmentRepository.saveAll(result)
-                        .collectList()
-                        .awaitFirst()
+                    .collectList()
+                    .awaitFirst()
             }
 
             return@mono Flux.fromIterable(result)

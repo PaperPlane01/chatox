@@ -15,10 +15,12 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Service
-class UserServiceImpl(private val userRepository: UserRepository,
-                      private val userCacheService: ReactiveCacheService<User, String>,
-                      private val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String>,
-                      private val userMapper: UserMapper) : UserService {
+class UserServiceImpl(
+    private val userRepository: UserRepository,
+    private val userCacheService: ReactiveCacheService<User, String>,
+    private val userCacheWrapper: ReactiveRepositoryCacheWrapper<User, String>,
+    private val userMapper: UserMapper
+) : UserService {
 
     override fun findUserById(id: String): Mono<UserResponse> {
         return mono {
@@ -33,7 +35,10 @@ class UserServiceImpl(private val userRepository: UserRepository,
         }
     }
 
-    override fun findUserByIdAndPutInLocalCache(id: String?, localCache: MutableMap<String, UserResponse>?): Mono<UserResponse> {
+    override fun findUserByIdAndPutInLocalCache(
+        id: String?,
+        localCache: MutableMap<String, UserResponse>?
+    ): Mono<UserResponse> {
         return mono {
             if (id == null) {
                 return@mono null
@@ -53,17 +58,20 @@ class UserServiceImpl(private val userRepository: UserRepository,
         }
     }
 
-    override fun findAllByIdAndPutInLocalCache(ids: List<String>, localCache: MutableMap<String, UserResponse>?): Flux<UserResponse> {
+    override fun findAllByIdAndPutInLocalCache(
+        ids: List<String>,
+        localCache: MutableMap<String, UserResponse>?
+    ): Flux<UserResponse> {
         return mono {
             if (ids.isEmpty()) {
                 return@mono listOf<UserResponse>()
             }
 
             val users = localCache
-                    ?.filter { (key, _) -> ids.contains(key)}
-                    ?.map { (_, value) -> value }
-                    ?.toMutableList()
-                    ?: mutableListOf()
+                ?.filter { (key, _) -> ids.contains(key) }
+                ?.map { (_, value) -> value }
+                ?.toMutableList()
+                ?: mutableListOf()
 
             if (users.size == ids.size) {
                 return@mono users
@@ -73,10 +81,10 @@ class UserServiceImpl(private val userRepository: UserRepository,
             val notPresentIds = ids.filterNot { id -> presentIds.contains(id) }
 
             val remainingUsers = userCacheWrapper
-                    .findByIds(notPresentIds)
-                    .collectList()
-                    .awaitFirst()
-                    .map { user -> userMapper.toUserResponse(user) }
+                .findByIds(notPresentIds)
+                .collectList()
+                .awaitFirst()
+                .map { user -> userMapper.toUserResponse(user) }
 
             users.addAll(remainingUsers)
 
@@ -86,6 +94,6 @@ class UserServiceImpl(private val userRepository: UserRepository,
 
             return@mono users
         }
-                .flatMapMany { Flux.fromIterable(it) }
+            .flatMapMany { Flux.fromIterable(it) }
     }
 }

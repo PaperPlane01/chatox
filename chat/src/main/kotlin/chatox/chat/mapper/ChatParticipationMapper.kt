@@ -23,13 +23,15 @@ import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 
 @Component
-class ChatParticipationMapper(private val userMapper: UserMapper,
-                              private val chatRoleMapper: ChatRoleMapper,
-                              private val chatParticipationRepository: ChatParticipationRepository,
-                              private val userDisplayedNameHelper: UserDisplayedNameHelper,
+class ChatParticipationMapper(
+    private val userMapper: UserMapper,
+    private val chatRoleMapper: ChatRoleMapper,
+    private val chatParticipationRepository: ChatParticipationRepository,
+    private val userDisplayedNameHelper: UserDisplayedNameHelper,
 
-                              @param:Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
-                              private val chatRoleCacheWrapper: ReactiveRepositoryCacheWrapper<ChatRole, String>) {
+    @param:Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
+    private val chatRoleCacheWrapper: ReactiveRepositoryCacheWrapper<ChatRole, String>
+) {
 
     private lateinit var chatBlockingService: ChatBlockingService
 
@@ -39,21 +41,23 @@ class ChatParticipationMapper(private val userMapper: UserMapper,
     }
 
     fun toMinifiedChatParticipationResponse(
-            chatParticipation: ChatParticipation,
-            updateChatBlockingStatusIfNecessary: Boolean = false
+        chatParticipation: ChatParticipation,
+        updateChatBlockingStatusIfNecessary: Boolean = false
     ): Mono<ChatParticipationMinifiedResponse> {
         return mono {
             var activeChatBlocking: ChatBlockingResponse? = null
             val lastChatBlockingId = chatParticipation.lastActiveChatBlockingId
 
             if (lastChatBlockingId != null) {
-               val chatBlocking = chatBlockingService.findChatBlockingById(lastChatBlockingId).awaitFirst()
+                val chatBlocking = chatBlockingService.findChatBlockingById(lastChatBlockingId).awaitFirst()
 
                 if (chatBlocking.canceled || ZonedDateTime.now().isAfter(chatBlocking.blockedUntil)) {
                     if (updateChatBlockingStatusIfNecessary) {
-                        chatParticipationRepository.save(chatParticipation.copy(
+                        chatParticipationRepository.save(
+                            chatParticipation.copy(
                                 lastActiveChatBlockingId = null
-                        )).subscribe()
+                            )
+                        ).subscribe()
                     }
                 } else {
                     activeChatBlocking = chatBlocking
@@ -61,59 +65,60 @@ class ChatParticipationMapper(private val userMapper: UserMapper,
             }
 
             val role = chatRoleMapper.toChatRoleResponse(
-                    chatRoleCacheWrapper.findById(chatParticipation.roleId).awaitFirst()
+                chatRoleCacheWrapper.findById(chatParticipation.roleId).awaitFirst()
             )
 
             return@mono ChatParticipationMinifiedResponse(
-                    id = chatParticipation.id,
-                    role = role,
-                    activeChatBlocking = activeChatBlocking
+                id = chatParticipation.id,
+                role = role,
+                activeChatBlocking = activeChatBlocking
             )
         }
     }
 
-    fun toMinifiedChatParticipationResponse(pendingChatParticipation: PendingChatParticipation) = ChatParticipationMinifiedResponse(
+    fun toMinifiedChatParticipationResponse(pendingChatParticipation: PendingChatParticipation) =
+        ChatParticipationMinifiedResponse(
             id = pendingChatParticipation.id,
             pending = true
-    )
+        )
 
     fun toChatParticipationResponse(
-            chatParticipation: ChatParticipation,
-            localUsersCache: MutableMap<String, UserResponse> = mutableMapOf(),
-            chatRole: ChatRole? = null
+        chatParticipation: ChatParticipation,
+        localUsersCache: MutableMap<String, UserResponse> = mutableMapOf(),
+        chatRole: ChatRole? = null
     ): Mono<ChatParticipationResponse> {
-       return mono {
-           val mappedRole = chatRole ?: chatRoleCacheWrapper.findById(chatParticipation.roleId).awaitFirst()
-           val roleResponse = chatRoleMapper.toChatRoleResponseAsync(
-                   chatRole = mappedRole,
-                   localUsersCache = localUsersCache
-           )
-                   .awaitFirst()
+        return mono {
+            val mappedRole = chatRole ?: chatRoleCacheWrapper.findById(chatParticipation.roleId).awaitFirst()
+            val roleResponse = chatRoleMapper.toChatRoleResponseAsync(
+                chatRole = mappedRole,
+                localUsersCache = localUsersCache
+            )
+                .awaitFirst()
 
-           return@mono ChatParticipationResponse(
-                   id = chatParticipation.id,
-                   user = userMapper.toUserResponse(chatParticipation.user),
-                   chatId = chatParticipation.chatId,
-                   role = roleResponse
-           )
-       }
+            return@mono ChatParticipationResponse(
+                id = chatParticipation.id,
+                user = userMapper.toUserResponse(chatParticipation.user),
+                chatId = chatParticipation.chatId,
+                role = roleResponse
+            )
+        }
     }
 
     fun toDialogParticipant(chatParticipation: ChatParticipation) = DialogParticipant(
-            id = chatParticipation.id,
-            userId = chatParticipation.user.id,
-            userSlug = chatParticipation.user.slug,
-            userDisplayedName = userDisplayedNameHelper.getDisplayedName(chatParticipation.user)
+        id = chatParticipation.id,
+        userId = chatParticipation.user.id,
+        userSlug = chatParticipation.user.slug,
+        userDisplayedName = userDisplayedNameHelper.getDisplayedName(chatParticipation.user)
     )
 
     fun toPendingChatParticipationResponse(
-            chatParticipation: PendingChatParticipation,
-            users: Map<String, UserResponse>
+        chatParticipation: PendingChatParticipation,
+        users: Map<String, UserResponse>
     ): PendingChatParticipationResponse = PendingChatParticipationResponse(
-            id = chatParticipation.id,
-            createdAt = chatParticipation.createdAt,
-            chatId = chatParticipation.chatId,
-            user = users[chatParticipation.userId]!!,
-            restoredChatParticipationId = chatParticipation.restoredChatParticipationId
+        id = chatParticipation.id,
+        createdAt = chatParticipation.createdAt,
+        chatId = chatParticipation.chatId,
+        user = users[chatParticipation.userId]!!,
+        restoredChatParticipationId = chatParticipation.restoredChatParticipationId
     )
 }

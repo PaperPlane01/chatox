@@ -2,8 +2,6 @@ package chatox.chat.model
 
 import chatox.chat.exception.InvalidChatDeletionReasonException
 import com.fasterxml.jackson.annotation.JsonCreator
-import java.lang.IllegalArgumentException
-import java.util.Arrays
 
 enum class ChatDeletionReason {
     ILLEGAL_CONTENT,
@@ -22,7 +20,7 @@ enum class ChatDeletionReason {
             }
 
             throw InvalidChatDeletionReasonException(
-                    "The following chat deletion reason is invalid: ${jsonValue}. Valid values are ${values()}"
+                "The following chat deletion reason is invalid: ${jsonValue}. Valid values are ${values()}"
             )
         }
     }

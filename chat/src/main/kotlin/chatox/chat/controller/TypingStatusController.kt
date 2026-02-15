@@ -15,6 +15,6 @@ class TypingStatusController(private val typingStatusService: TypingStatusServic
     @ReactivePermissionCheck("@messagePermissions.canSendTypingStatus(#chatId)")
     @PostMapping("/{chatId}/typing")
     fun publishUserStartedTyping(
-            @PathVariable chatId: String
+        @PathVariable chatId: String
     ) = typingStatusService.publishCurrentUserStartedTyping(chatId)
 }

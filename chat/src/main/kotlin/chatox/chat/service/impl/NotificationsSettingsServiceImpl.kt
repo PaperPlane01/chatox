@@ -33,35 +33,35 @@ import reactor.core.publisher.Mono
 
 @Service
 class NotificationsSettingsServiceImpl(
-        private val userGlobalNotificationsSettingsRepository: UserGlobalNotificationsSettingsRepository,
-        private val chatParticipationRepository: ChatParticipationRepository,
+    private val userGlobalNotificationsSettingsRepository: UserGlobalNotificationsSettingsRepository,
+    private val chatParticipationRepository: ChatParticipationRepository,
 
-        @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
-        private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
-        private val notificationsSettingsMapper: NotificationsSettingsMapper,
-        private val notificationsSettingsEventsPublisher: NotificationsSettingsEventsPublisher,
-        private val authenticationHolder: ReactiveAuthenticationHolder<User>
+    @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+    private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
+    private val notificationsSettingsMapper: NotificationsSettingsMapper,
+    private val notificationsSettingsEventsPublisher: NotificationsSettingsEventsPublisher,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>
 ) : NotificationsSettingsService {
 
     override fun getNotificationsSettingsOfCurrentUser(): Mono<GlobalNotificationsSettingsResponse> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val globalNotificationsSettings = userGlobalNotificationsSettingsRepository
-                    .findById(currentUser.id)
-                    .awaitFirstOrNull()
-                    ?: GlobalNotificationSettings.DEFAULT
+                .findById(currentUser.id)
+                .awaitFirstOrNull()
+                ?: GlobalNotificationSettings.DEFAULT
             val customChatSettings = chatParticipationRepository.findWithCustomNotificationsSettings(
-                    currentUser.id
+                currentUser.id
             )
-                    .collectList()
-                    .awaitFirst()
+                .collectList()
+                .awaitFirst()
 
             return@mono notificationsSettingsMapper.toGlobalNotificationsSettingsResponse(
-                    globalNotificationsSettings,
-                    customChatSettings,
-                    currentUser.id
+                globalNotificationsSettings,
+                customChatSettings,
+                currentUser.id
             )
-                    .awaitFirst()
+                .awaitFirst()
         }
     }
 
@@ -69,45 +69,45 @@ class NotificationsSettingsServiceImpl(
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             var globalNotificationsSettings = userGlobalNotificationsSettingsRepository
-                    .findById(currentUser.id)
-                    .awaitFirstOrNull()
-                    ?: UserGlobalNotificationsSettings(
-                            id = currentUser.id,
-                            groupChats = GlobalNotificationSettings.DEFAULT.groupChats,
-                            dialogs = GlobalNotificationSettings.DEFAULT.dialogs
-                    )
+                .findById(currentUser.id)
+                .awaitFirstOrNull()
+                ?: UserGlobalNotificationsSettings(
+                    id = currentUser.id,
+                    groupChats = GlobalNotificationSettings.DEFAULT.groupChats,
+                    dialogs = GlobalNotificationSettings.DEFAULT.dialogs
+                )
 
             globalNotificationsSettings = globalNotificationsSettings.copy(
-                    groupChats = NotificationsSettings(
-                            level = updateGlobalNotificationsSettingsRequest.groupChats.level,
-                            sound = updateGlobalNotificationsSettingsRequest.groupChats.sound
-                    ),
-                    dialogs = NotificationsSettings(
-                            level = updateGlobalNotificationsSettingsRequest.dialogChats.level,
-                            sound = updateGlobalNotificationsSettingsRequest.dialogChats.sound
-                    )
+                groupChats = NotificationsSettings(
+                    level = updateGlobalNotificationsSettingsRequest.groupChats.level,
+                    sound = updateGlobalNotificationsSettingsRequest.groupChats.sound
+                ),
+                dialogs = NotificationsSettings(
+                    level = updateGlobalNotificationsSettingsRequest.dialogChats.level,
+                    sound = updateGlobalNotificationsSettingsRequest.dialogChats.sound
+                )
             )
 
             userGlobalNotificationsSettingsRepository.save(globalNotificationsSettings).awaitFirst()
 
             val customChatSettings = chatParticipationRepository.findWithCustomNotificationsSettings(
-                    currentUser.id
+                currentUser.id
             )
-                    .collectList()
-                    .awaitFirst()
+                .collectList()
+                .awaitFirst()
 
             val notificationsSettingsResponse = notificationsSettingsMapper.toGlobalNotificationsSettingsResponse(
-                    globalNotificationsSettings,
-                    customChatSettings,
-                    currentUser.id
+                globalNotificationsSettings,
+                customChatSettings,
+                currentUser.id
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             runAsync {
                 val event = GlobalNotificationsSettingsUpdated(
-                        userId = currentUser.id,
-                        groupChatSettings = notificationsSettingsResponse.groupChats,
-                        dialogChatsSettings = notificationsSettingsResponse.dialogs
+                    userId = currentUser.id,
+                    groupChatSettings = notificationsSettingsResponse.groupChats,
+                    dialogChatsSettings = notificationsSettingsResponse.dialogs
                 )
                 notificationsSettingsEventsPublisher.globalNotificationsSettingsUpdated(event)
             }
@@ -116,49 +116,54 @@ class NotificationsSettingsServiceImpl(
         }
     }
 
-    override fun updateNotificationsSettingsForChat(chatId: String, updateChatNotificationsSettings: UpdateChatNotificationsSettingsRequest): Mono<ChatNotificationsSettingsResponse> {
+    override fun updateNotificationsSettingsForChat(
+        chatId: String,
+        updateChatNotificationsSettings: UpdateChatNotificationsSettingsRequest
+    ): Mono<ChatNotificationsSettingsResponse> {
         return mono {
             val chat = chatCacheWrapper.findById(chatId).awaitFirstOrNull() ?: throw ChatNotFoundException(
-                    "Could not find chat with id $chatId"
+                "Could not find chat with id $chatId"
             )
 
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             var chatParticipation = chatParticipationRepository.findByChatIdAndUserIdAndDeletedFalse(
-                    chatId = chatId,
-                    userId = currentUser.id
+                chatId = chatId,
+                userId = currentUser.id
             )
-                    .awaitFirstOrNull() ?: throw ChatParticipationNotFoundException(
-                            "Could not find chat participation of current user in chat $chatId"
-                    )
+                .awaitFirstOrNull() ?: throw ChatParticipationNotFoundException(
+                "Could not find chat participation of current user in chat $chatId"
+            )
 
-            val notificationsSettings =  NotificationsSettings(
-                    level = updateChatNotificationsSettings.level,
-                    sound = updateChatNotificationsSettings.sound,
-                    userExceptions = updateChatNotificationsSettings
-                            .userExceptions
-                            ?.map { (userId, userNotificationsSettings) -> userId to UserNotificationSettings(
-                                    level = userNotificationsSettings.level,
-                                    sound = userNotificationsSettings.sound
-                            )}
-                            ?.toMap()
+            val notificationsSettings = NotificationsSettings(
+                level = updateChatNotificationsSettings.level,
+                sound = updateChatNotificationsSettings.sound,
+                userExceptions = updateChatNotificationsSettings
+                    .userExceptions
+                    ?.map { (userId, userNotificationsSettings) ->
+                        userId to UserNotificationSettings(
+                            level = userNotificationsSettings.level,
+                            sound = userNotificationsSettings.sound
+                        )
+                    }
+                    ?.toMap()
             )
             chatParticipation = chatParticipation.copy(
-                    notificationsSettings = notificationsSettings
+                notificationsSettings = notificationsSettings
             )
 
             chatParticipationRepository.save(chatParticipation).awaitFirst()
 
             val notificationsSettingsResponse = notificationsSettingsMapper.toChatNotificationsSettingsResponse(
-                    notificationsSettings = notificationsSettings,
-                    chat = chat,
-                    currentUserId = currentUser.id
+                notificationsSettings = notificationsSettings,
+                chat = chat,
+                currentUserId = currentUser.id
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             runAsync {
                 val event = ChatNotificationsSettingsUpdated(
-                        userId = currentUser.id,
-                        notificationsSettings = notificationsSettingsResponse
+                    userId = currentUser.id,
+                    notificationsSettings = notificationsSettingsResponse
                 )
                 notificationsSettingsEventsPublisher.chatNotificationsSettingsUpdated(event)
             }
@@ -171,13 +176,13 @@ class NotificationsSettingsServiceImpl(
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             var chatParticipation = chatParticipationRepository.findByChatIdAndUserIdAndDeletedFalse(
-                    chatId = chatId,
-                    userId = currentUser.id
+                chatId = chatId,
+                userId = currentUser.id
             )
-                    .awaitFirstOrNull()
-                    ?: throw ChatParticipationNotFoundException(
-                            "Could not find chat participation of current user in chat $chatId"
-                    )
+                .awaitFirstOrNull()
+                ?: throw ChatParticipationNotFoundException(
+                    "Could not find chat participation of current user in chat $chatId"
+                )
 
             chatParticipation = chatParticipation.copy(notificationsSettings = null)
 
@@ -185,8 +190,8 @@ class NotificationsSettingsServiceImpl(
 
             runAsync {
                 val event = ChatNotificationsSettingsDeleted(
-                        userId = currentUser.id,
-                        chatId = chatId
+                    userId = currentUser.id,
+                    chatId = chatId
                 )
                 notificationsSettingsEventsPublisher.chatNotificationsSettingsDeleted(event)
             }

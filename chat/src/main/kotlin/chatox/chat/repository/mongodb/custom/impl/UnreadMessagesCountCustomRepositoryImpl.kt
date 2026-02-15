@@ -13,9 +13,14 @@ import reactor.core.publisher.Mono
 import java.time.ZonedDateTime
 
 class UnreadMessagesCountCustomRepositoryImpl(
-        private val reactiveMongoTemplate: ReactiveMongoTemplate) : UnreadMessagesCountCustomRepository {
+    private val reactiveMongoTemplate: ReactiveMongoTemplate
+) : UnreadMessagesCountCustomRepository {
 
-    override fun increaseUnreadMessagesCountForChat(chatId: String, increaseCount: Long, excludedChatParticipations: List<String>): Mono<Unit> {
+    override fun increaseUnreadMessagesCountForChat(
+        chatId: String,
+        increaseCount: Long,
+        excludedChatParticipations: List<String>
+    ): Mono<Unit> {
         val query = Query()
 
         query.addCriteria(Criteria.where("chatId").`is`(chatId))
@@ -34,7 +39,11 @@ class UnreadMessagesCountCustomRepositoryImpl(
         }
     }
 
-    override fun decreaseUnreadMessagesCount(chatParticipationId: String, lastReadMessage: Message, decreaseUnreadMentionsCount: Boolean): Mono<Unit> {
+    override fun decreaseUnreadMessagesCount(
+        chatParticipationId: String,
+        lastReadMessage: Message,
+        decreaseUnreadMentionsCount: Boolean
+    ): Mono<Unit> {
         val query = Query()
 
         query.addCriteria(Criteria.where(CHAT_PARTICIPATION_ID).`is`(chatParticipationId))

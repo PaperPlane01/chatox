@@ -20,11 +20,11 @@ class ChatBlockingMongoEventListener : AbstractMongoEventListener<ChatBlocking>(
         chatBlockingCache.put(event.source).subscribe()
 
         chatParticipationRepository.findByChatIdAndUserId(
-                chatId = event.source.chatId,
-                userId = event.source.blockedUserId
+            chatId = event.source.chatId,
+            userId = event.source.blockedUserId
         )
-                .map { it.copy(lastActiveChatBlockingId = event.source.id) }
-                .flatMap { chatParticipationRepository.save(it) }
-                .subscribe()
+            .map { it.copy(lastActiveChatBlockingId = event.source.id) }
+            .flatMap { chatParticipationRepository.save(it) }
+            .subscribe()
     }
 }

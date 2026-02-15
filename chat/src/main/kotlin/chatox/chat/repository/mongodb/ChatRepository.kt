@@ -20,19 +20,23 @@ interface ChatRepository : ReactiveMongoRepository<Chat, String> {
     fun findByIdInAndTypeInAndDeletedFalse(ids: List<String>, types: List<ChatType>): Flux<Chat>
 
     @Query(
-            "{\n" +
-                      "'\$or':\n" +
-                        "[\n" +
-                          "{'name': {'\$regex': :#{#searchQuery}, '\$options': 'i'}},\n" +
-                          "{'description': {'\$regex': :#{#searchQuery}, '\$options': 'i'}},\n" +
-                          "{'tags': :#{#searchQuery}}\n"+
-                        "],\n" +
-                      "'deleted': false,\n" +
-                      "'hideFromSearch': false,\n" +
-                      "'type': {" +
-                          "\$in: :#{#typesToInclude}" +
-                        "}\n" +
-                    "}"
+        "{\n" +
+                "'\$or':\n" +
+                "[\n" +
+                "{'name': {'\$regex': :#{#searchQuery}, '\$options': 'i'}},\n" +
+                "{'description': {'\$regex': :#{#searchQuery}, '\$options': 'i'}},\n" +
+                "{'tags': :#{#searchQuery}}\n" +
+                "],\n" +
+                "'deleted': false,\n" +
+                "'hideFromSearch': false,\n" +
+                "'type': {" +
+                "\$in: :#{#typesToInclude}" +
+                "}\n" +
+                "}"
     )
-    fun searchChats(@Param("searchQuery") searchQuery: String, @Param("typesToInclude") typesToInclude: List<ChatType>, pageable: Pageable): Flux<Chat>
+    fun searchChats(
+        @Param("searchQuery") searchQuery: String,
+        @Param("typesToInclude") typesToInclude: List<ChatType>,
+        pageable: Pageable
+    ): Flux<Chat>
 }

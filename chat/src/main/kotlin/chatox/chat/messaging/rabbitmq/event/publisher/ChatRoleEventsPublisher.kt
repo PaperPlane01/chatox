@@ -9,20 +9,20 @@ import org.springframework.stereotype.Component
 class ChatRoleEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
 
     fun chatRoleCreated(chatRole: ChatRoleResponse) = rabbitTemplate.convertAndSend(
-            "chat.events",
-            "chat.role.created.#",
-            chatRole
+        "chat.events",
+        "chat.role.created.#",
+        chatRole
     )
 
     fun chatRoleUpdated(chatRole: ChatRoleResponse) = rabbitTemplate.convertAndSend(
-            "chat.events",
-            "chat.role.updated.#",
-            chatRole
+        "chat.events",
+        "chat.role.updated.#",
+        chatRole
     )
 
     fun chatRoleAssigned(chatRoleAssigned: ChatRoleAssigned) = rabbitTemplate.convertAndSend(
-            "chat.events",
-            "chat.role.assigned.#",
-            chatRoleAssigned
+        "chat.events",
+        "chat.role.assigned.#",
+        chatRoleAssigned
     )
 }

@@ -26,20 +26,20 @@ class NotificationsSettingsController(private val notificationsSettingsService: 
     @PreAuthorize("hasRole('USER')")
     @PutMapping("/notifications-settings")
     fun updateGlobalNotificationsSettings(
-            @RequestBody @Valid updateGlobalNotificationsSettingsRequest: UpdateGlobalNotificationsSettingsRequest
+        @RequestBody @Valid updateGlobalNotificationsSettingsRequest: UpdateGlobalNotificationsSettingsRequest
     ) = notificationsSettingsService.updateGlobalNotificationsSettings(updateGlobalNotificationsSettingsRequest)
 
     @PreAuthorize("hasRole('USER')")
     @PutMapping("/chats/{chatId}/notifications-settings")
     fun updateChatNotificationsSettings(
-            @PathVariable chatId: String,
-            @RequestBody @Valid updateChatNotificationsSettingsRequest: UpdateChatNotificationsSettingsRequest
+        @PathVariable chatId: String,
+        @RequestBody @Valid updateChatNotificationsSettingsRequest: UpdateChatNotificationsSettingsRequest
     ) = notificationsSettingsService.updateNotificationsSettingsForChat(chatId, updateChatNotificationsSettingsRequest)
 
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/chats/{chatId}/notifications-settings")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteChatNotificationsSettings(
-            @PathVariable chatId: String
+        @PathVariable chatId: String
     ) = notificationsSettingsService.deleteNotificationsSettingsForChat(chatId)
 }

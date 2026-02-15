@@ -10,6 +10,11 @@ interface ScheduledMessageRepository : ReactiveMongoRepository<ScheduledMessage,
     override fun findById(id: String): Mono<ScheduledMessage>
     fun findByChatId(chatId: String): Flux<ScheduledMessage>
     fun countByChatId(chatId: String): Mono<Long>
-    fun countByChatIdAndScheduledAtBetween(chatId: String, scheduledAtFrom: ZonedDateTime, scheduledAtTo: ZonedDateTime): Mono<Long>
+    fun countByChatIdAndScheduledAtBetween(
+        chatId: String,
+        scheduledAtFrom: ZonedDateTime,
+        scheduledAtTo: ZonedDateTime
+    ): Mono<Long>
+
     fun findByScheduledAt(zonedDateTime: ZonedDateTime): Flux<ScheduledMessage>
 }

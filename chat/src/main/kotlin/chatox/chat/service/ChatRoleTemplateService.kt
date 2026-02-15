@@ -8,7 +8,11 @@ import reactor.core.publisher.Mono
 
 interface ChatRoleTemplateService {
     fun createChatRoleTemplate(createChatRoleTemplateRequest: CreateChatRoleTemplateRequest): Mono<ChatRoleTemplateResponse>
-    fun updateChatRoleTemplate(id: String, updateChatRoleTemplateRequest: UpdateChatRoleTemplateRequest): Mono<ChatRoleTemplateResponse>
+    fun updateChatRoleTemplate(
+        id: String,
+        updateChatRoleTemplateRequest: UpdateChatRoleTemplateRequest
+    ): Mono<ChatRoleTemplateResponse>
+
     fun getChatRoleTemplates(): Flux<ChatRoleTemplateResponse>
     fun initializeDefaultChatRoleTemplates(): Mono<Unit>
 }

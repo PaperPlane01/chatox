@@ -39,20 +39,22 @@ class TextParserServiceImpl(private val loadBalancerClient: LoadBalancerClient) 
             try {
                 log.debug("Trying to fetch result from text-parser-service")
                 result = webClient
-                        .post()
-                        .uri(url)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .body(BodyInserters.fromValue(
-                                ParseTextRequest(
-                                        text = text,
-                                        emojiSet = emojiSet,
-                                        parseColons = true
-                                )
-                        ))
-                        .retrieve()
-                        .bodyToMono(TextInfo::class.java)
-                        .awaitFirst()
+                    .post()
+                    .uri(url)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .body(
+                        BodyInserters.fromValue(
+                            ParseTextRequest(
+                                text = text,
+                                emojiSet = emojiSet,
+                                parseColons = true
+                            )
+                        )
+                    )
+                    .retrieve()
+                    .bodyToMono(TextInfo::class.java)
+                    .awaitFirst()
             } catch (exception: Exception) {
                 // Ignore exception and return empty result as client
                 // app will be able to use its fallback method to render emoji

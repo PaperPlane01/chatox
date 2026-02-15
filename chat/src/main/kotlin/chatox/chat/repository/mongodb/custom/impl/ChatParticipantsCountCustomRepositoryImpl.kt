@@ -12,7 +12,8 @@ import reactor.core.publisher.Mono
 
 @Repository
 class ChatParticipantsCountCustomRepositoryImpl(
-        private val reactiveMongoTemplate: ReactiveMongoTemplate) : ChatParticipantsCountCustomRepository {
+    private val reactiveMongoTemplate: ReactiveMongoTemplate
+) : ChatParticipantsCountCustomRepository {
 
     override fun increaseParticipantsCount(chatId: String): Mono<ChatParticipantsCount> {
         return increaseOnlineParticipantsCount(chatId, 1)
@@ -23,10 +24,10 @@ class ChatParticipantsCountCustomRepositoryImpl(
         val update = createIncreaseQuery(PARTICIPANTS_COUNT, number)
 
         return reactiveMongoTemplate.findAndModify(
-                query,
-                update,
-                createDefaultOptions(),
-                ChatParticipantsCount::class.java
+            query,
+            update,
+            createDefaultOptions(),
+            ChatParticipantsCount::class.java
         )
     }
 
@@ -39,10 +40,10 @@ class ChatParticipantsCountCustomRepositoryImpl(
         val update = createDecreaseQuery(PARTICIPANTS_COUNT, number)
 
         return reactiveMongoTemplate.findAndModify(
-                query,
-                update,
-                createDefaultOptions(),
-                ChatParticipantsCount::class.java
+            query,
+            update,
+            createDefaultOptions(),
+            ChatParticipantsCount::class.java
         )
     }
 
@@ -55,10 +56,10 @@ class ChatParticipantsCountCustomRepositoryImpl(
         val update = createIncreaseQuery(ONLINE_PARTICIPANTS_COUNT, number)
 
         return reactiveMongoTemplate.findAndModify(
-                query,
-                update,
-                createDefaultOptions(),
-                ChatParticipantsCount::class.java
+            query,
+            update,
+            createDefaultOptions(),
+            ChatParticipantsCount::class.java
         )
     }
 
@@ -71,10 +72,10 @@ class ChatParticipantsCountCustomRepositoryImpl(
         val update = createDecreaseQuery(ONLINE_PARTICIPANTS_COUNT, number)
 
         return reactiveMongoTemplate.findAndModify(
-                query,
-                update,
-                createDefaultOptions(),
-                ChatParticipantsCount::class.java
+            query,
+            update,
+            createDefaultOptions(),
+            ChatParticipantsCount::class.java
         )
     }
 

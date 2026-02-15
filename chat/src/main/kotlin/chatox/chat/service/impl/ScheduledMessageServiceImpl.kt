@@ -34,32 +34,32 @@ import reactor.core.publisher.Mono
 
 @Service
 class ScheduledMessageServiceImpl(
-        private val scheduledMessageRepository: ScheduledMessageRepository,
-        private val messageRepository: MessageMongoRepository,
-        private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
-        private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
-        private val chatParticipationRepository: ChatParticipationRepository,
+    private val scheduledMessageRepository: ScheduledMessageRepository,
+    private val messageRepository: MessageMongoRepository,
+    private val chatMessagesCounterRepository: ChatMessagesCounterRepository,
+    private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
+    private val chatParticipationRepository: ChatParticipationRepository,
 
-        @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
-        private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
-        private val chatParticipationCacheWrapper: ReactiveRepositoryCacheWrapper<ChatParticipation, String>,
+    @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+    private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
+    private val chatParticipationCacheWrapper: ReactiveRepositoryCacheWrapper<ChatParticipation, String>,
 
-        private val chatEventsPublisher: ChatEventsPublisher,
-        private val messageReadService: MessageReadService,
-        private val messageService: MessageService,
-        private val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService,
-        private val messageMapper: MessageMapper
+    private val chatEventsPublisher: ChatEventsPublisher,
+    private val messageReadService: MessageReadService,
+    private val messageService: MessageService,
+    private val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService,
+    private val messageMapper: MessageMapper
 ) : ScheduledMessageService {
     override fun findScheduledMessageById(messageId: String): Mono<MessageResponse> {
         return mono {
             val scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
 
             return@mono messageMapper.toMessageResponse(
-                    message = scheduledMessage,
-                    mapReferredMessage = true,
-                    readByCurrentUser = false
+                message = scheduledMessage,
+                mapReferredMessage = true,
+                readByCurrentUser = false
             )
-                    .awaitFirst()
+                .awaitFirst()
         }
     }
 
@@ -67,14 +67,16 @@ class ScheduledMessageServiceImpl(
         return mono {
             val scheduledMessages = scheduledMessageRepository.findByChatId(chatId)
 
-            return@mono scheduledMessages.flatMap { message -> messageMapper.toMessageResponse(
+            return@mono scheduledMessages.flatMap { message ->
+                messageMapper.toMessageResponse(
                     message = message,
                     mapReferredMessage = true,
                     readByCurrentUser = false,
                     cache = MessageDataLocalCache()
-            ) }
+                )
+            }
         }
-                .flatMapMany { it }
+            .flatMapMany { it }
     }
 
     override fun publishScheduledMessage(chatId: String, messageId: String): Mono<MessageResponse> {
@@ -82,63 +84,69 @@ class ScheduledMessageServiceImpl(
             val scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
 
             return@mono publishScheduledMessageInternal(
-                    scheduledMessage = scheduledMessage,
-                    useCurrentDateInsteadOfScheduleDate = true
+                scheduledMessage = scheduledMessage,
+                useCurrentDateInsteadOfScheduleDate = true
             )
-                    .awaitFirst()
+                .awaitFirst()
         }
     }
 
-    override fun publishScheduledMessage(scheduledMessage: ScheduledMessage,
-                                         localUsersCache: MutableMap<String, UserResponse>?,
-                                         localReferredMessagesCache: MutableMap<String, MessageResponse>?): Mono<MessageResponse> {
+    override fun publishScheduledMessage(
+        scheduledMessage: ScheduledMessage,
+        localUsersCache: MutableMap<String, UserResponse>?,
+        localReferredMessagesCache: MutableMap<String, MessageResponse>?
+    ): Mono<MessageResponse> {
         return publishScheduledMessageInternal(
-                scheduledMessage = scheduledMessage,
-                localReferredMessagesCache = localReferredMessagesCache,
-                localUsersCache = localUsersCache
+            scheduledMessage = scheduledMessage,
+            localReferredMessagesCache = localReferredMessagesCache,
+            localUsersCache = localUsersCache
         )
     }
 
-    private fun publishScheduledMessageInternal(scheduledMessage: ScheduledMessage,
-                                                localUsersCache: MutableMap<String, UserResponse>? = null,
-                                                localReferredMessagesCache: MutableMap<String, MessageResponse>? = null,
-                                                useCurrentDateInsteadOfScheduleDate: Boolean = false): Mono<MessageResponse> {
+    private fun publishScheduledMessageInternal(
+        scheduledMessage: ScheduledMessage,
+        localUsersCache: MutableMap<String, UserResponse>? = null,
+        localReferredMessagesCache: MutableMap<String, MessageResponse>? = null,
+        useCurrentDateInsteadOfScheduleDate: Boolean = false
+    ): Mono<MessageResponse> {
         return mono {
             val messageIndex = chatMessagesCounterRepository.getNextCounterValue(scheduledMessage.chatId).awaitFirst()
 
             val message = messageMapper.fromScheduledMessage(
-                    scheduledMessage = scheduledMessage,
-                    messageIndex = messageIndex,
-                    useCurrentDateInsteadOfScheduledDate = useCurrentDateInsteadOfScheduleDate
+                scheduledMessage = scheduledMessage,
+                messageIndex = messageIndex,
+                useCurrentDateInsteadOfScheduledDate = useCurrentDateInsteadOfScheduleDate
             )
 
             if (message.uploadAttachmentsIds.isNotEmpty()) {
                 var chatUploadAttachments = chatUploadAttachmentRepository.findAllById(message.uploadAttachmentsIds)
-                        .collectList()
-                        .awaitFirst()
-                chatUploadAttachments = chatUploadAttachments.map { attachment -> attachment.copy(messageId = message.id) }
+                    .collectList()
+                    .awaitFirst()
+                chatUploadAttachments =
+                    chatUploadAttachments.map { attachment -> attachment.copy(messageId = message.id) }
                 chatUploadAttachmentRepository.saveAll(chatUploadAttachments).collectList().awaitFirst()
             }
 
             messageRepository.save(message).awaitFirst()
 
-            val senderChatParticipation = chatParticipationCacheWrapper.findById(message.chatParticipationId).awaitFirst()
+            val senderChatParticipation =
+                chatParticipationCacheWrapper.findById(message.chatParticipationId).awaitFirst()
             val mentionedChatParticipants = if (message.mentionedUsers.isEmpty()) {
                 listOf()
             } else {
                 chatParticipationRepository.findByChatIdAndUserIdInAndDeletedFalse(
-                        chatId = message.chatId,
-                        userIds = message.mentionedUsers
+                    chatId = message.chatId,
+                    userIds = message.mentionedUsers
                 )
-                        .collectList()
-                        .awaitFirst()
+                    .collectList()
+                    .awaitFirst()
             }
 
             messageReadService.increaseUnreadMessagesCountForChat(
-                    chatId = message.chatId,
-                    excludedChatParticipations = listOf(senderChatParticipation.id)
+                chatId = message.chatId,
+                excludedChatParticipations = listOf(senderChatParticipation.id)
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             if (mentionedChatParticipants.isNotEmpty()) {
                 messageReadService.increaseUnreadMentionsCount(mentionedChatParticipants.map { it.id }).awaitFirst()
@@ -147,14 +155,14 @@ class ScheduledMessageServiceImpl(
             scheduledMessageRepository.delete(scheduledMessage).awaitFirstOrNull()
 
             val messageCreated = messageMapper.toMessageCreated(
-                    message = message,
-                    localUsersCache = localUsersCache,
-                    localReferredMessagesCache = localReferredMessagesCache,
-                    readByCurrentUser = true,
-                    mapReferredMessage = true,
-                    fromScheduled = true
+                message = message,
+                localUsersCache = localUsersCache,
+                localReferredMessagesCache = localReferredMessagesCache,
+                readByCurrentUser = true,
+                mapReferredMessage = true,
+                fromScheduled = true
             )
-                    .awaitFirst()
+                .awaitFirst()
             val messageResponse = messageCreated.toMessageResponse()
 
             chatEventsPublisher.messageCreated(messageCreated)
@@ -169,13 +177,20 @@ class ScheduledMessageServiceImpl(
             val scheduledMessage = findScheduledMessageEntityById(messageId).awaitFirst()
 
             scheduledMessageRepository.delete(scheduledMessage).awaitFirstOrNull()
-            chatEventsPublisher.scheduledMessageDeleted(messageId = scheduledMessage.id, chatId = scheduledMessage.chatId)
+            chatEventsPublisher.scheduledMessageDeleted(
+                messageId = scheduledMessage.id,
+                chatId = scheduledMessage.chatId
+            )
 
             return@mono
         }
     }
 
-    override fun updateScheduledMessage(chatId: String, messageId: String, updateMessageRequest: UpdateMessageRequest): Mono<MessageResponse> {
+    override fun updateScheduledMessage(
+        chatId: String,
+        messageId: String,
+        updateMessageRequest: UpdateMessageRequest
+    ): Mono<MessageResponse> {
         return mono {
             val chat = findChatById(chatId).awaitFirst()
 
@@ -184,29 +199,29 @@ class ScheduledMessageServiceImpl(
             }
 
             val updateResult = findScheduledMessageEntityById(messageId)
-                    .flatMap { existingMessage -> messageService.updateMessage(existingMessage, updateMessageRequest) }
-                    .awaitFirst()
+                .flatMap { existingMessage -> messageService.updateMessage(existingMessage, updateMessageRequest) }
+                .awaitFirst()
 
             scheduledMessageRepository.save(updateResult.updatedMessage).awaitFirst()
 
             val messageResponse = messageMapper.toMessageResponse(
-                    message = updateResult.updatedMessage,
-                    mapReferredMessage = true,
-                    readByCurrentUser = true
+                message = updateResult.updatedMessage,
+                mapReferredMessage = true,
+                readByCurrentUser = true
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             if (updateResult.newChatUploadAttachments.isNotEmpty()) {
                 chatUploadAttachmentEntityService.linkChatUploadAttachmentsToMessage(
-                        updateResult.newChatUploadAttachments,
-                        updateResult.updatedMessage
+                    updateResult.newChatUploadAttachments,
+                    updateResult.updatedMessage
                 )
-                        .subscribe()
+                    .subscribe()
             }
 
             if (updateResult.chatUploadsAttachmentsToRemove.isNotEmpty()) {
                 chatUploadAttachmentEntityService.deleteChatUploadAttachments(updateResult.chatUploadsAttachmentsToRemove)
-                        .subscribe()
+                    .subscribe()
             }
 
             runAsync {
@@ -218,10 +233,10 @@ class ScheduledMessageServiceImpl(
     }
 
     private fun findChatById(chatId: String) = chatCacheWrapper
-            .findById(chatId)
-            .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
+        .findById(chatId)
+        .switchIfEmpty(Mono.error(ChatNotFoundException("Could not find chat with id $chatId")))
 
     private fun findScheduledMessageEntityById(messageId: String): Mono<ScheduledMessage> = scheduledMessageRepository
-            .findById(messageId)
-            .switchIfEmpty(Mono.error(ScheduledMessageNotFoundException("Could not find scheduled message with id $messageId")))
+        .findById(messageId)
+        .switchIfEmpty(Mono.error(ScheduledMessageNotFoundException("Could not find scheduled message with id $messageId")))
 }

@@ -6,15 +6,15 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 
 data class DeleteChatRequestWithChatId(
-        @field:NotNull
-        @field:JsonProperty("reason")
-        private val _reason: ChatDeletionReason?,
+    @field:NotNull
+    @field:JsonProperty("reason")
+    private val _reason: ChatDeletionReason?,
 
-        @field:Size(max = 250)
-        val comment: String?,
+    @field:Size(max = 250)
+    val comment: String?,
 
-        @field:NotNull
-        private val _chatId: String?
+    @field:NotNull
+    private val _chatId: String?
 ) {
     val reason: ChatDeletionReason
         get() = _reason!!

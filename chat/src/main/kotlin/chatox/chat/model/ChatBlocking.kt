@@ -7,26 +7,26 @@ import java.time.ZonedDateTime
 
 @Document
 data class ChatBlocking(
-        @Id
-        val id: String,
-        @Indexed
-        val chatId: String,
+    @Id
+    val id: String,
+    @Indexed
+    val chatId: String,
 
-        @Indexed
-        val blockedUserId: String,
+    @Indexed
+    val blockedUserId: String,
 
-        @Indexed
-        val blockedById: String,
-        val blockedUntil: ZonedDateTime,
-        val description: String?,
-        val createdAt: ZonedDateTime,
-        val canceled: Boolean,
-        val canceledAt: ZonedDateTime?,
+    @Indexed
+    val blockedById: String,
+    val blockedUntil: ZonedDateTime,
+    val description: String?,
+    val createdAt: ZonedDateTime,
+    val canceled: Boolean,
+    val canceledAt: ZonedDateTime?,
 
-        @Indexed
-        val canceledById: String? = null,
-        val lastModifiedAt: ZonedDateTime?,
+    @Indexed
+    val canceledById: String? = null,
+    val lastModifiedAt: ZonedDateTime?,
 
-        @Indexed
-        val lastModifiedById: String? = null
+    @Indexed
+    val lastModifiedById: String? = null
 )

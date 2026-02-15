@@ -4,10 +4,10 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 
 data class ChatMessagesCounter(
-        @Id
-        var id: String,
+    @Id
+    var id: String,
 
-        @Indexed
-        var chatId: String,
-        var messagesCount: Long
+    @Indexed
+    var chatId: String,
+    var messagesCount: Long
 )

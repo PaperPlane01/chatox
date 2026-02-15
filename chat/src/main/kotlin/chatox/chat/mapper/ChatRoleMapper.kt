@@ -11,43 +11,49 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class ChatRoleMapper(private val userMapper: UserMapper,
-                     private val userService: UserService) {
+class ChatRoleMapper(
+    private val userMapper: UserMapper,
+    private val userService: UserService
+) {
 
     fun toChatRoleResponse(chatRole: ChatRole, createdBy: User? = null, updatedBy: User? = null) = toChatRoleResponse(
-            chatRole = chatRole,
-            createdBy = if (createdBy != null) {
-                userMapper.toUserResponse(createdBy)
-            } else null,
-            updatedBy = if (updatedBy != null) {
-                userMapper.toUserResponse(updatedBy)
-            } else null
+        chatRole = chatRole,
+        createdBy = if (createdBy != null) {
+            userMapper.toUserResponse(createdBy)
+        } else null,
+        updatedBy = if (updatedBy != null) {
+            userMapper.toUserResponse(updatedBy)
+        } else null
     )
 
-    fun toChatRoleResponseAsync(chatRole: ChatRole, localUsersCache: MutableMap<String, UserResponse> = mutableMapOf()): Mono<ChatRoleResponse> {
+    fun toChatRoleResponseAsync(
+        chatRole: ChatRole,
+        localUsersCache: MutableMap<String, UserResponse> = mutableMapOf()
+    ): Mono<ChatRoleResponse> {
         return mono {
             val createdBy: UserResponse? = if (chatRole.createdBy == null) {
                 null
             } else {
                 localUsersCache[chatRole.createdBy]
-                        ?: userService.findUserByIdAndPutInLocalCache(chatRole.createdBy, localUsersCache).awaitFirst()
+                    ?: userService.findUserByIdAndPutInLocalCache(chatRole.createdBy, localUsersCache).awaitFirst()
             }
             val updatedBy = if (chatRole.updatedBy == null) {
                 null
             } else {
                 localUsersCache[chatRole.updatedBy]
-                        ?: userService.findUserByIdAndPutInLocalCache(chatRole.updatedBy, localUsersCache).awaitFirst()
+                    ?: userService.findUserByIdAndPutInLocalCache(chatRole.updatedBy, localUsersCache).awaitFirst()
             }
 
             return@mono toChatRoleResponse(
-                    chatRole = chatRole,
-                    createdBy = createdBy,
-                    updatedBy = updatedBy
+                chatRole = chatRole,
+                createdBy = createdBy,
+                updatedBy = updatedBy
             )
         }
     }
 
-    private fun toChatRoleResponse(chatRole: ChatRole, createdBy: UserResponse?, updatedBy: UserResponse?) = ChatRoleResponse(
+    private fun toChatRoleResponse(chatRole: ChatRole, createdBy: UserResponse?, updatedBy: UserResponse?) =
+        ChatRoleResponse(
             id = chatRole.id,
             features = chatRole.features,
             chatId = chatRole.chatId,
@@ -59,5 +65,5 @@ class ChatRoleMapper(private val userMapper: UserMapper,
             templateId = chatRole.templateId,
             level = chatRole.level,
             name = chatRole.name
-    )
+        )
 }

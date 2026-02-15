@@ -10,11 +10,11 @@ import kotlin.reflect.KClass
 @Retention(value = AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [MaxIntervalFromNowValidator::class])
 annotation class MaxIntervalFromNow(
-        val value: Long,
-        val chronoUnit: ChronoUnit,
-        val message: String = "",
-        val allowNull: Boolean = true,
+    val value: Long,
+    val chronoUnit: ChronoUnit,
+    val message: String = "",
+    val allowNull: Boolean = true,
 
-        val groups: Array<KClass<*>> = [],
-        val payload: Array<KClass<out Payload>> = []
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = []
 )

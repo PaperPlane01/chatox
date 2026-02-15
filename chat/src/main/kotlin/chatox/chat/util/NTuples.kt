@@ -14,7 +14,7 @@ data class NTuple2<T1, T2>(val t1: T1, val t2: T2) {
     }
 }
 
-fun <T1: Any, T2: Any> fromTuple(tuple: Tuple2<T1, T2>): NTuple2<T1, T2> = NTuple2(tuple.t1, tuple.t2)
+fun <T1 : Any, T2 : Any> fromTuple(tuple: Tuple2<T1, T2>): NTuple2<T1, T2> = NTuple2(tuple.t1, tuple.t2)
 
 data class NTuple3<T1, T2, T3>(val t1: T1, val t2: T2, val t3: T3) {
     fun <Target1, Target2, Target3> map(mapper: (NTuple3<T1, T2, T3>) -> NTuple3<Target1, Target2, Target3>): NTuple3<Target1, Target2, Target3> {
@@ -22,7 +22,8 @@ data class NTuple3<T1, T2, T3>(val t1: T1, val t2: T2, val t3: T3) {
     }
 }
 
-fun <T1: Any, T2: Any, T3: Any> fromTuple(tuple: Tuple3<T1, T2, T3>): NTuple3<T1, T2, T3> = NTuple3(tuple.t1, tuple.t2, tuple.t3)
+fun <T1 : Any, T2 : Any, T3 : Any> fromTuple(tuple: Tuple3<T1, T2, T3>): NTuple3<T1, T2, T3> =
+    NTuple3(tuple.t1, tuple.t2, tuple.t3)
 
 data class NTuple4<T1, T2, T3, T4>(val t1: T1, val t2: T2, val t3: T3, val t4: T4) {
     fun <Target1, Target2, Target3, Target4> map(mapper: (NTuple4<T1, T2, T3, T4>) -> NTuple4<Target1, Target2, Target3, Target4>): NTuple4<Target1, Target2, Target3, Target4> {
@@ -30,7 +31,8 @@ data class NTuple4<T1, T2, T3, T4>(val t1: T1, val t2: T2, val t3: T3, val t4: T
     }
 }
 
-fun <T1: Any, T2: Any, T3: Any, T4: Any> fromTuple(tuple: Tuple4<T1, T2, T3, T4>): NTuple4<T1, T2, T3, T4> = NTuple4(tuple.t1, tuple.t2, tuple.t3, tuple.t4)
+fun <T1 : Any, T2 : Any, T3 : Any, T4 : Any> fromTuple(tuple: Tuple4<T1, T2, T3, T4>): NTuple4<T1, T2, T3, T4> =
+    NTuple4(tuple.t1, tuple.t2, tuple.t3, tuple.t4)
 
 data class NTuple5<T1, T2, T3, T4, T5>(val t1: T1, val t2: T2, val t3: T3, val t4: T4, val t5: T5) {
     fun <Target1, Target2, Target3, Target4, Target5> map(mapper: (NTuple5<T1, T2, T3, T4, T5>) -> NTuple5<Target1, Target2, Target3, Target4, Target5>): NTuple5<Target1, Target2, Target3, Target4, Target5> {
@@ -38,7 +40,8 @@ data class NTuple5<T1, T2, T3, T4, T5>(val t1: T1, val t2: T2, val t3: T3, val t
     }
 }
 
-fun <T1: Any, T2: Any, T3: Any, T4: Any, T5: Any> fromTuple(tuple: Tuple5<T1, T2, T3, T4, T5>): NTuple5<T1, T2, T3, T4, T5> = NTuple5(tuple.t1, tuple.t2, tuple.t3, tuple.t4, tuple.t5)
+fun <T1 : Any, T2 : Any, T3 : Any, T4 : Any, T5 : Any> fromTuple(tuple: Tuple5<T1, T2, T3, T4, T5>): NTuple5<T1, T2, T3, T4, T5> =
+    NTuple5(tuple.t1, tuple.t2, tuple.t3, tuple.t4, tuple.t5)
 
 data class NTuple6<T1, T2, T3, T4, T5, T6>(val t1: T1, val t2: T2, val t3: T3, val t4: T4, val t5: T5, val t6: T6) {
     fun <Target1, Target2, Target3, Target4, Target5, Target6> map(mapper: (NTuple6<T1, T2, T3, T4, T5, T6>) -> NTuple6<Target1, Target2, Target3, Target4, Target5, Target6>): NTuple6<Target1, Target2, Target3, Target4, Target5, Target6> {
@@ -46,20 +49,40 @@ data class NTuple6<T1, T2, T3, T4, T5, T6>(val t1: T1, val t2: T2, val t3: T3, v
     }
 }
 
-fun <T1: Any, T2: Any, T3: Any, T4: Any, T5: Any, T6: Any> fromTuple(tuple: Tuple6<T1, T2, T3, T4, T5, T6>): NTuple6<T1, T2, T3, T4, T5, T6> = NTuple6(tuple.t1, tuple.t2, tuple.t3, tuple.t4, tuple.t5, tuple.t6)
+fun <T1 : Any, T2 : Any, T3 : Any, T4 : Any, T5 : Any, T6 : Any> fromTuple(tuple: Tuple6<T1, T2, T3, T4, T5, T6>): NTuple6<T1, T2, T3, T4, T5, T6> =
+    NTuple6(tuple.t1, tuple.t2, tuple.t3, tuple.t4, tuple.t5, tuple.t6)
 
-data class NTuple7<T1, T2, T3, T4, T5, T6, T7>(val t1: T1, val t2: T2, val t3: T3, val t4: T4, val t5: T5, val t6: T6, val t7: T7) {
+data class NTuple7<T1, T2, T3, T4, T5, T6, T7>(
+    val t1: T1,
+    val t2: T2,
+    val t3: T3,
+    val t4: T4,
+    val t5: T5,
+    val t6: T6,
+    val t7: T7
+) {
     fun <Target1, Target2, Target3, Target4, Target5, Target6, Target7> map(mapper: (NTuple7<T1, T2, T3, T4, T5, T6, T7>) -> NTuple7<Target1, Target2, Target3, Target4, Target5, Target6, Target7>): NTuple7<Target1, Target2, Target3, Target4, Target5, Target6, Target7> {
         return mapper(this)
     }
 }
 
-fun <T1: Any, T2: Any, T3: Any, T4: Any, T5: Any, T6: Any, T7: Any> fromTuple(tuple: Tuple7<T1, T2, T3, T4, T5, T6, T7>): NTuple7<T1, T2, T3, T4, T5, T6, T7> = NTuple7(tuple.t1, tuple.t2, tuple.t3 ,tuple.t4, tuple.t5, tuple.t6, tuple.t7)
+fun <T1 : Any, T2 : Any, T3 : Any, T4 : Any, T5 : Any, T6 : Any, T7 : Any> fromTuple(tuple: Tuple7<T1, T2, T3, T4, T5, T6, T7>): NTuple7<T1, T2, T3, T4, T5, T6, T7> =
+    NTuple7(tuple.t1, tuple.t2, tuple.t3, tuple.t4, tuple.t5, tuple.t6, tuple.t7)
 
-data class NTuple8<T1, T2, T3, T4, T5, T6, T7, T8>(val t1: T1, val t2: T2, val t3: T3, val t4: T4, val t5: T5, val t6: T6, val t7: T7, val t8: T8) {
+data class NTuple8<T1, T2, T3, T4, T5, T6, T7, T8>(
+    val t1: T1,
+    val t2: T2,
+    val t3: T3,
+    val t4: T4,
+    val t5: T5,
+    val t6: T6,
+    val t7: T7,
+    val t8: T8
+) {
     fun <Target1, Target2, Target3, Target4, Target5, Target6, Target7, Target8> map(mapper: (NTuple8<T1, T2, T3, T4, T5, T6, T7, T8>) -> NTuple8<Target1, Target2, Target3, Target4, Target5, Target6, Target7, Target8>): NTuple8<Target1, Target2, Target3, Target4, Target5, Target6, Target7, Target8> {
         return mapper(this)
     }
 }
 
-fun <T1: Any, T2: Any, T3: Any, T4: Any, T5: Any, T6: Any, T7: Any, T8: Any> fromTuple(tuple: Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>): NTuple8<T1, T2, T3, T4, T5, T6, T7, T8> = NTuple8(tuple.t1, tuple.t2, tuple.t3 ,tuple.t4, tuple.t5, tuple.t6, tuple.t7, tuple.t8)
+fun <T1 : Any, T2 : Any, T3 : Any, T4 : Any, T5 : Any, T6 : Any, T7 : Any, T8 : Any> fromTuple(tuple: Tuple8<T1, T2, T3, T4, T5, T6, T7, T8>): NTuple8<T1, T2, T3, T4, T5, T6, T7, T8> =
+    NTuple8(tuple.t1, tuple.t2, tuple.t3, tuple.t4, tuple.t5, tuple.t6, tuple.t7, tuple.t8)

@@ -34,7 +34,10 @@
     "unit": "MINUTES"
   },
   "slug": "test",
-  "tags": ["test", " chat"],
+  "tags": [
+    "test",
+    " chat"
+  ],
   "type": "GROUP",
   "updatedAt": "2021-11-18T17:04:59.192Z"
 }
