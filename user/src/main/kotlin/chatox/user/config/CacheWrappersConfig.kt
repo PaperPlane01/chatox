@@ -29,18 +29,20 @@ class CacheWrappersConfig {
 
     @Bean
     fun userInteractionCostCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(
-            userInteractionCacheService,
-            userInteractionCostRepository,
-            { userInteractionCostRepository, type ->
-                userInteractionCostRepository.findByType(UserInteractionType.valueOf(type)) },
-            { userInteractionCostRepository, types ->
-                userInteractionCostRepository.findByTypeIn(types.map { type -> UserInteractionType.valueOf(type) }) },
-            { userInteractionCost -> userInteractionCost.type.name }
+        userInteractionCacheService,
+        userInteractionCostRepository,
+        { userInteractionCostRepository, type ->
+            userInteractionCostRepository.findByType(UserInteractionType.valueOf(type))
+        },
+        { userInteractionCostRepository, types ->
+            userInteractionCostRepository.findByTypeIn(types.map { type -> UserInteractionType.valueOf(type) })
+        },
+        { userInteractionCost -> userInteractionCost.type.name }
     )
 
     @Bean
     fun userCacheWrapper() = DefaultReactiveRepositoryCacheWrapper(
-            userCacheService,
-            userRepository
+        userCacheService,
+        userRepository
     )
 }

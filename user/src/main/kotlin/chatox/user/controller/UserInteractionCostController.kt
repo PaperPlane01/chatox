@@ -17,7 +17,7 @@ class UserInteractionCostController(private val userInteractionCostService: User
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping
     fun updateUserInteractionCost(
-            @RequestBody @Valid userInteractionCostRequest: UserInteractionCostRequest
+        @RequestBody @Valid userInteractionCostRequest: UserInteractionCostRequest
     ) = userInteractionCostService.creatOrUpdateUserInteractionCost(userInteractionCostRequest)
 
     @GetMapping

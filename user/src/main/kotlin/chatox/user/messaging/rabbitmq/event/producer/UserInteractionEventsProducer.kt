@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component
 class UserInteractionEventsProducer(private val rabbitTemplate: RabbitTemplate) {
 
     fun userInteractionCreated(userInteractionCreated: UserInteractionCreated) = rabbitTemplate.convertAndSend(
-            "user.interactions.events",
-            "user.interaction.created.#",
-            userInteractionCreated
+        "user.interactions.events",
+        "user.interaction.created.#",
+        userInteractionCreated
     )
 }

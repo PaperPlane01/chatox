@@ -1,6 +1,5 @@
 package chatox.user.repository
 
-import chatox.user.domain.User
 import chatox.user.domain.UserProfilePhoto
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository

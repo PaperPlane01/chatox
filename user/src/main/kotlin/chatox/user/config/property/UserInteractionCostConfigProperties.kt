@@ -8,7 +8,7 @@ import java.math.BigDecimal
 @Component
 @ConfigurationProperties(prefix = "chatox.user.interaction.cost")
 data class UserInteractionCostConfigProperties(
-        var createOnApplicationStart: Boolean = false,
-        var updateExisting: Boolean = false,
-        var userInteractionCosts: Map<UserInteractionType, BigDecimal> = mapOf()
+    var createOnApplicationStart: Boolean = false,
+    var updateExisting: Boolean = false,
+    var userInteractionCosts: Map<UserInteractionType, BigDecimal> = mapOf()
 )

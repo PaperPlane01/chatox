@@ -21,9 +21,9 @@ class RabbitMqConfig {
 
     @Bean
     fun userEventsBinding(): Binding = BindingBuilder
-            .bind(accountDeletedQueue())
-            .to(userEvents())
-            .with("account.deleted.#")
+        .bind(accountDeletedQueue())
+        .to(userEvents())
+        .with("account.deleted.#")
 
     @Bean
     fun uploadEvents() = TopicExchange("upload.events")
@@ -33,9 +33,9 @@ class RabbitMqConfig {
 
     @Bean
     fun uploadEventsBinding(): Binding = BindingBuilder
-            .bind(imageCreatedQueue())
-            .to(uploadEvents())
-            .with("upload.image.created.#")
+        .bind(imageCreatedQueue())
+        .to(uploadEvents())
+        .with("upload.image.created.#")
 
     @Bean
     fun websocketEvents() = TopicExchange("websocket.events")
@@ -48,15 +48,15 @@ class RabbitMqConfig {
 
     @Bean
     fun userConnectedBinding(): Binding = BindingBuilder
-            .bind(userConnectedQueue())
-            .to(websocketEvents())
-            .with("user.connected.#")
+        .bind(userConnectedQueue())
+        .to(websocketEvents())
+        .with("user.connected.#")
 
     @Bean
     fun userDisconnectedBinding(): Binding = BindingBuilder
-            .bind(userDisconnectedQueue())
-            .to(websocketEvents())
-            .with("user.disconnected.#")
+        .bind(userDisconnectedQueue())
+        .to(websocketEvents())
+        .with("user.disconnected.#")
 
     @Bean
     fun emailUpdatedQueue() = Queue("user_service_email_updated")
@@ -66,9 +66,9 @@ class RabbitMqConfig {
 
     @Bean
     fun emailUpdatedBinding(): Binding = BindingBuilder
-            .bind(emailUpdatedQueue())
-            .to(accountEvents())
-            .with("account.email.updated.#")
+        .bind(emailUpdatedQueue())
+        .to(accountEvents())
+        .with("account.email.updated.#")
 
     @Bean
     fun balanceEvents() = TopicExchange("balance.events")
@@ -78,9 +78,9 @@ class RabbitMqConfig {
 
     @Bean
     fun balanceUpdatedBinding(): Binding = BindingBuilder
-            .bind(balanceUpdatedQueue())
-            .to(balanceEvents())
-            .with("balance.updated.#")
+        .bind(balanceUpdatedQueue())
+        .to(balanceEvents())
+        .with("balance.updated.#")
 
     @Bean
     fun userInteractionEvents() = TopicExchange("user.interactions.events")
@@ -90,13 +90,15 @@ class RabbitMqConfig {
 
     @Bean
     fun userInteractionRolledBackBinding(): Binding = BindingBuilder
-            .bind(userInteractionRolledBackQueue())
-            .to(userInteractionEvents())
-            .with("user.interaction.rolled.back.#")
+        .bind(userInteractionRolledBackQueue())
+        .to(userInteractionEvents())
+        .with("user.interaction.rolled.back.#")
 
     @Bean
-    fun rabbitTemplate(connectionFactory: ConnectionFactory,
-                       messageConverter: JacksonJsonMessageConverter): RabbitTemplate {
+    fun rabbitTemplate(
+        connectionFactory: ConnectionFactory,
+        messageConverter: JacksonJsonMessageConverter
+    ): RabbitTemplate {
         val rabbitTemplate = RabbitTemplate(connectionFactory)
         rabbitTemplate.messageConverter = messageConverter
         return rabbitTemplate

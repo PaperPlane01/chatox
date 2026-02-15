@@ -1,7 +1,6 @@
 package chatox.user.domain
 
 import chatox.user.exception.InvalidGlobalBanReasonException
-import java.lang.IllegalArgumentException
 
 enum class GlobalBanReason {
     SPAM,

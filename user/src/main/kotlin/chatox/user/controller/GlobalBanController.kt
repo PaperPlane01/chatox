@@ -28,47 +28,59 @@ class GlobalBanController(private val globalBanService: GlobalBanService) {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{userId}/bans")
-    fun banUser(@PathVariable userId: String,
-                @RequestBody @Valid banUserRequest: BanUserRequest
+    fun banUser(
+        @PathVariable userId: String,
+        @RequestBody @Valid banUserRequest: BanUserRequest
     ) = globalBanService.banUser(userId, banUserRequest)
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/bans")
-    fun banMultipleUsers(@RequestBody @Valid banMultipleUsersRequest: BanMultipleUsersRequest)
-            = globalBanService.banMultipleUsers(banMultipleUsersRequest)
+    fun banMultipleUsers(@RequestBody @Valid banMultipleUsersRequest: BanMultipleUsersRequest) =
+        globalBanService.banMultipleUsers(banMultipleUsersRequest)
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{userId}/bans/{banId}")
-    fun updateBan(@PathVariable userId: String,
-                  @PathVariable banId: String,
-                  @RequestBody @Valid updateBanRequest: UpdateBanRequest
+    fun updateBan(
+        @PathVariable userId: String,
+        @PathVariable banId: String,
+        @RequestBody @Valid updateBanRequest: UpdateBanRequest
     ) = globalBanService.updateBan(userId, banId, updateBanRequest)
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{userId}/bans/{banId}")
-    fun cancelBan(@PathVariable userId: String,
-                  @PathVariable banId: String
+    fun cancelBan(
+        @PathVariable userId: String,
+        @PathVariable banId: String
     ) = globalBanService.cancelBan(userId, banId)
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/bans")
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["createdAt", "expiresAt"], defaultValue = "createdAt"),
-            sortingDirection = SortDirection(defaultValue = "desc"),
-            pageSize = PageSize(defaultValue = 30)
+        sortBy = SortBy(allowed = ["createdAt", "expiresAt"], defaultValue = "createdAt"),
+        sortingDirection = SortDirection(defaultValue = "desc"),
+        pageSize = PageSize(defaultValue = 30)
     )
-    fun findBans(@RequestParam(value = "excludeExpired", required = false, defaultValue = "false") excludeExpired: Boolean = false,
-                 @RequestParam(value = "excludeCanceled", required = false, defaultValue = "false") excludeCanceled: Boolean = false,
-                 @RequestParam(value = "bannedUserId", required = false) bannedUserId: String?,
-                 @RequestParam(value = "bannedById", required = false) bannedById: String?,
-                 paginationRequest: PaginationRequest
+    fun findBans(
+        @RequestParam(
+            value = "excludeExpired",
+            required = false,
+            defaultValue = "false"
+        ) excludeExpired: Boolean = false,
+        @RequestParam(
+            value = "excludeCanceled",
+            required = false,
+            defaultValue = "false"
+        ) excludeCanceled: Boolean = false,
+        @RequestParam(value = "bannedUserId", required = false) bannedUserId: String?,
+        @RequestParam(value = "bannedById", required = false) bannedById: String?,
+        paginationRequest: PaginationRequest
     ) = globalBanService.findBans(
-            filters = GlobalBanFilters(
-                    excludeCanceled = excludeCanceled,
-                    excludeExpired = excludeExpired,
-                    bannedById = bannedById,
-                    bannedUserId = bannedUserId
-            ),
-            paginationRequest = paginationRequest
+        filters = GlobalBanFilters(
+            excludeCanceled = excludeCanceled,
+            excludeExpired = excludeExpired,
+            bannedById = bannedById,
+            bannedUserId = bannedUserId
+        ),
+        paginationRequest = paginationRequest
     )
 }

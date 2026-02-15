@@ -7,15 +7,15 @@ import java.time.ZonedDateTime
 
 @Document
 data class UserSession(
-        @Id
-        var id: String,
-        @Indexed
-        var socketIoId: String,
-        @Indexed
-        var userId: String,
-        var createdAt: ZonedDateTime,
-        var disconnectedAt: ZonedDateTime?,
-        var ipAddress: String?,
-        var userAgent: String?,
-        var accessToken: String
+    @Id
+    var id: String,
+    @Indexed
+    var socketIoId: String,
+    @Indexed
+    var userId: String,
+    var createdAt: ZonedDateTime,
+    var disconnectedAt: ZonedDateTime?,
+    var ipAddress: String?,
+    var userAgent: String?,
+    var accessToken: String
 )

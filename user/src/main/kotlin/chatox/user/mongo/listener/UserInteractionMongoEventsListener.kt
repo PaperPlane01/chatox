@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserInteractionMongoEventsListener(
-        private val userInteractionEventsProducer: UserInteractionEventsProducer,
-        private val userInteractionMapper: UserInteractionMapper
+    private val userInteractionEventsProducer: UserInteractionEventsProducer,
+    private val userInteractionMapper: UserInteractionMapper
 ) : AbstractMongoEventListener<UserInteraction>() {
 
     override fun onAfterSave(event: AfterSaveEvent<UserInteraction>) {

@@ -4,7 +4,7 @@ import chatox.user.domain.Currency
 import java.math.BigDecimal
 
 data class BalanceUpdated(
-        val userId: String,
-        val currency: Currency,
-        val amount: BigDecimal
+    val userId: String,
+    val currency: Currency,
+    val amount: BigDecimal
 )

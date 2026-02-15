@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserInteractionCostMongoEventsListener(
-        private val userInteractionCostCache: ReactiveCacheService<UserInteractionCost, String>
+    private val userInteractionCostCache: ReactiveCacheService<UserInteractionCost, String>
 ) : AbstractMongoEventListener<UserInteractionCost>() {
 
     override fun onAfterSave(event: AfterSaveEvent<UserInteractionCost>) {

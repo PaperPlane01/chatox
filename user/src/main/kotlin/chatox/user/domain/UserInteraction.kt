@@ -8,13 +8,13 @@ import java.time.ZonedDateTime
 
 @Document
 data class UserInteraction(
-        @Id
-        val id: String,
-        val userId: String,
+    @Id
+    val id: String,
+    val userId: String,
 
-        @Indexed
-        val targetUserId: String,
-        val type: UserInteractionType,
-        val createdAt: ZonedDateTime,
-        val cost: BigDecimal
+    @Indexed
+    val targetUserId: String,
+    val type: UserInteractionType,
+    val createdAt: ZonedDateTime,
+    val cost: BigDecimal
 )

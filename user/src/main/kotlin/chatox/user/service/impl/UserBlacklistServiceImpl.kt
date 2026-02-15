@@ -27,13 +27,15 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 @Service
-class UserBlacklistServiceImpl(private val userBlacklistRepository: UserBlacklistRepository,
-                               private val userRepository: UserRepository,
-                               private val userService: UserService,
-                               private val userReactiveRepositoryCacheWrapper: UserReactiveRepositoryCacheWrapper,
-                               private val blacklistEventsProducer: BlacklistEventsProducer,
-                               private val userMapper: UserMapper,
-                               private val authenticationHolder: ReactiveAuthenticationHolder<User>) : UserBlacklistService {
+class UserBlacklistServiceImpl(
+    private val userBlacklistRepository: UserBlacklistRepository,
+    private val userRepository: UserRepository,
+    private val userService: UserService,
+    private val userReactiveRepositoryCacheWrapper: UserReactiveRepositoryCacheWrapper,
+    private val blacklistEventsProducer: BlacklistEventsProducer,
+    private val userMapper: UserMapper,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>
+) : UserBlacklistService {
 
     override fun blacklistUser(userId: String): Flux<UserResponse> {
         return mono {
@@ -41,32 +43,38 @@ class UserBlacklistServiceImpl(private val userBlacklistRepository: UserBlacklis
             val usersIds = blacklist.entries.map { entry -> entry.userId }.toMutableList()
 
             val blacklistedUser = userReactiveRepositoryCacheWrapper.findById(userId).awaitFirstOrNull()
-                    ?: throw UserNotFoundException("Could not find user with id $userId")
+                ?: throw UserNotFoundException("Could not find user with id $userId")
 
             if (usersIds.contains(userId)) {
                 throw UserHasAlreadyBeenBlacklistedException("User with id $userId has already been blacklisted")
             }
 
             val newEntries = blacklist.entries.toMutableList()
-            newEntries.add(UserBlacklistEntry(
+            newEntries.add(
+                UserBlacklistEntry(
                     userId = blacklistedUser.id,
                     createdAt = ZonedDateTime.now()
-            ))
+                )
+            )
 
             userBlacklistRepository.save(blacklist.copy(entries = newEntries)).awaitFirst()
 
             val users = userRepository.findAllById(usersIds).collectList().awaitFirst()
 
             val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
-            Mono.fromRunnable<Unit> { blacklistEventsProducer.userAddedToBlacklist(UserAddedToBlacklist(
-                    userId = userId,
-                    addedById = currentUser.id
-            )) }
-                    .awaitFirstOrNull()
+            Mono.fromRunnable<Unit> {
+                blacklistEventsProducer.userAddedToBlacklist(
+                    UserAddedToBlacklist(
+                        userId = userId,
+                        addedById = currentUser.id
+                    )
+                )
+            }
+                .awaitFirstOrNull()
 
             return@mono Flux.fromIterable(users.map { user -> userMapper.toUserResponse(user) })
         }
-                .flatMapMany { it }
+            .flatMapMany { it }
     }
 
     override fun removeUserFromBlackList(userId: String): Flux<UserResponse> {
@@ -76,17 +84,23 @@ class UserBlacklistServiceImpl(private val userBlacklistRepository: UserBlacklis
 
             userBlacklistRepository.save(blacklist.copy(entries = newEntries)).awaitFirst()
 
-            val users = userRepository.findAllById(newEntries.map { entry -> entry.userId }.toMutableList()).collectList().awaitFirst()
+            val users =
+                userRepository.findAllById(newEntries.map { entry -> entry.userId }.toMutableList()).collectList()
+                    .awaitFirst()
 
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            Mono.fromRunnable<Unit> { blacklistEventsProducer.userRemovedFromBlacklist(UserRemovedFromBlacklist(
-                    userId = userId,
-                    removedById = currentUser.id
-            )) }
+            Mono.fromRunnable<Unit> {
+                blacklistEventsProducer.userRemovedFromBlacklist(
+                    UserRemovedFromBlacklist(
+                        userId = userId,
+                        removedById = currentUser.id
+                    )
+                )
+            }
 
             return@mono Flux.fromIterable(users.map { user -> userMapper.toUserResponse(user) })
         }
-                .flatMapMany { it }
+            .flatMapMany { it }
     }
 
     override fun getBlacklistOfCurrentUser(): Flux<UserResponse> {
@@ -96,7 +110,7 @@ class UserBlacklistServiceImpl(private val userBlacklistRepository: UserBlacklis
 
             return@mono Flux.fromIterable(users.map { user -> userMapper.toUserResponse(user) })
         }
-                .flatMapMany { it }
+            .flatMapMany { it }
     }
 
     override fun getBlacklistStatus(userId: String): Mono<BlacklistStatusResponse> {
@@ -126,21 +140,23 @@ class UserBlacklistServiceImpl(private val userBlacklistRepository: UserBlacklis
     }
 
     private fun getBlacklistOfUserOrCreate(userId: String): Mono<UserBlacklist> {
-       return mono {
-           val userBlacklist = userBlacklistRepository.findByUserId(userId).awaitFirstOrNull()
+        return mono {
+            val userBlacklist = userBlacklistRepository.findByUserId(userId).awaitFirstOrNull()
 
-           if (userBlacklist == null) {
-               userService.assertUserExists(userId).awaitFirstOrNull()
+            if (userBlacklist == null) {
+                userService.assertUserExists(userId).awaitFirstOrNull()
 
-               return@mono userBlacklistRepository.save(UserBlacklist(
-                       id = UUID.randomUUID().toString(),
-                       entries = mutableListOf(),
-                       userId = userId
-               ))
-                       .awaitFirst()
-           } else {
-               return@mono userBlacklist
-           }
-       }
+                return@mono userBlacklistRepository.save(
+                    UserBlacklist(
+                        id = UUID.randomUUID().toString(),
+                        entries = mutableListOf(),
+                        userId = userId
+                    )
+                )
+                    .awaitFirst()
+            } else {
+                return@mono userBlacklist
+            }
+        }
     }
 }

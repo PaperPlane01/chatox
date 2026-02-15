@@ -6,6 +6,6 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import reactor.core.publisher.Mono
 
 interface UserInteractionsCountRepository : ReactiveMongoRepository<UserInteractionsCount, String>,
-        UserInteractionsCountCustomRepository {
+    UserInteractionsCountCustomRepository {
     fun findByUserId(userId: String): Mono<UserInteractionsCount>
 }

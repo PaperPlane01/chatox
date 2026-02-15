@@ -8,14 +8,14 @@ import java.time.ZonedDateTime
 
 @Document
 data class Balance(
-        @Id
-        val id: String,
+    @Id
+    val id: String,
 
-        @Indexed
-        val currency: Currency,
-        val amount: BigDecimal,
-        val lastChange: ZonedDateTime? = null,
+    @Indexed
+    val currency: Currency,
+    val amount: BigDecimal,
+    val lastChange: ZonedDateTime? = null,
 
-        @Indexed
-        val userId: String
+    @Indexed
+    val userId: String
 )

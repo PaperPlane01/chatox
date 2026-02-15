@@ -9,14 +9,14 @@ import org.springframework.stereotype.Component
 class BlacklistEventsProducer(private val rabbitTemplate: RabbitTemplate) {
 
     fun userAddedToBlacklist(userAddedToBlacklist: UserAddedToBlacklist) = rabbitTemplate.convertAndSend(
-            "user.events",
-            "user.blacklist.added.#",
-            userAddedToBlacklist
+        "user.events",
+        "user.blacklist.added.#",
+        userAddedToBlacklist
     )
 
     fun userRemovedFromBlacklist(userRemovedFromBlacklist: UserRemovedFromBlacklist) = rabbitTemplate.convertAndSend(
-            "user.events",
-            "user.blacklist.removed.#",
-            userRemovedFromBlacklist
+        "user.events",
+        "user.blacklist.removed.#",
+        userRemovedFromBlacklist
     )
 }

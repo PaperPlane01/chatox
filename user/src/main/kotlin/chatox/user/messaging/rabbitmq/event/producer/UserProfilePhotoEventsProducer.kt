@@ -8,14 +8,14 @@ import org.springframework.stereotype.Component
 class UserProfilePhotoEventsProducer(private val rabbitTemplate: RabbitTemplate) {
 
     fun userProfilePhotoCreated(userProfilePhoto: UserProfilePhotoResponse) = rabbitTemplate.convertAndSend(
-            "user.events",
-            "user.photo.created.#",
-            userProfilePhoto
+        "user.events",
+        "user.photo.created.#",
+        userProfilePhoto
     )
 
     fun userProfilePhotoDeleted(userProfilePhotoResponse: UserProfilePhotoResponse) = rabbitTemplate.convertAndSend(
-            "user.events",
-            "user.photo.deleted.#",
-            userProfilePhotoResponse
+        "user.events",
+        "user.photo.deleted.#",
+        userProfilePhotoResponse
     )
 }
