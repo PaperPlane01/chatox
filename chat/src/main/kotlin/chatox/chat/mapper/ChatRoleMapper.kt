@@ -31,23 +31,15 @@ class ChatRoleMapper(
         localUsersCache: MutableMap<String, UserResponse> = mutableMapOf()
     ): Mono<ChatRoleResponse> {
         return mono {
-            val createdBy: UserResponse? = if (chatRole.createdBy == null) {
-                null
-            } else {
-                localUsersCache[chatRole.createdBy]
-                    ?: userService.findUserByIdAndPutInLocalCache(chatRole.createdBy, localUsersCache).awaitFirst()
-            }
-            val updatedBy = if (chatRole.updatedBy == null) {
-                null
-            } else {
-                localUsersCache[chatRole.updatedBy]
-                    ?: userService.findUserByIdAndPutInLocalCache(chatRole.updatedBy, localUsersCache).awaitFirst()
-            }
-
             return@mono toChatRoleResponse(
                 chatRole = chatRole,
-                createdBy = createdBy,
-                updatedBy = updatedBy
+                createdBy = chatRole.createdBy?.let {
+                    userService.findUserByIdAndPutInLocalCache(it, localUsersCache)
+                        .awaitFirst()
+                },
+                updatedBy = chatRole.updatedBy?.let {
+                    userService.findUserByIdAndPutInLocalCache(it, localUsersCache).awaitFirst()
+                }
             )
         }
     }

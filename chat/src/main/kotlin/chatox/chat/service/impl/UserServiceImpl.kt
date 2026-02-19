@@ -31,7 +31,7 @@ class UserServiceImpl(
                 userCacheService.put(user).subscribe()
             }
 
-            return@mono userMapper.toUserResponse(user!!)
+            return@mono userMapper.toUserResponse(user)
         }
     }
 
@@ -40,20 +40,12 @@ class UserServiceImpl(
         localCache: MutableMap<String, UserResponse>?
     ): Mono<UserResponse> {
         return mono {
-            if (id == null) {
-                return@mono null
-            }
-
-            if (localCache != null && localCache.containsKey(id)) {
-                return@mono localCache[id]!!
-            } else {
-                val user = findUserById(id).awaitFirst()
-
-                if (localCache != null) {
-                    localCache[id] = user
-                }
-
-                return@mono user
+            return@mono id?.let { userId ->
+                localCache
+                    ?.get(userId)
+                    ?: findUserById(userId).awaitFirst().also {
+                        localCache?.put(userId, it)
+                    }
             }
         }
     }
@@ -64,7 +56,7 @@ class UserServiceImpl(
     ): Flux<UserResponse> {
         return mono {
             if (ids.isEmpty()) {
-                return@mono listOf<UserResponse>()
+                return@mono listOf()
             }
 
             val users = localCache

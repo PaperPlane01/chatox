@@ -1,5 +1,6 @@
 package chatox.user.service.impl
 
+import chatox.platform.util.runAsync
 import chatox.user.api.request.CreateUserProfilePhotoRequest
 import chatox.user.api.request.DeleteMultipleUserProfilePhotosRequest
 import chatox.user.api.request.SetUserProfilePhotoAsAvatarRequest
@@ -135,12 +136,11 @@ class UserProfilePhotoServiceImpl(
                     .awaitFirst()
             }
 
-            Mono.fromRunnable<Unit> {
+            runAsync {
                 userProfilePhotoEventsProducer.userProfilePhotoDeleted(
                     userProfilePhotoMapper.toUserProfilePhotoResponse(userProfilePhoto)
                 )
             }
-                .subscribe()
 
             return@mono
         }
@@ -211,14 +211,13 @@ class UserProfilePhotoServiceImpl(
 
             userProfilePhotoRepository.deleteAll(userProfilePhotos).awaitFirstOrNull()
 
-            Mono.fromRunnable<Unit> {
+            runAsync {
                 userProfilePhotos.forEach {
                     userProfilePhotoEventsProducer.userProfilePhotoDeleted(
                         userProfilePhotoMapper.toUserProfilePhotoResponse(it)
                     )
                 }
             }
-                .subscribe()
 
             val containsAvatar = user.avatar != null && userProfilePhotos.any { it.upload.id == user.avatar.id }
             if (containsAvatar) {

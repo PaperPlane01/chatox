@@ -17,7 +17,7 @@ class UploadMapper(private val uploadsProperties: ChatoxUploadsConfigProperties)
         extension = upload.extension,
         mimeType = upload.mimeType,
         meta = upload.meta,
-        preview = if (upload.imagePreview != null) toUploadResponse(upload.imagePreview) else null,
+        preview = upload.imagePreview?.let(::toUploadResponse),
         uri = uploadsProperties.getUploadUrl(upload.type, upload.name),
         originalName = upload.originalName,
         size = upload.size
@@ -28,7 +28,7 @@ class UploadMapper(private val uploadsProperties: ChatoxUploadsConfigProperties)
         preview: UploadCreated<ImageUploadMetadata>? = null
     ): Upload<MetadataType> = Upload(
         id = uploadCreated.id,
-        imagePreview = if (preview != null) fromUploadCreated(preview) else null,
+        imagePreview = preview?.let(::fromUploadCreated),
         meta = uploadCreated.meta,
         extension = uploadCreated.extension,
         name = uploadCreated.name,

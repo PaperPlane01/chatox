@@ -24,40 +24,25 @@ class ChatBlockingMapper(private val userService: UserService) {
         localUserCache: MutableMap<String, UserResponse>? = null
     ): Mono<ChatBlockingResponse> {
         return mono {
-            val blockedUser = userService.findUserByIdAndPutInLocalCache(chatBlocking.blockedUserId, localUserCache)
-                .awaitFirst()
-
-            val blockedBy: UserResponse =
-                userService.findUserByIdAndPutInLocalCache(chatBlocking.blockedById, localUserCache)
-                    .awaitFirst()
-
-            var canceledBy: UserResponse? = null
-            var lastModifiedBy: UserResponse? = null
-
-            if (chatBlocking.canceledById != null) {
-                canceledBy = userService.findUserByIdAndPutInLocalCache(chatBlocking.canceledById!!, localUserCache)
-                    .awaitFirst()
-            }
-
-            if (chatBlocking.lastModifiedById != null) {
-                lastModifiedBy =
-                    userService.findUserByIdAndPutInLocalCache(chatBlocking.lastModifiedById!!, localUserCache)
-                        .awaitFirst()
-            }
-
-            ChatBlockingResponse(
+            return@mono ChatBlockingResponse(
                 id = chatBlocking.id,
                 chatId = chatBlocking.chatId,
                 canceledAt = chatBlocking.canceledAt,
                 canceled = chatBlocking.canceled,
                 createdAt = chatBlocking.createdAt,
-                canceledBy = canceledBy,
+                blockedUser = userService.findUserByIdAndPutInLocalCache(chatBlocking.blockedUserId, localUserCache)
+                    .awaitFirst(),
+                blockedBy = userService.findUserByIdAndPutInLocalCache(chatBlocking.blockedById, localUserCache)
+                    .awaitFirst(),
+                canceledBy = chatBlocking.canceledById?.let {
+                    userService.findUserByIdAndPutInLocalCache(it, localUserCache).awaitFirst()
+                },
                 description = chatBlocking.description,
                 lastModifiedAt = chatBlocking.lastModifiedAt,
-                lastModifiedBy = lastModifiedBy,
-                blockedUser = blockedUser,
+                lastModifiedBy = chatBlocking.lastModifiedById?.let {
+                    userService.findUserByIdAndPutInLocalCache(it, localUserCache).awaitFirst()
+                },
                 blockedUntil = chatBlocking.blockedUntil,
-                blockedBy = blockedBy
             )
         }
     }

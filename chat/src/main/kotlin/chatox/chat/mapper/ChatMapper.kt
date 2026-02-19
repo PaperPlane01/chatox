@@ -40,8 +40,8 @@ class ChatMapper(
         onlineParticipantsCount = chatParticipantsCount?.onlineParticipantsCount,
         createdByCurrentUser = null,
         tags = chat.tags,
-        avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
-        user = if (user != null) userMapper.toUserResponse(user) else null,
+        avatar = chat.avatar?.let(uploadMapper::toUploadResponse),
+        user = user?.let(userMapper::toUserResponse),
         type = chat.type,
         slowMode = chat.slowMode,
         joinAllowanceSettings = chat.joinAllowanceSettings,
@@ -63,9 +63,9 @@ class ChatMapper(
         onlineParticipantsCount = chatParticipantsCount?.onlineParticipantsCount,
         createdByCurrentUser = chat.createdById == currentUserId,
         tags = chat.tags,
-        avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
+        avatar = chat.avatar?.let(uploadMapper::toUploadResponse),
         type = chat.type,
-        user = if (user != null) userMapper.toUserResponse(user) else null,
+        user = user?.let(userMapper::toUserResponse),
         slowMode = chat.slowMode,
         joinAllowanceSettings = chat.joinAllowanceSettings,
         hideFromSearch = chat.hideFromSearch
@@ -135,7 +135,6 @@ class ChatMapper(
                 draftMessage = draftMessageMapped,
                 unreadMessagesCount = unreadMessagesCount,
                 unreadMentionsCount = unreadMentionsCount,
-                localUsersCache = localUsersCache,
                 chatParticipantsCount = chatParticipantsCount
             ).awaitFirst()
         }
@@ -153,12 +152,6 @@ class ChatMapper(
         chatParticipantsCount: ChatParticipantsCount? = null
     ): Mono<ChatOfCurrentUserResponse> {
         return mono {
-            val userMapped = if (user != null) {
-                userMapper.toUserResponse(user)
-            } else {
-                null
-            }
-
             return@mono toChatOfCurrentUserResponse(
                 chat = chat,
                 chatParticipation = chatParticipation,
@@ -167,7 +160,7 @@ class ChatMapper(
                 draftMessage = draftMessage,
                 unreadMessagesCount = unreadMessagesCount,
                 unreadMentionsCount = unreadMentionsCount,
-                user = userMapped,
+                user = user?.let(userMapper::toUserResponse),
                 chatParticipantsCount = chatParticipantsCount
             ).awaitFirst()
         }
@@ -181,7 +174,6 @@ class ChatMapper(
         draftMessage: MessageResponse?,
         unreadMessagesCount: Long,
         unreadMentionsCount: Long,
-        localUsersCache: MutableMap<String, UserResponse>? = null,
         user: UserResponse? = null,
         chatParticipantsCount: ChatParticipantsCount? = null
     ): Mono<ChatOfCurrentUserResponse> {
@@ -235,7 +227,7 @@ class ChatMapper(
         avatarUri = chat.avatarUri,
         createdByCurrentUser = false,
         tags = chat.tags,
-        avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar!!) else null,
+        avatar = chat.avatar?.let(uploadMapper::toUploadResponse),
         createdById = chat.createdById,
         type = chat.type,
         slowMode = chat.slowMode,
@@ -244,7 +236,7 @@ class ChatMapper(
 
     fun toChatUpdated(chat: Chat) = ChatUpdated(
         id = chat.id,
-        avatar = if (chat.avatar != null) uploadMapper.toUploadResponse(chat.avatar) else null,
+        avatar = chat.avatar?.let(uploadMapper::toUploadResponse),
         description = chat.description,
         avatarUri = chat.avatarUri,
         createdAt = chat.createdAt,

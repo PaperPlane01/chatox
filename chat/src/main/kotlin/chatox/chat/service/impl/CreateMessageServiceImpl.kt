@@ -659,11 +659,8 @@ class CreateMessageServiceImpl(
                 sticker = findStickerById(createMessageRequest.stickerId).awaitFirst()
             }
 
-            var referredMessage: Message? = null
-
-            if (createMessageRequest.referredMessageId != null) {
-                referredMessage = messageEntityService.findMessageEntityById(createMessageRequest.referredMessageId)
-                    .awaitFirst()
+            val referredMessage = createMessageRequest.referredMessageId?.let {
+                messageEntityService.findMessageEntityById(it).awaitFirst()
             }
 
             val textInfo = getTextInfo(createMessageRequest.text, createMessageRequest.emojisSet).awaitFirst()

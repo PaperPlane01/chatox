@@ -58,7 +58,7 @@ class StickerPackServiceImpl(
             val previewId = createStickerPackRequest.previewId ?: createStickerPackRequest.stickers[0].uploadId
             val stickerPackPreview = uploadRepository.findById(previewId)
                 .filter { upload -> UploadType.isStickerUploadType(upload.type) }
-                .awaitFirst()
+                .awaitFirstOrNull()
                 ?: throw UploadsNotFoundException(listOf(previewId))
             val stickerPackId = ObjectId().toHexString()
             val stickers = createStickers(

@@ -166,12 +166,7 @@ class MessageReadServiceImpl(
         lastMessageId: String?
     ): Mono<UnreadMessagesCount> {
         return mono {
-            val lastMessage = if (lastMessageId != null) {
-                messageCacheWrapper.findById(lastMessageId).awaitFirst()
-            } else {
-                null
-            }
-
+            val lastMessage = lastMessageId?.let { messageCacheWrapper.findById(lastMessageId).awaitFirst() }
             return@mono initializeUnreadMessagesCount(chatParticipation, lastMessage).awaitFirst()
         }
     }
@@ -181,17 +176,12 @@ class MessageReadServiceImpl(
         lastMessage: Message?
     ): Mono<UnreadMessagesCount> {
         return mono {
-            val message = if (lastMessage != null) {
-                lastMessage
-            } else {
-                val chat = chatCacheWrapper.findById(chatParticipation.chatId).awaitFirstOrNull()
-
-                if (chat?.lastMessageId == null) {
-                    null
-                } else {
-                    messageCacheWrapper.findById(chat.lastMessageId).awaitFirst()
-                }
-            }
+            val message = lastMessage ?: chatCacheWrapper
+                .findById(chatParticipation.chatId)
+                .map { it.lastMessageId }
+                .filter { it != null }
+                .flatMap { messageCacheWrapper.findById(it) }
+                .awaitFirstOrNull()
 
             val unreadMessagesCount = UnreadMessagesCount(
                 id = ObjectId().toHexString(),

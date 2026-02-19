@@ -342,37 +342,12 @@ class MessagePermissions(
             }
 
             val uploadsCount = getUploadsCount(createMessageRequest.uploadAttachments).awaitFirst()
-
-            val stickerCheck = if (createMessageRequest.stickerId != null) {
-                messageFeatures.allowedToSendStickers
-            } else {
-                true
-            }
-            val imageCheck = if (uploadsCount.images != 0) {
-                messageFeatures.allowedToSendImages
-            } else {
-                true
-            }
-            val audioCheck = if (uploadsCount.audios != 0) {
-                messageFeatures.allowedToSendAudios
-            } else {
-                true
-            }
-            val voiceMessageCheck = if (uploadsCount.voiceMessages != 0) {
-                messageFeatures.allowedToSendVoiceMessages
-            } else {
-                true
-            }
-            val fileCheck = if (uploadsCount.files != 0) {
-                messageFeatures.allowedToSendFiles
-            } else {
-                true
-            }
-            val videoCheck = if (uploadsCount.videos != 0) {
-                messageFeatures.allowedToSendVideos
-            } else {
-                true
-            }
+            val stickerCheck = createMessageRequest.stickerId == null || messageFeatures.allowedToSendStickers
+            val imageCheck = uploadsCount.images == 0 || messageFeatures.allowedToSendImages
+            val audioCheck = uploadsCount.audios == 0 || messageFeatures.allowedToSendAudios
+            val voiceMessageCheck = uploadsCount.voiceMessages == 0 || messageFeatures.allowedToSendVoiceMessages
+            val fileCheck = uploadsCount.files == 0 || messageFeatures.allowedToSendFiles
+            val videoCheck = uploadsCount.videos == 0 || messageFeatures.allowedToSendVideos
 
             return@mono stickerCheck && imageCheck && audioCheck && voiceMessageCheck && fileCheck && videoCheck
         }
@@ -385,23 +360,17 @@ class MessagePermissions(
             }
 
             val uploads = uploadRepository.findAllById<Any>(uploadsIds).collectList().awaitFirst()
-            val uploadsCountMap = mutableMapOf(
-                Pair(UploadType.IMAGE, 0),
-                Pair(UploadType.AUDIO, 0),
-                Pair(UploadType.FILE, 0),
-                Pair(UploadType.VIDEO, 0),
-                Pair(UploadType.VOICE_MESSAGE, 0)
-            )
+            val uploadsCountMap = mutableMapOf<UploadType, Int>()
 
             for (upload in uploads) {
-                uploadsCountMap[upload.type] = uploadsCountMap[upload.type]!! + 1
+                uploadsCountMap[upload.type] = (uploadsCountMap[upload.type] ?: 0) + 1
             }
 
             return@mono MessageUploadsCount(
-                images = uploadsCountMap[UploadType.IMAGE]!!,
-                audios = uploadsCountMap[UploadType.AUDIO]!!,
-                files = uploadsCountMap[UploadType.FILE]!!,
-                videos = uploadsCountMap[UploadType.VIDEO]!!
+                images = uploadsCountMap[UploadType.IMAGE] ?: 0,
+                audios = uploadsCountMap[UploadType.AUDIO] ?: 0,
+                files = uploadsCountMap[UploadType.FILE] ?: 0,
+                videos = uploadsCountMap[UploadType.VIDEO] ?: 0
             )
         }
     }

@@ -1,6 +1,7 @@
 package chatox.user.service.impl
 
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.util.runAsync
 import chatox.user.api.response.BlacklistStatusResponse
 import chatox.user.api.response.UserResponse
 import chatox.user.cache.UserReactiveRepositoryCacheWrapper
@@ -62,7 +63,7 @@ class UserBlacklistServiceImpl(
             val users = userRepository.findAllById(usersIds).collectList().awaitFirst()
 
             val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
-            Mono.fromRunnable<Unit> {
+            runAsync {
                 blacklistEventsProducer.userAddedToBlacklist(
                     UserAddedToBlacklist(
                         userId = userId,
@@ -70,7 +71,6 @@ class UserBlacklistServiceImpl(
                     )
                 )
             }
-                .awaitFirstOrNull()
 
             return@mono Flux.fromIterable(users.map { user -> userMapper.toUserResponse(user) })
         }
@@ -89,7 +89,7 @@ class UserBlacklistServiceImpl(
                     .awaitFirst()
 
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            Mono.fromRunnable<Unit> {
+            runAsync {
                 blacklistEventsProducer.userRemovedFromBlacklist(
                     UserRemovedFromBlacklist(
                         userId = userId,
