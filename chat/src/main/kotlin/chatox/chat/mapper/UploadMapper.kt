@@ -18,7 +18,7 @@ class UploadMapper(private val uploadConfig: ChatoxUploadsConfigProperties) {
         extension = upload.extension,
         mimeType = upload.mimeType,
         meta = upload.meta,
-        preview = if (upload.imagePreview != null) toUploadResponse(upload.imagePreview) else null,
+        preview = upload.imagePreview?.let(::toUploadResponse),
         uri = uploadConfig.getUploadUrl(upload.type, upload.name),
         originalName = upload.originalName,
         size = upload.size

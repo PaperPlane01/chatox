@@ -114,7 +114,8 @@ class CreateMessageServiceTests {
             chatParticipationService,
             authenticationHolder,
             messageMapper,
-            chatEventsPublisher
+            chatEventsPublisher,
+            messageEntityService
         )
     }
 

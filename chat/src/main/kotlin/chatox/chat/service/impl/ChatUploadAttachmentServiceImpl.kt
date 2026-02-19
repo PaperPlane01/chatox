@@ -124,17 +124,8 @@ class ChatUploadAttachmentServiceImpl(
             .flatMapMany { it }
     }
 
-    private fun getUnreadMessagesCount(chatId: String): Mono<UnreadMessagesCount> {
-        return mono {
-            val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull()
-
-            return@mono if (currentUser != null) {
-                unreadMessagesCountRepository.findByChatIdAndUserId(chatId, currentUser.id).awaitFirstOrNull()
-            } else {
-                null
-            }
-        }
-    }
+    private fun getUnreadMessagesCount(chatId: String): Mono<UnreadMessagesCount> = authenticationHolder.currentUserDetails
+        .flatMap { user -> unreadMessagesCountRepository.findByChatIdAndUserId(chatId, user.id) }
 
     override fun deleteChatUploadAttachment(id: String, chatId: String): Mono<Unit> {
         return mono {

@@ -94,11 +94,7 @@ class ChatParticipationServiceImpl(
                 throw JoinChatRejectedException(JoinChatRejectionReason.AWAITING_APPROVAL)
             }
 
-            var invite: ChatInvite? = null
-
-            if (inviteId != null) {
-                invite = findAndCheckInvite(chatId, inviteId).awaitFirst()
-            }
+            val invite = inviteId?.let { findAndCheckInvite(chatId, it).awaitFirst() }
 
             val chatParticipation = chatParticipationRepository.findByChatIdAndUserIdAndDeletedTrue(
                 chatId = chat.id,
@@ -106,11 +102,10 @@ class ChatParticipationServiceImpl(
             )
                 .awaitFirstOrNull()
 
-            val allowance = if (invite != null) {
-                JoinChatAllowance.getAllowance(currentUser.verificationLevel, invite.joinAllowanceSettings)
-            } else {
-                JoinChatAllowance.getAllowance(currentUser.verificationLevel, chat.joinAllowanceSettings)
-            }
+            val allowance = JoinChatAllowance.getAllowance(
+                currentUser.verificationLevel,
+                invite?.joinAllowanceSettings ?: chat.joinAllowanceSettings
+            )
 
             when (allowance) {
                 JoinChatAllowance.ALLOWED -> return@mono createChatParticipation(

@@ -32,6 +32,7 @@ import chatox.chat.service.MessageService
 import chatox.chat.service.TextParserService
 import chatox.chat.util.NTuple2
 import chatox.chat.util.mapTo2Lists
+import chatox.chat.util.runAsync
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
@@ -237,11 +238,11 @@ class MessageServiceImpl(
                 mentionedUsers = mentionedUsers
             )
 
-            return@mono MessageUpdateResult<T>(
+            return@mono MessageUpdateResult(
                 initialMessage = message,
                 updatedMessage = updatedMessage,
-                newChatUploadAttachments = newChatUploads ?: listOf<ChatUploadAttachment<*>>(),
-                chatUploadsAttachmentsToRemove = chatUploadsToRemove ?: listOf<ChatUploadAttachment<*>>(),
+                newChatUploadAttachments = newChatUploads ?: listOf(),
+                chatUploadsAttachmentsToRemove = chatUploadsToRemove ?: listOf(),
                 newMentionedChatParticipants = newMentionedChatParticipants,
                 unmentionedChatParticipants = unmentionedChatParticipants
             )
@@ -297,10 +298,8 @@ class MessageServiceImpl(
             val chat = findChatById(chatId).awaitFirst()
             val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull()
             val messages = messageRepository.findByChatId(chat.id, paginationRequest.toPageRequest())
-            val unreadMessagesCount = if (currentUser != null) {
-                unreadMessagesCountRepository.findByChatIdAndUserId(chatId, currentUser.id).awaitFirstOrNull()
-            } else {
-                null
+            val unreadMessagesCount = currentUser?.let {
+                unreadMessagesCountRepository.findByChatIdAndUserId(chatId, it.id).awaitFirstOrNull()
             }
 
             return@mono mapMessages(messages, unreadMessagesCount, chat.lastMessageReadByAnyoneCreatedAt)
@@ -322,10 +321,8 @@ class MessageServiceImpl(
                 date = cursorMessage.createdAt,
                 pageable = paginationRequest.toPageRequest()
             )
-            val unreadMessagesCount = if (currentUser != null) {
-                unreadMessagesCountRepository.findByChatIdAndUserId(chatId, currentUser.id).awaitFirstOrNull()
-            } else {
-                null
+            val unreadMessagesCount = currentUser?.let {
+                unreadMessagesCountRepository.findByChatIdAndUserId(chatId, it.id).awaitFirstOrNull()
             }
 
             return@mono mapMessages(messages, unreadMessagesCount, chat.lastMessageReadByAnyoneCreatedAt)
@@ -347,10 +344,8 @@ class MessageServiceImpl(
                 date = cursorMessage.createdAt,
                 pageable = paginationRequest.toPageRequest()
             )
-            val unreadMessagesCount = if (currentUser != null) {
-                unreadMessagesCountRepository.findByChatIdAndUserId(chatId, currentUser.id).awaitFirstOrNull()
-            } else {
-                null
+            val unreadMessagesCount = currentUser?.let {
+                unreadMessagesCountRepository.findByChatIdAndUserId(chatId, it.id).awaitFirstOrNull()
             }
 
             return@mono mapMessages(messages, unreadMessagesCount, chat.lastMessageReadByAnyoneCreatedAt)
@@ -386,7 +381,7 @@ class MessageServiceImpl(
             )
                 .awaitFirst()
 
-            Mono.fromRunnable<Unit> { chatEventsPublisher.messagePinned(messageResponse) }.subscribe()
+            runAsync { chatEventsPublisher.messagePinned(messageResponse) }
 
             return@mono messageResponse
         }
@@ -406,7 +401,7 @@ class MessageServiceImpl(
             )
                 .awaitFirst()
 
-            Mono.fromRunnable<Void> { chatEventsPublisher.messageUnpinned(messageResponse) }.subscribe()
+            runAsync { chatEventsPublisher.messageUnpinned(messageResponse) }
 
             return@mono messageResponse
         }

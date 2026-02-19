@@ -46,7 +46,6 @@ class UploadServiceImpl(
             log.info("Saving upload ${uploadCreated.name}")
 
             var preview: Upload<ImageUploadMetadata>? = null
-            var user: User? = null
 
             if (uploadCreated.previewImage != null) {
                 log.info("Saving preview of ${uploadCreated.name}")
@@ -58,16 +57,13 @@ class UploadServiceImpl(
                 preview = uploadRepository.save(preview).awaitFirst()
             }
 
-            if (uploadCreated.userId != null) {
-                user = userRepository.findById(uploadCreated.userId).awaitFirstOrNull()
-            }
-
-            var upload = uploadMapper.fromUploadCreated(
+            val user = uploadCreated.userId?.let { userRepository.findById(it).awaitFirstOrNull() }
+            val upload = uploadMapper.fromUploadCreated(
                 uploadCreated = uploadCreated,
                 preview = preview,
                 user = user
             )
-            upload = uploadRepository.save(upload).awaitFirst()
+            uploadRepository.save(upload).awaitFirst()
 
             log.info("Upload ${uploadCreated.name} has been saved")
 

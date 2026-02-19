@@ -51,6 +51,7 @@ import chatox.chat.service.ChatRoleService
 import chatox.chat.service.ChatService
 import chatox.chat.service.CreateMessageService
 import chatox.chat.service.MessageReadService
+import chatox.chat.util.runAsync
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
@@ -361,16 +362,12 @@ class ChatServiceImpl(
         }
     }
 
-    private fun getSlowModeSettings(updateChatRequest: UpdateChatRequest): SlowMode? {
-        return if (updateChatRequest.slowMode == null) {
-            null
-        } else {
-            SlowMode(
-                enabled = updateChatRequest.slowMode.enabled,
-                interval = updateChatRequest.slowMode.interval,
-                unit = updateChatRequest.slowMode.unit
-            )
-        }
+    private fun getSlowModeSettings(updateChatRequest: UpdateChatRequest): SlowMode? = updateChatRequest.slowMode?.let {
+        SlowMode(
+            unit = it.unit,
+            interval = it.interval,
+            enabled = it.enabled,
+        )
     }
 
     override fun updateChat(chat: Chat): Mono<ChatResponse> {
@@ -469,11 +466,7 @@ class ChatServiceImpl(
                 val otherUserChatParticipation = chatParticipants
                     .firstOrNull { chatParticipation -> chatParticipation.user.id != currentUser.id }
 
-                otherUser = if (otherUserChatParticipation != null) {
-                    userCacheWrapper.findById(otherUserChatParticipation.user.id).awaitFirst()
-                } else {
-                    currentUser
-                }
+                otherUser = otherUserChatParticipation?.let { userCacheWrapper.findById(it.id).awaitFirst() }
             }
 
             val chatParticipantsCount = if (chat.type == ChatType.DIALOG) {
@@ -687,13 +680,7 @@ class ChatServiceImpl(
                 .awaitFirst()
             val chatIds = participantsCount.keys.toList()
             val chats = chatByIdCacheWrapper.findByIds(chatIds).collectList().awaitFirst()
-
-            val currentUser = authenticationHolder.currentUser.awaitFirstOrNull()
-            var currentUserId: String? = null
-
-            if (currentUser != null) {
-                currentUserId = currentUser.id
-            }
+            val currentUserId = authenticationHolder.currentUserDetails.awaitFirstOrNull()?.id
 
             return@mono chats.map { chat ->
                 chatMapper.toChatResponse(
@@ -736,16 +723,13 @@ class ChatServiceImpl(
 
             chatRepository.saveAll(chats).collectList().awaitFirst()
             chats.forEach { chat ->
-                Mono.fromRunnable<Void> {
-                    chatEventsPublisher.chatDeleted(
-                        ChatDeleted(
-                            id = chat.id,
-                            comment = chat.chatDeletion?.comment,
-                            reason = chat.chatDeletion?.deletionReason
-                        )
+                runAsync { chatEventsPublisher.chatDeleted(
+                    ChatDeleted(
+                        id = chat.id,
+                        comment = chat.chatDeletion?.comment,
+                        reason = chat.chatDeletion?.deletionReason
                     )
-                }
-                    .subscribe()
+                ) }
             }
 
             return@mono

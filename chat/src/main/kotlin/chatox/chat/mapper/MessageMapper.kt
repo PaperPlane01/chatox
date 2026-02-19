@@ -67,7 +67,6 @@ class MessageMapper(
                         )
                     },
                     mapReferredMessage = true,
-                    lastReadMessageCreatedAt = lastReadMessageCreatedAt,
                     cache = cache
                 )
             }
@@ -85,7 +84,6 @@ class MessageMapper(
                         )
                     },
                     mapReferredMessage = true,
-                    lastReadMessageCreatedAt = lastReadMessageCreatedAt,
                     cache = cache
                 )
             }
@@ -97,7 +95,6 @@ class MessageMapper(
         mapReferredMessage: Boolean,
         readByCurrentUser: Boolean,
         readByAnyone: Boolean = false,
-        lastReadMessageCreatedAt: ZonedDateTime? = null,
         cache: MessageDataLocalCache? = null
     ): Mono<MessageResponse> {
         return mono {
@@ -144,11 +141,7 @@ class MessageMapper(
                 pinned = message.pinned,
                 pinnedAt = message.pinnedAt,
                 pinnedBy = pinnedBy,
-                sticker = if (message.sticker != null) {
-                    stickerMapper.toStickerResponse(message.sticker!!)
-                } else {
-                    null
-                },
+                sticker = message.sticker?.let(stickerMapper::toStickerResponse),
                 scheduledAt = message.scheduledAt,
                 senderChatRole = chatRole,
                 forwarded = message.forwardedFromMessageId != null,
@@ -223,11 +216,7 @@ class MessageMapper(
                 pinned = message.pinned,
                 pinnedAt = message.pinnedAt,
                 pinnedBy = pinnedBy,
-                sticker = if (message.sticker != null) {
-                    stickerMapper.toStickerResponse(message.sticker!!)
-                } else {
-                    null
-                },
+                sticker = message.sticker?.let(stickerMapper::toStickerResponse),
                 scheduledAt = message.scheduledAt,
                 senderChatRole = chatRole,
                 fromScheduled = fromScheduled,
@@ -252,7 +241,6 @@ class MessageMapper(
         message: T,
         mapReferredMessage: Boolean,
         readByCurrentUser: Boolean,
-        lastReadMessageCreatedAt: ZonedDateTime? = null,
         localReferredMessagesCache: MutableMap<String, MessageResponse>? = null,
         localUsersCache: MutableMap<String, UserResponse>? = null,
         localChatParticipationsCache: MutableMap<String, ChatParticipation>? = null,
@@ -265,7 +253,6 @@ class MessageMapper(
                 getReferredMessage(
                     message,
                     readByCurrentUser,
-                    lastReadMessageCreatedAt,
                     localReferredMessagesCache,
                     localUsersCache
                 ).awaitFirst()
@@ -279,13 +266,8 @@ class MessageMapper(
             val chatParticipation = getChatParticipation(message.chatParticipationId!!, localChatParticipationsCache)
                 .awaitFirst()
             val chatRole = getChatRole(chatParticipation.roleId, localChatRolesCache).awaitFirst()
-            val chatParticipationInSourceChat = if (message.chatParticipationIdInSourceChat == null) {
-                null
-            } else {
-                getChatParticipation(
-                    message.chatParticipationIdInSourceChat!!,
-                    localChatParticipationsCache
-                ).awaitFirst()
+            val chatParticipationInSourceChat = message.chatParticipationIdInSourceChat?.let {
+                getChatParticipation(it, localChatParticipationsCache).awaitFirst()
             }
             val forwardedBy = userService
                 .findUserByIdAndPutInLocalCache(message.forwardedById, localUsersCache)
@@ -296,7 +278,6 @@ class MessageMapper(
                 userService.findAllByIdAndPutInLocalCache(message.mentionedUsers, localUsersCache)
                     .collectList()
                     .awaitFirst()
-
             }
 
             return@mono NTuple7(
@@ -314,7 +295,6 @@ class MessageMapper(
     private fun <T : MessageInterface> getReferredMessage(
         message: T,
         readByCurrentUser: Boolean,
-        lastReadMessageCreatedAt: ZonedDateTime? = null,
         localReferredMessagesCache: MutableMap<String, MessageResponse>?,
         localUsersCache: MutableMap<String, UserResponse>?,
     ): Mono<MessageResponse> {
@@ -330,8 +310,7 @@ class MessageMapper(
                         referredMessagesCache = localReferredMessagesCache ?: mutableMapOf()
                     ),
                     readByCurrentUser = readByCurrentUser,
-                    mapReferredMessage = false,
-                    lastReadMessageCreatedAt = lastReadMessageCreatedAt
+                    mapReferredMessage = false
                 )
                     .awaitFirst()
 
@@ -345,13 +324,10 @@ class MessageMapper(
         localChatParticipationsCache: MutableMap<String, ChatParticipation>?
     ): Mono<ChatParticipation> {
         return mono {
-            if (localChatParticipationsCache != null && localChatParticipationsCache.containsKey(id)) {
-                return@mono localChatParticipationsCache[id]!!
-            }
-
-            val chatParticipation = chatParticipationCacheWrapper.findById(id).awaitFirst()
-
-            return@mono putInLocalCache(chatParticipation, localChatParticipationsCache) { it.id }
+            return@mono localChatParticipationsCache?.get(id) ?: putInLocalCache(
+                chatParticipationCacheWrapper.findById(id).awaitFirst(),
+                localChatParticipationsCache
+            ) { it.id }
         }
     }
 
@@ -360,14 +336,10 @@ class MessageMapper(
         localChatRolesCache: MutableMap<String, ChatRoleResponse>?
     ): Mono<ChatRoleResponse> {
         return mono {
-            if (localChatRolesCache != null && localChatRolesCache.containsKey(id)) {
-                return@mono localChatRolesCache[id]!!
-            }
-
-            return@mono putInLocalCache(
-                chatRoleMapper.toChatRoleResponse(chatRoleCacheWrapper.findById(id).awaitFirst()),
-                localChatRolesCache
-            ) { it.id }
+           return@mono localChatRolesCache?.get(id) ?: putInLocalCache(
+               chatRoleMapper.toChatRoleResponse(chatRoleCacheWrapper.findById(id).awaitFirst()),
+               localChatRolesCache
+           ) { it.id }
         }
     }
 
@@ -449,7 +421,7 @@ class MessageMapper(
             }
 
             is DraftMessage -> {
-                return mapDraftMessageUpdate(
+                mapDraftMessageUpdate(
                     updateMessageRequest,
                     originalMessage,
                     emojis,
@@ -460,7 +432,7 @@ class MessageMapper(
             }
 
             is ScheduledMessage -> {
-                return mapScheduledMessageUpdate(
+                mapScheduledMessageUpdate(
                     updateMessageRequest,
                     originalMessage,
                     emojis,
@@ -488,7 +460,8 @@ class MessageMapper(
         updatedAt = ZonedDateTime.now(),
         emoji = emojis,
         attachments = uploads ?: originalMessage.attachments,
-        uploadAttachmentsIds = chatUploadsIds ?: originalMessage.uploadAttachmentsIds
+        mentionedUsers = mentionedUsers,
+        uploadAttachmentsIds = chatUploadsIds
     )
 
     fun mapScheduledMessageUpdate(
