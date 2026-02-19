@@ -30,7 +30,7 @@ class UserMapper(private val uploadMapper: UploadMapper) {
         dateOfBirth = user.dateOfBirth,
         online = online,
         email = if (mapEmail) user.email else null,
-        avatar = if (user.avatar != null) uploadMapper.toUploadResponse(user.avatar) else null,
+        avatar = user.avatar?.let(uploadMapper::toUploadResponse),
         anonymous = user.anonymous,
         accountRegistrationType = if (mapAccountRegistrationType) user.accountRegistrationType else null,
         externalAvatarUri = user.externalAvatarUri

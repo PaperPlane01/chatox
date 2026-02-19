@@ -36,7 +36,7 @@ class GlobalBanServiceImpl(
     private val globalBanMapper: GlobalBanMapper,
     private val authenticationHolder: ReactiveAuthenticationHolder<User>,
     private val globalBanEventsProducer: GlobalBanEventsProducer,
-    private val userReactiveRepositoryCacheWrapper: UserReactiveRepositoryCacheWrapper
+    private val userCacheWrapper: UserReactiveRepositoryCacheWrapper
 ) : GlobalBanService {
 
     override fun banUser(userId: String, banUserRequest: BanUserRequest): Mono<GlobalBanResponse> {
@@ -93,7 +93,7 @@ class GlobalBanServiceImpl(
                             updatedBy = currentUser,
                             bannedUser = user,
                             canceledBy = currentUser,
-                            createdBy = userReactiveRepositoryCacheWrapper.findById(ban.createdById).awaitFirst()
+                            createdBy = userCacheWrapper.findById(ban.createdById).awaitFirst()
                         )
                     )
                 }
@@ -125,10 +125,9 @@ class GlobalBanServiceImpl(
 
             val globalBanResponse = globalBanMapper.toGlobalBanResponse(
                 globalBan = ban,
-                createdBy = userReactiveRepositoryCacheWrapper.findById(ban.createdById).awaitFirst(),
-                canceledBy = if (ban.cancelledById != null) userReactiveRepositoryCacheWrapper.findById(ban.cancelledById!!)
-                    .awaitFirst() else null,
-                bannedUser = userReactiveRepositoryCacheWrapper.findById(ban.bannedUserId).awaitFirst(),
+                createdBy = userCacheWrapper.findById(ban.createdById).awaitFirst(),
+                canceledBy = ban.cancelledById?.let { userCacheWrapper.findById(it).awaitFirst() },
+                bannedUser = userCacheWrapper.findById(ban.bannedUserId).awaitFirst(),
                 updatedBy = currentUser
             )
             globalBanEventsProducer.globalBanUpdated(globalBanResponse)
@@ -156,11 +155,10 @@ class GlobalBanServiceImpl(
 
             val globalBanResponse = globalBanMapper.toGlobalBanResponse(
                 globalBan = ban,
-                bannedUser = userReactiveRepositoryCacheWrapper.findById(ban.bannedUserId).awaitFirst(),
-                updatedBy = if (ban.updatedById != null) userReactiveRepositoryCacheWrapper.findById(ban.updatedById!!)
-                    .awaitFirst() else null,
+                bannedUser = userCacheWrapper.findById(ban.bannedUserId).awaitFirst(),
+                updatedBy = ban.updatedById?.let { userCacheWrapper.findById(it).awaitFirst() },
                 canceledBy = currentUser,
-                createdBy = userReactiveRepositoryCacheWrapper.findById(ban.createdById).awaitFirst()
+                createdBy = userCacheWrapper.findById(ban.createdById).awaitFirst()
             )
             globalBanEventsProducer.globalBanUpdated(globalBanResponse)
 
@@ -177,13 +175,10 @@ class GlobalBanServiceImpl(
             globalBans.map { globalBan ->
                 globalBanMapper.toGlobalBanResponse(
                     globalBan = globalBan,
-                    bannedUser = userReactiveRepositoryCacheWrapper.findById(globalBan.bannedUserId).awaitFirst(),
-                    createdBy = userReactiveRepositoryCacheWrapper.findById(globalBan.createdById).awaitFirst(),
-                    canceledBy = if (globalBan.cancelledById != null) userReactiveRepositoryCacheWrapper.findById(
-                        globalBan.cancelledById!!
-                    ).awaitFirst() else null,
-                    updatedBy = if (globalBan.updatedById != null) userReactiveRepositoryCacheWrapper.findById(globalBan.updatedById!!)
-                        .awaitFirst() else null
+                    bannedUser = userCacheWrapper.findById(globalBan.bannedUserId).awaitFirst(),
+                    createdBy = userCacheWrapper.findById(globalBan.createdById).awaitFirst(),
+                    canceledBy = globalBan.cancelledById?.let { userCacheWrapper.findById(it).awaitFirst() },
+                    updatedBy = globalBan.updatedById?.let { userCacheWrapper.findById(it).awaitFirst() },
                 )
             }
         }

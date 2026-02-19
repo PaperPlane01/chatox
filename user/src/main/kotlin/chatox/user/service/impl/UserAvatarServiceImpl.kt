@@ -1,5 +1,6 @@
 package chatox.user.service.impl
 
+import chatox.platform.util.runAsync
 import chatox.user.domain.ImageUploadMetadata
 import chatox.user.domain.Upload
 import chatox.user.domain.User
@@ -28,10 +29,7 @@ class UserAvatarServiceImpl(
             val updatedUser = userRepository.save(user.copy(avatar = avatar)).awaitFirst()
 
             if (publishUserUpdatedEvent) {
-                Mono.fromRunnable<Unit> {
-                    userEventsProducer.userUpdated(userMapper.toUserResponse(updatedUser))
-                }
-                    .subscribe()
+                runAsync { userEventsProducer.userUpdated(userMapper.toUserResponse(updatedUser)) }
             }
 
             return@mono updatedUser
@@ -43,10 +41,7 @@ class UserAvatarServiceImpl(
             val updatedUser = userRepository.save(user.copy(avatar = null)).awaitFirst()
 
             if (publishUserUpdatedEvent) {
-                Mono.fromRunnable<Unit> {
-                    userEventsProducer.userUpdated(userMapper.toUserResponse(updatedUser))
-                }
-                    .subscribe()
+                runAsync { userEventsProducer.userUpdated(userMapper.toUserResponse(updatedUser)) }
             }
 
             return@mono updatedUser

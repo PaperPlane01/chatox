@@ -22,29 +22,18 @@ class BalanceServiceImpl(
     private val authenticationHolder: ReactiveAuthenticationHolder<User>
 ) : BalanceService {
 
-    override fun handleBalanceUpdate(balanceUpdated: BalanceUpdated): Mono<Unit> {
-        return mono {
-            val existingBalance = balanceRepository.findByUserIdAndCurrency(
-                userId = balanceUpdated.userId,
-                currency = balanceUpdated.currency
+    override fun handleBalanceUpdate(balanceUpdated: BalanceUpdated): Mono<Unit> = balanceRepository
+        .findByUserIdAndCurrency(userId = balanceUpdated.userId, currency = balanceUpdated.currency)
+        .flatMap { balance -> balanceRepository.save(balance.copy(amount = balance.amount)) }
+        .switchIfEmpty(balanceRepository.save(
+            Balance(
+                id = ObjectId().toHexString(),
+                amount = balanceUpdated.amount,
+                currency = balanceUpdated.currency,
+                userId = balanceUpdated.userId
             )
-                .awaitFirstOrNull()
-
-            if (existingBalance != null) {
-                balanceRepository.save(existingBalance.copy(amount = balanceUpdated.amount)).awaitFirst()
-            } else {
-                val balance = Balance(
-                    id = ObjectId().toHexString(),
-                    amount = balanceUpdated.amount,
-                    currency = balanceUpdated.currency,
-                    userId = balanceUpdated.userId
-                )
-                balanceRepository.save(balance).awaitFirst()
-            }
-
-            return@mono
-        }
-    }
+        ))
+        .map { }
 
     override fun getBalanceOfCurrentUser(currency: Currency): Mono<Balance> {
         return mono {
