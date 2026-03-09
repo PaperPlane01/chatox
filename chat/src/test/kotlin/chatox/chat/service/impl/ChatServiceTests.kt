@@ -3,9 +3,13 @@ package chatox.chat.service.impl
 import chatox.chat.api.request.CreateChatRequest
 import chatox.chat.api.request.CreatePrivateChatRequest
 import chatox.chat.api.request.DeleteChatRequest
+import chatox.chat.api.request.TransferChatOwnershipRequest
 import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.MessageResponse
+import chatox.chat.api.response.TransferChatOwnershipResponse
+import chatox.chat.cache.DefaultRoleOfChatCacheWrapper
+import chatox.chat.exception.ChatParticipationNotFoundException
 import chatox.chat.exception.InvalidChatDeletionCommentException
 import chatox.chat.exception.InvalidChatDeletionReasonException
 import chatox.chat.exception.SlugIsAlreadyInUseException
@@ -13,6 +17,7 @@ import chatox.chat.exception.UploadNotFoundException
 import chatox.chat.exception.UserNotFoundException
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
+import chatox.chat.exception.metadata.ChatOwnershipTransferToAnonymousUserIsNotAllowedException
 import chatox.chat.mapper.ChatMapper
 import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.mapper.MessageMapper
@@ -38,6 +43,7 @@ import chatox.chat.service.ChatRoleService
 import chatox.chat.service.CreateMessageService
 import chatox.chat.service.MessageReadService
 import chatox.chat.test.TestObjects
+import chatox.chat.util.NTuple2
 import chatox.platform.cache.ReactiveCacheService
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.jwt.JwtPayload
@@ -54,6 +60,7 @@ import io.mockk.slot
 import io.mockk.verify
 import io.mockk.verifySequence
 import org.bson.BsonString
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -99,6 +106,8 @@ class ChatServiceTests {
     val chatRoleService: ChatRoleService = mockk()
     val chatParticipantsCountService: ChatParticipantsCountService = mockk()
     val messageReadService: MessageReadService = mockk()
+    val defaultRoleOfChatCacheWrapper: DefaultRoleOfChatCacheWrapper = mockk()
+    val chatParticipationCacheService: ReactiveCacheService<ChatParticipation, String> = mockk()
 
     private val user = TestObjects.user()
     private val chat = TestObjects.chat()
@@ -132,7 +141,9 @@ class ChatServiceTests {
             createMessageService,
             chatRoleService,
             chatParticipantsCountService,
-            messageReadService
+            messageReadService,
+            defaultRoleOfChatCacheWrapper,
+            chatParticipationCacheService,
         )
     }
 
@@ -981,6 +992,157 @@ class ChatServiceTests {
                 .create(chatService.checkChatSlugAvailability(slug))
                 .expectNext(expectedResponse)
                 .verifyComplete()
+        }
+    }
+
+    @DisplayName("transferChatOwnership() tests")
+    @Nested
+    inner class TransferChatOwnershipTests {
+
+        @Test
+        fun `It transfers chat ownership to another user`() {
+            val request = loadResource(
+                "requests/transfer-chat-ownership-request.json",
+                TransferChatOwnershipRequest::class.java
+            )
+            val chatId = chat.id
+            every { chatByIdCacheWrapper.findById(chatId) } returns Mono.just(chat)
+
+            val currentOwner = user
+            val newOwner = currentOwner.copy(id = request.userId)
+            every { userCacheWrapper.findById(request.userId) } returns Mono.just(newOwner)
+
+            val chatRoles = TestObjects.chatRoles()
+            val userRole = chatRoles.find { it.name == StandardChatRole.USER.name }!!
+            val ownerRole = chatRoles.find { it.name == StandardChatRole.OWNER.name }!!
+
+            val newOwnerChatParticipation = chatParticipation.copy(
+                id = ObjectId().toHexString(),
+                user = newOwner,
+                role = userRole,
+                roleId = userRole.id
+            )
+            every {
+                chatParticipationRepository.findByChatIdAndUserId(
+                    chatId = chatId,
+                    userId = newOwner.id
+                )
+            } returns Mono.just(newOwnerChatParticipation)
+
+            val currentOwnerChatParticipation = chatParticipation.copy(
+                id = ObjectId().toHexString(),
+                user = currentOwner,
+                role = ownerRole,
+                roleId = ownerRole.id
+            )
+            every {
+                chatRoleService.getRoleAndChatParticipationOfUserInChat(
+                    userId = currentOwner.id,
+                    chatId = chatId
+                )
+            } returns Mono.just(NTuple2(ownerRole, currentOwnerChatParticipation))
+
+            val jwtPayload = loadResource(
+                "jwt/jwt-payload.json",
+                JwtPayload::class.java
+            )
+            jwtPayload.id = currentOwner.id
+            every { authenticationHolder.requireCurrentUserDetails() } returns Mono.just(jwtPayload)
+
+            every { defaultRoleOfChatCacheWrapper.findByChatId(chatId) } returns Mono.just(userRole)
+
+            val chatParticipationsRepositorySlot = slot<List<ChatParticipation>>()
+            every { chatParticipationRepository.saveAll(capture(chatParticipationsRepositorySlot)) } returns Flux.empty()
+
+            val chatParticipationsCacheSlot = slot<List<ChatParticipation>>()
+            every { chatParticipationCacheService.put(capture(chatParticipationsCacheSlot)) } returns Mono.empty<List<ChatParticipation>>()
+            every { chatRepository.save(any()) } returns Mono.just(chat)
+            every { chatParticipationMapper.toChatParticipationResponse(any()) } returns Mono.just(chatParticipationResponse)
+            every { chatEventsPublisher.chatParticipationUpdated(any()) } just Runs
+
+            val expectedResponse = TransferChatOwnershipResponse(
+                chatId = chatId,
+                newOwner = chatParticipationResponse,
+                oldOwner = chatParticipationResponse,
+            )
+
+            StepVerifier
+                .create(chatService.transferChatOwnership(chat.id, request))
+                .assertNext { response ->
+                    assertEquals(expectedResponse, response)
+                    verify(exactly = 1) { chatParticipationRepository.saveAll(any<List<ChatParticipation>>()) }
+                    verify(exactly = 1) { chatParticipationCacheService.put(any<List<ChatParticipation>>()) }
+
+                    val savedChatParticipations = chatParticipationsRepositorySlot.captured
+                    val cachedChatParticipations = chatParticipationsCacheSlot.captured
+
+                    assertEquals(savedChatParticipations, cachedChatParticipations)
+
+                    val oldOwnerChatParticipation = savedChatParticipations.find { it.user.id == currentOwner.id }
+                    assertNotNull(oldOwnerChatParticipation)
+                    assertEquals(userRole, oldOwnerChatParticipation?.role)
+                    assertEquals(userRole.id, oldOwnerChatParticipation?.roleId)
+
+                    val newOwnerChatParticipation = savedChatParticipations.find { it.user.id == request.userId }
+                    assertNotNull(newOwnerChatParticipation)
+                    assertEquals(ownerRole, newOwnerChatParticipation?.role)
+                    assertEquals(ownerRole.id, newOwnerChatParticipation?.roleId)
+
+                    verify(exactly = 1) { chatRepository.save(match<Chat> { chat -> chat.createdById == request.userId })  }
+                }
+                .verifyComplete()
+        }
+
+        @Test
+        fun `It throws exception when chat is not found`() {
+            val request = loadResource(
+                "requests/transfer-chat-ownership-request.json",
+                TransferChatOwnershipRequest::class.java
+            )
+
+            every { chatByIdCacheWrapper.findById(chat.id) } returns Mono.empty()
+
+            StepVerifier
+                .create(chatService.transferChatOwnership(chat.id, request))
+                .verifyError(ChatNotFoundException::class.java)
+        }
+
+        @Test
+        fun `It throws exception when target user is anonymous`() {
+            val request = loadResource(
+                "requests/transfer-chat-ownership-request.json",
+                TransferChatOwnershipRequest::class.java
+            )
+            val chatId = chat.id
+            every { chatByIdCacheWrapper.findById(chatId) } returns Mono.just(chat)
+
+            val currentOwner = user
+            val newOwner = currentOwner.copy(id = request.userId, anonymoys = true)
+            every { userCacheWrapper.findById(request.userId) } returns Mono.just(newOwner)
+
+            StepVerifier.create(chatService.transferChatOwnership(chatId, request))
+                .verifyError(ChatOwnershipTransferToAnonymousUserIsNotAllowedException::class.java)
+        }
+
+        @Test
+        fun `It throws exception when target user is not chat participant`() {
+            val request = loadResource(
+                "requests/transfer-chat-ownership-request.json",
+                TransferChatOwnershipRequest::class.java
+            )
+            val chatId = chat.id
+            every { chatByIdCacheWrapper.findById(chatId) } returns Mono.just(chat)
+
+            val newOwner = user.copy(id = request.userId)
+            every { userCacheWrapper.findById(request.userId) } returns Mono.just(newOwner)
+
+            every {
+                chatParticipationRepository.findByChatIdAndUserId(chatId = chatId, userId = newOwner.id)
+            } returns Mono.empty()
+
+            StepVerifier
+                .create(chatService.transferChatOwnership(chatId, request))
+                .verifyError(ChatParticipationNotFoundException::class.java)
         }
     }
 

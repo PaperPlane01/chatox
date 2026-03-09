@@ -178,9 +178,8 @@ class MessageReadServiceImpl(
         return mono {
             val message = lastMessage ?: chatCacheWrapper
                 .findById(chatParticipation.chatId)
-                .map { it.lastMessageId }
-                .filter { it != null }
-                .flatMap { messageCacheWrapper.findById(it) }
+                .mapNotNull(Chat::lastMessageId)
+                .flatMap(messageCacheWrapper::findById)
                 .awaitFirstOrNull()
 
             val unreadMessagesCount = UnreadMessagesCount(
