@@ -39,6 +39,6 @@ public interface GlobalBanRepository extends JpaRepository<GlobalBan, String> {
             return Optional.empty();
         }
 
-        return Optional.of(globalBans.get(0));
+        return Optional.of(globalBans.getFirst());
     }
 }
