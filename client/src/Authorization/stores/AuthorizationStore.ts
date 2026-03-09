@@ -1,6 +1,6 @@
 import {makeAutoObservable} from "mobx";
 import {UserApi} from "../../api";
-import {CurrentUser, UserRole} from "../../api/types/response";
+import {CurrentUser, UserRole, UserVerificationLevel} from "../../api/types/response";
 import {EntitiesAware, EntitiesStore} from "../../entities-store";
 import {tokenRefreshState} from "../../api/axios-instance";
 import {isGlobalBanActive} from "../../GlobalBan/utils";
@@ -41,6 +41,7 @@ export class AuthorizationStore implements EntitiesAware {
         };
         this.entities.users.insert({
             ...currentUser,
+            anonymous: currentUser.verificationLevel === UserVerificationLevel.ANONYMOUS,
             deleted: false,
             online: true
         });

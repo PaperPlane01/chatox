@@ -43,6 +43,9 @@ const dialogHeaders: DialogHeadersMap = {
     },
     SLOW_MODE(bindings?: object): ReactNode {
         return <TranslatedText label="chat.management.tab.SLOW_MODE" bindings={bindings}/>
+    },
+    TRANSFER(bindings?: object): ReactNode {
+        return <TranslatedText label="chat.ownership.transfer" bindings={bindings}/>
     }
 };
 
@@ -69,7 +72,8 @@ export const ChatManagementMenu: FunctionComponent = observer(() => {
         canDeleteChat,
         canManageInvites,
         canApproveJoinChatRequests,
-        hasAccessToChatManagementPage
+        hasAccessToChatManagementPage,
+        canTransferChatOwnership
     } = useChatManagementPermissions();
     const tabAccessMap = useTabAccessMap({
         canUpdateChat,
@@ -78,6 +82,7 @@ export const ChatManagementMenu: FunctionComponent = observer(() => {
         canDeleteChat,
         canManageInvites,
         canApproveJoinChatRequests,
+        canTransferChatOwnership,
         hasAccessToChatManagementPage
     });
 
@@ -96,18 +101,19 @@ export const ChatManagementMenu: FunctionComponent = observer(() => {
     return (
         <Fragment>
             <List>
-                {CHAT_MANAGEMENT_TABS.map(tab => tabAccessMap.get(tab)
-                    ? (
-                        <Link route={Routes.chatManagementTab}
-                              router={router}
-                              params={{slug: selectedChat.slug ?? selectedChat.id, tab: tab.toLowerCase()}}
-                              style={commonStyles.undecoratedLink as any}
-                        >
-                            <ChatManagementMenuItemWrapper tab={tab}/>
-                        </Link>
-                    )
-                    : null
-                )}
+                {CHAT_MANAGEMENT_TABS
+                    .filter(tab => tabAccessMap.get(tab))
+                    .map(tab => (
+                            <Link route={Routes.chatManagementTab}
+                                  router={router}
+                                  params={{slug: selectedChat.slug ?? selectedChat.id, tab: tab.toLowerCase()}}
+                                  style={commonStyles.undecoratedLink as any}
+                                  key={tab}
+                            >
+                                <ChatManagementMenuItemWrapper tab={tab}/>
+                            </Link>
+                        )
+                    )}
             </List>
             {CHAT_MANAGEMENT_TABS.map(tab => (
                 <ChatManagementFullScreenDialog open={activeTab === tab}

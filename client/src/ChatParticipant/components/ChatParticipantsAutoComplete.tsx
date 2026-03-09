@@ -24,13 +24,10 @@ export const ChatParticipantsAutoComplete: FunctionComponent<ChatParticipantsAut
 			pending
 		}
 	} = useStore();
-	const {
-		users: {
-			findById: findUser
-		}
-	} = useEntities();
 	const loadedChatParticipants = getLoadedChatParticipants(chatId);
 	const chatParticipants = useEntitiesByIds("chatParticipations", loadedChatParticipants);
+    const users = useEntitiesByIds("users", chatParticipants.map(chatParticipant => chatParticipant.userId));
+    const usersMap = new Map(users.map(user => [user.id, user]));
 
 	useEffect(
 		() => {
@@ -56,10 +53,7 @@ export const ChatParticipantsAutoComplete: FunctionComponent<ChatParticipantsAut
 					  onOpen={() => setOpen(true)}
 					  onClose={() => setOpen(false)}
 					  loading={pending}
-					  getOptionLabel={chatParticipant => {
-						  const user = findUser(chatParticipant.userId);
-						  return getUserDisplayedName(user);
-					  }}
+					  getOptionLabel={chatParticipant => getUserDisplayedName(usersMap.get(chatParticipant.userId)!)}
 					  onInputChange={(_, query) => fetchChatParticipants(chatId, query)}
 					  renderOption={(_, chatParticipant) => (
 						  <ChatParticipantsListItem participantId={chatParticipant.id}

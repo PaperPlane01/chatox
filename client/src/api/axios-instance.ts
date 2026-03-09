@@ -1,4 +1,4 @@
-import axios, {AxiosRequestConfig} from "axios";
+import axios, {AxiosError, AxiosRequestConfig, HttpStatusCode} from "axios";
 import {observable} from "mobx";
 import queryString from "query-string";
 import {API_ROOT, OAUTH, TOKEN} from "./endpoints";
@@ -32,8 +32,9 @@ _axiosInstance.interceptors.request.use(config => {
     return config;
 });
 
-_axiosInstance.interceptors.response.use(undefined, error => {
-    if (error.response && error.response.status === 401) {
+_axiosInstance.interceptors.response.use(undefined, (error: AxiosError<any>) => {
+    if (error.response?.status === HttpStatusCode.Unauthorized
+        && error.response?.data?.message === "Access token is either invalid or expired") {
         const originalRequest = error.response.config;
         return refreshAccessToken(originalRequest);
     }

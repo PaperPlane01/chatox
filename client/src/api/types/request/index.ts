@@ -50,3 +50,6 @@ export * from "./UpdateGlobalNotificationsSettingsRequest";
 export * from "./UpdateStickerRequest";
 export * from "./UpdateStickerPackRequest";
 export * from "./DeleteStickerPackRequest";
+export * from "./CreateConfirmationTokenRequest";
+export * from "./ConfirmationTokenAction";
+export * from "./TransferChatOwnershipRequest";

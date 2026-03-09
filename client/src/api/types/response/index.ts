@@ -70,3 +70,5 @@ export * from "./UserNotificationsSettings";
 export * from "./GlobalNotificationsSettings";
 export * from "./StickerUploadMetadata";
 export * from "./StickerType";
+export * from "./ConfirmationTokenResponse";
+export * from "./TransferChatOwnershipResponse";

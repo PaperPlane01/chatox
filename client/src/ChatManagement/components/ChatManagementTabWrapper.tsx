@@ -5,6 +5,7 @@ import {ChatBlockingsCard} from "./ChatBlockingsCard";
 import {SlowModeForm} from "./SlowModeForm";
 import {ChatDeletionCard} from "./ChatDeletionCard";
 import {ChatSecurityTabContent} from "./ChatSecurityTabContent";
+import {TransferChatOwnershipForm} from "./TransferChatOwnershipForm";
 import {ChatManagementTab, ChatManagementTabRenderers} from "../types";
 import {TranslatedTypography} from "../../localization";
 import {BaseSettingsTabProps} from "../../utils/types";
@@ -21,7 +22,8 @@ const chatManagementTabRenderers: ChatManagementTabRenderers = {
     INVITES: props => <ChatInvitesCard {...props}/>,
     ROLES: props => <ChatRolesCard {...props}/>,
     SECURITY: props => <ChatSecurityTabContent {...props}/>,
-    SLOW_MODE: props => <SlowModeForm {...props}/>
+    SLOW_MODE: props => <SlowModeForm {...props}/>,
+    TRANSFER: props => <TransferChatOwnershipForm {...props}/>
 };
 
 const renderChatManagementTab = (tab: ChatManagementTab, accessible: boolean, hideHeader: boolean): ReactNode => {

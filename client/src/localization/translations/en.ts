@@ -843,5 +843,13 @@ export const en: Labels = {
     "sticker.pack.import.stage.UPLOADING_FILES.progress": "Uploaded files: {progress} / {length}",
     "sticker.pack.import.stage.UPLOADING_FILES.current-file": "Uploading file {fileName}",
     "sticker.pack.import.stage.CREATING_STICKER_PACK": "Create sticker pack",
-    "sticker.pack.import.select-file": "Select zip archive with stickers"
+    "sticker.pack.import.select-file": "Select zip archive with stickers",
+    "confirmation.token.dialog.title": "This action requires confirmation with password",
+    "common.confirm": "Confirm",
+    "chat.management.tab.TRANSFER": "Transfer",
+    "chat.ownership.transfer": "Transfer chat ownership",
+    "chat.ownership.transfer.description": "Transfer chat ownership to the selected user",
+    "chat.ownership.transfer.warning": "This is a dangerous operation that cannot be undone. It requires password confirmation.",
+    "user.select.error.anonymous-not-allowed": "Anonymous users are not allowed for selection",
+    "chat.ownership.transfer.success": "Chat ownership has been transferred"
 };

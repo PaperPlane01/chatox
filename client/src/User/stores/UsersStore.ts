@@ -88,7 +88,8 @@ export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "r
             online: denormalizedEntity.online,
             lastSeen: denormalizedEntity.lastSeen ? new Date(denormalizedEntity.lastSeen) : undefined,
             avatarId: denormalizedEntity.avatar ? denormalizedEntity.avatar.id : undefined,
-            onlineStatusMightBeInaccurate: denormalizedEntity.onlineStatusMightBeInaccurate
+            onlineStatusMightBeInaccurate: denormalizedEntity.onlineStatusMightBeInaccurate,
+            anonymous: denormalizedEntity.anonymous
         } as GetEntityType<UserType>
     }
 }
