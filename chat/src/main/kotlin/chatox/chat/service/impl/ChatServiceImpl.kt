@@ -5,13 +5,17 @@ import chatox.chat.api.request.CreatePrivateChatRequest
 import chatox.chat.api.request.DeleteChatRequest
 import chatox.chat.api.request.DeleteChatRequestWithChatId
 import chatox.chat.api.request.DeleteMultipleChatsRequest
+import chatox.chat.api.request.TransferChatOwnershipRequest
 import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.api.response.AvailabilityResponse
 import chatox.chat.api.response.ChatOfCurrentUserResponse
 import chatox.chat.api.response.ChatResponse
 import chatox.chat.api.response.ChatResponseWithCreatorId
+import chatox.chat.api.response.TransferChatOwnershipResponse
+import chatox.chat.cache.DefaultRoleOfChatCacheWrapper
 import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.config.RedisConfig
+import chatox.chat.exception.ChatParticipationNotFoundException
 import chatox.chat.exception.InvalidChatDeletionCommentException
 import chatox.chat.exception.InvalidChatDeletionReasonException
 import chatox.chat.exception.SlugIsAlreadyInUseException
@@ -19,6 +23,7 @@ import chatox.chat.exception.UploadNotFoundException
 import chatox.chat.exception.UserNotFoundException
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
+import chatox.chat.exception.metadata.ChatOwnershipTransferToAnonymousUserIsNotAllowedException
 import chatox.chat.mapper.ChatMapper
 import chatox.chat.mapper.ChatParticipationMapper
 import chatox.chat.mapper.MessageMapper
@@ -100,7 +105,9 @@ class ChatServiceImpl(
     private val createMessageService: CreateMessageService,
     private val chatRoleService: ChatRoleService,
     private val chatParticipantsCountService: ChatParticipantsCountService,
-    private val messageReadService: MessageReadService
+    private val messageReadService: MessageReadService,
+    private val defaultRoleOfChatCacheWrapper: DefaultRoleOfChatCacheWrapper,
+    private val chatParticipationCacheService: ReactiveCacheService<ChatParticipation, String>
 ) : ChatService {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
@@ -466,7 +473,7 @@ class ChatServiceImpl(
                 val otherUserChatParticipation = chatParticipants
                     .firstOrNull { chatParticipation -> chatParticipation.user.id != currentUser.id }
 
-                otherUser = otherUserChatParticipation?.let { userCacheWrapper.findById(it.id).awaitFirst() }
+                otherUser = otherUserChatParticipation?.let { userCacheWrapper.findById(it.user.id).awaitFirst() }
             }
 
             val chatParticipantsCount = if (chat.type == ChatType.DIALOG) {
@@ -723,16 +730,80 @@ class ChatServiceImpl(
 
             chatRepository.saveAll(chats).collectList().awaitFirst()
             chats.forEach { chat ->
-                runAsync { chatEventsPublisher.chatDeleted(
-                    ChatDeleted(
-                        id = chat.id,
-                        comment = chat.chatDeletion?.comment,
-                        reason = chat.chatDeletion?.deletionReason
+                runAsync {
+                    chatEventsPublisher.chatDeleted(
+                        ChatDeleted(
+                            id = chat.id,
+                            comment = chat.chatDeletion?.comment,
+                            reason = chat.chatDeletion?.deletionReason
+                        )
                     )
-                ) }
+                }
             }
 
             return@mono
+        }
+    }
+
+    override fun transferChatOwnership(
+        chatId: String,
+        transferChatOwnershipRequest: TransferChatOwnershipRequest
+    ): Mono<TransferChatOwnershipResponse> {
+        return mono {
+            val chat = findChatByIdInternal(chatId).awaitFirst()
+            val newOwner = userCacheWrapper.findById(transferChatOwnershipRequest.userId).awaitFirstOrNull()
+                ?: throw UserNotFoundException("Could not find user ${transferChatOwnershipRequest.userId}")
+
+            if (newOwner.anonymoys) {
+                throw ChatOwnershipTransferToAnonymousUserIsNotAllowedException()
+            }
+
+            var newOwnerChatParticipation = chatParticipationRepository.findByChatIdAndUserId(
+                chatId = chat.id,
+                userId = newOwner.id
+            )
+                .awaitFirstOrNull()
+                ?: throw ChatParticipationNotFoundException(
+                    "Could not find participation of user ${newOwner.id} in chat $chatId"
+                )
+            val currentOwner = authenticationHolder.requireCurrentUserDetails().awaitFirst()
+            var (currentOwnerChatRole, currentOwnerChatParticipation) = chatRoleService.getRoleAndChatParticipationOfUserInChat(
+                chatId = chat.id,
+                userId = currentOwner.id
+            )
+                .awaitFirst()
+
+            val defaultChatRole = defaultRoleOfChatCacheWrapper.findByChatId(chat.id).awaitFirst()
+            currentOwnerChatParticipation = currentOwnerChatParticipation.copy(
+                role = defaultChatRole,
+                roleId = defaultChatRole.id
+            )
+            newOwnerChatParticipation = newOwnerChatParticipation.copy(
+                role = currentOwnerChatRole,
+                roleId = currentOwnerChatRole.id
+            )
+
+            val chatParticipations = listOf(currentOwnerChatParticipation, newOwnerChatParticipation)
+            chatParticipationRepository.saveAll(chatParticipations).collectList().awaitFirst()
+            chatParticipationCacheService.put(chatParticipations).subscribe()
+            chatRepository.save(chat.copy(createdById = newOwner.id)).awaitFirst()
+
+            val oldOwnerResponse = chatParticipationMapper.toChatParticipationResponse(
+                currentOwnerChatParticipation
+            )
+                .awaitFirst()
+            val newOwnerResponse = chatParticipationMapper.toChatParticipationResponse(newOwnerChatParticipation)
+                .awaitFirst()
+
+            runAsync {
+                listOf(oldOwnerResponse, newOwnerResponse).forEach(chatEventsPublisher::chatParticipationUpdated)
+            }
+
+            return@mono TransferChatOwnershipResponse(
+                chatId = chat.id,
+                oldOwner = oldOwnerResponse,
+                newOwner = newOwnerResponse,
+            )
         }
     }
 

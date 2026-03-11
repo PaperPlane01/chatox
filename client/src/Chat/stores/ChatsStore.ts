@@ -9,7 +9,8 @@ import {
     ChatParticipation,
     ChatType,
     CurrentUser,
-    populateJoinAllowanceSettings
+    populateJoinAllowanceSettings,
+    UserVerificationLevel
 } from "../../api/types/response";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {isDefined, mergeCustomizer} from "../../utils/object-utils";
@@ -307,6 +308,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
                     ...denormalizedEntity.chatParticipation,
                     user: {
                         ...this.currentUser,
+                        anonymous: this.currentUser.verificationLevel === UserVerificationLevel.ANONYMOUS,
                         online: true,
                         deleted: false
                     },

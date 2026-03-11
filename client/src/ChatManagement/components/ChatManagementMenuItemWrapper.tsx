@@ -1,7 +1,17 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
-import {Badge, Block, Delete, Info, InsertLink, LockClock, Security, PersonAdd} from "@mui/icons-material";
+import {
+    Badge,
+    Block,
+    Delete,
+    DriveFileMove,
+    Info,
+    InsertLink,
+    LockClock,
+    PersonAdd,
+    Security
+} from "@mui/icons-material";
 import {ChatManagementMenuItemRenderers, ChatManagementTab} from "../types";
 import {TranslatedText} from "../../localization";
 
@@ -93,6 +103,16 @@ const chatManagementMenuItemRenderers: ChatManagementMenuItemRenderers = {
             </ListItemIcon>
             <ListItemText>
                 <TranslatedText label="chat.management.tab.SLOW_MODE"/>
+            </ListItemText>
+        </MenuItem>
+    ),
+    TRANSFER: (
+        <MenuItem>
+            <ListItemIcon>
+                <DriveFileMove/>
+            </ListItemIcon>
+            <ListItemText>
+                <TranslatedText label="chat.management.tab.TRANSFER"/>
             </ListItemText>
         </MenuItem>
     )

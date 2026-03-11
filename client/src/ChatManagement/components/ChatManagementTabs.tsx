@@ -32,6 +32,7 @@ export const ChatManagementTabs: FunctionComponent = observer(() => {
         canDeleteChat,
         canManageInvites,
         canApproveJoinChatRequests,
+        canTransferChatOwnership,
         hasAccessToChatManagementPage,
     } = useChatManagementPermissions();
     const tabAccessMap = useTabAccessMap({
@@ -41,6 +42,7 @@ export const ChatManagementTabs: FunctionComponent = observer(() => {
         canDeleteChat,
         canManageInvites,
         canApproveJoinChatRequests,
+        canTransferChatOwnership,
         hasAccessToChatManagementPage
     });
 

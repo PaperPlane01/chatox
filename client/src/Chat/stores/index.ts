@@ -12,3 +12,4 @@ export * from "./DeleteChatStore";
 export * from "./TypingUsersStore";
 export * from "./DeleteChatStore";
 export * from "./PendingChatsOfCurrentUserStore";
+export * from "./TransferChatOwnershipStore";

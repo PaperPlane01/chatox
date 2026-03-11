@@ -11,5 +11,6 @@ export interface UserEntity {
     online: boolean,
     lastSeen?: Date,
     avatarId?: string,
-    onlineStatusMightBeInaccurate?: boolean
+    onlineStatusMightBeInaccurate?: boolean,
+    anonymous: boolean
 }

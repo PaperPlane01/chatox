@@ -89,4 +89,14 @@ export class ChatPermissions {
             chatId
         });
     });
+
+    canTransferChatOwnership = computedFn((chatId: string): boolean => {
+        if (!this.currentUser) {
+            return false;
+        }
+
+        const chat = this.entities.chats.findById(chatId);
+
+        return chat.createdByCurrentUser;
+    });
 }

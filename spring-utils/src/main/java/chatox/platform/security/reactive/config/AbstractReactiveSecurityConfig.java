@@ -3,6 +3,7 @@ package chatox.platform.security.reactive.config;
 import chatox.platform.security.config.JwtProperties;
 import chatox.platform.security.reactive.ChatoxReactiveAuthenticationManager;
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder;
+import chatox.platform.security.reactive.confirmation.filter.ConfirmationTokenWebFilter;
 import chatox.platform.security.reactive.interceptor.ReactivePermissionEvaluator;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,11 @@ public abstract class AbstractReactiveSecurityConfig<U> {
                     jwt.jwtDecoder(jwtDecoder);
                 }));
         return http.build();
+    }
+
+    @Bean
+    public ConfirmationTokenWebFilter confirmationTokenFilter(ReactiveJwtDecoder jwtDecoder) {
+        return new ConfirmationTokenWebFilter(jwtDecoder);
     }
 
     @Bean

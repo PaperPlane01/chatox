@@ -843,5 +843,13 @@ export const ru: Labels = {
     "sticker.pack.import.stage.UPLOADING_FILES.progress": "Загружено файлов: {progress} / {length}",
     "sticker.pack.import.stage.UPLOADING_FILES.current-file": "Загружаемый файл: {fileName}",
     "sticker.pack.import.stage.CREATING_STICKER_PACK": "Создание набора стикеров",
-    "sticker.pack.import.select-file": "Выберите zip-архив со стикерами"
+    "sticker.pack.import.select-file": "Выберите zip-архив со стикерами",
+    "confirmation.token.dialog.title": "Данное действие требует подтверждения с паролем",
+    "common.confirm": "Подтвердить",
+    "chat.management.tab.TRANSFER": "Смена владельца",
+    "chat.ownership.transfer": "Смена владельца чата",
+    "chat.ownership.transfer.description": "Передать владение чатом выбранному пользователю",
+    "chat.ownership.transfer.warning": "Это опасная операция, которая не может быть отменена. Данное действие требует подтверждение с паролем.",
+    "user.select.error.anonymous-not-allowed": "Нельзя выбрать анонимного пользователя",
+    "chat.ownership.transfer.success": "Владелец чата изменён"
 };

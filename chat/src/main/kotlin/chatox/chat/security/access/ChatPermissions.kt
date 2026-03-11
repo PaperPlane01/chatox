@@ -1,6 +1,7 @@
 package chatox.chat.security.access
 
 import chatox.chat.config.CacheWrappersConfig
+import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatType
 import chatox.chat.model.User
@@ -9,6 +10,7 @@ import chatox.chat.service.ChatRoleService
 import chatox.chat.service.ChatService
 import chatox.chat.util.generateCacheBlacklistItemCacheId
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
+import chatox.platform.security.confirmation.ConfirmationTokenAction
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -25,7 +27,10 @@ class ChatPermissions(
     private val userBlacklistItemCacheWrapper: ReactiveRepositoryCacheWrapper<UserBlacklistItem, String>,
 
     @param:Qualifier(CacheWrappersConfig.CHAT_BY_SLUG_CACHE_WRAPPER)
-    private val chatBySlugCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>
+    private val chatBySlugCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
+
+    @param:Qualifier(CacheWrappersConfig.CHAT_BY_ID_CACHE_WRAPPER)
+    private val chatByIdCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>
 ) {
     private lateinit var chatService: ChatService
 
@@ -89,6 +94,18 @@ class ChatPermissions(
             val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull() ?: return@mono false
 
             return@mono chat.dialogDisplay.map { dialogDisplay -> dialogDisplay.userId }.contains(currentUser.id)
+        }
+    }
+
+    fun canTransferChatOwnership(chatId: String): Mono<Boolean> {
+        return mono {
+            val chat = chatByIdCacheWrapper.findById(chatId).awaitFirstOrNull()
+                ?: throw ChatNotFoundException("Could not find chat with id $chatId")
+            val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull() ?: return@mono false
+            val confirmationToken = authenticationHolder.confirmationToken.awaitFirstOrNull() ?: return@mono false
+            return@mono confirmationToken.userId == currentUser.id
+                    && confirmationToken.actions.contains(ConfirmationTokenAction.TRANSFER_CHAT_OWNERSHIP)
+                    && chat.createdById == currentUser.id
         }
     }
 }

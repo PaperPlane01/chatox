@@ -21,6 +21,7 @@ import {
     LeaveChatStore,
     PendingChatsOfCurrentUserStore,
     PopularChatsStore,
+    TransferChatOwnershipStore,
     TypingUsersStore,
     UpdateChatStore
 } from "../Chat";
@@ -190,6 +191,7 @@ import {
     UpdateUserNotificationSettingsInChatDialogStore,
     UserNotificationExceptionsDialogStore
 } from "../Notification";
+import {ConfirmationTokenStore, CreateConfirmationTokenStore} from "../ConfirmationToken/stores";
 
 export interface IAppState {
     language: LocaleStore,
@@ -366,5 +368,8 @@ export interface IAppState {
     stickersPreferences: StickersPreferencesStore,
     stickerPreviewDialog: StickerPreviewDialogStore,
     stickerSuggestions: StickerSuggestionsStore,
-    stickerPackImport: ImportStickerPackStore
+    stickerPackImport: ImportStickerPackStore,
+    confirmationToken: ConfirmationTokenStore,
+    confirmationTokenDialog: CreateConfirmationTokenStore,
+    chatOwnershipTransfer: TransferChatOwnershipStore
 }

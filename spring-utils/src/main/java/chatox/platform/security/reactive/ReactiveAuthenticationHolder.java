@@ -1,7 +1,10 @@
 package chatox.platform.security.reactive;
 
+import chatox.platform.security.confirmation.ConfirmationTokenContext;
+import chatox.platform.security.confirmation.ConfirmationTokenPayload;
 import chatox.platform.security.jwt.JwtAuthentication;
 import chatox.platform.security.jwt.JwtPayload;
+import chatox.platform.security.reactive.confirmation.ConfirmationTokenReactiveContextHolder;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -68,5 +71,15 @@ public interface ReactiveAuthenticationHolder<U> {
     default Mono<U> requireCurrentUser() {
         return getCurrentUser()
                 .switchIfEmpty(Mono.error(new BadCredentialsException("Bad credentials")));
+    }
+
+    /**
+     * Returns confirmation token payload.
+     * @return <code>Mono</code> with confirmation token payload
+     */
+    default Mono<ConfirmationTokenPayload> getConfirmationToken() {
+        return ConfirmationTokenReactiveContextHolder
+                .getConfirmationTokenContext()
+                .map(ConfirmationTokenContext::getConfirmationToken);
     }
 }

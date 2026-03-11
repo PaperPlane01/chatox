@@ -841,5 +841,13 @@ export interface Labels {
     "sticker.pack.import.stage.UPLOADING_FILES.progress": string,
     "sticker.pack.import.stage.UPLOADING_FILES.current-file": string,
     "sticker.pack.import.stage.CREATING_STICKER_PACK": string,
-    "sticker.pack.import.select-file": string
+    "sticker.pack.import.select-file": string,
+    "confirmation.token.dialog.title": string,
+    "common.confirm": string,
+    "chat.management.tab.TRANSFER": string,
+    "chat.ownership.transfer": string,
+    "chat.ownership.transfer.description": string,
+    "chat.ownership.transfer.warning": string,
+    "user.select.error.anonymous-not-allowed": string,
+    "chat.ownership.transfer.success": string
 }

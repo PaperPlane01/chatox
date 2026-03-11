@@ -24,6 +24,7 @@ import {
     LeaveChatStore,
     PendingChatsOfCurrentUserStore,
     PopularChatsStore,
+    TransferChatOwnershipStore,
     TypingUsersStore,
     UpdateChatStore
 } from "../Chat";
@@ -201,6 +202,7 @@ import {
     UpdateUserNotificationSettingsInChatDialogStore,
     UserNotificationExceptionsDialogStore
 } from "../Notification";
+import {ConfirmationTokenStore, CreateConfirmationTokenStore} from "../ConfirmationToken/stores";
 import {DexieRepositories, Repositories} from "../repositories";
 
 const referencedEntities = new ReferencedEntitiesStore();
@@ -602,6 +604,16 @@ const stickersPreferences = new StickersPreferencesStore();
 const stickerPreviewDialog = new StickerPreviewDialogStore();
 const stickerSuggestions = new StickerSuggestionsStore(installedStickerPacks, messageCreation, rawEntities, emoji, repositories);
 const stickerPackImport = new ImportStickerPackStore(stickerPackCreation, language, snackbarService);
+const confirmationToken = new ConfirmationTokenStore();
+const confirmationTokenDialog = new CreateConfirmationTokenStore(confirmationToken);
+const chatOwnershipTransfer = new TransferChatOwnershipStore(
+    chat,
+    confirmationToken,
+    entities,
+    authorization,
+    language,
+    snackbarService
+);
 
 const _store: IAppState = {
     authorization,
@@ -778,7 +790,10 @@ const _store: IAppState = {
     stickersPreferences,
     stickerPreviewDialog,
     stickerSuggestions,
-    stickerPackImport
+    stickerPackImport,
+    confirmationToken,
+    confirmationTokenDialog,
+    chatOwnershipTransfer
 };
 
 //Hack to avoid loss of application state on HMR

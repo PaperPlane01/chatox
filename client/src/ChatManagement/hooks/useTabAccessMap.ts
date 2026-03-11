@@ -11,6 +11,7 @@ export const useTabAccessMap = (permissions: UseChatManagementPermissions): Map<
         [ChatManagementTab.ROLES, permissions.canCreateChatRole],
         [ChatManagementTab.DELETION, permissions.canDeleteChat],
         [ChatManagementTab.INVITES, permissions.canManageInvites],
-        [ChatManagementTab.JOIN_REQUESTS, permissions.canApproveJoinChatRequests]
+        [ChatManagementTab.JOIN_REQUESTS, permissions.canApproveJoinChatRequests],
+        [ChatManagementTab.TRANSFER, permissions.canTransferChatOwnership]
     ]);
 };

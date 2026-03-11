@@ -7,7 +7,8 @@ export enum ChatManagementTab {
     BLOCKINGS = "BLOCKINGS",
     SECURITY = "SECURITY",
     DELETION = "DELETION",
-    INVITES = "INVITES"
+    INVITES = "INVITES",
+    TRANSFER = "TRANSFER"
 }
 
 export const getChatManagementTabFromString = (tabString?: string): ChatManagementTab => {
@@ -34,4 +35,5 @@ export const CHAT_MANAGEMENT_TABS: ChatManagementTab[] = [
     ChatManagementTab.BLOCKINGS,
     ChatManagementTab.ROLES,
     ChatManagementTab.DELETION,
+    ChatManagementTab.TRANSFER
 ];

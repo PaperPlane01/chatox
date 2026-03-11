@@ -4,6 +4,7 @@ import chatox.chat.api.request.CreateChatRequest
 import chatox.chat.api.request.CreatePrivateChatRequest
 import chatox.chat.api.request.DeleteChatRequest
 import chatox.chat.api.request.DeleteMultipleChatsRequest
+import chatox.chat.api.request.TransferChatOwnershipRequest
 import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.service.ChatSearchService
 import chatox.chat.service.ChatService
@@ -66,6 +67,15 @@ class ChatController(
         @PathVariable id: String,
         @RequestBody(required = false) deleteChatRequest: DeleteChatRequest?
     ) = chatService.deleteChat(id, deleteChatRequest)
+
+    @PreAuthorize("hasRole('USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@chatPermissions.canTransferChatOwnership(#id)")
+    @PutMapping("/{id}/owner")
+    fun transferChat(
+        @PathVariable id: String,
+        @RequestBody @Valid transferChatOwnershipRequest: TransferChatOwnershipRequest
+    ) = chatService.transferChatOwnership(id, transferChatOwnershipRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @GetMapping("/my")

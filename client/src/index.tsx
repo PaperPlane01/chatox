@@ -15,7 +15,8 @@ const routerStoreAware: RouterStoreAware[] = [
     store.messageCreation,
     store.chatDeletion,
     store.joinChatByInvite,
-    store.stickerPackCreation
+    store.stickerPackCreation,
+    store.chatOwnershipTransfer
 ];
 
 rootStore.startRouter();
