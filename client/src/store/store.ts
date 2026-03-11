@@ -23,7 +23,8 @@ import {
     DeleteChatStore,
     LeaveChatStore,
     PendingChatsOfCurrentUserStore,
-    PopularChatsStore, TransferChatOwnershipStore,
+    PopularChatsStore,
+    TransferChatOwnershipStore,
     TypingUsersStore,
     UpdateChatStore
 } from "../Chat";
