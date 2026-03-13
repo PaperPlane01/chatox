@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
+import {useMediaQuery, useTheme} from "@mui/material";
 import {ShowActiveOnlySwitch} from "./ShowActiveOnlySwitch";
-import {Box} from "@mui/material";
 import {ChatBlockingsList} from "./ChatBlockingsList";
 import {ChatBlockingsTable} from "./ChatBlockingsTable";
 import {useStore} from "../../store";
@@ -12,6 +12,8 @@ export const ChatBlockingsListWrapper: FunctionComponent = observer(() => {
             selectedChat
         }
     } = useStore();
+    const theme = useTheme();
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
     if (!selectedChat) {
         return null;
@@ -20,22 +22,8 @@ export const ChatBlockingsListWrapper: FunctionComponent = observer(() => {
     return (
         <Fragment>
             <ShowActiveOnlySwitch chatId={selectedChat.id}/>
-            <Box sx={{
-                display: {
-                    lg: "none",
-                    md: "block"
-                }
-            }}>
-                <ChatBlockingsList/>
-            </Box>
-            <Box sx={{
-                display: {
-                    md: "none",
-                    lg: "block"
-                }
-            }}>
-                <ChatBlockingsTable/>
-            </Box>
+            {onSmallScreen && <ChatBlockingsList/>}
+            {!onSmallScreen && <ChatBlockingsTable/>}
         </Fragment>
     );
 });
