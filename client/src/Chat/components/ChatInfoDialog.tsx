@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Card, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {ChatDescription} from "./ChatDescription";
 import {ChatMenu} from "./ChatMenu";
@@ -10,10 +10,10 @@ import {Avatar} from "../../Avatar";
 import {ChatParticipantsCard, useChatParticipantsListScroll} from "../../ChatParticipant";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
-import {useMobileDialog} from "../../utils/hooks";
+import {useLuminosity, useMobileDialog} from "../../utils/hooks";
 import {ChatType} from "../../api/types/response";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     chatInfoContainer: {
         display: "flex",
         alignItems: "center",
@@ -42,7 +42,7 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const {fullScreen} = useMobileDialog();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const {scrollHandler} = useChatParticipantsListScroll("all");
 
     const chat = useEntityById("chats", selectedChatId);
@@ -52,7 +52,8 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
     }
 
     const avatarLetter = getAvatarLabel(chat.name);
-    const color = randomColor({seed: chat.id});
+    const luminosity = useLuminosity();
+    const color = randomColor({seed: chat.id, luminosity});
 
     return (
         <Dialog open={chatInfoDialogOpen}

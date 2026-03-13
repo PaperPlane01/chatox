@@ -1,17 +1,17 @@
 import {createTheme} from "@mui/material";
 import {createStyleOverride} from "./common";
 
-const PRIMARY_MAIN = "#ef5350";
+const PRIMARY_MAIN = "rgb(239, 83, 80)";
 
 export const red = createTheme({
     palette: {
-        mode: 'light',
+        mode: "light",
         primary: {
-            light: "#ffbebb",
-            main: PRIMARY_MAIN,
+            light: "rgb(255, 190, 187)",
+            main: PRIMARY_MAIN
         },
         secondary: {
-            main: '#5e35b1',
+            main: "rgb(94, 53, 177)"
         }
     },
     components: createStyleOverride(PRIMARY_MAIN)

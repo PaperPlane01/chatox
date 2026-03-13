@@ -1,9 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Dialog, DialogTitle, DialogContent, IconButton} from "@mui/material";
+import {Dialog, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {Close} from "@mui/icons-material";
-import {Picker, EmojiData} from "emoji-mart";
+import {EmojiData} from "emoji-mart";
 import {useStore} from "../../store";
+import {EmojiMartPicker} from "../../EmojiPicker";
 
 interface StickerEmojiPickerDialogProps {
     onEmojiPicked: (emoji: EmojiData) => void
@@ -44,12 +45,12 @@ export const StickerEmojiPickerDialog: FunctionComponent<StickerEmojiPickerDialo
                 </IconButton>
             </DialogTitle>
             <DialogContent>
-                <Picker onSelect={handlePick}
-                        set={selectedEmojiSet === "native" ? undefined : selectedEmojiSet}
-                        native={selectedEmojiSet === "native"}
-                        autoFocus={false}
-                        style={{width: "100%"}}
-                />
+                <div style={{width: "100%"}}>
+                    <EmojiMartPicker onEmojiSelect={handlePick}
+                                     set={selectedEmojiSet}
+                                     autoFocus={false}
+                    />
+                </div>
             </DialogContent>
         </Dialog>
     );

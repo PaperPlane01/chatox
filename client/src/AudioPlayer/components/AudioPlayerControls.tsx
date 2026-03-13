@@ -1,17 +1,17 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {IconButton, Menu, Slider, Theme, Typography} from "@mui/material";
-import {Mark} from "@mui/base";
-import {createStyles, makeStyles} from "@mui/styles";
+import {IconButton, Menu, Slider, Theme, Typography, SliderProps} from "@mui/material";
 import {Pause, PlayArrow, VolumeDown, VolumeOff, VolumeUp} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {format} from "date-fns";
-import clsx from "clsx";
 import {WaveForm} from "./WaveForm";
 import {AudioType} from "../types";
 import {useStore} from "../../store";
 import {UploadType} from "../../api/types/response";
 import {useEntitySelector} from "../../entities";
+
+type Marks = SliderProps["marks"];
 
 interface AudioPlayerControlsProps {
     audioId: string,
@@ -21,7 +21,7 @@ interface AudioPlayerControlsProps {
     waveFormViewBox?: string
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     trackSliderMark: {
         width: 0,
         height: 0
@@ -99,7 +99,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
             setSeekToFraction
         }
     } = useStore();
-    const classes = useStyles();
+    const {classes, cx} = useStyles();
     const volumePopupState = usePopupState({
         popupId: "volumePopup",
         variant: "popover"
@@ -112,7 +112,7 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                 ? entities.uploads.findVoiceMessage(audioId)
                 : entities.uploads.findAudio(audioId)
     );
-    const sliderMarks: Mark[] = [
+    const sliderMarks: Marks = [
         {
             value: 0,
             label: currentTrackId === audioId
@@ -134,12 +134,9 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
         }
     ];
 
-    const displayWaveForm = !hideWaveForm
-        && audio.meta
-        && audio.meta.waveForm
-        && audio.meta.waveForm.length !== 0;
+    const displayWaveForm = !hideWaveForm && audio.meta?.waveForm?.length !== 0;
 
-    const wrapperClasses = clsx({
+    const wrapperClasses = cx({
         [classes.playerControlsWrapper]: true,
         [classes.fullWidth]: fullWidth,
         [classes.notFullWidth]: !fullWidth
@@ -165,10 +162,10 @@ export const AudioPlayerControls: FunctionComponent<AudioPlayerControlsProps> = 
                 </IconButton>
             )}
             <div className={classes.playerSliderContainer}>
-                {displayWaveForm
+                {displayWaveForm && audio.meta?.waveForm
                     ? (
                         <div className={classes.playerWaveFormContainer}>
-                            <WaveForm waveForm={audio.meta!.waveForm!}
+                            <WaveForm waveForm={audio.meta.waveForm}
                                       playerProgress={currentTimeFraction}
                                       audioId={audioId}
                                       currentlyPlaying={audioId === currentTrackId}

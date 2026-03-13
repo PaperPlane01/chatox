@@ -38,7 +38,7 @@ export const AttachFilesButton: FunctionComponent<AttachFilesButtonProps> = obse
         variant: "popover",
         popupId: "attachFileMenu"
     });
-    const classes = useStyles();
+    const {classes} = useStyles();
     const {enqueueSnackbar} = useSnackbar();
     const {
         messages: {

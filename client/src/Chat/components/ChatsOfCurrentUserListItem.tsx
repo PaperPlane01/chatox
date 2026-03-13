@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Badge, CardHeader, Divider, ListItem, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
 import {ChatAvatar} from "./ChatAvatar";
 import {ChatListMessagePreview} from "./ChatListMessagePreview";
@@ -9,6 +9,7 @@ import {TypingIndicator} from "./TypingIndicator";
 import {getChatLinkProps} from "../utils";
 import {ChatLinkPropsGenerationStrategy} from "../types";
 import {useChatName} from "../hooks";
+import {commonStyles} from "../../style";
 import {useRouter, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 
@@ -21,7 +22,7 @@ interface ChatsOfCurrentUserListItemProps {
     draftMessageId?: string
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     chatsOfCurrentUserListItem: {
         cursor: "pointer",
         overflow: "hidden"
@@ -67,10 +68,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     unreadMentionsBadgeTopRightRectangle: {
         top: "40%"
     },
-    undecoratedLink: {
-        textDecoration: "none",
-        color: "inherit"
-    }
+    undecoratedLink: commonStyles.undecoratedLink
 }));
 
 export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserListItemProps> = observer(({
@@ -90,7 +88,7 @@ export const ChatsOfCurrentUserListItem: FunctionComponent<ChatsOfCurrentUserLis
         }
     } = useStore();
     const routerStore = useRouter();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const chat = useEntityById("chats", chatId);
     const chatUser = useEntityById("users", chat.userId)
     const chatName = useChatName(chat, chatUser);

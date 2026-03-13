@@ -1,11 +1,11 @@
 import {LINK, TextMatchTransformer} from "@lexical/markdown";
-import {$isBetterMentionNode, BetterMentionNode} from "lexical-better-mentions";
+import {$isBeautifulMentionNode, BeautifulMentionNode} from "lexical-beautiful-mentions";
 
 export const MENTION: TextMatchTransformer = {
 	...LINK,
-	dependencies: [BetterMentionNode],
+	dependencies: [BeautifulMentionNode],
 	export: node => {
-		if (!$isBetterMentionNode(node)) {
+		if (!$isBeautifulMentionNode(node)) {
 			return null;
 		}
 

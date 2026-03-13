@@ -8,7 +8,7 @@ import {HasRole} from "../Authorization";
 export const RewardsManagementPage: FunctionComponent = () => (
    <Fragment>
        <Grid container>
-           <Grid item xs={12}>
+           <Grid size={12}>
                <AppBar title="reward.list"/>
            </Grid>
            <Grid>

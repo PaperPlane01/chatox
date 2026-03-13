@@ -11,8 +11,8 @@ import {
     Theme,
     Typography
 } from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {ArrowBack, Remove} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {format} from "date-fns";
 import {getChatInviteLink} from "../utils";
 import {JoinChatAllowanceInfo} from "../../JoinChatAllowanceForm";
@@ -24,7 +24,7 @@ import {UserLink} from "../../UserLink";
 import {isDefined} from "../../utils/object-utils";
 import {commonStyles} from "../../style";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     centered: commonStyles.centered,
     withPaddingBottom: {
         paddingBottom: theme.spacing(2)
@@ -46,7 +46,7 @@ export const ChatInviteInfoDialog: FunctionComponent = observer(() => {
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
     const {fullScreen} = useMobileDialog();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const chatInvite = useEntityById("chatInvites", inviteId);
     const createdBy = useEntityById("users", chatInvite?.createdById);

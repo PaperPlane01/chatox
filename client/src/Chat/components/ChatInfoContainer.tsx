@@ -1,11 +1,11 @@
 import React, {CSSProperties, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Theme} from "@mui/material";
-import {createStyles, makeStyles, useTheme} from "@mui/styles";
+import {Theme, useTheme} from "@mui/material";
+import {makeStyles} from "tss-react/mui";
 import {ChatDescription} from "./ChatDescription";
 import {ChatParticipantsCard, useChatParticipantsListScroll} from "../../ChatParticipant";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     chatInfoContainer: {
         height: "calc(100vh - 64px)",
         width: "100%",
@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 export const ChatInfoContainer: FunctionComponent = observer(() => {
-    const classes = useStyles();
+    const {classes} = useStyles();
     const theme = useTheme<Theme>()
     const {
         onLargeScreen,

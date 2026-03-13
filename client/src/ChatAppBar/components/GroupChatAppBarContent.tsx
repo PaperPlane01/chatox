@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CardHeader, Typography, useMediaQuery, useTheme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
 import {ChatMenu, TypingIndicator} from "../../Chat";
@@ -15,7 +15,7 @@ interface GroupChatAppBarContentProps {
     chatId: string
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     cardHeaderRoot: {
         padding: 0
     }
@@ -39,7 +39,7 @@ export const GroupChatAppBarContent: FunctionComponent<GroupChatAppBarContentPro
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
     const chatHasTypingUsers = hasTypingUsers(chatId);

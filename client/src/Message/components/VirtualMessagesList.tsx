@@ -33,7 +33,7 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
             setReachedBottom
         }
     } = useStore();
-    const virtuosoRef = useRef<VirtuosoHandle>() as RefObject<VirtuosoHandle>;
+    const virtuosoRef = useRef<VirtuosoHandle>(null) as RefObject<VirtuosoHandle>;
     const refs = useMessagesListRefs();
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));

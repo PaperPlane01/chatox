@@ -17,7 +17,7 @@ export const UserInteractionsHistoryTable: FunctionComponent = observer(() => {
             <UserInteractionsHistoryTableHeader/>
             <TableBody>
                 {userInteractionsIds.map(userInteractionId => (
-                    <UserInteractionsHistoryTableRow userInteractionId={userInteractionId}/>
+                    <UserInteractionsHistoryTableRow key={userInteractionId} userInteractionId={userInteractionId}/>
                 ))}
             </TableBody>
         </Table>

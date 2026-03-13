@@ -1,14 +1,14 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Card, CardActions, CardContent, CardHeader, CircularProgress, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {ChatInviteList} from "./ChatInviteList";
 import {CreateChatInviteButton} from "./CreateChatInviteButton";
 import {useLocalization, useStore} from "../../store";
 import {commonStyles} from "../../style";
 import {BaseSettingsTabProps} from "../../utils/types";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     centered: commonStyles.centered
 }));
 
@@ -26,7 +26,7 @@ export const ChatInvitesCard: FunctionComponent<BaseSettingsTabProps> = observer
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const headerLabel = selectedChat
         ? l("chat.invite.list.with-chat-name", {chatName: selectedChat.name})

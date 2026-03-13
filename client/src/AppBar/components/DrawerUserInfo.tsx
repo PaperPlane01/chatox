@@ -1,12 +1,13 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {Avatar} from "../../Avatar";
 import {useAuthorization} from "../../store";
+import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     userInfoContainer: {
         display: "flex",
         alignItems: "center",
@@ -19,27 +20,28 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 export const DrawerUserInfo: FunctionComponent = observer(() => {
-    const classes = useStyles();
+    const {classes} = useStyles();
     const {currentUser} = useAuthorization();
 
-    if (currentUser) {
-        const avatarLetter = `${currentUser.firstName[0]} ${currentUser.lastName ? currentUser.lastName[0] : ""}`;
-
-        return (
-            <div className={classes.userInfoContainer}>
-                <Avatar avatarLetter={avatarLetter}
-                        avatarColor={randomColor({seed: currentUser.id})}
-                        width={60}
-                        height={60}
-                        avatarId={currentUser.avatarId}
-                        avatarUri={currentUser.externalAvatarUri}
-                />
-                <Typography className={classes.username}>
-                    {currentUser.firstName} {currentUser.lastName ? currentUser.lastName : ""}
-                </Typography>
-            </div>
-        )
-    } else {
+    if (!currentUser) {
         return null;
     }
+
+    const avatarLetter = getUserAvatarLabel(currentUser);
+    const username = getUserDisplayedName(currentUser);
+
+    return (
+        <div className={classes.userInfoContainer}>
+            <Avatar avatarLetter={avatarLetter}
+                    avatarColor={randomColor({seed: currentUser.id})}
+                    width={60}
+                    height={60}
+                    avatarId={currentUser.avatarId}
+                    avatarUri={currentUser.externalAvatarUri}
+            />
+            <Typography className={classes.username}>
+                {username}
+            </Typography>
+        </div>
+    )
 });

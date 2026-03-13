@@ -3,11 +3,11 @@ import {Components} from "@mui/material";
 export const createStyleOverride = (mainColor: string): Components => ({
     MuiCssBaseline: {
         styleOverrides: {
-            ".emoji-mart-anchor-bar": {
-                backgroundColor: `${mainColor} !important`
-            },
-            ".emoji-mart-anchor-selected": {
-                color: `${mainColor} !important`
+            "em-emoji-picker": {
+                "--rgb-accent": mainColor
+                    .replace("rgb", "")
+                    .replace("(", "")
+                    .replace(")", ""),
             },
             ".yarl__portal": {
                 zIndex: "1350 !important"

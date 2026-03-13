@@ -1,21 +1,11 @@
-import React, {
-    Fragment,
-    FunctionComponent,
-    MouseEvent,
-    ReactNode,
-    useEffect,
-    useLayoutEffect,
-    useRef,
-    useState
-} from "react";
+import React, {Fragment, FunctionComponent, MouseEvent, ReactNode, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {Card, CardActions, CardContent, CardHeader, lighten, Theme, Tooltip, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {Done, DoneAll, Edit, Event, Forward} from "@mui/icons-material";
 import {format, isBefore, isEqual, isSameDay, isSameYear, Locale} from "date-fns";
 import randomColor from "randomcolor";
-import ReactVisibilitySensor from "react-visibility-sensor";
-import clsx from "clsx";
+import {useInViewport} from "react-in-viewport";
 import {Link} from "mobx-router";
 import {MessageMenu, MessageMenuItemType} from "./MessageMenu";
 import {ScheduledMessageMenu, ScheduledMessageMenuItemType} from "./ScheduledMessageMenu";
@@ -75,7 +65,7 @@ const getScheduledAtLabel = (scheduledAt: Date, locale: Locale, l: TranslationFu
     return l("message.scheduled-at", {scheduleDate: dateLabel});
 };
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     messageListItemWrapper: {
         display: "flex",
         paddingBottom: theme.spacing(1),
@@ -138,9 +128,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         paddingTop: 0,
         float: "right"
     },
-    undecoratedLink: {
-        ...commonStyles.undecoratedLink,
-    },
+    undecoratedLink: commonStyles.undecoratedLink,
     zeroHeight: {
         height: 0
     },
@@ -235,7 +223,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const {l, dateFnsLocale} = useLocalization();
     const {currentUser} = useAuthorization();
     const routerStore = useRouter();
-    const classes = useStyles();
+    const {classes, cx} = useStyles();
     const [width, setWidth] = useState<number | undefined>(undefined);
     const [height, setHeight] = useState<number | undefined>(undefined);
 
@@ -246,6 +234,22 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     const messagesListItemRef = useRef<HTMLDivElement>(null)
     const messageSelectedForForwarding = !scheduledMessage && forwardModeActive && isMessageForwarded(messageId);
     const luminosity = useLuminosity();
+    const messageRef = useRef<HTMLDivElement>(null);
+    const {inViewport} = useInViewport(messageRef);
+
+    const handleVisibilityChange = (visible: boolean): void => {
+        if (visible && !message.readByCurrentUser) {
+            addMessageToQueue(message.id);
+        }
+
+        if (onVisibilityChange) {
+            onVisibilityChange(visible);
+        }
+    };
+
+    useEffect(() => {
+        handleVisibilityChange(inViewport);
+    }, [inViewport]);
 
     useEffect(
         () => {
@@ -288,20 +292,20 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
         && (isEqual(messageCreatedAt, lastMessageReadByAnyoneCreatedAt)
             || isBefore(messageCreatedAt, lastMessageReadByAnyoneCreatedAt)));
 
-    const cardClasses = clsx({
+    const cardClasses = cx({
         [classes.messageCardFullWidth]: fullWidth,
         [classes.messageCard]: !fullWidth,
         [classes.messageOfCurrentUserCard]: sentByCurrentUser,
         [classes.withCode]: containsCode,
         [classes.withOneImage]: withAudio
     });
-    const wrapperClasses = clsx({
+    const wrapperClasses = cx({
         [classes.messageListItemWrapper]: true,
         [classes.messageOfCurrentUserListItemWrapper]: sentByCurrentUser && !fullWidth,
         [classes.partiallyVirtualized]: !enableVirtualScroll && enablePartialVirtualization,
         [classes.selectedForForwarding]: messageSelectedForForwarding
     });
-    const userAvatarLinkClasses = clsx({
+    const userAvatarLinkClasses = cx({
         [classes.undecoratedLink]: true,
         [classes.zeroHeight]: true,
         [classes.avatarOfCurrentUserContainer]: sentByCurrentUser,
@@ -309,16 +313,6 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     });
 
     const renderedMenu = menu ?? renderMenu(messageId, scheduledMessage, onMenuItemClick);
-
-    const handleVisibilityChange = (visible: boolean): void => {
-        if (visible && !message.readByCurrentUser) {
-            addMessageToQueue(message.id);
-        }
-
-        if (onVisibilityChange) {
-            onVisibilityChange(visible);
-        }
-    };
 
     const handleClick = (event: MouseEvent<HTMLDivElement>): void => {
         if (!forwardModeActive) {
@@ -335,165 +329,162 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
     };
 
     return (
-        <ReactVisibilitySensor onChange={handleVisibilityChange}
-                               partialVisibility={Boolean(messagesListHeight && height && height > messagesListHeight)}
+        <div className={wrapperClasses}
+             id={`message-${messageId}`}
+             onClick={handleClick}
+             ref={messageRef}
         >
-            <div className={wrapperClasses}
-                 id={`message-${messageId}`}
-                 onClick={handleClick}
-            >
-                {(forwardModeActive && forwardedFromChatId === message.chatId)
-                    ? (
-                        <SelectMessageForForwardingRadioButton selected={messageSelectedForForwarding}
-                                                               messageId={messageId}
-                                                               className={userAvatarLinkClasses}
+            {(forwardModeActive && forwardedFromChatId === message.chatId)
+                ? (
+                    <SelectMessageForForwardingRadioButton selected={messageSelectedForForwarding}
+                                                           messageId={messageId}
+                                                           className={userAvatarLinkClasses}
+                    />
+                )
+                : (
+                    <Link router={routerStore}
+                          className={userAvatarLinkClasses}
+                          route={Routes.userPage}
+                          params={{slug: sender.slug ?? sender.id}}
+                    >
+                        <Avatar avatarLetter={avatarLetter}
+                                avatarColor={color}
+                                avatarId={sender.avatarId}
+                                avatarUri={sender.externalAvatarUri}
                         />
-                    )
-                    : (
+                    </Link>
+                )
+            }
+            <Card className={cardClasses}>
+                <CardHeader title={
+                    <div className={classes.messageSender}>
                         <Link router={routerStore}
-                              className={userAvatarLinkClasses}
+                              className={classes.undecoratedLink}
                               route={Routes.userPage}
                               params={{slug: sender.slug ?? sender.id}}
                         >
-                            <Avatar avatarLetter={avatarLetter}
-                                    avatarColor={color}
-                                    avatarId={sender.avatarId}
-                                    avatarUri={sender.externalAvatarUri}
-                            />
+                            {message.forwarded && (
+                                <Typography variant="body1"
+                                            style={{
+                                                color,
+                                                paddingBottom: 0,
+                                                display: "flex"
+                                            }}
+                                >
+                                    <Forward/>
+                                    {l("message.forwarded")}:
+                                </Typography>
+                            )}
+                            <Typography variant="body1" style={{color}}>
+                                <strong>{senderName}</strong>
+                                {forwardedByName && (
+                                    <strong>
+                                        {l("message.forwarded.by")}
+                                        {" "}
+                                        {forwardedByName}
+                                    </strong>
+                                )}
+                            </Typography>
                         </Link>
-                    )
-                }
-                <Card className={cardClasses}>
-                    <CardHeader title={
-                       <div className={classes.messageSender}>
-                           <Link router={routerStore}
-                                 className={classes.undecoratedLink}
-                                 route={Routes.userPage}
-                                 params={{slug: sender.slug ?? sender.id}}
-                           >
-                               {message.forwarded && (
-                                   <Typography variant="body1"
-                                               style={{
-                                                   color,
-                                                   paddingBottom: 0,
-                                                   display: "flex"
-                                               }}
-                                   >
-                                       <Forward/>
-                                       {l("message.forwarded")}:
-                                   </Typography>
-                               )}
-                               <Typography variant="body1" style={{color}}>
-                                   <strong>{senderName}</strong>
-                                   {forwardedByName && (
-                                       <strong>
-                                           {l("message.forwarded.by")}
-                                           {" "}
-                                           {forwardedByName}
-                                       </strong>
-                                   )}
-                               </Typography>
-                           </Link>
-                           {senderChatRole?.features.showRoleNameInMessages.enabled && (
-                               <Typography variant="caption" color="textSecondary" className={classes.senderChatRole}>
-                                   {getChatRoleTranslation(senderChatRole.name, l)}
-                               </Typography>
-                           )}
-                       </div>
-                    }
-                                classes={{
-                                    root: classes.cardHeaderRoot,
-                                    action: classes.cardHeaderAction,
-                                    content: classes.cardHeaderContent
-                                }}
-                                action={renderedMenu}
-                    />
-                    <CardContent classes={{
-                        root: classes.cardContentRoot
-                    }}
-                                 ref={messagesListItemRef}
-                                 style={messageCardDimensionsCache[messageId]}
-                    >
-                        {message.referredMessageId && (
-                            <ReferredMessageContent messageId={message.referredMessageId}
-                                                    findMessageFunction={findMessageFunction}
-                                                    findSenderFunction={findMessageSenderFunction}
-                            />
+                        {senderChatRole?.features.showRoleNameInMessages.enabled && (
+                            <Typography variant="caption" color="textSecondary" className={classes.senderChatRole}>
+                                {getChatRoleTranslation(senderChatRole.name, l)}
+                            </Typography>
                         )}
-                        {message.deleted
-                            ? (
+                    </div>
+                }
+                            classes={{
+                                root: classes.cardHeaderRoot,
+                                action: classes.cardHeaderAction,
+                                content: classes.cardHeaderContent
+                            }}
+                            action={renderedMenu}
+                />
+                <CardContent classes={{
+                    root: classes.cardContentRoot
+                }}
+                             ref={messagesListItemRef}
+                             style={messageCardDimensionsCache[messageId]}
+                >
+                    {message.referredMessageId && (
+                        <ReferredMessageContent messageId={message.referredMessageId}
+                                                findMessageFunction={findMessageFunction}
+                                                findSenderFunction={findMessageSenderFunction}
+                        />
+                    )}
+                    {message.deleted
+                        ? (
+                            <div className={classes.cardContentWithPadding}>
+                                <i>{l("message.deleted")}</i>
+                            </div>
+                        )
+                        : (
+                            <Fragment>
                                 <div className={classes.cardContentWithPadding}>
-                                    <i>{l("message.deleted")}</i>
+                                    <MarkdownTextWithEmoji text={message.text}
+                                                           emojiData={message.emoji}
+                                    />
                                 </div>
-                            )
-                            : (
-                                <Fragment>
-                                    <div className={classes.cardContentWithPadding}>
-                                        <MarkdownTextWithEmoji text={message.text}
-                                                               emojiData={message.emoji}
-                                        />
-                                    </div>
-                                    {message.stickerId && (
-                                        <MessageSticker stickerId={message.stickerId}
-                                                        messageId={message.id}
-                                                        onImageLoaded={() => setStickerLoaded(true)}
-                                        />
-                                    )}
-                                    {!hideAttachments && message.images.length !== 0 && (
-                                        <MessageImagesGrid imagesIds={message.images}
-                                                           parentWidth={width}
-                                                           messageId={messageId}
-                                                           onImagesLoaded={() => setAllImagesLoaded(true)}
-                                        />
-                                    )}
-                                    {!hideAttachments && message.audios.length !== 0 && (
-                                        <MessageAudios audios={message.audios}
-                                                       audioType={UploadType.AUDIO}
-                                        />
-                                    )}
-                                    {!hideAttachments && message.voiceMessages.length !== 0 && (
-                                        <MessageAudios audios={message.voiceMessages}
-                                                       audioType={UploadType.VOICE_MESSAGE}
-                                        />
-                                    )}
-                                    {!hideAttachments && message.files.length !== 0 && (
-                                        <MessageFiles chatUploadIds={message.files}/>
-                                    )}
-                                </Fragment>
-                            )
-                        }
-                    </CardContent>
-                    <CardActions classes={{
-                        root: classes.cardActionsRoot
-                    }}>
-                        <Typography variant="caption"
-                                    color="textSecondary"
-                                    className={classes.messageBottomText}
-                        >
-                            {scheduledMessage && <Event fontSize="inherit"/>}
-                            {createAtLabel}
-                            {message.updatedAt && (
-                                <Tooltip title={l(
-                                    "message.updated-at",
-                                    {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)}
-                                )}>
+                                {message.stickerId && (
+                                    <MessageSticker stickerId={message.stickerId}
+                                                    messageId={message.id}
+                                                    onImageLoaded={() => setStickerLoaded(true)}
+                                    />
+                                )}
+                                {!hideAttachments && message.images.length !== 0 && (
+                                    <MessageImagesGrid imagesIds={message.images}
+                                                       parentWidth={width}
+                                                       messageId={messageId}
+                                                       onImagesLoaded={() => setAllImagesLoaded(true)}
+                                    />
+                                )}
+                                {!hideAttachments && message.audios.length !== 0 && (
+                                    <MessageAudios audios={message.audios}
+                                                   audioType={UploadType.AUDIO}
+                                    />
+                                )}
+                                {!hideAttachments && message.voiceMessages.length !== 0 && (
+                                    <MessageAudios audios={message.voiceMessages}
+                                                   audioType={UploadType.VOICE_MESSAGE}
+                                    />
+                                )}
+                                {!hideAttachments && message.files.length !== 0 && (
+                                    <MessageFiles chatUploadIds={message.files}/>
+                                )}
+                            </Fragment>
+                        )
+                    }
+                </CardContent>
+                <CardActions classes={{
+                    root: classes.cardActionsRoot
+                }}>
+                    <Typography variant="caption"
+                                color="textSecondary"
+                                className={classes.messageBottomText}
+                    >
+                        {scheduledMessage && <Event fontSize="inherit"/>}
+                        {createAtLabel}
+                        {message.updatedAt && (
+                            <Tooltip title={l(
+                                "message.updated-at",
+                                {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)}
+                            )}>
                                 <span>
                                     ,
                                     {" "}
                                     <Edit fontSize="inherit"/>
                                     {l("message.edited")}
                                 </span>
-                                </Tooltip>
-                            )}
-                            {sentByCurrentUser && (
-                                readByAnyone
-                                    ? <DoneAll fontSize="small" color="primary"/>
-                                    : <Done fontSize="small" color="primary"/>
-                            )}
-                        </Typography>
-                    </CardActions>
-                </Card>
-            </div>
-        </ReactVisibilitySensor>
+                            </Tooltip>
+                        )}
+                        {sentByCurrentUser && (
+                            readByAnyone
+                                ? <DoneAll fontSize="small" color="primary"/>
+                                : <Done fontSize="small" color="primary"/>
+                        )}
+                    </Typography>
+                </CardActions>
+            </Card>
+        </div>
     );
 });

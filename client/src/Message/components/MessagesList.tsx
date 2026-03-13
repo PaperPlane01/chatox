@@ -10,7 +10,7 @@ import React, {
 } from "react";
 import {observer} from "mobx-react";
 import {Theme, useMediaQuery, useTheme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {MessagesListItem} from "./MessagesListItem";
 import {MessagesListBottom} from "./MessagesListBottom";
 import {PinnedMessage} from "./PinnedMessage";
@@ -19,7 +19,7 @@ import {useMessagesListBottomStyles, useMessagesListRefs, useMessagesListStyles}
 import {useStore} from "../../store";
 import {isScrolledToBottom} from "../../utils/event-utils";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     messagesList: {
         [theme.breakpoints.up("lg")]: {
             overflowY: "auto",
@@ -57,7 +57,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
     const refs = useMessagesListRefs();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const [reachedBottom, setReachedBottom] = useState(false);
     const shouldHandleWindowScroll = onSmallScreen && (!enableVirtualScroll || enablePartialVirtualization);
 
@@ -98,7 +98,7 @@ export const MessagesList: FunctionComponent = observer(() => {
             const body = document.body;
             const html = document.documentElement;
             const documentHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-            const windowBottom = windowHeight + window.pageYOffset;
+            const windowBottom = windowHeight + window.scrollY;
 
             setReachedBottom(documentHeight - windowBottom <= 1);
         }

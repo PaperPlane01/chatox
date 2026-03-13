@@ -2,10 +2,10 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Icon, Theme} from "@mui/material";
 import {Add} from "@mui/icons-material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {useLocalization, useStore} from "../../store";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     createChatRoleButton: {
         width: "100%",
         justifyContent: "left",
@@ -24,7 +24,7 @@ export const CreateChatRoleButton: FunctionComponent = observer(() => {
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const handleClick = (): void => {
         setCreateChatRoleDialogOpen(true);

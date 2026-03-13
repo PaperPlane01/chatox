@@ -12,10 +12,10 @@ import {ChatInviteInfoDialog, CreateChatInviteDialog, UpdateChatInviteDialog} fr
 
 export const ChatManagementPage: FunctionComponent = () => (
     <Grid container>
-        <Grid item xs={12}>
+        <Grid size={12}>
             <ChatManagementAppBar/>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
             <Layout>
                 <ChatManagementTabsContainer/>
             </Layout>

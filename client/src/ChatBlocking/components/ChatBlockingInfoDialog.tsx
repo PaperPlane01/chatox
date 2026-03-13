@@ -124,10 +124,10 @@ export const ChatBlockingInfoDialog: FunctionComponent = observer(() => {
                     </TableBody>
                 </Table>
                 <Grid container>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         <Typography>{l("chat.blocking.actions")}</Typography>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         <CancelChatBlockingButton chatBlockingId={chatBlockingId}/>
                     </Grid>
                 </Grid>

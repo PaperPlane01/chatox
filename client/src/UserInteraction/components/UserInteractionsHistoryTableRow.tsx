@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {TableCell, TableRow, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {format} from "date-fns";
 import {USER_INTERACTIONS_ICONS_MAP} from "./UserInteractionIcons";
 import {useLocalization} from "../../store";
@@ -13,7 +13,7 @@ interface UserInteractionsTableRowProps {
     userInteractionId: string
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     interactionTypeCell: {
         display: "flex",
         gap: theme.spacing(2)
@@ -27,7 +27,7 @@ export const UserInteractionsHistoryTableRow: FunctionComponent<UserInteractions
     userInteractionId
 }) => {
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const userInteraction = useEntityById("userInteractions", userInteractionId);
     const user = useEntityById("users", userInteraction.userId);
 

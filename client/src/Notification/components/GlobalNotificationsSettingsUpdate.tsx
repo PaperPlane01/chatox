@@ -21,13 +21,13 @@ export const GlobalNotificationsSettingsUpdate: FunctionComponent = observer(() 
 
 	return (
 		<Grid container spacing={2}>
-			<Grid item xs={12}>
+			<Grid size={12}>
 				<UpdateGlobalChatsNotificationsSettingsCard chatType={ChatType.GROUP}/>
 			</Grid>
-			<Grid item xs={12}>
+			<Grid size={12}>
 				<UpdateGlobalChatsNotificationsSettingsCard chatType={ChatType.DIALOG}/>
 			</Grid>
-			<Grid item xs={12}>
+			<Grid size={12}>
 				<Button variant="contained"
 						color="primary"
 						disabled={pending}

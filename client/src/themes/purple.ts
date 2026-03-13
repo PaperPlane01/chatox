@@ -1,7 +1,7 @@
 import {createTheme} from "@mui/material";
 import {createStyleOverride} from "./common";
 
-const PRIMARY_MAIN = "#8e24aa";
+const PRIMARY_MAIN = "rgb(142, 36, 170)";
 
 export const purple = createTheme({
     palette: {

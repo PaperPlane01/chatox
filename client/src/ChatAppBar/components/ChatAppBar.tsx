@@ -1,9 +1,10 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {AppBar, CardHeader, Hidden, IconButton, Skeleton, Toolbar, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {AppBar, Box, CardHeader, IconButton, Skeleton, Toolbar, Typography} from "@mui/material";
+import {makeStyles} from "tss-react/mui";
 import {ArrowBack} from "@mui/icons-material";
 import {Link} from "mobx-router";
+import {HttpStatusCode} from "axios";
 import {DialogChatAppBarContent} from "./DialogChatAppBarContent";
 import {GroupChatAppBarContent} from "./GroupChatAppBarContent";
 import {NewPrivateChatAppBar} from "./NewPrivateChatAppBar";
@@ -17,15 +18,15 @@ import {ChatType} from "../../api/types/response";
 import {commonStyles} from "../../style";
 import {ForwardMessagesAppBarContent} from "./ForwardMessagesAppBarContent";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     undecoratedLink: commonStyles.undecoratedLink
 }));
 
 const getLabelFromError = (error: ApiError): keyof Labels => {
     if (error.status === API_UNREACHABLE_STATUS) {
         return "server.unreachable";
-    } else if (error.status === 404) {
-        if (error.metadata && error.metadata.errorCode === "CHAT_DELETED") {
+    } else if (error.status === HttpStatusCode.NotFound) {
+        if (error.metadata?.errorCode === "CHAT_DELETED") {
             return "chat.deleted"
         } else {
             return "chat.not-found";
@@ -53,7 +54,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const routerStore = useRouter();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const chat = useEntityById("chats", selectedChatId);
     let appBarContent: ReactNode;
 
@@ -95,10 +96,20 @@ export const ChatAppBar: FunctionComponent = observer(() => {
         <Fragment>
             <AppBar position="fixed">
                 <Toolbar>
-                    <Hidden lgDown>
+                    <Box sx={{
+                        display: {
+                            xs: "none",
+                            lg: "block"
+                        }
+                    }}>
                         <OpenDrawerButton/>
-                    </Hidden>
-                    <Hidden lgUp>
+                    </Box>
+                    <Box sx={{
+                        display: {
+                            lg: "none",
+                            xs: "block",
+                        }
+                    }}>
                         <Link route={Routes.myChats}
                               router={routerStore}
                               className={classes.undecoratedLink}
@@ -109,7 +120,7 @@ export const ChatAppBar: FunctionComponent = observer(() => {
                                 <ArrowBack/>
                             </IconButton>
                         </Link>
-                    </Hidden>
+                    </Box>
                     {appBarContent}
                 </Toolbar>
             </AppBar>

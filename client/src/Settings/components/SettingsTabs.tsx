@@ -27,7 +27,7 @@ export const SettingsTabs: FunctionComponent = observer(() => {
     } = useStore();
     const routerStore = useRouter();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const goTo = (settingsTab: string) => {
         routerStore.goTo(Routes.settingsTabPage, {tab: settingsTab});

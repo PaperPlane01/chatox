@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {MenuItem, ListItemIcon, ListItemText} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {EmojiEvents} from "@mui/icons-material";
 import {Link} from "mobx-router";
 import {useRouter, useLocalization} from "../../store";
@@ -12,14 +12,14 @@ interface RewardsManagementMenuItemProps {
     onClick?: () => void
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     undecoratedLink: commonStyles.undecoratedLink
 }));
 
 export const RewardsManagementMenuItem: FunctionComponent<RewardsManagementMenuItemProps> = observer(({
     onClick
 }) => {
-    const classes = useStyles();
+    const {classes} = useStyles();
     const routerStore = useRouter();
     const {l} = useLocalization();
 

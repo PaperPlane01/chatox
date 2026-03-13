@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {StickerPackMenu} from "./StickerPackMenu";
 import {StickerPackPreview} from "./StickerPackPreview";
 import {useEntityById} from "../../entities";
@@ -12,7 +12,7 @@ interface StickerPacksListItemProps {
     onClick?: () => void
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     stickerPacksListItem: {
         cursor: "pointer"
     }
@@ -22,7 +22,7 @@ export const StickerPacksListItem: FunctionComponent<StickerPacksListItemProps> 
     stickerPackId,
     onClick
 }) => {
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const stickerPack = useEntityById("stickerPacks", stickerPackId);
     const stickerPackPreview = useEntityById("uploads", stickerPack.previewId) as Upload<StickerUploadMetadata | ImageUploadMetadata>;

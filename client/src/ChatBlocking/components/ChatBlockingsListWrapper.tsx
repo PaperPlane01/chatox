@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ShowActiveOnlySwitch} from "./ShowActiveOnlySwitch";
-import {Hidden} from "@mui/material";
+import {Box} from "@mui/material";
 import {ChatBlockingsList} from "./ChatBlockingsList";
 import {ChatBlockingsTable} from "./ChatBlockingsTable";
 import {useStore} from "../../store";
@@ -20,12 +20,22 @@ export const ChatBlockingsListWrapper: FunctionComponent = observer(() => {
     return (
         <Fragment>
             <ShowActiveOnlySwitch chatId={selectedChat.id}/>
-            <Hidden lgUp>
+            <Box sx={{
+                display: {
+                    lg: "none",
+                    md: "block"
+                }
+            }}>
                 <ChatBlockingsList/>
-            </Hidden>
-            <Hidden lgDown>
+            </Box>
+            <Box sx={{
+                display: {
+                    md: "none",
+                    lg: "block"
+                }
+            }}>
                 <ChatBlockingsTable/>
-            </Hidden>
+            </Box>
         </Fragment>
     );
 });

@@ -12,7 +12,7 @@ import {
     Theme,
     Typography,
 } from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {ChipInput} from "../../ChipInput";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
@@ -20,7 +20,7 @@ import {containsNotUndefinedValues} from "../../utils/object-utils";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {useMobileDialog} from "../../utils/hooks";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     errorLabel: {
         color: theme.palette.error.main
     }
@@ -45,7 +45,7 @@ export const CreateChatDialog: FunctionComponent = observer(() => {
     } = useStore();
     const routerStore = useRouter();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const {fullScreen} = useMobileDialog();
 
     if (createdChat) {
@@ -86,12 +86,14 @@ export const CreateChatDialog: FunctionComponent = observer(() => {
                            multiline
                            rows={4}
                            maxRows={20}
-                           InputProps={{
-                               endAdornment: (
-                                   <InputAdornment position="end">
-                                       <OpenMarkdownPreviewDialogButton/>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: (
+                                       <InputAdornment position="end">
+                                           <OpenMarkdownPreviewDialogButton/>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
                 <TextField label={l("chat.slug")}
@@ -101,14 +103,16 @@ export const CreateChatDialog: FunctionComponent = observer(() => {
                            margin="dense"
                            error={Boolean(formErrors.slug)}
                            helperText={formErrors.slug && l(formErrors.slug)}
-                           InputProps={{
-                               endAdornment: checkingSlugAvailability
-                                   ? (
-                                       <InputAdornment position="end">
-                                           <CircularProgress size={20} color="primary"/>
-                                       </InputAdornment>
-                                   )
-                                   : null
+                           slotProps={{
+                               input: {
+                                   endAdornment: checkingSlugAvailability
+                                       ? (
+                                           <InputAdornment position="end">
+                                               <CircularProgress size={20} color="primary"/>
+                                           </InputAdornment>
+                                       )
+                                       : null
+                               }
                            }}
                 />
                 <ChipInput value={createChatForm.tags}

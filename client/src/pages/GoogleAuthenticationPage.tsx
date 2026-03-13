@@ -29,10 +29,10 @@ export const GoogleAuthenticationPage: FunctionComponent = observer(() => {
 
     return (
         <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <AppBar/>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 {pending && (
                     <Fragment>
                         <CircularProgress color="primary" size={20}/>

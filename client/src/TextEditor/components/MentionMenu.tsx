@@ -1,14 +1,14 @@
-import React, {forwardRef, FunctionComponent, useEffect, useRef, useState} from "react";
+import React, {CSSProperties, forwardRef, FunctionComponent, useEffect, useRef, useState} from "react";
 import {createPortal} from "react-dom";
 import {CircularProgress, Paper} from "@mui/material";
-import {BetterMentionsMenuProps} from "lexical-better-mentions";
+import {BeautifulMentionsMenuProps} from "lexical-beautiful-mentions";
 import {computePosition} from "@floating-ui/dom";
 import {FloatingElementCoordinates} from "../types";
 import {commonStyles} from "../../style";
 
 export const MentionMenu: FunctionComponent = forwardRef<
 	HTMLDivElement,
-	BetterMentionsMenuProps
+	BeautifulMentionsMenuProps
 >(({anchorEl, loading, ...props}, ref) => {
 	const [coordinates, setCoordinates] = useState<FloatingElementCoordinates | null>(null);
 	const innerRef = useRef<HTMLDivElement | null>(null);
@@ -55,7 +55,7 @@ export const MentionMenu: FunctionComponent = forwardRef<
 			  }}
 		>
 			{loading && (
-				<div style={commonStyles.centered}>
+				<div style={commonStyles.centered as unknown as CSSProperties}>
 					<CircularProgress size={25} color="primary"/>
 				</div>
 			)}

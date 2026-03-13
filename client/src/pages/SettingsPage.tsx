@@ -8,10 +8,10 @@ import {DeleteStickerPackDialog, StickerPackDialog, StickerPreviewDialog} from "
 export const SettingsPage: FunctionComponent = () => (
     <Fragment>
         <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <AppBar title="settings"/>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Layout>
                     <SettingsContainer/>
                 </Layout>

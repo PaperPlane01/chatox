@@ -12,10 +12,10 @@ import {
 export const StickerPacksPage: FunctionComponent = () => (
     <Fragment>
         <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <AppBar title="sticker.pack.list"/>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Layout>
                     <StickerPacksSearchResults/>
                 </Layout>

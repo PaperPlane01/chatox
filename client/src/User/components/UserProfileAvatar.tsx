@@ -1,15 +1,15 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles} from "@mui/styles";
-import clsx from "clsx";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {Avatar} from "../../Avatar";
 import {useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {isDefined} from "../../utils/object-utils";
 import {getUserAvatarLabel} from "../utils/labels";
+import {useLuminosity} from "../../utils/hooks";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     clickable: {
         cursor: "pointer"
     }
@@ -24,15 +24,16 @@ export const UserProfileAvatar: FunctionComponent = observer(() => {
             openLightboxToAvatar
         }
     } = useStore();
-    const classes = useStyles();
+    const {classes, cx} = useStyles();
     const user = useEntityById("users", selectedUserId);
+    const luminosity = useLuminosity();
 
     if (!user) {
         return null;
     }
 
+    const color = randomColor({seed: user.id, luminosity});
     const avatarLetter = getUserAvatarLabel(user);
-    const color = randomColor({seed: user.id});
     const clickable = isDefined(user.avatarId);
 
     const handleClick = (): void => {
@@ -48,7 +49,7 @@ export const UserProfileAvatar: FunctionComponent = observer(() => {
                 width={64}
                 height={64}
                 avatarUri={user.externalAvatarUri}
-                className={clsx({
+                className={cx({
                     [classes.clickable]: clickable
                 })}
                 onCLick={handleClick}

@@ -31,9 +31,9 @@ export const AddUserToBlacklistMenuItem: FunctionComponent<AddUserToBlacklistMen
 
     return (
         <MenuItem onClick={handleClick}
-                  disabled={pendingUsersMap[userId] && pendingUsersMap[userId].pending}
+                  disabled={pendingUsersMap[userId]?.pending}
         >
-            {pendingUsersMap[userId] && pendingUsersMap[userId].pending && <CircularProgress size={15} color="primary"/>}
+            {pendingUsersMap[userId]?.pending && <CircularProgress size={15} color="primary"/>}
             <ListItemIcon>
                 <Block/>
             </ListItemIcon>

@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Link} from "mobx-router";
 import {Checkbox, ListItem, ListItemAvatar, ListItemText} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from 'tss-react/mui';
 import randomColor from "randomcolor";
 import {JoinChatRequestMenu} from "./JoinChatRequestMenu";
 import {Avatar} from "../../Avatar";
@@ -11,12 +11,13 @@ import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {commonStyles} from "../../style";
+import {useLuminosity} from "../../utils/hooks";
 
 interface JoinChatRequestsListItemProps {
     pendingChatParticipantId: string
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     userLink: {
         ...commonStyles.undecoratedLink,
         display: "flex",
@@ -36,12 +37,13 @@ export const JoinChatRequestListItem: FunctionComponent<JoinChatRequestsListItem
         }
     } = useStore();
     const router = useRouter();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const pendingChatParticipant = useEntityById("pendingChatParticipations", pendingChatParticipantId);
     const user = useEntityById("users", pendingChatParticipant.userId);
+    const luminosity = useLuminosity();
+    const avatarColor = randomColor({seed: user.id, luminosity});
     const avatarLetter = getUserAvatarLabel(user);
-    const avatarColor = randomColor({seed: user.id, luminosity: "dark"});
     const selected = isSelected(pendingChatParticipantId);
 
     const handleCheckboxChange = (): void => {

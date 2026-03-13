@@ -1,6 +1,6 @@
 import React, {FunctionComponent, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import ReactPlayer from "react-player";
 import {BaseStickerProps} from "./BaseStickerProps";
 import {useStickerLongClick} from "../hooks";
@@ -9,8 +9,8 @@ import {useEntityById, useEntitySelector} from "../../entities";
 import {useStore} from "../../store";
 import {isDefined} from "../../utils/object-utils";
 
-const useStyles = makeStyles(() => createStyles({
-	stickerWrapper: stickerWrapperStyle
+const useStyles = makeStyles()(() => ({
+    stickerWrapper: stickerWrapperStyle
 }));
 
 export const VideoSticker: FunctionComponent<BaseStickerProps> = observer(({
@@ -23,7 +23,7 @@ export const VideoSticker: FunctionComponent<BaseStickerProps> = observer(({
  }) => {
 	const sticker = useEntityById("stickers", stickerId);
 	const upload = useEntitySelector("uploads", entities => entities.uploads.findSticker(sticker.uploadId));
-	const classes = useStyles();
+	const {classes} = useStyles();
 	const {
 		stickersPreferences: {
 			autoplay,

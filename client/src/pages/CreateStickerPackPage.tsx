@@ -12,10 +12,10 @@ export const CreateStickerPackPage: FunctionComponent = observer(() => {
 
     return (
         <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <AppBar title="sticker.pack.create"/>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Layout>
                     <HasRole role="ROLE_USER"
                              alternative={(

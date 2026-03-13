@@ -7,10 +7,10 @@ import {ChatInviteCardWrapper} from "../ChatInvite";
 
 export const ChatInvitePage: FunctionComponent = observer(() => (
     <Grid container>
-        <Grid item xs={12}>
+        <Grid size={12}>
             <AppBar/>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
             <Layout>
                 <ChatInviteCardWrapper/>
             </Layout>

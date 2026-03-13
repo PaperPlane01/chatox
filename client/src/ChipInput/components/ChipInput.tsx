@@ -77,14 +77,16 @@ const _ChipInput = <ChipType extends {toString: () => string}>(props: ChipInputP
                    onChange={handleTextChange}
                    fullWidth
                    margin="dense"
-                   InputProps={{
-                       startAdornment: (
-                           <InputAdornment position="start">
-                               {chips}
-                           </InputAdornment>
-                       ),
-                       onKeyDown: event => handleTagsInputKeydown(event),
-                       ...rest.InputProps
+                   slotProps={{
+                       input: {
+                           startAdornment: (
+                               <InputAdornment position="start">
+                                   {chips}
+                               </InputAdornment>
+                           ),
+                           onKeyDown: event => handleTagsInputKeydown(event),
+                       },
+                       ...rest.slotProps
                    }}
         />
     );

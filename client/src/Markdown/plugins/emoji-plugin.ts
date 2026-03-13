@@ -1,31 +1,30 @@
 import {Plugin, Transformer} from "unified";
-import {Node} from "unist";
+import {Node, Position} from "unist";
 import {visit} from "unist-util-visit";
-import {Element, Text} from "hast";
-import {ElementContent, Position} from "react-markdown/lib/ast-to-react";
-import {EmojiData, EmojiSet, getEmojiDataFromNative} from "emoji-mart";
-import {allEmojiData} from "../../Emoji/data";
+import {Element, ElementContent, Text} from "hast";
+import {getEmojiDataFromNative, EmojiData} from "emoji-mart";
+import {toJS} from "mobx";
 import {EMOJI_REGEXP} from "../../Emoji/rules";
 import {getEmojiDataFromColons} from "../../Emoji/utils";
 import {EmojiPosition, MessageEmoji} from "../../api/types/response";
 
-interface EmojiNodeProperties {
-	hName: string,
-	hProperties: EmojiData
-}
-
 export const emojiPlugin = (
-	set: EmojiSet,
 	messageEmoji?: MessageEmoji,
 ): Plugin => (): Transformer<Node, Node> => {
-	return (tree: Node): void => {
+	return async (tree: Node): Promise<void> => {
+        const promises: Promise<void>[] = [];
+
 		visit(tree, "text", (node: Text, index: number, parent: Element) => {
 			if (messageEmoji) {
 				addEmojiNodes(messageEmoji, index, node, parent);
 			} else {
-				addEmojiNodesByRegExp(set, index, node, parent);
+				promises.push(addEmojiNodesByRegExp(index, node, parent));
 			}
 		});
+
+        if (promises.length !== 0) {
+            await Promise.all(promises);
+        }
 	};
 };
 
@@ -55,7 +54,7 @@ const addEmojiNodes = (
 	}
 
 	let lastPosition = 0;
-	const nodes: Array<Node | Node<EmojiNodeProperties> | Text> = [];
+	const nodes: Array<Node | Text> = [];
 
 	for (const emojiPosition of emojisWithinNode) {
 		const positionWithinNode = emojiPosition.start - nodePosition.start.offset!;
@@ -91,12 +90,11 @@ const addEmojiNodes = (
 	insertChildNodes(parent, index, nodes as unknown as ElementContent[]);
 };
 
-const addEmojiNodesByRegExp = (
-	set: EmojiSet,
+const addEmojiNodesByRegExp = async (
 	index: number,
 	node: Text,
 	parent: Element
-): void => {
+): Promise<void> => {
 	const nodePosition = node.position;
 
 	if (!nodePosition) {
@@ -104,7 +102,7 @@ const addEmojiNodesByRegExp = (
 	}
 
 	let lastPosition = 0;
-	const nodes: Array<Node | Node<EmojiNodeProperties> | Text> = [];
+	const nodes: Array<Node | Text> = [];
 	let match: RegExpMatchArray | null;
 	let emojiEncountered = false;
 
@@ -123,9 +121,9 @@ const addEmojiNodesByRegExp = (
 		let emojiData: EmojiData | undefined;
 
 		if (matchedValue.startsWith(":")) {
-			emojiData = getEmojiDataFromColons(matchedValue, set);
+			emojiData = await getEmojiDataFromColons(matchedValue);
 		} else {
-			emojiData = getEmojiDataFromNative(matchedValue, set, allEmojiData);
+			emojiData = await getEmojiDataFromNative(matchedValue);
 		}
 
 		if (emojiData?.id) {
@@ -178,11 +176,15 @@ const createEmojiNode = (
 	parentNodePosition: Position,
 	emojiPosition: EmojiPosition,
 	emojiData: EmojiData
-): Node<EmojiNodeProperties> => ({
+): Node => ({
 	type: "emoji",
 	data: {
 		hName: "emoji",
-		hProperties: emojiData
+
+        // Have to call toJS because react-markdown uses structured clone somewhere in its code,
+        // and this particular object comes from Mobx stored, meaning that it's wrapped as Proxy,
+        // and thus can't be cloned.
+		hProperties: toJS(emojiData)
 	},
 	position: {
 		start: {

@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {IconButton, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {ArrowLeft, ArrowRight, Delete, Edit} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {EditableStickerPreview} from "./EditableStickerPreview";
 import {StickerContainer} from "../stores";
 import {StickerPackFormContext} from "../types";
@@ -16,8 +16,8 @@ interface EditableStickerProps {
     context: StickerPackFormContext
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-    imageWrapper: {
+const useStyles = makeStyles()((theme: Theme) => ({
+    stickerWrapper: {
         display: "flex",
         flexDirection: "column",
         height: "100%",
@@ -45,14 +45,14 @@ export const EditableSticker: FunctionComponent<EditableStickerProps> = observer
         moveStickerForward
     } = useStickerPackForm(context);
     const {l} = useLocalization();
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     if (!stickerContainer.uploadContainer) {
         return null;
     }
 
     return (
-        <div className={classes.imageWrapper}>
+        <div className={classes.stickerWrapper}>
             <div className={classes.buttonsContainer}>
                 {index !== 0 && (
                     <IconButton size="small"

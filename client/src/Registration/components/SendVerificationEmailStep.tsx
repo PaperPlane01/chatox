@@ -55,12 +55,14 @@ export const SendVerificationEmailStep: FunctionComponent = observer(() => {
                            error={Boolean(formErrors.email)}
                            helperText={formErrors.email && l(formErrors.email)}
                            onChange={event => setFormValue("email", event.target.value)}
-                           InputProps={{
-                               endAdornment: checkingEmailAvailability && (
-                                   <InputAdornment position="end">
-                                       <CircularProgress size={15} color="primary"/>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: checkingEmailAvailability && (
+                                       <InputAdornment position="end">
+                                           <CircularProgress size={15} color="primary"/>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
                 {error && (

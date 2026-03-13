@@ -1,4 +1,4 @@
-import React, {ChangeEvent, Fragment, FunctionComponent} from "react";
+import React, {ChangeEvent, CSSProperties, Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Typography} from "@mui/material";
 import {FolderZip} from "@mui/icons-material";
@@ -27,7 +27,7 @@ export const ReadingArchiveStep: FunctionComponent = observer(() => {
 	};
 
 	return (
-		<div style={commonStyles.centered}>
+		<div style={commonStyles.centered as unknown as CSSProperties}>
 			{!pending && (
 				<Button variant="outlined"
 						color="primary"

@@ -1,14 +1,14 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {BaseStickerProps} from "./BaseStickerProps";
 import {useStickerLongClick} from "../hooks";
 import {stickerWrapperStyle} from "../styles";
 import {useEntityById, useEntitySelector} from "../../entities";
 
-const useStyles = makeStyles(() => createStyles({
-	stickerWrapper: stickerWrapperStyle,
-	image: {
+const useStyles = makeStyles()(() => ({
+    stickerWrapper: stickerWrapperStyle,
+    image: {
 		maxWidth: "100%",
 		maxHeight: "100%",
 		height: "inherit",
@@ -25,7 +25,7 @@ export const ImageSticker: FunctionComponent<BaseStickerProps> = observer(({
 }) => {
 	const sticker = useEntityById("stickers", stickerId);
 	const upload = useEntitySelector("uploads", entities => entities.uploads.findSticker(sticker.uploadId));
-	const classes = useStyles();
+	const {classes} = useStyles();
 	const sizeQuery = size ? `?size=${size}` : "";
 	const longPressHandlers = useStickerLongClick({stickerId, onClick, onLongClick});
 

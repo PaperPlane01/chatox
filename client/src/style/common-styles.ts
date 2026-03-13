@@ -1,8 +1,12 @@
-import {CSSProperties} from "@mui/styles";
+import {CSSObject} from "tss-react";
 
-type CommonStyles = Record<string, CSSProperties>;
+type CommonStyles<RuleName extends string> = Record<RuleName, CSSObject>;
 
-export const commonStyles: CommonStyles = {
+const createCommonStyles = <RuleName extends string>(styles: CommonStyles<RuleName>): CommonStyles<RuleName> => {
+    return styles;
+}
+
+export const commonStyles = createCommonStyles(({
     centered: {
         display: "flex",
         alignItems: "center",
@@ -13,4 +17,4 @@ export const commonStyles: CommonStyles = {
         textDecoration: "none",
         color: "inherit"
     }
-}
+}));

@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
 import { AppBar as MuiAppBar, Toolbar, Typography } from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
 import {NavigationalDrawer} from "./NavigationalDrawer";
 import {OpenDrawerButton} from "./OpenDrawerButton";
@@ -17,7 +17,7 @@ interface AppBarProps {
     hideTitle?: boolean
 }
 
-const useClasses = makeStyles(() => createStyles({
+const useClasses = makeStyles()(() => ({
     root: {
         flexGrow: 1
     },
@@ -39,7 +39,7 @@ export const AppBar: FunctionComponent<AppBarProps> = observer(({
     additionalLeftItem,
     hideTitle = false
 }) => {
-    const classes = useClasses();
+    const {classes} = useClasses();
     const {
         messagesForwarding: {
             forwardModeActive

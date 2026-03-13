@@ -33,7 +33,7 @@ export const ReportedMessagesTable: FunctionComponent = observer(() => {
                 <Table>
                     <ReportedMessagesTableHead/>
                     <TableBody>
-                        {ids.map(id => (<ReportedMessagesTableRow reportId={id}/>))}
+                        {ids.map(id => <ReportedMessagesTableRow key={id} reportId={id}/>)}
                     </TableBody>
                 </Table>
                 {pending && <CircularProgress size={50} color="primary"/>}

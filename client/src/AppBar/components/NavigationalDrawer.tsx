@@ -29,9 +29,11 @@ export const NavigationalDrawer: FunctionComponent = observer(() => {
             <SwipeableDrawer onClose={closeDrawer}
                              onOpen={openDrawer}
                              open={drawerExpanded}
-                             PaperProps={{
-                                 style: {
-                                     width: 240
+                             slotProps={{
+                                 paper: {
+                                     style: {
+                                         width: 240
+                                     }
                                  }
                              }}
             >

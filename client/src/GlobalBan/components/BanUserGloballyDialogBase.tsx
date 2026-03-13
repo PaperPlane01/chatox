@@ -65,19 +65,18 @@ export const BanUserGloballyDialogBase: FunctionComponent<BanUserGloballyDialogB
                <DateTimePicker value={formValues.expiresAt || null}
                                onChange={date => onFormValueChange("expiresAt", date || undefined)}
                                disabled={formValues.permanent}
-                               inputFormat="dd MMMM yyyy HH:mm"
+                               format="dd MMMM yyyy HH:mm"
                                disablePast
                                ampm={false}
-                               renderInput={props => (
-                                   <TextField {...props}
-                                              label={l("global.ban.expires-at")}
-                                              error={Boolean(formErrors.expiresAt)}
-                                              helperText={formErrors.expiresAt && l(formErrors.expiresAt)}
-                                              margin="dense"
-                                              fullWidth
-                                   />
-                               )}
-                               showToolbar
+                               label={l("global.ban.expires-at")}
+                               slotProps={{
+                                   textField: {
+                                       error: Boolean(formErrors.expiresAt),
+                                       helperText: formErrors.expiresAt && l(formErrors.expiresAt),
+                                       margin: "dense",
+                                       fullWidth: true
+                                   }
+                               }}
                />
                <GlobalBanReasonSelect onSelect={reason => onFormValueChange("reason", reason)}
                                       value={formValues.reason}

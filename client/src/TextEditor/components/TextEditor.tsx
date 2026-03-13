@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent, ReactNode, useCallback, useState} from "react";
 import {observer} from "mobx-react";
-import {Hidden, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {Box, Theme} from "@mui/material";
+import {makeStyles} from "tss-react/mui";
 import {LexicalComposer} from "@lexical/react/LexicalComposer";
 import {RichTextPlugin} from "@lexical/react/LexicalRichTextPlugin";
 import {ListPlugin} from "@lexical/react/LexicalListPlugin";
@@ -16,9 +16,9 @@ import {HeadingNode, QuoteNode} from "@lexical/rich-text";
 import {HorizontalRuleNode} from "@lexical/react/LexicalHorizontalRuleNode";
 import {ContentEditable} from "@lexical/react/LexicalContentEditable";
 import {$convertFromMarkdownString, $convertToMarkdownString} from "@lexical/markdown";
-import LexicalErrorBoundary from "@lexical/react/LexicalErrorBoundary";
+import {LexicalErrorBoundary} from "@lexical/react/LexicalErrorBoundary";
 import {EditorState, LexicalEditor} from "lexical";
-import {BetterMentionComponentProps, BetterMentionsPlugin, createBetterMentionNode} from "lexical-better-mentions";
+import {BeautifulMentionComponentProps, BeautifulMentionsPlugin, createBeautifulMentionNode} from "lexical-beautiful-mentions";
 import {ContainedEmojiPicker} from "./ContainedEmojiPicker";
 import {UncontainedEmojiPicker} from "./UncontainedEmojiPicker";
 import {Mention} from "./Mention";
@@ -38,8 +38,9 @@ import {TRANSFORMERS} from "../transformers";
 import {EmojiPickerVariant} from "../../EmojiPicker";
 import {useStore} from "../../store";
 import {createBlockquoteStyles} from "../../style";
+import {CSSObject} from "tss-react";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles= makeStyles()((theme: Theme) => ({
 	editorWrapper: {
 		display: "flex",
 	},
@@ -59,11 +60,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 		textAlign: "right"
 	},
 	placeholder: {
-		...theme.typography.body1,
+		...theme.typography.body1 as unknown as CSSObject,
 		paddingBottom: theme.spacing(1),
 		marginBlockStart: 0,
 		marginBlockEnd: 0,
-		marginTop: theme.spacing(-1),
 		color: theme.palette.text.secondary,
 		userSelect: "none",
 		pointerEvents: "none",
@@ -73,17 +73,17 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 		left: 5
 	},
 	paragraph: {
-		...theme.typography.body1,
+		...theme.typography.body1 as unknown as CSSObject,
 		marginBlockStart: 0,
 		marginBlockEnd: 0,
 		paddingBottom: theme.spacing(1)
 	},
-	heading1: theme.typography.h1,
-	heading2: theme.typography.h2,
-	heading3: theme.typography.h3,
-	heading4: theme.typography.h4,
-	heading5: theme.typography.h5,
-	heading6: theme.typography.h6,
+	heading1: theme.typography.h1 as unknown as CSSObject,
+	heading2: theme.typography.h2 as unknown as CSSObject,
+	heading3: theme.typography.h3 as unknown as CSSObject,
+	heading4: theme.typography.h4 as unknown as CSSObject,
+	heading5: theme.typography.h5 as unknown as CSSObject,
+	heading6: theme.typography.h6 as unknown as CSSObject,
 	bold: {
 		fontWeight: theme.typography.fontWeightBold
 	},
@@ -112,7 +112,7 @@ const EDITOR_NODES = [
 	ListItemNode,
 	QuoteNode,
 	HorizontalRuleNode,
-	...createBetterMentionNode(Mention as unknown as FunctionComponent<BetterMentionComponentProps<{}>>)
+	...createBeautifulMentionNode(Mention as unknown as FunctionComponent<BeautifulMentionComponentProps<{}>>)
 ];
 
 interface TextEditorProps {
@@ -153,7 +153,7 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 	} = useStore();
 
 	const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined);
-	const classes = useStyles();
+	const {classes} = useStyles();
 
 	const handleEditorReady = useCallback((editor: LexicalEditor) => {
 		setEditor(editor);
@@ -222,11 +222,12 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 						<EnterActionsPlugin onEnter={onEnter} onCtrlEnter={onCtrlEnter}/>
 						<ClearEditorPlugin/>
 						{emojiPickerVariant !== "none" && <EmojiPlugin useEmojiCodes={useEmojiCodes}/>}
-						<BetterMentionsPlugin triggers={["@"]}
-											  onSearch={(_, query) => searchMentions(query ?? "")}
-											  creatable={false}
-											  menuItemComponent={MentionsMenuItem}
-											  menuComponent={MentionMenu}
+						<BeautifulMentionsPlugin
+                            triggers={["@"]}
+                            onSearch={(_, query) => searchMentions(query ?? "")}
+                            creatable={false}
+                            menuItemComponent={MentionsMenuItem}
+                            menuComponent={MentionMenu}
 						/>
 						<AutoLinkPlugin/>
 						<CreateEditorLinkPlugin/>
@@ -241,13 +242,18 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
 				{endAdornment}
 			</div>
 			{emojiPickerVariant !== "none" && emojiPickerExpanded && (
-				<Hidden lgUp>
-					<UncontainedEmojiPicker variant={emojiPickerVariant}
-											emojiPickerExpanded={emojiPickerExpanded}
-											setEmojiPickerExpanded={setEmojiPickerExpanded}
-											editor={editor}
-					/>
-				</Hidden>
+                <Box sx={{
+                    display: {
+                        lg: "none",
+                        md: "block"
+                    }
+                }}>
+                    <UncontainedEmojiPicker variant={emojiPickerVariant}
+                                            emojiPickerExpanded={emojiPickerExpanded}
+                                            setEmojiPickerExpanded={setEmojiPickerExpanded}
+                                            editor={editor}
+                    />
+                </Box>
 			)}
 		</Fragment>
 	);

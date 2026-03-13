@@ -1,7 +1,7 @@
 import React, {forwardRef, useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Theme, ToggleButton} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {Code, FormatBold, FormatItalic, FormatStrikethrough, InsertLink} from "@mui/icons-material";
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {$isAutoLinkNode, $isLinkNode} from "@lexical/link";
@@ -11,8 +11,8 @@ import {getSelectedNode} from "../utils";
 import {isDefined} from "../../utils/object-utils";
 import {useStore} from "../../store";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-	editorToolbarButton: {
+const useStyles = makeStyles()((theme: Theme) => ({
+    editorToolbarButton: {
 		background: `${theme.palette.background.paper} !important`
 	}
 }));
@@ -32,7 +32,7 @@ interface FloatingToolbarProps {
 const _FloatingToolbar = forwardRef<HTMLDivElement, FloatingToolbarProps>(
 	function FloatingToolbar({editor, coordinates}, ref) {
 		const shouldShow = isDefined(coordinates);
-		const classes = useStyles();
+		const {classes} = useStyles();
 
 		const [state, setState] = useState<FloatingToolbarState>({
 			isBold: false,

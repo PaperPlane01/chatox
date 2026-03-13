@@ -12,14 +12,14 @@ import {
     Theme,
     Typography,
 } from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {LoginWithGoogleButton} from "./LoginWithGoogleButton";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {PasswordRecoveryStep} from "../../PasswordRecovery/types";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     dialogActionButton: {
         marginTop: theme.spacing(2),
         width: "100%"
@@ -62,7 +62,7 @@ export const LoginDialog: FunctionComponent = observer(() => {
         }
     } = useStore();
     const {fullScreen} = useMobileDialog();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const handlePasswordRecoveryClick = (): void => {
         setLoginDialogOpen(false);
@@ -95,17 +95,19 @@ export const LoginDialog: FunctionComponent = observer(() => {
                            fullWidth
                            margin="dense"
                            type={displayPassword ? "text" : "password"}
-                           InputProps={{
-                               endAdornment: (
-                                   <InputAdornment position="end">
-                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)} size="large">
-                                           {displayPassword
-                                               ? <VisibilityOff/>
-                                               : <Visibility/>
-                                           }
-                                       </IconButton>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: (
+                                       <InputAdornment position="end">
+                                           <IconButton onClick={() => setDisplayPassword(!displayPassword)} size="large">
+                                               {displayPassword
+                                                   ? <VisibilityOff/>
+                                                   : <Visibility/>
+                                               }
+                                           </IconButton>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
                 <Typography className={classes.forgotYourPasswordTypography}

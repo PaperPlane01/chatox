@@ -22,7 +22,7 @@ const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
 export const VideoStickerUpload: FunctionComponent<StickerUploadProps> = observer(({
 	stickerContainer
 }) => {
-	const classes = useStickerUploadStyles();
+	const {classes} = useStickerUploadStyles();
 
 	return (
 		<AnimatedStickerUpload stickerContainer={stickerContainer}

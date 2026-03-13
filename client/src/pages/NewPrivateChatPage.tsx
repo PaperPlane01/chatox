@@ -1,26 +1,30 @@
 import React, {Fragment, FunctionComponent} from "react";
-import {Grid, Hidden} from "@mui/material";
+import {Box, Grid} from "@mui/material";
 import {ChatAppBar} from "../ChatAppBar";
 import {MessagesListWrapper} from "../Message";
 import {ChatsOfCurrentUserList} from "../Chat";
-import {StickerPackDialog, DeleteStickerPackDialog, StickerPreviewDialog} from "../Sticker/components";
+import {DeleteStickerPackDialog, StickerPackDialog} from "../Sticker/components";
 
 export const NewPrivateChatPage: FunctionComponent = () => (
     <Fragment>
         <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <ChatAppBar/>
             </Grid>
-            <Grid item
-                  xs={12}
+            <Grid size={12}
                   style={{display: "flex"}}
                   justifyContent="space-between"
             >
-                <Hidden xlDown>
+                <Box sx={{
+                    display: {
+                        md: "none",
+                        lg: "block"
+                    }
+                }}>
                     <ChatsOfCurrentUserList/>
-                </Hidden>
+                </Box>
                 <Grid container>
-                    <Grid item xs={12}>
+                    <Grid size={12}>
                         <MessagesListWrapper/>
                     </Grid>
                 </Grid>

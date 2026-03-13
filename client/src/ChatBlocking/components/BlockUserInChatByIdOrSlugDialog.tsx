@@ -64,14 +64,16 @@ export const BlockUserInChatByIdOrSlugDialog: FunctionComponent = observer(() =>
                            onChange={event => setUserIdOrSlug(event.target.value)}
                            fullWidth
                            margin="dense"
-                           InputProps={{
-                               endAdornment: checkingUser && (
-                                   <InputAdornment position="end">
-                                       <CircularProgress size={15}
-                                                         color="primary"
-                                       />
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: checkingUser && (
+                                       <InputAdornment position="end">
+                                           <CircularProgress size={15}
+                                                             color="primary"
+                                           />
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
                 {error && (

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CircularProgress, Grid, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {AppBar} from "../AppBar/components";
 import {UpdateStickerPackForm} from "../StickerPackForm/components";
 import {getLoadErrorText} from "../Sticker/utils";
@@ -11,8 +11,8 @@ import {useLocalization, usePermissions, useStore} from "../store";
 import {useEntityById} from "../entities";
 import {commonStyles} from "../style";
 
-const useStyle = makeStyles(() => createStyles({
-	centered: commonStyles.centered
+const useStyle = makeStyles()(() => ({
+    centered: commonStyles.centered
 }));
 
 export const UpdateStickerPackPage: FunctionComponent = observer(() => {
@@ -26,14 +26,14 @@ export const UpdateStickerPackPage: FunctionComponent = observer(() => {
 		}
 	} = useStore();
 	const stickerPack = useEntityById("stickerPacks", stickerPackId);
-	const classes = useStyle();
+	const {classes} = useStyle();
 
 	return (
 		<Grid container>
-			<Grid item xs={12}>
+			<Grid size={12}>
 				<AppBar/>
 			</Grid>
-			<Grid item xs={12}>
+			<Grid size={12}>
 				<Layout>
 					{fetchingStickerPack && (
 						<CircularProgress size={50}

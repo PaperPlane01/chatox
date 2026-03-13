@@ -1,10 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Backdrop, CircularProgress, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {useAuthorization} from "../../store";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     backdrop: {
         zIndex: theme.zIndex.drawer + 1,
         color: '#fff',
@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 export const LoadingCurrentUserProgressIndicator: FunctionComponent = observer(() => {
-    const classes = useStyles();
+    const {classes} = useStyles();
     const {fetchingCurrentUser} = useAuthorization();
 
     if (!fetchingCurrentUser) {

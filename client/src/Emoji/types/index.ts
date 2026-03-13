@@ -1,1 +1,1 @@
-export * from "./ExtendedEmojiSet";
+export * from "./EmojiSet";

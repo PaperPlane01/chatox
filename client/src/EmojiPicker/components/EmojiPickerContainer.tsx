@@ -1,10 +1,9 @@
-import React, {Fragment, FunctionComponent, useLayoutEffect} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Hidden, IconButton, Menu, useMediaQuery, useTheme} from "@mui/material";
+import {Box, IconButton, Menu} from "@mui/material";
 import {InsertEmoticon} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {EmojiData} from "emoji-mart";
-import "emoji-mart/css/emoji-mart.css";
 import {EmojiAndStickerPicker} from "./EmojiAndStickerPicker";
 import {EmojiPicker} from "./EmojiPicker";
 import {EmojiPickerVariant} from "../types";
@@ -32,31 +31,6 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
         variant: "popover",
         popupId: "emojiPicker"
     });
-    const theme = useTheme();
-    const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
-
-    useLayoutEffect(() => {
-            if (!onSmallScreen) {
-                setTimeout(() => {
-                    // For some reason search text field in emoji-mart picker is being focused right after render
-                    // despite passing autoFocus={false} property, so I have to do this ugly work-around
-                    const emojiMartTextFieldWrappers = document.getElementsByClassName("emoji-mart-search");
-
-                    if (emojiMartTextFieldWrappers && emojiMartTextFieldWrappers.length !== 0) {
-                        const emojiMartTextFieldWrapper = emojiMartTextFieldWrappers.item(0);
-
-                        if (emojiMartTextFieldWrapper && emojiMartTextFieldWrapper.children && emojiMartTextFieldWrapper.children.length !== 0) {
-                            const emojiMartSearchTextField = emojiMartTextFieldWrapper.children.item(0) as HTMLInputElement;
-
-                            if (emojiMartSearchTextField) {
-                                emojiMartSearchTextField.blur();
-                            }
-                        }
-                    }
-                });
-            }},
-        [emojiPickerPopupState.isOpen]
-    );
 
     const handleExpandEmojiPickerButtonClick = (): void => {
         const queryParameters = emojiPickerExpanded
@@ -75,7 +49,12 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
 
     return (
         <Fragment>
-            <Hidden lgDown>
+            <Box sx={{
+                display: {
+                    xs: "none",
+                    lg: "block"
+                }
+            }}>
                 <IconButton
                     className={iconButtonClassName}
                     {...bindToggle(emojiPickerPopupState)}
@@ -93,15 +72,20 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
                         : <EmojiPicker onEmojiPicked={onEmojiSelected}/>
                     }
                 </Menu>
-            </Hidden>
-            <Hidden lgUp>
+            </Box>
+            <Box sx={{
+                display: {
+                    lg: "none",
+                    xs: "block"
+                }
+            }}>
                 <IconButton className={iconButtonClassName}
                             onClick={handleExpandEmojiPickerButtonClick}
                             size="large"
                 >
                     <InsertEmoticon/>
                 </IconButton>
-            </Hidden>
+            </Box>
         </Fragment>
     );
 });

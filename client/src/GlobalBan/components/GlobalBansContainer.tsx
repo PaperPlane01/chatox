@@ -1,13 +1,13 @@
-import React, {FunctionComponent, Fragment, ReactNode} from "react";
+import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {Grid, Card, CardContent, Hidden, CircularProgress, Typography, Button} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {Box, Button, Card, CardContent, CircularProgress, Grid, Typography} from "@mui/material";
+import {makeStyles} from "tss-react/mui";
 import {GlobalBanFiltersForm} from "./GlobalBanFiltersForm";
 import {GlobalBansTable} from "./GlobalBansTable";
 import {GlobalBansList} from "./GlobalBansList";
-import {useStore, useLocalization} from "../../store";
+import {useLocalization, useStore} from "../../store";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     centered: {
         display: "flex",
         alignItems: "center",
@@ -24,13 +24,12 @@ export const GlobalBansContainer: FunctionComponent = observer(() => {
             fetchGlobalBans,
             paginationState: {
                 pending,
-                initiallyFetched,
-                noMoreItems
+                initiallyFetched
             }
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     let globalBansCardContent: ReactNode;
 
@@ -49,22 +48,32 @@ export const GlobalBansContainer: FunctionComponent = observer(() => {
     } else {
         globalBansCardContent = (
             <Fragment>
-                <Hidden xlDown>
+                <Box sx={{
+                    display: {
+                        md: "none",
+                        lg: "block",
+                    }
+                }}>
                     <GlobalBansTable/>
-                </Hidden>
-                <Hidden lgUp>
+                </Box>
+                <Box sx={{
+                    display: {
+                        lg: "none",
+                        md: "block",
+                    }
+                }}>
                     <GlobalBansList/>
-                </Hidden>
+                </Box>
             </Fragment>
         )
     }
 
     return (
         <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <GlobalBanFiltersForm/>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Card>
                     <CardContent>
                         {globalBansCardContent}

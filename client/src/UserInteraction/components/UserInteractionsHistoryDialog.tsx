@@ -2,10 +2,15 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, Typography} from "@mui/material";
 import {Close} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {UserInteractionsHistoryTable} from "./UserInteractionsHistoryTable";
 import {commonStyles} from "../../style";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
+
+const useStyles = makeStyles()(() => ({
+    centered: commonStyles.centered,
+}));
 
 export const UserInteractionsHistoryDialog: FunctionComponent = observer(() => {
     const {
@@ -19,6 +24,7 @@ export const UserInteractionsHistoryDialog: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const {fullScreen} = useMobileDialog();
+    const {classes} = useStyles();
 
     return (
         <Dialog open={userInteractionsHistoryDialogOpen}
@@ -39,11 +45,11 @@ export const UserInteractionsHistoryDialog: FunctionComponent = observer(() => {
                 {userInteractionsIds.length !== 0 && (
                     <UserInteractionsHistoryTable/>
                 )}
-                {pending && <CircularProgress size={25} color="primary" style={commonStyles.centered}/>}
+                {pending && <CircularProgress size={25} color="primary" className={classes.centered}/>}
                 {!pending && userInteractionsIds.length === 0 && (
                     <Typography variant="h6"
                                 color="textSecondary"
-                                style={commonStyles.centered}
+                                className={classes.centered}
                     >
                         {l("user.interaction.list.empty")}
                     </Typography>

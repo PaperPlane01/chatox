@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FunctionComponent} from "react";
+import React, {ChangeEvent, CSSProperties, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CircularProgress, Tab, Typography} from "@mui/material";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
@@ -23,7 +23,7 @@ export const ChatManagementTabs: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const router = useRouter();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const pending = useChatManagementPending();
     const {
         canUpdateChat,
@@ -59,7 +59,7 @@ export const ChatManagementTabs: FunctionComponent = observer(() => {
 
 
     if (pending) {
-        return <CircularProgress size={25} color="primary" style={commonStyles.centered}/>;
+        return <CircularProgress size={25} color="primary" style={commonStyles.centered as unknown as CSSProperties}/>;
     }
 
     if (!selectedChat) {

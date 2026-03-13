@@ -11,8 +11,8 @@ import {
     TableCell,
     TableRow
 } from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {Check, Remove} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {format} from "date-fns";
 import {GlobalBanMenu} from "./GlobalBanMenu";
 import {isGlobalBanActive} from "../utils";
@@ -22,7 +22,7 @@ import {getUserDisplayedName} from "../../User/utils/labels";
 import {UserLink} from "../../UserLink";
 import {Labels} from "../../localization";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     globalBanMenuWrapper: {
         float: "right"
     }
@@ -38,7 +38,7 @@ export const GlobalBanDetailsDialog: FunctionComponent = observer(() => {
         }
     } = useStore();
     const {dateFnsLocale, l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const globalBan = useEntityById("globalBans", globalBanId);
     const bannedUser = useEntityById("users", globalBan?.bannedUserId);

@@ -23,7 +23,9 @@ export const ChatDeletionReasonSelect: FunctionComponent = observer(() => {
                     onChange={event => setFormValue("reason", event.target.value as ChatDeletionReason)}
             >
                 {Object.keys(ChatDeletionReason).map(key => (
-                    <MenuItem value={ChatDeletionReason[key as keyof typeof ChatDeletionReason]}>
+                    <MenuItem value={ChatDeletionReason[key as keyof typeof ChatDeletionReason]}
+                              key={key}
+                    >
                         {l(`chat.delete.reason.${ChatDeletionReason[key as keyof typeof ChatDeletionReason]}` as keyof Labels)}
                     </MenuItem>
                 ))}

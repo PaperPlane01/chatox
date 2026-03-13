@@ -2,13 +2,13 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Link} from "mobx-router";
 import {MenuItem, ListItemIcon, ListItemText} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {HourglassBottom} from "@mui/icons-material";
 import {useLocalization, useRouter} from "../../store";
 import {commonStyles} from "../../style";
 import {Routes} from "../../router";
 
-const useClasses = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     undecoratedLink: commonStyles.undecoratedLink
 }));
 
@@ -21,7 +21,7 @@ export const PendingChatsMenuItem: FunctionComponent<PendingChatsMenuItemProps> 
 }) => {
     const {l} = useLocalization();
     const router = useRouter();
-    const classes = useClasses();
+    const {classes} = useStyles();
 
     const handleLick = (): void => {
         if (onClick) {

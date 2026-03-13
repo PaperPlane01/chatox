@@ -1,8 +1,7 @@
 import React, {ChangeEvent, Fragment, FunctionComponent, useState} from "react";
 import {Button, CircularProgress, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {Image} from "@mui/icons-material";
-import {ApiError} from "../../api";
+import {makeStyles} from "tss-react/mui";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ImageUploadMetadata} from "../../api/types/response";
 import {Avatar, AvatarProps} from "../../Avatar";
@@ -19,7 +18,7 @@ interface ImageUploadProps {
     accept?: string
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     avatarUploadButton: {
         marginTop: theme.spacing(1)
     },
@@ -39,7 +38,7 @@ export const ImageUpload: FunctionComponent<ImageUploadProps> = ({
     accept = "image/png, image/jpg, image/jpeg"
 }) => {
     const [value, setValue] = useState("");
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const handleFileAttachment = (event: ChangeEvent<HTMLInputElement>): void => {
         if (event.target.files && event.target.files.length !== 0) {

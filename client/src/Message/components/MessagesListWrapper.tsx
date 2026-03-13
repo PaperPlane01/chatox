@@ -1,13 +1,13 @@
 import React from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {VirtualMessagesList} from "./VirtualMessagesList";
 import {MessagesList} from "./MessagesList";
 import {ChatDeletionLabel} from "../../Chat";
 import {useStore} from "../../store";
 import {useEntityById} from "../../entities";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     centered: {
         display: "flex",
         alignItems: "center",
@@ -27,7 +27,7 @@ export const MessagesListWrapper = observer(() => {
             enableVirtualScroll
         }
     } = useStore();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const chat = useEntityById("chats", selectedChatId);
     const error = currentSlug ? errorsMap[currentSlug] : undefined;

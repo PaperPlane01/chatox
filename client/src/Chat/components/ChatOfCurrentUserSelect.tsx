@@ -37,10 +37,12 @@ export const ChatOfCurrentUserSelect: FunctionComponent<ChatOfCurrentUserSelectP
 		<Autocomplete renderInput={inputProps => (
 			<TextField {...inputProps}
 					   label="Select a chat"
-					   inputProps={{
-						   ...inputProps.inputProps,
-						   autoComplete: "off"
-					   }}
+                       slotProps={{
+                           input: {
+                               ...inputProps.InputProps,
+                               autoComplete: "off"
+                           }
+                       }}
 			/>
 		)}
 					  value={selectedChatId}

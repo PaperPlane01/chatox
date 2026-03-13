@@ -1,24 +1,19 @@
-import { observable, action, makeObservable } from "mobx";
-import {ExtendedEmojiSet} from "../types";
+import {makeAutoObservable} from "mobx";
+import {EmojiSet} from "../types";
 import {ALLOWED_EMOJI_SETS} from "../internal/constants";
 
 export class EmojiSettingsStore {
-    selectedEmojiSet: ExtendedEmojiSet = "apple";
+    selectedEmojiSet: EmojiSet = "apple";
 
     useEmojiCodes: boolean = false;
 
     constructor() {
-        makeObservable(this, {
-            selectedEmojiSet: observable,
-            useEmojiCodes: observable,
-            setSelectedEmojiSet: action,
-            setUseEmojiCodes: action
-        });
+       makeAutoObservable(this, {}, {autoBind: true})
 
         const emojiSet = localStorage.getItem("emojiSet");
 
         if (emojiSet && (ALLOWED_EMOJI_SETS as string[]).includes(emojiSet)) {
-            this.setSelectedEmojiSet(emojiSet as ExtendedEmojiSet, true);
+            this.setSelectedEmojiSet(emojiSet as EmojiSet, true);
         } else {
             this.setSelectedEmojiSet("apple");
         }
@@ -32,17 +27,17 @@ export class EmojiSettingsStore {
         }
     };
 
-    setSelectedEmojiSet = (emojiSet: ExtendedEmojiSet, skipSettingToLocalstorage: boolean = false): void => {
+    setSelectedEmojiSet(emojiSet: EmojiSet, skipSettingToLocalstorage: boolean = false): void {
         if (!skipSettingToLocalstorage) {
             localStorage.setItem("emojiSet", emojiSet);
         }
         this.selectedEmojiSet = emojiSet;
-    };
+    }
 
-    setUseEmojiCodes = (useEmojiCodes: boolean, skippSettingToLocalStorage: boolean = false): void => {
+    setUseEmojiCodes(useEmojiCodes: boolean, skippSettingToLocalStorage: boolean = false): void {
         if (!skippSettingToLocalStorage) {
             localStorage.setItem("useEmojiCodes", `${useEmojiCodes}`);
         }
         this.useEmojiCodes = useEmojiCodes;
-    };
+    }
 }

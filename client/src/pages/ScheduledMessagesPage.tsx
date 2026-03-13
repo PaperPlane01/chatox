@@ -10,10 +10,10 @@ import {
 export const ScheduledMessagesPage: FunctionComponent = () => (
     <Fragment>
         <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <ScheduledMessagesAppBar/>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <ScheduledMessagesList/>
             </Grid>
         </Grid>

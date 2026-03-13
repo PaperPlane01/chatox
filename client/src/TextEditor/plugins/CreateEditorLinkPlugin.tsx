@@ -1,7 +1,7 @@
 import React, {FunctionComponent, useCallback, useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {$createLinkNode, $isAutoLinkNode, TOGGLE_LINK_COMMAND} from "@lexical/link";
 import {mergeRegister} from "@lexical/utils";
@@ -15,8 +15,8 @@ import {
 import {getSelectedNode} from "../utils";
 import {useLocalization, useStore} from "../../store";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-	dialogContent: {
+const useStyles = makeStyles()((theme: Theme) => ({
+    dialogContent: {
 		paddingTop: theme.spacing(2)
 	}
 }));
@@ -35,7 +35,7 @@ export const CreateEditorLinkPlugin: FunctionComponent = observer(() => {
 	const {l} = useLocalization();
 	const [selection, setSelection] = useState<RangeSelection | null>(null);
 	const [editor] = useLexicalComposerContext();
-	const classes = useStyles();
+	const {classes} = useStyles();
 
 	const updateLinkEditor = useCallback(() => {
 		const selection = $getSelection();

@@ -1,5 +1,5 @@
-import {CSSProperties} from "@mui/styles";
+import {CSSObject} from "tss-react";
 
-export const adornmentStyle: CSSProperties = {
+export const adornmentStyle: CSSObject = {
 	alignSelf: "end"
 };

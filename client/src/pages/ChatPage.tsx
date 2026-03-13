@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Grid, Hidden} from "@mui/material";
+import {Box, Grid} from "@mui/material";
 import {
     ChatInfoContainer,
     ChatInfoDialog,
@@ -35,27 +35,35 @@ export const ChatPage: FunctionComponent = observer(() => {
     return (
         <Fragment>
             <Grid container>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <ChatAppBar/>
                 </Grid>
-                <Grid item xs={12}>
-                    <Grid item xs={12}
+                <Grid container size={12}>
+                    <Grid container size={12}
                           style={{display: "flex"}}
                           justifyContent="space-between"
                     >
-                        <Hidden xlDown>
+                        <Grid sx={{
+                            display: {
+                                xs: "none",
+                                lg: "block"
+                            }
+                        }}
+                              size="auto"
+                        >
                             <ChatsOfCurrentUserListWrapper/>
-                        </Hidden>
-                        <Grid container>
-                            <Grid item xs={12} lg={selectedChat && selectedChat.type === ChatType.DIALOG ? 12 : 9}>
+                        </Grid>
+                        <Grid container size="grow">
+                            <Grid size={{
+                                xs: 12,
+                                lg: selectedChat?.type === ChatType.DIALOG ? 12 : 9
+                            }}>
                                 <MessagesListWrapper/>
                             </Grid>
-                            {selectedChat && selectedChat.type !== ChatType.DIALOG && (
-                                <Hidden xlDown>
-                                    <Grid item lg={3}>
-                                        <ChatInfoContainer/>
-                                    </Grid>
-                                </Hidden>
+                            {selectedChat?.type !== ChatType.DIALOG && (
+                                <Grid sx={{display: {xs: "none", lg: "block"}}} size={{lg: 3}}>
+                                    <ChatInfoContainer/>
+                                </Grid>
                             )}
                         </Grid>
                     </Grid>

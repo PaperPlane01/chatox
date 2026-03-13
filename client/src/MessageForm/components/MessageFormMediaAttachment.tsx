@@ -1,7 +1,7 @@
 import React, {CSSProperties, FunctionComponent, useState} from "react";
 import {CircularProgress, IconButton, ListItem, ListItemText, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {Audiotrack, Close, FileCopy, VideoLibrary} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {UploadType} from "../../api/types/response";
 
@@ -11,7 +11,7 @@ interface CreateMessageFormMediaAttachmentProps {
     onDelete?: (localFileId: string) => void
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     centered: {
         display: "flex",
         alignItems: "center",
@@ -67,7 +67,7 @@ export const MessageFormMediaAttachment: FunctionComponent<CreateMessageFormMedi
     progress
 }) => {
     const [hovered, setHovered] = useState(false);
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const hoveredStyle: CSSProperties = {
         boxShadow: "inset 0 0 0 1000px rgba(0, 0, 0, 0.2)"

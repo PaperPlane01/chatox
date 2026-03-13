@@ -13,6 +13,7 @@ import {
     useTheme
 } from "@mui/material";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
+import {HttpStatusCode} from "axios";
 import {useLocalization, useStore} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
@@ -20,7 +21,7 @@ import {TranslationFunction} from "../../localization";
 const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     if (error.status === API_UNREACHABLE_STATUS) {
         return l("error.generic.server-unreachable");
-    } else if (error.status === 410) {
+    } else if (error.status === HttpStatusCode.Gone) {
         if (error.metadata) {
             switch (error.metadata.errorCode as string) {
                 case "EMAIL_CONFIRMATION_CODE_HAS_BEEN_USED":
@@ -33,7 +34,7 @@ const getErrorText = (error: ApiError, l: TranslationFunction): string => {
         } else {
             return l("password-recovery.error.unknown", {errorStatus: error.status});
         }
-    } else if (error.status === 403) {
+    } else if (error.status === HttpStatusCode.Forbidden) {
         if (error.metadata && error.metadata.errorCode === "INVALID_EMAIL_CONFIRMATION_CODE") {
             return l("change-password.error.email-confirmation-code-invalid");
         } else {
@@ -77,14 +78,16 @@ export const PasswordRecoveryChangePasswordStep: FunctionComponent = observer(()
                            fullWidth
                            margin="dense"
                            type={showPassword ? "text" : "password"}
-                           InputProps={{
-                               endAdornment: (
-                                   <InputAdornment position="end">
-                                       <IconButton onClick={() => setShowPassword(!showPassword)} size="large">
-                                           {showPassword ? <VisibilityOff/> : <Visibility/>}
-                                       </IconButton>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: (
+                                       <InputAdornment position="end">
+                                           <IconButton onClick={() => setShowPassword(!showPassword)} size="large">
+                                               {showPassword ? <VisibilityOff/> : <Visibility/>}
+                                           </IconButton>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
                 <TextField label={l("change-password.confirm-password")}
@@ -95,14 +98,16 @@ export const PasswordRecoveryChangePasswordStep: FunctionComponent = observer(()
                            fullWidth
                            margin="dense"
                            type={showPassword ? "text" : "password"}
-                           InputProps={{
-                               endAdornment: (
-                                   <InputAdornment position="end">
-                                       <IconButton onClick={() => setShowPassword(!showPassword)} size="large">
-                                           {showPassword ? <VisibilityOff/> : <Visibility/>}
-                                       </IconButton>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: (
+                                       <InputAdornment position="end">
+                                           <IconButton onClick={() => setShowPassword(!showPassword)} size="large">
+                                               {showPassword ? <VisibilityOff/> : <Visibility/>}
+                                           </IconButton>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
                 {error && (

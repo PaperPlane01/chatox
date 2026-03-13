@@ -9,10 +9,10 @@ export const NotFoundPage: FunctionComponent = () => {
 
     return (
         <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <AppBar/>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Layout>
                     <Typography variant="h6">
                         {l("page.not-found")}

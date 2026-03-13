@@ -1,7 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {useMediaQuery, useTheme} from "@mui/material";
-import {EmojiData, Picker} from "emoji-mart";
+import {EmojiData} from "emoji-mart";
+import data from "@emoji-mart/data";
+import {EmojiMartPicker} from "./EmojiMartPicker";
 import {useStore} from "../../store";
 
 interface EmojiPickerProps {
@@ -23,11 +25,11 @@ export const EmojiPicker: FunctionComponent<EmojiPickerProps> = observer(({
 		: {};
 
 	return (
-		<Picker set={selectedEmojiSet === "native" ? undefined : selectedEmojiSet}
-				onSelect={onEmojiPicked}
-				autoFocus={false}
-				native={selectedEmojiSet === "native"}
-				style={pickerStyles}
-		/>
+		<div style={pickerStyles}>
+            <EmojiMartPicker set={selectedEmojiSet}
+                             onEmojiSelect={onEmojiPicked}
+                             autoFocus={false}
+            />
+        </div>
 	);
 });
