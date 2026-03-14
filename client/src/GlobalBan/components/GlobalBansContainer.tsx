@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {Box, Button, Card, CardContent, CircularProgress, Grid, Typography} from "@mui/material";
+import {Button, Card, CardContent, CircularProgress, Grid, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {GlobalBanFiltersForm} from "./GlobalBanFiltersForm";
 import {GlobalBansTable} from "./GlobalBansTable";
@@ -29,7 +29,9 @@ export const GlobalBansContainer: FunctionComponent = observer(() => {
         }
     } = useStore();
     const {l} = useLocalization();
-    const { classes } = useStyles();
+    const {classes} = useStyles();
+    const theme = useTheme();
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
 
     let globalBansCardContent: ReactNode;
 
@@ -48,22 +50,8 @@ export const GlobalBansContainer: FunctionComponent = observer(() => {
     } else {
         globalBansCardContent = (
             <Fragment>
-                <Box sx={{
-                    display: {
-                        md: "none",
-                        lg: "block",
-                    }
-                }}>
-                    <GlobalBansTable/>
-                </Box>
-                <Box sx={{
-                    display: {
-                        lg: "none",
-                        md: "block",
-                    }
-                }}>
-                    <GlobalBansList/>
-                </Box>
+                {onSmallScreen && <GlobalBansList/>}
+                {!onSmallScreen && <GlobalBansTable/>}
             </Fragment>
         )
     }
