@@ -1,8 +1,8 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent, useEffect, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {Box, IconButton, Menu} from "@mui/material";
+import {IconButton, useMediaQuery, useTheme} from "@mui/material";
 import {InsertEmoticon} from "@mui/icons-material";
-import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
+import {autoUpdate, offset, useFloating} from "@floating-ui/react";
 import {EmojiData} from "emoji-mart";
 import {EmojiAndStickerPicker} from "./EmojiAndStickerPicker";
 import {EmojiPicker} from "./EmojiPicker";
@@ -26,11 +26,42 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
             setEmojiPickerExpanded,
         }
     } = useStore();
+    const [open, setOpen] = useState(false);
     const routerStore = useRouter();
-    const emojiPickerPopupState = usePopupState({
-        variant: "popover",
-        popupId: "emojiPicker"
+    const theme = useTheme();
+    const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
+    const [crossAxisOffset, setCrossAxisOffset] = useState(-300);
+    const {refs, floatingStyles} = useFloating({
+        placement: "top-start",
+        strategy: "fixed",
+        whileElementsMounted: autoUpdate,
+        middleware: [
+            offset({
+                crossAxis: crossAxisOffset
+            })
+        ]
     });
+
+    useLayoutEffect(
+        () => {
+            if (refs.floating?.current) {
+                setCrossAxisOffset(-1 * refs.floating.current.getBoundingClientRect().width);
+            }
+        },
+        [refs.floating]
+    );
+
+    const handleClickOutside = (event: MouseEvent): void => {
+        if (refs.floating?.current && !refs.floating.current.contains(event.target as any)) {
+            setOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     const handleExpandEmojiPickerButtonClick = (): void => {
         const queryParameters = emojiPickerExpanded
@@ -47,45 +78,38 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
         }
     };
 
-    return (
-        <Fragment>
-            <Box sx={{
-                display: {
-                    xs: "none",
-                    lg: "block"
-                }
-            }}>
-                <IconButton
-                    className={iconButtonClassName}
-                    {...bindToggle(emojiPickerPopupState)}
-                    size="large"
-                >
-                    <InsertEmoticon/>
-                </IconButton>
-                <Menu {...bindMenu(emojiPickerPopupState)}>
-                    {variant === "emoji-and-sticker-picker"
-                        ? (
-                            <EmojiAndStickerPicker onEmojiPicked={onEmojiSelected}
-                                                   onStickerPicked={emojiPickerPopupState.close}
-                            />
-                        )
-                        : <EmojiPicker onEmojiPicked={onEmojiSelected}/>
-                    }
-                </Menu>
-            </Box>
-            <Box sx={{
-                display: {
-                    lg: "none",
-                    xs: "block"
-                }
-            }}>
+    return onSmallScreen
+        ? (
+            <IconButton className={iconButtonClassName}
+                        onClick={handleExpandEmojiPickerButtonClick}
+                        size="large"
+            >
+                <InsertEmoticon/>
+            </IconButton>
+        )
+        : (
+            <Fragment>
                 <IconButton className={iconButtonClassName}
-                            onClick={handleExpandEmojiPickerButtonClick}
+                            onClick={() => setOpen(!open)}
                             size="large"
+                            ref={refs.setReference}
                 >
                     <InsertEmoticon/>
                 </IconButton>
-            </Box>
-        </Fragment>
-    );
+                {open && (
+                    <div ref={refs.setFloating}
+                         style={floatingStyles}
+                    >
+                        {variant === "emoji-and-sticker-picker"
+                            ? (
+                                <EmojiAndStickerPicker onEmojiPicked={onEmojiSelected}
+                                                       onStickerPicked={() => setOpen(false)}
+                                />
+                            )
+                            : <EmojiPicker onEmojiPicked={onEmojiSelected}/>
+                        }
+                    </div>
+                )}
+            </Fragment>
+        )
 });

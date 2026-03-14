@@ -16,6 +16,7 @@ interface EmojiAndStickerPickerProps {
 const useStyles = makeStyles()((theme: Theme) => ({
     pickerContainer: {
         width: "100%",
+        backgroundColor: theme.palette.background.paper,
         [theme.breakpoints.up("lg")]: {
             maxWidth: 500
         }
