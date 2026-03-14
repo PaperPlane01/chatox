@@ -2,7 +2,6 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {useMediaQuery, useTheme} from "@mui/material";
 import {EmojiData} from "emoji-mart";
-import data from "@emoji-mart/data";
 import {EmojiMartPicker} from "./EmojiMartPicker";
 import {useStore} from "../../store";
 
@@ -29,6 +28,7 @@ export const EmojiPicker: FunctionComponent<EmojiPickerProps> = observer(({
             <EmojiMartPicker set={selectedEmojiSet}
                              onEmojiSelect={onEmojiPicked}
                              autoFocus={false}
+                             dynamicWidth={onSmallScreen}
             />
         </div>
 	);

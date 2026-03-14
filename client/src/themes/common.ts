@@ -1,4 +1,6 @@
-import {Components} from "@mui/material";
+import {Components, unstable_createBreakpoints} from "@mui/material";
+
+const breakPoints = unstable_createBreakpoints({});
 
 export const createStyleOverride = (mainColor: string): Components => ({
     MuiCssBaseline: {
@@ -8,6 +10,9 @@ export const createStyleOverride = (mainColor: string): Components => ({
                     .replace("rgb", "")
                     .replace("(", "")
                     .replace(")", ""),
+                [breakPoints.down("lg")]: {
+                    width: "100%",
+                }
             },
             ".yarl__portal": {
                 zIndex: "1350 !important"
