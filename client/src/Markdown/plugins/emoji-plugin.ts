@@ -9,18 +9,22 @@ import {getEmojiDataFromColons} from "../../Emoji/utils";
 import {EmojiPosition, MessageEmoji} from "../../api/types/response";
 
 export const emojiPlugin = (
-	messageEmoji?: MessageEmoji,
+    messageEmoji: MessageEmoji,
 ): Plugin => (): Transformer<Node, Node> => {
+    return (tree: Node): void => {
+        visit(tree, "text", (node: Text, index: number, parent: Element) => {
+            addEmojiNodes(messageEmoji, index, node, parent);
+        });
+    };
+};
+
+export const emojiPluginAsync = (_unused?: MessageEmoji): Plugin => (): Transformer<Node, Node> => {
 	return async (tree: Node): Promise<void> => {
         const promises: Promise<void>[] = [];
 
 		visit(tree, "text", (node: Text, index: number, parent: Element) => {
-			if (messageEmoji) {
-				addEmojiNodes(messageEmoji, index, node, parent);
-			} else {
-				promises.push(addEmojiNodesByRegExp(index, node, parent));
-			}
-		});
+            promises.push(addEmojiNodesByRegExp(index, node, parent));
+        });
 
         if (promises.length !== 0) {
             await Promise.all(promises);

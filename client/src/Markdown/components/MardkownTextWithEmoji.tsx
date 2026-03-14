@@ -2,10 +2,10 @@ import React, {Fragment, FunctionComponent, KeyboardEvent, MouseEvent} from "rea
 import {observer} from "mobx-react";
 import {Theme, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import {Components, MarkdownHooks} from "react-markdown";
+import ReactMarkdown, {Components, MarkdownHooks, Options} from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import {EmojiData} from "emoji-mart";
-import {emojiPlugin} from "../plugins";
+import {emojiPlugin, emojiPluginAsync} from "../plugins";
 import {MessageEmoji} from "../../api/types/response";
 import {rootStore, useStore} from "../../store";
 import {createBlockquoteStyles} from "../../style";
@@ -42,12 +42,13 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
     } = useStore();
     const {classes} = useStyles();
 
+    const TargetMarkdownComponent = emojiData ? ReactMarkdown : MarkdownHooks;
+    const targetEmojiPlugin = emojiData ? emojiPlugin(emojiData) : emojiPluginAsync;
+    const plugins = disableRemarkBreaks ? [targetEmojiPlugin] : [remarkBreaks, targetEmojiPlugin];
+
     return (
-        <MarkdownHooks
-            remarkPlugins={!disableRemarkBreaks
-                ? [remarkBreaks, emojiPlugin(emojiData)]
-                : [emojiPlugin(emojiData)]
-        }
+        <TargetMarkdownComponent
+            remarkPlugins={plugins}
             allowElement={element => element.tagName !== "img"}
             components={{
                 p: renderParagraph(renderParagraphsAsSpan),
@@ -76,7 +77,7 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
         }}
         >
             {text}
-        </MarkdownHooks>
+        </TargetMarkdownComponent>
     );
 });
 
