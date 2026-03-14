@@ -114,7 +114,7 @@ export const CreateChatBlockingDialog: FunctionComponent = observer(() => {
                 <DateTimePicker value={formData.blockedUntil}
                                 onChange={date => setFormValue("blockedUntil", date ? date : undefined)}
                                 disablePast
-                                format="dd MMM yyyy HH:mm"
+                                format="dd MMMM yyyy HH:mm"
                                 ampm={false}
                                 label={l("chat.blocking.blocked-until")}
                                 slotProps={{
