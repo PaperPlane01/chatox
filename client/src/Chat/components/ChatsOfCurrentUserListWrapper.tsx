@@ -15,6 +15,11 @@ const useStyles = makeStyles()((theme: Theme) => ({
     chatListWrapper: {
         [theme.breakpoints.up("lg")]: {
             height: `calc(100vh - 64px)`,
+            width: 300,
+            overflow: "auto"
+        },
+        [theme.breakpoints.up("xl")]: {
+            height: `calc(100vh - 64px)`,
             width: 480,
             overflow: "auto"
         },
