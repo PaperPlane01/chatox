@@ -16,7 +16,7 @@ export const ChatsAndMessagesSearchInputWrapper: FunctionComponent = observer(()
        <Box sx={{
            display: {
                lg: "none",
-               md: "block",
+               xs: "block",
            }
        }}>
            {showInput
