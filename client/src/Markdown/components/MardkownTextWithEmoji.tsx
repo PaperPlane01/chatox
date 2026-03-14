@@ -2,7 +2,7 @@ import React, {Fragment, FunctionComponent, KeyboardEvent, MouseEvent} from "rea
 import {observer} from "mobx-react";
 import {Theme, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import ReactMarkdown, {Components, MarkdownHooks, Options} from "react-markdown";
+import ReactMarkdown, {Components, MarkdownHooks} from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import {EmojiData} from "emoji-mart";
 import {emojiPlugin, emojiPluginAsync} from "../plugins";
