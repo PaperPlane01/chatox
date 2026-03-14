@@ -245,7 +245,7 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
                 <Box sx={{
                     display: {
                         lg: "none",
-                        md: "block"
+                        xs: "block"
                     }
                 }}>
                     <UncontainedEmojiPicker variant={emojiPickerVariant}

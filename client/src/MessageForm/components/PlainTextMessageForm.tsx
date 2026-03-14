@@ -204,7 +204,7 @@ export const PlainTextMessageForm: FunctionComponent<MessageFormProps> = observe
             <Box sx={{
                 display: {
                     lg: "none",
-                    md: "block"
+                    xs: "block"
                 }
             }}>
                 {emojiPickerExpanded && (
