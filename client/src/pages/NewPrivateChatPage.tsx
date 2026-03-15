@@ -17,7 +17,7 @@ export const NewPrivateChatPage: FunctionComponent = () => (
             >
                 <Box sx={{
                     display: {
-                        md: "none",
+                        xs: "none",
                         lg: "block"
                     }
                 }}>
