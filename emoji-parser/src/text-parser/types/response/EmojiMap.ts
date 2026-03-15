@@ -1,5 +1,5 @@
-import {EmojiData, EmojiSet} from "emoji-mart";
+import {EmojiDataResponse} from "./EmojiDataResponse";
 
 export interface EmojiMap {
-    [emojiId: string]: EmojiData & {originalSet?: EmojiSet}
+    [emojiId: string]: EmojiDataResponse
 }

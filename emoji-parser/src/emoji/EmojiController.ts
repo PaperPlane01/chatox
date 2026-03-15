@@ -9,7 +9,7 @@ export class EmojiController {
 	}
 
 	@Post()
-	public getEmojiInfo(@Body() getEmojiInfoRequest: GetEmojiInfoRequest): EmojiMap {
+	public getEmojiInfo(@Body() getEmojiInfoRequest: GetEmojiInfoRequest): Promise<EmojiMap> {
 		return this.emojiService.getEmojiData(getEmojiInfoRequest);
 	}
 }

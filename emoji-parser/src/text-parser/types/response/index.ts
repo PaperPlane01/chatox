@@ -5,3 +5,4 @@ export * from "./TokenPosition";
 export * from "./UserLinkPosition";
 export * from "./UserLinksResponse";
 export * from "./ParseTextResponse";
+export * from "./EmojiDataResponse";
