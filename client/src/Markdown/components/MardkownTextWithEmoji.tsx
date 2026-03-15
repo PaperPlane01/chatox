@@ -43,7 +43,7 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
     const {classes} = useStyles();
 
     const TargetMarkdownComponent = emojiData ? ReactMarkdown : MarkdownHooks;
-    const targetEmojiPlugin = emojiData ? emojiPlugin(emojiData) : emojiPluginAsync;
+    const targetEmojiPlugin = emojiData ? emojiPlugin(emojiData) : emojiPluginAsync();
     const plugins = disableRemarkBreaks ? [targetEmojiPlugin] : [remarkBreaks, targetEmojiPlugin];
 
     return (
