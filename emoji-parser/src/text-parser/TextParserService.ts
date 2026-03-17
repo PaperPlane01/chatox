@@ -50,7 +50,7 @@ export class TextParserService {
 			return;
 		}
 
-		this.addEmojiToResult(emojiData, matchedEmoji, index, emojiSet, result);
+		this.addEmojiToResult(emojiData, matchedEmoji, index, result);
 	}
 
 	private async handleNativeEmoji(match: RegExpMatchArray, emojiSet: EmojiSet, result: ParseTextResponse): Promise<void> {
@@ -62,14 +62,13 @@ export class TextParserService {
 			return;
 		}
 
-		this.addEmojiToResult(emojiData, matchedEmoji, index, emojiSet, result);
+		this.addEmojiToResult(emojiData, matchedEmoji, index, result);
 	}
 
 	private addEmojiToResult(
 		emojiData: EmojiDataResponse,
 		match: string,
 		index: number,
-		emojiSet: EmojiSet,
 		result: ParseTextResponse
 	): void {
 		result.emoji.emojiPositions.push(new EmojiPosition({
