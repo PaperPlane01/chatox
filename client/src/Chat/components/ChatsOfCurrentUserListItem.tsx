@@ -45,7 +45,12 @@ const useStyles = makeStyles()((theme: Theme) => ({
         maxWidth: "100%"
     },
     listItemHeaderContent: {
-        maxWidth: "80%"
+        [theme.breakpoints.up("lg")]: {
+            maxWidth: "95%"
+        },
+        [theme.breakpoints.down("lg")]: {
+            maxWidth: "90%"
+        }
     },
     flexWrapper: {
         display: "flex"
