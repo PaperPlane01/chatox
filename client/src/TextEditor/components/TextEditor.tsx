@@ -18,19 +18,23 @@ import {ContentEditable} from "@lexical/react/LexicalContentEditable";
 import {$convertFromMarkdownString, $convertToMarkdownString} from "@lexical/markdown";
 import {LexicalErrorBoundary} from "@lexical/react/LexicalErrorBoundary";
 import {EditorState, LexicalEditor} from "lexical";
-import {BeautifulMentionComponentProps, BeautifulMentionsPlugin, createBeautifulMentionNode} from "lexical-beautiful-mentions";
+import {
+    BeautifulMentionComponentProps,
+    BeautifulMentionsPlugin,
+    createBeautifulMentionNode
+} from "lexical-beautiful-mentions";
 import {ContainedEmojiPicker} from "./ContainedEmojiPicker";
 import {UncontainedEmojiPicker} from "./UncontainedEmojiPicker";
 import {Mention} from "./Mention";
-import {MentionMenu} from "./MentionMenu";
+import {MENTION_MENU_ANCHOR_CLASS_NAME, MentionsMenu} from "./MentionsMenu";
 import {MentionsMenuItem} from "./MentionsMenuItem";
 import {
-	AutoLinkPlugin,
-	EditorReadyListenerPlugin,
-	EmojiPlugin,
-	EnterActionsPlugin,
-	FloatingToolbarPlugin,
-	CreateEditorLinkPlugin
+    AutoLinkPlugin,
+    CreateEditorLinkPlugin,
+    EditorReadyListenerPlugin,
+    EmojiPlugin,
+    EnterActionsPlugin,
+    FloatingToolbarPlugin
 } from "../plugins";
 import {EnterAction} from "../types";
 import {adornmentStyle} from "../styles";
@@ -112,7 +116,7 @@ const EDITOR_NODES = [
 	ListItemNode,
 	QuoteNode,
 	HorizontalRuleNode,
-	...createBeautifulMentionNode(Mention as unknown as FunctionComponent<BeautifulMentionComponentProps<{}>>)
+	...createBeautifulMentionNode(Mention as unknown as FunctionComponent<BeautifulMentionComponentProps>)
 ];
 
 interface TextEditorProps {
@@ -227,7 +231,8 @@ export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
                             onSearch={(_, query) => searchMentions(query ?? "")}
                             creatable={false}
                             menuItemComponent={MentionsMenuItem}
-                            menuComponent={MentionMenu}
+                            menuComponent={MentionsMenu}
+                            menuAnchorClassName={MENTION_MENU_ANCHOR_CLASS_NAME}
 						/>
 						<AutoLinkPlugin/>
 						<CreateEditorLinkPlugin/>
