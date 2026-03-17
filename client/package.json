@@ -55,6 +55,7 @@
     "react-virtuoso": "^4.0.8",
     "remark-breaks": "^4.0.0",
     "rgb-hex": "^3.0.0",
+    "scroll-size-observer": "^1.0.0",
     "short-number": "^1.0.7",
     "socket.io-client": "^4.5.3",
     "tss-react": "^4.9.20",

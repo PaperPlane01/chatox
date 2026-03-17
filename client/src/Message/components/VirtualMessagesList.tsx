@@ -64,7 +64,7 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
     const messagesListBottomStyle = useMessagesListBottomStyles(
         onSmallScreen,
         styleDependencies,
-        true
+        refs.messagesListRef
     );
 
     const fetchNextMessages = (): void => {
@@ -107,6 +107,7 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
                           useWindowScroll={onSmallScreen}
                           overscan={virtualScrollOverscan}
                           defaultItemHeight={160}
+                          skipAnimationFrameInResizeObserver
                 />
                 <MessagesListBottom ref={refs.messagesListBottomRef}
                                     style={messagesListBottomStyle}

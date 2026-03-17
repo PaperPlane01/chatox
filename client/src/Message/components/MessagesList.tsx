@@ -84,7 +84,8 @@ export const MessagesList: FunctionComponent = observer(() => {
     );
     const messagesListBottomStyles = useMessagesListBottomStyles(
         onSmallScreen,
-        styleDependencies
+        styleDependencies,
+        refs.messagesListRef
     );
 
     const handleScroll = (event: UIEvent<HTMLDivElement>): void => {

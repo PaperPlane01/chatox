@@ -3548,6 +3548,11 @@ scheduler@^0.27.0:
   resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.27.0.tgz#0c4ef82d67d1e5c1e359e8fc76d3a87f045fe5bd"
   integrity sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==
 
+scroll-size-observer@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/scroll-size-observer/-/scroll-size-observer-1.0.0.tgz#ce339daed6e12a2cfa3ddd8bd1442ead429a0ac7"
+  integrity sha512-hu7fqd6n3HqKQhSgIjujGxgAZj8kKfNHqxCKiOplKW6J/kx7mbKjLj5Uh+An9GRQRTG82ShRsbI5Q3NO0tneUg==
+
 semver@^6.3.1:
   version "6.3.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.1.tgz#556d2ef8689146e46dcea4bfdd095f3434dffcb4"
