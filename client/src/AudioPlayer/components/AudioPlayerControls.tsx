@@ -28,7 +28,10 @@ const useStyles = makeStyles()((theme: Theme) => ({
     },
     trackMarkLabel: {
         top: 0,
-        paddingTop: Number(theme.spacing(3).replace("px", "")) + 2
+        paddingTop: Number(theme.spacing(3).replace("px", "")) + 2,
+        "@media (pointer: coarse)": {
+            top: 0
+        }
     },
     trackSliderMarked: {
         paddingBottom: theme.spacing(4),
