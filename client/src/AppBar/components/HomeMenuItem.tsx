@@ -17,7 +17,7 @@ const useStyles = makeStyles()(() => ({
 }));
 
 export const HomeMenuItem: FunctionComponent<HomeMenuItemProps> = observer(({onClick}) => {
-    const { classes } = useStyles();
+    const {classes} = useStyles();
     const {l} = useLocalization();
     const routerStore = useRouter();
 

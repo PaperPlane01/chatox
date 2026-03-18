@@ -14,9 +14,12 @@ const useStyles = makeStyles()(() => ({
 }));
 
 export const OpenDrawerButton: FunctionComponent = observer(() => {
-    const { classes } = useStyles();
-    const {appBar} = useStore();
-    const {setDrawerExpanded} = appBar;
+    const {classes} = useStyles();
+    const {
+        appBar: {
+            setDrawerExpanded
+        }
+    } = useStore();
 
     return (
         <IconButton

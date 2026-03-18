@@ -17,7 +17,7 @@ const useStyles = makeStyles()(() => ({
 }));
 
 export const ProfileMenuItem: FunctionComponent<ProfileMenuItemProps> = observer(({onClick}) => {
-    const { classes } = useStyles();
+    const {classes} = useStyles();
     const {l} = useLocalization();
     const {currentUser} = useAuthorization();
     const routerStore = useRouter();
