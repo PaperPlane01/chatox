@@ -27,7 +27,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
     typingIndicator: {
       display: "flex",
     },
-    typingIndicatorContainer: {
+    typingDotsContainer: {
         display: "flex",
         alignItems: "center",
         paddingRight: theme.spacing(1)
@@ -104,7 +104,7 @@ export const TypingIndicator: FunctionComponent<TypingIndicatorProps> = observer
                           display: "inline-block"
                       })}
             />
-            <div className={classes.typingIndicatorContainer}>
+            <div className={classes.typingDotsContainer}>
                 <div className={classes.typingDot}/>
                 <div className={classes.typingDot}/>
                 <div className={classes.typingDot}/>
