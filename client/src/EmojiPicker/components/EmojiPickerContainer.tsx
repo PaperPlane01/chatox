@@ -24,6 +24,9 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
         messageCreation: {
             emojiPickerExpanded,
             setEmojiPickerExpanded,
+        },
+        emojiPickerTabs: {
+            selectedTab
         }
     } = useStore();
     const [open, setOpen] = useState(false);
@@ -44,15 +47,19 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
 
     useLayoutEffect(
         () => {
-            if (refs.floating?.current) {
-                setCrossAxisOffset(-1 * refs.floating.current.getBoundingClientRect().width);
-            }
+            requestAnimationFrame(() => {
+                if (refs.floating?.current && open) {
+                    setCrossAxisOffset(-1 * refs.floating.current.getBoundingClientRect().width);
+                }
+            });
         },
-        [refs.floating]
+        [refs.floating, selectedTab, open]
     );
 
     const handleClickOutside = (event: MouseEvent): void => {
-        if (refs.floating?.current && !refs.floating.current.contains(event.target as any)) {
+        if (refs.floating?.current && !refs.floating.current.contains(event.target as any)
+            // Filter click on a button that opens/closes emoji picker button because it's handled separately
+            && refs.domReference?.current && !refs.domReference.current.contains(event.target as any)) {
             setOpen(false);
         }
     };
@@ -62,6 +69,10 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
 
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    const handleOpenEmojiPickerButtonClick = (): void => {
+       setOpen(!open);
+    };
 
     const handleExpandEmojiPickerButtonClick = (): void => {
         const queryParameters = emojiPickerExpanded
@@ -90,7 +101,7 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
         : (
             <Fragment>
                 <IconButton className={iconButtonClassName}
-                            onClick={() => setOpen(!open)}
+                            onClick={handleOpenEmojiPickerButtonClick}
                             size="large"
                             ref={refs.setReference}
                 >
