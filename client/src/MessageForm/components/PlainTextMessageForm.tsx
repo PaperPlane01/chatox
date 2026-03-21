@@ -104,9 +104,9 @@ export const PlainTextMessageForm: FunctionComponent<MessageFormProps> = observe
         }
 
         if (useEmojiCodes) {
-            insertTextOnCursorPosition(` ${emoji.colons} `);
+            insertTextOnCursorPosition(` ${emoji.shortcodes} `);
         } else {
-            insertTextOnCursorPosition(`${(emoji as any).native} `);
+            insertTextOnCursorPosition(`${emoji.native} `);
         }
 
         updateText(inputRef.current.value);

@@ -19,7 +19,7 @@ export const EmojiPlugin: FunctionComponent<EmojiPluginProps> = observer(({
 			const selection = $getSelection();
 
 			if (selection && $isRangeSelection(selection)) {
-				const content = useEmojiCodes ? emoji.colons : emoji.native;
+				const content = useEmojiCodes ? emoji.shortcodes : emoji.native;
 				selection.insertNodes([$createTextNode(content)]);
 			}
 
