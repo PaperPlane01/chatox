@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from "@mui/material";
 import {DateTimePicker} from "@mui/x-date-pickers";
 import {addMinutes, addMonths} from "date-fns";
 import {useLocalization, useStore} from "../../store";
@@ -9,7 +9,7 @@ import {ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 
 const getErrorText = (error: ApiError, l: TranslationFunction): string | undefined => {
-    if (error.metadata && error.metadata.errorCode) {
+    if (error.metadata?.errorCode) {
         if (error.metadata.errorCode === "LIMIT_OF_SCHEDULED_MESSAGES_REACHED") {
             return l("message.delayed-message.limit-reached");
         } else if (error.metadata.errorCode === "SCHEDULED_MESSAGE_IS_TOO_CLOSE_TO_ANOTHER_SCHEDULED_MESSAGE") {
@@ -49,24 +49,21 @@ export const ScheduleMessageDialog: FunctionComponent = observer(() => {
                 <DateTimePicker value={scheduledAt}
                                 onChange={date => date ? setScheduledAt(date) : setScheduledAt(undefined)}
                                 openTo="day"
-                                inputFormat="dd MMMM yyyy HH:mm"
+                                format="dd MMMM yyyy HH:mm"
                                 minDate={addMinutes(new Date(), 5)}
                                 maxDate={addMonths(new Date(), 1)}
                                 disablePast
                                 ampm={false}
-                                renderInput={props => (
-                                    <TextField {...props}
-                                               fullWidth
-                                               margin="dense"
-                                               error={Boolean(
-                                                   scheduledAtValidationError
-                                                   || (submissionError && submissionError.metadata
-                                                       && submissionError.metadata.errorCode
-                                                       && submissionError.metadata.errorCode === "SCHEDULED_MESSAGE_IS_TOO_CLOSE_TO_ANOTHER_SCHEDULED_MESSAGE")
-                                               )}
-                                               helperText={scheduledAtValidationError && l(scheduledAtValidationError)}
-                                    />
-                                )}
+                                slotProps={{
+                                    textField: {
+                                        fullWidth: true,
+                                        margin: "dense",
+                                        error: Boolean(scheduledAtValidationError
+                                            || submissionError?.metadata?.errorCode
+                                            === "SCHEDULED_MESSAGE_IS_TOO_CLOSE_TO_ANOTHER_SCHEDULED_MESSAGE"),
+                                        helperText: scheduledAtValidationError && l(scheduledAtValidationError)
+                                    }
+                                }}
                 />
                 {submissionError && (
                     <Typography style={{color: "red"}}>

@@ -1,6 +1,6 @@
 import createEmojiRegExp from "emoji-regex";
 
-export const EMOJI_COLONS = /:[^:\s]*(?:::[^:\s]*)*:$/g;
+export const EMOJI_COLONS = /:([^\s:]+):/g;
 
 export const EMOJI_NATIVE = createEmojiRegExp();
 

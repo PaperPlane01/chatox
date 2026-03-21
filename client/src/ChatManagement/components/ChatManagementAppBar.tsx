@@ -3,15 +3,13 @@ import {observer} from "mobx-react";
 import {Link} from "mobx-router";
 import {IconButton, AppBar, Typography, Toolbar} from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
+import {commonStyles} from "../../style";
 import {useRouter, useStore, useLocalization} from "../../store";
 import {Routes} from "../../router";
 
-const useStyles = makeStyles(() => createStyles({
-    undecoratedLink: {
-        textDecoration: "none",
-        color: "inherit"
-    }
+const useStyles = makeStyles()(() => ({
+    undecoratedLink: commonStyles.undecoratedLink
 }));
 
 export const ChatManagementAppBar: FunctionComponent = observer(() => {
@@ -22,7 +20,7 @@ export const ChatManagementAppBar: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const router = useRouter();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     if (!selectedChat) {
         return null;

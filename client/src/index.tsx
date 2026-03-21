@@ -3,10 +3,14 @@ import {createRoot} from "react-dom/client";
 import {Provider} from "mobx-react";
 import {setWasmUrl} from "@lottiefiles/dotlottie-react";
 import wasmUrl from "@lottiefiles/dotlottie-web/dist/dotlottie-player.wasm?url";
+import data from "@emoji-mart/data/sets/15/all.json";
+import {init} from "emoji-mart"
 import {App} from "./App";
 import {rootStore, store} from "./store";
 import {RouterStoreAware} from "./router";
 import * as serviceWorker from "./serviceWorker";
+
+init({data});
 
 setWasmUrl(import.meta.env.VITE_PUBLIC_URL + wasmUrl);
 

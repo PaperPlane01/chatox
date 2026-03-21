@@ -1,16 +1,15 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Chip, Dialog, DialogActions, DialogContent, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
-import {Emoji} from "emoji-mart";
+import {makeStyles} from "tss-react/mui";
 import {Sticker} from "./Sticker";
 import {useLocalization, useStore} from "../../store";
 import {Countdown} from "../../Countdown";
 import {useEntityById} from "../../entities";
 import {commonStyles} from "../../style";
 
-const useStyles = makeStyles(() => createStyles({
-	centered: commonStyles.centered
+const useStyles = makeStyles()(() => ({
+    centered: commonStyles.centered
 }));
 
 export const StickerPreviewDialog: FunctionComponent = observer(() => {
@@ -32,7 +31,7 @@ export const StickerPreviewDialog: FunctionComponent = observer(() => {
 	} = useStore();
 	const {l} = useLocalization();
 	const sticker = useEntityById("stickers", stickerId);
-	const classes = useStyles();
+	const {classes} = useStyles();
 
 	if (!sticker) {
 		return null;
@@ -67,10 +66,9 @@ export const StickerPreviewDialog: FunctionComponent = observer(() => {
 							{l("sticker.emojis")}
 						</Typography>
 						{sticker.emojiIds.map(id => sticker.emojis[id]).map(emoji => (
-							<Emoji size={32}
-								   emoji={emoji}
-								   set={selectedEmojiSet !== "native" ? selectedEmojiSet : "apple"}
-								   native={selectedEmojiSet === "native"}
+							<em-emoji size="32"
+								   id={emoji.id}
+								   set={selectedEmojiSet}
 								   key={emoji.id}
 							/>
 						))}

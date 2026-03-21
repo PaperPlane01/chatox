@@ -1,4 +1,4 @@
-import {BetterMentionsItem} from "lexical-better-mentions";
+import {BeautifulMentionsItem} from "lexical-beautiful-mentions";
 
 export type MentionData = {
 	fromDialog: boolean,
@@ -10,4 +10,4 @@ export type MentionData = {
 	displayedText: string
 }
 
-export type MentionItem = BetterMentionsItem & MentionData;
+export type MentionItem = BeautifulMentionsItem & MentionData;

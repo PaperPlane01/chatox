@@ -1,7 +1,7 @@
 import React, {ChangeEvent, FunctionComponent, ReactNode, useState} from "react";
 import {observer} from "mobx-react";
 import {Button, CircularProgress, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {StickerUploadProps} from "./StickerUploadProps";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ApiError} from "../../api";
@@ -14,11 +14,11 @@ interface AnimatedStickerUploadProps extends StickerUploadProps {
 	renderErrorText: (error: ApiError, l: TranslationFunction) => ReactNode
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-	fileUploadButton: {
+const useStyles = makeStyles()((theme: Theme) => ({
+    fileUploadButton: {
 		marginTop: theme.spacing(1)
 	},
-	fileUploadContainer: {
+    fileUploadContainer: {
 		display: "flex",
 		flexDirection: "column"
 	}
@@ -31,7 +31,7 @@ export const AnimatedStickerUpload: FunctionComponent<AnimatedStickerUploadProps
 	renderErrorText
 }) => {
 	const [value, setValue] = useState("");
-	const classes = useStyles();
+	const {classes} = useStyles();
 	const {l} = useLocalization();
 
 	const handleFileAttachment = (event: ChangeEvent<HTMLInputElement>): void => {

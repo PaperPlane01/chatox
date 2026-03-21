@@ -1,13 +1,13 @@
 import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
 import {Card, CardHeader, CardContent, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {LinkEmailButton} from "./LinkEmailButton";
 import {UpdateEmailButton} from "./UpdateEmailButton";
 import {UpdateEmailDialog} from "./UpdateEmailDialog";
 import {useAuthorization, useLocalization} from "../../store";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     editEmailWrapper: {
         display: "flex"
     }
@@ -16,7 +16,7 @@ const useStyles = makeStyles(() => createStyles({
 export const EditEmailContainer: FunctionComponent = observer(() => {
     const {currentUser} = useAuthorization();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     if (!currentUser) {
         return null;

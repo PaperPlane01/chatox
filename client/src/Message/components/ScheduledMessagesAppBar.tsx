@@ -2,17 +2,15 @@ import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {AppBar, IconButton, Toolbar, Typography} from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
+import {commonStyles} from "../../style";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 
-const useStyles = makeStyles(() => createStyles({
-    undecoratedLink: {
-        textDecoration: "none",
-        color: "inherit"
-    }
+const useStyles = makeStyles()(() => ({
+    undecoratedLink: commonStyles.undecoratedLink
 }));
 
 export const ScheduledMessagesAppBar: FunctionComponent = observer(() => {
@@ -23,7 +21,7 @@ export const ScheduledMessagesAppBar: FunctionComponent = observer(() => {
     } = useStore();
     const router = useRouter();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     const chat = useEntityById("chats", selectedChatId);
 

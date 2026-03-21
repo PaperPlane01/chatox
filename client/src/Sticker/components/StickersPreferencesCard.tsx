@@ -42,17 +42,19 @@ export const StickersPreferencesCard: FunctionComponent = observer(() => {
 							   fullWidth
 							   variant="outlined"
 							   label={l("sticker.preferences.loops-count")}
-							   inputProps={{
-								   min: 0
-							   }}
+                               slotProps={{
+                                  input: {
+                                      endAdornment: (
+                                          <IconButton onClick={() => setLoopsCount(undefined)}>
+                                              <Close/>
+                                          </IconButton>
+                                      ),
+                                  },
+                                   htmlInput: {
+                                      min: 0
+                                   }
+                               }}
 							   helperText={l("sticker.preferences.loops-count.zero")}
-							   InputProps={{
-								   endAdornment: (
-									   <IconButton onClick={() => setLoopsCount(undefined)}>
-										   <Close/>
-									   </IconButton>
-								   )
-							   }}
 					/>
 				)}
 			</CardContent>

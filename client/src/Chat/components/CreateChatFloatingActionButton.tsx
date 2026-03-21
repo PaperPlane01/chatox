@@ -1,11 +1,11 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Fab, Theme, Tooltip} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {Add} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {useLocalization, useStore} from "../../store";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     createChatFloatingActionButton: {
         position: "fixed",
         bottom: theme.spacing(2),
@@ -28,7 +28,7 @@ export const CreateChatFloatingActionButton: FunctionComponent<CreateChatFloatin
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     return (
         <Tooltip title={l("chat.create-chat")}>

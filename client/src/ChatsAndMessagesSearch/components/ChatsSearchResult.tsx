@@ -33,13 +33,13 @@ export const ChatsSearchResult: FunctionComponent<ChatsOfCurrentUserListProps> =
     return (
         <Accordion expanded={!collapsed}
                    onChange={() => setCollapsed(!collapsed)}
-                   className={classes && classes.accordion}
+                   className={classes?.accordion}
         >
             <AccordionSummary>
                 <Typography>{l("search.result.chats")}</Typography>
             </AccordionSummary>
-            <AccordionDetails className={classes && classes.accordionDetails}>
-                <List className={classes && classes.list}>
+            <AccordionDetails className={classes?.accordionDetails}>
+                <List className={classes?.list}>
                     {foundChats.map(chatId => (
                         <Fragment key={chatId}>
                             <ChatsOfCurrentUserListItem chatId={chatId}
@@ -50,7 +50,7 @@ export const ChatsSearchResult: FunctionComponent<ChatsOfCurrentUserListProps> =
                         </Fragment>
                     ))}
                 </List>
-                {pending && <CircularProgress size={15} color="primary" className={classes && classes.circularProgress}/>}
+                {pending && <CircularProgress size={15} color="primary" className={classes?.circularProgress}/>}
             </AccordionDetails>
         </Accordion>
     );

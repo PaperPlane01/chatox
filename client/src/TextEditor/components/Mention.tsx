@@ -1,11 +1,11 @@
 import React, {FunctionComponent, MouseEvent} from "react";
 import {observer} from "mobx-react";
-import {BetterMentionComponentProps} from "lexical-better-mentions";
+import {BeautifulMentionComponentProps} from "lexical-beautiful-mentions";
 import {MentionData} from "../types";
 import {useRouter} from "../../store";
 import {Routes} from "../../router";
 
-export const Mention: FunctionComponent<BetterMentionComponentProps<MentionData>> = observer(({
+export const Mention: FunctionComponent<BeautifulMentionComponentProps<MentionData>> = observer(({
 	trigger,
 	value,
 	data,

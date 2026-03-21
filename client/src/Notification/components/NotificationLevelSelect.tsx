@@ -1,9 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Select, FormControl, InputLabel, MenuItem, Theme} from "@mui/material";
-import {createStyles, CSSProperties, makeStyles} from "@mui/styles";
+import {CSSProperties, FormControl, InputLabel, MenuItem, Select, Theme} from "@mui/material";
+import {makeStyles} from "tss-react/mui";
 import {useLocalization} from "../../store";
-import {NotificationLevel, NOTIFICATION_LEVELS} from "../../api/types/response";
+import {NOTIFICATION_LEVELS, NotificationLevel} from "../../api/types/response";
 import {Labels} from "../../localization";
 
 interface NotificationLevelSelectProps {
@@ -12,11 +12,11 @@ interface NotificationLevelSelectProps {
 	style?: CSSProperties
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-	formControl: {
+const useStyles = makeStyles()((theme: Theme) => ({
+    formControl: {
 		paddingTop: theme.spacing(1)
 	}
-}))
+}));
 
 export const NotificationLevelSelect: FunctionComponent<NotificationLevelSelectProps> = observer(({
 	value,
@@ -24,7 +24,7 @@ export const NotificationLevelSelect: FunctionComponent<NotificationLevelSelectP
 	style
 }) => {
 	const {l} = useLocalization();
-	const classes = useStyles();
+	const {classes} = useStyles();
 
 	return (
 		<FormControl fullWidth className={classes.formControl} style={style}>

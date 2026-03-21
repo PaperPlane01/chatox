@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Badge, CircularProgress, IconButton, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {FileCopy} from "@mui/icons-material";
 import prettyBytes from "pretty-bytes";
 import {useStore} from "../../store";
@@ -11,7 +11,7 @@ interface MessageFileProps {
     chatUploadId: string
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     fileContainer: {
         display: "flex",
         alignItems: "center",
@@ -34,7 +34,7 @@ export const MessageFile: FunctionComponent<MessageFileProps> = observer(({
             getDownloadProgress
         }
     } = useStore();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const file = useEntityById("uploads", chatUploadId);
     const {downloading, percentage} = getDownloadProgress(file.id);
 

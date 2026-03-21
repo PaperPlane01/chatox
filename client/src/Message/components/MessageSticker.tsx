@@ -1,7 +1,7 @@
 import React, {FunctionComponent, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {ImageList, ImageListItem} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {Sticker} from "../../Sticker";
 import {useStore} from "../../store";
 import {useEntityById} from "../../entities";
@@ -13,7 +13,7 @@ interface MessageStickerProps {
     onImageLoaded?: () => void
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     stickerWrapper: {
         display: "inline-block",
         position: "relative",
@@ -40,7 +40,7 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
             openDialog
         }
     } = useStore();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const [loaded, setLoaded] = useState(false);
     const imageContainerRef = useRef<HTMLDivElement>(null);
 

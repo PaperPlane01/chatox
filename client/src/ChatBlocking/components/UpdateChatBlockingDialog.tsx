@@ -11,18 +11,19 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {DateTimePicker} from "@mui/x-date-pickers";
-import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import randomColor from "randomcolor";
+import {HttpStatusCode} from "axios";
+import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {Avatar} from "../../Avatar";
 import {TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
-import {useMobileDialog} from "../../utils/hooks";
+import {useLuminosity, useMobileDialog} from "../../utils/hooks";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     blockedUserContainer: {
         display: "flex"
     }
@@ -31,7 +32,7 @@ const useStyles = makeStyles(() => createStyles({
 const getErrorLabel = (apiError: ApiError, l: TranslationFunction): string => {
     if (apiError.status === API_UNREACHABLE_STATUS) {
         return l("chat.blocking.update.error.server-unreachable");
-    } else if (apiError.status === 403) {
+    } else if (apiError.status === HttpStatusCode.Forbidden) {
         return l("chat.blocking.update.error.forbidden");
     } else {
         return l("chat.blocking.update.error.unknown", {responseStatus: apiError.status})
@@ -53,9 +54,10 @@ export const UpdateChatBlockingDialog: FunctionComponent = observer(() => {
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const theme = useTheme();
     const {fullScreen} = useMobileDialog();
+    const luminosity = useLuminosity();
 
     const chat = useEntityById("chats", updatedChatBlocking?.chatId);
     const blockedUser = useEntityById("users", updatedChatBlocking?.blockedUserId);
@@ -66,7 +68,7 @@ export const UpdateChatBlockingDialog: FunctionComponent = observer(() => {
 
     const username = getUserDisplayedName(blockedUser);
     const avatarLetters = getUserAvatarLabel(blockedUser);
-    const color = randomColor({seed: blockedUser.id});
+    const color = randomColor({seed: blockedUser.id, luminosity});
 
     return (
         <Dialog open={updateChatBlockingDialogOpen}
@@ -103,17 +105,16 @@ export const UpdateChatBlockingDialog: FunctionComponent = observer(() => {
                 <DateTimePicker value={formData.blockedUntil}
                                 onChange={date => setFormValue("blockedUntil", date ? date : undefined)}
                                 disablePast
-                                inputFormat="dd MMMM yyyy HH:mm"
+                                format="dd MMMM yyyy HH:mm"
                                 ampm={false}
-                                renderInput={props => (
-                                    <TextField {...props}
-                                               label={l("chat.blocking.blocked-until")}
-                                               error={Boolean(formErrors.blockedUntil)}
-                                               helperText={formErrors.blockedUntil && l(formErrors.blockedUntil)}
-                                               fullWidth
-                                               margin="dense"
-                                    />
-                                )}
+                                slotProps={{
+                                    textField: {
+                                        fullWidth: true,
+                                        margin: "dense",
+                                        error: Boolean(formErrors.blockedUntil),
+                                        helperText: formErrors.blockedUntil && l(formErrors.blockedUntil),
+                                    }
+                                }}
                 />
                 <TextField label={l("chat.blocking.description")}
                            value={formData.description}

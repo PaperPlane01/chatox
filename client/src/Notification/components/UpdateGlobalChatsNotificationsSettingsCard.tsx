@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Card, CardActions, CardContent, CardHeader, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {NotificationLevelSelect} from "./NotificationLevelSelect";
 import {useLocalization, useStore} from "../../store";
 import {ChatType} from "../../api/types/response";
@@ -12,8 +12,8 @@ interface UpdateGlobalChatsNotificationsSettingsCardProps {
 	chatType: ChatType
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-	cardContent: {
+const useStyles = makeStyles()((theme: Theme) => ({
+    cardContent: {
 		display: "flex",
 		flexDirection: "column",
 		gap: theme.spacing(1)
@@ -37,7 +37,7 @@ export const UpdateGlobalChatsNotificationsSettingsCard: FunctionComponent<Updat
 		}
 	} = useStore();
 	const {l} = useLocalization();
-	const classes = useStyles();
+	const {classes} = useStyles();
 	const label: keyof Labels = chatType === ChatType.DIALOG
 		? "notification.settings.for-dialog-chats"
 		: "notification.settings.for-group-chats";

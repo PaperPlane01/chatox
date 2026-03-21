@@ -1,8 +1,8 @@
 import React, {CSSProperties, forwardRef, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {Alert, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
-import {format} from "date-fns";
+import {makeStyles} from "tss-react/mui";
+import {format, Locale} from "date-fns";
 import {MessageForm} from "../../MessageForm";
 import {JoinChatButton, useChatParticipation} from "../../ChatParticipant";
 import {useAuthorization, useLocalization, useStore} from "../../store";
@@ -15,7 +15,7 @@ import {Labels, TranslationFunction} from "../../localization";
 import {getGlobalBanLabel, isGlobalBanActive} from "../../GlobalBan/utils";
 import {getUserDisplayedName} from "../../User/utils/labels";
 
-const useStyles = makeStyles<Theme>((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     messagesListBottom: {
         [theme.breakpoints.up("lg")]: {
             display: "inline-block",
@@ -82,7 +82,7 @@ const _MessagesListBottom = forwardRef<HTMLDivElement, MessagesListBottomProps>(
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
     const {currentUser} = useAuthorization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const chat = useEntityById("chats", selectedChatId);
     const chatParticipation = useChatParticipation(selectedChatId, currentUser?.id)

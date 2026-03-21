@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CardHeader, Typography, useMediaQuery, useTheme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
 import {TypingIndicator} from "../../Chat";
@@ -16,7 +16,7 @@ interface DialogChatAppBarContentProps {
     chatId: string
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     cardHeaderRoot: {
         padding: 0
     }
@@ -34,10 +34,10 @@ export const DialogChatAppBarContent: FunctionComponent<DialogChatAppBarContentP
         }
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-    const chat = useEntityById("chats", !showInput ? chatId : undefined);
+    const chat = useEntityById("chats", showInput ? undefined : chatId);
     const user = useEntityById("users", chat?.userId);
     const luminosity = useLuminosity();
 

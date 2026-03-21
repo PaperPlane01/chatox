@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Tab, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
+import {makeStyles} from "tss-react/mui";
 import {useSnackbar} from "notistack";
 import {isAfter} from "date-fns";
 import {StickersGridList} from "./StickersGridList";
@@ -16,7 +16,7 @@ interface StickerPickerProps {
     onStickerPicked?: () => void
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     stickerPickerWrapper: {
       overflow: "hidden"
     },
@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         paddingRight: 0,
         scrollbarWidth: "thin"
     },
-    imageWrapper: {
+    stickerPackPreview: {
         display: "inline-block",
         position: "relative",
         height: "100%",
@@ -62,7 +62,7 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const {enqueueSnackbar} = useSnackbar();
     const stickerPacks = useEntitiesByIds("stickerPacks", installedStickerPacksIds);
     const stickerPackPreviews = useEntitiesSelector(
@@ -113,7 +113,7 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
                         <Tab value={stickerPack.id}
                              key={stickerPack.id}
                              icon={
-                                 <div className={classes.imageWrapper}>
+                                 <div className={classes.stickerPackPreview}>
                                      <StickerPackPreview stickersType={stickerPack.stickersType}
                                                          upload={previewMap.get(stickerPack.previewId)!}
                                                          width="100%"

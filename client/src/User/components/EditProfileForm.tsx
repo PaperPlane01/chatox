@@ -110,25 +110,27 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
                            fullWidth
                            margin="dense"
                            onChange={event => setFormValue("slug", event.target.value)}
-                           InputProps={{
-                               endAdornment: checkingSlugAvailability && (
-                                   <InputAdornment position="end">
-                                       <CircularProgress size={15} color="primary"/>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: checkingSlugAvailability && (
+                                       <InputAdornment position="end">
+                                           <CircularProgress size={15} color="primary"/>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
                 <DatePicker value={editProfileForm.dateOfBirth ? editProfileForm.dateOfBirth : null}
                             disableFuture
                             openTo="year"
                             onChange={date => setFormValue("dateOfBirth", date ? date : undefined)}
-                            inputFormat="dd MMMM yyyy"
-                            renderInput={props => (
-                                <TextField {...props}
-                                           label={l("user.profile.birth-date")}
-                                           fullWidth
-                                />
-                            )}
+                            format="dd MMMM yyyy"
+                            slotProps={{
+                                textField: {
+                                    fullWidth: true,
+                                    margin: "dense"
+                                }
+                            }}
                 />
                 <TextField label={l("user.profile.bio")}
                            value={editProfileForm.bio}
@@ -137,12 +139,14 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
                            fullWidth
                            margin="dense"
                            onChange={event => setFormValue("bio", event.target.value)}
-                           InputProps={{
-                               endAdornment: (
-                                   <InputAdornment position="end">
-                                       <OpenMarkdownPreviewDialogButton/>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: (
+                                       <InputAdornment position="end">
+                                           <OpenMarkdownPreviewDialogButton/>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                            multiline
                            rows={4}

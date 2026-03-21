@@ -2,7 +2,6 @@ import {FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {$createTextNode, $getSelection, $isRangeSelection, COMMAND_PRIORITY_HIGH} from "lexical";
-import {BaseEmoji} from "emoji-mart";
 import {ADD_EMOJI} from "../commands";
 
 interface EmojiPluginProps {
@@ -20,7 +19,7 @@ export const EmojiPlugin: FunctionComponent<EmojiPluginProps> = observer(({
 			const selection = $getSelection();
 
 			if (selection && $isRangeSelection(selection)) {
-				const content = useEmojiCodes ? emoji.colons : (emoji as BaseEmoji).native;
+				const content = useEmojiCodes ? emoji.shortcodes : emoji.native;
 				selection.insertNodes([$createTextNode(content)]);
 			}
 

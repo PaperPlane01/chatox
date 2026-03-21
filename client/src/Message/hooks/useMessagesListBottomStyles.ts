@@ -1,10 +1,11 @@
-import {CSSProperties, DependencyList, useLayoutEffect, useState} from "react";
+import {CSSProperties, DependencyList, RefObject, useLayoutEffect, useState} from "react";
+import {ScrollSizeObserver} from "scroll-size-observer";
 import {isWindowScrollable} from "../../utils/dom-utils";
 
 export const useMessagesListBottomStyles = (
 	onSmallScreen: boolean,
 	dependencies: DependencyList,
-	recheckInTimeout: boolean = false
+    messagesListRef: RefObject<HTMLDivElement | null>
 ): CSSProperties => {
 	const [style, setStyle] = useState<CSSProperties>({});
 
@@ -20,19 +21,22 @@ export const useMessagesListBottomStyles = (
 
 	useLayoutEffect(() => {
 		setStyle(calculateStyles());
-
-		if (recheckInTimeout) {
-			setTimeout(() => setStyle(calculateStyles()), 10);
-		}
 	}, dependencies);
 
-	const handleResize = (): void => setStyle(calculateStyles());
-
 	useLayoutEffect(() => {
-		window.addEventListener("resize", handleResize);
+        if (!onSmallScreen) {
+            return;
+        }
 
-		return () => window.removeEventListener("resize", handleResize);
-	}, []);
+        if (!messagesListRef.current) {
+            return;
+        }
+
+        const scrollSizeObserver = new ScrollSizeObserver(() => setStyle(calculateStyles()));
+        scrollSizeObserver.observe(messagesListRef.current, {scrollWidth: false, scrollHeight: true});
+
+        return () => scrollSizeObserver.disconnect();
+	}, [onSmallScreen, messagesListRef.current]);
 
 	return style;
 };

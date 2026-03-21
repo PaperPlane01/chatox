@@ -1,13 +1,13 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, Skeleton} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {Info} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {MarkdownTextWithEmoji} from "../../Markdown";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     root: {
         paddingLeft: 0,
         paddingRight: 0
@@ -22,7 +22,7 @@ export const ChatDescription: FunctionComponent = observer(() => {
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const chat = useEntityById("chats", selectedChatId);
 
     if (!chat) {

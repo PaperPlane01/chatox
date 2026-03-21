@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardHeader, CircularProgress, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {format} from "date-fns";
 import {UserMenu} from "./UserMenu";
 import {DialogWithUserButton} from "./DialogWithUserButton";
@@ -14,7 +14,7 @@ import {HasAnyRole} from "../../Authorization";
 import {UserInteractionsCount} from "../../UserInteraction";
 import {MarkdownTextWithEmoji} from "../../Markdown";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     centered: {
         display: "flex",
         alignItems: "center",
@@ -29,6 +29,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     onlineLabel: {
         color: theme.palette.primary.main
     },
+
     cardSubheader: {
         color: theme.palette.text.primary
     }
@@ -56,7 +57,7 @@ export const UserProfileInfo: FunctionComponent = observer(() => {
         }
     } = useStore();
     const {l, dateFnsLocale} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     if (pending) {
         return <CircularProgress className={classes.centered} size={25}/>

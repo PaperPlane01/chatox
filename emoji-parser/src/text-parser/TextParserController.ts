@@ -9,7 +9,7 @@ export class TextParserController {
 	}
 
 	@Post()
-	public parseText(@Body() parseTextRequest: ParseTextRequest): ParseTextResponse {
+	public parseText(@Body() parseTextRequest: ParseTextRequest): Promise<ParseTextResponse> {
 		return this.textParserService.parseText(parseTextRequest);
 	}
 }

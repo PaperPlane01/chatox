@@ -11,6 +11,7 @@ import {
     TextField,
     Typography
 } from "@mui/material";
+import {HttpStatusCode} from "axios";
 import {useLocalization, useStore} from "../../store";
 import {ChatAvatarUpload} from "../../Chat";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
@@ -54,12 +55,14 @@ const notFoundErrorTranslations = {
 };
 
 const getErrorNode = (error: ApiError, l: TranslationFunction, language: Language): ReactNode => {
-    if (error.status !== 404) {
+    if (error.status === HttpStatusCode.NotFound) {
+        return notFoundErrorTranslations[language]();
+    } else {
         let errorText: string;
 
-        if (error.status === 409) {
+        if (error.status === HttpStatusCode.Conflict) {
             errorText = l("chat.slug.has-already-been-taken");
-        } else if (error.status === 403) {
+        } else if (error.status === HttpStatusCode.Forbidden) {
             errorText = l("chat.update.no-permission");
         } else if (error.status === API_UNREACHABLE_STATUS) {
             errorText = l("chat.update.api-unreachable");
@@ -74,8 +77,6 @@ const getErrorNode = (error: ApiError, l: TranslationFunction, language: Languag
                 {errorText}
             </Typography>
         )
-    } else {
-        return notFoundErrorTranslations[language]();
     }
 };
 
@@ -124,12 +125,14 @@ export const UpdateChatForm: FunctionComponent<BaseSettingsTabProps> = observer(
                                error={Boolean(formErrors.description)}
                                helperText={formErrors.description && l(formErrors.description)}
                                onChange={event => setFormValue("description", event.target.value)}
-                               InputProps={{
-                                   endAdornment: (
-                                       <InputAdornment position="end">
-                                           <OpenMarkdownPreviewDialogButton/>
-                                       </InputAdornment>
-                                   )
+                               slotProps={{
+                                   input: {
+                                       endAdornment: (
+                                           <InputAdornment position="end">
+                                               <OpenMarkdownPreviewDialogButton/>
+                                           </InputAdornment>
+                                       )
+                                   }
                                }}
                                multiline
                                rows={4}
@@ -142,12 +145,14 @@ export const UpdateChatForm: FunctionComponent<BaseSettingsTabProps> = observer(
                                error={Boolean(formErrors.slug)}
                                helperText={formErrors.slug && l(formErrors.slug)}
                                onChange={event => setFormValue("slug", event.target.value)}
-                               InputProps={{
-                                   endAdornment: checkingSlugAvailability && (
-                                       <InputAdornment position="end">
-                                           <CircularProgress size={15} color="primary"/>
-                                       </InputAdornment>
-                                   )
+                               slotProps={{
+                                   input: {
+                                       endAdornment: checkingSlugAvailability && (
+                                           <InputAdornment position="end">
+                                               <CircularProgress size={15} color="primary"/>
+                                           </InputAdornment>
+                                       )
+                                   }
                                }}
                     />
                     <ChipInput label={l("chat.tags")}

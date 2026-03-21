@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Tab, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
 import {EmojiData} from "emoji-mart";
 import {EmojiPicker} from "./EmojiPicker";
@@ -13,9 +13,10 @@ interface EmojiAndStickerPickerProps {
     onStickerPicked: () => void
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     pickerContainer: {
         width: "100%",
+        backgroundColor: theme.palette.background.paper,
         [theme.breakpoints.up("lg")]: {
             maxWidth: 500
         }
@@ -36,7 +37,7 @@ export const EmojiAndStickerPicker: FunctionComponent<EmojiAndStickerPickerProps
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     return (
         <div className={classes.pickerContainer}>

@@ -102,36 +102,36 @@ export const RewardForm: FunctionComponent<RewardFormProps> = observer(({
                                 ? setFormValue("periodStart", date)
                                 : setFormValue("periodStart", undefined)}
                             openTo="day"
-                            inputFormat="dd-MM-yyyy HH:mm"
+                            format="dd-MM-yyyy HH:mm"
                             disablePast
                             ampm={false}
-                            renderInput={props => (
-                                <TextField {...props}
-                                           label={l("reward.period.start")}
-                                           fullWidth
-                                           margin="dense"
-                                           error={Boolean(formErrors.periodStart)}
-                                           helperText={formErrors.periodStart && l(formErrors.periodStart)}
-                                />
-                            )}
+                            label={l("reward.period.start")}
+                            slotProps={{
+                                textField: {
+                                    fullWidth: true,
+                                    margin: "dense",
+                                    error: Boolean(formErrors.periodStart),
+                                    helperText: formErrors.periodStart && l(formErrors.periodStart)
+                                }
+                            }}
             />
             <DateTimePicker value={formValues.periodEnd || null}
                             onChange={date => date
                                 ? setFormValue("periodEnd", date)
                                 : setFormValue("periodEnd", undefined)}
                             openTo="day"
-                            inputFormat="dd-MM-yyyy HH:mm"
+                            format="dd-MM-yyyy HH:mm"
                             disablePast
                             ampm={false}
-                            renderInput={props => (
-                                <TextField {...props}
-                                           label={l("reward.period.end")}
-                                           fullWidth
-                                           margin="dense"
-                                           error={Boolean(formErrors.periodEnd)}
-                                           helperText={formErrors.periodEnd && l(formErrors.periodEnd)}
-                                />
-                            )}
+                            label={l("reward.period.end")}
+                            slotProps={{
+                                textField: {
+                                    fullWidth: true,
+                                    margin: "dense",
+                                    error: Boolean(formErrors.periodEnd),
+                                    helperText: formErrors.periodEnd && l(formErrors.periodEnd)
+                                }
+                            }}
             />
             {rewardedUserSelect}
         </Fragment>

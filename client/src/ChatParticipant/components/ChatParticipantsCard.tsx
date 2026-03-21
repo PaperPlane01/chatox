@@ -1,8 +1,8 @@
 import React, {CSSProperties, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {GroupOutlined} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {ChatParticipantSearchButton} from "./ChatParticipantSearchButton";
 import {ChatParticipantSearchTextField} from "./ChatParticipantSearchTextField";
 import {AllChatParticipantsList} from "./AllChatParticipantsList";
@@ -26,7 +26,7 @@ interface ChatParticipantsCardProps {
     preventScroll?: boolean
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     root: {
         paddingLeft: 0,
         paddingRight: 0
@@ -86,7 +86,7 @@ export const ChatParticipantsCard: FunctionComponent<ChatParticipantsCardProps> 
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const {
         onLargeScreen,
         enableVirtualScroll,

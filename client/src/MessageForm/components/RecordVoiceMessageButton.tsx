@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Tooltip} from "@mui/material";
+import {IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from "@mui/material";
 import {KeyboardVoice} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {useLocalization, useStore} from "../../store";
@@ -21,7 +21,7 @@ export const RecordVoiceMessageButton: FunctionComponent = observer(() => {
 		popupId: "voiceMessageMenuPopup",
 		variant: "popover"
 	});
-	const classes = useStyles();
+	const {classes} = useStyles();
 
 	return (
 		<Fragment>

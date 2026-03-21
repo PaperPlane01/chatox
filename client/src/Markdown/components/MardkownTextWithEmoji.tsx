@@ -1,11 +1,11 @@
 import React, {Fragment, FunctionComponent, KeyboardEvent, MouseEvent} from "react";
 import {observer} from "mobx-react";
 import {Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
-import ReactMarkdown, {Components} from "react-markdown";
+import {makeStyles} from "tss-react/mui";
+import ReactMarkdown, {Components, MarkdownHooks} from "react-markdown";
 import remarkBreaks from "remark-breaks";
-import {Emoji, EmojiData} from "emoji-mart";
-import {emojiPlugin} from "../plugins";
+import {EmojiData} from "emoji-mart";
+import {emojiPlugin, emojiPluginAsync} from "../plugins";
 import {MessageEmoji} from "../../api/types/response";
 import {rootStore, useStore} from "../../store";
 import {createBlockquoteStyles} from "../../style";
@@ -21,7 +21,7 @@ interface MarkdownTextWithEmojiProps {
     renderCodeAsPlainText?: boolean
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     blockquote: createBlockquoteStyles(theme)
 }));
 
@@ -40,46 +40,44 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
             selectedEmojiSet
         }
     } = useStore();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
-    const emojiSet = selectedEmojiSet === "native" ? "apple" : selectedEmojiSet;
+    const TargetMarkdownComponent = emojiData ? ReactMarkdown : MarkdownHooks;
+    const targetEmojiPlugin = emojiData ? emojiPlugin(emojiData) : emojiPluginAsync();
+    const plugins = disableRemarkBreaks ? [targetEmojiPlugin] : [remarkBreaks, targetEmojiPlugin];
 
     return (
-        <ReactMarkdown remarkPlugins={!disableRemarkBreaks
-            ? [remarkBreaks, emojiPlugin(emojiSet, emojiData)]
-            : [emojiPlugin(emojiSet, emojiData)]
-        }
-                       allowElement={element => element.tagName !== "img"}
-                       components={{
-                           p: renderParagraph(renderParagraphsAsSpan),
-                           a: renderLink(renderLinksAsPlainText),
-                           blockquote: renderQuote(renderQuotesAsPlainText, classes.blockquote),
-                           h1: renderHeader(renderHeadersAsPlainText, "h1"),
-                           h2: renderHeader(renderHeadersAsPlainText, "h2"),
-                           h3: renderHeader(renderHeadersAsPlainText, "h3"),
-                           h4: renderHeader(renderHeadersAsPlainText, "h4"),
-                           h5: renderHeader(renderHeadersAsPlainText, "h5"),
-                           h6: renderHeader(renderHeadersAsPlainText, "h6"),
-                           code: renderCode(renderCodeAsPlainText),
-                           pre: renderPre(renderCodeAsPlainText),
-                           emoji: ({node}) => {
-                               const properties = node.properties as unknown as EmojiData;
+        <TargetMarkdownComponent
+            remarkPlugins={plugins}
+            allowElement={element => element.tagName !== "img"}
+            components={{
+                p: renderParagraph(renderParagraphsAsSpan),
+                a: renderLink(renderLinksAsPlainText),
+                blockquote: renderQuote(renderQuotesAsPlainText, classes.blockquote),
+                h1: renderHeader(renderHeadersAsPlainText, "h1"),
+                h2: renderHeader(renderHeadersAsPlainText, "h2"),
+                h3: renderHeader(renderHeadersAsPlainText, "h3"),
+                h4: renderHeader(renderHeadersAsPlainText, "h4"),
+                h5: renderHeader(renderHeadersAsPlainText, "h5"),
+                h6: renderHeader(renderHeadersAsPlainText, "h6"),
+                code: renderCode(renderCodeAsPlainText),
+                pre: renderPre(renderCodeAsPlainText),
+                emoji: ({node}) => {
+                    const properties = node.properties as unknown as EmojiData;
 
-                               return (
-                                   <Emoji size={20}
-                                          emoji={properties}
-                                          set={selectedEmojiSet !== "native"
-                                              ? selectedEmojiSet
-                                              : undefined
-                                          }
-                                          native={selectedEmojiSet === "native"}
-                                   />
-                               );
-                           }
-                       }}
+                    return (
+                        <em-emoji
+                            size="20"
+                            id={properties.id}
+                            native={properties.native}
+                            set={selectedEmojiSet}
+                        />
+                    );
+                }
+        }}
         >
             {text}
-        </ReactMarkdown>
+        </TargetMarkdownComponent>
     );
 });
 
@@ -93,7 +91,7 @@ const renderParagraph = (renderAsSpan: boolean): Components["p"] => ({node, ...p
 
 const renderLink = (renderAsPlainText: boolean): Components["a"] => ({node, ...props}) => {
     if (renderAsPlainText) {
-        return props.children.length !== 0
+        return props?.children
             ? <Fragment>{props.children}</Fragment>
             : <Fragment>{props.href ?? ""}</Fragment>;
     } else {

@@ -1,12 +1,11 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {unionBy} from "lodash";
-import {EmojiData, EmojiSet, getEmojiDataFromNative} from "emoji-mart";
+import {EmojiData, getEmojiDataFromNative} from "emoji-mart";
 import {CreateMessageStore} from "./CreateMessageStore";
 import {StickerEntity} from "../../Sticker/types";
 import {InstalledStickerPacksStore} from "../../Sticker/stores";
 import {StickerRepository} from "../../Sticker/repositories";
 import {KEYWORD_MAX_LENGTH} from "../../StickerPackForm/constants";
-import {allEmojiData} from "../../Emoji/data";
 import {EMOJI_REGEXP} from "../../Emoji/rules";
 import {getEmojiDataFromColons} from "../../Emoji/utils";
 import {EmojiSettingsStore} from "../../Emoji/stores";
@@ -68,15 +67,12 @@ export class StickerSuggestionsStore {
 			return [];
 		}
 
-		let emojiData: EmojiData | undefined;
-		const emojiSet: EmojiSet = this.emojiSettings.selectedEmojiSet === "native"
-			? "apple"
-			: this.emojiSettings.selectedEmojiSet;
+        let emojiData: EmojiData | undefined;
 
 		if (text.startsWith(":")) {
-			emojiData = getEmojiDataFromColons(text, emojiSet);
+			emojiData = await getEmojiDataFromColons(text);
 		} else {
-			emojiData = getEmojiDataFromNative(text, emojiSet, allEmojiData);
+			emojiData = await getEmojiDataFromNative(text);
 		}
 
 		if (!isDefined(emojiData?.id)) {

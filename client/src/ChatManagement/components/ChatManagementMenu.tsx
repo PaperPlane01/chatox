@@ -1,4 +1,4 @@
-import React, {Fragment, FunctionComponent, ReactNode} from "react";
+import React, {CSSProperties, Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {Link} from "mobx-router";
 import {CircularProgress, List, Typography} from "@mui/material";
@@ -87,7 +87,7 @@ export const ChatManagementMenu: FunctionComponent = observer(() => {
     });
 
     if (pending) {
-        return <CircularProgress size={25} color="primary" style={commonStyles.centered}/>
+        return <CircularProgress size={25} color="primary" style={commonStyles.centered as unknown as CSSProperties}/>
     }
 
     if (!hasAccessToChatManagementPage) {

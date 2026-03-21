@@ -1,4 +1,3 @@
-import {EmojiData} from "emoji-mart";
 import {EmojiMap, StickerType} from "../../api/types/response";
 
 export interface StickerEntity {

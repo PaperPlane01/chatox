@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CardContent, CardHeader, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {FindMessageFunction, FindMessageSenderFunction} from "../types";
 import {useMessageById, useMessageSenderById} from "../hooks";
 import {UserLink} from "../../UserLink";
@@ -14,7 +14,7 @@ interface ReferredMessageContentProps {
     findMessageFunction?: FindMessageFunction
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     cardContentRoot: {
         paddingTop: 0,
         paddingBottom: 0,
@@ -41,7 +41,7 @@ export const ReferredMessageContent: FunctionComponent<ReferredMessageContentPro
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const message = useMessageById(messageId, false, findMessageFunction)
     const user = useMessageSenderById(message.sender, findSenderFunction);

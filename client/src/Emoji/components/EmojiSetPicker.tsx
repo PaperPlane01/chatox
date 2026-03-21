@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, FormControlLabel, Radio, RadioGroup, Typography} from "@mui/material";
 import {EmojiSetDemo} from "./EmojiSetDemo";
 import {UseEmojiCodesSwitch} from "./UseEmojiCodesSwitch";
-import {ExtendedEmojiSet} from "../types";
+import {EmojiSet} from "../types";
 import {ALLOWED_EMOJI_SETS} from "../internal/constants";
 import {useLocalization, useStore} from "../../store";
 import {Labels} from "../../localization";
@@ -26,7 +26,7 @@ export const EmojiSetPicker: FunctionComponent<EmojiSetPickerProps> = observer((
             {!hideHeader && <CardHeader title={l("emoji.pick-emoji-set")}/>}
             <CardContent>
                 <RadioGroup value={selectedEmojiSet}
-                            onChange={event => setSelectedEmojiSet(event.target.value as ExtendedEmojiSet)}
+                            onChange={event => setSelectedEmojiSet(event.target.value as EmojiSet)}
                 >
                     {ALLOWED_EMOJI_SETS.map(emojiSet => (
                         <FormControlLabel key={emojiSet}

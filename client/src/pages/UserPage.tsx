@@ -1,32 +1,30 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {Grid} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
+import {commonStyles} from "../style";
 import {AppBar} from "../AppBar";
 import {Layout} from "../Layout";
 import {CreateUserProfilePhotoDialog, UserPhotosDialog, UserPhotosLightbox, UserProfileInfo} from "../User";
 import {ReportUserDialog} from "../Report";
 import {UserInteractionsHistoryDialog} from "../UserInteraction";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     centered: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100%",
+        ...commonStyles.centered,
         width: "100%"
     }
 }));
 
 export const UserPage: FunctionComponent = () => {
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     return (
        <Fragment>
            <Grid container>
-               <Grid item xs={12}>
+               <Grid size={12}>
                    <AppBar/>
                </Grid>
-               <Grid item xs={12}>
+               <Grid size={12}>
                    <Layout>
                        <div className={classes.centered}>
                            <UserProfileInfo/>

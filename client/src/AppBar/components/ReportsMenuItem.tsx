@@ -1,9 +1,10 @@
 import React, {Fragment, FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {ArrowDownward, ArrowUpward, ChatBubble, Message, Person, Report} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
+import {commonStyles} from "../../style";
 import {useLocalization, useRouter} from "../../store";
 import {Routes} from "../../router";
 
@@ -11,11 +12,8 @@ interface ReportsMenuItemProps {
     onClick: () => void
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-    undecoratedLink: {
-        textDecoration: "none",
-        color: "inherit"
-    },
+const useStyles = makeStyles()((theme: Theme) => ({
+    undecoratedLink: commonStyles.undecoratedLink,
     nestedMenu: {
         paddingLeft: theme.spacing(2)
     }
@@ -25,7 +23,7 @@ export const ReportsMenuItem: FunctionComponent<ReportsMenuItemProps> = observer
     const {l} = useLocalization();
     const routerStore = useRouter();
     const [expanded, setExpanded] = useState(false);
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const handleClick = (): void => {
         onClick();

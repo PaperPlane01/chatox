@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {CircularProgress} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {ChatParticipantsListItem} from "./ChatParticipantsListItem";
 import {FetchingState} from "../../utils/types";
 import {commonStyles} from "../../style";
@@ -11,7 +11,7 @@ interface ChatParticipantsListProps {
     fetchingState: FetchingState
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     root: {
         paddingLeft: 0,
         paddingRight: 0
@@ -32,7 +32,7 @@ export const ChatParticipantsList: FunctionComponent<ChatParticipantsListProps> 
     highlightOnline = false,
     fetchingState,
 }) => {
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     return (
         <Fragment>

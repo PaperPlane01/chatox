@@ -1,22 +1,20 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {StickerPackFormContext} from "../types";
 import {useStickerPackForm} from "../hooks";
 import {useLocalization} from "../../store";
+import {commonStyles} from "../../style";
 
 interface AddStickerButtonProps {
     context: StickerPackFormContext
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     centered: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        ...commonStyles.centered,
         flexDirection: "column",
-        height: "100%"
     },
     bordered: {
         border: `3px ${theme.palette.divider}`,
@@ -31,7 +29,7 @@ export const AddStickerButton: FunctionComponent<AddStickerButtonProps> = observ
 }) => {
     const {initiateStickerCreation} = useStickerPackForm(context);
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     return (
         <div className={classes.bordered}>

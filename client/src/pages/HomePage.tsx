@@ -16,13 +16,13 @@ export const HomePage: FunctionComponent = observer(() => {
 
     return (
         <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <AppBar/>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <Layout>
                     <Grid container spacing={2}>
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <Card>
                                 <CardHeader title="Welcome to Chatox"/>
                                 <CardContent>
@@ -34,7 +34,7 @@ export const HomePage: FunctionComponent = observer(() => {
                                 </CardContent>
                             </Card>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <PopularChatsList/>
                         </Grid>
                     </Grid>

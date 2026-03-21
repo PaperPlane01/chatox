@@ -1,19 +1,15 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
+import {commonStyles} from "../../style";
 import {AvatarUpload} from "../../Upload";
 import {getAvatarLabel} from "../utils";
 import {useStore} from "../../store";
 import {useEntityById} from "../../entities";
 
-const useStyles = makeStyles(() => createStyles({
-    centered: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column"
-    }
+const useStyles = makeStyles()(() => ({
+    centered: commonStyles.centered,
 }));
 
 export const ChatAvatarUpload: FunctionComponent = observer(() => {
@@ -29,7 +25,7 @@ export const ChatAvatarUpload: FunctionComponent = observer(() => {
             submissionError
         }
     } = useStore();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const chat = useEntityById("chats", selectedChatId);
 

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ImageList, ImageListItem, Theme, useMediaQuery} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {Sticker} from "./Sticker";
 import {useEntityById} from "../../entities";
 import {useStore} from "../../store";
@@ -12,7 +12,7 @@ interface StickersGridListProps {
     onStickerClick?: (stickerId: string) => void
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     imageList: {
         overflow: "hidden",
         paddingLeft: theme.spacing(1),
@@ -31,7 +31,7 @@ export const StickersGridList: FunctionComponent<StickersGridListProps> = observ
         }
     } = useStore();
     const stickersPack = useEntityById("stickerPacks", stickerPackId);
-    const classes = useStyles();
+    const {classes} = useStyles();
     const onSmallScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
     const stickers = stickersPack.stickersIds;
 

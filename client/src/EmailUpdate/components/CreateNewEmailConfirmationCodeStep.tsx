@@ -38,12 +38,14 @@ export const CreateNewEmailConfirmationCodeStep: FunctionComponent = observer(()
                            helperText={formErrors.email && l(formErrors.email)}
                            fullWidth
                            margin="dense"
-                           InputProps={{
-                               endAdornment: checkingEmailAvailability && (
-                                   <InputAdornment position="end">
-                                       <CircularProgress size={15} color="primary"/>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: checkingEmailAvailability && (
+                                       <InputAdornment position="end">
+                                           <CircularProgress size={15} color="primary"/>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
             </DialogContent>

@@ -1,8 +1,8 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
-import {AppBar, CardHeader, Hidden, IconButton, Toolbar, Typography, useMediaQuery, useTheme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {AppBar, Box, CardHeader, IconButton, Toolbar, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {Link} from "mobx-router";
 import {useLocalization, useRouter, useStore} from "../../store";
@@ -12,8 +12,9 @@ import {getOnlineOrLastSeenLabel, getUserAvatarLabel, getUserDisplayedName} from
 import {Avatar} from "../../Avatar";
 import {NavigationalDrawer, OpenDrawerButton} from "../../AppBar";
 import {Routes} from "../../router";
+import {useLuminosity} from "../../utils/hooks";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     cardHeaderRoot: {
         padding: 0
     },
@@ -31,9 +32,10 @@ export const NewPrivateChatAppBar: FunctionComponent = observer(() => {
     } = useStore();
     const routerStore = useRouter();
     const {l, dateFnsLocale} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
+    const luminosity = useLuminosity();
 
     const user = useEntityById("users", userId);
 
@@ -67,7 +69,7 @@ export const NewPrivateChatAppBar: FunctionComponent = observer(() => {
                         avatar={(
                             <div>
                                 <Avatar avatarLetter={getUserAvatarLabel(user)}
-                                        avatarColor={randomColor({seed: user.id})}
+                                        avatarColor={randomColor({seed: user.id, luminosity})}
                                         avatarUri={user.externalAvatarUri}
                                         avatarId={user.avatarId}
                                 />
@@ -87,10 +89,20 @@ export const NewPrivateChatAppBar: FunctionComponent = observer(() => {
         <Fragment>
             <AppBar position="fixed">
                 <Toolbar>
-                    <Hidden xlDown>
+                    <Box sx={{
+                        display: {
+                            lg: "none",
+                            xs: "block"
+                        }
+                    }}>
                         <OpenDrawerButton/>
-                    </Hidden>
-                    <Hidden lgUp>
+                    </Box>
+                    <Box sx={{
+                        display: {
+                            xs: "none",
+                            lg: "block",
+                        }
+                    }}>
                         <Link route={Routes.myChats}
                               router={routerStore}
                               className={classes.undecoratedLink}
@@ -101,7 +113,7 @@ export const NewPrivateChatAppBar: FunctionComponent = observer(() => {
                                 <ArrowBack/>
                             </IconButton>
                         </Link>
-                    </Hidden>
+                    </Box>
                     {appBarContent}
                 </Toolbar>
             </AppBar>

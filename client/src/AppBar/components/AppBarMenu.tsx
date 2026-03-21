@@ -1,14 +1,14 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Hidden, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
-import {Link} from "mobx-router";
+import {Box, Theme, Typography} from "@mui/material";
 import {ChatBubble} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
+import {Link} from "mobx-router";
 import {HasAnyRole} from "../../Authorization";
 import {Routes} from "../../router";
 import {useLocalization, useRouter} from "../../store";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     appBarLinks: {
         marginLeft: theme.spacing(6),
         display: "flex"
@@ -28,13 +28,18 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 export const AppBarMenu: FunctionComponent = observer(() => {
-    const classes = useStyles();
+    const {classes}  = useStyles();
     const {l} = useLocalization();
     const routerStore = useRouter();
 
     return (
         <div className={classes.appBarLinks}>
-            <Hidden mdDown>
+            <Box sx={{
+                display: {
+                    xs: "none",
+                    lg: "block",
+                }
+            }}>
                 <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}>
                     <Link route={Routes.myChats}
                           router={routerStore}
@@ -50,7 +55,7 @@ export const AppBarMenu: FunctionComponent = observer(() => {
                         </div>
                     </Link>
                 </HasAnyRole>
-            </Hidden>
+            </Box>
         </div>
     );
 });

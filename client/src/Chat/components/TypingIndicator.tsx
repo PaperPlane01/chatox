@@ -1,18 +1,13 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Theme} from "@mui/material";
-import {keyframes, styled} from "@mui/material/styles";
 import {ModeEdit} from "@mui/icons-material";
+import {keyframes} from "tss-react";
+import {makeStyles} from "tss-react/mui";
 import {UserEntity} from "../../User";
 import {TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
 import {useEntitiesByIds} from "../../entities";
-
-const TypingIndicatorContainer = styled("div")(({theme}: {theme: Theme}) => ({
-    display: "flex",
-    alignItems: "center",
-    paddingRight: theme.spacing(1)
-}));
 
 const typingAnimation = keyframes`
     0% {
@@ -28,23 +23,34 @@ const typingAnimation = keyframes`
     }
 `;
 
-const TypingDot = styled("div")(({theme}: {theme: Theme}) =>({
-    float: "left",
-    width: theme.spacing(1),
-    height: theme.spacing(1),
-    background: theme.palette.text.secondary,
-    borderRadius: "50%",
-    opacity: 0,
-    animation: `${typingAnimation} 1s infinite ease`,
-    alignSelf: "center",
-    "&:nth-child(1)": {
-        animationDelay: "0s"
+const useStyles = makeStyles()((theme: Theme) => ({
+    typingIndicator: {
+      display: "flex",
     },
-    "&:nth-child(2)": {
-        animationDelay: "0.2s"
+    typingDotsContainer: {
+        display: "flex",
+        alignItems: "center",
+        paddingRight: theme.spacing(1)
     },
-    "&:nth-child(3)": {
-        animationDelay: "0.4s"
+    typingDot: {
+        float: "left",
+        width: theme.spacing(1),
+        height: theme.spacing(1),
+        background: theme.palette.text.secondary,
+        borderRadius: "50%",
+        opacity: 0,
+        animation: `${typingAnimation} 1s infinite ease`,
+        alignSelf: "center",
+        display: "inline-block",
+        "&:nth-child(1)": {
+            animationDelay: "0s"
+        },
+        "&:nth-child(2)": {
+            animationDelay: "0.2s"
+        },
+        "&:nth-child(3)": {
+            animationDelay: "0.4s"
+        }
     }
 }));
 
@@ -54,14 +60,14 @@ const getTypingLabel = (typingUsers: UserEntity[], l: TranslationFunction): stri
     } else if (typingUsers.length <= 3) {
         const usernames = typingUsers
             .map(user => user.firstName)
-            .reduce((accumulator, current) => `${accumulator}, ${current}`);
+            .join(", ")
 
         return l("user.typing.plural", {usernames});
     } else {
         const usernames = typingUsers
             .slice(0, 3)
             .map(user => user.firstName)
-            .reduce((accumulator, current) => `${accumulator}, ${current}`);
+            .join(", ")
         const count = typingUsers.length = usernames.length;
 
         return l("user.typing.many", {usernames, count});
@@ -80,6 +86,7 @@ export const TypingIndicator: FunctionComponent<TypingIndicatorProps> = observer
             getTypingUsersIds
         }
     } = useStore();
+    const {classes} = useStyles();
     const {l} = useLocalization();
 
     const typingUsersIds = getTypingUsersIds(chatId);
@@ -90,18 +97,19 @@ export const TypingIndicator: FunctionComponent<TypingIndicatorProps> = observer
     }
 
     return (
-        <Fragment>
+        <div className={classes.typingIndicator}>
             <ModeEdit fontSize="small"
                       sx={(theme: Theme) => ({
-                          paddingRight: theme.spacing(1)
+                          paddingRight: theme.spacing(1),
+                          display: "inline-block"
                       })}
             />
-            <TypingIndicatorContainer>
-                <TypingDot/>
-                <TypingDot/>
-                <TypingDot/>
-            </TypingIndicatorContainer>
+            <div className={classes.typingDotsContainer}>
+                <div className={classes.typingDot}/>
+                <div className={classes.typingDot}/>
+                <div className={classes.typingDot}/>
+            </div>
             {getTypingLabel(typingUsers, l)}
-        </Fragment>
+        </div>
     );
 });

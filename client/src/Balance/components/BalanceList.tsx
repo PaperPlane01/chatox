@@ -2,11 +2,11 @@ import React, {FunctionComponent} from "react";
 import {entries} from "mobx";
 import {observer} from "mobx-react";
 import {Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {Balance} from "./Balance";
 import {useLocalization, useStore} from "../../store";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     balanceList: {
         paddingTop: theme.spacing(2),
         paddingLeft: theme.spacing(2),
@@ -23,7 +23,7 @@ export const BalanceList: FunctionComponent = observer(() => {
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     return (
         <div className={classes.balanceList}>

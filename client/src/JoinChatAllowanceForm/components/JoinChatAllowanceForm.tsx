@@ -1,8 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {FormControl, InputLabel, MenuItem, Select, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
-import clsx from "clsx";
+import {makeStyles} from "tss-react/mui";
 import {useLocalization} from "../../store";
 import {
     JOIN_CHAT_ALLOWANCES,
@@ -21,7 +20,7 @@ interface JoinChatAllowanceFormProps {
     setValue: (userVerificationLevel: UserVerificationLevel, allowance: JoinChatAllowance) => void
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     joinChatAllowanceFormWrapper: {
         width: "100%",
         paddingTop: theme.spacing(2),
@@ -43,8 +42,8 @@ export const JoinChatAllowanceForm: FunctionComponent<JoinChatAllowanceFormProps
     label
 }) => {
    const {l} = useLocalization();
-   const classes = useStyles();
-   const className = clsx({
+   const {classes, cx} = useStyles();
+   const className = cx({
        [classes.joinChatAllowanceFormWrapper]: true,
        [classes.bordered]: wrapWithBorder
    });

@@ -1,14 +1,15 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {List, ListItemIcon, ListItemText, MenuItem, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {ChatBubble, Image, Language, Notifications, Palette, Person, Security} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
 import {SecurityTabWrapper} from "./SecurityTabWrapper";
 import {AppearanceTabWrapper} from "./AppearanceTabWrapper";
 import {StickersTabWrapper} from "./StickersTabWrapper";
 import {SettingsTab} from "../types";
+import {commonStyles} from "../../style";
 import {EditProfileForm} from "../../User";
 import {LanguagePicker} from "../../localization";
 import {Routes} from "../../router";
@@ -17,11 +18,8 @@ import {ChatsPreferencesCard} from "../../Chat";
 import {HasAnyRole} from "../../Authorization";
 import {GlobalNotificationsSettingsUpdate} from "../../Notification";
 
-const useStyles = makeStyles(() => createStyles({
-    undecoratedLink: {
-        textDecoration: "none",
-        color: "inherit"
-    }
+const useStyles = makeStyles()(() => ({
+    undecoratedLink: commonStyles.undecoratedLink
 }));
 
 export const SettingsMenu: FunctionComponent = observer(() => {
@@ -32,7 +30,7 @@ export const SettingsMenu: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const routerStore = useRouter();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     return (
         <Fragment>

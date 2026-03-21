@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItemText, MenuItem, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {ChatParticipantMenu} from "./ChatParticipantMenu";
 import {Avatar} from "../../Avatar";
@@ -16,7 +16,7 @@ interface ChatParticipantsListItemProps {
     onClick?: () => void,
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     gutters: {
         paddingLeft: 0
     },
@@ -31,7 +31,7 @@ export const ChatParticipantsListItem: FunctionComponent<ChatParticipantsListIte
     hideMenu = false,
     onClick
 }) => {
-    const classes = useStyles();
+    const {classes} = useStyles();
     const chatParticipant = useEntityById("chatParticipations", participantId);
     const user = useEntityById("users", chatParticipant.userId);
     const luminosity = useLuminosity();
@@ -56,8 +56,10 @@ export const ChatParticipantsListItem: FunctionComponent<ChatParticipantsListIte
                         avatarUri={user.externalAvatarUri}
                 />
             </div>
-            <ListItemText primaryTypographyProps={{
-                color: (user.online && highlightOnline) ? "primary" : "textPrimary"
+            <ListItemText slotProps={{
+                primary: {
+                    color: (user.online && highlightOnline) ? "primary" : "textPrimary"
+                }
             }}>
                 {getUserDisplayedName(user)}
             </ListItemText>

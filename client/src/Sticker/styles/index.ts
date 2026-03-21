@@ -1,6 +1,6 @@
-import {CSSProperties} from "@mui/styles";
+import {CSSObject} from "tss-react";
 
-export const stickerWrapperStyle: CSSProperties = {
+export const stickerWrapperStyle: CSSObject = {
 	display: "inline-block",
 	position: "relative",
 	height: "100%",

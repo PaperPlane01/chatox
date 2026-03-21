@@ -1,6 +1,5 @@
 import {UIEvent} from "react";
-import {Theme, useMediaQuery} from "@mui/material";
-import {useTheme} from "@mui/styles";
+import {Theme, useMediaQuery, useTheme} from "@mui/material";
 import {ChatParticipantsListMode} from "../types";
 import {useStore} from "../../store";
 import {isScrolledToBottom} from "../../utils/event-utils";

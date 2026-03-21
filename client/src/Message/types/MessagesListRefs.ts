@@ -1,8 +1,8 @@
 import {RefObject} from "react";
 
 export interface MessagesListRefs {
-    pinnedMessageRef: RefObject<HTMLDivElement>,
-    messagesListBottomRef: RefObject<HTMLDivElement>,
-    messagesListRef: RefObject<HTMLDivElement>,
-    phantomBottomRef: RefObject<HTMLDivElement>
+    pinnedMessageRef: RefObject<HTMLDivElement | null>,
+    messagesListBottomRef: RefObject<HTMLDivElement | null>,
+    messagesListRef: RefObject<HTMLDivElement | null>,
+    phantomBottomRef: RefObject<HTMLDivElement | null>
 }

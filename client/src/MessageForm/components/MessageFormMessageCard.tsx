@@ -1,16 +1,17 @@
 import React, {FunctionComponent, ReactNode, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {Card, CardContent, CardHeader, IconButton, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles, useTheme} from "@mui/styles";
+import {Card, CardContent, CardHeader, IconButton, Theme, Typography, useTheme} from "@mui/material";
 import {Close} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {getForwardMessagesLabel} from "../../Message/utils";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {MarkdownTextWithEmoji} from "../../Markdown";
 import {getUserDisplayedName} from "../../User/utils/labels";
+import {useLuminosity} from "../../utils/hooks";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     cardContentRoot: {
         paddingTop: 0,
         paddingBottom: 0,
@@ -55,7 +56,7 @@ export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardPro
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const theme = useTheme<Theme>();
 
     const messagesListElement = document.getElementById("messagesList");
@@ -81,6 +82,7 @@ export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardPro
 
     const message = useEntityById("messages", messageId);
     const user = useEntityById("users", message?.sender);
+    const luminosity = useLuminosity();
 
     if (mode === "reply" && !messageId) {
         return null;
@@ -99,7 +101,7 @@ export const MessageFormMessageCard: FunctionComponent<MessageFormMessageCardPro
                 {getUserDisplayedName(user)}
             </strong>
         );
-        headerColor = randomColor({seed: user.id});
+        headerColor = randomColor({seed: user.id, luminosity});
     } else if (mode === "forward") {
         headerContent = getForwardMessagesLabel(messagesCount, l);
     }

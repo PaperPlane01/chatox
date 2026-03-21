@@ -1,8 +1,8 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Dialog, DialogActions, DialogContent} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
-import {Emoji} from "emoji-mart";
+import {makeStyles} from "tss-react/mui";
+import {noop} from "lodash";
 import {StickerEmojiPickerDialog} from "./StickerEmojiPickerDialog";
 import {StickerUpload} from "./StickerUpload";
 import {useStickerPackForm} from "../hooks";
@@ -16,7 +16,7 @@ interface CreateStickerDialogProps {
     context: StickerPackFormContext
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     centered: {
         display: "flex",
         alignItems: "center",
@@ -44,7 +44,7 @@ export const CreateStickerDialog: FunctionComponent<CreateStickerDialogProps> = 
         setCreateStickerDialogOpen
     } = useStickerPackForm(context)
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const handleAdd = (): void => {
         if (stickerContainer.validate()) {
@@ -73,15 +73,17 @@ export const CreateStickerDialog: FunctionComponent<CreateStickerDialogProps> = 
                     <ChipInput value={stickerContainer.emojis}
                                onDelete={index => stickerContainer.removeEmojiByIndex(index)}
                                onClick={() => setStickerEmojiPickerDialogOpen(true)}
-                               InputProps={{
-                                   onChange: () => {}
+                               slotProps={{
+                                   input: {
+                                       onChange: noop
+                                   }
                                }}
                                label={l("sticker.emojis")}
                                renderLabel={emoji => (
-                                   <Emoji size={16}
-                                          emoji={emoji}
-                                          set={selectedEmojiSet !== "native" ? selectedEmojiSet : undefined}
-                                          native={selectedEmojiSet === "native"}
+                                   <em-emoji size="16"
+                                             id={emoji.id}
+                                             set={selectedEmojiSet}
+                                             native={emoji.native}
                                    />
                                )}
                                getChipKey={emoji => emoji.name}

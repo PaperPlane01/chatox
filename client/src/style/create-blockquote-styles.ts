@@ -1,7 +1,7 @@
 import {Theme} from "@mui/material";
-import {CSSProperties} from "@mui/styles";
+import {CSSObject} from "tss-react";
 
-export const createBlockquoteStyles = (theme: Theme): CSSProperties => ({
+export const createBlockquoteStyles = (theme: Theme): CSSObject => ({
 	marginBlockStart: 0,
 	marginBlockEnd: 0,
 	marginInlineStart: 0,

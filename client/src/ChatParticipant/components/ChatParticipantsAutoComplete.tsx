@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Autocomplete, TextField} from "@mui/material";
 import {ChatParticipantsListItem} from "./ChatParticipantsListItem";
 import {ChatParticipationEntity} from "../types";
-import {useEntities, useStore} from "../../store";
+import {useStore} from "../../store";
 import {useEntitiesByIds} from "../../entities";
 import {getUserDisplayedName} from "../../User/utils/labels";
 
@@ -42,10 +42,12 @@ export const ChatParticipantsAutoComplete: FunctionComponent<ChatParticipantsAut
 		<Autocomplete renderInput={props =>
 			<TextField {...props}
 					   label="Select chat participant"
-					   inputProps={{
-						   ...props.inputProps,
-						   autoComplete: "off"
-					   }}
+                       slotProps={{
+                           input: {
+                               ...props.InputProps,
+                               autoComplete: "off"
+                           }
+                       }}
 			/>
 		}
 					  options={chatParticipants}

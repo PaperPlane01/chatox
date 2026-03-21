@@ -2,8 +2,8 @@ import React, {Fragment, FunctionComponent, ReactElement, ReactNode} from "react
 import {observer} from "mobx-react";
 import {Theme} from "@mui/material";
 import {Audiotrack, FileCopy, Image, KeyboardVoice, VideoLibrary} from "@mui/icons-material";
-import {createStyles, makeStyles} from "@mui/styles";
-import {Emoji} from "emoji-mart";
+import {makeStyles} from "tss-react/mui";
+import {EmojiData} from "emoji-mart";
 import {useLocalization, useStore} from "../../store";
 import {useEntitiesByIds, useEntityById} from "../../entities";
 import {Upload, UploadType} from "../../api/types/response";
@@ -12,7 +12,7 @@ import {Labels, TranslationFunction} from "../../localization";
 import {StickerEntity} from "../../Sticker";
 import {MessageEntity} from "../../Message/types";
 import {MarkdownTextWithEmoji} from "../../Markdown";
-import {ExtendedEmojiSet} from "../../Emoji/types";
+import {EmojiSet} from "../../Emoji/types";
 
 interface ChatListMessagePreviewProps {
     messageId: string,
@@ -20,7 +20,7 @@ interface ChatListMessagePreviewProps {
     hideDraftMessage?: boolean
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     draftMessage: {
         color: theme.palette.error.light
     }
@@ -45,7 +45,7 @@ export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewPro
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const message = useEntityById("messages", messageId)!;
     const draftMessage = useEntityById("draftMessages", draftMessageId);
@@ -87,17 +87,16 @@ export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewPro
 const renderSticker = (
     senderName: string,
     sticker: StickerEntity,
-    emojiSet: ExtendedEmojiSet,
+    emojiSet: EmojiSet,
     l: TranslationFunction
 ): ReactElement => (
     <Fragment>
         {senderName}
         {": "}
         {sticker.emojiIds.length !== 0 && (
-            <Emoji size={20}
-                   emoji={sticker.emojis[sticker.emojiIds[0]].id!}
-                   set={emojiSet === "native" ? undefined : emojiSet}
-                   native={emojiSet === "native"}
+            <em-emoji size="20"
+                      id={sticker.emojis[sticker.emojiIds[0]].id}
+                      set={emojiSet}
             />
         )}
         {` [${l("sticker")}]`}

@@ -9,7 +9,7 @@ import {
     DialogTitle,
     Typography,
 } from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {useLocalization} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
@@ -19,7 +19,7 @@ interface EmailConfirmationCodeCreationPendingDialogProps {
     error?: ApiError
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     centered: {
         display: "flex",
         alignItems: "center",
@@ -42,7 +42,7 @@ export const EmailConfirmationCodeCreationPendingDialog: FunctionComponent<Email
         const [open, setOpen] = useState(false);
         const [closable, setClosable] = useState(false);
         const {l} = useLocalization();
-        const classes = useStyles();
+        const {classes} = useStyles();
 
         useEffect(
             () => setClosable(Boolean(error)),

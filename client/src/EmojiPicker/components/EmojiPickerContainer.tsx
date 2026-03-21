@@ -1,10 +1,9 @@
-import React, {Fragment, FunctionComponent, useLayoutEffect} from "react";
+import React, {Fragment, FunctionComponent, useEffect, useLayoutEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {Hidden, IconButton, Menu, useMediaQuery, useTheme} from "@mui/material";
+import {IconButton, useMediaQuery, useTheme} from "@mui/material";
 import {InsertEmoticon} from "@mui/icons-material";
-import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
+import {autoUpdate, offset, useFloating} from "@floating-ui/react";
 import {EmojiData} from "emoji-mart";
-import "emoji-mart/css/emoji-mart.css";
 import {EmojiAndStickerPicker} from "./EmojiAndStickerPicker";
 import {EmojiPicker} from "./EmojiPicker";
 import {EmojiPickerVariant} from "../types";
@@ -25,38 +24,55 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
         messageCreation: {
             emojiPickerExpanded,
             setEmojiPickerExpanded,
+        },
+        emojiPickerTabs: {
+            selectedTab
         }
     } = useStore();
+    const [open, setOpen] = useState(false);
     const routerStore = useRouter();
-    const emojiPickerPopupState = usePopupState({
-        variant: "popover",
-        popupId: "emojiPicker"
-    });
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
+    const [crossAxisOffset, setCrossAxisOffset] = useState(-300);
+    const {refs, floatingStyles} = useFloating({
+        placement: "top-start",
+        strategy: "fixed",
+        whileElementsMounted: autoUpdate,
+        middleware: [
+            offset({
+                crossAxis: crossAxisOffset
+            })
+        ]
+    });
 
-    useLayoutEffect(() => {
-            if (!onSmallScreen) {
-                setTimeout(() => {
-                    // For some reason search text field in emoji-mart picker is being focused right after render
-                    // despite passing autoFocus={false} property, so I have to do this ugly work-around
-                    const emojiMartTextFieldWrappers = document.getElementsByClassName("emoji-mart-search");
-
-                    if (emojiMartTextFieldWrappers && emojiMartTextFieldWrappers.length !== 0) {
-                        const emojiMartTextFieldWrapper = emojiMartTextFieldWrappers.item(0);
-
-                        if (emojiMartTextFieldWrapper && emojiMartTextFieldWrapper.children && emojiMartTextFieldWrapper.children.length !== 0) {
-                            const emojiMartSearchTextField = emojiMartTextFieldWrapper.children.item(0) as HTMLInputElement;
-
-                            if (emojiMartSearchTextField) {
-                                emojiMartSearchTextField.blur();
-                            }
-                        }
-                    }
-                });
-            }},
-        [emojiPickerPopupState.isOpen]
+    useLayoutEffect(
+        () => {
+            requestAnimationFrame(() => {
+                if (refs.floating?.current && open) {
+                    setCrossAxisOffset(-1 * refs.floating.current.getBoundingClientRect().width);
+                }
+            });
+        },
+        [refs.floating, selectedTab, open]
     );
+
+    const handleClickOutside = (event: MouseEvent): void => {
+        if (refs.floating?.current && !refs.floating.current.contains(event.target as any)
+            // Filter click on a button that opens/closes emoji picker button because it's handled separately
+            && refs.domReference?.current && !refs.domReference.current.contains(event.target as any)) {
+            setOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const handleOpenEmojiPickerButtonClick = (): void => {
+       setOpen(!open);
+    };
 
     const handleExpandEmojiPickerButtonClick = (): void => {
         const queryParameters = emojiPickerExpanded
@@ -73,35 +89,38 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
         }
     };
 
-    return (
-        <Fragment>
-            <Hidden lgDown>
-                <IconButton
-                    className={iconButtonClassName}
-                    {...bindToggle(emojiPickerPopupState)}
-                    size="large"
-                >
-                    <InsertEmoticon/>
-                </IconButton>
-                <Menu {...bindMenu(emojiPickerPopupState)}>
-                    {variant === "emoji-and-sticker-picker"
-                        ? (
-                            <EmojiAndStickerPicker onEmojiPicked={onEmojiSelected}
-                                                   onStickerPicked={emojiPickerPopupState.close}
-                            />
-                        )
-                        : <EmojiPicker onEmojiPicked={onEmojiSelected}/>
-                    }
-                </Menu>
-            </Hidden>
-            <Hidden lgUp>
+    return onSmallScreen
+        ? (
+            <IconButton className={iconButtonClassName}
+                        onClick={handleExpandEmojiPickerButtonClick}
+                        size="large"
+            >
+                <InsertEmoticon/>
+            </IconButton>
+        )
+        : (
+            <Fragment>
                 <IconButton className={iconButtonClassName}
-                            onClick={handleExpandEmojiPickerButtonClick}
+                            onClick={handleOpenEmojiPickerButtonClick}
                             size="large"
+                            ref={refs.setReference}
                 >
                     <InsertEmoticon/>
                 </IconButton>
-            </Hidden>
-        </Fragment>
-    );
+                {open && (
+                    <div ref={refs.setFloating}
+                         style={floatingStyles}
+                    >
+                        {variant === "emoji-and-sticker-picker"
+                            ? (
+                                <EmojiAndStickerPicker onEmojiPicked={onEmojiSelected}
+                                                       onStickerPicked={() => setOpen(false)}
+                                />
+                            )
+                            : <EmojiPicker onEmojiPicked={onEmojiSelected}/>
+                        }
+                    </div>
+                )}
+            </Fragment>
+        )
 });

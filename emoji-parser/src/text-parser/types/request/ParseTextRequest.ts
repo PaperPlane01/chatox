@@ -1,5 +1,5 @@
 import {IsBoolean, IsIn, IsNotEmpty, IsOptional, IsString} from "class-validator";
-import {EmojiSet} from "emoji-mart";
+import {EmojiSet} from "../../../emoji/types";
 
 export class ParseTextRequest {
     @IsString()

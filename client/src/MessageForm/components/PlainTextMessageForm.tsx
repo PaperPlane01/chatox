@@ -1,26 +1,24 @@
 import React, {Fragment, FunctionComponent, KeyboardEvent, RefObject, useEffect} from "react";
 import {observer} from "mobx-react";
-import {Hidden, InputAdornment, TextField, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {Box, InputAdornment, TextField, Theme} from "@mui/material";
+import {makeStyles} from "tss-react/mui";
 import {EmojiData} from "emoji-mart";
-import "emoji-mart/css/emoji-mart.css";
 import {AttachFilesButton} from "./AttachFilesButton";
 import {SendMessageButton} from "./SendMessageButton";
 import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
 import {RecordVoiceMessageButton} from "./RecordVoiceMessageButton";
 import {MessageFormData} from "../types";
 import {EmojiAndStickerPicker, EmojiPickerContainer} from "../../EmojiPicker";
-import {MarkdownPreviewDialog} from "../../Markdown";
 import {useLocalization, useStore} from "../../store";
 import {SendMessageButton as SendMessageButtonType} from "../../Chat";
 import {ClaimRewardButton} from "../../Reward";
 import {Countdown} from "../../Countdown";
 import {MessageEntity} from "../../Message";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     textField: {
         [theme.breakpoints.down("lg")]: {
-            backgroundColor: theme.palette.background
+            backgroundColor: theme.palette.background.default
         }
     },
     inputAdornment: {
@@ -36,7 +34,7 @@ interface MessageFormProps {
     emojiPickerExpanded: boolean,
     attachmentsIds: string[],
     allowScheduled?: boolean,
-    inputRef: RefObject<HTMLInputElement>,
+    inputRef: RefObject<HTMLInputElement | null>,
     scheduledAt?: Date,
     nextMessageDate?: Date,
     forwardedMessagesCount?: number,
@@ -77,7 +75,7 @@ export const PlainTextMessageForm: FunctionComponent<MessageFormProps> = observe
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     useEffect(() => {
         if (inputRef?.current) {
@@ -106,9 +104,9 @@ export const PlainTextMessageForm: FunctionComponent<MessageFormProps> = observe
         }
 
         if (useEmojiCodes) {
-            insertTextOnCursorPosition(` ${emoji.colons} `);
+            insertTextOnCursorPosition(` ${emoji.shortcodes} `);
         } else {
-            insertTextOnCursorPosition(`${(emoji as any).native} `);
+            insertTextOnCursorPosition(`${emoji.native} `);
         }
 
         updateText(inputRef.current.value);
@@ -168,40 +166,47 @@ export const PlainTextMessageForm: FunctionComponent<MessageFormProps> = observe
                        maxRows={8}
                        variant="standard"
                        className={classes.textField}
-                       InputProps={{
-                           disableUnderline: true,
-                           startAdornment: (
-                               <InputAdornment position="start"
-                                               className={classes.inputAdornment}
-                               >
-                                   <AttachFilesButton/>
-                                   <ClaimRewardButton/>
-                               </InputAdornment>
-                           ),
-                           endAdornment: (
-                               <InputAdornment position="end"
-                                               className={classes.inputAdornment}
-                               >
-                                   <div style={{display: "flex", alignItems: "center"}}>
-                                       {allowScheduled && scheduledAt && <OpenScheduleMessageDialogButton/>}
-                                       <EmojiPickerContainer onEmojiSelected={handleEmojiSelect}/>
-                                       <Countdown date={nextMessageDate}>
-                                           {showSendMessageButton
-                                               ? (
-                                                   <SendMessageButton onClick={submitForm}
-                                                                      onOpenPreviewClick={() => setMarkdownPreviewDialogOpen(true)}
-                                                                      disabled={pending}
-                                                   />
-                                               )
-                                               : <RecordVoiceMessageButton/>
-                                           }
-                                       </Countdown>
-                                   </div>
-                               </InputAdornment>
-                           )
+                       slotProps={{
+                           input: {
+                               disableUnderline: true,
+                               startAdornment: (
+                                   <InputAdornment position="start"
+                                                   className={classes.inputAdornment}
+                                   >
+                                       <AttachFilesButton/>
+                                       <ClaimRewardButton/>
+                                   </InputAdornment>
+                               ),
+                               endAdornment: (
+                                   <InputAdornment position="end"
+                                                   className={classes.inputAdornment}
+                                   >
+                                       <div style={{display: "flex", alignItems: "center"}}>
+                                           {allowScheduled && scheduledAt && <OpenScheduleMessageDialogButton/>}
+                                           <EmojiPickerContainer onEmojiSelected={handleEmojiSelect}/>
+                                           <Countdown date={nextMessageDate}>
+                                               {showSendMessageButton
+                                                   ? (
+                                                       <SendMessageButton onClick={submitForm}
+                                                                          onOpenPreviewClick={() => setMarkdownPreviewDialogOpen(true)}
+                                                                          disabled={pending}
+                                                       />
+                                                   )
+                                                   : <RecordVoiceMessageButton/>
+                                               }
+                                           </Countdown>
+                                       </div>
+                                   </InputAdornment>
+                               )
+                           }
                        }}
             />
-            <Hidden lgUp>
+            <Box sx={{
+                display: {
+                    lg: "none",
+                    xs: "block"
+                }
+            }}>
                 {emojiPickerExpanded && (
                     <EmojiAndStickerPicker onEmojiPicked={handleEmojiSelect}
                                            onStickerPicked={() => {
@@ -212,8 +217,7 @@ export const PlainTextMessageForm: FunctionComponent<MessageFormProps> = observe
                                            }}
                     />
                 )}
-            </Hidden>
-            <MarkdownPreviewDialog text={formValues.text}/>
+            </Box>
         </Fragment>
     );
 });

@@ -1,20 +1,20 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {Sticker} from "../../Sticker";
 import {useStore} from "../../store";
 import {useEntitiesByIds} from "../../entities";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-	stickerSuggestionsCard: {
+const useStyles = makeStyles()((theme: Theme) => ({
+    stickerSuggestionsCard: {
 		position: "relative",
 		whiteSpace: "nowrap",
 		overflowX: "auto",
 		overflowY: "hidden",
 		height: "100%"
 	},
-	stickerContainer: {
+    stickerContainer: {
 		height: 128,
 		maxWidth: 128,
 		display: "inline-block",
@@ -40,7 +40,7 @@ export const StickerSuggestions: FunctionComponent<StickerSuggestionsProps> = ob
 		}
 	} = useStore();
 	const stickers = useEntitiesByIds("stickers", stickersIds);
-	const classes = useStyles();
+	const {classes} = useStyles();
 
 	if (stickers.length === 0) {
 		return null;

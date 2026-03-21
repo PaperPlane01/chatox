@@ -46,7 +46,7 @@ export const ReportedMessagesTableRow: FunctionComponent<ReportedMessagesTablePr
                 {
                     report.takenActions.length !== 0
                         ? report.takenActions.map(takenAction =>  (
-                            <span>
+                            <span key={`${report.id}_${takenAction}`}>
                                 {l(`report.taken-action.${takenAction}` as keyof Labels)}
                                 ;
                                 <br/>

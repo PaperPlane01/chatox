@@ -1,10 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {EditableStickerPreviewProps} from "./EditableStickerPreviewProps";
 
-const useStyles = makeStyles(() => createStyles({
-	image: {
+const useStyles = makeStyles()(() => ({
+    image: {
 		maxWidth: "100%",
 		maxHeight: "100%",
 		height: "inherit",
@@ -15,7 +15,7 @@ const useStyles = makeStyles(() => createStyles({
 export const EditableImageStickerPreview: FunctionComponent<EditableStickerPreviewProps> = observer(({
 	stickerContainer
 }) => {
-	const classes = useStyles();
+	const {classes} = useStyles();
 
 	if (!stickerContainer.uploadContainer) {
 		return null;

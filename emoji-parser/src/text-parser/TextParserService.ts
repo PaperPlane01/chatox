@@ -1,16 +1,23 @@
 import {Injectable} from "@nestjs/common";
-import {EmojiData, EmojiSet} from "emoji-mart";
 import {ParseTextRequest} from "./types/request";
-import {EmojiPosition, EmojiResponse, ParseTextResponse, UserLinksResponse} from "./types/response";
+import {
+    EmojiDataResponse,
+    EmojiPosition,
+    EmojiResponse,
+    ParseTextResponse,
+    UserLinkPosition,
+    UserLinksResponse
+} from "./types/response";
 import {EMOJI_COLONS, EMOJI_NATIVE, USER_LINK} from "./rules";
 import {EmojiService} from "../emoji";
+import {EmojiSet} from "../emoji/types";
 
 @Injectable()
 export class TextParserService {
 	constructor(private readonly emojiService: EmojiService) {
 	}
 
-	public parseText(parseTextRequest: ParseTextRequest): ParseTextResponse {
+	public async parseText(parseTextRequest: ParseTextRequest): Promise<ParseTextResponse> {
 		const result = new ParseTextResponse({
 			emoji: new EmojiResponse({
 				emoji: {},
@@ -28,11 +35,11 @@ export class TextParserService {
 		const userLinkMatches = parseTextRequest.text.matchAll(USER_LINK);
 
 		for (const nativeEmojiMatch of nativeEmojiMatches) {
-			this.handleNativeEmoji(nativeEmojiMatch, parseTextRequest.emojiSet, result);
+			await this.handleNativeEmoji(nativeEmojiMatch, parseTextRequest.emojiSet, result);
 		}
 
 		for (const colonsEmojiMatch of colonsEmojiMatches) {
-			this.handleColonsEmoji(colonsEmojiMatch, parseTextRequest.emojiSet, result);
+			await this.handleColonsEmoji(colonsEmojiMatch, parseTextRequest.emojiSet, result);
 		}
 
 		for (const userLinkMatch of userLinkMatches) {
@@ -42,34 +49,34 @@ export class TextParserService {
 		return result;
 	}
 
-	private handleColonsEmoji(match: RegExpMatchArray, emojiSet: EmojiSet, result: ParseTextResponse): void {
+	private async handleColonsEmoji(match: RegExpMatchArray, emojiSet: EmojiSet, result: ParseTextResponse): Promise<void> {
 		const {0: matchedEmoji, index} = match;
-		const emojiData = this.emojiService.getEmojiDataFromColons(matchedEmoji, emojiSet);
+        const emojiWithoutEscapes = matchedEmoji.replaceAll("\\", "");
+		const emojiData = await this.emojiService.getEmojiDataFromColons(emojiWithoutEscapes, emojiSet);
 
 		if (!emojiData) {
 			return;
 		}
 
-		this.addEmojiToResult(emojiData, matchedEmoji, index, emojiSet, result);
+		this.addEmojiToResult(emojiData, matchedEmoji, index, result);
 	}
 
-	private handleNativeEmoji(match: RegExpMatchArray, emojiSet: EmojiSet, result: ParseTextResponse) {
+	private async handleNativeEmoji(match: RegExpMatchArray, emojiSet: EmojiSet, result: ParseTextResponse): Promise<void> {
 		const {0: matchedEmoji, index} = match;
 
-		const emojiData = this.emojiService.getEmojiDataFromNative(matchedEmoji, emojiSet);
+		const emojiData = await this.emojiService.getEmojiDataFromNative(matchedEmoji, emojiSet);
 
 		if (!emojiData) {
 			return;
 		}
 
-		this.addEmojiToResult(emojiData, matchedEmoji, index, emojiSet, result);
+		this.addEmojiToResult(emojiData, matchedEmoji, index, result);
 	}
 
 	private addEmojiToResult(
-		emojiData: EmojiData,
+		emojiData: EmojiDataResponse,
 		match: string,
 		index: number,
-		emojiSet: EmojiSet,
 		result: ParseTextResponse
 	): void {
 		result.emoji.emojiPositions.push(new EmojiPosition({
@@ -79,10 +86,7 @@ export class TextParserService {
 		}));
 
 		if (!result.emoji.emoji[emojiData.id]) {
-			result.emoji.emoji[emojiData.id] = {
-				...emojiData,
-				originalSet: emojiSet
-			};
+			result.emoji.emoji[emojiData.id] = emojiData;
 		}
 	}
 
@@ -95,10 +99,10 @@ export class TextParserService {
 		const closingBracketIndex = linkWithoutText.lastIndexOf(")");
 		const userIdOrSlug = linkWithoutText.substring(1, closingBracketIndex);
 
-		result.userLinks.userLinksPositions.push({
+		result.userLinks.userLinksPositions.push(new UserLinkPosition({
 			start: index,
 			end: index + matchedLink.length,
 			userIdOrSlug
-		});
+		}));
 	}
 }

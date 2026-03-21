@@ -1,8 +1,8 @@
 import React, {forwardRef, Fragment, SyntheticEvent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, IconButton, Menu, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {Close} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {ClosePinnedMessageMenuItem} from "./ClosePinnedMessageMenuItem";
 import {UnpinMessageMenuItem} from "./UnpinMessageMenuItem";
@@ -15,7 +15,7 @@ interface PinnedMessageProps {
     width?: string | number
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     cardRoot: {
         maxHeight: 120,
         [theme.breakpoints.down('lg')]: {
@@ -74,7 +74,7 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
             canUnpinMessage
         }
     } = usePermissions();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const {l} = useLocalization();
     const closeOrUnpinMessageMenuPopupState = usePopupState({
         variant: "popover",
@@ -111,8 +111,10 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
                 root: classes.cardHeaderRoot
             }}
                         subheader={l("message.pinned")}
-                        subheaderTypographyProps={{
-                            color: "textPrimary"
+                        slotProps={{
+                            subheader: {
+                                color: "textPrimary"
+                            }
                         }}
             />
             <CardContent classes={{

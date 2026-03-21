@@ -1,7 +1,6 @@
-import {createStyles, makeStyles} from "@mui/styles";
-import {Theme} from "@mui/material";
+import {makeStyles} from "tss-react/mui";
 
-export const useStickerUploadStyles = makeStyles((theme: Theme) => createStyles({
+export const useStickerUploadStyles = makeStyles()(() => ({
 	stickerPreview: {
 		width: 200,
 		height: 200

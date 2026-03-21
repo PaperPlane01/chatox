@@ -1,9 +1,8 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {TableCell, TableRow} from "@mui/material";
-import createStyles from "@mui/styles/createStyles";
-import makeStyles from "@mui/styles/makeStyles";
 import {Check, Remove} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {format} from "date-fns";
 import {CancelGlobalBanButton} from "./CancelGlobalBanButton";
 import {UpdateGlobalBanButton} from "./UpdateGlobalBanButton";
@@ -17,7 +16,7 @@ interface GlobalBansTableRowProps {
     globalBanId: string
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     globalBansTableRow: {
         cursor: "pointer"
     }
@@ -33,7 +32,7 @@ export const GlobalBansTableRow: FunctionComponent<GlobalBansTableRowProps> = ob
         }
     } = useStore();
     const {dateFnsLocale, l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const globalBan = useEntityById("globalBans", globalBanId);
     const bannedUser = useEntityById("users", globalBan.bannedUserId);

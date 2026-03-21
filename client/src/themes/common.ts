@@ -1,13 +1,18 @@
-import {Components} from "@mui/material";
+import {Components, unstable_createBreakpoints} from "@mui/material";
+
+const breakPoints = unstable_createBreakpoints({});
 
 export const createStyleOverride = (mainColor: string): Components => ({
     MuiCssBaseline: {
         styleOverrides: {
-            ".emoji-mart-anchor-bar": {
-                backgroundColor: `${mainColor} !important`
-            },
-            ".emoji-mart-anchor-selected": {
-                color: `${mainColor} !important`
+            "em-emoji-picker": {
+                "--rgb-accent": mainColor
+                    .replace("rgb", "")
+                    .replace("(", "")
+                    .replace(")", ""),
+                [breakPoints.down("lg")]: {
+                    width: "100%",
+                }
             },
             ".yarl__portal": {
                 zIndex: "1350 !important"

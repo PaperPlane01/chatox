@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CircularProgress, Grid, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {AppBar} from "../AppBar/components";
 import {Layout} from "../Layout/components";
 import {StickerPackCard, StickerPreviewDialog} from "../Sticker/components";
@@ -9,8 +9,8 @@ import {getLoadErrorText} from "../Sticker/utils";
 import {useStore, useLocalization} from "../store";
 import {commonStyles} from "../style";
 
-const useStyle = makeStyles(() => createStyles({
-	centered: commonStyles.centered
+const useStyle = makeStyles()(() => ({
+    centered: commonStyles.centered
 }));
 
 export const StickerPackPage: FunctionComponent = observer(() => {
@@ -22,15 +22,15 @@ export const StickerPackPage: FunctionComponent = observer(() => {
 		}
 	} = useStore();
 	const {l} = useLocalization();
-	const classes = useStyle();
+	const {classes} = useStyle();
 
 	return (
 		<Fragment>
 			<Grid container>
-				<Grid item xs={12}>
+				<Grid size={12}>
 					<AppBar/>
 				</Grid>
-				<Grid item xs={12}>
+				<Grid size={12}>
 					<Layout>
 						{pending && (
 							<CircularProgress size={50}

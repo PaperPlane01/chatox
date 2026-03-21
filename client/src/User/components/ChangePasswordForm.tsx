@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
 import {useSnackbar} from "notistack";
+import {HttpStatusCode} from "axios";
 import {ChangePasswordStep} from "../types";
 import {useLocalization, useStore} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
@@ -23,7 +24,7 @@ const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     let errorCode: keyof Labels = "change-password.error.unknown-error";
     let bindings: any = undefined;
 
-    if (error.status === 403 && error.metadata) {
+    if (error.status === HttpStatusCode.Forbidden && error.metadata) {
         switch (error.metadata.errorCode) {
             case "INVALID_PASSWORD":
                 errorCode = "change-password.error.wrong-password";
@@ -35,7 +36,7 @@ const getErrorText = (error: ApiError, l: TranslationFunction): string => {
                 errorCode = "change-password.error.email-confirmation-code-invalid";
                 break;
         }
-    } else if (error.status === 410) {
+    } else if (error.status === HttpStatusCode.Gone) {
         errorCode = "change-password.error.email-confirmation-code-expired";
     } else if (error.status === API_UNREACHABLE_STATUS) {
         errorCode = "change-password.error.server-unreachable";
@@ -90,17 +91,19 @@ export const ChangePasswordForm: FunctionComponent = observer(() => {
                            fullWidth
                            margin="dense"
                            type={displayPassword ? "text" : "password"}
-                           InputProps={{
-                               endAdornment: (
-                                   <InputAdornment position="end">
-                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)} size="large">
-                                           {displayPassword
-                                               ? <VisibilityOff/>
-                                               : <Visibility/>
-                                           }
-                                       </IconButton>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: (
+                                       <InputAdornment position="end">
+                                           <IconButton onClick={() => setDisplayPassword(!displayPassword)} size="large">
+                                               {displayPassword
+                                                   ? <VisibilityOff/>
+                                                   : <Visibility/>
+                                               }
+                                           </IconButton>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
                 <TextField label={l("change-password.new-password")}

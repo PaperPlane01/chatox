@@ -1,8 +1,8 @@
 import { observable, action, computed, makeObservable } from "mobx";
 import {computedFn} from "mobx-utils";
 import {Locale} from "date-fns";
-import enDateFnsLocale from "date-fns/locale/en-US";
-import ruDateFnsLocale from "date-fns/locale/ru";
+import {enUS as enDateFnsLocale} from "date-fns/locale/en-US";
+import {ru as ruDateFnsLocale} from "date-fns/locale/ru";
 import {en, ru} from "../translations";
 import {Labels, Language} from "../types";
 import {replacePlaceholder} from "../utils";

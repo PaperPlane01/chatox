@@ -1,6 +1,6 @@
 import React, {FunctionComponent, ReactNode} from "react";
 import {CircularProgress, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {observer} from "mobx-react";
 import {HttpStatusCode} from "axios";
 import {ChatInviteCard} from "./ChatInviteCard";
@@ -10,10 +10,8 @@ import {TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
 import {HasAnyRole} from "../../Authorization";
 
-const useStyles = makeStyles(() => createStyles({
-    chatInviteWrapper: {
-        ...commonStyles.centered,
-    }
+const useStyles = makeStyles()(() => ({
+    chatInviteWrapper: commonStyles.centered
 }));
 
 const getErrorText = (error: ApiError, l: TranslationFunction) => {
@@ -34,7 +32,7 @@ export const ChatInviteCardWrapper: FunctionComponent = observer(() => {
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     let content: ReactNode;
 

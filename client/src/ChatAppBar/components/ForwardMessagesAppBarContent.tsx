@@ -1,13 +1,13 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, darken, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {Cancel, Forward} from "@mui/icons-material";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {getForwardMessagesLabel} from "../../Message/utils";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     appBarButtonsContainer: {
       display: "flex",
       gap: theme.spacing(1)
@@ -30,7 +30,7 @@ export const ForwardMessagesAppBarContent: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const router = useRouter();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const label = getForwardMessagesLabel(forwardedMessagesIds.length, l);
 
     return (

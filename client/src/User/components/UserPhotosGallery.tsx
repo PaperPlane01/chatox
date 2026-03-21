@@ -1,12 +1,12 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ImageList, useMediaQuery, useTheme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {CreateUserProfilePhotoButton} from "./CreateUserProfilePhotoButton";
 import {UserProfileGalleryPhoto} from "./UserProfileGalleryPhoto";
 import {usePermissions, useStore} from "../../store";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     galleryContainer: {
         display: "flex",
         flexDirection: "column"
@@ -27,7 +27,7 @@ export const UserPhotosGallery: FunctionComponent = observer(() => {
             canUploadProfilePhoto
         }
     } = usePermissions();
-    const classes = useStyles();
+    const { classes } = useStyles();
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 

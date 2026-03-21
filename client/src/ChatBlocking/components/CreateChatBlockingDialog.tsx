@@ -18,18 +18,20 @@ import {
     Typography,
     useTheme
 } from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {DateTimePicker} from "@mui/x-date-pickers";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
+import {HttpStatusCode} from "axios";
 import {RecentMessagesDeletionPeriod} from "../types";
 import {Labels, TranslationFunction} from "../../localization";
 import {Avatar} from "../../Avatar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
-import {useMobileDialog} from "../../utils/hooks";
+import {useLuminosity, useMobileDialog} from "../../utils/hooks";
+import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     blockedUserContainer: {
         display: "flex"
     },
@@ -41,7 +43,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 const getErrorLabel = (apiError: ApiError, l: TranslationFunction): string => {
     if (apiError.status === API_UNREACHABLE_STATUS) {
         return l("chat.blocking.error.server-unreachable");
-    } else if (apiError.status === 403) {
+    } else if (apiError.status === HttpStatusCode.Forbidden) {
         return l("chat.blocking.error.forbidden");
     } else {
         return l("chat.blocking.error.unknown", {responseStatus: apiError.status})
@@ -68,18 +70,19 @@ export const CreateChatBlockingDialog: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const theme = useTheme();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const {fullScreen} = useMobileDialog();
     const chat = useEntityById("chats", chatId);
     const user = useEntityById("users", formData.blockedUserId);
+    const luminosity = useLuminosity();
 
     if (!chat || !user) {
         return null;
     }
 
-    const userName = `${user.firstName} ${user.lastName ? user.lastName : ""}`;
-    const avatarLetters = `${user.firstName[0]}${user.lastName ? user.lastName[0] : ""}`;
-    const color = randomColor({seed: user.id});
+    const userName = getUserDisplayedName(user);
+    const avatarLetters = getUserAvatarLabel(user);
+    const color = randomColor({seed: user.id, luminosity});
 
     return (
         <Dialog open={open}
@@ -105,21 +108,20 @@ export const CreateChatBlockingDialog: FunctionComponent = observer(() => {
                             height={25}
                     />
                     <Typography style={{color}}>
-                        {user.firstName} {user.lastName && user.lastName}
+                        {userName}
                     </Typography>
                 </div>
                 <DateTimePicker value={formData.blockedUntil}
                                 onChange={date => setFormValue("blockedUntil", date ? date : undefined)}
                                 disablePast
-                                inputFormat="dd MMMM yyyy HH:mm"
+                                format="dd MMMM yyyy HH:mm"
                                 ampm={false}
-                                renderInput={props => (
-                                    <TextField {...props}
-                                               fullWidth
-                                               label={l("chat.blocking.blocked-until")}
-                                    />
-                                )}
-                                showToolbar
+                                label={l("chat.blocking.blocked-until")}
+                                slotProps={{
+                                    textField: {
+                                        fullWidth: true
+                                    }
+                                }}
                 />
                 <TextField label={l("chat.blocking.description")}
                            value={formData.description}

@@ -1,8 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Dialog, DialogActions, DialogContent} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
-import {Emoji} from "emoji-mart";
+import {makeStyles} from "tss-react/mui";
 import {noop} from "lodash";
 import {EditableStickerPreview} from "./EditableStickerPreview";
 import {StickerEmojiPickerDialog} from "./StickerEmojiPickerDialog";
@@ -19,8 +18,8 @@ interface EditStickerDialogProps {
 	hideUploadInput?: boolean
 }
 
-const useStyles = makeStyles(() => createStyles({
-	centered: {
+const useStyles = makeStyles()(() => ({
+    centered: {
 		display: "flex",
 		alignItems: "center",
 		justifyContent: "center",
@@ -48,7 +47,7 @@ export const EditStickerDialog: FunctionComponent<EditStickerDialogProps> = obse
 		setEditStickerDialogOpen
 	} = useStickerPackForm(context)
 	const {l} = useLocalization();
-	const classes = useStyles();
+	const {classes} = useStyles();
 
 	const handleAdd = (): void => {
 		if (stickerContainer.validate()) {
@@ -82,14 +81,16 @@ export const EditStickerDialog: FunctionComponent<EditStickerDialogProps> = obse
 					<ChipInput value={stickerContainer.emojis}
 							   onDelete={index => stickerContainer.removeEmojiByIndex(index)}
 							   onClick={() => setStickerEmojiPickerDialogOpen(true)}
-							   InputProps={{
-								   onChange: noop
-							   }}
+                               slotProps={{
+                                   input: {
+                                       onChange: noop
+                                   }
+                               }}
 							   renderLabel={emoji => (
-								   <Emoji size={16}
-										  emoji={emoji}
-										  set={selectedEmojiSet !== "native" ? selectedEmojiSet : undefined}
-										  native={selectedEmojiSet === "native"}
+								   <em-emoji size="16"
+                                             id={emoji.id}
+                                             set={selectedEmojiSet}
+                                             native={emoji.native}
 								   />
 							   )}
 							   label={l("sticker.emojis")}

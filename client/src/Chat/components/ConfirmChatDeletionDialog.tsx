@@ -10,7 +10,7 @@ import {
     Theme,
     Typography,
 } from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {useSnackbar} from "notistack";
 import {getChatDeletionErrorText} from "../utils";
 import {useLocalization, useStore} from "../../store";
@@ -35,7 +35,7 @@ const chatDeletionWarningMap: ChatDeletionWarningMap = {
     )
 };
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     deleteButton: {
         backgroundColor: theme.palette.error.dark,
         color: theme.palette.getContrastText(theme.palette.error.dark)
@@ -58,7 +58,7 @@ export const ConfirmChatDeletionDialog: FunctionComponent = observer(() => {
     } = useStore();
     const {l, locale} = useLocalization();
     const {fullScreen} = useMobileDialog();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const {enqueueSnackbar} = useSnackbar();
 
     useEffect(
@@ -77,7 +77,7 @@ export const ConfirmChatDeletionDialog: FunctionComponent = observer(() => {
         } else {
             deleteChat();
         }
-    }
+    };
 
     if (!selectedChat) {
         return null;

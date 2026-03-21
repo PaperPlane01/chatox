@@ -1,6 +1,6 @@
 import React, {FunctionComponent, ReactNode, useEffect, useState} from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {CLEAR_EDITOR_COMMAND, LexicalEditor} from "lexical";
 import {AttachFilesButton} from "./AttachFilesButton";
 import {RecordVoiceMessageButton} from "./RecordVoiceMessageButton";
@@ -13,8 +13,8 @@ import {SendMessageButton as SendMessageButtonType} from "../../Chat";
 import {Countdown} from "../../Countdown";
 import {MessageEntity} from "../../Message";
 
-const useStyles = makeStyles(() => createStyles({
-	adornment: adornmentStyle
+const useStyles = makeStyles()(() => ({
+    adornment: adornmentStyle
 }));
 
 interface RichTextMessageFormProps {
@@ -59,11 +59,14 @@ export const RichTextMessageForm: FunctionComponent<RichTextMessageFormProps> = 
 	const {
 		chatsPreferences: {
 			sendMessageButton
-		}
+		},
+        emoji: {
+            useEmojiCodes
+        }
 	} = useStore();
 	const {l} = useLocalization();
 	const [editor, setEditor] = useState<LexicalEditor | null>(null);
-	const classes = useStyles();
+	const {classes} = useStyles();
 
 	const handleEditorReady = (editor: LexicalEditor): void => {
 		setEditor(editor);
@@ -131,6 +134,7 @@ export const RichTextMessageForm: FunctionComponent<RichTextMessageFormProps> = 
 					setEmojiPickerExpanded={onEmojiPickerExpanded}
 					onEditorReady={handleEditorReady}
 					editorKey={editorKey}
+                    useEmojiCodes={useEmojiCodes}
 		/>
 	);
 });

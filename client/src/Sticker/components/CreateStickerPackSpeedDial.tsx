@@ -19,11 +19,19 @@ export const CreateStickerPackSpeedDial: FunctionComponent = observer(() => {
 				   })}
 		>
 			<SpeedDialAction icon={<Add/>}
-							 tooltipTitle={l("sticker.pack.create")}
+                             slotProps={{
+                                 tooltip: {
+                                     title: l("sticker.pack.create")
+                                 }
+                             }}
 							 onClick={() => router.goTo(Routes.createStickerPack)}
 			/>
 			<SpeedDialAction icon={<FolderZip/>}
-							 tooltipTitle={l("sticker.pack.import")}
+                             slotProps={{
+                                 tooltip: {
+                                     title: l("sticker.pack.import")
+                                 }
+                             }}
 							 onClick={() => router.goTo(Routes.stickerPackImport)}
 			/>
 		</SpeedDial>
