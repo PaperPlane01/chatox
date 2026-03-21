@@ -32,7 +32,6 @@
     "emoji-regex": "^10.6.0",
     "env-decorator": "^1.0.0",
     "eureka-js-client": "^4.5.0",
-    "react": "^16.13.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^4.4.0",
     "rxjs": "^7.8.0"
