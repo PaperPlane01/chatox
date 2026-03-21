@@ -186,7 +186,7 @@ const createEmojiNode = (
 		hName: "emoji",
 
         // Have to call toJS because react-markdown uses structured clone somewhere in its code,
-        // and this particular object comes from Mobx stored, meaning that it's wrapped as Proxy,
+        // and this particular object comes from Mobx store, meaning that it's wrapped as Proxy,
         // and thus can't be cloned.
 		hProperties: toJS(emojiData)
 	},
