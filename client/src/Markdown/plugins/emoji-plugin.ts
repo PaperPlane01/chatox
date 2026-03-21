@@ -18,7 +18,7 @@ export const emojiPlugin = (
     };
 };
 
-export const emojiPluginAsync = (_unused?: MessageEmoji): Plugin => (): Transformer<Node, Node> => {
+export const emojiPluginAsync = (): Plugin => (): Transformer<Node, Node> => {
 	return async (tree: Node): Promise<void> => {
         const promises: Promise<void>[] = [];
 
