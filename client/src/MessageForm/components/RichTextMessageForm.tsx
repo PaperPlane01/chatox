@@ -59,7 +59,10 @@ export const RichTextMessageForm: FunctionComponent<RichTextMessageFormProps> = 
 	const {
 		chatsPreferences: {
 			sendMessageButton
-		}
+		},
+        emoji: {
+            useEmojiCodes
+        }
 	} = useStore();
 	const {l} = useLocalization();
 	const [editor, setEditor] = useState<LexicalEditor | null>(null);
@@ -131,6 +134,7 @@ export const RichTextMessageForm: FunctionComponent<RichTextMessageFormProps> = 
 					setEmojiPickerExpanded={onEmojiPickerExpanded}
 					onEditorReady={handleEditorReady}
 					editorKey={editorKey}
+                    useEmojiCodes={useEmojiCodes}
 		/>
 	);
 });
