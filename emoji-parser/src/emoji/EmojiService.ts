@@ -52,11 +52,11 @@ export class EmojiService {
 		const codeWithoutColons = codeWithColons.substring(1, codeWithColons.length - 1);
 		const rawEmojiData = allEmojiData.emojis[codeWithoutColons];
 
-		if (!rawEmojiData) {
+		if (!rawEmojiData?.skins?.length) {
 			return undefined;
 		}
 
-		const unified= rawEmojiData.unified as string;
+		const unified = rawEmojiData.skins[0].unified as string;
 		const nativeEmoji = unified.split("-")
 			.map(unicode => Number.parseInt(unicode, 16))
 			.map(unicode => String.fromCodePoint(unicode))
