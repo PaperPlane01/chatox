@@ -1,6 +1,13 @@
 import {Injectable} from "@nestjs/common";
 import {ParseTextRequest} from "./types/request";
-import {EmojiDataResponse, EmojiPosition, EmojiResponse, ParseTextResponse, UserLinksResponse} from "./types/response";
+import {
+    EmojiDataResponse,
+    EmojiPosition,
+    EmojiResponse,
+    ParseTextResponse,
+    UserLinkPosition,
+    UserLinksResponse
+} from "./types/response";
 import {EMOJI_COLONS, EMOJI_NATIVE, USER_LINK} from "./rules";
 import {EmojiService} from "../emoji";
 import {EmojiSet} from "../emoji/types";
@@ -44,7 +51,8 @@ export class TextParserService {
 
 	private async handleColonsEmoji(match: RegExpMatchArray, emojiSet: EmojiSet, result: ParseTextResponse): Promise<void> {
 		const {0: matchedEmoji, index} = match;
-		const emojiData = await this.emojiService.getEmojiDataFromColons(matchedEmoji, emojiSet);
+        const emojiWithoutEscapes = matchedEmoji.replaceAll("\\", "");
+		const emojiData = await this.emojiService.getEmojiDataFromColons(emojiWithoutEscapes, emojiSet);
 
 		if (!emojiData) {
 			return;
@@ -91,10 +99,10 @@ export class TextParserService {
 		const closingBracketIndex = linkWithoutText.lastIndexOf(")");
 		const userIdOrSlug = linkWithoutText.substring(1, closingBracketIndex);
 
-		result.userLinks.userLinksPositions.push({
+		result.userLinks.userLinksPositions.push(new UserLinkPosition({
 			start: index,
 			end: index + matchedLink.length,
 			userIdOrSlug
-		});
+		}));
 	}
 }
