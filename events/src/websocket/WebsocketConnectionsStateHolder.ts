@@ -248,7 +248,7 @@ export class WebsocketConnectionsStateHolder {
         }
 
         if (this.usersToChats.has(userId)) {
-            this.usersToChats.get(chatId).push(userId);
+            this.usersToChats.get(userId).push(chatId);
         } else {
             this.usersToChats.set(userId, [chatId]);
         }
