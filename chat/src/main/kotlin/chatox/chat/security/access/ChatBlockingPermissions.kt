@@ -48,7 +48,7 @@ class ChatBlockingPermissions(
 
     fun canUnblockUser(chatId: String): Mono<Boolean> {
         return authenticationHolder.currentUserDetails
-            .flatMap { chatRoleService.getRoleOfUserInChat(chatId, it.id) }
+            .flatMap { chatRoleService.getRoleOfUserInChat(chatId = chatId, userId = it.id) }
             .map { it.features.blockUsers.enabled }
             .switchIfEmpty(Mono.just(false))
     }
