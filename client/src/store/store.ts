@@ -410,7 +410,7 @@ stickerAnimationData.setStickerPicker(stickerPicker);
 const stickerPackInstallation = new InstallStickerPackStore(installedStickerPacks, language, snackbarService);
 const stickerPackUninstallation = new UninstallStickerPackStore(installedStickerPacks, language, snackbarService);
 const stickerPacksSearch = new SearchStickerPacksStore(entities);
-const stickerPackDialog = new StickerPackDialogStore();
+const stickerPackDialog = new StickerPackDialogStore(entities, language, snackbarService);
 const emojiPickerTabs = new EmojiPickerTabsStore();
 const blacklistedUsers = new BlacklistedUsersStore(entities);
 const addUserToBlacklist = new AddUserToBlacklistStore(blacklistedUsers);
