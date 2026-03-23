@@ -31,13 +31,7 @@ import {
     GlobalNotificationsSettings,
     Message
 } from "../../api/types/response";
-import {
-    ChatOfCurrentUserEntity,
-    ChatsPreferencesStore,
-    ChatStore,
-    PendingChatsOfCurrentUserStore,
-    TypingUsersStore
-} from "../../Chat";
+import {ChatOfCurrentUserEntity, ChatStore, PendingChatsOfCurrentUserStore, TypingUsersStore} from "../../Chat";
 import {MarkMessageReadStore, MessagesListScrollPositionsStore, MessagesOfChatStore} from "../../Message";
 import {BalanceStore} from "../../Balance";
 import {LocaleStore} from "../../localization";
@@ -68,7 +62,6 @@ export class WebsocketStore {
                 private readonly scrollPositionStore: MessagesListScrollPositionsStore,
                 private readonly markMessageReadStore: MarkMessageReadStore,
                 private readonly balanceStore: BalanceStore,
-                private readonly chatPreferences: ChatsPreferencesStore,
                 private readonly typingUsersStore: TypingUsersStore,
                 private readonly pendingChats: PendingChatsOfCurrentUserStore,
                 private readonly locale: LocaleStore,
@@ -84,7 +77,7 @@ export class WebsocketStore {
     }
 
     startListening = (): void => {
-        if (this.chatPreferences.useSharedWorker && window.SharedWorker) {
+        if (window.SharedWorker) {
             this.startListeningWithSharedWorker().then(success => {
                 if (!success) {
                     console.log("Falling back to default socket io connection");

@@ -33,8 +33,6 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
             setSendMessageButton,
             enablePartialVirtualization,
             setEnablePartialVirtualization,
-            useSharedWorker,
-            setUseSharedWorker,
             sendTypingNotification,
             setSendTypingNotification,
             displayUnreadMessagesCount,
@@ -121,22 +119,6 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                                       label={l("settings.chat.virtual-scroll.enable-partial-virtualization")}
                     />
                 )}
-                <Divider/>
-                <Typography variant="h6">
-                    {l("settings.chat.server-connection")}
-                </Typography>
-                <Fragment>
-                    <FormControlLabel control={
-                        <Switch checked={useSharedWorker}
-                                onChange={() => setUseSharedWorker(!useSharedWorker)}
-                        />
-                    }
-                                      label={l("settings.chat.use-shared-worker")}
-                    />
-                    <FormHelperText>
-                        {l("settings.chat.use-shared-worker.explained")}
-                    </FormHelperText>
-                </Fragment>
                 <Divider/>
                 <Typography variant="h6">
                     {l("settings.chat.notifications")}

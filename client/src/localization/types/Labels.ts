@@ -537,9 +537,6 @@ export interface Labels {
     "settings.chat.messages.send-message-button.CTRL_ENTER": string,
     "settings.chat.messages.send-message-button.ENTER": string,
     "settings.chat.send-typing-notification": string,
-    "settings.chat.server-connection": string,
-    "settings.chat.use-shared-worker": string,
-    "settings.chat.use-shared-worker.explained": string
     "settings.chat.virtual-scroll": string,
     "settings.chat.virtual-scroll.enable-images-caching": string,
     "settings.chat.virtual-scroll.enable-partial-virtualization": string,

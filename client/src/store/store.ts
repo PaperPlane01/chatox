@@ -391,7 +391,6 @@ const websocket = new WebsocketStore(
     messagesListScrollPositions,
     markMessageRead,
     balance,
-    chatsPreferences,
     typingUsers,
     pendingChats,
     language,
