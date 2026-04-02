@@ -4,6 +4,7 @@ import {Theme, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import ReactMarkdown, {Components, MarkdownHooks} from "react-markdown";
 import remarkBreaks from "remark-breaks";
+import remarkGfm from "remark-gfm";
 import {EmojiData} from "emoji-mart";
 import {emojiPlugin, emojiPluginAsync} from "../plugins";
 import {MessageEmoji} from "../../api/types/response";
@@ -25,6 +26,17 @@ const useStyles = makeStyles()((theme: Theme) => ({
     blockquote: createBlockquoteStyles(theme)
 }));
 
+const DISALLOWED_TAGS = new Map<string, boolean>(
+    [
+        ["img", false],
+        ["table", false],
+        ["th", false],
+        ["tr", false],
+        ["td", false],
+        ["input", false]
+    ]
+)
+
 export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps> = observer(({
     text,
     emojiData,
@@ -44,12 +56,14 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
 
     const TargetMarkdownComponent = emojiData ? ReactMarkdown : MarkdownHooks;
     const targetEmojiPlugin = emojiData ? emojiPlugin(emojiData) : emojiPluginAsync();
-    const plugins = disableRemarkBreaks ? [targetEmojiPlugin] : [remarkBreaks, targetEmojiPlugin];
+    const plugins = disableRemarkBreaks
+        ? [targetEmojiPlugin, remarkGfm]
+        : [remarkBreaks, targetEmojiPlugin, remarkGfm];
 
     return (
         <TargetMarkdownComponent
             remarkPlugins={plugins}
-            allowElement={element => element.tagName !== "img"}
+            allowElement={element => DISALLOWED_TAGS.get(element.tagName) ?? true}
             components={{
                 p: renderParagraph(renderParagraphsAsSpan),
                 a: renderLink(renderLinksAsPlainText),
@@ -62,6 +76,7 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
                 h6: renderHeader(renderHeadersAsPlainText, "h6"),
                 code: renderCode(renderCodeAsPlainText),
                 pre: renderPre(renderCodeAsPlainText),
+                del: renderDel,
                 emoji: ({node}) => {
                     const properties = node.properties as unknown as EmojiData;
 
@@ -159,4 +174,8 @@ const renderPre = (renderAsPlainText: boolean): Components["pre"] => ({node, ...
     } else {
         return <pre {...props}/>;
     }
+};
+
+const renderDel: Components["del"] = ({node, ...props}) => {
+    return <del {...props}/>;
 };
