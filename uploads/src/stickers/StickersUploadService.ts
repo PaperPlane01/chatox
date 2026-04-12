@@ -9,7 +9,7 @@ import {
 } from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
-import {Store} from "cache-manager";
+import {CacheManagerStore} from "cache-manager";
 import {Model, Types} from "mongoose";
 import {Response} from "express";
 import {PathLike, promises as fileSystem} from "fs";
@@ -54,7 +54,7 @@ export class StickersUploadService {
 	constructor(
 		@InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<StickerUploadMetadata | ImageUploadMetadata>>,
 		private readonly uploadMapper: UploadMapper,
-		@Inject(CACHE_MANAGER) private readonly cacheManager: Store,
+		@Inject(CACHE_MANAGER) private readonly cacheManager: CacheManagerStore,
 		private readonly graphicsMagicService: GraphicsMagicService,
 		private readonly lottieService: LottieService,
 		private readonly ffmpegService: FfmpegService) {
@@ -135,7 +135,7 @@ export class StickersUploadService {
 		let animated = false;
 
 		if (type === UploadType.WEBP_STICKER) {
-			const file = await fileSystem.readFile(filePath);
+			const file = await fileSystem.readFile(filePath) as unknown as ArrayBuffer;
 
 			if (!await isWebP(file)) {
 				error = new BadRequestException("Invalid webp file");

@@ -1,6 +1,6 @@
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
-import {FilterQuery, Model} from "mongoose";
+import {DeepPartial, Model, QueryFilter} from "mongoose";
 import {RabbitSubscribe} from "@golevelup/nestjs-rabbitmq";
 import {UploadType} from "./enums";
 import {UploadDeletedEvent} from "./types";
@@ -67,7 +67,7 @@ export class UploadEventsListener {
             return [];
         }
 
-        const reportedObjectFilter: FilterQuery<ChatResponse> = {
+        const reportedObjectFilter: DeepPartial<ChatResponse> = {
             avatar: {
                 id: uploadDeleted.uploadId,
                 archivedAt: null
@@ -81,7 +81,7 @@ export class UploadEventsListener {
     }
 
     private findMessageReportsWithUpload(uploadDeleted: UploadDeletedEvent): Promise<Array<ReportDocument<MessageResponse>>> {
-        const reportedObjectFilters: Array<FilterQuery<MessageResponse>> = [
+        const reportedObjectFilters: Array<QueryFilter<DeepPartial<MessageResponse>>> = [
             {
                 attachments: {
                     id: uploadDeleted.uploadId,
@@ -107,7 +107,7 @@ export class UploadEventsListener {
             return [];
         }
 
-        const reportedObjectFilter: FilterQuery<UserResponse> = {
+        const reportedObjectFilter: DeepPartial<UserResponse> = {
             avatar: {
                 id: uploadDeleted.uploadId,
                 archivedAt: null
