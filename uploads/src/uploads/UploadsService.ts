@@ -4,7 +4,7 @@ import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import {Model} from "mongoose";
 import path from "path";
 import {promises} from "fs";
-import {Store} from "cache-manager";
+import {CacheManagerStore} from "cache-manager";
 import {addDays, addHours} from "date-fns";
 import {Upload, UploadDocument, UploadType} from "./entities";
 import {UploadMapper} from "./mappers";
@@ -28,7 +28,7 @@ export class UploadsService {
     constructor(@InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<any>>,
                 @InjectModel(UploadReference.name) private readonly uploadReferenceModel: Model<UploadReferenceDocument>,
                 private readonly uploadMapper: UploadMapper,
-                @Inject(CACHE_MANAGER) private readonly cacheManager: Store,
+                @Inject(CACHE_MANAGER) private readonly cacheManager: CacheManagerStore,
                 private readonly uploadEventsPublisher: UploadEventsPublisher) {
     }
 

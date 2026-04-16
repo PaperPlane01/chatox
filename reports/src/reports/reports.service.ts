@@ -1,7 +1,7 @@
 import {HttpException, Injectable, Logger} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Report, ReportDocument} from "./entities/report.entity";
-import {FilterQuery, Model} from "mongoose";
+import {QueryFilter, Model} from "mongoose";
 import {MessagesService} from "../messages/messages.service";
 import {CreateReportRequest} from "./types/requests/create-report.request";
 import {ReportResponse} from "./types/responses/report.response";
@@ -104,7 +104,7 @@ export class ReportsService {
     }
 
     public async findReports<T>(filters: FilterReportsRequest): Promise<Array<ReportResponse<T>>> {
-        const filterQuery: FilterQuery<Report<any>> = {};
+        const filterQuery: QueryFilter<Report<any>> = {};
 
         if (filters.type.length !== 0) {
             filterQuery.type = {

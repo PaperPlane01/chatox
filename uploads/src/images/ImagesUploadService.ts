@@ -1,7 +1,7 @@
 import {HttpException, HttpStatus, Inject, Injectable, Logger} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
-import {Store} from "cache-manager";
+import {CacheManagerStore} from "cache-manager";
 import {Response} from "express";
 import {Model, Types} from "mongoose";
 import {promises as fileSystem} from "fs";
@@ -45,7 +45,7 @@ export class ImagesUploadService {
 
     constructor(@InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<ImageUploadMetadata | GifUploadMetadata>>,
                 private readonly uploadMapper: UploadMapper,
-                @Inject(CACHE_MANAGER) private readonly cacheManager: Store,
+                @Inject(CACHE_MANAGER) private readonly cacheManager: CacheManagerStore,
                 private readonly graphicsMagicService: GraphicsMagicService) {}
 
     public async uploadImage(multipartFile: MultipartFile, currentUser: User): Promise<UploadResponse<ImageUploadMetadata | GifUploadMetadata>> {
