@@ -8,7 +8,6 @@ import {StickerRepository} from "../../Sticker/repositories";
 import {KEYWORD_MAX_LENGTH} from "../../StickerPackForm/constants";
 import {EMOJI_REGEXP} from "../../Emoji/rules";
 import {getEmojiDataFromColons} from "../../Emoji/utils";
-import {EmojiSettingsStore} from "../../Emoji/stores";
 import {RawEntitiesStore} from "../../entities-store";
 import {Repositories} from "../../repositories";
 import {isStringEmpty} from "../../utils/string-utils";
@@ -22,7 +21,6 @@ export class StickerSuggestionsStore {
 	constructor(private readonly installedStickerPacks: InstalledStickerPacksStore,
 				private readonly messageCreation: CreateMessageStore,
 				private readonly rawEntities: RawEntitiesStore,
-				private readonly emojiSettings: EmojiSettingsStore,
 				private readonly repositories: Repositories) {
 		makeAutoObservable(this, {}, {autoBind: true});
 

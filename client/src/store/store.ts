@@ -601,7 +601,12 @@ const stickerPackDeletion = new DeleteStickerPackStore(
 );
 const stickersPreferences = new StickersPreferencesStore();
 const stickerPreviewDialog = new StickerPreviewDialogStore();
-const stickerSuggestions = new StickerSuggestionsStore(installedStickerPacks, messageCreation, rawEntities, emoji, repositories);
+const stickerSuggestions = new StickerSuggestionsStore(
+    installedStickerPacks,
+    messageCreation,
+    rawEntities,
+    repositories
+);
 const stickerPackImport = new ImportStickerPackStore(stickerPackCreation, language, snackbarService);
 const confirmationToken = new ConfirmationTokenStore();
 const confirmationTokenDialog = new CreateConfirmationTokenStore(confirmationToken);
