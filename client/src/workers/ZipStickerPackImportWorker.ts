@@ -23,7 +23,7 @@ export class ZipStickerPackImportWorker {
 				: entries.filter(isFileEntry);
 			onLengthReceived?.(files.length);
 			const result: ZipImportFile[] = [];
-			const size = files.length > maxSize ? maxSize : files.length;
+			const size = Math.min(files.length, maxSize);
 
 			for (let currentFile = 0; currentFile < size; currentFile++) {
 				const entry = files[currentFile];
