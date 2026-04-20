@@ -3,7 +3,6 @@ import {observer} from "mobx-react";
 import {Theme} from "@mui/material";
 import {Audiotrack, FileCopy, Image, KeyboardVoice, VideoLibrary} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
-import {EmojiData} from "emoji-mart";
 import {useLocalization, useStore} from "../../store";
 import {useEntitiesByIds, useEntityById} from "../../entities";
 import {Upload, UploadType} from "../../api/types/response";
@@ -114,6 +113,7 @@ const renderText = (senderName: string, message: MessageEntity, senderClass?: st
                                renderQuotesAsPlainText
                                renderLinksAsPlainText
                                renderCodeAsPlainText
+                               disableRemarkBreaks
         />
     </Fragment>
 );
