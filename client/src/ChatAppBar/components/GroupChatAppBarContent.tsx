@@ -10,6 +10,7 @@ import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {trimString} from "../../utils/string-utils";
 import {Avatar} from "../../Avatar";
+import {useLuminosity} from "../../utils/hooks";
 
 interface GroupChatAppBarContentProps {
     chatId: string
@@ -44,10 +45,14 @@ export const GroupChatAppBarContent: FunctionComponent<GroupChatAppBarContentPro
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
     const chatHasTypingUsers = hasTypingUsers(chatId);
     const chat = useEntityById("chats", chatId);
+    const luminosity = useLuminosity();
 
     if (showInput) {
         return <ChatAppBarSearchInput/>
     } else {
+        const avatarColor = randomColor({seed: chat.id, luminosity});
+        const avatarLabel = getAvatarLabel(chat.name);
+
         return (
             <CardHeader title={(
                 <div style={{display: "flex"}}>
@@ -81,8 +86,8 @@ export const GroupChatAppBarContent: FunctionComponent<GroupChatAppBarContentPro
                             <div style={{cursor: "pointer"}}
                                  onClick={() => setChatInfoDialogOpen(true)}
                             >
-                                <Avatar avatarLetter={getAvatarLabel(chat.name)}
-                                        avatarColor={randomColor({seed: chat.id})}
+                                <Avatar avatarLetter={avatarLabel}
+                                        avatarColor={avatarColor}
                                         avatarUri={chat.avatarUri}
                                         avatarId={chat.avatarId}
                                 />
