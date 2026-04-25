@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
 import {Block} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 
 interface BlockMessageAuthorInChatMenuItemProps {
     onClick?: () => void,
@@ -14,21 +15,15 @@ export const BlockMessageAuthorInChatMenuItem: FunctionComponent<BlockMessageAut
     messageId
 }) => {
     const {
-        entities: {
-            messages: {
-                findById: findMessage
-            },
-            users: {
-                findById: findUser
-            }
-        },
         createChatBlocking: {
             setFormValue,
             setCreateChatBlockingDialogOpen
-        },
-
+        }
     } = useStore();
     const {l} = useLocalization();
+
+    const message = useEntityById("messages", messageId);
+    const user = useEntityById("users", message.sender);
 
     const setBlockedUserId = (id: string): void => setFormValue("blockedUserId", id);
 
@@ -36,9 +31,6 @@ export const BlockMessageAuthorInChatMenuItem: FunctionComponent<BlockMessageAut
         if (onClick) {
             onClick();
         }
-
-        const message = findMessage(messageId);
-        const user = findUser(message.sender);
 
         setBlockedUserId(user.id);
         setCreateChatBlockingDialogOpen(true);

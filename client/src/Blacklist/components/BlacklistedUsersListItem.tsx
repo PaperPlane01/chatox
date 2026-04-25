@@ -4,8 +4,8 @@ import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
 import randomColor from "randomcolor";
 import {BlacklistedUserMenu} from "./BlacklistedUserMenu";
 import {Avatar} from "../../Avatar";
-import {useStore} from "../../store";
-import {getUserAvatarLabel} from "../../User/utils/labels";
+import {useEntityById} from "../../entities";
+import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 
 interface BlacklistedUsersListItemProps {
     userId: string
@@ -14,15 +14,7 @@ interface BlacklistedUsersListItemProps {
 export const BlacklistedUsersListItem: FunctionComponent<BlacklistedUsersListItemProps> = observer(({
     userId
 }) => {
-    const {
-        entities: {
-            users: {
-                findById: findUser
-            }
-        }
-    } = useStore();
-
-    const user = findUser(userId);
+    const user = useEntityById("users", userId);
 
     return (
         <ListItem>
@@ -32,7 +24,7 @@ export const BlacklistedUsersListItem: FunctionComponent<BlacklistedUsersListIte
                 />
             </ListItemAvatar>
             <ListItemText>
-                {user.firstName} {user.lastName && user.lastName}
+                {getUserDisplayedName(user)}
             </ListItemText>
             <BlacklistedUserMenu userId={user.id}/>
         </ListItem>

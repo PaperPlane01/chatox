@@ -4,6 +4,7 @@ import {axiosInstance} from "../axios-instance";
 import {
     ACCOUNTS,
     ANONYMOUS,
+    CONFIRMATION,
     EMAIL,
     GOOGLE,
     IS_AVAILABLE,
@@ -21,6 +22,7 @@ import {
 } from "../endpoints";
 import {
     AnonymousUserRegistrationRequest,
+    CreateConfirmationTokenRequest,
     CreateUserProfilePhotoRequest,
     DeleteMultipleUserProfilePhotosRequest,
     GoogleRegistrationRequest,
@@ -34,6 +36,7 @@ import {
 } from "../types/request";
 import {
     AvailabilityResponse,
+    ConfirmationTokenResponse,
     CurrentUser,
     OAuth2Response,
     RegistrationResponse,
@@ -195,5 +198,20 @@ export class UserApi {
 
     public static setUserProfilePhotoAsAvatar(userId: string, userProfilePhotoId: string, setUserProfilePhotoAsAvatarRequest: SetUserProfilePhotoAsAvatarRequest): AxiosPromise<void> {
         return axiosInstance.put(`/${USERS}/${userId}/${PHOTOS}/${userProfilePhotoId}`, setUserProfilePhotoAsAvatarRequest);
+    }
+
+    public static createConfirmationToken(createConfirmationTokenRequest: CreateConfirmationTokenRequest): AxiosPromise<ConfirmationTokenResponse> {
+        return axiosInstance({
+            method: "POST",
+            baseURL: import.meta.env.VITE_API_BASE_URL,
+            url: `/${OAUTH}/${TOKEN}/${CONFIRMATION}`,
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+            data: {
+                ...createConfirmationTokenRequest
+            }
+        });
     }
 }

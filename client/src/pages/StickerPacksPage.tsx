@@ -1,28 +1,30 @@
-import React, {FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {Grid} from "@mui/material";
-import {Layout} from "../Layout";
-import {AppBar} from "../AppBar";
+import {Layout} from "../Layout/components";
+import {AppBar} from "../AppBar/components";
 import {
-    StickerPacksSearchResults,
+    DeleteStickerPackDialog,
     StickerPackDialog,
-    StickerPackUninstallationSnackbarManager,
-    StickerPackInstallationSnackbarManager
-} from "../Sticker";
+    StickerPacksSearchResults,
+    StickerPreviewDialog
+} from "../Sticker/components";
 
 export const StickerPacksPage: FunctionComponent = () => (
-    <Grid container>
-        <Grid item xs={12}>
-            <AppBar title="sticker.pack.list"/>
-        </Grid>
-        <Grid item xs={12}>
-            <Layout>
-                <StickerPacksSearchResults/>
-            </Layout>
+    <Fragment>
+        <Grid container>
+            <Grid size={12}>
+                <AppBar title="sticker.pack.list"/>
+            </Grid>
+            <Grid size={12}>
+                <Layout>
+                    <StickerPacksSearchResults/>
+                </Layout>
+            </Grid>
         </Grid>
         <StickerPackDialog/>
-        <StickerPackUninstallationSnackbarManager/>
-        <StickerPackInstallationSnackbarManager/>
-    </Grid>
+        <DeleteStickerPackDialog/>
+        <StickerPreviewDialog/>
+    </Fragment>
 );
 
 export default StickerPacksPage;

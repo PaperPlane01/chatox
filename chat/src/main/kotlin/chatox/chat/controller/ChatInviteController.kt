@@ -5,7 +5,6 @@ import chatox.chat.api.request.UpdateChatInviteRequest
 import chatox.chat.service.ChatInviteService
 import chatox.chat.service.ChatParticipationService
 import chatox.platform.pagination.PaginationRequest
-import chatox.platform.pagination.annotation.PageSize
 import chatox.platform.pagination.annotation.PaginationConfig
 import chatox.platform.pagination.annotation.SortBy
 import chatox.platform.pagination.annotation.SortDirection
@@ -23,30 +22,32 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/chats")
-class ChatInviteController(private val chatInviteService: ChatInviteService,
-                           private val chatParticipationService: ChatParticipationService) {
+class ChatInviteController(
+    private val chatInviteService: ChatInviteService,
+    private val chatParticipationService: ChatParticipationService
+) {
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatInvitePermissions.canManageChatInvites(#chatId)")
     @PostMapping("/{chatId}/invites")
     fun createChatInvite(
-            @PathVariable chatId: String,
-            @RequestBody @Valid createChatInviteRequest: CreateChatInviteRequest
+        @PathVariable chatId: String,
+        @RequestBody @Valid createChatInviteRequest: CreateChatInviteRequest
     ) = chatInviteService.createChatInvite(chatId, createChatInviteRequest)
 
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["createdAt"], defaultValue = "createdAt"),
-            sortingDirection = SortDirection(defaultValue = "desc")
+        sortBy = SortBy(allowed = ["createdAt"], defaultValue = "createdAt"),
+        sortingDirection = SortDirection(defaultValue = "desc")
     )
     @PreAuthorize("hasRole('USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatInvitePermissions.canManageChatInvites(#chatId)")
     @GetMapping("/{chatId}/invites")
     fun getChatInvites(
-            @PathVariable chatId: String,
-            @RequestParam(required = false, defaultValue = "false") activeOnly: Boolean,
-            paginationRequest: PaginationRequest
+        @PathVariable chatId: String,
+        @RequestParam(required = false, defaultValue = "false") activeOnly: Boolean,
+        paginationRequest: PaginationRequest
     ) = chatInviteService.findChatInvites(chatId, activeOnly, paginationRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
@@ -54,9 +55,9 @@ class ChatInviteController(private val chatInviteService: ChatInviteService,
     @ReactivePermissionCheck("@chatInvitePermissions.canManageChatInvites(#chatId)")
     @PutMapping("/{chatId}/invites/{inviteId}")
     fun updateChatInvite(
-            @PathVariable chatId: String,
-            @PathVariable inviteId: String,
-            @RequestBody @Valid updateChatInviteRequest: UpdateChatInviteRequest
+        @PathVariable chatId: String,
+        @PathVariable inviteId: String,
+        @RequestBody @Valid updateChatInviteRequest: UpdateChatInviteRequest
     ) = chatInviteService.updateChatInvite(inviteId, chatId, updateChatInviteRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
@@ -64,8 +65,8 @@ class ChatInviteController(private val chatInviteService: ChatInviteService,
     @ReactivePermissionCheck("@chatInvitePermissions.canManageChatInvites(#chatId)")
     @GetMapping("/{chatId}/invites/{inviteId}")
     fun getChatInvite(
-            @PathVariable chatId: String,
-            @PathVariable inviteId: String
+        @PathVariable chatId: String,
+        @PathVariable inviteId: String
     ) = chatInviteService.findFullChatInvite(chatId, inviteId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
@@ -73,23 +74,23 @@ class ChatInviteController(private val chatInviteService: ChatInviteService,
     @ReactivePermissionCheck("@chatInvitePermissions.canManageChatInvites(#chatId)")
     @GetMapping("/{chatId}/invites/{inviteId}/participants")
     fun getChatParticipantsByInvite(
-            @PathVariable chatId: String,
-            @PathVariable inviteId: String,
-            paginationRequest: PaginationRequest
+        @PathVariable chatId: String,
+        @PathVariable inviteId: String,
+        paginationRequest: PaginationRequest
     ) = chatParticipationService.findChatParticipationsByInvite(chatId, inviteId, paginationRequest)
 
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["createdAt"], defaultValue = "createdAt"),
-            sortingDirection = SortDirection(defaultValue = "desc")
+        sortBy = SortBy(allowed = ["createdAt"], defaultValue = "createdAt"),
+        sortingDirection = SortDirection(defaultValue = "desc")
     )
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatInvitePermissions.canManageChatInvites(#chatId)")
     @GetMapping("/{chatId}/invites/{inviteId}/participants/pending")
     fun getPendingChatParticipantsByInvite(
-            @PathVariable chatId: String,
-            @PathVariable inviteId: String,
-            paginationRequest: PaginationRequest
+        @PathVariable chatId: String,
+        @PathVariable inviteId: String,
+        paginationRequest: PaginationRequest
     ) = chatParticipationService.findPendingChatParticipationsByInvite(chatId, inviteId, paginationRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")

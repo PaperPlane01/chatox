@@ -12,37 +12,39 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class UserInteractionMapper(private val userCacheWrapper: UserReactiveRepositoryCacheWrapper,
-                            private val userMapper: UserMapper) {
+class UserInteractionMapper(
+    private val userCacheWrapper: UserReactiveRepositoryCacheWrapper,
+    private val userMapper: UserMapper
+) {
 
     fun toUserInteractionResponse(
-            userInteraction: UserInteraction,
-            localUsersCache: MutableMap<String, UserResponse>
+        userInteraction: UserInteraction,
+        localUsersCache: MutableMap<String, UserResponse>
     ): Mono<UserInteractionResponse> {
         return mono {
             val userProvider = createUserProvider(userInteraction.userId)
             val targetUserProvider = createUserProvider(userInteraction.targetUserId)
             val user = findAndPutToCache(userProvider, userInteraction.userId, localUsersCache).awaitFirst()
             val targetUser = findAndPutToCache(targetUserProvider, userInteraction.targetUserId, localUsersCache)
-                    .awaitFirst()
+                .awaitFirst()
 
             return@mono UserInteractionResponse(
-                    id = userInteraction.id,
-                    user = user,
-                    targetUser = targetUser,
-                    type = userInteraction.type,
-                    createdAt = userInteraction.createdAt
+                id = userInteraction.id,
+                user = user,
+                targetUser = targetUser,
+                type = userInteraction.type,
+                createdAt = userInteraction.createdAt
             )
         }
     }
 
     fun toUserInteractionCreated(userInteraction: UserInteraction) = UserInteractionCreated(
-            id = userInteraction.id,
-            userId = userInteraction.userId,
-            targetUserId = userInteraction.targetUserId,
-            type = userInteraction.type,
-            createdAt = userInteraction.createdAt,
-            cost = userInteraction.cost
+        id = userInteraction.id,
+        userId = userInteraction.userId,
+        targetUserId = userInteraction.targetUserId,
+        type = userInteraction.type,
+        createdAt = userInteraction.createdAt,
+        cost = userInteraction.cost
     )
 
     private fun createUserProvider(userId: String): () -> Mono<UserResponse> {

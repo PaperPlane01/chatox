@@ -28,15 +28,16 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Service
-class ChatsSearchServiceImpl(private val chatElasticsearchRepository: ChatElasticsearchRepository,
-                             private val chatParticipationRepository: ChatParticipationRepository,
-                             private val chatRepository: ChatRepository,
-                             private val elasticSearchTemplate: ReactiveElasticsearchTemplate,
-                             private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-                             private val chatMapper: ChatMapper,
-                             private val chatParticipationMapper: ChatParticipationMapper,
-                             private val chatParticipantsCountService: ChatParticipantsCountService,
-                             private val elasticsearchSync: ElasticsearchSynchronizationProperties
+class ChatsSearchServiceImpl(
+    private val chatElasticsearchRepository: ChatElasticsearchRepository,
+    private val chatParticipationRepository: ChatParticipationRepository,
+    private val chatRepository: ChatRepository,
+    private val elasticSearchTemplate: ReactiveElasticsearchTemplate,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>,
+    private val chatMapper: ChatMapper,
+    private val chatParticipationMapper: ChatParticipationMapper,
+    private val chatParticipantsCountService: ChatParticipantsCountService,
+    private val elasticsearchSync: ElasticsearchSynchronizationProperties
 ) : ChatSearchService {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
@@ -44,97 +45,102 @@ class ChatsSearchServiceImpl(private val chatElasticsearchRepository: ChatElasti
         return mono {
             val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
             val currentUserChatsIds = chatParticipationRepository
-                    .findAllByUserIdAndDeletedFalse(currentUser.id)
-                    .map { chatParticipation -> chatParticipation.chatId }
-                    .collectList()
-                    .awaitFirst()
+                .findAllByUserIdAndDeletedFalse(currentUser.id)
+                .map { chatParticipation -> chatParticipation.chatId }
+                .collectList()
+                .awaitFirst()
             val chatParticipantsCount = chatParticipantsCountService
-                    .getChatParticipantsCount(currentUserChatsIds)
-                    .awaitFirst()
+                .getChatParticipantsCount(currentUserChatsIds)
+                .awaitFirst()
 
             return@mono chatElasticsearchRepository.searchChatsOfUser(
-                    query,
-                    currentUserChatsIds,
-                    currentUser
+                query,
+                currentUserChatsIds,
+                currentUser
             )
-                    .map { chat -> chatMapper.toChatResponse(
-                            chat,
-                            chatParticipantsCount = chatParticipantsCount[chat.id] ?: ChatParticipantsCount.EMPTY
-                    ) }
+                .map { chat ->
+                    chatMapper.toChatResponse(
+                        chat,
+                        chatParticipantsCount = chatParticipantsCount[chat.id] ?: ChatParticipantsCount.EMPTY
+                    )
+                }
         }
-                .flatMapMany { it }
+            .flatMapMany { it }
     }
 
     override fun importChatsToElasticsearch(deleteIndex: Boolean): Mono<Unit> {
         log.info("Importing chats from MongoDB to Elasticsearch")
 
         return Mono
-                .just(deleteIndex)
-                .map { isDeleteIndex ->
-                    return@map if (isDeleteIndex) {
-                        elasticSearchTemplate.indexOps(ChatElasticsearch::class.java).delete()
-                    } else {
-                        return@map Mono.empty()
-                    }
+            .just(deleteIndex)
+            .map { isDeleteIndex ->
+                return@map if (isDeleteIndex) {
+                    elasticSearchTemplate.indexOps(ChatElasticsearch::class.java).delete()
+                } else {
+                    return@map Mono.empty()
                 }
-                .then(
-                        chatRepository
-                                .findAll()
-                                .flatMap { chat ->
-                                    return@flatMap if (chat.type == ChatType.GROUP) {
-                                        Mono.zip(
-                                                Mono.just(chat),
-                                                Mono.just(listOf())
-                                        )
-                                    } else {
-                                        Mono.zip(
-                                                Mono.just(chat),
-                                                getDialogDisplay(chat)
-                                        )
-                                    }
-                                }
-                                .map { fromTuple(it) }
-                                .flatMap { (chat, dialogDisplay) ->
-                                    chatElasticsearchRepository.save(chat.toElasticsearch().copy(
-                                            dialogDisplay = dialogDisplay
-                                    ))
-                                }
-                                .last()
-                )
-                .flatMap { Mono.empty() }
+            }
+            .then(
+                chatRepository
+                    .findAll()
+                    .flatMap { chat ->
+                        return@flatMap if (chat.type == ChatType.GROUP) {
+                            Mono.zip(
+                                Mono.just(chat),
+                                Mono.just(listOf())
+                            )
+                        } else {
+                            Mono.zip(
+                                Mono.just(chat),
+                                getDialogDisplay(chat)
+                            )
+                        }
+                    }
+                    .map { fromTuple(it) }
+                    .flatMap { (chat, dialogDisplay) ->
+                        chatElasticsearchRepository.save(
+                            chat.toElasticsearch().copy(
+                                dialogDisplay = dialogDisplay
+                            )
+                        )
+                    }
+                    .last()
+            )
+            .flatMap { Mono.empty() }
     }
 
     private fun getDialogDisplay(chat: Chat) = chatParticipationRepository
-            .findByChatId(chat.id)
-            .collectList()
-            .map { dialogParticipants ->
-                val firstParticipant = dialogParticipants[0]
-                val secondParticipant = if (dialogParticipants.size == 1) {
-                    null
-                } else {
-                    dialogParticipants[1]
-                }
-
-                return@map if (secondParticipant == null) {
-                    listOf(
-                            DialogDisplay(
-                                    userId = firstParticipant.user.id,
-                                    otherParticipant = chatParticipationMapper.toDialogParticipant(firstParticipant)
-                            )
-                    )
-                } else {
-                    listOf(
-                            DialogDisplay(
-                                    userId = firstParticipant.user.id,
-                                    otherParticipant = chatParticipationMapper.toDialogParticipant(secondParticipant)
-                            ),
-                            DialogDisplay(
-                                    userId = secondParticipant.user.id,
-                                    otherParticipant = chatParticipationMapper.toDialogParticipant(firstParticipant)
-                            )
-                    )
-                }
+        .findByChatId(chat.id)
+        .collectList()
+        .filter { it.isNotEmpty() }
+        .map { dialogParticipants ->
+            val firstParticipant = dialogParticipants[0]
+            val secondParticipant = if (dialogParticipants.size == 1) {
+                null
+            } else {
+                dialogParticipants[1]
             }
+
+            return@map if (secondParticipant == null) {
+                listOf(
+                    DialogDisplay(
+                        userId = firstParticipant.user.id,
+                        otherParticipant = chatParticipationMapper.toDialogParticipant(firstParticipant)
+                    )
+                )
+            } else {
+                listOf(
+                    DialogDisplay(
+                        userId = firstParticipant.user.id,
+                        otherParticipant = chatParticipationMapper.toDialogParticipant(secondParticipant)
+                    ),
+                    DialogDisplay(
+                        userId = secondParticipant.user.id,
+                        otherParticipant = chatParticipationMapper.toDialogParticipant(firstParticipant)
+                    )
+                )
+            }
+        }
 
     @EventListener(ApplicationReadyEvent::class)
     fun onApplicationStarted() {

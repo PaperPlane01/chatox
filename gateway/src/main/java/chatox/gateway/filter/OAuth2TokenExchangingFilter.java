@@ -24,12 +24,12 @@ public class OAuth2TokenExchangingFilter implements WebFilter {
         var path = serverWebExchange.getRequest().getPath().toString();
 
         if (!path.startsWith(OAUTH2_SERVICE_URL) && !path.startsWith(EVENTS_SERVICE_URL)) {
-            if (serverWebExchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+            if (serverWebExchange.getRequest().getHeaders().containsHeader(HttpHeaders.AUTHORIZATION)) {
                 var accessToken = serverWebExchange
                         .getRequest()
                         .getHeaders()
                         .get(HttpHeaders.AUTHORIZATION)
-                        .get(0)
+                        .getFirst()
                         .replace("Bearer ", "");
 
                 return tokenExchanger.exchangeAccessTokenToJwtToken(accessToken)

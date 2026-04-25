@@ -16,8 +16,8 @@ class UserCustomRepositoryImpl(private val reactiveMongoTemplate: ReactiveMongoT
 
     override fun updateLastSeenDateIfNecessary(userId: String, lastSeen: ZonedDateTime): Mono<UpdateResult> {
         val query = Query()
-                .addCriteria(Criteria.where("_id").`is`(userId))
-                .addCriteria(Criteria.where("lastSeen").lt(lastSeen))
+            .addCriteria(Criteria.where("_id").`is`(userId))
+            .addCriteria(Criteria.where("lastSeen").lt(lastSeen))
         val update = Update().set("lastSeen", lastSeen)
 
         return reactiveMongoTemplate.updateFirst(query, update, User::class.java)

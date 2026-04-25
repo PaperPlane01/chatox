@@ -2,36 +2,34 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Link} from "mobx-router";
 import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {getAvatarLabel} from "../utils";
-import {useEntities, useRouter} from "../../store";
+import {useRouter} from "../../store";
+import {useEntityById} from "../../entities";
 import {commonStyles} from "../../style";
 import {Routes} from "../../router";
 import {Avatar} from "../../Avatar";
+import {useLuminosity} from "../../utils/hooks";
 
 interface PendingChatListItemProps {
     chatId: string
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     undecoratedLink: commonStyles.undecoratedLink
 }));
 
 export const PendingChatsListItem: FunctionComponent<PendingChatListItemProps> = observer(({
     chatId
 }) => {
-    const {
-        chats: {
-            findById: findChat
-        }
-    } = useEntities();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const router = useRouter();
 
-    const chat = findChat(chatId);
+    const chat = useEntityById("chats", chatId);
+    const luminosity = useLuminosity();
+    const avatarColor = randomColor({seed: chat.id, luminosity});
     const avatarLabel = getAvatarLabel(chat.name);
-    const avatarColor = randomColor({seed: chat.id});
 
     return (
        <Link route={Routes.chatPage}

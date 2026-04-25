@@ -1,10 +1,11 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {TableCell, TableRow, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {format} from "date-fns";
 import {USER_INTERACTIONS_ICONS_MAP} from "./UserInteractionIcons";
-import {useEntities, useLocalization} from "../../store";
+import {useLocalization} from "../../store";
+import {useEntityById} from "../../entities";
 import {Labels} from "../../localization";
 import {UserLink} from "../../UserLink";
 
@@ -12,7 +13,7 @@ interface UserInteractionsTableRowProps {
     userInteractionId: string
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     interactionTypeCell: {
         display: "flex",
         gap: theme.spacing(2)
@@ -25,18 +26,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 export const UserInteractionsHistoryTableRow: FunctionComponent<UserInteractionsTableRowProps> = observer(({
     userInteractionId
 }) => {
-    const {
-        userInteractions: {
-            findById: findUserInteraction
-        },
-        users: {
-            findById: findUser
-        }
-    } = useEntities();
     const {l} = useLocalization();
-    const classes = useStyles();
-    const userInteraction = findUserInteraction(userInteractionId);
-    const user = findUser(userInteraction.userId);
+    const {classes} = useStyles();
+    const userInteraction = useEntityById("userInteractions", userInteractionId);
+    const user = useEntityById("users", userInteraction.userId);
 
     return (
         <TableRow>

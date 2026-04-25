@@ -51,9 +51,9 @@ export const calculateMessagesListStyles = (options: CalculateStylesOptions): CS
 
 const fillStylesForSmallScreen = (
     style: CSSProperties,
-    messagesListRef: RefObject<HTMLDivElement>,
-    messagesListBottomRef: RefObject<HTMLDivElement>,
-    pinnedMessageRef: RefObject<HTMLDivElement>,
+    messagesListRef: RefObject<HTMLDivElement | null>,
+    messagesListBottomRef: RefObject<HTMLDivElement | null>,
+    pinnedMessageRef: RefObject<HTMLDivElement | null>,
     theme: Theme,
     referredMessageId: string | undefined,
     variant: "normal" | "virtual"
@@ -84,8 +84,8 @@ const fillStylesForSmallScreen = (
 
 const fillStylesForLargeScreen = (
     style: CSSProperties,
-    messagesListBottomRef: RefObject<HTMLDivElement>,
-    pinnedMessageRef: RefObject<HTMLDivElement>,
+    messagesListBottomRef: RefObject<HTMLDivElement | null>,
+    pinnedMessageRef: RefObject<HTMLDivElement | null>,
     theme: Theme,
     referredMessageId?: string
 ): void => {

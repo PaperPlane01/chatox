@@ -1,4 +1,4 @@
-import React, {FunctionComponent} from "react";
+import React, {CSSProperties, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, CircularProgress} from "@mui/material";
 import {useLocalization, useStore} from "../../store";
@@ -18,7 +18,7 @@ export const JoinChatByInviteButton: FunctionComponent = observer(() => {
                 color="primary"
                 disabled={pending}
                 onClick={joinChat}
-                style={commonStyles.centered}
+                style={commonStyles.centered as unknown as CSSProperties}
         >
             {pending && <CircularProgress size={15} color="primary"/>}
             {l("chat.join")}

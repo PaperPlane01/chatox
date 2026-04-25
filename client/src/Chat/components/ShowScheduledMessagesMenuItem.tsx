@@ -1,8 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText} from "@mui/material";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
 import {Event} from "@mui/icons-material";
 import {useLocalization, useRouter, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 
 interface ShowScheduledMessagesMenuItemProps {
@@ -15,21 +16,16 @@ export const ShowScheduledMessagesMenuItem: FunctionComponent<ShowScheduledMessa
     const {
         chat: {
             selectedChatId
-        },
-        entities: {
-            chats: {
-                findById: findChat
-            }
         }
     } = useStore();
     const routerStore = useRouter();
     const {l} = useLocalization();
 
-    if (!selectedChatId) {
+    const chat = useEntityById("chats", selectedChatId);
+
+    if (!chat) {
         return null;
     }
-
-    const chat = findChat(selectedChatId);
 
     const handleClick = (): void => {
         if (onClick) {

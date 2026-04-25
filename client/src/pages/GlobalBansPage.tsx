@@ -7,10 +7,10 @@ import {Layout} from "../Layout";
 
 export const GlobalBansPage: FunctionComponent = () => (
     <Grid container>
-        <Grid item xs={12}>
+        <Grid size={12}>
             <AppBar title="global.ban.banned-users"/>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
             <Layout>
                 <HasRole role="ROLE_ADMIN"
                          alternative={

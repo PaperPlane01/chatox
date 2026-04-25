@@ -11,6 +11,7 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
+import {HttpStatusCode} from "axios";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {Language, TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
@@ -66,7 +67,7 @@ const getErrorText = (apiError: ApiError, l: TranslationFunction, currentLanguag
         case API_UNREACHABLE_STATUS:
             errorContent = l("message.edit.error.server-unreachable");
             break;
-        case 403:
+        case HttpStatusCode.Forbidden:
             errorContent = forbiddenErrorTranslations[currentLanguage];
             break;
         default:
@@ -121,12 +122,14 @@ export const UpdateMessageDialog: FunctionComponent = observer(() => {
                            multiline
                            rows={4}
                            maxRows={Number.MAX_SAFE_INTEGER}
-                           InputProps={{
-                               endAdornment: (
-                                   <InputAdornment position="end">
-                                       <OpenMarkdownPreviewDialogButton/>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: (
+                                       <InputAdornment position="end">
+                                           <OpenMarkdownPreviewDialogButton/>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
                 {error && getErrorText(error, l, locale)}

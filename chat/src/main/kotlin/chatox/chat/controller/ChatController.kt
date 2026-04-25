@@ -4,6 +4,7 @@ import chatox.chat.api.request.CreateChatRequest
 import chatox.chat.api.request.CreatePrivateChatRequest
 import chatox.chat.api.request.DeleteChatRequest
 import chatox.chat.api.request.DeleteMultipleChatsRequest
+import chatox.chat.api.request.TransferChatOwnershipRequest
 import chatox.chat.api.request.UpdateChatRequest
 import chatox.chat.service.ChatSearchService
 import chatox.chat.service.ChatService
@@ -12,6 +13,7 @@ import chatox.platform.pagination.annotation.PageSize
 import chatox.platform.pagination.annotation.PaginationConfig
 import chatox.platform.pagination.annotation.SortBy
 import chatox.platform.security.reactive.annotation.ReactivePermissionCheck
+import jakarta.validation.Valid
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -22,12 +24,13 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import jakarta.validation.Valid
 
 @RestController
 @RequestMapping("/api/v1/chats")
-class ChatController(private val chatService: ChatService,
-                     private val chatSearchService: ChatSearchService) {
+class ChatController(
+    private val chatService: ChatService,
+    private val chatSearchService: ChatSearchService
+) {
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL
@@ -39,25 +42,40 @@ class ChatController(private val chatService: ChatService,
     //language=SpEL
     @ReactivePermissionCheck("@chatPermissions.canStartPrivateChat(#createPrivateChatRequest.userId)")
     @PostMapping("/private")
-    fun startPrivateChat(@RequestBody @Valid createPrivateChatRequest: CreatePrivateChatRequest) = chatService.createPrivateChat(createPrivateChatRequest)
+    fun startPrivateChat(@RequestBody @Valid createPrivateChatRequest: CreatePrivateChatRequest) =
+        chatService.createPrivateChat(createPrivateChatRequest)
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatPermissions.canUpdateChat(#id)")
     @PutMapping("/{id}")
-    fun updateChat(@PathVariable id: String,
-                   @RequestBody @Valid updateChatRequest: UpdateChatRequest) = chatService.updateChat(id, updateChatRequest)
+    fun updateChat(
+        @PathVariable id: String,
+        @RequestBody @Valid updateChatRequest: UpdateChatRequest
+    ) = chatService.updateChat(id, updateChatRequest)
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping
-    fun deleteMultipleChats(@RequestBody @Valid deleteMultipleChatsRequest: DeleteMultipleChatsRequest) = chatService.deleteMultipleChats(deleteMultipleChatsRequest)
+    fun deleteMultipleChats(@RequestBody @Valid deleteMultipleChatsRequest: DeleteMultipleChatsRequest) =
+        chatService.deleteMultipleChats(deleteMultipleChatsRequest)
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatPermissions.canDeleteChat(#id)")
     @DeleteMapping("/{id}")
-    fun deleteChat(@PathVariable id: String,
-                   @RequestBody(required = false) deleteChatRequest: DeleteChatRequest?) = chatService.deleteChat(id, deleteChatRequest)
+    fun deleteChat(
+        @PathVariable id: String,
+        @RequestBody(required = false) deleteChatRequest: DeleteChatRequest?
+    ) = chatService.deleteChat(id, deleteChatRequest)
+
+    @PreAuthorize("hasRole('USER')")
+    //language=SpEL
+    @ReactivePermissionCheck("@chatPermissions.canTransferChatOwnership(#id)")
+    @PutMapping("/{id}/owner")
+    fun transferChat(
+        @PathVariable id: String,
+        @RequestBody @Valid transferChatOwnershipRequest: TransferChatOwnershipRequest
+    ) = chatService.transferChatOwnership(id, transferChatOwnershipRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     @GetMapping("/my")
@@ -81,18 +99,20 @@ class ChatController(private val chatService: ChatService,
     fun findChatByIdAndIncludeCreatorId(@PathVariable id: String) = chatService.findChatById(id);
 
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["createdAt", "name"], defaultValue = "createdAt")
+        sortBy = SortBy(allowed = ["createdAt", "name"], defaultValue = "createdAt")
     )
     @GetMapping
-    fun searchChats(@RequestParam query: String,
-                    paginationRequest: PaginationRequest) = chatService.searchChats(query, paginationRequest)
+    fun searchChats(
+        @RequestParam query: String,
+        paginationRequest: PaginationRequest
+    ) = chatService.searchChats(query, paginationRequest)
 
     @GetMapping("/slug/{slug}/isAvailable")
     fun isChatSlugAvailable(@PathVariable slug: String) = chatService.checkChatSlugAvailability(slug)
 
     @PaginationConfig(
-            pageSize = PageSize(defaultValue = 10, max = 300),
-            sortBy = SortBy(allowed = [], defaultValue = "")
+        pageSize = PageSize(defaultValue = 10, max = 300),
+        sortBy = SortBy(allowed = [], defaultValue = "")
     )
     @GetMapping("/popular")
     fun getPopularChats(paginationRequest: PaginationRequest) = chatService.getPopularChats(paginationRequest)

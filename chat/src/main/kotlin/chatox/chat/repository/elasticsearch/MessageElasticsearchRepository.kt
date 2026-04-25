@@ -4,4 +4,5 @@ import chatox.chat.model.elasticsearch.MessageElasticsearch
 import chatox.chat.repository.elasticsearch.custom.MessageCustomElasticsearchRepository
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 
-interface MessageElasticsearchRepository : ReactiveCrudRepository<MessageElasticsearch, String>, MessageCustomElasticsearchRepository
+interface MessageElasticsearchRepository : ReactiveCrudRepository<MessageElasticsearch, String>,
+    MessageCustomElasticsearchRepository

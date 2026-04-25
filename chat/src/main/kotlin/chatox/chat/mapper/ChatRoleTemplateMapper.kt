@@ -13,29 +13,22 @@ import reactor.core.publisher.Mono
 class ChatRoleTemplateMapper(private val userService: UserService) {
 
     fun toChatRoleTemplateResponse(
-            chatRoleTemplate: ChatRoleTemplate,
-            localUsersCache: MutableMap<String, UserResponse>
+        chatRoleTemplate: ChatRoleTemplate,
+        localUsersCache: MutableMap<String, UserResponse>
     ): Mono<ChatRoleTemplateResponse> {
         return mono {
-            val createdBy = if (chatRoleTemplate.createdBy != null) {
-                userService.findUserByIdAndPutInLocalCache(chatRoleTemplate.createdBy!!, localUsersCache).awaitFirst()
-            } else {
-                null
-            }
-            val updatedBy = if (chatRoleTemplate.updatedBy != null) {
-                userService.findUserByIdAndPutInLocalCache(chatRoleTemplate.updatedBy!!, localUsersCache).awaitFirst()
-            } else {
-                null
-            }
-
             return@mono ChatRoleTemplateResponse(
-                    id = chatRoleTemplate.id,
-                    features = chatRoleTemplate.features,
-                    name = chatRoleTemplate.name,
-                    createdAt = chatRoleTemplate.createdAt,
-                    createdBy = createdBy,
-                    updatedAt = chatRoleTemplate.updatedAt,
-                    updatedBy = updatedBy
+                id = chatRoleTemplate.id,
+                features = chatRoleTemplate.features,
+                name = chatRoleTemplate.name,
+                createdAt = chatRoleTemplate.createdAt,
+                createdBy = chatRoleTemplate.createdBy?.let {
+                    userService.findUserByIdAndPutInLocalCache(it, localUsersCache).awaitFirst()
+                },
+                updatedAt = chatRoleTemplate.updatedAt,
+                updatedBy = chatRoleTemplate.updatedBy?.let {
+                    userService.findUserByIdAndPutInLocalCache(it, localUsersCache).awaitFirst()
+                }
             )
         }
     }

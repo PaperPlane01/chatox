@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component
 class UserInteractionsCountMapper {
 
     fun toUserInteractionsCountResponse(userInteractionsCount: UserInteractionsCount) = UserInteractionsCountResponse(
-            likesCount = userInteractionsCount.likesCount,
-            dislikesCount = userInteractionsCount.dislikesCount,
-            lovesCount = userInteractionsCount.lovesCount
+        likesCount = userInteractionsCount.likesCount,
+        dislikesCount = userInteractionsCount.dislikesCount,
+        lovesCount = userInteractionsCount.lovesCount
     )
 }

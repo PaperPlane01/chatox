@@ -1,20 +1,21 @@
 import React, {forwardRef, Fragment, SyntheticEvent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, IconButton, Menu, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {Close} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {ClosePinnedMessageMenuItem} from "./ClosePinnedMessageMenuItem";
 import {UnpinMessageMenuItem} from "./UnpinMessageMenuItem";
-import {useEntities, useLocalization, usePermissions, useStore} from "../../store";
-import {useEmojiParser} from "../../Emoji";
+import {useLocalization, usePermissions, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
+import {MarkdownTextWithEmoji} from "../../Markdown";
 
 interface PinnedMessageProps {
     width?: string | number
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     cardRoot: {
         maxHeight: 120,
         [theme.breakpoints.down('lg')]: {
@@ -69,20 +70,11 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
         }
     } = useStore();
     const {
-        chats: {
-            findById: findChat
-        },
-        messages: {
-            findById: findMessage
-        },
-    } = useEntities();
-    const {
         messages: {
             canUnpinMessage
         }
     } = usePermissions();
-    const classes = useStyles();
-    const {parseEmoji} = useEmojiParser();
+    const {classes} = useStyles();
     const {l} = useLocalization();
     const closeOrUnpinMessageMenuPopupState = usePopupState({
         variant: "popover",
@@ -95,21 +87,17 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
         ensureEventWontPropagate(event);
     };
 
-    if (!selectedChatId) {
+    const chat = useEntityById("chats", selectedChatId);
+    const pinnedMessage = useEntityById("messages", chat?.pinnedMessageId);
+
+    if (!chat?.pinnedMessageId) {
         return null;
     }
 
-    const chat = findChat(selectedChatId);
-
-    if (!chat.pinnedMessageId) {
+    if (!closePinnedMessagesMap[chat.pinnedMessageId] || !pinnedMessage) {
         return null;
     }
 
-    if (closePinnedMessagesMap[chat.pinnedMessageId]) {
-        return null;
-    }
-
-    const pinnedMessage = findMessage(chat.pinnedMessageId);
     const ableToUnpinMessage = canUnpinMessage(pinnedMessage.chatId);
 
     return (
@@ -123,8 +111,10 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
                 root: classes.cardHeaderRoot
             }}
                         subheader={l("message.pinned")}
-                        subheaderTypographyProps={{
-                            color: "textPrimary"
+                        slotProps={{
+                            subheader: {
+                                color: "textPrimary"
+                            }
                         }}
             />
             <CardContent classes={{
@@ -139,7 +129,16 @@ const _PinnedMessage = forwardRef<HTMLDivElement, PinnedMessageProps>((props, re
                     >
                         {pinnedMessage.deleted
                             ? <i>{l("message.deleted")}</i>
-                            : parseEmoji(pinnedMessage.text, pinnedMessage.emoji)
+                            : (
+                                <MarkdownTextWithEmoji text={pinnedMessage.text}
+                                                       emojiData={pinnedMessage.emoji}
+                                                       renderParagraphsAsSpan
+                                                       renderHeadersAsPlainText
+                                                       renderQuotesAsPlainText
+                                                       renderLinksAsPlainText
+                                                       renderCodeAsPlainText
+                                />
+                            )
                         }
                     </Typography>
                 </div>

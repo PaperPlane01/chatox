@@ -13,10 +13,12 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class ChatUploadAttachmentPermissions(private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
-                                      private val chatRoleService: ChatRoleService,
-                                      private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-                                      private val messagePermissions: MessagePermissions) {
+class ChatUploadAttachmentPermissions(
+    private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
+    private val chatRoleService: ChatRoleService,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>,
+    private val messagePermissions: MessagePermissions
+) {
 
     fun canSeeAttachments(chatId: String): Mono<Boolean> {
         return messagePermissions.canReadMessages(chatId)
@@ -31,12 +33,12 @@ class ChatUploadAttachmentPermissions(private val chatUploadAttachmentRepository
             }
 
             val chatRole = chatRoleService.getRoleOfUserInChat(
-                    userId = currentUser.id,
-                    chatId = chatId
+                userId = currentUser.id,
+                chatId = chatId
             )
-                    .awaitFirstOrNull() ?: return@mono false
+                .awaitFirstOrNull() ?: return@mono false
             val attachment = chatUploadAttachmentRepository.findByIdAndChatId(attachmentId, chatId).awaitFirstOrNull()
-                    ?: throw ChatUploadAttachmentNotFoundException("Could not find сhat upload attachment with id $attachmentId")
+                ?: throw ChatUploadAttachmentNotFoundException("Could not find сhat upload attachment with id $attachmentId")
 
             if (currentUser.id == attachment.uploadCreatorId) {
                 return@mono chatRole.features.deleteOwnMessages.enabled
@@ -46,10 +48,10 @@ class ChatUploadAttachmentPermissions(private val chatUploadAttachmentRepository
                 }
 
                 val otherUserRole = chatRoleService.getRoleOfUserInChat(
-                        userId = attachment.uploadCreatorId!!,
-                        chatId = chatId
+                    userId = attachment.uploadCreatorId!!,
+                    chatId = chatId
                 )
-                        .awaitFirstOrNull() ?: return@mono true
+                    .awaitFirstOrNull() ?: return@mono true
 
                 return@mono messagePermissions.canDeleteOtherUserMessage(chatRole, otherUserRole)
             } else {
@@ -58,7 +60,10 @@ class ChatUploadAttachmentPermissions(private val chatUploadAttachmentRepository
         }
     }
 
-    fun canDeleteAttachments(chatId: String, deleteMultipleChatUploadAttachmentsRequest: DeleteMultipleChatUploadAttachmentsRequest): Mono<Boolean> {
+    fun canDeleteAttachments(
+        chatId: String,
+        deleteMultipleChatUploadAttachmentsRequest: DeleteMultipleChatUploadAttachmentsRequest
+    ): Mono<Boolean> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
 
@@ -67,34 +72,38 @@ class ChatUploadAttachmentPermissions(private val chatUploadAttachmentRepository
             }
 
             val currentUserChatRole = chatRoleService.getRoleOfUserInChat(
-                    userId = currentUser.id,
-                    chatId = chatId
+                userId = currentUser.id,
+                chatId = chatId
             )
-                    .awaitFirstOrNull() ?: return@mono false
+                .awaitFirstOrNull() ?: return@mono false
             val attachments = chatUploadAttachmentRepository.findByIdInAndChatId(
-                    ids = deleteMultipleChatUploadAttachmentsRequest.chatUploadAttachmentsIds,
-                    chatId = chatId
+                ids = deleteMultipleChatUploadAttachmentsRequest.chatUploadAttachmentsIds,
+                chatId = chatId
             )
-                    .collectList()
-                    .awaitFirst()
+                .collectList()
+                .awaitFirst()
 
             if (attachments.size != deleteMultipleChatUploadAttachmentsRequest.chatUploadAttachmentsIds.size) {
                 throw ChatUploadAttachmentNotFoundException("Could not find some of the attachments")
             }
 
-            val otherUsersAttachments = attachments.filter { attachment -> attachment.uploadCreatorId != currentUser.id }
+            val otherUsersAttachments =
+                attachments.filter { attachment -> attachment.uploadCreatorId != currentUser.id }
 
             if (otherUsersAttachments.isEmpty()) {
                 return@mono currentUserChatRole.features.deleteOwnMessages.enabled
             } else {
                 val otherUsersIds = otherUsersAttachments
-                        .filter { attachment -> attachment.uploadCreatorId != null }
-                        .map { attachment -> attachment.uploadCreatorId!! }
+                    .filter { attachment -> attachment.uploadCreatorId != null }
+                    .map { attachment -> attachment.uploadCreatorId!! }
                 val otherUsersRoles = chatRoleService.getRolesOfUsersInChat(otherUsersIds, chatId).awaitFirst()
 
                 return@mono otherUsersIds.all { otherUserId ->
                     if (otherUsersRoles.containsKey(otherUserId)) {
-                        return@all messagePermissions.canDeleteOtherUserMessage(currentUserChatRole, otherUsersRoles[otherUserId]!!)
+                        return@all messagePermissions.canDeleteOtherUserMessage(
+                            currentUserChatRole,
+                            otherUsersRoles[otherUserId]!!
+                        )
                     } else {
                         return@all true
                     }

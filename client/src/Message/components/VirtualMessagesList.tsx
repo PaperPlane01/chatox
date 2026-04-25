@@ -13,7 +13,7 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
     const {
         messagesOfChat: {
             messagesOfChat,
-            fetchMessages,
+            fetchMessages
         },
         pinnedMessages: {
             currentPinnedMessageId,
@@ -33,7 +33,7 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
             setReachedBottom
         }
     } = useStore();
-    const virtuosoRef = useRef<VirtuosoHandle>() as RefObject<VirtuosoHandle>;
+    const virtuosoRef = useRef<VirtuosoHandle>(null) as RefObject<VirtuosoHandle>;
     const refs = useMessagesListRefs();
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
@@ -64,16 +64,23 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
     const messagesListBottomStyle = useMessagesListBottomStyles(
         onSmallScreen,
         styleDependencies,
-        true
+        refs.messagesListRef
     );
+
+    const fetchNextMessages = (): void => {
+        const beforeId = messagesOfChat[0];
+
+        fetchMessages({
+            beforeId,
+            abortIfInitiallyFetched: false,
+            skipSettingLastMessage: true
+        });
+    };
 
     return (
         <Fragment>
             <PinnedMessage ref={refs.pinnedMessageRef}
-                           width={(refs.messagesListRef && refs.messagesListRef.current)
-                               ? refs.messagesListRef.current.getBoundingClientRect().width
-                               : undefined
-                           }
+                           width={refs.messagesListRef?.current?.getBoundingClientRect().width}
             />
             <div id="messagesList"
                  ref={refs.messagesListRef}
@@ -92,7 +99,7 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
                           )}
                           followOutput="auto"
                           ref={virtuosoRef}
-                          startReached={() => fetchMessages()}
+                          startReached={fetchNextMessages}
                           atBottomStateChange={atBottom => setReachedBottom(selectedChat!!.id, atBottom)}
                           initialTopMostItemIndex={{
                               index: "LAST"
@@ -100,6 +107,7 @@ export const VirtualMessagesList: FunctionComponent = observer(() => {
                           useWindowScroll={onSmallScreen}
                           overscan={virtualScrollOverscan}
                           defaultItemHeight={160}
+                          skipAnimationFrameInResizeObserver
                 />
                 <MessagesListBottom ref={refs.messagesListBottomRef}
                                     style={messagesListBottomStyle}

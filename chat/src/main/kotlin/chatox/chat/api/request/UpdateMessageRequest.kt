@@ -6,17 +6,17 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 
 data class UpdateMessageRequest(
-        @field:NotBlank
-        @field:Size(max = 2000)
-        @field:JsonProperty("text")
-        private val _text: String?,
+    @field:NotBlank
+    @field:Size(max = 2000)
+    @field:JsonProperty("text")
+    private val _text: String?,
 
-        @field:StringIn(["apple", "facebook", "twitter", "native"])
-        val emojisSet: String = "apple",
+    @field:StringIn(["apple", "facebook", "twitter", "native"])
+    val emojisSet: String = "apple",
 
-        @field:Size(max = 10)
-        val uploadAttachments: List<String> = listOf()
+    @field:Size(max = 10)
+    val uploadAttachments: List<String> = listOf()
 ) {
-        val text: String
-                get() = _text!!
+    val text: String
+        get() = _text!!
 }

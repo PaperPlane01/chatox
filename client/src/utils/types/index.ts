@@ -8,5 +8,4 @@ export * from "./SortingDirection";
 export * from "./PartialBy";
 export * from "./RequiredField";
 export * from "./BaseSettingsTabProps";
-
-
+export * from "./KeyOfType";

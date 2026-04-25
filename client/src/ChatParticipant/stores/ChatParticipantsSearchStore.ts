@@ -62,13 +62,13 @@ export class ChatParticipantsSearchStore {
 
     setQuery = (query: string): void => {
         this.query = query;
-    };
+    }
 
     clearQuery = (): void => this.setQuery("");
 
     setInSearchMode = (isInSearchMode: boolean): void => {
         this.isInSearchMode = isInSearchMode;
-    };
+    }
 
     searchChatParticipants = (): void => {
         if (!this.selectedChatId) {
@@ -111,12 +111,12 @@ export class ChatParticipantsSearchStore {
             }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.paginationState.pending = false));
-    };
+    }
 
     resetSearchResults = (): void => {
         this.paginationState = INITIAL_PAGINATION_STATE;
         this.foundChatParticipantsIds = [];
-    };
+    }
 
     reset = (resetOptions: ResetOptions = DEFAULT_RESET_OPTIONS): void => {
         const {keepSearchMode} = resetOptions;
@@ -124,5 +124,5 @@ export class ChatParticipantsSearchStore {
         this.resetSearchResults();
         this.query = "";
         this.error = undefined;
-    };
+    }
 }

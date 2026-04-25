@@ -37,6 +37,9 @@ const RewardsManagementPage = lazy(() => import("../pages/RewardsManagementPage"
 const ChatManagementPage = lazy(() => import("../pages/ChatManagementPage"));
 const ChatInvitePage = lazy(() => import("../pages/ChatInvitePage"));
 const PendingChatsListPage = lazy(() => import("../pages/PendingChatsListPage"));
+const UpdateStickerPackPage = lazy(() => import("../pages/UpdateStickerPackPage"));
+const StickerPackPage = lazy(() => import("../pages/StickerPackPage"));
+const ImportStickerPackPage = lazy(() => import("../pages/ImportStickerPackPage"));
 
 export const Routes = {
     home: new Route({
@@ -401,6 +404,54 @@ export const Routes = {
         onEnter: () => {
             store.pendingChats.fetchPendingChats();
         }
+    }),
+    stickerPack: new Route<any, {id: string}>({
+        path: "/sticker-packs/:id",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <StickerPackPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: (_, {id}) => {
+            store.stickerPack.setStickerPackId(id);
+        },
+        onParamsChange: (_, {id}) => {
+            store.stickerPack.setStickerPackId(id);
+        },
+        onExit: () => {
+            store.stickerPack.setStickerPackId(undefined);
+        }
+    }),
+    stickerPackUpdate: new Route<any, {id: string}>({
+        path: "/sticker-packs/:id/update",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <UpdateStickerPackPage/>
+                </Suspense>
+            </ErrorBoundary>
+        ),
+        onEnter: (_, {id}) => {
+            store.stickerPackUpdate.setStickerPackId(id);
+        },
+        onParamsChange: (_, {id}) => {
+            store.stickerPackUpdate.setStickerPackId(id);
+        },
+        onExit: () => {
+            store.stickerPackUpdate.reset();
+        }
+    }),
+    stickerPackImport: new Route({
+        path: "/import-sticker-pack",
+        component: (
+            <ErrorBoundary>
+                <Suspense fallback={fallback}>
+                    <ImportStickerPackPage/>
+                </Suspense>
+            </ErrorBoundary>
+        )
     })
 };
 

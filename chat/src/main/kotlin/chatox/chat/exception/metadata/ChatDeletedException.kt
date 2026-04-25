@@ -8,15 +8,15 @@ import org.springframework.web.bind.annotation.ResponseStatus
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 class ChatDeletedException(chatDeletion: ChatDeletion?) : MetadataEnhancedException(
-        ExceptionMetadata.builder()
-                .errorCode("CHAT_DELETED")
-                .additional(
-                        if (chatDeletion != null)
-                            mapOf(
-                                    Pair("reason", chatDeletion.deletionReason.name),
-                                    Pair("comment", chatDeletion.comment ?: "")
-                            )
-                        else null
+    ExceptionMetadata.builder()
+        .errorCode("CHAT_DELETED")
+        .additional(
+            if (chatDeletion != null)
+                mapOf(
+                    Pair("reason", chatDeletion.deletionReason.name),
+                    Pair("comment", chatDeletion.comment ?: "")
                 )
-                .build()
+            else null
+        )
+        .build()
 )

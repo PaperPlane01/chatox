@@ -10,11 +10,11 @@ import kotlin.reflect.KClass
 @Retention(value = AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [RequireCommentIfGlobalBanReasonIsValidator::class])
 annotation class RequireCommentIfGlobalBanReasonIs(
-        val message: String = "Comment is required if ban reason is \"OTHER\"",
-        val reasonField: String = "_reason",
-        val commentField: String = "comment",
-        val reasons: Array<GlobalBanReason> = [GlobalBanReason.OTHER],
+    val message: String = "Comment is required if ban reason is \"OTHER\"",
+    val reasonField: String = "_reason",
+    val commentField: String = "comment",
+    val reasons: Array<GlobalBanReason> = [GlobalBanReason.OTHER],
 
-        val groups: Array<KClass<*>> = [],
-        val payload: Array<KClass<out Payload>> = []
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = []
 )

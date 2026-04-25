@@ -1,13 +1,15 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {InstalledStickerPacksStore} from "./InstalledStickerPacksStore";
 import {StickerApi} from "../../api";
+import {LocaleStore} from "../../localization";
+import {SnackbarService} from "../../Snackbar";
 
 export class InstallStickerPackStore {
     pendingInstallationsMap: {[stickerPackId: string]: boolean} = {};
 
-    showSnackbar = false;
-
-    constructor(private readonly installedStickerPacksStore: InstalledStickerPacksStore) {
+    constructor(private readonly installedStickerPacksStore: InstalledStickerPacksStore,
+                private readonly locale: LocaleStore,
+                private readonly snackbarService: SnackbarService) {
         makeAutoObservable(this);
     }
 
@@ -17,12 +19,10 @@ export class InstallStickerPackStore {
         StickerApi.installStickerPack(stickerPackId)
             .then(() => {
                 this.installedStickerPacksStore.addInstalledStickerPack(stickerPackId);
-                this.setShowSnackbar(true);
+                this.snackbarService.enqueueSnackbar(
+                    this.locale.getCurrentLanguageLabel("sticker.pack.install.success")
+                );
             })
             .finally(() => runInAction(() => this.pendingInstallationsMap[stickerPackId] = false));
-    };
-
-    setShowSnackbar = (showSnackbar: boolean): void => {
-        this.showSnackbar = showSnackbar;
-    };
+    }
 }

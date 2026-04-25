@@ -34,10 +34,10 @@ export const MessageReportsPage: FunctionComponent = observer(() => {
 
     return (
         <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 <AppBar title="report.list.messages"/>
             </Grid>
-            <Grid item xs={12} style={reportsStyles}>
+            <Grid size={12} style={reportsStyles}>
                 <Layout>
                     <HasRole role="ROLE_ADMIN"
                              alternative={

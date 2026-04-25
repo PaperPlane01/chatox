@@ -3,6 +3,7 @@ import {AmqpConnection} from "@golevelup/nestjs-rabbitmq";
 import * as mongoose from "mongoose";
 import {UploadType} from "./UploadType";
 import {ImageUploadMetadata} from "./ImageUploadMetadata";
+import {ThumbnailMetadata} from "./ThumbnailMetadata";
 import {UploadMapper} from "../mappers";
 import {PartialBy} from "../../utils/types";
 
@@ -40,7 +41,11 @@ export class Upload<UploadMetadata> {
             UploadType.FILE,
             UploadType.AUDIO,
             UploadType.VOICE_MESSAGE,
-            UploadType.VIDEO
+            UploadType.VIDEO,
+            UploadType.IMAGE_STICKER,
+            UploadType.WEBP_STICKER,
+            UploadType.VIDEO_STICKER,
+            UploadType.LOTTIE_STICKER
         ]
     })
     type: UploadType;
@@ -52,7 +57,7 @@ export class Upload<UploadMetadata> {
     previewImage?: Upload<ImageUploadMetadata>;
 
     @Prop({type: [mongoose.Schema.Types.Mixed]})
-    thumbnails: Upload<ImageUploadMetadata>[];
+    thumbnails: Upload<ThumbnailMetadata>[];
 
     @Prop()
     isThumbnail: boolean;
@@ -94,7 +99,14 @@ const getUploadCreatedRabbitMQRoutingKey = (upload: Upload<any>): string => {
             return "upload.voice.message.created.#";
         case UploadType.FILE:
             return "upload.file.created.#";
-
+        case UploadType.IMAGE_STICKER:
+            return "upload.sticker.image.created.#";
+        case UploadType.WEBP_STICKER:
+            return "upload.sticker.webp.created.#";
+        case UploadType.LOTTIE_STICKER:
+            return "upload.sticker.lottie.created.#";
+        case UploadType.VIDEO_STICKER:
+            return "upload.sticker.video.created.#";
     }
 };
 

@@ -14,17 +14,19 @@ class AccountEventsListener(private val userService: UserService) {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     @RabbitListener(queues = ["user_service_email_updated"])
-    fun onEmailUpdated(emailUpdated: EmailUpdated,
-                       channel: Channel,
-                       @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onEmailUpdated(
+        emailUpdated: EmailUpdated,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         log.info("Received emailUpdated event")
 
         userService.updateEmail(
-                accountId = emailUpdated.accountId,
-                email = emailUpdated.email
+            accountId = emailUpdated.accountId,
+            email = emailUpdated.email
         )
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, true ,true) }
-                .subscribe()
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, true, true) }
+            .subscribe()
     }
 }

@@ -1,11 +1,11 @@
 import React, {ChangeEvent, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {IconButton, InputAdornment, TextField, TextFieldProps} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
 import {Close, Search} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {useLocalization} from "../../store";
 
-const useClasses = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     inputRoot: {
         color: "inherit"
     },
@@ -28,7 +28,7 @@ const useClasses = makeStyles(() => createStyles({
         }
     },
     inputAdornmentRoot: {
-        "color": "inherit"
+        color: "inherit"
     }
 }));
 
@@ -51,7 +51,7 @@ export const SearchTextField: FunctionComponent<SearchTextFieldProps> = observer
     ...other
 }) => {
     const {l} = useLocalization();
-    const defaultClasses = useClasses();
+    const {classes: defaultClasses} = useStyles();
 
     const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
         if (onChange) {
@@ -74,31 +74,33 @@ export const SearchTextField: FunctionComponent<SearchTextFieldProps> = observer
                    value={value}
                    fullWidth
                    variant={variant as any} // https://github.com/mui/material-ui/issues/15697#issuecomment-612397854
-                   InputProps={{
-                       startAdornment: (
-                           <InputAdornment position="start"
-                                           classes={{
-                                               root: defaultClasses.inputAdornmentRoot
-                                           }}
-                           >
-                               <Search color="inherit"/>
-                           </InputAdornment>
-                       ),
-                       endAdornment: !hideClearButton && (
-                           <InputAdornment position="end"
-                                           classes={{
-                                               root: defaultClasses.inputAdornmentRoot
-                                           }}
-                           >
-                               <IconButton onClick={handleClear} color="inherit" size="large">
-                                   <Close/>
-                               </IconButton>
-                           </InputAdornment>
-                       ),
-                       classes: {
-                           root: defaultClasses.inputRoot,
-                           underline: defaultClasses.inputUnderline,
-                           ...classes
+                   slotProps={{
+                       input: {
+                           startAdornment: (
+                               <InputAdornment position="start"
+                                               classes={{
+                                                   root: defaultClasses.inputAdornmentRoot
+                                               }}
+                               >
+                                   <Search color="inherit"/>
+                               </InputAdornment>
+                           ),
+                           endAdornment: !hideClearButton && (
+                               <InputAdornment position="end"
+                                               classes={{
+                                                   root: defaultClasses.inputAdornmentRoot
+                                               }}
+                               >
+                                   <IconButton onClick={handleClear} color="inherit" size="large">
+                                       <Close/>
+                                   </IconButton>
+                               </InputAdornment>
+                           ),
+                           classes: {
+                               root: defaultClasses.inputRoot,
+                               underline: defaultClasses.inputUnderline,
+                               ...classes
+                           }
                        }
                    }}
                    onChange={handleChange}

@@ -7,13 +7,13 @@ import java.time.ZonedDateTime
 
 @Document
 data class StickerPackInstallation(
-        @Id
-        val id: String,
+    @Id
+    val id: String,
 
-        @Indexed
-        val userId: String,
+    @Indexed
+    val userId: String,
 
-        @Indexed
-        val stickerPackId: String,
-        val createdAt: ZonedDateTime
+    @Indexed
+    val stickerPackId: String,
+    val createdAt: ZonedDateTime
 )

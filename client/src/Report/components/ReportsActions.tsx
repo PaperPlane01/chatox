@@ -1,7 +1,7 @@
 import React, {forwardRef, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, Grid, GridSize, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {ClearReportsSelectionButton} from "./ClearReportsSelectionButton";
 import {useLocalization, useStore} from "../../store";
 
@@ -9,7 +9,7 @@ interface ReportsActionsProps {
     children: ReactNode[]
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     centerAligned: {
         textAlign: "center"
     },
@@ -33,7 +33,7 @@ export const _RepostsActions = forwardRef<HTMLDivElement, ReportsActionsProps>((
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     if (props.children.length === 0) {
         return null;
@@ -63,7 +63,7 @@ export const _RepostsActions = forwardRef<HTMLDivElement, ReportsActionsProps>((
                       alignItems="center"
                 >
                     {props.children.map((action, index) => (
-                        <Grid item xs={actionWidth} className={classes.centerAligned} key={index}>
+                        <Grid size={actionWidth} className={classes.centerAligned} key={index}>
                             {action}
                         </Grid>
                     ))}

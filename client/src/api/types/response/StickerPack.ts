@@ -2,6 +2,7 @@ import {Upload} from "./Upload";
 import {GifUploadMetadata} from "./GifUploadMetadata";
 import {ImageUploadMetadata} from "./ImageUploadMetadata";
 import {Sticker} from "./Sticker";
+import {StickerType} from "./StickerType";
 
 export interface StickerPack {
     author?: string,
@@ -10,5 +11,7 @@ export interface StickerPack {
     id: string,
     name: string,
     preview: Upload<GifUploadMetadata | ImageUploadMetadata>,
-    stickers: Sticker[]
+    stickers: Sticker[],
+    createdById: string,
+    stickersType: StickerType
 }

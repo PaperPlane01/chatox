@@ -10,7 +10,7 @@ import React, {
 } from "react";
 import {observer} from "mobx-react";
 import {Theme, useMediaQuery, useTheme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {MessagesListItem} from "./MessagesListItem";
 import {MessagesListBottom} from "./MessagesListBottom";
 import {PinnedMessage} from "./PinnedMessage";
@@ -18,9 +18,8 @@ import {calculateMessagesListStyles} from "../utils";
 import {useMessagesListBottomStyles, useMessagesListRefs, useMessagesListStyles} from "../hooks";
 import {useStore} from "../../store";
 import {isScrolledToBottom} from "../../utils/event-utils";
-import {isWindowScrollable} from "../../utils/dom-utils";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     messagesList: {
         [theme.breakpoints.up("lg")]: {
             overflowY: "auto",
@@ -58,7 +57,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     const theme = useTheme();
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
     const refs = useMessagesListRefs();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const [reachedBottom, setReachedBottom] = useState(false);
     const shouldHandleWindowScroll = onSmallScreen && (!enableVirtualScroll || enablePartialVirtualization);
 
@@ -77,7 +76,7 @@ export const MessagesList: FunctionComponent = observer(() => {
         emojiPickerExpanded,
         currentPinnedMessageId,
         currentPinnedMessageIsClosed
-    ]
+    ];
     const style = useMessagesListStyles(
         calculateStyles,
         refs,
@@ -85,7 +84,8 @@ export const MessagesList: FunctionComponent = observer(() => {
     );
     const messagesListBottomStyles = useMessagesListBottomStyles(
         onSmallScreen,
-        styleDependencies
+        styleDependencies,
+        refs.messagesListRef
     );
 
     const handleScroll = (event: UIEvent<HTMLDivElement>): void => {
@@ -99,7 +99,7 @@ export const MessagesList: FunctionComponent = observer(() => {
             const body = document.body;
             const html = document.documentElement;
             const documentHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-            const windowBottom = windowHeight + window.pageYOffset;
+            const windowBottom = windowHeight + window.scrollY;
 
             setReachedBottom(documentHeight - windowBottom <= 1);
         }
@@ -134,10 +134,7 @@ export const MessagesList: FunctionComponent = observer(() => {
     return (
         <Fragment>
             <PinnedMessage ref={refs.pinnedMessageRef}
-                           width={refs.messagesListRef && refs.messagesListRef.current
-                               ? refs.messagesListRef.current.getBoundingClientRect().width
-                               : undefined
-                           }
+                           width={refs.messagesListRef?.current?.getBoundingClientRect().width}
             />
             <div id="messagesList"
                  style={style}

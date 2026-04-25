@@ -24,30 +24,30 @@ const chunkLoadErrorTranslation: ErrorBoundaryTranslations = {
     en: (
         <Layout>
             <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         A new version Chatox has been released. Please refresh your page to get the app working.
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography variant="h6">
                         What happened?
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         Chatox uses technique called "Code splitting" which allows to reduce initial load time
                         of the app by loading only required files first, and then loading other files on demand
                         (e.g. when user visits another page).
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         However, during deploy of new version of Chatox old files are destroyed. This is done
                         intentionally to ensure that users have the latest version of the app.
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         This may lead to a situation when user who has old version of the app tries to visit a part of the
                         app which hasn't been loaded yet. The app tries to download files, but they got removed from the server.
@@ -60,17 +60,17 @@ const chunkLoadErrorTranslation: ErrorBoundaryTranslations = {
     ru: (
         <Layout>
             <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         Вышла новая версия Chatox. Пожалуйста, обновите страницу, чтобы приложение снова заработало.
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography variant="h6">
                         Что случилось?
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         Chatox использлует технику, которая называется "Разделение кода". Она позволяет
                         сократить начальное время загрузки приложения путём загрузки только необходимых
@@ -78,14 +78,14 @@ const chunkLoadErrorTranslation: ErrorBoundaryTranslations = {
                         пользователь заходит на определённую страницу).
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         Однако, во время релиза новой версии Chatox старые файлы удаляются с сервера.
                         Это делается намеренно для того, чтобы у пользователей гарантированно была самая последняя
                         версия приложения.
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         Это может привести к ситуации, когда пользователь со старой версией приложения пытается посетить
                         ту часть приложения, которая ещё не была загружена. Приложение пытается загрузить необходимые файлы,
@@ -101,23 +101,23 @@ const fatalErrorTranslations: ErrorBoundaryTranslations = {
     en: (
         <Layout>
             <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         Fatal error occurred. Please reload the page.
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography variant="h6">
                         What happened?
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         We don't really know. If you see this error, it means that something
                         unexpected happened, something that we couldn't anticipate.
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         It will really help us if you report this error with its stacktrace to us and create an issue in our
                         {" "}
@@ -131,24 +131,24 @@ const fatalErrorTranslations: ErrorBoundaryTranslations = {
     ru: (
         <Layout>
             <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         Произошла критическая ошибка. Пожалуйста, перезагрузите страницу.
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography variant="h6">
                         Что случилось?
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         Мы не знаем :( Если вы видите эту ошибку,
                         значит, произошло что-то непредвиденное, что-то, что
                         мы не смогли предусмотреть.
                     </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <Typography>
                         Вы можете сильно нам помочь, если сообщите об этой ошибке в нашем
                         {" "}
@@ -213,7 +213,7 @@ const _ErrorBoundary = inject((state: IAppState): ErrorBoundaryMobxProps => ({
                             {fatalErrorTranslations[currentLanguage]}
                             <Grid container spacing={2}>
                                 <Layout>
-                                    <Grid item xs={12}>
+                                    <Grid size={12}>
                                         <Typography style={{
                                             cursor: "pointer",
                                             textDecoration: "underline"
@@ -228,7 +228,7 @@ const _ErrorBoundary = inject((state: IAppState): ErrorBoundaryMobxProps => ({
                                             }
                                         </Typography>
                                     </Grid>
-                                    <Grid item xs={12}>
+                                    <Grid size={12}>
                                         {stackTraceExpanded && (
                                             <Typography>
                                                 <code>

@@ -17,42 +17,32 @@ import reactor.core.publisher.Mono
 
 @Service
 class BalanceServiceImpl(
-        private val balanceRepository: BalanceRepository,
-        private val balanceApi: BalanceApi,
-        private val authenticationHolder: ReactiveAuthenticationHolder<User>) : BalanceService {
+    private val balanceRepository: BalanceRepository,
+    private val balanceApi: BalanceApi,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>
+) : BalanceService {
 
-    override fun handleBalanceUpdate(balanceUpdated: BalanceUpdated): Mono<Unit> {
-        return mono {
-            val existingBalance = balanceRepository.findByUserIdAndCurrency(
-                    userId = balanceUpdated.userId,
-                    currency = balanceUpdated.currency
+    override fun handleBalanceUpdate(balanceUpdated: BalanceUpdated): Mono<Unit> = balanceRepository
+        .findByUserIdAndCurrency(userId = balanceUpdated.userId, currency = balanceUpdated.currency)
+        .flatMap { balance -> balanceRepository.save(balance.copy(amount = balance.amount)) }
+        .switchIfEmpty(balanceRepository.save(
+            Balance(
+                id = ObjectId().toHexString(),
+                amount = balanceUpdated.amount,
+                currency = balanceUpdated.currency,
+                userId = balanceUpdated.userId
             )
-                    .awaitFirstOrNull()
-
-            if (existingBalance != null) {
-                balanceRepository.save(existingBalance.copy(amount = balanceUpdated.amount)).awaitFirst()
-            } else {
-                val balance = Balance(
-                        id = ObjectId().toHexString(),
-                        amount = balanceUpdated.amount,
-                        currency = balanceUpdated.currency,
-                        userId = balanceUpdated.userId
-                )
-                balanceRepository.save(balance).awaitFirst()
-            }
-
-            return@mono
-        }
-    }
+        ))
+        .map { }
 
     override fun getBalanceOfCurrentUser(currency: Currency): Mono<Balance> {
         return mono {
             val currentUserId = authenticationHolder.requireCurrentUserDetails().awaitFirst().id
             val existingBalance = balanceRepository.findByUserIdAndCurrency(
-                    userId = currentUserId,
-                    currency = currency
+                userId = currentUserId,
+                currency = currency
             )
-                    .awaitFirstOrNull()
+                .awaitFirstOrNull()
 
             if (existingBalance != null) {
                 return@mono existingBalance
@@ -60,10 +50,10 @@ class BalanceServiceImpl(
                 val externalBalance = balanceApi.getBalanceOfUser(currentUserId).awaitFirst()
 
                 val balance = Balance(
-                        id = ObjectId().toHexString(),
-                        amount = externalBalance.amount,
-                        currency = externalBalance.currency,
-                        userId = currentUserId
+                    id = ObjectId().toHexString(),
+                    amount = externalBalance.amount,
+                    currency = externalBalance.currency,
+                    userId = currentUserId
                 )
 
                 balanceRepository.save(balance).awaitFirst()

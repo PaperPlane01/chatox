@@ -8,13 +8,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -32,39 +31,39 @@ public class JwtPayload implements UserDetails {
 
     public JwtPayload(JwtAuthenticationToken jwtAuthenticationToken) {
         var token = jwtAuthenticationToken.getToken();
-        var clientId = replaceIfNull(token.getClaimAsString(Claims.CLIENT_ID), "");
+        var clientId = replaceIfNull(token.getClaimAsString(AccessTokenClaims.CLIENT_ID.getValue()), "");
 
-        id = replaceIfNull(token.getClaimAsString(Claims.USER_ID), clientId);
-        accountId = replaceIfNull(token.getClaimAsString(Claims.ACCOUNT_ID), clientId);
-        username = replaceIfNull(token.getClaimAsString(Claims.USERNAME), clientId);
-        email = token.getClaimAsString(Claims.EMAIL);
+        id = replaceIfNull(token.getClaimAsString(AccessTokenClaims.USER_ID.getValue()), clientId);
+        accountId = replaceIfNull(token.getClaimAsString(AccessTokenClaims.ACCOUNT_ID.getValue()), clientId);
+        username = replaceIfNull(token.getClaimAsString(AccessTokenClaims.USERNAME.getValue()), clientId);
+        email = token.getClaimAsString(AccessTokenClaims.EMAIL.getValue());
 
-        var jwtAuthorities = replaceIfNull(token.getClaimAsStringList(Claims.AUTHORITIES), List::<String>of)
+        var jwtAuthorities = replaceIfNull(token.getClaimAsStringList(AccessTokenClaims.AUTHORITIES.getValue()), List::<String>of)
                 .stream()
                 .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-        var jwtScope = replaceIfNull(token.getClaimAsStringList(Claims.SCOPE), List::<String>of)
+                .toList();
+        var jwtScope = replaceIfNull(token.getClaimAsStringList(AccessTokenClaims.SCOPE.getValue()), List::<String>of)
                 .stream()
                 .map(scope -> new SimpleGrantedAuthority("SCOPE_" + scope))
-                .collect(Collectors.toList());
+                .toList();
 
         authorities = new ArrayList<>();
         authorities.addAll(jwtAuthorities);
         authorities.addAll(jwtScope);
 
-        if (token.hasClaim(Claims.GLOBAL_BAN_ID)) {
+        if (token.hasClaim(AccessTokenClaims.GLOBAL_BAN_ID.getValue())) {
             globalBanInfo = new GlobalBanInfo();
-            globalBanInfo.setId(token.getClaimAsString(Claims.GLOBAL_BAN_ID));
+            globalBanInfo.setId(token.getClaimAsString(AccessTokenClaims.GLOBAL_BAN_ID.getValue()));
 
-            if (token.hasClaim(Claims.GLOBAL_BAN_EXPIRATION_DATE)) {
+            if (token.hasClaim(AccessTokenClaims.GLOBAL_BAN_EXPIRATION_DATE.getValue())) {
                 globalBanInfo.setExpiresAt(ZonedDateTime.ofInstant(
-                        token.getClaimAsInstant(Claims.GLOBAL_BAN_EXPIRATION_DATE),
-                        ZoneId.of("UTC")
+                        token.getClaimAsInstant(AccessTokenClaims.GLOBAL_BAN_EXPIRATION_DATE.getValue()),
+                        ZoneOffset.UTC
                 ));
             }
 
-            globalBanInfo.setPermanent(token.hasClaim(Claims.GLOBAL_BAN_PERMANENT)
-                    && token.getClaimAsBoolean(Claims.GLOBAL_BAN_PERMANENT));
+            globalBanInfo.setPermanent(token.hasClaim(AccessTokenClaims.GLOBAL_BAN_PERMANENT.getValue())
+                    && token.getClaimAsBoolean(AccessTokenClaims.GLOBAL_BAN_PERMANENT.getValue()));
         }
     }
 

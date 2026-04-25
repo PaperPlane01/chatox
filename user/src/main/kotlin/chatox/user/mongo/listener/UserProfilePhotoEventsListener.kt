@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserProfilePhotoEventsListener(
-        private val userProfilePhotoEventsProducer: UserProfilePhotoEventsProducer,
-        private val userProfilePhotoMapper: UserProfilePhotoMapper
+    private val userProfilePhotoEventsProducer: UserProfilePhotoEventsProducer,
+    private val userProfilePhotoMapper: UserProfilePhotoMapper
 ) : AbstractMongoEventListener<UserProfilePhoto>() {
 
     override fun onAfterSave(event: AfterSaveEvent<UserProfilePhoto>) {
         userProfilePhotoEventsProducer.userProfilePhotoCreated(
-                userProfilePhotoMapper.toUserProfilePhotoResponse(event.source)
+            userProfilePhotoMapper.toUserProfilePhotoResponse(event.source)
         )
     }
 }

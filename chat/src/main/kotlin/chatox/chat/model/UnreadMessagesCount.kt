@@ -7,20 +7,21 @@ import java.time.ZonedDateTime
 
 @Document
 data class UnreadMessagesCount(
-        @Id
-        val id: String,
+    @Id
+    val id: String,
 
-        @Indexed
-        val chatParticipationId: String,
+    @Indexed
+    val chatParticipationId: String,
 
-        @Indexed
-        val userId: String,
+    @Indexed
+    val userId: String,
 
-        @Indexed
-        val chatId: String,
+    @Indexed
+    val chatId: String,
 
-        val unreadMessagesCount: Long = 0,
-        val lastReadMessageId: String? = null,
-        val lastReadMessageCreatedAt: ZonedDateTime? = null,
-        val lastMessageReadAt: ZonedDateTime? = null
+    val unreadMessagesCount: Long = 0,
+    val lastReadMessageId: String? = null,
+    val lastReadMessageCreatedAt: ZonedDateTime? = null,
+    val lastMessageReadAt: ZonedDateTime? = null,
+    val unreadMentionsCount: Long = 0
 )

@@ -14,6 +14,9 @@ import {AuthModule} from "./auth";
 import {RabbitMQConfigModule} from "./rabbitmq";
 import {FfmpegModule} from "./ffmpeg";
 import {UploadReferenceModule} from "./upload-references";
+import {GraphicsMagicModule} from "./graphics-magic";
+import {StickersUploadModule} from "./stickers";
+import {LottieModule} from "./lottie";
 
 @Module({
   imports: [
@@ -27,6 +30,9 @@ import {UploadReferenceModule} from "./upload-references";
       RabbitMQConfigModule,
       FfmpegModule,
       UploadReferenceModule,
+      GraphicsMagicModule,
+      StickersUploadModule,
+      LottieModule,
       CacheModule.register({
           store: redisStore,
           host: config.REDIS_HOST,

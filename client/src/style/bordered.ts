@@ -1,7 +1,7 @@
 import {Theme} from "@mui/material";
-import {CSSProperties} from "@mui/styles";
+import {CSSObject} from "tss-react";
 
-export const createBorderedStyle = (theme: Theme, offset?: string): CSSProperties => ({
+export const createBorderedStyle = (theme: Theme, offset?: string): CSSObject => ({
     outline: "solid",
     outlineColor: theme.palette.divider,
     outlineWidth: "medium",

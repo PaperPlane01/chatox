@@ -14,9 +14,19 @@ import reactor.core.publisher.Mono
 interface ChatInviteService {
     fun findChatInvite(id: String): Mono<ChatInviteResponse>
     fun findFullChatInvite(chatId: String, id: String): Mono<ChatInviteFullResponse>
-    fun findChatInvites(chatId: String, activeOnly: Boolean, paginationRequest: PaginationRequest): Flux<ChatInviteFullResponse>
+    fun findChatInvites(
+        chatId: String,
+        activeOnly: Boolean,
+        paginationRequest: PaginationRequest
+    ): Flux<ChatInviteFullResponse>
+
     fun createChatInvite(chatId: String, createChatInviteRequest: CreateChatInviteRequest): Mono<ChatInviteFullResponse>
-    fun updateChatInvite(id: String, chatId: String, updateChatInviteRequest: UpdateChatInviteRequest): Mono<ChatInviteFullResponse>
+    fun updateChatInvite(
+        id: String,
+        chatId: String,
+        updateChatInviteRequest: UpdateChatInviteRequest
+    ): Mono<ChatInviteFullResponse>
+
     fun getChatInviteUsageInfo(chatInvite: ChatInvite): Mono<ChatInviteUsageResponse>
     fun updateChatInviteFromApprovedChatParticipations(chatParticipations: List<ChatParticipation>): Mono<Unit>
 }

@@ -1,22 +1,22 @@
-import React, {FunctionComponent, Fragment} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import { TableCell, TableRow } from "@mui/material";
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
+import {TableCell, TableRow} from "@mui/material";
 import {Check, Remove} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {format} from "date-fns";
 import {CancelGlobalBanButton} from "./CancelGlobalBanButton";
 import {UpdateGlobalBanButton} from "./UpdateGlobalBanButton";
 import {isGlobalBanActive} from "../utils";
 import {UserLink} from "../../UserLink";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {Labels} from "../../localization";
 
 interface GlobalBansTableRowProps {
     globalBanId: string
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     globalBansTableRow: {
         cursor: "pointer"
     }
@@ -26,25 +26,17 @@ export const GlobalBansTableRow: FunctionComponent<GlobalBansTableRowProps> = ob
     globalBanId
 }) => {
     const {
-        entities: {
-            globalBans: {
-                findById: findGlobalBan
-            },
-            users: {
-                findById: findUser
-            }
-        },
         globalBanDetailsDialog: {
             setGlobalBanId,
             setGlobalBanDetailsDialogOpen
         }
     } = useStore();
     const {dateFnsLocale, l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
-    const globalBan = findGlobalBan(globalBanId);
-    const bannedUser = findUser(globalBan.bannedUserId);
-    const bannedBy = findUser(globalBan.createdById);
+    const globalBan = useEntityById("globalBans", globalBanId);
+    const bannedUser = useEntityById("users", globalBan.bannedUserId);
+    const bannedBy = useEntityById("users", globalBan.createdById);
 
     const openGlobalBanDetailsDialog = (): void => {
         setGlobalBanId(globalBanId);

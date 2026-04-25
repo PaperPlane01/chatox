@@ -1,17 +1,29 @@
 import React, {Fragment, FunctionComponent, ReactElement, ReactNode} from "react";
 import {observer} from "mobx-react";
+import {Theme} from "@mui/material";
 import {Audiotrack, FileCopy, Image, KeyboardVoice, VideoLibrary} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {useLocalization, useStore} from "../../store";
-import {ParseEmojiFunction, useEmojiParser} from "../../Emoji";
+import {useEntitiesByIds, useEntityById} from "../../entities";
 import {Upload, UploadType} from "../../api/types/response";
 import {capitalize} from "../../utils/string-utils";
 import {Labels, TranslationFunction} from "../../localization";
 import {StickerEntity} from "../../Sticker";
 import {MessageEntity} from "../../Message/types";
+import {MarkdownTextWithEmoji} from "../../Markdown";
+import {EmojiSet} from "../../Emoji/types";
 
 interface ChatListMessagePreviewProps {
-    messageId: string
+    messageId: string,
+    draftMessageId?: string,
+    hideDraftMessage?: boolean
 }
+
+const useStyles = makeStyles()((theme: Theme) => ({
+    draftMessage: {
+        color: theme.palette.error.light
+    }
+}));
 
 const getSingularOrPluralLabel = (count: number, singularLabel: keyof Labels): keyof Labels => {
     if (count > 1) {
@@ -22,51 +34,45 @@ const getSingularOrPluralLabel = (count: number, singularLabel: keyof Labels): k
 };
 
 export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewProps> = observer(({
-    messageId
+    messageId,
+    draftMessageId,
+    hideDraftMessage = false
 }) => {
     const {
-        entities: {
-            messages: {
-                findById: findMessage
-            },
-            users: {
-                findById: findUser
-            },
-            uploads: {
-                findAllById: findUploads,
-            },
-            stickers: {
-                findById: findSticker
-            }
+        emoji: {
+            selectedEmojiSet
         }
     } = useStore();
     const {l} = useLocalization();
-    const {parseEmoji} = useEmojiParser();
+    const {classes} = useStyles();
 
-    const message = findMessage(messageId);
-    const messageSender = findUser(message.sender);
-    const messageUploads = findUploads(message.uploads);
-    const messageSticker = message.stickerId && findSticker(message.stickerId);
+    const message = useEntityById("messages", messageId)!;
+    const draftMessage = useEntityById("draftMessages", draftMessageId);
+    const messageSender = useEntityById("users", message.sender);
+    const messageUploads = useEntitiesByIds("uploads", draftMessage?.uploads ?? message.uploads);
+    const messageSticker = useEntityById("stickers", message.stickerId);
+    const displayedMessage = draftMessage && !hideDraftMessage ? draftMessage : message;
 
-    if (message.deleted) {
+    if (displayedMessage.deleted) {
         return <i>{l("message.deleted")}</i>;
     }
 
-    const messageSenderName = messageSender.firstName;
+    const messageSenderName = draftMessage ? l("message.draft") : messageSender.firstName;
+    const messageSenderClass = draftMessage ? classes.draftMessage : undefined;
 
-    if (messageSticker) {
-        return renderSticker(messageSenderName, messageSticker, parseEmoji, l);
+    if (!draftMessage && messageSticker) {
+        return renderSticker(messageSenderName, messageSticker, selectedEmojiSet, l);
     }
 
-    if (message.text && message.text.length !== 0) {
-        return renderText(messageSenderName, message, messageId, parseEmoji);
+    if (displayedMessage.text && displayedMessage.text.length !== 0) {
+        return renderText(messageSenderName, displayedMessage, messageSenderClass);
     }
 
     if (messageUploads.length !== 0) {
         if (messageUploads.length === 1) {
-            return renderMessageWithSingleUpload(messageSenderName, messageUploads[0], l);
+            return renderMessageWithSingleUpload(messageSenderName, messageUploads[0], l, messageSenderClass);
         } else {
-            return renderMessageWithMultipleUploads(messageSenderName, message, l);
+            return renderMessageWithMultipleUploads(messageSenderName, displayedMessage, l, messageSenderClass);
         }
     }
 
@@ -77,24 +83,47 @@ export const ChatListMessagePreview: FunctionComponent<ChatListMessagePreviewPro
     );
 });
 
-const renderSticker = (senderName: string, sticker: StickerEntity, parseEmoji: ParseEmojiFunction, l: TranslationFunction): ReactElement => (
+const renderSticker = (
+    senderName: string,
+    sticker: StickerEntity,
+    emojiSet: EmojiSet,
+    l: TranslationFunction
+): ReactElement => (
     <Fragment>
         {senderName}
         {": "}
-        {sticker.emojis.length !== 0 && parseEmoji((sticker.emojis[0] as any).native)}
+        {sticker.emojiIds.length !== 0 && (
+            <em-emoji size="20"
+                      id={sticker.emojis[sticker.emojiIds[0]].id}
+                      set={emojiSet}
+            />
+        )}
         {` [${l("sticker")}]`}
     </Fragment>
 );
 
-const renderText = (senderName: string, message: MessageEntity, messageId: string, parseEmoji: ParseEmojiFunction): ReactElement =>  (
+const renderText = (senderName: string, message: MessageEntity, senderClass?: string): ReactElement =>  (
     <Fragment>
-        {senderName}
+        {senderClass ? <span className={senderClass}>{senderName}</span> : senderName}
         {": "}
-        {parseEmoji(message.text, message.emoji, undefined, emoji => `chatList-${messageId}`)}
+        <MarkdownTextWithEmoji text={message.text}
+                               emojiData={message.emoji}
+                               renderParagraphsAsSpan
+                               renderHeadersAsPlainText
+                               renderQuotesAsPlainText
+                               renderLinksAsPlainText
+                               renderCodeAsPlainText
+                               disableRemarkBreaks
+        />
     </Fragment>
 );
 
-const renderMessageWithSingleUpload = (senderName: string, upload: Upload<any>, l: TranslationFunction): ReactElement => {
+const renderMessageWithSingleUpload = (
+    senderName: string,
+    upload: Upload<any>,
+    l: TranslationFunction,
+    senderClass?: string
+): ReactElement => {
     let uploadDisplay: ReactNode;
 
     switch (upload.type) {
@@ -149,14 +178,19 @@ const renderMessageWithSingleUpload = (senderName: string, upload: Upload<any>, 
 
     return (
         <Fragment>
-            {senderName}
+            {senderClass ? <span className={senderClass}>{senderName}</span> : senderName}
             {": "}
             {uploadDisplay}
         </Fragment>
     );
 };
 
-const renderMessageWithMultipleUploads = (senderName: string, message: MessageEntity, l: TranslationFunction): ReactElement => {
+const renderMessageWithMultipleUploads = (
+    senderName: string,
+    message: MessageEntity,
+    l: TranslationFunction,
+    senderClass?: string
+): ReactElement => {
     const imagesText = message.imagesCount !== 0
         ? `${message.imagesCount} ${l(getSingularOrPluralLabel(message.imagesCount, "message.attachments.image"))}`
         : "";
@@ -179,7 +213,7 @@ const renderMessageWithMultipleUploads = (senderName: string, message: MessageEn
 
     return  (
         <Fragment>
-            {senderName}
+            {senderClass ? <span className={senderClass}>{senderName}</span> : senderName}
             {": "}
             {attachmentsText}
         </Fragment>

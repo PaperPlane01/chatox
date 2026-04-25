@@ -1,14 +1,14 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Card, CardActions, CardContent, CardHeader, CircularProgress, Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {JoinChatRequestsList} from "./JoinChatRequestsList";
 import {ApproveSelectedJoinChatRequestsButton} from "./ApproveSelectedJoinChatRequestsButton";
 import {RejectSelectedJoinChatRequestsButton} from "./RejectSelectedJoinChatRequestsButton";
 import {useLocalization, useStore} from "../../store";
 import {commonStyles} from "../../style";
 
-const useClasses = makeStyles((theme: Theme) => createStyles({
+const useClasses = makeStyles()((theme: Theme) => ({
     cardActions: {
         display: "flex",
         flexDirection: "column",
@@ -20,7 +20,8 @@ const useClasses = makeStyles((theme: Theme) => createStyles({
         flexDirection: "row",
         alignItems: "center",
         gap: theme.spacing(1)
-    }
+    },
+    centered: commonStyles.centered
 }));
 
 export const JoinChatRequestsCard: FunctionComponent = observer(() => {
@@ -36,17 +37,17 @@ export const JoinChatRequestsCard: FunctionComponent = observer(() => {
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useClasses();
+    const {classes} = useClasses();
 
     return (
         <Card>
             <CardHeader title={l("chat.join.requests")}/>
             <CardContent>
                 <JoinChatRequestsList/>
-                {pending && <CircularProgress size={25} color="primary" style={commonStyles.centered}/>}
+                {pending && <CircularProgress size={25} color="primary" className={classes.centered}/>}
                 {joinChatRequestsIds.length === 0 && !pending && !error && (
                     <Typography color="textSecondary"
-                                style={commonStyles.centered}
+                                className={classes.centered}
                     >
                         {l("chat.join.requests.empty")}
                     </Typography>

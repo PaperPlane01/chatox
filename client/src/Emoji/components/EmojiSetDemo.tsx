@@ -1,9 +1,8 @@
-import React, {FunctionComponent, Fragment} from "react";
-import {Emoji} from "emoji-mart";
-import {ExtendedEmojiSet} from "../types";
+import React, {Fragment, FunctionComponent} from "react";
+import {EmojiSet} from "../types";
 
 interface EmojiSetDemoProps {
-    set: ExtendedEmojiSet
+    set: EmojiSet
 }
 
 const DEMO_EMOJI = [
@@ -16,11 +15,16 @@ const DEMO_EMOJI = [
 
 export const EmojiSetDemo: FunctionComponent<EmojiSetDemoProps> = ({set}) => {
     const emojiSet = set === "native" ? undefined : set;
-    const native = set === "native";
 
     return (
         <Fragment>
-            {DEMO_EMOJI.map(emojiCode => <Emoji size={20} emoji={emojiCode} set={emojiSet} native={native}/>)}
+            {DEMO_EMOJI.map(emojiCode => (
+                <em-emoji key={emojiCode}
+                          size="20"
+                          id={emojiCode}
+                          set={emojiSet}
+                />
+            ))}
         </Fragment>
     );
 };

@@ -6,17 +6,17 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
 data class ChatParticipantsCount(
-        @Id
-        val id: String,
+    @Id
+    val id: String,
 
-        @Indexed
-        val chatId: String,
+    @Indexed
+    val chatId: String,
 
-        val participantsCount: Int = 0,
-        val onlineParticipantsCount: Int = 0,
-        val hideFromSearch: Boolean = false
+    val participantsCount: Int = 0,
+    val onlineParticipantsCount: Int = 0,
+    val hideFromSearch: Boolean = false
 ) {
-        companion object {
-                val EMPTY = ChatParticipantsCount("", "", 0, 0)
-        }
+    companion object {
+        val EMPTY = ChatParticipantsCount("", "", 0, 0)
+    }
 }

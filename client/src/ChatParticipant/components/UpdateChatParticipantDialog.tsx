@@ -1,9 +1,10 @@
 import React, {FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
-import {DialogTitle, Dialog, DialogContent, DialogActions, Button, CircularProgress, Typography} from "@mui/material";
+import {Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from "@mui/material";
 import {useSnackbar} from "notistack";
 import {ChatRoleSelect} from "../../ChatRole";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 import {getUserDisplayedName} from "../../User/utils/labels";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
@@ -33,11 +34,6 @@ export const UpdateChatParticipantDialog: FunctionComponent = observer(() => {
             setShowSnackbar,
             setFormValue,
             submitForm
-        },
-        entities: {
-            users: {
-                findById: findUser
-            }
         }
     } = useStore();
     const {l} = useLocalization();
@@ -53,11 +49,11 @@ export const UpdateChatParticipantDialog: FunctionComponent = observer(() => {
         }
     );
 
-    if (!updatedParticipant) {
+    const updatedUser = useEntityById("users", updatedParticipant?.userId);
+
+    if (!updatedUser) {
         return null;
     }
-
-    const updatedUser = findUser(updatedParticipant.userId);
 
     const handleClose = (): void => {
         setUpdateChatParticipantDialogOpen(false);

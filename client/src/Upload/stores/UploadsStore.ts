@@ -3,7 +3,7 @@ import {AbstractEntityStore} from "../../entity-store";
 import {
     AudioUploadMetadata,
     GifUploadMetadata,
-    ImageUploadMetadata,
+    ImageUploadMetadata, StickerUploadMetadata,
     Upload,
     VideoUploadMetadata
 } from "../../api/types/response";
@@ -11,6 +11,10 @@ import {EntitiesPatch} from "../../entities-store";
 
 export class UploadsStore extends AbstractEntityStore<"uploads", Upload<any>, Upload<any>> {
     findImage = computedFn((id: string) => this.findById(id) as Upload<ImageUploadMetadata>);
+
+    findSticker = computedFn((id: string) => this.findById(id) as Upload<StickerUploadMetadata>);
+
+    findStickers = computedFn((ids: string[]) => this.findAllById(ids) as Array<Upload<StickerUploadMetadata>>);
 
     findGif = computedFn((id: string) => this.findById(id) as Upload<GifUploadMetadata>);
 

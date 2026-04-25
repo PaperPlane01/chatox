@@ -1,7 +1,6 @@
 package chatox.chat.model
 
 import com.fasterxml.jackson.annotation.JsonCreator
-import java.lang.IllegalArgumentException
 
 enum class StandardChatRole(val level: Int) {
     NOT_PARTICIPANT(0),

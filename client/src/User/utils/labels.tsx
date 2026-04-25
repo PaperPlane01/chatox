@@ -15,7 +15,7 @@ export const getUserAvatarLabel = (user: WithFirstNameAndLastName): string => {
 };
 
 
-export const getUserDisplayedName = (user: {firstName: string, lastName?: string}): string => {
+export const getUserDisplayedName = (user: WithFirstNameAndLastName): string => {
     if (isStringEmpty(user.lastName)) {
         return `${user.firstName}`;
     } else {

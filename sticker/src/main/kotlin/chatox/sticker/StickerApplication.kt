@@ -10,5 +10,5 @@ import org.springframework.context.annotation.Import
 class StickerApplication
 
 fun main(args: Array<String>) {
-	runApplication<StickerApplication>(*args)
+    runApplication<StickerApplication>(*args)
 }

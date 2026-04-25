@@ -8,7 +8,7 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 interface ChatParticipantsCountRepository : ReactiveMongoRepository<ChatParticipantsCount, String>,
-        ChatParticipantsCountCustomRepository {
+    ChatParticipantsCountCustomRepository {
     fun findByChatId(chatId: String): Mono<ChatParticipantsCount>
     fun findByChatIdIn(chatIds: List<String>): Flux<ChatParticipantsCount>
     fun findAllByHideFromSearchFalse(pageable: Pageable): Flux<ChatParticipantsCount>

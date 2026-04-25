@@ -22,6 +22,8 @@ export const containsNotUndefinedValues = <T extends object>(object: T): boolean
 
 export const isDefined = <T>(value: T | undefined | null): value is T => value !== null && value !== undefined;
 
+export const isPromise = <T>(value: any): value is Promise<T> => Boolean(value && typeof value.then === "function");
+
 export const mergeCustomizer = (object: unknown, source: unknown): unknown => {
     if (Array.isArray(object)) {
         return union(object, source as Array<any>);

@@ -6,29 +6,20 @@ import {CancelChatBlockingButton} from "./CancelChatBlockingButton";
 import {UpdateChatBlockingButton} from "./UpdateChatBlockingButton";
 import {isChatBlockingActive} from "../utils";
 import {UserLink} from "../../UserLink";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization} from "../../store";
+import {useEntityById} from "../../entities";
 
 interface ChatBlockingsTableRowProps {
     chatBlockingId: string
 }
 
 export const ChatBlockingsTableRow: FunctionComponent<ChatBlockingsTableRowProps> = observer(({chatBlockingId}) => {
-    const {
-        entities: {
-            chatBlockings: {
-                findById: findChatBlocking
-            },
-            users: {
-                findById: findUser
-            }
-        }
-    } = useStore();
     const {dateFnsLocale} = useLocalization();
-    const chatBlocking = findChatBlocking(chatBlockingId);
-    const blockedUser = findUser(chatBlocking.blockedUserId);
-    const blockedBy = findUser(chatBlocking.blockedById);
-    const canceledBy = chatBlocking.canceledByUserId ? findUser(chatBlocking.canceledByUserId) : undefined;
-    const updatedBy = chatBlocking.lastModifiedByUserId ? findUser(chatBlocking.lastModifiedByUserId) : undefined;
+    const chatBlocking = useEntityById("chatBlockings", chatBlockingId);
+    const blockedUser = useEntityById("users", chatBlocking.blockedUserId);
+    const blockedBy = useEntityById("users", chatBlocking.blockedById);
+    const canceledBy = useEntityById("users", chatBlocking.canceledByUserId);
+    const updatedBy = useEntityById("users", chatBlocking.lastModifiedByUserId);
 
     return (
         <TableRow>

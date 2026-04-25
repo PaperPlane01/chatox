@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 class UserProfilePhotoMapper(private val uploadMapper: UploadMapper) {
 
     fun toUserProfilePhotoResponse(userProfilePhoto: UserProfilePhoto) = UserProfilePhotoResponse(
-            id = userProfilePhoto.id,
-            upload = uploadMapper.toUploadResponse(userProfilePhoto.upload)
+        id = userProfilePhoto.id,
+        upload = uploadMapper.toUploadResponse(userProfilePhoto.upload)
     )
 }

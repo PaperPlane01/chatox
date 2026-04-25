@@ -1,6 +1,7 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {connect, Socket} from "socket.io-client";
 import {proxy, Remote} from "comlink";
+import {isBefore} from "date-fns";
 import {AuthorizationStore} from "../../Authorization";
 import {EntitiesStore} from "../../entities-store";
 import {ChatApi} from "../../api";
@@ -8,6 +9,7 @@ import {
     BalanceUpdated,
     ChatDeleted,
     ChatUpdated,
+    DraftMessageDeleted,
     MessageDeleted,
     MessageRead,
     MessagesDeleted,
@@ -18,21 +20,25 @@ import {
     WebsocketEvent,
     WebsocketEventType
 } from "../../api/types/websocket";
-import {ChatBlocking, ChatParticipation, ChatRole, CurrentUser, GlobalBan, Message} from "../../api/types/response";
 import {
-    ChatOfCurrentUserEntity,
-    ChatsPreferencesStore,
-    ChatStore,
-    PendingChatsOfCurrentUserStore,
-    TypingUsersStore
-} from "../../Chat";
+    ChatBlocking,
+    ChatNotificationsSettings,
+    ChatParticipation,
+    ChatRole,
+    ChatType,
+    CurrentUser,
+    GlobalBan,
+    GlobalNotificationsSettings,
+    Message
+} from "../../api/types/response";
+import {ChatOfCurrentUserEntity, ChatStore, PendingChatsOfCurrentUserStore, TypingUsersStore} from "../../Chat";
 import {MarkMessageReadStore, MessagesListScrollPositionsStore, MessagesOfChatStore} from "../../Message";
 import {BalanceStore} from "../../Balance";
 import {LocaleStore} from "../../localization";
 import {SnackbarService} from "../../Snackbar";
 import {getSocketIoWorker, SocketIoWorker} from "../../workers";
 import {isDefined} from "../../utils/object-utils";
-import {isBefore} from "date-fns";
+import {NotificationsSettingsStore, SoundNotificationStore} from "../../Notification";
 
 type ConnectionType = "socketIo" | "sharedWorker";
 
@@ -56,10 +62,11 @@ export class WebsocketStore {
                 private readonly scrollPositionStore: MessagesListScrollPositionsStore,
                 private readonly markMessageReadStore: MarkMessageReadStore,
                 private readonly balanceStore: BalanceStore,
-                private readonly chatPreferences: ChatsPreferencesStore,
                 private readonly typingUsersStore: TypingUsersStore,
                 private readonly pendingChats: PendingChatsOfCurrentUserStore,
                 private readonly locale: LocaleStore,
+                private readonly soundNotification: SoundNotificationStore,
+                private readonly notificationsSettings: NotificationsSettingsStore,
                 private readonly snackbarService: SnackbarService) {
         makeAutoObservable(this);
 
@@ -70,7 +77,7 @@ export class WebsocketStore {
     }
 
     startListening = (): void => {
-        if (this.chatPreferences.useSharedWorker && window.SharedWorker) {
+        if (window.SharedWorker) {
             this.startListeningWithSharedWorker().then(success => {
                 if (!success) {
                     console.log("Falling back to default socket io connection");
@@ -175,33 +182,10 @@ export class WebsocketStore {
     }
     
     private createHandlers(): Map<WebsocketEventType, (websocketEvent: WebsocketEvent<any>) => void> {
-        const map = new  Map<WebsocketEventType, (websocketEvent: WebsocketEvent<any>) => void>();
+        const map = new Map<WebsocketEventType, (websocketEvent: WebsocketEvent<any>) => void>();
         map.set(
             WebsocketEventType.MESSAGE_CREATED,
-            (event: WebsocketEvent<Message>) => {
-                const message = event.payload;
-                message.previousMessageId = this.entities.chats.findById(message.chatId).lastMessage;
-                this.entities.messages.insert({
-                    ...message,
-                    readByCurrentUser: false
-                });
-
-                if (this.authorization.currentUser) {
-                    if (this.authorization.currentUser.id !== message.sender.id) {
-                        this.typingUsersStore.removeTypingUser(message.chatId, message.sender.id, true);
-
-                        if (this.chatStore.selectedChatId === message.chatId) {
-                            if (this.scrollPositionStore.getReachedBottom(message.chatId)) {
-                                this.markMessageReadStore.markMessageRead(message.id);
-                            } else {
-                                this.entities.chats.increaseUnreadMessagesCountOfChat(message.chatId);
-                            }
-                        } else {
-                            this.entities.chats.increaseUnreadMessagesCountOfChat(message.chatId);
-                        }
-                    }
-                }
-            }
+            (event: WebsocketEvent<Message>) => this.handleNewMessage(event.payload)
         );
         map.set(
             WebsocketEventType.MESSAGE_UPDATED,
@@ -344,8 +328,76 @@ export class WebsocketStore {
             WebsocketEventType.USER_JOINED_CHAT,
             (event: WebsocketEvent<ChatParticipation>) => this.handleUserJoinChat(event.payload)
         );
+        map.set(
+            WebsocketEventType.CHAT_NOTIFICATIONS_SETTINGS_UPDATED,
+            (event: WebsocketEvent<ChatNotificationsSettings>) => this.handleChatNotificationsSettingsUpdated(event.payload)
+        );
+        map.set(
+            WebsocketEventType.CHAT_NOTIFICATIONS_SETTINGS_DELETED,
+            (event: WebsocketEvent<{chatId: string}>) => this.handleChatNotificationsSettingsDeleted(event.payload.chatId)
+        );
+        map.set(
+            WebsocketEventType.GLOBAL_NOTIFICATIONS_SETTINGS_UPDATED,
+            (event: WebsocketEvent<GlobalNotificationsSettings>) => this.handleGlobalNotificationsSettingsUpdated(event.payload)
+        );
+        map.set(
+            WebsocketEventType.DRAFT_MESSAGE_CREATED,
+            (event: WebsocketEvent<Message>) => this.handleDraftMessage(event.payload)
+        );
+        map.set(
+            WebsocketEventType.DRAFT_MESSAGE_UPDATED,
+            (event: WebsocketEvent<Message>) => this.handleDraftMessage(event.payload)
+        );
+        map.set(
+            WebsocketEventType.DRAFT_MESSAGE_DELETED,
+            (event: WebsocketEvent<DraftMessageDeleted>) => this.handleDraftMessageDeleted(event.payload)
+        );
         
         return map;
+    }
+
+    private handleNewMessage(message: Message): void {
+        message.previousMessageId = this.entities.chats.findById(message.chatId).lastMessage;
+        const messageEntity = this.entities.messages.insert({
+            ...message,
+            readByCurrentUser: false
+        });
+
+        if (this.authorization.currentUser) {
+            if (this.authorization.currentUser.id !== message.sender.id) {
+                this.typingUsersStore.removeTypingUser(message.chatId, message.sender.id, true);
+                const currentUserMentioned = messageEntity.mentionedUsers
+                    .includes(this.authorization.currentUser.id);
+
+                if (this.chatStore.selectedChatId === message.chatId) {
+                    if (this.scrollPositionStore.getReachedBottom(message.chatId)) {
+                        this.markMessageReadStore.markMessageRead(message.id);
+                    } else {
+                        this.entities.chats.increaseUnreadMessagesCountOfChat(
+                            message.chatId,
+                            currentUserMentioned
+                        );
+                    }
+                } else {
+                    this.entities.chats.increaseUnreadMessagesCountOfChat(
+                        message.chatId,
+                        currentUserMentioned
+                    );
+                }
+            } else {
+                const chat = this.entities.chats.findByIdOptional(message.chatId);
+
+                if (chat?.draftMessageId !== message.id) {
+                    return;
+                }
+
+                chat.draftMessageId = undefined;
+                this.entities.chats.insertEntity(chat);
+                this.entities.draftMessages.deleteById(message.id, {hardDelete: true});
+            }
+        }
+
+        this.soundNotification.playSoundForMessage(messageEntity);
     }
 
     private processGlobalBan(globalBan: GlobalBan): void {
@@ -402,6 +454,7 @@ export class WebsocketStore {
                 return this.entities.chats.insert({
                     ...data,
                     unreadMessagesCount: 0,
+                    unreadMentionsCount: 0,
                     deleted: false
                 });
             } catch (error) {
@@ -423,10 +476,57 @@ export class WebsocketStore {
         message.readByAnyone = true;
         this.entities.messages.insertEntity(message);
 
-        if (!isDefined(chat.lastMessageReadByAnyoneCreatedAt) || isBefore(chat.lastMessageReadByAnyoneCreatedAt, message.createdAt)) {
-            chat.lastMessageReadByAnyoneCreatedAt = message.createdAt;
+
+        if (!isDefined(chat.lastMessageReadByAnyoneCreatedAt)
+            || isBefore(chat.lastMessageReadByAnyoneCreatedAt, message.createdAt)) {
+            chat.lastMessageReadByAnyoneCreatedAt = message.createdAt
             this.entities.chats.insertEntity(chat);
         }
+    }
+
+    private handleChatNotificationsSettingsUpdated = (chatNotificationsSettings: ChatNotificationsSettings): void => {
+        const chat = chatNotificationsSettings.chat;
+
+        if (chat.type === ChatType.GROUP) {
+            this.notificationsSettings.setNotificationsSettingsForGroupChat(chat.id, chatNotificationsSettings);
+        } else if (chat.type === ChatType.DIALOG) {
+            this.notificationsSettings.setNotificationSettingsForDialogChat(chat.id, chatNotificationsSettings);
+        }
+    }
+
+    private handleChatNotificationsSettingsDeleted = async (chatId: string): Promise<void> => {
+        const chat = await this.getChat(chatId);
+
+        if (!chat) {
+            return;
+        }
+
+        if (chat.type === ChatType.GROUP) {
+            this.notificationsSettings.deleteNotificationsSettingsForGroupChat(chatId);
+        } else if (chat.type === ChatType.DIALOG) {
+            this.notificationsSettings.deleteNotificationsSettingsForDialogChat(chatId);
+        }
+    }
+
+    private handleGlobalNotificationsSettingsUpdated = (globalNotificationsSettings: GlobalNotificationsSettings): void => {
+        this.notificationsSettings.setNotificationsSettings(globalNotificationsSettings);
+    }
+
+    private handleDraftMessage = (draftMessage: Message): void => {
+        this.entities.draftMessages.insert(draftMessage, {setDraftMessageToChat: true});
+    }
+
+    private handleDraftMessageDeleted = (draftMessageDeleted: DraftMessageDeleted): void => {
+        const chat = this.entities.chats.findByIdOptional(draftMessageDeleted.chatId);
+
+        if (chat?.draftMessageId !== draftMessageDeleted.draftMessageId) {
+            return;
+        }
+
+        chat.draftMessageId = undefined;
+        this.entities.chats.insertEntity(chat);
+
+        this.entities.draftMessages.deleteById(draftMessageDeleted.draftMessageId, {hardDelete: true});
     }
 
     subscribeToChat = (chatId: string) => {

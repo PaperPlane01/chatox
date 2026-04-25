@@ -1,5 +1,6 @@
 package chatox.user.service.impl
 
+import chatox.platform.util.runAsync
 import chatox.user.domain.ImageUploadMetadata
 import chatox.user.domain.Upload
 import chatox.user.domain.User
@@ -14,20 +15,21 @@ import reactor.core.publisher.Mono
 
 @Service
 class UserAvatarServiceImpl(
-        private val userRepository: UserRepository,
-        private val userEventsProducer: UserEventsProducer,
-        private val userMapper: UserMapper
-): UserAvatarService {
+    private val userRepository: UserRepository,
+    private val userEventsProducer: UserEventsProducer,
+    private val userMapper: UserMapper
+) : UserAvatarService {
 
-    override fun saveAvatar(user: User, avatar: Upload<ImageUploadMetadata>, publishUserUpdatedEvent: Boolean): Mono<User> {
+    override fun saveAvatar(
+        user: User,
+        avatar: Upload<ImageUploadMetadata>,
+        publishUserUpdatedEvent: Boolean
+    ): Mono<User> {
         return mono {
             val updatedUser = userRepository.save(user.copy(avatar = avatar)).awaitFirst()
 
             if (publishUserUpdatedEvent) {
-                Mono.fromRunnable<Unit> {
-                    userEventsProducer.userUpdated(userMapper.toUserResponse(updatedUser))
-                }
-                        .subscribe()
+                runAsync { userEventsProducer.userUpdated(userMapper.toUserResponse(updatedUser)) }
             }
 
             return@mono updatedUser
@@ -39,10 +41,7 @@ class UserAvatarServiceImpl(
             val updatedUser = userRepository.save(user.copy(avatar = null)).awaitFirst()
 
             if (publishUserUpdatedEvent) {
-                Mono.fromRunnable<Unit> {
-                    userEventsProducer.userUpdated(userMapper.toUserResponse(updatedUser))
-                }
-                        .subscribe()
+                runAsync { userEventsProducer.userUpdated(userMapper.toUserResponse(updatedUser)) }
             }
 
             return@mono updatedUser

@@ -1,12 +1,11 @@
 import {EmojiData} from "emoji-mart";
 import {Upload} from "./Upload";
-import {ImageUploadMetadata} from "./ImageUploadMetadata";
-import {GifUploadMetadata} from "./GifUploadMetadata";
+import {StickerUploadMetadata} from "./StickerUploadMetadata";
 
 export interface Sticker {
     id: string,
     stickerPackId: string,
     keywords: string[],
     emojis: EmojiData[],
-    image: Upload<ImageUploadMetadata | GifUploadMetadata>
+    upload: Upload<StickerUploadMetadata>
 }

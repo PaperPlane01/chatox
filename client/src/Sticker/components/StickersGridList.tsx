@@ -1,34 +1,39 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {ImageList, ImageListItem} from "@mui/material";
+import {ImageList, ImageListItem, Theme, useMediaQuery} from "@mui/material";
+import {makeStyles} from "tss-react/mui";
 import {Sticker} from "./Sticker";
+import {useEntityById} from "../../entities";
 import {useStore} from "../../store";
 
 interface StickersGridListProps {
     stickerPackId: string,
-    gridListTileWidth?: number,
-    gridListTileHeight?: number
+    stickerSize?: number,
     onStickerClick?: (stickerId: string) => void
 }
 
+const useStyles = makeStyles()((theme: Theme) => ({
+    imageList: {
+        overflow: "hidden",
+        paddingLeft: theme.spacing(1),
+        paddingRight: theme.spacing(1)
+    }
+}));
+
 export const StickersGridList: FunctionComponent<StickersGridListProps> = observer(({
     stickerPackId,
-    gridListTileHeight,
-    gridListTileWidth,
+    stickerSize,
     onStickerClick
 }) => {
     const {
-        entities: {
-            stickerPacks: {
-                findById: findStickerPack
-            }
+        stickerPreviewDialog: {
+            openDialog
         }
     } = useStore();
-
-    const stickers = findStickerPack(stickerPackId).stickersIds;
-    const gridListTileStyle = gridListTileWidth && gridListTileHeight
-        ? {width: gridListTileWidth, height: gridListTileHeight}
-        : undefined;
+    const stickersPack = useEntityById("stickerPacks", stickerPackId);
+    const {classes} = useStyles();
+    const onSmallScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
+    const stickers = stickersPack.stickersIds;
 
     const handleStickerClick = (stickerId: string): void => {
         if (onStickerClick) {
@@ -37,14 +42,22 @@ export const StickersGridList: FunctionComponent<StickersGridListProps> = observ
     };
 
     return (
-        <ImageList cols={5}>
+        <ImageList cols={4}
+                   className={classes.imageList}
+                   rowHeight={100}
+        >
             {stickers.map(stickerId => (
                 <ImageListItem cols={1}
-                              key={stickerId}
-                              style={gridListTileStyle}
+                               key={stickerId}
+                               style={{
+                                   width: onSmallScreen ? 64 : 100
+                               }}
                 >
                     <Sticker stickerId={stickerId}
+                             stickerType={stickersPack.stickersType}
+                             size={stickerSize}
                              onClick={() => handleStickerClick(stickerId)}
+                             onLongClick={() => openDialog(stickerId)}
                     />
                 </ImageListItem>
             ))}

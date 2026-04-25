@@ -1,16 +1,16 @@
 import {HttpException, HttpStatus, Inject, Injectable, Logger} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {CACHE_MANAGER} from "@nestjs/cache-manager";
-import {Store} from "cache-manager";
+import {CacheManagerStore} from "cache-manager";
 import {Response} from "express";
 import {Model, Types} from "mongoose";
-import graphicsMagic, {Dimensions} from "gm";
-import {promises} from "fs";
+import {promises as fileSystem} from "fs";
 import path from "path";
 import {FileTypeResult} from "file-type";
 import {getInfo} from "gify-parse";
-import {ImageSizeRequest} from "./types/request";
-import {MultipartFile} from "../common/types/request";
+import {STANDARD_THUMBNAIL_SIZES} from "./constants";
+import {RedisFileInfo} from "../common/types";
+import {ImageSizeRequest, MultipartFile} from "../common/types/request";
 import {config} from "../config";
 import {GifUploadMetadata, ImageUploadMetadata, Upload, UploadDocument, UploadType} from "../uploads";
 import {UploadMapper} from "../uploads/mappers";
@@ -19,10 +19,7 @@ import {generateFileInfoCacheKey} from "../utils/cache-utils";
 import {getFileType, streamFileToResponse} from "../utils/file-utils";
 import {mapAsync} from "../utils/map-async";
 import {User} from "../auth";
-
-const fileSystem = promises;
-
-const gm = graphicsMagic.subClass({imageMagick: true});
+import {GraphicsMagicService} from "../graphics-magic";
 
 interface SaveImageOptions {
     fileId: Types.ObjectId,
@@ -30,12 +27,6 @@ interface SaveImageOptions {
     fileInfo: FileTypeResult,
     multipartFile: MultipartFile,
     userId: string
-}
-
-interface RedisFileInfo {
-    name: string,
-    mimeType: string,
-    thumbnail?: boolean
 }
 
 const SUPPORTED_IMAGES_FORMATS = [
@@ -48,61 +39,59 @@ const SUPPORTED_IMAGES_FORMATS = [
 
 const isImageFormatSupported = (imageFormat: string) => SUPPORTED_IMAGES_FORMATS.includes(imageFormat.trim().toLowerCase());
 
-const STANDARD_THUMBNAIL_SIZES = [64, 128, 256, 300, 400, 512, 1024, 2048];
-
 @Injectable()
 export class ImagesUploadService {
     private readonly log = new Logger(ImagesUploadService.name);
 
     constructor(@InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<ImageUploadMetadata | GifUploadMetadata>>,
                 private readonly uploadMapper: UploadMapper,
-                @Inject(CACHE_MANAGER) private readonly cacheManager: Store) {}
+                @Inject(CACHE_MANAGER) private readonly cacheManager: CacheManagerStore,
+                private readonly graphicsMagicService: GraphicsMagicService) {}
 
     public async uploadImage(multipartFile: MultipartFile, currentUser: User): Promise<UploadResponse<ImageUploadMetadata | GifUploadMetadata>> {
-        return new Promise<UploadResponse<ImageUploadMetadata | GifUploadMetadata>>(async resolve => {
-            const id = new Types.ObjectId();
-            const temporaryFilePath = path.join(config.IMAGES_DIRECTORY, `${id.toHexString()}.tmp`);
-            const fileHandle = await fileSystem.open(temporaryFilePath, "w");
-            await fileSystem.writeFile(fileHandle, multipartFile.buffer);
-            await fileHandle.close();
+        const id = new Types.ObjectId();
+        const temporaryFilePath = path.join(config.IMAGES_DIRECTORY, `${id.toHexString()}.tmp`);
+        const fileHandle = await fileSystem.open(temporaryFilePath, "w");
+        await fileSystem.writeFile(fileHandle, multipartFile.buffer);
+        await fileHandle.close();
 
-            const fileInfo = await getFileType(temporaryFilePath);
+        const fileInfo = await getFileType(temporaryFilePath);
 
-            if (fileInfo.mime.startsWith("image")) {
-                if (fileInfo.ext !== "gif") {
-                    if (!isImageFormatSupported(fileInfo.ext)) {
-                        throw new HttpException(
-                            `Format ${fileInfo.ext} is not supported`,
-                            HttpStatus.BAD_REQUEST
-                        );
-                    }
-                    resolve(this.saveImage({
-                        fileId: id,
-                        fileInfo,
-                        filePath: temporaryFilePath,
-                        multipartFile,
-                        userId: currentUser.id
-                    }))
-                } else {
-                    resolve(this.saveGif({
-                        fileId: id,
-                        fileInfo,
-                        filePath: temporaryFilePath,
-                        multipartFile,
-                        userId: currentUser.id
-                    }))
-                }
-            } else {
-                throw new HttpException(
-                    `Could not identify uploaded file as image. It may be corrupted or may not be image at all`,
-                    HttpStatus.BAD_REQUEST
-                )
-            }
-        })
+        if (!fileInfo.mime.startsWith("image")) {
+            throw new HttpException(
+                `Could not identify uploaded file as image. It may be corrupted or may not be image at all`,
+                HttpStatus.BAD_REQUEST
+            );
+        }
+
+        if (!isImageFormatSupported(fileInfo.ext)) {
+            throw new HttpException(
+                `Format ${fileInfo.ext} is not supported`,
+                HttpStatus.BAD_REQUEST
+            );
+        }
+
+        if (fileInfo.ext !== "gif") {
+            return await this.saveImage({
+                fileId: id,
+                fileInfo,
+                filePath: temporaryFilePath,
+                multipartFile,
+                userId: currentUser.id
+            });
+        } else {
+            return await this.saveGif({
+                fileId: id,
+                fileInfo,
+                filePath: temporaryFilePath,
+                multipartFile,
+                userId: currentUser.id
+            });
+        }
     }
 
     private async saveImage(options: SaveImageOptions): Promise<UploadResponse<ImageUploadMetadata>> {
-       const imageDimensions = await this.getImageDimensions(options.filePath);
+       const imageDimensions = await this.graphicsMagicService.getImageDimensions(options.filePath);
        const thumbnails = await mapAsync(
            STANDARD_THUMBNAIL_SIZES.filter(size => size < imageDimensions.width),
            size => this.generateThumbnail(
@@ -138,18 +127,6 @@ export class ImagesUploadService {
        });
        await new this.uploadModel(image).save();
        return this.uploadMapper.toUploadResponse(image);
-    }
-
-    private getImageDimensions(filePath: string): Promise<Dimensions> {
-        return new Promise<Dimensions>((resolve, reject) => {
-            gm(filePath)
-                .size((error, dimensions) => {
-                    if (error) {
-                        reject(error);
-                    }
-                    resolve(dimensions);
-                })
-        })
     }
 
     private async saveGif(options: SaveImageOptions): Promise<UploadResponse<ImageUploadMetadata | GifUploadMetadata>> {
@@ -209,58 +186,37 @@ export class ImagesUploadService {
         return this.uploadMapper.toUploadResponse(gif);
     }
 
-    private generateThumbnail(
+    private async generateThumbnail(
         originalImagePath: string,
         originalImageInfo: FileTypeResult & ImageUploadMetadata & {id: Types.ObjectId},
         size: number
     ): Promise<Upload<ImageUploadMetadata>> {
-        return new Promise<Upload<ImageUploadMetadata>>(async (resolve, reject) => {
-            const id = new Types.ObjectId();
-            const idString = id.toHexString();
+        const id = new Types.ObjectId();
+        const idString = id.toHexString();
 
-            if (originalImageInfo.ext === "gif") {
-                const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${idString}.jpg`);
-
-                gm(`${originalImagePath}[0]`)
-                    .resize(size)
-                    .write(thumbnailPath, async error => {
-                        if (error) {
-                            reject(error);
-                        }
-                        resolve(this.saveThumbnailOrPreview(id, thumbnailPath, {isPreview: false, isThumbnail: true}));
-                    })
-            } else {
-                const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${idString}.${originalImageInfo.ext}`);
-
-                gm(originalImagePath).resize(size)
-                    .write(thumbnailPath, async error => {
-                        if (error) {
-                            reject(error);
-                        }
-                        resolve(this.saveThumbnailOrPreview(id, thumbnailPath, {isThumbnail: true, isPreview: false}))
-                    });
-            }
-        })
+        if (originalImageInfo.ext === "gif") {
+            const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${idString}.jpg`);
+            await this.graphicsMagicService.createGifThumbnail(originalImagePath, thumbnailPath, size);
+        } else {
+            const thumbnailPath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, `${idString}.${originalImageInfo.ext}`);
+            await this.graphicsMagicService.createImageThumbnail(originalImagePath, thumbnailPath, size);
+            return await this.saveThumbnailOrPreview(id, thumbnailPath, {isThumbnail: true, isPreview: false})
+        }
     }
 
     private async generateGifPreview(gifPath: string): Promise<Upload<ImageUploadMetadata>> {
-        return new Promise<Upload<ImageUploadMetadata>>((resolve, reject) => {
-            const id = new Types.ObjectId();
-            const previewPath = path.join(config.IMAGES_DIRECTORY, `${id.toHexString()}.jpg`);
-
-            gm(`${gifPath}[0]`)
-                .write(previewPath, async error => {
-                    if (error) {
-                        reject(error);
-                    }
-
-                    resolve(this.saveThumbnailOrPreview(id, previewPath, {isThumbnail: false, isPreview: false}));
-                })
-        })
+        const id = new Types.ObjectId();
+        const previewPath = path.join(config.IMAGES_DIRECTORY, `${id.toHexString()}.jpg`);
+        await this.graphicsMagicService.writeFirstFrame(gifPath, previewPath);
+        return await this.saveThumbnailOrPreview(id, previewPath, {isThumbnail: false, isPreview: true});
     }
 
-    private async saveThumbnailOrPreview(id: Types.ObjectId, path: string, options: {isThumbnail: boolean, isPreview: boolean}): Promise<Upload<ImageUploadMetadata>> {
-        const dimensions = await this.getImageDimensions(path);
+    private async saveThumbnailOrPreview(
+        id: Types.ObjectId,
+        path: string,
+        options: {isThumbnail: boolean, isPreview: boolean}
+    ): Promise<Upload<ImageUploadMetadata>> {
+        const dimensions = await this.graphicsMagicService.getImageDimensions(path);
         const fileInfo = await getFileType(path);
         const fileStats = await fileSystem.stat(path);
         let thumbnails: Upload<ImageUploadMetadata>[] = [];
@@ -331,22 +287,20 @@ export class ImagesUploadService {
 
         if (image.isThumbnail) {
             imagePath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, imageName);
+        } else if (imageSizeRequest.size !== undefined && imageSizeRequest.size < image.meta.width){
+            const thumbnail = await this.getThumbnailOrCreateNew(image, imageSizeRequest.size);
+            await this.cacheManager.set(cacheKey, {
+                name: thumbnail.name,
+                mimeType: thumbnail.mimeType,
+                thumbnail: true
+            });
+            imagePath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, thumbnail.name);
         } else {
-            if (imageSizeRequest.size !== undefined && imageSizeRequest.size < image.meta.width) {
-                const thumbnail = await this.getThumbnailOrCreateNew(image, imageSizeRequest.size);
-                await this.cacheManager.set(cacheKey, {
-                    name: thumbnail.name,
-                    mimeType: thumbnail.mimeType,
-                    thumbnail: true
-                });
-                imagePath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, thumbnail.name);
-            } else {
-                await this.cacheManager.set(cacheKey, {
-                    name: imageName,
-                    mimeType: image.mimeType
-                });
-                imagePath = path.join(config.IMAGES_DIRECTORY, imageName);
-            }
+            await this.cacheManager.set(cacheKey, {
+                name: imageName,
+                mimeType: image.mimeType
+            });
+            imagePath = path.join(config.IMAGES_DIRECTORY, imageName);
         }
 
         await streamFileToResponse(imagePath, response, this.log);

@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Hidden} from "@mui/material";
+import {Box} from "@mui/material";
 import {ChatsAndMessagesSearchButton} from "./ChatsAndMessagesSearchButton";
 import {ChatsAndMessagesSearchInput} from "./ChatsAndMessagesSearchInput";
 import {useStore} from "../../store";
@@ -13,11 +13,16 @@ export const ChatsAndMessagesSearchInputWrapper: FunctionComponent = observer(()
     } = useStore();
 
     return (
-        <Hidden lgUp>
-            {showInput
-                ? <ChatsAndMessagesSearchInput alwaysShowClearButton variant="standard"/>
-                : <ChatsAndMessagesSearchButton/>
-            }
-        </Hidden>
+       <Box sx={{
+           display: {
+               lg: "none",
+               xs: "block",
+           }
+       }}>
+           {showInput
+               ? <ChatsAndMessagesSearchInput alwaysShowClearButton variant="standard"/>
+               : <ChatsAndMessagesSearchButton/>
+           }
+       </Box>
     )
 })

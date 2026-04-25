@@ -4,7 +4,7 @@ import {CACHE_MANAGER} from "@nestjs/cache-manager";
 import {Model} from "mongoose";
 import path from "path";
 import {promises} from "fs";
-import {Store} from "cache-manager";
+import {CacheManagerStore} from "cache-manager";
 import {addDays, addHours} from "date-fns";
 import {Upload, UploadDocument, UploadType} from "./entities";
 import {UploadMapper} from "./mappers";
@@ -28,7 +28,7 @@ export class UploadsService {
     constructor(@InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<any>>,
                 @InjectModel(UploadReference.name) private readonly uploadReferenceModel: Model<UploadReferenceDocument>,
                 private readonly uploadMapper: UploadMapper,
-                @Inject(CACHE_MANAGER) private readonly cacheManager: Store,
+                @Inject(CACHE_MANAGER) private readonly cacheManager: CacheManagerStore,
                 private readonly uploadEventsPublisher: UploadEventsPublisher) {
     }
 
@@ -95,6 +95,17 @@ export class UploadsService {
         return upload;
     }
 
+    public async getUploadsByIds(uploadIds: string[]): Promise<Array<UploadResponse<any>>> {
+        const uploads = await this.uploadModel.find({
+            id: {
+                $in: uploadIds
+            }
+        })
+            .exec();
+
+        return uploads.map(upload => this.uploadMapper.toUploadResponse(upload));
+    }
+
     private async deleteUploadFromDatabase(upload: UploadDocument<any>): Promise<void> {
         this.log.verbose(`Deleting upload ${upload.id} from database`);
         await upload.deleteOne();
@@ -110,34 +121,20 @@ export class UploadsService {
     }
 
     private async deleteUploadFromFileSystem(upload: UploadDocument<any>): Promise<void> {
-        let directory: string;
-
-        switch (upload.type) {
-            case UploadType.AUDIO:
-            case UploadType.VOICE_MESSAGE:
-                directory = config.AUDIOS_DIRECTORY;
-                break;
-            case UploadType.IMAGE:
-            case UploadType.GIF:
-                directory = config.IMAGES_DIRECTORY
-                break;
-            case UploadType.VIDEO:
-                directory = config.VIDEOS_DIRECTORY;
-                break;
-            case UploadType.FILE:
-            default:
-                directory = config.FILES_DIRECTORY;
-                break;
-        }
+        const directory = config.getUploadDirectory(upload.type);
 
        try {
            const uploadPath = path.join(directory, upload.name);
 
            await promises.unlink(uploadPath);
 
+           const thumbnailDirectory = upload.type === UploadType.WEBP_STICKER || UploadType.IMAGE_STICKER
+               ? config.STICKERS_THUMBNAILS_DIRECTORY
+               : config.IMAGES_DIRECTORY;
+
            await forEachAsync(
                upload.thumbnails,
-               async thumbnail => await promises.unlink(path.join(config.IMAGES_THUMBNAILS_DIRECTORY, thumbnail.name))
+               async thumbnail => await promises.unlink(path.join(thumbnailDirectory, thumbnail.name))
            );
 
            if (upload.previewImage) {

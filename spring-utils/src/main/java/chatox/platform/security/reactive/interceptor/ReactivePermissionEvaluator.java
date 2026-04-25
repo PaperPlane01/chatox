@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ReactivePermissionEvaluator implements ApplicationContextAware {
     private ApplicationContext applicationContext;
+    private static final String ACCESS_DENIED = "Access denied";
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -30,7 +31,8 @@ public class ReactivePermissionEvaluator implements ApplicationContextAware {
     }
 
     @Around("@annotation(reactivePermissionCheck)")
-    public Object checkPermissions(ProceedingJoinPoint proceedingJoinPoint, ReactivePermissionCheck reactivePermissionCheck) throws Throwable {
+    public Object checkPermissions(ProceedingJoinPoint proceedingJoinPoint,
+                                   ReactivePermissionCheck reactivePermissionCheck) {
         log.debug("Evaluating reactive permission expression");
 
         var signature = (CodeSignature) proceedingJoinPoint.getSignature();
@@ -55,32 +57,42 @@ public class ReactivePermissionEvaluator implements ApplicationContextAware {
 
         var evaluationResult = (Mono<Boolean>) expressionParser.parseExpression(expression).getValue(evaluationContext);
 
-        if (Mono.class.isAssignableFrom(returnType)) {
-            return evaluationResult.flatMap(result -> {
-                log.debug("Permission evaluation result is {}", result);
-                if (result) {
-                    try {
-                        return (Mono) proceedingJoinPoint.proceed();
-                    } catch (Throwable throwable) {
-                        return Mono.error(throwable);
-                    }
-                } else {
-                    return Mono.error(new AccessDeniedException("Access denied"));
-                }
-            });
-        } else {
-            return evaluationResult.flatMapMany(result -> {
-                log.debug("Permission evaluation result is {}", result);
-                if (result) {
-                    try {
-                        return (Flux) proceedingJoinPoint.proceed();
-                    } catch (Throwable throwable) {
-                        return Mono.error(throwable);
-                    }
-                } else {
-                    return Mono.error(new AccessDeniedException("Access denied"));
-                }
-            });
+        if (evaluationResult == null) {
+            return Mono.error(new AccessDeniedException(ACCESS_DENIED));
         }
+
+        if (Mono.class.isAssignableFrom(returnType)) {
+           return evaluateAndReturnMono(evaluationResult, proceedingJoinPoint);
+        } else {
+            return evaluateAndReturnFlux(evaluationResult, proceedingJoinPoint);
+        }
+    }
+
+    private Mono<?> evaluateAndReturnMono(Mono<Boolean> evaluationResult, ProceedingJoinPoint proceedingJoinPoint) {
+        return evaluationResult.flatMap(result -> {
+            if (Boolean.FALSE.equals(result)) {
+                return Mono.error(new AccessDeniedException(ACCESS_DENIED));
+            } else {
+                try {
+                    return (Mono) proceedingJoinPoint.proceed();
+                } catch (Throwable throwable) {
+                    return Mono.error(throwable);
+                }
+            }
+        });
+    }
+
+    private Flux<?> evaluateAndReturnFlux(Mono<Boolean> evaluationResult, ProceedingJoinPoint proceedingJoinPoint) {
+        return evaluationResult.flatMapMany(result -> {
+            if (Boolean.FALSE.equals(result)) {
+                return Mono.error(new AccessDeniedException(ACCESS_DENIED));
+            } else {
+                try {
+                    return (Flux) proceedingJoinPoint.proceed();
+                } catch (Throwable throwable) {
+                    return Mono.error(throwable);
+                }
+            }
+        });
     }
 }

@@ -2,19 +2,16 @@ import {HttpException, HttpStatus, Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/mongoose";
 import {Response} from "express";
 import {Model, Types} from "mongoose";
-import graphicsMagic, {Dimensions} from "gm";
-import {promises as fileSystem, createReadStream} from "fs";
+import {createReadStream, promises as fileSystem} from "fs";
 import path from "path";
 import {MultipartFile} from "../common/types/request";
 import {config} from "../config";
-import {FfmpegWrapper} from "../ffmpeg";
+import {FfmpegService} from "../ffmpeg";
 import {ImageUploadMetadata, Upload, UploadDocument, UploadType, VideoUploadMetadata} from "../uploads";
 import {UploadMapper} from "../uploads/mappers";
 import {UploadResponse} from "../uploads/types/responses";
 import {User} from "../auth";
 import {getFileType} from "../utils/file-utils";
-
-const gm = graphicsMagic.subClass({imageMagick: true});
 
 const SUPPORTED_VIDEO_FORMATS = [
     "mp4",
@@ -35,7 +32,7 @@ const isVideoFormatSupported = (format: string): boolean => SUPPORTED_VIDEO_FORM
 export class VideosUploadService {
     constructor(@InjectModel(Upload.name) private readonly uploadModel: Model<UploadDocument<VideoUploadMetadata | ImageUploadMetadata>>,
                 private readonly uploadMapper: UploadMapper,
-                private readonly ffmpegWrapper: FfmpegWrapper) {
+                private readonly ffmpegService: FfmpegService) {
 
     }
 
@@ -58,7 +55,6 @@ export class VideosUploadService {
             await fileSystem.rename(temporaryFilePath, permanentFilePath);
             const meta = await this.getVideoMetadata(permanentFilePath);
             const previewImage = await this.saveVideoPreview(permanentFilePath);
-            const thumbnail = await this.saveVideoThumbnail(permanentFilePath);
 
             const video = new Upload({
                 _id: id,
@@ -66,14 +62,14 @@ export class VideosUploadService {
                 mimeType: fileInfo.mime,
                 meta,
                 previewImage,
-                thumbnails: [thumbnail],
+                thumbnails: previewImage.thumbnails,
                 type: UploadType.VIDEO,
                 isPreview: false,
                 isThumbnail: false,
                 originalName: multipartFile.originalname,
                 size: multipartFile.size,
                 extension: fileInfo.ext,
-                userId: currentUser!.id
+                userId: currentUser.id
             });
             await new this.uploadModel(video).save();
 
@@ -82,148 +78,16 @@ export class VideosUploadService {
     }
 
     private getVideoMetadata(videoPath: string): Promise<VideoUploadMetadata> {
-        return new Promise<VideoUploadMetadata>((resolve, reject) => {
-            this.ffmpegWrapper
-                .ffmpeg(videoPath)
-                .ffprobe((error, data) => {
-                    if (error) {
-                        reject(error);
-                    }
-
-                    const duration = data.format.duration * 1000;
-                    const streams = data.streams.sort((left, right) => {
-                        return left.width - right.width;
-                    });
-
-                    if (streams.length === 0) {
-                        reject(new HttpException(
-                            `Video does not contain any streams`,
-                            HttpStatus.NOT_FOUND
-                        ))
-                    }
-
-                    const stream = streams[0];
-                    const width = stream.width;
-                    const height = stream.height;
-
-                    resolve({
-                        duration,
-                        width,
-                        height
-                    });
-                })
-        })
+        return this.ffmpegService.getVideoMetadata(videoPath);
     }
 
-    private saveVideoPreview(videoPath: string): Promise<Upload<ImageUploadMetadata>> {
-        return new Promise<Upload<ImageUploadMetadata>>((resolve, reject) => {
-            const imageId = new Types.ObjectId();
-            const imageName = `${imageId.toHexString()}.jpg`;
-            const imagePath = path.join(config.IMAGES_DIRECTORY, imageName);
-
-            this.ffmpegWrapper
-                .ffmpeg(videoPath)
-                .takeScreenshots({
-                    folder: config.IMAGES_DIRECTORY,
-                    filename: imageName,
-                    count: 1,
-                    timemarks: [0]
-                })
-                .on("end", async () => {
-                    const fileInfo = await getFileType(imagePath);
-                    const {width, height} = await this.getImageDimensions(imagePath);
-                    const fileStats = await fileSystem.stat(imagePath);
-                    const meta: ImageUploadMetadata = {
-                        width,
-                        height
-                    };
-                    const videoPreview = new Upload({
-                        _id: imageId,
-                        name: imageName,
-                        mimeType: fileInfo.mime,
-                        extension: fileInfo.ext,
-                        meta,
-                        type: UploadType.IMAGE,
-                        originalName: imageName,
-                        size: fileStats.size,
-                        isThumbnail: false,
-                        isPreview: true
-                    });
-                    await new this.uploadModel(videoPreview).save();
-                    resolve(videoPreview);
-                })
-                .on("error", error => {
-                    reject(error);
-                })
-        })
-    }
-
-    private saveVideoThumbnail(videoPath: string): Promise<Upload<ImageUploadMetadata>> {
-        return new Promise<Upload<ImageUploadMetadata>>((resolve, reject) => {
-            const imageId = new Types.ObjectId();
-            const imageName = `${imageId.toHexString()}.jpg`;
-            const imagePath = path.join(config.IMAGES_THUMBNAILS_DIRECTORY, imageName);
-
-            this.ffmpegWrapper
-                .ffmpeg(videoPath)
-                .takeScreenshots({
-                    folder: config.IMAGES_THUMBNAILS_DIRECTORY,
-                    filename: imageName,
-                    count: 1,
-                    timemarks: [0]
-                })
-                .on("end", async () => {
-                    await this.resizeImageToThumbnail(imagePath);
-                    const {width, height} = await this.getImageDimensions(imagePath);
-                    const fileInfo = await getFileType(imagePath);
-                    const fileStats = await fileSystem.stat(imagePath);
-                    const meta: ImageUploadMetadata = {
-                        width,
-                        height
-                    };
-                    const videoThumbnail = new Upload({
-                        _id: imageId,
-                        name: imageName,
-                        mimeType: fileInfo.mime,
-                        extension: fileInfo.ext,
-                        meta,
-                        type: UploadType.IMAGE,
-                        originalName: imageName,
-                        size: fileStats.size,
-                        isThumbnail: true,
-                        isPreview: false
-                    });
-                    await new this.uploadModel(videoThumbnail).save();
-                    resolve(videoThumbnail);
-                })
-                .on("error", error => reject(error));
-        })
-    }
-
-    private getImageDimensions(filePath: string): Promise<Dimensions> {
-        return new Promise<Dimensions>((resolve, reject) => {
-            gm(filePath)
-                .size((error, dimensions) => {
-                    if (error) {
-                        reject(error);
-                    }
-                    resolve(dimensions);
-                })
-        })
-    }
-
-    private resizeImageToThumbnail(thumbnailPath: string): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            gm(thumbnailPath)
-                .resize(200)
-                .write(thumbnailPath, error => {
-                    if (error) {
-                        reject(error);
-                    }
-
-                    resolve();
-                })
-        })
+    private async saveVideoPreview(videoPath: string): Promise<Upload<ImageUploadMetadata>> {
+        const preview = await this.ffmpegService.createVideoPreview(videoPath);
+        await this.uploadModel.insertMany([
+            preview,
+            ...preview.thumbnails
+        ]);
+        return preview;
     }
 
     public async getVideo(videoName: string, response: Response): Promise<void> {

@@ -1,0 +1,12 @@
+{
+  "id": "65db1649e870465d98e9b1f1",
+  "_class": "chatox.chat.model.UnreadMessagesCount",
+  "chatId": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+  "chatParticipationId": "619687bb0f8068005cb46b9c",
+  "lastMessageReadAt": "2024-08-25T18:31:37.736Z",
+  "lastReadMessageCreatedAt": "2024-08-25T18:31:37.727Z",
+  "lastReadMessageId": "c704a23f-1831-4da3-8338-e4fa4145e508",
+  "unreadMentionsCount": 0,
+  "unreadMessagesCount": 0,
+  "userId": "9d588b8f-205c-4123-afa3-2e72af7f00c8"
+}

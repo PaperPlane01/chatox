@@ -19,7 +19,8 @@ class SecurityConfig : AbstractReactiveSecurityConfig<User>() {
     private lateinit var userCache: ReactiveRepositoryCacheWrapper<User, String>
 
     @Bean
-    override fun reactiveAuthenticationHolder(): ReactiveAuthenticationHolder<User> = DefaultReactiveAuthenticationHolder {
-        jwt -> userCache.findById(jwt.id)
-    }
+    override fun reactiveAuthenticationHolder(): ReactiveAuthenticationHolder<User> =
+        DefaultReactiveAuthenticationHolder { jwt ->
+            userCache.findById(jwt.id)
+        }
 }

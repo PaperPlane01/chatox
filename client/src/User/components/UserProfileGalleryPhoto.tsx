@@ -1,13 +1,12 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Checkbox, ImageListItem, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
-import clsx from "clsx";
+import {makeStyles} from "tss-react/mui";
 import {useLongPress} from "use-long-press";
 import {usePermissions, useStore} from "../../store";
 import {ensureEventWontPropagate, isPointerEvent} from "../../utils/event-utils";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     imageListItem: {
         position: "relative",
         width: "auto",
@@ -26,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         top: 5,
         right: 5
     }
-}))
+}));
 
 interface UserProfileGalleryPhotoProps {
     uri: string,
@@ -57,7 +56,7 @@ export const UserProfileGalleryPhoto: FunctionComponent<UserProfileGalleryPhotoP
            canDeleteProfilePhoto
        }
    } = usePermissions();
-   const classes = useStyles();
+   const {classes, cx} = useStyles();
 
    const selectable = canDeleteProfilePhoto(userId)
    const selected = isPhotoSelected(userProfilePhotoId);
@@ -96,7 +95,7 @@ export const UserProfileGalleryPhoto: FunctionComponent<UserProfileGalleryPhotoP
    const longPressHandlers = createLongPressHandlers(`userPhoto-${userProfilePhotoId}-handlers`);
 
    return (
-       <ImageListItem className={clsx({
+       <ImageListItem className={cx({
            [classes.imageListItem]: true,
            [classes.selected]: selected
        })}

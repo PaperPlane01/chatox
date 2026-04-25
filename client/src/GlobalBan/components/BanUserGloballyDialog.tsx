@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import {useSnackbar} from "notistack";
 import {BanUserGloballyDialogBase} from "./BanUserGloballyDialogBase";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {getUserDisplayedName} from "../../User/utils/labels";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
@@ -31,11 +32,6 @@ export const BanUserGloballyDialog: FunctionComponent = observer(() => {
             setBanUserDialogOpen,
             banUser,
             setShowSnackbar
-        },
-        entities: {
-            users: {
-                findById: findUser
-            }
         }
     } = useStore();
     const {l} = useLocalization();
@@ -50,11 +46,11 @@ export const BanUserGloballyDialog: FunctionComponent = observer(() => {
         }, [showSnackbar]
     );
 
-    if (!bannedUserId) {
+    const user = useEntityById("users", bannedUserId);
+
+    if (!user) {
         return null;
     }
-
-    const user = findUser(bannedUserId);
 
     return (
         <BanUserGloballyDialogBase formValues={banUserForm}

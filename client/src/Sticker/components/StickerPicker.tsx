@@ -1,37 +1,24 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Tab, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {Tab, Theme, Typography} from "@mui/material";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
+import {makeStyles} from "tss-react/mui";
 import {useSnackbar} from "notistack";
 import {isAfter} from "date-fns";
 import {StickersGridList} from "./StickersGridList";
-import {useLocalization, useStore} from "../../store";
+import {StickerPackPreview} from "./StickerPackPreview";
+import {useLocalization, usePermissions, useStore} from "../../store";
 import {isDefined} from "../../utils/object-utils";
+import {useEntitiesByIds, useEntitiesSelector} from "../../entities";
+import {commonStyles} from "../../style";
 
 interface StickerPickerProps {
     onStickerPicked?: () => void
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
-    imageWrapper: {
-        display: "inline-block",
-        position: "relative",
-        height: "100%",
-        width: "100%",
-        cursor: "pointer"
-    },
-    image: {
-        maxWidth: "100%",
-        maxHeight: "100%",
-        height: "inherit",
-        objectFit: "contain"
-    },
-    tabRoot: {
-        width: 48,
-        height: 48,
-        minWidth: 48,
-        padding: theme.spacing(1)
+const useStyles = makeStyles()((theme: Theme) => ({
+    stickerPickerWrapper: {
+      overflow: "hidden"
     },
     tabPanelRoot: {
         overflowY: "auto",
@@ -41,21 +28,28 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
         height: 348,
         paddingLeft: 0,
         paddingRight: 0,
-    }
+        scrollbarWidth: "thin"
+    },
+    stickerPackPreview: {
+        display: "inline-block",
+        position: "relative",
+        height: "100%",
+        width: "100%",
+        cursor: "pointer"
+    },
+    tabRoot: {
+        width: 48,
+        height: 48,
+        minWidth: 48,
+        padding: theme.spacing(1)
+    },
+    centered: commonStyles.centered
 }));
 
 export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({onStickerPicked}) => {
     const {
         installedStickerPacks: {
             installedStickerPacksIds
-        },
-        entities: {
-            stickerPacks: {
-                findById: findStickerPack
-            },
-            uploads: {
-                findById: findImage
-            }
         },
         stickerPicker: {
             selectedStickerPackId,
@@ -68,12 +62,25 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const {enqueueSnackbar} = useSnackbar();
+    const stickerPacks = useEntitiesByIds("stickerPacks", installedStickerPacksIds);
+    const stickerPackPreviews = useEntitiesSelector(
+        "uploads",
+        entities => entities.uploads.findStickers(stickerPacks.map(stickerPack => stickerPack.previewId))
+    );
+    const previewMap = new Map(stickerPackPreviews.map(preview => [preview.id, preview]));
+    const {
+        messages: {
+            canSendStickers
+        }
+    } = usePermissions();
 
-    if (installedStickerPacksIds.length === 0) {
+    if (installedStickerPacksIds.length === 0 || !isDefined(selectedChatId)) {
         return null;
     }
+
+    const ableToSendStickers = canSendStickers(selectedChatId);
 
     const handleStickerSelection = (stickerId: string): void => {
         if (!selectedChatId) {
@@ -95,42 +102,53 @@ export const StickerPicker: FunctionComponent<StickerPickerProps> = observer(({o
     };
 
     return (
-        <div style={{overflow: "hidden"}}>
-            <TabContext value={selectedStickerPackId || installedStickerPacksIds[0]}>
+        <div className={classes.stickerPickerWrapper}>
+            <TabContext value={selectedStickerPackId ?? installedStickerPacksIds[0]}>
                 <TabList orientation="horizontal"
+                         variant="scrollable"
+                         scrollButtons="auto"
                          onChange={(_, newValue) => setSelectedStickerPackId(newValue)}
                 >
-                    {installedStickerPacksIds.map(stickerPackId => {
-                        const stickerPack = findStickerPack(stickerPackId);
-                        const preview = findImage(stickerPack.previewId);
-
-                        return (
-                            <Tab value={stickerPackId}
-                                 icon={
-                                     <div className={classes.imageWrapper}>
-                                         <img src={`${preview.uri}?size=64`}
-                                              className={classes.image}
-                                         />
-                                     </div>
-                                 }
-                                 classes={{
-                                     root: classes.tabRoot
-                                 }}
-                            />
-                        )
-                    })}
+                    {stickerPacks.map(stickerPack => (
+                        <Tab value={stickerPack.id}
+                             key={stickerPack.id}
+                             icon={
+                                 <div className={classes.stickerPackPreview}>
+                                     <StickerPackPreview stickersType={stickerPack.stickersType}
+                                                         upload={previewMap.get(stickerPack.previewId)!}
+                                                         width="100%"
+                                                         height="100%"
+                                     />
+                                 </div>
+                             }
+                             classes={{
+                                 root: classes.tabRoot
+                             }}
+                        />
+                    ))}
                 </TabList>
                 {installedStickerPacksIds.map(stickerPackId => (
                     <TabPanel value={stickerPackId}
                               classes={{
                                   root: classes.tabPanelRoot
                               }}
+                              key={`${stickerPackId}_tabPanel`}
                     >
-                        <StickersGridList stickerPackId={stickerPackId}
-                                          onStickerClick={handleStickerSelection}
-                                          gridListTileHeight={64}
-                                          gridListTileWidth={64}
-                        />
+                        {ableToSendStickers
+                            ? (
+                                <StickersGridList stickerPackId={stickerPackId}
+                                                  onStickerClick={handleStickerSelection}
+                                                  stickerSize={256}
+                                />
+                            )
+                            : (
+                                <Typography variant="body2"
+                                            className={classes.centered}
+                                >
+                                    {l("sticker.send.not-allowed")}
+                                </Typography>
+                            )
+                        }
                     </TabPanel>
                 ))}
             </TabContext>

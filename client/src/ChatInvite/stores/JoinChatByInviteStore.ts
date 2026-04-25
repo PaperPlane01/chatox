@@ -8,7 +8,12 @@ import {PendingChatsOfCurrentUserStore} from "../../Chat";
 import {AuthorizationStore} from "../../Authorization";
 import {RouterStoreAware, Routes} from "../../router";
 import {LocaleStore} from "../../localization";
-import {ChatInviteMinified, ChatParticipationWithoutUser, CurrentUser} from "../../api/types/response";
+import {
+    ChatInviteMinified,
+    ChatParticipationWithoutUser,
+    CurrentUser,
+    UserVerificationLevel
+} from "../../api/types/response";
 
 export class JoinChatByInviteStore implements RouterStoreAware {
     pending = false;
@@ -78,6 +83,7 @@ export class JoinChatByInviteStore implements RouterStoreAware {
             chatId: chatInvite.chat.id,
             user: {
                 ...currentUser,
+                anonymous: currentUser.verificationLevel === UserVerificationLevel.ANONYMOUS,
                 deleted: false,
                 online: true
             }

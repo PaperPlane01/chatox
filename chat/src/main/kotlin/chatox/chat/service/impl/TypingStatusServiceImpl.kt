@@ -13,19 +13,21 @@ import reactor.core.publisher.Mono
 
 @Service
 class TypingStatusServiceImpl(
-        private val chatEventsPublisher: ChatEventsPublisher,
-        private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-        private val userMapper: UserMapper
+    private val chatEventsPublisher: ChatEventsPublisher,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>,
+    private val userMapper: UserMapper
 ) : TypingStatusService {
 
     override fun publishCurrentUserStartedTyping(chatId: String): Mono<Unit> {
         return mono {
             val user = authenticationHolder.requireCurrentUser().awaitFirst()
 
-            chatEventsPublisher.userStartedTyping(UserStartedTyping(
+            chatEventsPublisher.userStartedTyping(
+                UserStartedTyping(
                     user = userMapper.toUserResponse(user),
                     chatId = chatId
-            ))
+                )
+            )
         }
     }
 }

@@ -12,7 +12,8 @@ import reactor.core.publisher.Mono
 class SecurityConfig : AbstractReactiveSecurityConfig<JwtPayload>() {
 
     @Bean
-    override fun reactiveAuthenticationHolder(): ReactiveAuthenticationHolder<JwtPayload> = DefaultReactiveAuthenticationHolder {
-        jwtPayload -> Mono.just(jwtPayload)
-    }
+    override fun reactiveAuthenticationHolder(): ReactiveAuthenticationHolder<JwtPayload> =
+        DefaultReactiveAuthenticationHolder { jwtPayload ->
+            Mono.just(jwtPayload)
+        }
 }

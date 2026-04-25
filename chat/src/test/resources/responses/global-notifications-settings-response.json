@@ -1,0 +1,140 @@
+{
+  "groupChats": {
+    "level": "MENTIONS_AND_REPLIES",
+    "sound": "new_notification_7"
+  },
+  "groupChatsExceptions": [
+    {
+      "chat": {
+        "id": "124e7bbc-a5a4-4db8-a8c4-60250fd6d926",
+        "name": "New test chat",
+        "description": "Descriptions are __overrated__ ",
+        "avatarUri": null,
+        "tags": [
+          "test",
+          " chat"
+        ],
+        "slug": "test",
+        "avatar": {
+          "id": "652e85cb65614d584404bde1",
+          "name": "652e85cb65614d584404bde1.jpg",
+          "extension": "jpg",
+          "mimeType": "image/jpeg",
+          "meta": {
+            "width": 2560,
+            "height": 1440
+          },
+          "preview": null,
+          "type": "IMAGE",
+          "originalName": "windows_xp_original-wallpaper-2560x1440 (2).jpg",
+          "uri": "http://localhost:8080/api/v1/uploads/images/652e85cb65614d584404bde1.jpg",
+          "size": 891668
+        },
+        "type": "GROUP",
+        "slowMode": {
+          "enabled": false,
+          "interval": 1,
+          "unit": "MINUTES"
+        },
+        "joinAllowanceSettings": {
+          "ANONYMOUS": "REQUIRES_APPROVAL",
+          "REGISTERED": "REQUIRES_APPROVAL",
+          "EMAIL_VERIFIED": "ALLOWED"
+        },
+        "hideFromSearch": false
+      },
+      "notificationsSettings": {
+        "level": "ALL_MESSAGES",
+        "sound": "ding"
+      },
+      "userExceptions": [
+        {
+          "user": {
+            "id": "4a6ff344-84b6-4f97-bc0b-da1f2501f323",
+            "firstName": "Test1",
+            "lastName": null,
+            "slug": "test1",
+            "avatarUri": null,
+            "deleted": false,
+            "bio": null,
+            "lastSeen": "2024-08-07T09:55:14.0995209Z",
+            "dateOfBirth": null,
+            "createdAt": "2022-01-16T07:51:58.019Z",
+            "online": false,
+            "avatar": null,
+            "anonymous": false,
+            "externalAvatarUri": null
+          },
+          "notificationsSettings": {
+            "level": "MUTED",
+            "sound": "new_notification_7"
+          }
+        }
+      ]
+    },
+    {
+      "chat": {
+        "id": "2d9ada32-1642-425c-922c-ff770ae000db",
+        "name": "Markdown test playground",
+        "description": "",
+        "avatarUri": null,
+        "tags": [],
+        "slug": "test_pg",
+        "avatar": null,
+        "type": "GROUP",
+        "slowMode": {
+          "enabled": true,
+          "interval": 5,
+          "unit": "SECONDS"
+        },
+        "joinAllowanceSettings": {},
+        "hideFromSearch": false
+      },
+      "notificationsSettings": {
+        "level": "MUTED",
+        "sound": "new_notification_7"
+      }
+    }
+  ],
+  "dialogs": {
+    "level": "ALL_MESSAGES",
+    "sound": "happy-pop-3"
+  },
+  "dialogChatsExceptions": [
+    {
+      "chat": {
+        "id": "14ca2d65-de72-4a4f-85e3-3d5e0e1f54f8",
+        "name": "dialog-4a6ff344-84b6-4f97-bc0b-da1f2501f323-9d588b8f-205c-4123-afa3-2e72af7f00c8",
+        "description": null,
+        "avatarUri": null,
+        "tags": [],
+        "slug": "14ca2d65-de72-4a4f-85e3-3d5e0e1f54f8",
+        "avatar": null,
+        "type": "DIALOG",
+        "user": {
+          "id": "4a6ff344-84b6-4f97-bc0b-da1f2501f323",
+          "firstName": "Test1",
+          "lastName": null,
+          "slug": "test1",
+          "avatarUri": null,
+          "deleted": false,
+          "bio": null,
+          "lastSeen": "2024-08-07T09:55:14.099Z",
+          "dateOfBirth": null,
+          "createdAt": "2022-01-16T07:51:58.019Z",
+          "online": false,
+          "avatar": null,
+          "anonymous": false,
+          "externalAvatarUri": null
+        },
+        "slowMode": null,
+        "joinAllowanceSettings": {},
+        "hideFromSearch": false
+      },
+      "notificationsSettings": {
+        "level": "MUTED",
+        "sound": "happy-pop-3"
+      }
+    }
+  ]
+}

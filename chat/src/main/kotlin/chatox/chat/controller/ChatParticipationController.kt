@@ -31,8 +31,8 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     @ReactivePermissionCheck("@chatParticipationPermissions.canJoinChat(#chatId)")
     @PostMapping("/{chatId}/join")
     fun joinChat(
-            @PathVariable chatId: String,
-            @RequestParam(required = false) inviteId: String?
+        @PathVariable chatId: String,
+        @RequestParam(required = false) inviteId: String?
     ) = chatParticipationService.joinChat(chatId, inviteId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
@@ -43,53 +43,59 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     fun leaveChat(@PathVariable chatId: String) = chatParticipationService.leaveChat(chatId)
 
     @GetMapping("/{chatId}/participants/online")
-    fun getOnlineChatParticipants(@PathVariable chatId: String) = chatParticipationService.findOnlineParticipants(chatId)
+    fun getOnlineChatParticipants(@PathVariable chatId: String) =
+        chatParticipationService.findOnlineParticipants(chatId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatParticipationPermissions.canKickChatParticipant(#chatId, #participationId)")
     @DeleteMapping("/{chatId}/participants/{participationId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun kickParticipant(@PathVariable chatId: String,
-                        @PathVariable participationId: String
+    fun kickParticipant(
+        @PathVariable chatId: String,
+        @PathVariable participationId: String
     ) = chatParticipationService.deleteChatParticipation(participationId, chatId)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
     //language=SpEL
     @ReactivePermissionCheck("@chatParticipationPermissions.canUpdateChatParticipant(#chatId, #participationId, #updateChatParticipationRequest)")
     @PutMapping("/{chatId}/participants/{participationId}")
-    fun updateChatParticipant(@PathVariable chatId: String,
-                              @PathVariable participationId: String,
-                              @RequestBody @Valid updateChatParticipationRequest: UpdateChatParticipationRequest
+    fun updateChatParticipant(
+        @PathVariable chatId: String,
+        @PathVariable participationId: String,
+        @RequestBody @Valid updateChatParticipationRequest: UpdateChatParticipationRequest
     ) = chatParticipationService.updateChatParticipation(participationId, chatId, updateChatParticipationRequest)
 
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["createdAt", "userOnline", "userDisplayedName"], defaultValue = "userOnline"),
-            sortingDirection = SortDirection(defaultValue = "desc")
+        sortBy = SortBy(allowed = ["createdAt", "userOnline", "userDisplayedName"], defaultValue = "userOnline"),
+        sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping("/{chatId}/participants")
-    fun getChatParticipants(@PathVariable chatId: String,
-                            paginationRequest: PaginationRequest
+    fun getChatParticipants(
+        @PathVariable chatId: String,
+        paginationRequest: PaginationRequest
     ) = chatParticipationService.findParticipantsOfChat(chatId, paginationRequest)
 
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["createdAt", "userOnline", "userDisplayedName"], defaultValue = "userOnline"),
-            sortingDirection = SortDirection(defaultValue = "desc")
+        sortBy = SortBy(allowed = ["createdAt", "userOnline", "userDisplayedName"], defaultValue = "userOnline"),
+        sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping(value = ["/{chatId}/participants"], params = ["roleId"])
-    fun getChatParticipantsWithRole(@PathVariable("chatId") chatId: String,
-                                    @RequestParam(value = "roleId", required = true) roleId: String,
-                                    paginationRequest: PaginationRequest
+    fun getChatParticipantsWithRole(
+        @PathVariable("chatId") chatId: String,
+        @RequestParam(value = "roleId", required = true) roleId: String,
+        paginationRequest: PaginationRequest
     ) = chatParticipationService.findParticipantsWithRole(chatId, roleId, paginationRequest)
 
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["createdAt", "userOnline", "userDisplayedName"], defaultValue = "userOnline"),
-            sortingDirection = SortDirection(defaultValue = "desc")
+        sortBy = SortBy(allowed = ["createdAt", "userOnline", "userDisplayedName"], defaultValue = "userOnline"),
+        sortingDirection = SortDirection(defaultValue = "desc")
     )
     @GetMapping("/{chatId}/participants/search")
-    fun searchChatParticipants(@PathVariable chatId: String,
-                               @RequestParam query: String = "",
-                               paginationRequest: PaginationRequest
+    fun searchChatParticipants(
+        @PathVariable chatId: String,
+        @RequestParam query: String = "",
+        paginationRequest: PaginationRequest
     ) = chatParticipationService.searchChatParticipants(chatId, query, paginationRequest)
 
 
@@ -97,13 +103,13 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     //language=SpEL
     @ReactivePermissionCheck("@chatParticipationPermissions.canApproveChatParticipants(#chatId)")
     @PaginationConfig(
-            sortBy = SortBy(allowed = ["createdAt"], defaultValue = "createdAt"),
-            sortingDirection = SortDirection(defaultValue = "desc", allowed = ["desc"])
+        sortBy = SortBy(allowed = ["createdAt"], defaultValue = "createdAt"),
+        sortingDirection = SortDirection(defaultValue = "desc", allowed = ["desc"])
     )
     @GetMapping("/{chatId}/participants/pending")
     fun getPendingChatParticipants(
-            @PathVariable chatId: String,
-            paginationRequest: PaginationRequest
+        @PathVariable chatId: String,
+        paginationRequest: PaginationRequest
     ) = chatParticipationService.findPendingChatParticipations(chatId, paginationRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
@@ -111,8 +117,8 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     @ReactivePermissionCheck("@chatParticipationPermissions.canApproveChatParticipants(#chatId)")
     @PutMapping("/{chatId}/participants/pending/approve")
     fun approvePendingChatParticipants(
-            @PathVariable chatId: String,
-            @RequestBody @Valid pendingChatParticipantsRequest: PendingChatParticipantsRequest
+        @PathVariable chatId: String,
+        @RequestBody @Valid pendingChatParticipantsRequest: PendingChatParticipantsRequest
     ) = chatParticipationService.approveChatParticipants(chatId, pendingChatParticipantsRequest)
 
     @PreAuthorize("hasRole('USER') or hasRole('ANONYMOUS_USER')")
@@ -121,7 +127,7 @@ class ChatParticipationController(private val chatParticipationService: ChatPart
     @DeleteMapping("/{chatId}/participants/pending/reject")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun rejectPendingChatParticipants(
-            @PathVariable chatId: String,
-            @RequestBody @Valid pendingChatParticipantsRequest: PendingChatParticipantsRequest
+        @PathVariable chatId: String,
+        @RequestBody @Valid pendingChatParticipantsRequest: PendingChatParticipantsRequest
     ) = chatParticipationService.rejectChatParticipants(chatId, pendingChatParticipantsRequest)
 }

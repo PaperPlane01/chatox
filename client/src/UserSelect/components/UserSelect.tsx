@@ -1,7 +1,7 @@
 import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
 import {TextField, Button, CircularProgress, Chip, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {SelectUserFormData} from "../types";
 import {useLocalization} from "../../store";
@@ -22,7 +22,7 @@ interface UserSelectProps {
     onClear: () => void
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     userIdContainer: {
         display: "flex",
         gap: theme.spacing(2)
@@ -39,7 +39,7 @@ export const UserSelect: FunctionComponent<UserSelectProps> = observer(({
     onClear
 }) => {
    const {l} = useLocalization();
-   const classes = useStyles();
+   const {classes} = useStyles();
 
    return (
        <Fragment>

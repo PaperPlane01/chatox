@@ -1,4 +1,4 @@
-import React, {FunctionComponent, useEffect, Fragment} from "react";
+import React, {Fragment, FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
 import {
     Button,
@@ -8,13 +8,15 @@ import {
     CardHeader,
     CircularProgress,
     InputAdornment,
-    TextField, Typography
+    TextField,
+    Typography
 } from "@mui/material";
 import {DatePicker} from "@mui/x-date-pickers";
 import {useSnackbar} from "notistack";
 import {UserAvatarUpload} from "./UserAvatarUpload";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {getGlobalBanLabel} from "../../GlobalBan/utils";
 
 interface EditProfileFormProps {
@@ -29,21 +31,12 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
             editProfileForm,
             formErrors,
             pending,
-            error,
             checkingSlugAvailability,
             avatarUploadPending,
             showSnackbar,
             setFormValue,
             setShowSnackbar,
             updateProfile
-        },
-        entities: {
-            globalBans: {
-                findById: findGlobalBan
-            },
-            users: {
-                findById: findUser
-            }
         },
         authorization: {
             currentUser,
@@ -60,11 +53,14 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
         }
     }, [showSnackbar]);
 
+    const globalBan = useEntityById("globalBans", currentUser?.globalBan?.id);
+    const globalBanCreatedBy = useEntityById("users", globalBan?.createdById);
+
     if (!currentUser) {
         return null;
     }
 
-    if (isCurrentUserBannedGlobally()) {
+    if (globalBan && globalBanCreatedBy && isCurrentUserBannedGlobally()) {
         return (
             <Fragment>
                 <Typography>
@@ -75,10 +71,10 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
                     {
 
                         getGlobalBanLabel(
-                            findGlobalBan(currentUser.globalBan!.id),
+                            globalBan,
                             l,
                             dateFnsLocale,
-                            findUser
+                            globalBanCreatedBy
                         )
                     }
                 </Typography>
@@ -114,25 +110,27 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
                            fullWidth
                            margin="dense"
                            onChange={event => setFormValue("slug", event.target.value)}
-                           InputProps={{
-                               endAdornment: checkingSlugAvailability && (
-                                   <InputAdornment position="end">
-                                       <CircularProgress size={15} color="primary"/>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: checkingSlugAvailability && (
+                                       <InputAdornment position="end">
+                                           <CircularProgress size={15} color="primary"/>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
                 <DatePicker value={editProfileForm.dateOfBirth ? editProfileForm.dateOfBirth : null}
                             disableFuture
                             openTo="year"
                             onChange={date => setFormValue("dateOfBirth", date ? date : undefined)}
-                            inputFormat="dd MMMM yyyy"
-                            renderInput={props => (
-                                <TextField {...props}
-                                           label={l("user.profile.birth-date")}
-                                           fullWidth
-                                />
-                            )}
+                            format="dd MMMM yyyy"
+                            slotProps={{
+                                textField: {
+                                    fullWidth: true,
+                                    margin: "dense"
+                                }
+                            }}
                 />
                 <TextField label={l("user.profile.bio")}
                            value={editProfileForm.bio}
@@ -141,12 +139,14 @@ export const EditProfileForm: FunctionComponent<EditProfileFormProps> = observer
                            fullWidth
                            margin="dense"
                            onChange={event => setFormValue("bio", event.target.value)}
-                           InputProps={{
-                               endAdornment: (
-                                   <InputAdornment position="end">
-                                       <OpenMarkdownPreviewDialogButton/>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: (
+                                       <InputAdornment position="end">
+                                           <OpenMarkdownPreviewDialogButton/>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                            multiline
                            rows={4}

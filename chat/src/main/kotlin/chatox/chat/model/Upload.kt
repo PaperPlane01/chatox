@@ -1,25 +1,26 @@
 package chatox.chat.model
 
+import chatox.platform.upload.UploadType
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 
 data class Upload<MetadataType>(
-        @Id
-        var id: String,
-        var name: String,
-        var originalName: String,
-        var type: UploadType,
-        var meta: MetadataType?,
-        var extension: String?,
-        var mimeType: String,
-        var size: Int,
-        @JsonProperty("isPreview")
-        var isPreview: Boolean = false,
-        var isThumbnail: Boolean,
-        @JsonProperty("imagePreview")
-        var imagePreview: Upload<ImageUploadMetadata>?,
+    @Id
+    val id: String,
+    val name: String,
+    val originalName: String,
+    val type: UploadType,
+    val meta: MetadataType?,
+    val extension: String?,
+    val mimeType: String,
+    val size: Int,
+    @param:JsonProperty("isPreview")
+    val isPreview: Boolean = false,
+    val isThumbnail: Boolean,
+    @param:JsonProperty("imagePreview")
+    val imagePreview: Upload<ImageUploadMetadata>?,
 
-        @Indexed
-        var userId: String? = null
+    @Indexed
+    val userId: String? = null
 )

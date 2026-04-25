@@ -10,17 +10,19 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class ChatInvitePermissions(private val chatRoleService: ChatRoleService,
-                            private val authenticationHolder: ReactiveAuthenticationHolder<User>) {
+class ChatInvitePermissions(
+    private val chatRoleService: ChatRoleService,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>
+) {
 
     fun canManageChatInvites(chatId: String): Mono<Boolean> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val currentUserRole = chatRoleService.getRoleOfUserInChat(
-                    userId = currentUser.id,
-                    chatId = chatId
+                userId = currentUser.id,
+                chatId = chatId
             )
-                    .awaitFirstOrNull() ?: return@mono false
+                .awaitFirstOrNull() ?: return@mono false
 
             return@mono currentUserRole.features.manageInvites.enabled
         }

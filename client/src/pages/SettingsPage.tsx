@@ -1,28 +1,26 @@
-import React, {FunctionComponent} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {Grid} from "@mui/material";
-import {Layout} from "../Layout";
-import {AppBar} from "../AppBar";
-import {SettingsContainer} from "../Settings";
-import {
-    StickerPackDialog,
-    StickerPackInstallationSnackbarManager,
-    StickerPackUninstallationSnackbarManager
-} from "../Sticker";
+import {Layout} from "../Layout/components";
+import {AppBar} from "../AppBar/components";
+import {SettingsContainer} from "../Settings/components";
+import {DeleteStickerPackDialog, StickerPackDialog, StickerPreviewDialog} from "../Sticker/components";
 
 export const SettingsPage: FunctionComponent = () => (
-    <Grid container>
-        <Grid item xs={12}>
-            <AppBar title="settings"/>
-        </Grid>
-        <Grid item xs={12}>
-            <Layout>
-                <SettingsContainer/>
-            </Layout>
+    <Fragment>
+        <Grid container>
+            <Grid size={12}>
+                <AppBar title="settings"/>
+            </Grid>
+            <Grid size={12}>
+                <Layout>
+                    <SettingsContainer/>
+                </Layout>
+            </Grid>
         </Grid>
         <StickerPackDialog/>
-        <StickerPackInstallationSnackbarManager/>
-        <StickerPackUninstallationSnackbarManager/>
-    </Grid>
+        <DeleteStickerPackDialog/>
+        <StickerPreviewDialog/>
+    </Fragment>
 );
 
 export default SettingsPage;

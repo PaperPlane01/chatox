@@ -1,16 +1,18 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
-import {useStore} from "../../store";
-import {Avatar} from "../../Avatar";
+import {makeStyles} from "tss-react/mui";
+import {StickerPackMenu} from "./StickerPackMenu";
+import {StickerPackPreview} from "./StickerPackPreview";
+import {useEntityById} from "../../entities";
+import {ImageUploadMetadata, StickerUploadMetadata, Upload} from "../../api/types/response";
 
 interface StickerPacksListItemProps {
     stickerPackId: string,
     onClick?: () => void
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     stickerPacksListItem: {
         cursor: "pointer"
     }
@@ -20,20 +22,10 @@ export const StickerPacksListItem: FunctionComponent<StickerPacksListItemProps> 
     stickerPackId,
     onClick
 }) => {
-    const {
-        entities: {
-            stickerPacks: {
-                findById: findStickerPack
-            },
-            uploads: {
-                findById: findUpload
-            }
-        }
-    } = useStore();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
-    const stickerPack = findStickerPack(stickerPackId);
-    const stickerPackPreview = findUpload(stickerPack.previewId);
+    const stickerPack = useEntityById("stickerPacks", stickerPackId);
+    const stickerPackPreview = useEntityById("uploads", stickerPack.previewId) as Upload<StickerUploadMetadata | ImageUploadMetadata>;
 
     const handleClick = (): void => {
         if (onClick) {
@@ -46,15 +38,16 @@ export const StickerPacksListItem: FunctionComponent<StickerPacksListItemProps> 
                   className={classes.stickerPacksListItem}
         >
             <ListItemAvatar>
-                <Avatar avatarLetter=""
-                        avatarColor=""
-                        shape="square"
-                        avatarUri={`${stickerPackPreview.uri}?size=256`}
+                <StickerPackPreview stickersType={stickerPack.stickersType}
+                                    upload={stickerPackPreview}
+                                    width={40}
+                                    height={40}
                 />
             </ListItemAvatar>
             <ListItemText primary={stickerPack.name}
                           secondary={stickerPack.author ? stickerPack.author : null}
             />
+            <StickerPackMenu stickerPackId={stickerPackId}/>
         </ListItem>
     );
 });

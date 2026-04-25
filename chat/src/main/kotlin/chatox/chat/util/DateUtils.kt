@@ -1,6 +1,5 @@
 package chatox.chat.util
 
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -12,7 +11,7 @@ fun isDateBeforeOrEquals(dateToCheck: Date, dateToCompareWith: Date): Boolean {
 }
 
 fun isDateBeforeOrEquals(dateToCheck: ZonedDateTime, dateToCompareWith: ZonedDateTime): Boolean {
-    return dateToCheck.isBefore(dateToCompareWith) || dateToCheck === dateToCompareWith;
+    return dateToCheck.isBefore(dateToCompareWith) || dateToCheck == dateToCompareWith;
 }
 
 fun isDateAfterOrEquals(dateToCheck: Date, dateToCompareWith: Date): Boolean {

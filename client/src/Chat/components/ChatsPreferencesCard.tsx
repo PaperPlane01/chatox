@@ -13,14 +13,16 @@ import {
     TextField,
     Typography
 } from "@mui/material";
-import {parseSendMessageButton, SendMessageButton} from "../types";
+import {MessageEditorType, parseMessageEditorType, parseSendMessageButton, SendMessageButton} from "../types";
 import {useLocalization, useStore} from "../../store";
 
 interface ChatsPreferencesCardProps {
     hideHeader?: boolean
 }
 
-export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> = observer(({hideHeader = false}) => {
+export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> = observer(({
+    hideHeader = false
+}) => {
     const {
         chatsPreferences: {
             enableVirtualScroll,
@@ -31,14 +33,16 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
             setSendMessageButton,
             enablePartialVirtualization,
             setEnablePartialVirtualization,
-            useSharedWorker,
-            setUseSharedWorker,
             sendTypingNotification,
             setSendTypingNotification,
             displayUnreadMessagesCount,
             setDisplayUnreadMessagesCount,
             displayUnreadChatsCount,
-            setDisplayUnreadChatsCount
+            setDisplayUnreadChatsCount,
+            messageEditorType,
+            setMessageEditorType,
+            saveDraftMessagesToServer,
+            setSaveDraftMessagesToServer
         }
     } = useStore();
     const {l} = useLocalization();
@@ -61,6 +65,19 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                         <FormControlLabel control={<Radio/>}
                                           label={l("settings.chat.messages.send-message-button.ENTER")}
                                           value={SendMessageButton.ENTER}
+                        />
+                    </RadioGroup>
+                    <Divider/>
+                    <RadioGroup value={messageEditorType}
+                                onChange={event => setMessageEditorType(parseMessageEditorType(event.target.value))}
+                    >
+                        <FormControlLabel control={<Radio/>}
+                                          label={l("settings.chat.messages.editor-type.PLAIN_TEXT")}
+                                          value={MessageEditorType.PLAIN_TEXT}
+                        />
+                        <FormControlLabel control={<Radio/>}
+                                          label={l("settings.chat.messages.editor-type.RICH_TEXT")}
+                                          value={MessageEditorType.RICH_TEXT}
                         />
                     </RadioGroup>
                     <FormControlLabel control={
@@ -86,8 +103,10 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                                value={virtualScrollOverscan}
                                label={l("settings.chat.virtual-scroll.overscan-value")}
                                type="number"
-                               inputProps={{
-                                   min: 0
+                               slotProps={{
+                                   htmlInput: {
+                                       min: 0
+                                   }
                                }}
                     />
                 )}
@@ -100,22 +119,6 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                                       label={l("settings.chat.virtual-scroll.enable-partial-virtualization")}
                     />
                 )}
-                <Divider/>
-                <Typography variant="h6">
-                    {l("settings.chat.server-connection")}
-                </Typography>
-                <Fragment>
-                    <FormControlLabel control={
-                        <Switch checked={useSharedWorker}
-                                onChange={() => setUseSharedWorker(!useSharedWorker)}
-                        />
-                    }
-                                      label={l("settings.chat.use-shared-worker")}
-                    />
-                    <FormHelperText>
-                        {l("settings.chat.use-shared-worker.explained")}
-                    </FormHelperText>
-                </Fragment>
                 <Divider/>
                 <Typography variant="h6">
                     {l("settings.chat.notifications")}
@@ -138,6 +141,17 @@ export const ChatsPreferencesCard: FunctionComponent<ChatsPreferencesCardProps> 
                         />
                     )}
                 </Fragment>
+                <Divider/>
+                <Typography variant="h6">
+                    {l("settings.chat.messages.draft")}
+                </Typography>
+                <FormControlLabel control={
+                    <Switch checked={saveDraftMessagesToServer}
+                            onChange={() => setSaveDraftMessagesToServer(!saveDraftMessagesToServer)}
+                    />
+                }
+                                  label={l("settings.chat.messages.draft.save-to-server")}
+                />
             </CardContent>
         </Card>
     );

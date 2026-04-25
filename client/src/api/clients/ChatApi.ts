@@ -7,6 +7,7 @@ import {
     DeleteMultipleMessagesRequest,
     PaginationRequest,
     StartPrivateChatRequest,
+    TransferChatOwnershipRequest,
     UpdateChatParticipantRequest,
     UpdateChatRequest
 } from "../types/request";
@@ -16,7 +17,8 @@ import {
     ChatDeletionReason,
     ChatOfCurrentUser,
     ChatParticipation,
-    ChatParticipationWithoutUser
+    ChatParticipationWithoutUser,
+    TransferChatOwnershipResponse
 } from "../types/response";
 import {
     CHATS,
@@ -25,6 +27,7 @@ import {
     LEAVE,
     MY,
     ONLINE,
+    OWNER,
     PARTICIPANTS,
     PENDING,
     POPULAR,
@@ -51,7 +54,7 @@ export class ChatApi {
         return axiosInstance.get(`/${CHATS}/${MY}/${PENDING}`);
     }
 
-    public static searchChatsOfCurrentUser(query: String): AxiosPromise<Chat[]> {
+    public static searchChatsOfCurrentUser(query: string): AxiosPromise<Chat[]> {
         return axiosInstance.get(`/${CHATS}/${MY}?query=${query}`);
     }
 
@@ -124,5 +127,21 @@ export class ChatApi {
 
     public static startTyping(chatId: string): AxiosPromise<void> {
         return axiosInstance.post(`/${CHATS}/${chatId}/${TYPING}`);
+    }
+
+    public static transferChatOwnership(
+        chatId: string,
+        transferChatOwnershipRequest: TransferChatOwnershipRequest,
+        confirmationToken: string
+    ): AxiosPromise<TransferChatOwnershipResponse> {
+        return axiosInstance.put(
+            `/${CHATS}/${chatId}/${OWNER}`,
+            transferChatOwnershipRequest,
+            {
+                headers: {
+                    "X-Confirmation-Token": confirmationToken
+                }
+            }
+        );
     }
 }

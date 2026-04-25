@@ -10,3 +10,4 @@ export * from "./ChatListEntry";
 export * from "./ChatLinkPropsGenerationStrategy";
 export * from "./ChatsOfCurrentUserListProps";
 export * from "./SendMessageButton";
+export * from "./MessageEditorType";

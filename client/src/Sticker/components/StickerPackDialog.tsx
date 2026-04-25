@@ -1,43 +1,39 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle} from "@mui/material";
+import {
+    Button,
+    CircularProgress,
+    CSSProperties,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle
+} from "@mui/material";
 import {StickersGridList} from "./StickersGridList";
+import {StickerPackInstallationButtons} from "./StickerPackInstallationButtons";
+import {StickerPackMenu} from "./StickerPackMenu";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
+import {commonStyles} from "../../style";
 
 export const StickerPackDialog: FunctionComponent = observer(() => {
     const {
         stickerPackDialog: {
             stickerPackId,
             stickerPackDialogOpen,
+            pending,
             setStickerPackId,
-        },
-        installedStickerPacks: {
-            isStickerPackInstalled
-        },
-        stickerPackInstallation: {
-            installStickerPack,
-            pendingInstallationsMap
-        },
-        stickerPackUninstallation: {
-            uninstallStickerPack,
-            pendingUninstallationsMap
-        },
-        entities: {
-            stickerPacks: {
-                findById: findStickerPack
-            }
         }
     } = useStore();
     const {fullScreen} = useMobileDialog();
     const {l} = useLocalization();
 
-    if (!stickerPackId) {
+    const stickerPack = useEntityById("stickerPacks", stickerPackId);
+
+    if (!stickerPack && !pending) {
         return null;
     }
-
-    const stickerPack = findStickerPack(stickerPackId);
-    const stickerPackInstalled = isStickerPackInstalled(stickerPackId);
 
     return (
         <Dialog open={stickerPackDialogOpen}
@@ -46,11 +42,21 @@ export const StickerPackDialog: FunctionComponent = observer(() => {
                 fullScreen={fullScreen}
                 onClose={() => setStickerPackId(undefined)}
         >
-            <DialogTitle>
-                {l("sticker.pack.with-name", {name: stickerPack.name})}
-            </DialogTitle>
+            {stickerPack && (
+                <DialogTitle>
+                    {l("sticker.pack.with-name", {name: stickerPack.name})}
+                    <div style={{float: "right"}}>
+                        <StickerPackMenu stickerPackId={stickerPack.id}/>
+                    </div>
+                </DialogTitle>
+            )}
             <DialogContent>
-                <StickersGridList stickerPackId={stickerPackId}/>
+                {stickerPack && (
+                    <StickersGridList stickerPackId={stickerPack.id}
+                                      stickerSize={256}
+                    />
+                )}
+                {pending && <CircularProgress size={25} style={commonStyles.centered as unknown as CSSProperties}/>}
             </DialogContent>
             <DialogActions>
                 <Button variant="text"
@@ -59,28 +65,7 @@ export const StickerPackDialog: FunctionComponent = observer(() => {
                 >
                     {l("close")}
                 </Button>
-                {stickerPackInstalled
-                    ? (
-                        <Button variant="text"
-                                color="primary"
-                                onClick={() => uninstallStickerPack(stickerPackId)}
-                                disabled={Boolean(pendingInstallationsMap[stickerPackId])}
-                        >
-                            {pendingUninstallationsMap[stickerPackId] && <CircularProgress color="primary" size={15}/>}
-                            {l("sticker.pack.uninstall")}
-                        </Button>
-                    )
-                    : (
-                        <Button variant="text"
-                                color="primary"
-                                onClick={() => installStickerPack(stickerPackId)}
-                                disabled={Boolean(pendingInstallationsMap[stickerPackId])}
-                        >
-                            {pendingInstallationsMap[stickerPackId] && <CircularProgress color="primary" size={15}/>}
-                            {l("sticker.pack.install")}
-                        </Button>
-                    )
-                }
+                {stickerPack && <StickerPackInstallationButtons stickerPackId={stickerPack.id}/>}
             </DialogActions>
         </Dialog>
     );

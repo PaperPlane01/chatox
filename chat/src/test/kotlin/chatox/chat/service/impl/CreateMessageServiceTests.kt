@@ -3,11 +3,13 @@ package chatox.chat.service.impl
 import chatox.chat.api.request.CreateMessageRequest
 import chatox.chat.api.request.ForwardMessagesRequest
 import chatox.chat.exception.MessageValidationException
+import chatox.chat.exception.StickersAreNotAllowedInDraftMessageException
 import chatox.chat.exception.metadata.LimitOfScheduledMessagesReachedException
 import chatox.chat.exception.metadata.ScheduledMessageIsTooCloseToAnotherScheduledMessageException
 import chatox.chat.mapper.MessageMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
+import chatox.chat.model.DraftMessage
 import chatox.chat.model.Message
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Upload
@@ -16,25 +18,26 @@ import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRepository
 import chatox.chat.repository.mongodb.ChatUploadAttachmentRepository
+import chatox.chat.repository.mongodb.DraftMessageRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.repository.mongodb.ScheduledMessageRepository
 import chatox.chat.repository.mongodb.StickerRepository
 import chatox.chat.repository.mongodb.UploadRepository
+import chatox.chat.service.ChatParticipationService
 import chatox.chat.service.ChatUploadAttachmentEntityService
-import chatox.chat.service.EmojiParserService
 import chatox.chat.service.MessageEntityService
 import chatox.chat.service.MessageReadService
-import chatox.chat.support.cache.MessageDataLocalCache
+import chatox.chat.service.MessageService
+import chatox.chat.service.TextParserService
 import chatox.chat.test.TestObjects
 import chatox.chat.test.mockFindMessageById
 import chatox.chat.test.mockFindStickerById
-import chatox.chat.test.mockParseEmoji
+import chatox.chat.test.mockParseText
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import chatox.platform.util.JsonLoader.loadResource
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -50,14 +53,13 @@ import org.junit.jupiter.params.provider.MethodSource
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
-import java.util.Optional
 import java.util.stream.Stream
 
 @DisplayName("CreateMessageService tests")
 @ExtendWith(MockKExtension::class)
 class CreateMessageServiceTests {
     lateinit var createMessageService: CreateMessageServiceImpl
-    
+
     val messageRepository: MessageMongoRepository = mockk()
     val scheduledMessageRepository: ScheduledMessageRepository = mockk()
     val chatMessagesCounterRepository: ChatMessagesCounterRepository = mockk()
@@ -66,11 +68,14 @@ class CreateMessageServiceTests {
     val chatParticipationRepository: ChatParticipationRepository = mockk()
     val chatUploadAttachmentRepository: ChatUploadAttachmentRepository = mockk()
     val chatRepository: ChatRepository = mockk()
+    val draftMessageRepository: DraftMessageRepository = mockk()
     val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String> = mockk()
     val messageEntityService: MessageEntityService = mockk()
     val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService = mockk()
-    val emojiParserService: EmojiParserService = mockk()
+    val textParser: TextParserService = mockk()
     val messageReadService: MessageReadService = mockk()
+    val messageService: MessageService = mockk()
+    val chatParticipationService: ChatParticipationService = mockk()
     val authenticationHolder: ReactiveAuthenticationHolder<User> = mockk()
     val messageMapper: MessageMapper = mockk()
     val chatEventsPublisher: ChatEventsPublisher = mockk()
@@ -82,30 +87,34 @@ class CreateMessageServiceTests {
     private val sticker = TestObjects.sticker()
     private val upload = TestObjects.upload()
     private val chatUploadAttachment = TestObjects.chatUploadAttachment()
-    private val emoji = TestObjects.emojiInfo()
+    private val textInfo = TestObjects.textInfo()
     private val messageResponse = TestObjects.messageResponse()
     private val messageCreated = TestObjects.messageCreated()
     private val scheduledMessage = TestObjects.scheduledMessage()
+    private val draftMessage = TestObjects.draftMessage()
 
     @BeforeEach
     fun setUp() {
         createMessageService = CreateMessageServiceImpl(
-                messageRepository,
-                scheduledMessageRepository,
-                chatMessagesCounterRepository,
-                uploadRepository,
-                stickerRepository,
-                chatParticipationRepository,
-                chatUploadAttachmentRepository,
-                chatRepository,
-                chatCacheWrapper,
-                messageEntityService,
-                chatUploadAttachmentEntityService,
-                emojiParserService,
-                messageReadService,
-                authenticationHolder,
-                messageMapper,
-                chatEventsPublisher
+            messageRepository,
+            scheduledMessageRepository,
+            chatMessagesCounterRepository,
+            uploadRepository,
+            stickerRepository,
+            chatParticipationRepository,
+            chatUploadAttachmentRepository,
+            chatRepository,
+            draftMessageRepository,
+            chatCacheWrapper,
+            messageEntityService,
+            chatUploadAttachmentEntityService,
+            textParser,
+            messageReadService,
+            messageService,
+            chatParticipationService,
+            authenticationHolder,
+            messageMapper,
+            chatEventsPublisher
         )
     }
 
@@ -130,7 +139,13 @@ class CreateMessageServiceTests {
             val chatId = "chatId"
             val index = 5L
 
-            every { chatMessagesCounterRepository.getNextCounterValue(eq(chat)) } returns Mono.just(index)
+            every {
+                draftMessageRepository.findByChatIdAndSenderId(
+                    eq(chatId),
+                    eq(jwtPayload.id)
+                )
+            }.returns(Mono.empty())
+            every { chatMessagesCounterRepository.getNextCounterValue(eq(chatId)) } returns Mono.just(index)
 
             val messageSicker = mockFindStickerById(request.stickerId, stickerRepository, sticker)
             val referredMessage = mockFindMessageById(request.referredMessageId, messageEntityService, message)
@@ -141,19 +156,41 @@ class CreateMessageServiceTests {
                 messageUploads = listOf(upload)
 
                 every { uploadRepository.findAllById<Any>(request.uploadAttachments) } returns Flux.just(upload)
-                every { chatUploadAttachmentEntityService.linkChatUploadAttachmentsToMessage(
+                every {
+                    chatUploadAttachmentEntityService.linkChatUploadAttachmentsToMessage(
                         match { ids -> ids.size == messageUploads.size },
                         any()
-                ) } returns Flux.just(chatUploadAttachment)
+                    )
+                } returns Flux.just(chatUploadAttachment)
             }
 
-            val messageEmoji = mockParseEmoji(request.text, emojiParserService, emoji)
-            
+            val textInfo = mockParseText(request.text, textParser, textInfo)
+            every {
+                chatParticipationService.getMentionedChatParticipants(
+                    chatId = eq(chatId),
+                    textInfo = eq(textInfo),
+                    excludedUsersIds = eq(listOf(jwtPayload.id))
+                )
+            } returns Flux.empty()
+
             val savedMessageSlot = slot<Message>()
             val mappedMessageSlot = slot<Message>()
-            
+
             every { messageRepository.save(capture(savedMessageSlot)) } returns Mono.just(message)
-            every { messageMapper.toMessageCreated(
+            every {
+                messageReadService.increaseUnreadMessagesCountForChat(
+                    eq(chatId),
+                    eq(listOf(chatParticipation.id))
+                )
+            } returns Mono.empty()
+            every {
+                messageReadService.readAllMessagesForCurrentUser(
+                    eq(chatParticipation),
+                    any<Message>()
+                )
+            } returns Mono.empty()
+            every {
+                messageMapper.toMessageCreated(
                     message = capture(mappedMessageSlot),
                     mapReferredMessage = any(),
                     readByCurrentUser = any(),
@@ -162,58 +199,71 @@ class CreateMessageServiceTests {
                     localChatParticipationsCache = any(),
                     localChatRolesCache = any(),
                     fromScheduled = eq(false)
-            ) } returns Mono.just(messageCreated)
+                )
+            } returns Mono.just(messageCreated)
             every { chatEventsPublisher.messageCreated(messageCreated) } returns Unit
 
             val expectedResponse = messageCreated.toMessageResponse()
 
             StepVerifier
-                    .create(createMessageService.createMessage(chatId, request))
-                    .assertNext { messageResponse ->
-                        assertEquals(expectedResponse, messageResponse)
+                .create(createMessageService.createMessage(chatId, request))
+                .assertNext { messageResponse ->
+                    assertEquals(expectedResponse, messageResponse)
 
-                        val capturedSavedMessage = savedMessageSlot.captured
-                        val capturedMappedMessage = mappedMessageSlot.captured
-                        
-                        verify(exactly = 1) { messageRepository.save(capturedSavedMessage) }
-                        assertEquals(capturedSavedMessage, capturedMappedMessage)
-                        assertEquals(request.text, capturedSavedMessage.text)
-                        assertEquals(capturedSavedMessage.senderId, jwtPayload.id)
-                        assertEquals(referredMessage?.id, capturedSavedMessage.referredMessageId)
-                        assertEquals(messageSicker, capturedSavedMessage.sticker)
-                        assertEquals(chatParticipation.id, capturedSavedMessage.chatParticipationId)
-                        assertEquals(messageEmoji, capturedSavedMessage.emoji)
-                        assertEquals(messageUploads, capturedSavedMessage.attachments)
-                    }
-                    .verifyComplete()
+                    val capturedSavedMessage = savedMessageSlot.captured
+                    val capturedMappedMessage = mappedMessageSlot.captured
+
+                    verify(exactly = 1) { messageRepository.save(capturedSavedMessage) }
+                    assertEquals(capturedSavedMessage, capturedMappedMessage)
+                    assertEquals(request.text, capturedSavedMessage.text)
+                    assertEquals(capturedSavedMessage.senderId, jwtPayload.id)
+                    assertEquals(referredMessage?.id, capturedSavedMessage.referredMessageId)
+                    assertEquals(messageSicker, capturedSavedMessage.sticker)
+                    assertEquals(chatParticipation.id, capturedSavedMessage.chatParticipationId)
+                    assertEquals(textInfo.emoji, capturedSavedMessage.emoji)
+                    assertEquals(messageUploads, capturedSavedMessage.attachments)
+                }
+                .verifyComplete()
         }
 
         @Test
         fun `It throws exception if request has both sticker ID and text`() {
             val request = loadResource(
-                    "requests/create-message-request-with-sticker-and-text.json",
-                    CreateMessageRequest::class.java
+                "requests/create-message-request-with-sticker-and-text.json",
+                CreateMessageRequest::class.java
             )
             val chatId = "chatId"
+            every {
+                draftMessageRepository.findByChatIdAndSenderId(
+                    eq(chatId),
+                    eq(jwtPayload.id)
+                )
+            }.returns(Mono.empty())
 
             StepVerifier
-                    .create(createMessageService.createMessage(chatId, request))
-                    .expectError(MessageValidationException::class.java)
-                    .verify()
+                .create(createMessageService.createMessage(chatId, request))
+                .expectError(MessageValidationException::class.java)
+                .verify()
         }
 
         @Test
         fun `It throws exception if request has both sticker ID and uploads`() {
             val request = loadResource(
-                    "requests/create-message-request-with-sticker-and-upload.json",
-                    CreateMessageRequest::class.java
+                "requests/create-message-request-with-sticker-and-upload.json",
+                CreateMessageRequest::class.java
             )
             val chatId = "chatId"
+            every {
+                draftMessageRepository.findByChatIdAndSenderId(
+                    eq(chatId),
+                    eq(jwtPayload.id)
+                )
+            }.returns(Mono.empty())
 
             StepVerifier
-                    .create(createMessageService.createMessage(chatId, request))
-                    .expectError(MessageValidationException::class.java)
-                    .verify()
+                .create(createMessageService.createMessage(chatId, request))
+                .expectError(MessageValidationException::class.java)
+                .verify()
         }
 
         @ParameterizedTest
@@ -223,6 +273,12 @@ class CreateMessageServiceTests {
             val request = loadResource(requestFile, CreateMessageRequest::class.java)
             val chatId = "chatId"
 
+            every {
+                draftMessageRepository.findByChatIdAndSenderId(
+                    eq(chatId),
+                    eq(jwtPayload.id)
+                )
+            }.returns(Mono.empty())
             val messageSicker = mockFindStickerById(request.stickerId, stickerRepository, sticker)
             val referredMessage = mockFindMessageById(request.referredMessageId, messageEntityService, message)
 
@@ -234,56 +290,67 @@ class CreateMessageServiceTests {
                 every { uploadRepository.findAllById<Any>(request.uploadAttachments) } returns Flux.just(upload)
             }
 
-            val messageEmoji = mockParseEmoji(request.text, emojiParserService, emoji)
+            val textInfo = mockParseText(request.text, textParser, textInfo)
+            every {
+                chatParticipationService.getMentionedChatParticipants(
+                    chatId = eq(chatId),
+                    textInfo = eq(textInfo),
+                    excludedUsersIds = eq(listOf(jwtPayload.id))
+                )
+            } returns Flux.empty()
 
             every { scheduledMessageRepository.countByChatId(chatId) } returns Mono.just(0)
-            every { scheduledMessageRepository.countByChatIdAndScheduledAtBetween(
+            every {
+                scheduledMessageRepository.countByChatIdAndScheduledAtBetween(
                     eq(chatId),
                     any(),
                     any()
-            ) } returns Mono.just(0)
+                )
+            } returns Mono.just(0)
 
             val savedMessageSlot = slot<ScheduledMessage>()
             val mappedMessageSlot = slot<ScheduledMessage>()
-            
+
             every { scheduledMessageRepository.save(capture(savedMessageSlot)) } returns Mono.just(scheduledMessage)
-            every { messageMapper.toMessageResponse(
+            every {
+                messageMapper.toMessageResponse(
                     message = capture(mappedMessageSlot),
                     mapReferredMessage = any(),
                     readByCurrentUser = any(),
-                    cache = MessageDataLocalCache()
-            ) } returns Mono.just(messageResponse)
+                    cache = any()
+                )
+            } returns Mono.just(messageResponse)
             every { chatEventsPublisher.scheduledMessageCreated(eq(messageResponse)) } returns Unit
 
             val expectedResponse = messageResponse
 
             StepVerifier
-                    .create(createMessageService.createMessage(chatId, request))
-                    .assertNext { messageResponse ->
-                        assertEquals(expectedResponse, messageResponse)
+                .create(createMessageService.createMessage(chatId, request))
+                .assertNext { messageResponse ->
+                    assertEquals(expectedResponse, messageResponse)
 
-                        val capturedSavedMessage = savedMessageSlot.captured
-                        verify(exactly = 1) { scheduledMessageRepository.save(capturedSavedMessage) }
+                    val capturedSavedMessage = savedMessageSlot.captured
+                    verify(exactly = 1) { scheduledMessageRepository.save(capturedSavedMessage) }
 
-                        val capturedMappedMessage = mappedMessageSlot.captured
-                        assertEquals(capturedSavedMessage, capturedMappedMessage)
+                    val capturedMappedMessage = mappedMessageSlot.captured
+                    assertEquals(capturedSavedMessage, capturedMappedMessage)
 
-                        assertEquals(request.text, capturedSavedMessage.text)
-                        assertEquals(capturedSavedMessage.senderId, jwtPayload.id)
-                        assertEquals(referredMessage?.id, capturedSavedMessage.referredMessageId)
-                        assertEquals(messageSicker, capturedSavedMessage.sticker)
-                        assertEquals(chatParticipation.id, capturedSavedMessage.chatParticipationId)
-                        assertEquals(messageEmoji, capturedSavedMessage.emoji)
-                        assertEquals(messageUploads, capturedSavedMessage.attachments)
-                    }
-                    .verifyComplete()
+                    assertEquals(request.text, capturedSavedMessage.text)
+                    assertEquals(capturedSavedMessage.senderId, jwtPayload.id)
+                    assertEquals(referredMessage?.id, capturedSavedMessage.referredMessageId)
+                    assertEquals(messageSicker, capturedSavedMessage.sticker)
+                    assertEquals(chatParticipation.id, capturedSavedMessage.chatParticipationId)
+                    assertEquals(textInfo.emoji, capturedSavedMessage.emoji)
+                    assertEquals(messageUploads, capturedSavedMessage.attachments)
+                }
+                .verifyComplete()
         }
 
         @Test
         fun `It throws exception if limit of scheduled message has been reached`() {
             val request = loadResource(
-                    "requests/create-scheduled-message-request.json",
-                    CreateMessageRequest::class.java
+                "requests/create-scheduled-message-request.json",
+                CreateMessageRequest::class.java
             )
             val chatId = "chatId"
 
@@ -292,30 +359,115 @@ class CreateMessageServiceTests {
             } returns Mono.just(CreateMessageServiceImpl.ALLOWED_NUMBER_OF_SCHEDULED_MESSAGES + 1L)
 
             StepVerifier
-                    .create(createMessageService.createMessage(chatId, request))
-                    .expectError(LimitOfScheduledMessagesReachedException::class.java)
-                    .verify()
+                .create(createMessageService.createMessage(chatId, request))
+                .expectError(LimitOfScheduledMessagesReachedException::class.java)
+                .verify()
         }
 
         @Test
         fun `It throws exception if schedule date is too close to other scheduled message`() {
             val request = loadResource(
-                    "requests/create-scheduled-message-request.json",
-                    CreateMessageRequest::class.java
+                "requests/create-scheduled-message-request.json",
+                CreateMessageRequest::class.java
             )
             val chatId = "chatId"
 
             every { scheduledMessageRepository.countByChatId(chatId) } returns Mono.just(1)
-            every { scheduledMessageRepository.countByChatIdAndScheduledAtBetween(
+            every {
+                scheduledMessageRepository.countByChatIdAndScheduledAtBetween(
                     eq(chatId),
                     any(),
                     any()
-            ) } returns Mono.just(1L)
+                )
+            } returns Mono.just(1L)
 
             StepVerifier
-                    .create(createMessageService.createMessage(chatId, request))
-                    .expectError(ScheduledMessageIsTooCloseToAnotherScheduledMessageException::class.java)
-                    .verify()
+                .create(createMessageService.createMessage(chatId, request))
+                .expectError(ScheduledMessageIsTooCloseToAnotherScheduledMessageException::class.java)
+                .verify()
+        }
+
+        @ParameterizedTest
+        @MethodSource("chatox.chat.service.impl.CreateMessageServiceTests#createDraftMessageRequestProvider")
+        @DisplayName("It creates draft message")
+        fun `It creates draft message`(requestFile: String) {
+            val request = loadResource(requestFile, CreateMessageRequest::class.java)
+            val chatId = "chatId"
+
+            every {
+                draftMessageRepository.findByChatIdAndSenderId(
+                    eq(chatId),
+                    eq(jwtPayload.id)
+                )
+            }.returns(Mono.empty())
+            val referredMessage = mockFindMessageById(request.referredMessageId, messageEntityService, message)
+
+            var messageUploads: List<Upload<Any>> = listOf()
+
+            if (request.uploadAttachments.isNotEmpty()) {
+                messageUploads = listOf(upload)
+
+                every { uploadRepository.findAllById<Any>(request.uploadAttachments) } returns Flux.just(upload)
+            }
+
+            val textInfo = mockParseText(request.text, textParser, textInfo)
+            every {
+                chatParticipationService.getMentionedChatParticipants(
+                    chatId = eq(chatId),
+                    textInfo = eq(textInfo),
+                    excludedUsersIds = eq(listOf(jwtPayload.id))
+                )
+            } returns Flux.empty()
+
+            val savedMessageSlot = slot<DraftMessage>()
+            val mappedMessageSlot = slot<DraftMessage>()
+
+            every { draftMessageRepository.save(capture(savedMessageSlot)) } returns Mono.just(draftMessage)
+            every {
+                messageMapper.toMessageResponse(
+                    message = capture(mappedMessageSlot),
+                    mapReferredMessage = any(),
+                    readByCurrentUser = any(),
+                    cache = any()
+                )
+            } returns Mono.just(messageResponse)
+            every { chatEventsPublisher.draftMessageCreated(eq(messageResponse)) } returns Unit
+
+            val expectedResponse = messageResponse
+
+            StepVerifier
+                .create(createMessageService.createMessage(chatId, request))
+                .assertNext { messageResponse ->
+                    assertEquals(expectedResponse, messageResponse)
+
+                    val capturedSavedMessage = savedMessageSlot.captured
+                    verify(exactly = 1) { draftMessageRepository.save(capturedSavedMessage) }
+
+                    val capturedMappedMessage = mappedMessageSlot.captured
+                    assertEquals(capturedSavedMessage, capturedMappedMessage)
+
+                    assertEquals(request.text, capturedSavedMessage.text)
+                    assertEquals(capturedSavedMessage.senderId, jwtPayload.id)
+                    assertEquals(referredMessage?.id, capturedSavedMessage.referredMessageId)
+                    assertEquals(chatParticipation.id, capturedSavedMessage.chatParticipationId)
+                    assertEquals(textInfo.emoji, capturedSavedMessage.emoji)
+                    assertEquals(messageUploads, capturedSavedMessage.attachments)
+                }
+                .verifyComplete()
+        }
+
+        @Test
+        fun `It throws exception when trying to create draft message with sticker`() {
+            val request = loadResource(
+                "requests/create-draft-message-request-with-sticker.json",
+                CreateMessageRequest::class.java
+            )
+            val chatId = "chatId"
+
+            StepVerifier
+                .create(createMessageService.createMessage(chatId, request))
+                .expectError(StickersAreNotAllowedInDraftMessageException::class.java)
+                .verify()
         }
     }
 
@@ -332,8 +484,8 @@ class CreateMessageServiceTests {
         @Test
         fun `It creates first message for private chat`() {
             val request = loadResource(
-                    "requests/create-message-request.json",
-                    CreateMessageRequest::class.java
+                "requests/create-message-request.json",
+                CreateMessageRequest::class.java
             )
             val chatId = "chatId"
             val index = 1L
@@ -349,46 +501,54 @@ class CreateMessageServiceTests {
                 messageUploads = listOf(upload)
 
                 every { uploadRepository.findAllById<Any>(request.uploadAttachments) } returns Flux.just(upload)
-                every { chatUploadAttachmentEntityService.linkChatUploadAttachmentsToMessage(
+                every {
+                    chatUploadAttachmentEntityService.linkChatUploadAttachmentsToMessage(
                         match { ids -> ids.size == messageUploads.size },
                         eq(message)
-                ) } returns Flux.just(chatUploadAttachment)
+                    )
+                } returns Flux.just(chatUploadAttachment)
             }
 
-            val messageEmoji = mockParseEmoji(request.text, emojiParserService, emoji)
+            val textInfo = mockParseText(request.text, textParser, textInfo)
+            every {
+                chatParticipationService.getMentionedChatParticipants(
+                    chatId = eq(chatId),
+                    textInfo = eq(textInfo),
+                    excludedUsersIds = eq(listOf(jwtPayload.id))
+                )
+            } returns Flux.empty()
 
             val savedMessageSlot = slot<Message>()
-            val mappedMessageSlot = slot<Message>()
 
             every { messageRepository.save(capture(savedMessageSlot)) } returns Mono.just(message)
-            every { messageMapper.toMessageResponse(
-                    message = capture(mappedMessageSlot),
-                    mapReferredMessage = any(),
-                    readByCurrentUser = any(),
-                    cache = MessageDataLocalCache()
-            ) } returns Mono.just(messageResponse)
-
-            val expectedResponse = messageResponse
+            every {
+                messageReadService.increaseUnreadMessagesCountForChat(
+                    eq(chat.id),
+                    eq(listOf(chatParticipation.id))
+                )
+            } returns Mono.empty()
+            every {
+                messageReadService.readAllMessagesForCurrentUser(
+                    eq(chatParticipation),
+                    any<Message>()
+                )
+            } returns Mono.empty()
 
             StepVerifier
-                    .create(createMessageService.createFirstMessageForPrivateChat(chatId, request, chatParticipation))
-                    .assertNext { messageResponse ->
-                        assertEquals(expectedResponse, messageResponse)
+                .create(createMessageService.createFirstMessageForPrivateChat(chatId, request, chatParticipation))
+                .assertNext {
+                    val capturedSavedMessage = savedMessageSlot.captured
 
-                        val capturedSavedMessage = savedMessageSlot.captured
-                        val capturedMappedMessage = mappedMessageSlot.captured
-
-                        verify(exactly = 1) { messageRepository.save(capturedSavedMessage) }
-                        assertEquals(capturedSavedMessage, capturedMappedMessage)
-                        assertEquals(request.text, capturedSavedMessage.text)
-                        assertEquals(capturedSavedMessage.senderId, jwtPayload.id)
-                        assertEquals(referredMessage?.id, capturedSavedMessage.referredMessageId)
-                        assertEquals(messageSicker, capturedSavedMessage.sticker)
-                        assertEquals(chatParticipation.id, capturedSavedMessage.chatParticipationId)
-                        assertEquals(messageEmoji, capturedSavedMessage.emoji)
-                        assertEquals(messageUploads, capturedSavedMessage.attachments)
-                    }
-                    .verifyComplete()
+                    verify(exactly = 1) { messageRepository.save(capturedSavedMessage) }
+                    assertEquals(request.text, capturedSavedMessage.text)
+                    assertEquals(capturedSavedMessage.senderId, jwtPayload.id)
+                    assertEquals(referredMessage?.id, capturedSavedMessage.referredMessageId)
+                    assertEquals(messageSicker, capturedSavedMessage.sticker)
+                    assertEquals(chatParticipation.id, capturedSavedMessage.chatParticipationId)
+                    assertEquals(textInfo.emoji, capturedSavedMessage.emoji)
+                    assertEquals(messageUploads, capturedSavedMessage.attachments)
+                }
+                .verifyComplete()
         }
     }
 
@@ -409,11 +569,16 @@ class CreateMessageServiceTests {
             val returnedMessages = listOf(message)
 
             every { chatCacheWrapper.findById(eq(chatId)) } returns Mono.just(chat)
-            every { messageRepository.findAllById(eq(listOf(messageId))) } returns Flux.fromIterable(returnedMessages)
-            every { chatParticipationRepository.findByChatIdInAndUserId(
+            every { chatCacheWrapper.findById(eq(message.chatId)) } returns Mono.just(chat)
+            every {
+                messageRepository.findAllByIdInOrderByCreatedAtAsc(eq(listOf(messageId)))
+            } returns Flux.fromIterable(returnedMessages)
+            every {
+                chatParticipationRepository.findByChatIdInAndUserId(
                     eq(mutableSetOf(message.chatId)),
                     eq(jwtPayload.id)
-            ) } returns Flux.just(chatParticipation)
+                )
+            } returns Flux.just(chatParticipation)
             every {
                 chatParticipationRepository.findByChatIdAndUserId(eq(chatId), eq(jwtPayload.id))
             } returns Mono.just(chatParticipation)
@@ -422,42 +587,67 @@ class CreateMessageServiceTests {
             } returns Mono.just(5)
             every { messageRepository.saveAll(any<List<Message>>()) } returns Flux.just(message)
             every { chatRepository.save(any()) } returns Mono.just(chat)
+            every {
+                messageReadService.increaseUnreadMessagesCountForChat(
+                    eq(chatId),
+                    1L,
+                    listOf(chatParticipation.id)
+                )
+            } returns Mono.empty()
+            every {
+                messageReadService.readAllMessagesForCurrentUser(
+                    eq(chatParticipation),
+                    any<Message>()
+                )
+            } returns Mono.empty()
             every { messageMapper.mapMessages(any<Flux<Message>>(), any()) } returns Flux.just(messageResponse)
 
             val request = ForwardMessagesRequest(_forwardedMessagesIds = listOf(messageId))
 
             StepVerifier
-                    .create(createMessageService.forwardMessages(chatId, request))
-                    .expectNextSequence(listOf(messageResponse))
-                    .assertNext { _ ->
-                        verify { messageRepository.saveAll(match<List<Message>> { savedMessages ->
+                .create(createMessageService.forwardMessages(chatId, request))
+                .assertNext { response ->
+                    assertEquals(messageResponse, response)
+
+                    verify {
+                        messageRepository.saveAll(match<List<Message>> { savedMessages ->
                             assertEquals(request.forwardedMessagesIds.size, savedMessages.size)
 
-                            val expectedChatsIds = returnedMessages.map { message -> message.forwardedFromChatId ?: chat.id }
+                            val expectedChatsIds =
+                                returnedMessages.map { message -> message.forwardedFromChatId ?: chat.id }
                             val actualChatsIds = savedMessages.map { message -> message.forwardedFromChatId }
 
                             assertEquals(expectedChatsIds, actualChatsIds)
 
                             return@match true
-                        }) }
+                        })
                     }
+                }
+                .verifyComplete()
         }
     }
 
     companion object {
         @JvmStatic
         fun createMessageRequestProvider(): Stream<Arguments> = Stream.of(
-                Arguments.of("requests/create-message-request.json"),
-                Arguments.of("requests/create-message-request-with-upload.json"),
-                Arguments.of("requests/create-message-request-with-sticker.json"),
-                Arguments.of("requests/create-message-request-with-referred-message-id.json")
+            Arguments.of("requests/create-message-request.json"),
+            Arguments.of("requests/create-message-request-with-upload.json"),
+            Arguments.of("requests/create-message-request-with-sticker.json"),
+            Arguments.of("requests/create-message-request-with-referred-message-id.json")
         )
 
         @JvmStatic
         fun createScheduledMessageRequestProvider(): Stream<Arguments> = Stream.of(
-                Arguments.of("requests/create-scheduled-message-request.json"),
-                Arguments.of("requests/create-scheduled-message-with-sticker-request.json"),
-                Arguments.of("requests/create-scheduled-message-with-upload-request.json")
+            Arguments.of("requests/create-scheduled-message-request.json"),
+            Arguments.of("requests/create-scheduled-message-with-sticker-request.json"),
+            Arguments.of("requests/create-scheduled-message-with-upload-request.json")
+        )
+
+        @JvmStatic
+        fun createDraftMessageRequestProvider(): Stream<Arguments> = Stream.of(
+            Arguments.of("requests/create-draft-message-request.json"),
+            Arguments.of("requests/create-draft-message-request-with-upload.json"),
+            Arguments.of("requests/create-draft-message-request-with-referred-message-id.json")
         )
     }
 }

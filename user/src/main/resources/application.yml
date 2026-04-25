@@ -5,9 +5,11 @@ spring:
     mongodb:
       repositories:
         type: reactive
-      database: ${MONGODB_USER_SERVICE:user-service}
-      host: ${MONGODB_HOST:localhost}
-      port: ${MONGODB_PORT:27017}
+  jackson:
+    datatype:
+      enum:
+        read-enums-using-to-string: false
+        write-enums-using-to-string: false
   rabbitmq:
     listener:
       direct:
@@ -27,6 +29,10 @@ spring:
             authorization-grant-type: client_credentials
             scope:
               - internal_get_balance
+  mongodb:
+    database: ${MONGODB_USER_SERVICE:user-service}
+    host: ${MONGODB_HOST:localhost}
+    port: ${MONGODB_PORT:27017}
 
 server:
   port: 8083

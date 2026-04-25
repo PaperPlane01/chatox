@@ -1,0 +1,216 @@
+import {Plugin, Transformer} from "unified";
+import {Node, Position} from "unist";
+import {visit} from "unist-util-visit";
+import {Element, ElementContent, Text} from "hast";
+import {getEmojiDataFromNative, EmojiData} from "emoji-mart";
+import {toJS} from "mobx";
+import {EMOJI_REGEXP} from "../../Emoji/rules";
+import {getEmojiDataFromColons} from "../../Emoji/utils";
+import {EmojiPosition, MessageEmoji} from "../../api/types/response";
+
+export const emojiPlugin = (
+    messageEmoji: MessageEmoji,
+): Plugin => (): Transformer<Node, Node> => {
+    return (tree: Node): void => {
+        visit(tree, "text", (node: Text, index: number, parent: Element) => {
+            addEmojiNodes(messageEmoji, index, node, parent);
+        });
+    };
+};
+
+export const emojiPluginAsync = (): Plugin => (): Transformer<Node, Node> => {
+	return async (tree: Node): Promise<void> => {
+        const promises: Promise<void>[] = [];
+
+		visit(tree, "text", (node: Text, index: number, parent: Element) => {
+            promises.push(addEmojiNodesByRegExp(index, node, parent));
+        });
+
+        if (promises.length !== 0) {
+            await Promise.all(promises);
+        }
+	};
+};
+
+const addEmojiNodes = (
+	messageEmoji: MessageEmoji,
+	index: number,
+	node: Text,
+	parent: Element
+): void => {
+	if (messageEmoji.emojiPositions.length === 0) {
+		return;
+	}
+
+	const nodePosition = node.position;
+
+	if (!nodePosition) {
+		return;
+	}
+
+	const emojisWithinNode = messageEmoji
+		.emojiPositions
+		.filter(position => position.start >= nodePosition.start.offset!
+			&& position.end <= nodePosition.end.offset!);
+
+	if (emojisWithinNode.length === 0) {
+		return;
+	}
+
+	let lastPosition = 0;
+	const nodes: Array<Node | Text> = [];
+
+	for (const emojiPosition of emojisWithinNode) {
+		const positionWithinNode = emojiPosition.start - nodePosition.start.offset!;
+
+		if (positionWithinNode !== lastPosition + 1) {
+			nodes.push(createTextNode(
+				node.value.slice(lastPosition, positionWithinNode),
+				lastPosition + nodePosition.start.offset!,
+				emojiPosition.start,
+				nodePosition.start.line
+			));
+		}
+
+		const emojiNode = createEmojiNode(
+			nodePosition,
+			emojiPosition,
+			messageEmoji.emoji[emojiPosition.emojiId]
+		);
+
+		nodes.push(emojiNode);
+		lastPosition = emojiPosition.end - nodePosition.start.offset! + 1;
+	}
+
+	if (lastPosition + 1 !== node.value.length) {
+		nodes.push(createTextNode(
+			node.value.slice(lastPosition, node.value.length),
+			lastPosition,
+			node.value.length,
+			nodePosition.end.line
+		));
+	}
+
+	insertChildNodes(parent, index, nodes as unknown as ElementContent[]);
+};
+
+const addEmojiNodesByRegExp = async (
+	index: number,
+	node: Text,
+	parent: Element
+): Promise<void> => {
+	const nodePosition = node.position;
+
+	if (!nodePosition) {
+		return;
+	}
+
+	let lastPosition = 0;
+	const nodes: Array<Node | Text> = [];
+	let match: RegExpMatchArray | null;
+	let emojiEncountered = false;
+
+	while ((match = EMOJI_REGEXP.exec(node.value)) !== null) {
+		emojiEncountered = true;
+		if (match.index !== lastPosition) {
+			nodes.push(createTextNode(
+				node.value.slice(lastPosition, match.index),
+				lastPosition,
+				match.index!,
+				nodePosition.start.line
+			));
+		}
+
+		const matchedValue = match[0];
+		let emojiData: EmojiData | undefined;
+
+		if (matchedValue.startsWith(":")) {
+			emojiData = await getEmojiDataFromColons(matchedValue);
+		} else {
+			emojiData = await getEmojiDataFromNative(matchedValue);
+		}
+
+		if (emojiData?.id) {
+			const emojiNode = createEmojiNode(
+				nodePosition,
+				{
+					start: match.index!,
+					end: match.index! + matchedValue.length,
+					emojiId: emojiData.id
+				},
+				emojiData
+			);
+			nodes.push(emojiNode);
+			lastPosition = match.index! + matchedValue.length;
+		}
+	}
+
+	if (emojiEncountered && lastPosition + 1 !== node.value.length) {
+		nodes.push(createTextNode(
+			node.value.slice(lastPosition, node.value.length),
+			lastPosition,
+			node.value.length,
+			nodePosition.end.line
+		));
+	}
+
+	if (emojiEncountered) {
+		insertChildNodes(parent, index, nodes as unknown as ElementContent[]);
+	}
+};
+
+const createTextNode = (value: string, start: number, end: number, line: number): Text => ({
+	value,
+	position: {
+		start: {
+			line,
+			column: start + 1,
+			offset: start
+		},
+		end: {
+			line,
+			column: end + 1,
+			offset: end
+		}
+	},
+	type: "text"
+});
+
+const createEmojiNode = (
+	parentNodePosition: Position,
+	emojiPosition: EmojiPosition,
+	emojiData: EmojiData
+): Node => ({
+	type: "emoji",
+	data: {
+		hName: "emoji",
+
+        // Have to call toJS because react-markdown uses structured clone somewhere in its code,
+        // and this particular object comes from Mobx store, meaning that it's wrapped as Proxy,
+        // and thus can't be cloned.
+		hProperties: toJS(emojiData)
+	},
+	position: {
+		start: {
+			line: parentNodePosition.start.line,
+			column: emojiPosition.start + 1,
+			offset: emojiPosition.start
+		},
+		end: {
+			line: parentNodePosition.end.line,
+			column: emojiPosition.end + 1,
+			offset: emojiPosition.end
+		}
+	}
+});
+
+const insertChildNodes = (
+	parent: Element,
+	index: number,
+	nodes: ElementContent[]
+): void => {
+	const last = parent.children.slice(index + 1);
+	parent.children = parent.children.slice(0, index);
+	parent.children = parent.children.concat(nodes);
+	parent.children = parent.children.concat(last);
+};

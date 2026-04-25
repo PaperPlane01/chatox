@@ -25,7 +25,8 @@ export const ThemePicker: FunctionComponent = observer(() => {
                                 onChange={event => setCurrentTheme(event.target.value as Themes)}
                     >
                         {Object.keys(themes).map(theme => (
-                            <FormControlLabel value={theme}
+                            <FormControlLabel key={theme}
+                                              value={theme}
                                               control={(
                                                   <Radio sx={{
                                                       color: themes[theme as Themes].palette.primary.main

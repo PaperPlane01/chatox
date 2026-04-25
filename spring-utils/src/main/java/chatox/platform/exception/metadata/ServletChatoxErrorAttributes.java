@@ -1,7 +1,7 @@
 package chatox.platform.exception.metadata;
 
 import org.springframework.boot.web.error.ErrorAttributeOptions;
-import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
+import org.springframework.boot.webmvc.error.DefaultErrorAttributes;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.WebRequest;
 
@@ -13,12 +13,12 @@ public class ServletChatoxErrorAttributes extends DefaultErrorAttributes {
         var errorAttributes = super.getErrorAttributes(webRequest, options);
         var error = getError(webRequest);
 
-        if (error instanceof MetadataEnhancedException) {
-            errorAttributes.put("metadata", ((MetadataEnhancedException) error).getMetadata());
+        if (error instanceof MetadataEnhancedException metadataEnhancedException) {
+            errorAttributes.put("metadata", metadataEnhancedException.getMetadata());
         }
 
-        if (error instanceof MethodArgumentNotValidException ) {
-            errorAttributes.put("constraintViolations", ((MethodArgumentNotValidException) error).getFieldErrors());
+        if (error instanceof MethodArgumentNotValidException methodArgumentNotValidException) {
+            errorAttributes.put("constraintViolations", methodArgumentNotValidException.getFieldErrors());
         }
 
         return errorAttributes;

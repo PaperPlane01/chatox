@@ -16,3 +16,6 @@ export * from "./NewPrivateChatPage";
 export * from "./RewardsManagementPage";
 export * from "./ChatManagementPage";
 export * from "./ChatInvitePage";
+export * from "./UpdateStickerPackPage";
+export * from "./StickerPackPage";
+export * from "./ImportStickerPackPage";

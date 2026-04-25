@@ -8,7 +8,7 @@ import {
     UpdateMessageRequest,
     UpdateScheduledMessageRequest
 } from "../types/request";
-import {CHATS, FORWARD, MESSAGES, MY, PIN, PINNED, PUBLISH, READ, SCHEDULED, UNPIN} from "../endpoints";
+import {CHATS, DRAFT, FORWARD, MESSAGES, MY, PIN, PINNED, PUBLISH, READ, SCHEDULED, UNPIN} from "../endpoints";
 
 export class MessageApi {
     public static getMessagesByChat(chatId: string): AxiosPromise<Message[]> {
@@ -85,5 +85,9 @@ export class MessageApi {
 
     public static forwardMessages(chatId: string, forwardMessagesRequest: ForwardMessagesRequest): AxiosPromise<Message[]> {
         return axiosInstance.post(`/${CHATS}/${chatId}/${MESSAGES}/${FORWARD}`, forwardMessagesRequest);
+    }
+
+    public static deleteDraftMessage(chatId: string): AxiosPromise<void> {
+        return axiosInstance.delete(`/${CHATS}/${chatId}/${MESSAGES}/${DRAFT}`);
     }
 }

@@ -6,7 +6,10 @@ import {ChatStore} from "../../Chat";
 import {ApiError, ChatBlockingApi, getInitialApiErrorFromResponse} from "../../api";
 import {FormErrors} from "../../utils/types";
 import {EntitiesStore} from "../../entities-store";
+import {SnackbarService} from "../../Snackbar";
+import {LocaleStore} from "../../localization";
 
+// TODO: extend from AbstractFormStore
 export class CreateChatBlockingStore {
     createChatBlockingFormData: CreateChatBlockingFormData = {
         blockedUserId: undefined,
@@ -30,14 +33,14 @@ export class CreateChatBlockingStore {
 
     submissionError?: ApiError = undefined;
 
-    showSnackbar: boolean = false;
-
     get chatId(): string | undefined {
         return this.chatStore.selectedChatId;
     }
 
     constructor(private readonly chatStore: ChatStore,
-                private readonly entities: EntitiesStore) {
+                private readonly entities: EntitiesStore,
+                private readonly snackbarService: SnackbarService,
+                private readonly locale: LocaleStore) {
         makeAutoObservable(this);
 
         reaction(
@@ -53,7 +56,7 @@ export class CreateChatBlockingStore {
 
     setFormValue = <Key extends keyof CreateChatBlockingFormData>(key: Key, value: CreateChatBlockingFormData[Key]): void => {
         this.createChatBlockingFormData[key] = value;
-    };
+    }
 
     setCreateChatBlockingDialogOpen = (createChatBlockingDialogOpen: boolean): void => {
         this.createChatBlockingDialogOpen = createChatBlockingDialogOpen;
@@ -61,11 +64,7 @@ export class CreateChatBlockingStore {
         if (!this.createChatBlockingFormData.blockedUntil) {
             this.setFormValue("blockedUntil", addHours(new Date(), 1))
         }
-    };
-
-    setShowSnackbar = (showSnackbar: boolean): void => {
-        this.showSnackbar = showSnackbar;
-    };
+    }
 
     createChatBlocking = (): void => {
         if (this.chatId && this.createChatBlockingFormData.blockedUserId) {
@@ -96,7 +95,9 @@ export class CreateChatBlockingStore {
                         .then(({data}) => {
                             this.entities.chatBlockings.insert(data);
                             this.setCreateChatBlockingDialogOpen(false);
-                            this.setShowSnackbar(true);
+                            this.snackbarService.enqueueSnackbar(
+                                this.locale.getCurrentLanguageLabel("chat.blocking.success")
+                            );
                             this.resetForm();
                         })
                         .catch(error => runInAction(() => this.submissionError = getInitialApiErrorFromResponse(error)))
@@ -104,7 +105,7 @@ export class CreateChatBlockingStore {
                 }
             })
         }
-    };
+    }
 
     validateForm = (): Promise<boolean> => {
         return new Promise<boolean>(resolve => {
@@ -119,7 +120,7 @@ export class CreateChatBlockingStore {
 
             resolve(!Boolean(description || blockedUntil));
         })
-    };
+    }
 
     resetForm = (): void => {
         this.createChatBlockingFormData = {
@@ -138,7 +139,7 @@ export class CreateChatBlockingStore {
                 recentMessagesDeletionPeriod: undefined
             }
         })
-    };
+    }
 
     private getDeleteMessagesSinceDate(period: RecentMessagesDeletionPeriod): Date {
         const now = new Date();

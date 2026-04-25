@@ -5,10 +5,10 @@ import java.math.BigDecimal
 import java.time.ZonedDateTime
 
 data class UserInteractionCreated(
-        val id: String,
-        val type: UserInteractionType,
-        val cost: BigDecimal,
-        val userId: String,
-        val targetUserId: String,
-        val createdAt: ZonedDateTime
+    val id: String,
+    val type: UserInteractionType,
+    val cost: BigDecimal,
+    val userId: String,
+    val targetUserId: String,
+    val createdAt: ZonedDateTime
 )

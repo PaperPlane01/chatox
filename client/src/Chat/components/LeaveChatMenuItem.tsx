@@ -1,8 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {MenuItem, ListItemIcon, ListItemText} from "@mui/material";
+import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
 import {ExitToApp} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 
 interface LeaveChatMenuItemProps {
     onClick?: () => void
@@ -17,15 +18,14 @@ export const LeaveChatMenuItem: FunctionComponent<LeaveChatMenuItemProps> = obse
         },
         chat: {
             selectedChatId
-        },
-        entities: {
-            chats: {
-                findById: findChat
-            }
         }
     } = useStore();
     const {l} = useLocalization();
-    const chat = findChat(selectedChatId!);
+    const chat = useEntityById("chats", selectedChatId);
+
+    if (!chat) {
+        return null;
+    }
 
     const handleClick = (): void => {
         if (onClick) {

@@ -5,4 +5,5 @@ export * from "./Upload";
 export * from "./UploadType";
 export * from "./VideoUploadMetadata";
 export * from "./ArchivedUpload";
-
+export * from "./StickerUploadMetadata";
+export * from "./ThumbnailMetadata";

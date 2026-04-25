@@ -1,33 +1,32 @@
 package chatox.chat.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.core.TopicExchange
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import tools.jackson.databind.json.JsonMapper
 
 @Configuration
 class RabbitMQConfig {
 
-    @Autowired
     @Bean
-    fun rabbitTemplate(connectionFactory: ConnectionFactory,
-                       messageConverter: Jackson2JsonMessageConverter): RabbitTemplate {
+    fun rabbitTemplate(
+        connectionFactory: ConnectionFactory,
+        messageConverter: JacksonJsonMessageConverter
+    ): RabbitTemplate {
         val rabbitTemplate = RabbitTemplate(connectionFactory)
         rabbitTemplate.messageConverter = messageConverter
         return rabbitTemplate
     }
 
-    @Autowired
     @Bean
-    fun jackson2JsonMessageConverter(objectMapper: ObjectMapper): Jackson2JsonMessageConverter {
-        return Jackson2JsonMessageConverter(objectMapper)
+    fun jacksonJsonMessageConverter(jsonMapper: JsonMapper): JacksonJsonMessageConverter {
+        return JacksonJsonMessageConverter(jsonMapper)
     }
 
     @Bean
@@ -56,45 +55,45 @@ class RabbitMQConfig {
 
     @Bean
     fun userCreatedBinding(): Binding = BindingBuilder
-            .bind(userCreatedQueue())
-            .to(userEvents())
-            .with("user.created.#")
+        .bind(userCreatedQueue())
+        .to(userEvents())
+        .with("user.created.#")
 
     @Bean
     fun userUpdatedBinding(): Binding = BindingBuilder
-            .bind(userUpdatedQueue())
-            .to(userEvents())
-            .with("user.updated.#")
+        .bind(userUpdatedQueue())
+        .to(userEvents())
+        .with("user.updated.#")
 
     @Bean
     fun userDeletedBinding(): Binding = BindingBuilder
-            .bind(userDeletedQueue())
-            .to(userEvents())
-            .with("user.deleted.#")
+        .bind(userDeletedQueue())
+        .to(userEvents())
+        .with("user.deleted.#")
 
     @Bean
     fun userWentOnlineBinding(): Binding = BindingBuilder
-            .bind(userWentOnlineQueue())
-            .to(userEvents())
-            .with("user.online.#")
+        .bind(userWentOnlineQueue())
+        .to(userEvents())
+        .with("user.online.#")
 
     @Bean
     fun userWentOfflineBinding(): Binding = BindingBuilder
-            .bind(userWentOfflineQueue())
-            .to(userEvents())
-            .with("user.offline.#")
+        .bind(userWentOfflineQueue())
+        .to(userEvents())
+        .with("user.offline.#")
 
     @Bean
     fun userAddedToBlacklistBinding(): Binding = BindingBuilder
-            .bind(userAddedToBlacklist())
-            .to(userEvents())
-            .with("user.blacklist.added.#")
+        .bind(userAddedToBlacklist())
+        .to(userEvents())
+        .with("user.blacklist.added.#")
 
     @Bean
     fun userRemovedFromBlacklistBinding(): Binding = BindingBuilder
-            .bind(userRemovedFromBlacklist())
-            .to(userEvents())
-            .with("user.blacklist.removed.#")
+        .bind(userRemovedFromBlacklist())
+        .to(userEvents())
+        .with("user.blacklist.removed.#")
 
     @Bean
     fun chatEvents() = TopicExchange("chat.events")
@@ -104,9 +103,9 @@ class RabbitMQConfig {
 
     @Bean
     fun messageCreatedBinding(): Binding = BindingBuilder
-            .bind(messageCreatedQueue())
-            .to(chatEvents())
-            .with("chat.message.created.#")
+        .bind(messageCreatedQueue())
+        .to(chatEvents())
+        .with("chat.message.created.#")
 
     @Bean
     fun uploadEvents() = TopicExchange("upload.events")
@@ -134,45 +133,45 @@ class RabbitMQConfig {
 
     @Bean
     fun imageCreatedBinding(): Binding = BindingBuilder
-            .bind(imageCreated())
-            .to(uploadEvents())
-            .with("upload.image.created.#")
+        .bind(imageCreated())
+        .to(uploadEvents())
+        .with("upload.image.created.#")
 
     @Bean
     fun gifCreatedBinding(): Binding = BindingBuilder
-            .bind(gifCreated())
-            .to(uploadEvents())
-            .with("upload.gif.created.#")
+        .bind(gifCreated())
+        .to(uploadEvents())
+        .with("upload.gif.created.#")
 
     @Bean
     fun videoCreatedBinding(): Binding = BindingBuilder
-            .bind(videoCreated())
-            .to(uploadEvents())
-            .with("upload.video.created.#")
+        .bind(videoCreated())
+        .to(uploadEvents())
+        .with("upload.video.created.#")
 
     @Bean
     fun audioCreatedBinding(): Binding = BindingBuilder
-            .bind(audioCreated())
-            .to(uploadEvents())
-            .with("upload.audio.created.#")
+        .bind(audioCreated())
+        .to(uploadEvents())
+        .with("upload.audio.created.#")
 
     @Bean
     fun fileCreatedBinding(): Binding = BindingBuilder
-            .bind(fileCreated())
-            .to(uploadEvents())
-            .with("upload.file.created.#")
+        .bind(fileCreated())
+        .to(uploadEvents())
+        .with("upload.file.created.#")
 
     @Bean
     fun voiceMessageCreatedBinding(): Binding = BindingBuilder
-            .bind(voiceMessageCreated())
-            .to(uploadEvents())
-            .with("upload.voice.message.created.#")
+        .bind(voiceMessageCreated())
+        .to(uploadEvents())
+        .with("upload.voice.message.created.#")
 
     @Bean
     fun uploadDeletedBinding(): Binding = BindingBuilder
-            .bind(uploadDeleted())
-            .to(uploadEvents())
-            .with("upload.deleted.#")
+        .bind(uploadDeleted())
+        .to(uploadEvents())
+        .with("upload.deleted.#")
 
     @Bean
     fun stickerEvents() = TopicExchange("sticker.events")
@@ -181,8 +180,26 @@ class RabbitMQConfig {
     fun stickerPackCreated() = Queue("chat_service_sticker_pack_created")
 
     @Bean
+    fun stickerPackUpdated() = Queue("chat_service_sticker_pack_updated")
+
+    @Bean
+    fun stickerPackDeleted() = Queue("chat_service_sticker_pack_deleted")
+
+    @Bean
     fun stickerPackCreatedBinding(): Binding = BindingBuilder
-            .bind(stickerPackCreated())
-            .to(stickerEvents())
-            .with("sticker.pack.created.#")
+        .bind(stickerPackCreated())
+        .to(stickerEvents())
+        .with("sticker.pack.created.#")
+
+    @Bean
+    fun stickerPackUpdatedBinding(): Binding = BindingBuilder
+        .bind(stickerPackUpdated())
+        .to(stickerEvents())
+        .with("sticker.pack.updated.#")
+
+    @Bean
+    fun stickerPackDeletedBinding(): Binding = BindingBuilder
+        .bind(stickerPackDeleted())
+        .to(stickerEvents())
+        .with("sticker.pack.deleted.#")
 }

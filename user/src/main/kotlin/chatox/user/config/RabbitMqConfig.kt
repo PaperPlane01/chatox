@@ -1,16 +1,15 @@
 package chatox.user.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.core.TopicExchange
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import tools.jackson.databind.json.JsonMapper
 
 @Configuration
 class RabbitMqConfig {
@@ -22,9 +21,9 @@ class RabbitMqConfig {
 
     @Bean
     fun userEventsBinding(): Binding = BindingBuilder
-            .bind(accountDeletedQueue())
-            .to(userEvents())
-            .with("account.deleted.#")
+        .bind(accountDeletedQueue())
+        .to(userEvents())
+        .with("account.deleted.#")
 
     @Bean
     fun uploadEvents() = TopicExchange("upload.events")
@@ -34,9 +33,9 @@ class RabbitMqConfig {
 
     @Bean
     fun uploadEventsBinding(): Binding = BindingBuilder
-            .bind(imageCreatedQueue())
-            .to(uploadEvents())
-            .with("upload.image.created.#")
+        .bind(imageCreatedQueue())
+        .to(uploadEvents())
+        .with("upload.image.created.#")
 
     @Bean
     fun websocketEvents() = TopicExchange("websocket.events")
@@ -49,15 +48,15 @@ class RabbitMqConfig {
 
     @Bean
     fun userConnectedBinding(): Binding = BindingBuilder
-            .bind(userConnectedQueue())
-            .to(websocketEvents())
-            .with("user.connected.#")
+        .bind(userConnectedQueue())
+        .to(websocketEvents())
+        .with("user.connected.#")
 
     @Bean
     fun userDisconnectedBinding(): Binding = BindingBuilder
-            .bind(userDisconnectedQueue())
-            .to(websocketEvents())
-            .with("user.disconnected.#")
+        .bind(userDisconnectedQueue())
+        .to(websocketEvents())
+        .with("user.disconnected.#")
 
     @Bean
     fun emailUpdatedQueue() = Queue("user_service_email_updated")
@@ -67,9 +66,9 @@ class RabbitMqConfig {
 
     @Bean
     fun emailUpdatedBinding(): Binding = BindingBuilder
-            .bind(emailUpdatedQueue())
-            .to(accountEvents())
-            .with("account.email.updated.#")
+        .bind(emailUpdatedQueue())
+        .to(accountEvents())
+        .with("account.email.updated.#")
 
     @Bean
     fun balanceEvents() = TopicExchange("balance.events")
@@ -79,9 +78,9 @@ class RabbitMqConfig {
 
     @Bean
     fun balanceUpdatedBinding(): Binding = BindingBuilder
-            .bind(balanceUpdatedQueue())
-            .to(balanceEvents())
-            .with("balance.updated.#")
+        .bind(balanceUpdatedQueue())
+        .to(balanceEvents())
+        .with("balance.updated.#")
 
     @Bean
     fun userInteractionEvents() = TopicExchange("user.interactions.events")
@@ -91,20 +90,20 @@ class RabbitMqConfig {
 
     @Bean
     fun userInteractionRolledBackBinding(): Binding = BindingBuilder
-            .bind(userInteractionRolledBackQueue())
-            .to(userInteractionEvents())
-            .with("user.interaction.rolled.back.#")
+        .bind(userInteractionRolledBackQueue())
+        .to(userInteractionEvents())
+        .with("user.interaction.rolled.back.#")
 
-    @Autowired
     @Bean
-    fun rabbitTemplate(connectionFactory: ConnectionFactory,
-                       jackson2JsonMessageConverter: Jackson2JsonMessageConverter): RabbitTemplate {
+    fun rabbitTemplate(
+        connectionFactory: ConnectionFactory,
+        messageConverter: JacksonJsonMessageConverter
+    ): RabbitTemplate {
         val rabbitTemplate = RabbitTemplate(connectionFactory)
-        rabbitTemplate.messageConverter = jackson2JsonMessageConverter
+        rabbitTemplate.messageConverter = messageConverter
         return rabbitTemplate
     }
 
-    @Autowired
     @Bean
-    fun jackson2JsonMessageConverter(objectMapper: ObjectMapper) = Jackson2JsonMessageConverter(objectMapper)
+    fun jacksonJsonMessageConverter(jsonMapper: JsonMapper) = JacksonJsonMessageConverter(jsonMapper)
 }

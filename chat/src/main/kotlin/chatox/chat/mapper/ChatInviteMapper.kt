@@ -12,61 +12,62 @@ import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Component
-class ChatInviteMapper(private val chatMapper: ChatMapper,
-                       private val userService: UserService) {
+class ChatInviteMapper(
+    private val chatMapper: ChatMapper,
+    private val userService: UserService
+) {
 
     fun toChatInviteResponse(
-            chatInvite: ChatInvite,
-            chat: Chat,
-            usage: ChatInviteUsageResponse,
-            chatParticipantsCount: ChatParticipantsCount? = null
-    ): ChatInviteResponse =  ChatInviteResponse(
-            id = chatInvite.id,
-            chat = chatMapper.toChatResponse(
-                    chat = chat,
-                    chatParticipantsCount = chatParticipantsCount
-            ),
-            joinAllowanceSettings = chatInvite.joinAllowanceSettings,
-            usage = usage
+        chatInvite: ChatInvite,
+        chat: Chat,
+        usage: ChatInviteUsageResponse,
+        chatParticipantsCount: ChatParticipantsCount? = null
+    ): ChatInviteResponse = ChatInviteResponse(
+        id = chatInvite.id,
+        chat = chatMapper.toChatResponse(
+            chat = chat,
+            chatParticipantsCount = chatParticipantsCount
+        ),
+        joinAllowanceSettings = chatInvite.joinAllowanceSettings,
+        usage = usage
     )
 
     fun toChatInviteFullResponse(
-            chatInvite: ChatInvite,
-            localUsersCache: MutableMap<String, UserResponse> = mutableMapOf()
+        chatInvite: ChatInvite,
+        localUsersCache: MutableMap<String, UserResponse> = mutableMapOf()
     ): Mono<ChatInviteFullResponse> = mono {
         val createdBy = userService
-                .findUserByIdAndPutInLocalCache(chatInvite.createdBy, localUsersCache)
-                .awaitFirst()
+            .findUserByIdAndPutInLocalCache(chatInvite.createdBy, localUsersCache)
+            .awaitFirst()
         val updatedBy = userService
-                .findUserByIdAndPutInLocalCache(chatInvite.updatedBy, localUsersCache)
-                .awaitFirstOrNull()
+            .findUserByIdAndPutInLocalCache(chatInvite.updatedBy, localUsersCache)
+            .awaitFirstOrNull()
         val user = userService
-                .findUserByIdAndPutInLocalCache(chatInvite.userId, localUsersCache)
-                .awaitFirstOrNull()
+            .findUserByIdAndPutInLocalCache(chatInvite.userId, localUsersCache)
+            .awaitFirstOrNull()
         val lastUsedBy = userService
-                .findUserByIdAndPutInLocalCache(chatInvite.lastUsedBy, localUsersCache)
-                .awaitFirstOrNull()
+            .findUserByIdAndPutInLocalCache(chatInvite.lastUsedBy, localUsersCache)
+            .awaitFirstOrNull()
 
         return@mono ChatInviteFullResponse(
-                id = chatInvite.id,
-                chatId = chatInvite.chatId,
-                name = chatInvite.name,
-                createdAt = chatInvite.createdAt,
-                createdBy = createdBy,
-                updatedAt = chatInvite.updatedAt,
-                updatedBy = updatedBy,
-                lastUsedAt = chatInvite.lastUsedAt,
-                lastUsedBy = lastUsedBy,
-                user = user,
-                expiresAt = chatInvite.expiresAt,
-                maxUseTimes = chatInvite.maxUseTimes,
-                useTimes = chatInvite.useTimes,
-                active = chatInvite.active,
-                joinAllowanceSettings = chatInvite.joinAllowanceSettings,
+            id = chatInvite.id,
+            chatId = chatInvite.chatId,
+            name = chatInvite.name,
+            createdAt = chatInvite.createdAt,
+            createdBy = createdBy,
+            updatedAt = chatInvite.updatedAt,
+            updatedBy = updatedBy,
+            lastUsedAt = chatInvite.lastUsedAt,
+            lastUsedBy = lastUsedBy,
+            user = user,
+            expiresAt = chatInvite.expiresAt,
+            maxUseTimes = chatInvite.maxUseTimes,
+            useTimes = chatInvite.useTimes,
+            active = chatInvite.active,
+            joinAllowanceSettings = chatInvite.joinAllowanceSettings,
         )
     }
 }

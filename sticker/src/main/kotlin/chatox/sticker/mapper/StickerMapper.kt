@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component
 @Component
 class StickerMapper(private val uploadMapper: UploadMapper) {
 
-    fun <MetadataType> toStickerResponse(sticker: Sticker<MetadataType>) = StickerResponse<MetadataType>(
-            id = sticker.id,
-            image = uploadMapper.toUploadResponse(sticker.image),
-            stickerPackId = sticker.stickerPackId,
-            emojis = sticker.emojis,
-            keywords = sticker.keywords
+    fun toStickerResponse(sticker: Sticker) = StickerResponse(
+        id = sticker.id,
+        upload = uploadMapper.toUploadResponse(sticker.upload),
+        stickerPackId = sticker.stickerPackId,
+        emojis = sticker.emojis,
+        keywords = sticker.keywords
     )
 }

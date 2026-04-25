@@ -1,16 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {
-    Button,
-    Card,
-    CardHeader,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Theme,
-} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {Button, Card, CardHeader, Dialog, DialogActions, DialogContent, DialogTitle, Theme} from "@mui/material";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {ChatDescription} from "./ChatDescription";
 import {ChatMenu} from "./ChatMenu";
@@ -18,10 +9,11 @@ import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar";
 import {ChatParticipantsCard, useChatParticipantsListScroll} from "../../ChatParticipant";
 import {useLocalization, useStore} from "../../store";
-import {useMobileDialog} from "../../utils/hooks";
+import {useEntityById} from "../../entities";
+import {useLuminosity, useMobileDialog} from "../../utils/hooks";
 import {ChatType} from "../../api/types/response";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     chatInfoContainer: {
         display: "flex",
         alignItems: "center",
@@ -46,30 +38,22 @@ export const ChatInfoDialog: FunctionComponent = observer(() => {
         chatInfoDialog: {
             chatInfoDialogOpen,
             setChatInfoDialogOpen
-        },
-        entities: {
-            chats: {
-                findById: findChat
-            }
         }
     } = useStore();
     const {l} = useLocalization();
     const {fullScreen} = useMobileDialog();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const {scrollHandler} = useChatParticipantsListScroll("all");
 
-    if (!selectedChatId) {
-        return null;
-    }
+    const chat = useEntityById("chats", selectedChatId);
 
-    const chat = findChat(selectedChatId);
-
-    if (chat.type === ChatType.DIALOG) {
+    if (!chat || chat.type === ChatType.DIALOG) {
         return null;
     }
 
     const avatarLetter = getAvatarLabel(chat.name);
-    const color = randomColor({seed: chat.id});
+    const luminosity = useLuminosity();
+    const color = randomColor({seed: chat.id, luminosity});
 
     return (
         <Dialog open={chatInfoDialogOpen}

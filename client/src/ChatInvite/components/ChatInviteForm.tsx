@@ -41,15 +41,15 @@ export const ChatInviteForm: FunctionComponent<ChatInviteFormProps> = observer((
             <DateTimePicker onChange={date => setFormValue("expiresAt", date ? date : undefined)}
                             value={formValues.expiresAt || null}
                             disablePast
-                            inputFormat="dd MMMM yyyy HH:mm"
+                            format="dd MMMM yyyy HH:mm"
                             ampm={false}
-                            renderInput={props => (
-                                <TextField {...props}
-                                           label={l("chat.invite.expires-at")}
-                                           fullWidth
-                                           margin="dense"
-                                />
-                            )}
+                            label={l("chat.invite.expires-at")}
+                            slotProps={{
+                                textField: {
+                                    fullWidth: true,
+                                    margin: "dense"
+                                }
+                            }}
             />
             {userSelectComponent && userSelectComponent}
             <JoinChatAllowanceForm formValues={formValues.joinAllowanceSettings}

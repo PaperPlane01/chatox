@@ -4,14 +4,18 @@ import {config} from "../env-config";
 
 @Module({
     imports: [
-        RabbitMQModule.forRoot(RabbitMQModule, {
+        RabbitMQModule.forRoot({
             uri: `amqp://${config.RABBITMQ_USERNAME}:${config.RABBITMQ_PASSWORD}@${config.RABBITMQ_HOST}:${config.RABBITMQ_PORT}`,
             exchanges: [
                 {
                     name: "websocket.events",
                     type: "topic",
+                },
+                {
+                    name: "notification.events",
+                    type: "topic"
                 }
-            ],
+            ]
         })
     ],
     exports: [RabbitMQModule]

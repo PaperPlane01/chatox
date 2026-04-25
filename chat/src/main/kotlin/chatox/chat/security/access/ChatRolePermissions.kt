@@ -14,24 +14,29 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class ChatRolePermissions(private val chatRoleService: ChatRoleService,
-                          private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-                          private val chatService: ChatService) {
+class ChatRolePermissions(
+    private val chatRoleService: ChatRoleService,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>,
+    private val chatService: ChatService
+) {
 
-    fun canCreateChatRole(chatId: String, createChatRoleRequest: CreateChatRoleRequest) = canCreateOrUpdateRoleWithFeatures(
+    fun canCreateChatRole(chatId: String, createChatRoleRequest: CreateChatRoleRequest) =
+        canCreateOrUpdateRoleWithFeatures(
             chatId,
             createChatRoleRequest.features
-    )
+        )
 
-    fun canUpdateChatRole(chatId: String, updateChatRoleRequest: UpdateChatRoleRequest) = canCreateOrUpdateRoleWithFeatures(
+    fun canUpdateChatRole(chatId: String, updateChatRoleRequest: UpdateChatRoleRequest) =
+        canCreateOrUpdateRoleWithFeatures(
             chatId,
             updateChatRoleRequest.features
-    )
+        )
 
     private fun canCreateOrUpdateRoleWithFeatures(chatId: String, features: ChatFeatures): Mono<Boolean> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
-            val currentUserChatRole = chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
+            val currentUserChatRole =
+                chatRoleService.getRoleOfUserInChat(userId = currentUser.id, chatId = chatId).awaitFirstOrNull()
                     ?: return@mono false
             val chat = chatService.findChatById(chatId).awaitFirst()
 

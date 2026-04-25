@@ -14,3 +14,4 @@ export * from "./RewardApi";
 export * from "./WalletApi";
 export * from "./UserInteractionsApi";
 export * from "./ChatInviteApi";
+export * from "./NotificationsSettingsApi";

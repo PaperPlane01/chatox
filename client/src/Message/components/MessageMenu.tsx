@@ -8,7 +8,8 @@ import {EditMessageMenuItem} from "./EditMessageMenuItem";
 import {DeleteMessageMenuItem} from "./DeleteMessageMenuItem";
 import {PinMessageMenuItem} from "./PinMessageMenuItem";
 import {ForwardMessageMenuItem} from "./ForwardMessageMenuItem";
-import {useAuthorization, usePermissions, useStore} from "../../store";
+import {useAuthorization, usePermissions} from "../../store";
+import {useEntityById} from "../../entities";
 import {BanUserGloballyMenuItem} from "../../GlobalBan";
 import {ReportMessageMenuItem} from "../../Report";
 import {BlacklistUserActionMenuItemWrapper} from "../../Blacklist";
@@ -33,13 +34,6 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
     onMenuItemClick,
 }) => {
     const {
-        entities: {
-            messages: {
-                findById: findMessage
-            }
-        }
-    } = useStore();
-    const {
         messages: {
             canCreateMessage,
             canEditMessage,
@@ -55,8 +49,9 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
     } = usePermissions();
     const {currentUser} = useAuthorization();
     const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
+    const message = useEntityById("messages", messageId);
+
     const menuOpen = Boolean(anchorElement);
-    const message = findMessage(messageId);
 
     const handleOpenClick = (event: MouseEvent<HTMLElement>): void => {
         setAnchorElement(event.currentTarget);

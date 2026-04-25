@@ -2,13 +2,14 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import randomColor from "randomcolor";
 import {Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
 import {Avatar} from "../../Avatar";
 import {UserEntity} from "../../User";
 import {Routes} from "../../router";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {useRouter} from "../../store";
+import {useLuminosity} from "../../utils/hooks";
 
 interface UserLinkProps {
     user: UserEntity,
@@ -20,7 +21,7 @@ interface UserLinkProps {
     onClick?: () => void
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     userLink: {
         color: "inherit",
         textDecoration: "none",
@@ -41,8 +42,9 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
     onClick
 }) => {
     const routerStore = useRouter();
-    const classes = useStyles();
-    const color = randomColor({seed: user.id, luminosity: "dark"});
+    const {classes} = useStyles();
+    const luminosity = useLuminosity();
+    const color = randomColor({seed: user.id, luminosity});
     const avatarLabel = getUserAvatarLabel(user);
     const text = getUserDisplayedName(user);
 

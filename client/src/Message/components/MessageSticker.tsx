@@ -1,8 +1,11 @@
 import React, {FunctionComponent, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {ImageList, ImageListItem} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
+import {Sticker} from "../../Sticker";
 import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
+import {isLottieSticker} from "../../api/types/response";
 
 interface MessageStickerProps {
     stickerId: string,
@@ -10,24 +13,17 @@ interface MessageStickerProps {
     onImageLoaded?: () => void
 }
 
-const useStyles = makeStyles(() => createStyles({
-    imageWrapper: {
+const useStyles = makeStyles()(() => ({
+    stickerWrapper: {
         display: "inline-block",
         position: "relative",
         height: "100%",
         width: "100%",
         cursor: "pointer"
-    },
-    image: {
-        maxWidth: "100%",
-        maxHeight: "100%",
-        height: "inherit",
-        objectFit: "contain"
     }
 }));
 
 let heightCache: {[messageId: string]: number} = {};
-let stickersCache: {[stickerId: string]: string} = {};
 
 window.addEventListener("resize", () => heightCache = {});
 
@@ -37,35 +33,28 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
     onImageLoaded
 }) => {
     const {
-        entities: {
-            stickers: {
-                findById: findSticker
-            },
-            uploads: {
-                findImage
-            }
-        },
         stickerPackDialog: {
             setStickerPackId
+        },
+        stickerPreviewDialog: {
+            openDialog
         }
     } = useStore();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const [loaded, setLoaded] = useState(false);
     const imageContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (loaded && !heightCache[messageId] && imageContainerRef && imageContainerRef.current) {
             heightCache[messageId] = imageContainerRef.current.getBoundingClientRect().height;
-
-            if (onImageLoaded) {
-                onImageLoaded();
-            }
+            onImageLoaded?.();
         }
     });
 
-    const sticker = findSticker(stickerId);
-    const image = findImage(sticker.imageId);
-    const targetSize = image.meta!.height >= 256 ? 256 : image.meta!.height;
+    const sticker = useEntityById("stickers", stickerId);
+    const isLottie = isLottieSticker(sticker.stickerType);
+    const height = isLottie ? 256 : (heightCache[messageId] ?? undefined);
+    const width = isLottie ? 256 : undefined;
 
     return (
         <ImageList cols={1}
@@ -73,16 +62,19 @@ export const MessageSticker: FunctionComponent<MessageStickerProps> = observer((
                    gap={0}
         >
             <ImageListItem cols={1}>
-                <div className={classes.imageWrapper}
+                <div className={classes.stickerWrapper}
                      style={{
-                         height: stickersCache[stickerId] && stickersCache[stickerId]
-                     }}
+                         height,
+                         width,
+                         maxHeight: 256
+                }}
                      ref={imageContainerRef}
                 >
-                    <img src={`${image.uri}?size=${targetSize}`}
-                         className={classes.image}
-                         onClick={() => setStickerPackId(sticker.stickerPackId)}
-                         onLoad={() => setLoaded(true)}
+                    <Sticker stickerType={sticker.stickerType}
+                             stickerId={stickerId}
+                             onClick={() => setStickerPackId(sticker.stickerPackId)}
+                             onLongClick={() => openDialog(stickerId)}
+                             onLoad={() => setLoaded(true)}
                     />
                 </div>
             </ImageListItem>

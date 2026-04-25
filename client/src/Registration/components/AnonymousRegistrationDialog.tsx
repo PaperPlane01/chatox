@@ -10,14 +10,13 @@ import {
     Theme,
     Typography,
 } from "@mui/material";
-import createStyles from '@mui/styles/createStyles';
-import makeStyles from '@mui/styles/makeStyles';
+import {makeStyles} from "tss-react/mui";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     registerButton: {
         marginBottom: theme.spacing(2),
         width: "100%"
@@ -53,7 +52,7 @@ export const AnonymousRegistrationDialog: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const {fullScreen} = useMobileDialog();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     return (
         <Dialog open={anonymousRegistrationDialogOpen}

@@ -13,13 +13,14 @@ class UserInteractionEventsListener(private val userInteractionService: UserInte
 
     @RabbitListener(queues = ["user_service_user_interaction_rolled_back"])
     fun onUserInteractionRolledBack(
-            userInteractionRolledBack: UserInteractionRolledBack,
-            channel: Channel,
-            @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+        userInteractionRolledBack: UserInteractionRolledBack,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         userInteractionService
-                .rollbackUserInteraction(userInteractionRolledBack.userInteractionId)
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, false, true) }
-                .subscribe()
+            .rollbackUserInteraction(userInteractionRolledBack.userInteractionId)
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, false, true) }
+            .subscribe()
     }
 }

@@ -18,5 +18,5 @@ export const ChatAppBarSearchInput: FunctionComponent = observer(() => {
                          onClear={reset}
                          style={{color: "inherit"}}
         />
-    )
+    );
 });

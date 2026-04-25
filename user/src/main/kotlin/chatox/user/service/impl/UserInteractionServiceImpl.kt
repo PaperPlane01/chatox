@@ -30,14 +30,15 @@ import java.time.ZonedDateTime
 
 @Service
 class UserInteractionServiceImpl(
-        private val userInteractionsCountRepository: UserInteractionsCountRepository,
-        private val userInteractionRepository: UserInteractionRepository,
-        private val userInteractionCostService: UserInteractionCostService,
-        private val userInteractionsCountMapper: UserInteractionsCountMapper,
-        private val userInteractionMapper: UserInteractionMapper,
-        private val userService: UserService,
-        private val balanceService: BalanceService,
-        private val authenticationHolder: ReactiveAuthenticationHolder<User>) : UserInteractionService {
+    private val userInteractionsCountRepository: UserInteractionsCountRepository,
+    private val userInteractionRepository: UserInteractionRepository,
+    private val userInteractionCostService: UserInteractionCostService,
+    private val userInteractionsCountMapper: UserInteractionsCountMapper,
+    private val userInteractionMapper: UserInteractionMapper,
+    private val userService: UserService,
+    private val balanceService: BalanceService,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>
+) : UserInteractionService {
 
     override fun likeUser(userId: String): Mono<UserInteractionsCountResponse> {
         return createUserInteraction(userId, UserInteractionType.LIKE)
@@ -64,12 +65,12 @@ class UserInteractionServiceImpl(
             }
 
             val userInteraction = UserInteraction(
-                    id = ObjectId().toHexString(),
-                    userId = currentUser.id,
-                    targetUserId = userId,
-                    createdAt = ZonedDateTime.now(),
-                    type = type,
-                    cost = interactionCost
+                id = ObjectId().toHexString(),
+                userId = currentUser.id,
+                targetUserId = userId,
+                createdAt = ZonedDateTime.now(),
+                type = type,
+                cost = interactionCost
             )
             userInteractionRepository.save(userInteraction).awaitFirst()
             val interactionsCount = incrementInteractionsCount(userId, type).awaitFirst()
@@ -78,8 +79,10 @@ class UserInteractionServiceImpl(
         }
     }
 
-    private fun incrementInteractionsCount(userId: String,
-                                           interactionType: UserInteractionType): Mono<UserInteractionsCount> {
+    private fun incrementInteractionsCount(
+        userId: String,
+        interactionType: UserInteractionType
+    ): Mono<UserInteractionsCount> {
         return when (interactionType) {
             UserInteractionType.LIKE -> userInteractionsCountRepository.incrementLikesCount(userId)
             UserInteractionType.DISLIKE -> userInteractionsCountRepository.incrementDislikesCount(userId)
@@ -97,11 +100,11 @@ class UserInteractionServiceImpl(
                 userService.assertUserExists(userId).awaitFirstOrNull()
 
                 userInteractionsCount = UserInteractionsCount(
-                        id = ObjectId().toHexString(),
-                        likesCount = 0,
-                        dislikesCount = 0,
-                        lovesCount = 0,
-                        userId = userId
+                    id = ObjectId().toHexString(),
+                    likesCount = 0,
+                    dislikesCount = 0,
+                    lovesCount = 0,
+                    userId = userId
                 )
                 userInteractionsCountRepository.save(userInteractionsCount).awaitFirst()
 
@@ -113,13 +116,15 @@ class UserInteractionServiceImpl(
     override fun rollbackUserInteraction(userInteractionId: String): Mono<Unit> {
         return mono {
             val userInteraction = userInteractionRepository.findById(userInteractionId).awaitFirstOrNull()
-                    ?: return@mono
+                ?: return@mono
 
             when (userInteraction.type) {
                 UserInteractionType.LIKE ->
                     userInteractionsCountRepository.decrementLikesCount(userInteraction.targetUserId).awaitFirst()
+
                 UserInteractionType.DISLIKE ->
                     userInteractionsCountRepository.decrementDislikesCount(userInteraction.targetUserId).awaitFirst()
+
                 UserInteractionType.LOVE ->
                     userInteractionsCountRepository.decrementLovesCount(userInteraction.targetUserId).awaitFirst()
             }
@@ -128,22 +133,26 @@ class UserInteractionServiceImpl(
         }
     }
 
-    override fun getUserInteractionsHistory(userId: String, paginationRequest: PaginationRequest): Flux<UserInteractionResponse> {
+    override fun getUserInteractionsHistory(
+        userId: String,
+        paginationRequest: PaginationRequest
+    ): Flux<UserInteractionResponse> {
         val usersCache = mutableMapOf<String, UserResponse>()
 
         return mono {
             val history = userInteractionRepository
-                    .findByTargetUserId(userId, paginationRequest.toPageRequest())
-                    .collectList()
-                    .awaitFirst()
+                .findByTargetUserId(userId, paginationRequest.toPageRequest())
+                .collectList()
+                .awaitFirst()
 
-            return@mono history.map { userInteraction -> userInteractionMapper.toUserInteractionResponse(
+            return@mono history.map { userInteraction ->
+                userInteractionMapper.toUserInteractionResponse(
                     userInteraction,
                     usersCache
-            )
+                )
                     .awaitFirst()
             }
         }
-                .flatMapIterable { it }
+            .flatMapIterable { it }
     }
 }

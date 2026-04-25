@@ -2,6 +2,7 @@ import {Module} from "@nestjs/common";
 import {Eureka} from "eureka-js-client";
 import {config} from "../config";
 import {EurekaRegistrationHandler} from "./EurekaRegistrationHandler";
+import {EurekaService} from "./EurekaService";
 
 @Module({
     providers: [
@@ -25,14 +26,16 @@ import {EurekaRegistrationHandler} from "./EurekaRegistrationHandler";
                 },
                 eureka: {
                     preferIpAddress: true,
-                    fetchRegistry: false,
+                    fetchRegistry: true,
                     host: config.EUREKA_HOST,
                     port: config.EUREKA_PORT,
                     servicePath: "/eureka/apps"
                 }
             })
         },
-        EurekaRegistrationHandler
-    ]
+        EurekaRegistrationHandler,
+        EurekaService
+    ],
+    exports: [EurekaService]
 })
 export class EurekaModule {}

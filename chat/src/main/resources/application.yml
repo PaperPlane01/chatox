@@ -4,25 +4,31 @@ spring:
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
+  elasticsearch:
+    uris: ${ELASTICSEARCH_HOSTS:localhost:9200}
+    socket-timeout: 5m
+    username:
+    password:
   data:
     mongodb:
       repositories:
         type: reactive
-      database: ${MONGODB_CHAT_SERVICE:chat-service}
-      host: ${MONGODB_HOST:localhost}
-      port: ${MONGODB_PORT:27017}
       auto-index-creation: true
-    elasticsearch:
-      client:
-        reactive:
-          endpoints: ${ELASTICSEARCH_HOSTS:localhost:9200}
-          socket-timeout: 5m
+  jackson:
+    datatype:
+      enum:
+        read-enums-using-to-string: false
+        write-enums-using-to-string: false
   rabbitmq:
     listener:
       direct:
         acknowledge-mode: manual
       simple:
         acknowledge-mode: manual
+  mongodb:
+    database: ${MONGODB_CHAT_SERVICE:chat-service}
+    host: ${MONGODB_HOST:localhost}
+    port: ${MONGODB_PORT:27017}
 
 server:
   port: 8085
@@ -43,25 +49,10 @@ ribbon:
   eureka:
     enabled: true
 
-uploads:
-  images: ${API_HOST:http://localhost:8080}/api/v1/uploads/images
-  videos: ${API_HOST:http://localhost:8080}/api/v1/uploads/videos
-  files: ${API_HOST:http://localhost:8080}/api/v1/uploads/files
-  audios: ${API_HOST:http://localhost:8080}/api/v1/uploads/audios
-
 scheduled:
   messages:
     check:
       enabled: true
-
-messages:
-  elasticsearch:
-    sync-on-start: false
-
-chats:
-  elasticsearch:
-    sync-on-start: false
-
 chatox:
   jwt:
     public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuIwjG7bwqv6J+JsuF2A3BRmJS4yj/q5esXzNkGCJSAzrtsOYX3wbf8uZCvSHtfCl/igPeL+HUgD+RtGkCqzn8WBadJfqVh1tuF3X3sc8DRQu/Z5RodRTmWDNkF1CYlEo5OcrQ5Quv5raUGl8TnRPJhjYF7quvDwV6EJTamm0sILN2tRg79pXhkf1kkAc5uhJOs+SWUYmkFGim2ZwMN5IA0QOCb0mzvj7XYgqW18376qCThtYk9CYjx9kCvuufUm93/G4VHWb2mvyHgJ8duzNeAWaPfTqShIBmuxdf0xQnCydozzzq0IvI8bd/YwouqrKFp9ueIRX2zC7WdOhpROGUwIDAQAB
@@ -72,9 +63,20 @@ chatox:
     sync:
       messages:
         sync-on-start: false
+        delete-before-import: true
       chats:
         sync-on-start: false
+  uploads:
+    images: ${API_HOST:http://localhost:8080}/api/v1/uploads/images
+    videos: ${API_HOST:http://localhost:8080}/api/v1/uploads/videos
+    files: ${API_HOST:http://localhost:8080}/api/v1/uploads/files
+    audios: ${API_HOST:http://localhost:8080}/api/v1/uploads/audios
+    image-stickers: ${API_HOST:http://localhost:8080}/api/v1/uploads/stickers/image
+    webp-stickers: ${API_HOST:http://localhost:8080}/api/v1/uploads/stickers/webp
+    video-stickers: ${API_HOST:http://localhost:8080}/api/v1/uploads/stickers/video
+    lottie-stickers: ${API_HOST:http://localhost:8080}/api/v1/uploads/stickers/lottie
 
 mongration:
-  enabled: true
+  # disable until Spring Boot 4 support is added https://github.com/KuliginStepan/mongration/issues/26
+  enabled: false
   mode: reactive

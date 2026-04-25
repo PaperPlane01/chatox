@@ -2,9 +2,10 @@ import React, {ChangeEvent, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem, Tab, Typography} from "@mui/material";
 import {TabContext, TabList, TabPanel} from "@mui/lab";
-import {Block, ChatBubble, Image, Language, Palette, Person, Security} from "@mui/icons-material";
+import {Block, ChatBubble, Image, Language, Notifications, Palette, Person, Security} from "@mui/icons-material";
 import {SecurityTabWrapper} from "./SecurityTabWrapper";
 import {AppearanceTabWrapper} from "./AppearanceTabWrapper";
+import {StickersTabWrapper} from "./StickersTabWrapper";
 import {SettingsTab} from "../types";
 import {HasAnyRole, HasRole} from "../../Authorization";
 import {EditProfileForm} from "../../User";
@@ -12,9 +13,9 @@ import {ChatsPreferencesCard} from "../../Chat";
 import {LanguagePicker} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
-import {InstalledStickerPacksList} from "../../Sticker";
 import {BlacklistedUsersList} from "../../Blacklist";
 import {createTabStyles} from "../../style";
+import {GlobalNotificationsSettingsUpdate} from "../../Notification";
 
 const useStyles = createTabStyles();
 
@@ -26,7 +27,7 @@ export const SettingsTabs: FunctionComponent = observer(() => {
     } = useStore();
     const routerStore = useRouter();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const goTo = (settingsTab: string) => {
         routerStore.goTo(Routes.settingsTabPage, {tab: settingsTab});
@@ -34,7 +35,7 @@ export const SettingsTabs: FunctionComponent = observer(() => {
 
     return (
         <div className={classes.tabsContainer}>
-            <TabContext value={activeTab ? activeTab : SettingsTab.PROFILE}>
+            <TabContext value={activeTab ?? SettingsTab.PROFILE}>
                 <TabList orientation="vertical"
                          variant="fullWidth"
                          className={classes.tabs}
@@ -103,6 +104,18 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                              </MenuItem>
                          }
                     />
+                    <Tab value={SettingsTab.NOTIFICATIONS}
+                         label={(
+                             <MenuItem>
+                                 <ListItemIcon>
+                                     <Notifications/>
+                                 </ListItemIcon>
+                                 <ListItemText>
+                                     {l("settings.notifications")}
+                                 </ListItemText>
+                             </MenuItem>
+                         )}
+                    />
                     <Tab value={SettingsTab.STICKERS}
                          label={
                              <MenuItem>
@@ -169,6 +182,11 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                 >
                     <ChatsPreferencesCard/>
                 </TabPanel>
+                <TabPanel value={SettingsTab.NOTIFICATIONS}
+                          className={classes.fullWidth}
+                >
+                    <GlobalNotificationsSettingsUpdate/>
+                </TabPanel>
                 <TabPanel value={SettingsTab.STICKERS}
                           className={classes.fullWidth}
                 >
@@ -179,7 +197,7 @@ export const SettingsTabs: FunctionComponent = observer(() => {
                                     </Typography>
                                 }
                     >
-                        <InstalledStickerPacksList/>
+                        <StickersTabWrapper/>
                     </HasAnyRole>
                 </TabPanel>
                 <TabPanel value={SettingsTab.BLACKLIST}

@@ -1,7 +1,7 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {HttpStatusCode} from "axios";
 import {API_UNREACHABLE_STATUS, ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {JoinChatRejectionReason} from "../../api/types/response";
+import {JoinChatRejectionReason, UserVerificationLevel} from "../../api/types/response";
 import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
 import {PendingChatsOfCurrentUserStore} from "../../Chat";
@@ -40,7 +40,8 @@ export class JoinChatStore {
                         user: {
                             ...user,
                             deleted: false,
-                            online: true
+                            online: true,
+                            anonymous: user.verificationLevel === UserVerificationLevel.ANONYMOUS
                         }
                     }, {
                         increaseChatParticipantsCount: true

@@ -1,8 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Avatar as MuiAvatar, Skeleton} from "@mui/material";
+import {Skeleton} from "@mui/material";
+import {ImageAvatar} from "./ImageAvatar";
+import {LetterAvatar} from "./LetterAvatar";
+import {ExternalImageAvatar} from "./ExternalImageAvatar";
 import {isStringEmpty} from "../../utils/string-utils";
-import {useEntities} from "../../store";
 
 export interface AvatarProps {
     avatarUri?: string,
@@ -29,11 +31,7 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
     shape = "circular",
     onCLick
 }) => {
-    const {
-        uploads: {
-            findImage
-        }
-    } = useEntities();
+    const avatarVariant = shape === "rectangular" ? "square" : shape;
 
     if (pending) {
         return (
@@ -42,47 +40,36 @@ export const Avatar: FunctionComponent<AvatarProps> = observer(({
                       height={height}
             />
         )
+    } else if (avatarId) {
+        return (
+            <ImageAvatar avatarId={avatarId}
+                         width={width}
+                         height={height}
+                         className={className}
+                         variant={avatarVariant}
+                         onClick={onCLick}
+            />
+        );
+    } else if (isStringEmpty(avatarUri)) {
+           return (
+               <LetterAvatar letter={avatarLetter}
+                             color={avatarColor}
+                             width={width}
+                             height={height}
+                             className={className}
+                             variant={avatarVariant}
+                             onClick={onCLick}
+               />
+           )
     } else {
-        const imageProps = {
-            width,
-            height
-        };
-
-        let uri: string | undefined = undefined;
-
-        if (avatarUri) {
-            uri = avatarUri;
-        } else if (avatarId) {
-            const avatar = findImage(avatarId);
-            uri = `${avatar.uri}?size=${width >= 256 ? width : 256}`;
-        }
-
-        if (isStringEmpty(uri)) {
-            return (
-                <MuiAvatar style={{
-                               backgroundColor: avatarColor,
-                               width: imageProps.width,
-                               height: imageProps.height
-                           }}
-                           className={className}
-                           variant={shape === "rectangular" ? "square" : shape }
-                           onClick={onCLick}
-                >
-                    {avatarLetter}
-                </MuiAvatar>
-            );
-        } else {
-            return (
-                <MuiAvatar src={uri}
-                           style={{
-                               width: imageProps.width,
-                               height: imageProps.height
-                           }}
-                           className={className}
-                           variant={shape === "rectangular" ? "square" : shape}
-                           onClick={onCLick}
-                />
-            );
-        }
+        return (
+            <ExternalImageAvatar externalUri={avatarUri!}
+                                 width={width}
+                                 height={height}
+                                 className={className}
+                                 variant={avatarVariant}
+                                 onClick={onCLick}
+            />
+        );
     }
 });

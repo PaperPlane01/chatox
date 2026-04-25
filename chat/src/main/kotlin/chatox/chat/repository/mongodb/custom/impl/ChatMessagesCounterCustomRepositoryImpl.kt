@@ -15,14 +15,15 @@ import reactor.core.publisher.Mono
 
 @Repository
 class ChatMessagesCounterCustomRepositoryImpl(
-        private val reactiveMongoTemplate: ReactiveMongoTemplate) : ChatMessagesCounterCustomRepository {
+    private val reactiveMongoTemplate: ReactiveMongoTemplate
+) : ChatMessagesCounterCustomRepository {
 
     override fun getNextCounterValue(chat: Chat): Mono<Long> {
         return getNextCounterValue(chat.id)
     }
 
     override fun getNextCounterValue(chatId: String): Mono<Long> {
-       return increaseCounterValue(chatId, 1)
+        return increaseCounterValue(chatId, 1)
     }
 
     override fun increaseCounterValue(chatId: String, number: Long): Mono<Long> {
@@ -36,13 +37,13 @@ class ChatMessagesCounterCustomRepositoryImpl(
 
         return mono {
             reactiveMongoTemplate.findAndModify(
-                    query,
-                    update,
-                    options,
-                    ChatMessagesCounter::class.java
+                query,
+                update,
+                options,
+                ChatMessagesCounter::class.java
             )
-                    .awaitFirst()
-                    .messagesCount
+                .awaitFirst()
+                .messagesCount
         }
     }
 }

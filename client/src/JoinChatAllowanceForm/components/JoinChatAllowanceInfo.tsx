@@ -1,8 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Theme, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
-import clsx from "clsx";
+import {makeStyles} from "tss-react/mui";
 import {useLocalization} from "../../store";
 import {JoinAllowanceMap} from "../../api/types/response";
 import {createBorderedStyle} from "../../style";
@@ -14,7 +13,7 @@ interface JoinChatAllowanceInfoProps {
     wrapWithBorder?: boolean
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     bordered: createBorderedStyle(theme),
     joinChatAllowanceInfo: {
         display: "flex",
@@ -33,8 +32,8 @@ export const JoinChatAllowanceInfo: FunctionComponent<JoinChatAllowanceInfoProps
     label
 }) => {
     const {l} = useLocalization();
-    const classes = useStyles();
-    const className = clsx(({
+    const { classes, cx } = useStyles();
+    const className = cx(({
         [classes.joinChatAllowanceInfo]: true,
         [classes.bordered]: wrapWithBorder
     }));

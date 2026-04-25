@@ -2,7 +2,8 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select} from "@mui/material";
 import {getChatRoleTranslation} from "../utils";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization} from "../../store";
+import {useEntitiesByIds} from "../../entities";
 
 interface ChatRoleSelectProps {
     onSelect: (roleId: string) => void,
@@ -21,15 +22,9 @@ export const ChatRoleSelect: FunctionComponent<ChatRoleSelectProps> = observer((
     pending = false,
     validationError
 }) => {
-    const {
-        entities: {
-            chatRoles: {
-                findAllById: findChatRoles
-            }
-        }
-    } = useStore();
     const {l} = useLocalization();
-    const roles = findChatRoles(rolesIds).sort((first, second) => first.level - second.level);
+    const roles = useEntitiesByIds("chatRoles", rolesIds)
+        .sort((first, second) => first.level - second.level);
 
     return (
         <FormControl fullWidth

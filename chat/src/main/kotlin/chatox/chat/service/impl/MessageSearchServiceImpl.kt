@@ -11,64 +11,97 @@ import chatox.chat.service.MessageSearchService
 import chatox.platform.pagination.PaginationRequest
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Service
-class MessageSearchServiceImpl(private val messageElasticsearchRepository: MessageElasticsearchRepository,
-                               private val messageMongoRepository: MessageMongoRepository,
-                               private val chatParticipationRepository: ChatParticipationRepository,
-                               private val messageMapper: MessageMapper,
-                               private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-                               private val elasticsearchSync: ElasticsearchSynchronizationProperties
+class MessageSearchServiceImpl(
+    private val messageElasticsearchRepository: MessageElasticsearchRepository,
+    private val messageMongoRepository: MessageMongoRepository,
+    private val chatParticipationRepository: ChatParticipationRepository,
+    private val messageMapper: MessageMapper,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>,
+    private val elasticsearchSync: ElasticsearchSynchronizationProperties
 ) : MessageSearchService {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
-    override fun searchMessages(text: String, chatId: String, paginationRequest: PaginationRequest): Flux<MessageResponse> {
+    override fun searchMessages(
+        text: String,
+        chatId: String,
+        paginationRequest: PaginationRequest
+    ): Flux<MessageResponse> {
         val messages = messageElasticsearchRepository.findByTextAndChatId(
-                text = text,
-                chatId = chatId,
-                pageable = paginationRequest.toPageRequest()
+            text = text,
+            chatId = chatId,
+            pageable = paginationRequest.toPageRequest()
         )
 
         return messageMapper.mapMessages(messages)
     }
 
-    override fun searchMessagesInChatsOfCurrentUser(text: String, paginationRequest: PaginationRequest): Flux<MessageResponse> {
+    override fun searchMessagesInChatsOfCurrentUser(
+        text: String,
+        paginationRequest: PaginationRequest
+    ): Flux<MessageResponse> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUserDetails().awaitFirst()
             val chatIds = chatParticipationRepository
-                    .findAllByUserIdAndDeletedFalse(currentUser.id)
-                    .collectList()
-                    .awaitFirst()
-                    .map { chatParticipation -> chatParticipation.chatId }
+                .findAllByUserIdAndDeletedFalse(currentUser.id)
+                .collectList()
+                .awaitFirst()
+                .map { chatParticipation -> chatParticipation.chatId }
             val messages = messageElasticsearchRepository.findByTextAndChatIdIn(
-                    text = text,
-                    chatIds = chatIds,
-                    pageable = paginationRequest.toPageRequest()
+                text = text,
+                chatIds = chatIds,
+                pageable = paginationRequest.toPageRequest()
             )
 
             return@mono messageMapper.mapMessages(messages)
         }
-                .flatMapMany { it }
+            .flatMapMany { it }
     }
 
-    override fun importMessagesToElasticsearch(): Mono<Void> {
+    override fun importMessagesToElasticsearch(deleteBeforeImport: Boolean): Mono<Unit> {
         return mono {
             log.info("Importing all messages from MongoDB to Elasticsearch")
 
-            val messages = messageMongoRepository.findAll().collectList().awaitFirst()
-            messageElasticsearchRepository.saveAll(messages.map { message -> message.toElasticsearch() }).collectList().awaitFirst()
+            var endReached = false
+            var currentPage = 0
+            val pageSize = 1000
+
+            if (deleteBeforeImport) {
+                messageElasticsearchRepository.deleteAll().awaitFirstOrNull()
+            }
+
+            while (!endReached) {
+                log.info("Importing page {} of messages", currentPage)
+                val pageRequest = PageRequest.of(currentPage, pageSize)
+                val messages = messageMongoRepository.findAllBy(pageRequest)
+                    .collectList()
+                    .awaitFirst()
+                    .map { message -> message.toElasticsearch() }
+                messageElasticsearchRepository.saveAll(messages).collectList().awaitFirst()
+
+                if (messages.size < pageSize) {
+                    log.info("Messages import page size is {}, end reached", messages.size)
+                    endReached = true
+                } else {
+                    log.info("Messages import page size is {}, continuing import", messages.size)
+                    currentPage += 1
+                }
+            }
 
             log.info("Messages import has been finished")
-            return@mono Mono.empty<Void>()
+
+            return@mono
         }
-                .flatMap { it }
     }
 
     @EventListener(ApplicationReadyEvent::class)
@@ -77,6 +110,6 @@ class MessageSearchServiceImpl(private val messageElasticsearchRepository: Messa
             return
         }
 
-        importMessagesToElasticsearch().subscribe()
+        importMessagesToElasticsearch(elasticsearchSync.messages.deleteBeforeImport).subscribe()
     }
 }

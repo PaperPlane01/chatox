@@ -19,38 +19,42 @@ import java.util.function.Function
 
 @Component(CacheWrappersConfig.DEFAULT_ROLE_OF_CHAT_CACHE_WRAPPER)
 class DefaultRoleOfChatCacheWrapper @Autowired constructor(
-        @Qualifier(RedisConfig.DEFAULT_ROLE_OF_CHAT_CACHE_SERVICE)
-        private val cacheService: ReactiveCacheService<ChatRole, String>,
-        private val chatRoleRepository: ChatRoleRepository
+    @param:Qualifier(RedisConfig.DEFAULT_ROLE_OF_CHAT_CACHE_SERVICE)
+    private val cacheService: ReactiveCacheService<ChatRole, String>,
+    private val chatRoleRepository: ChatRoleRepository
 ) : ReactiveRepositoryCacheWrapper<ChatRole, String> {
     override fun findById(id: String): Mono<ChatRole> {
         return findById(
-                id = id,
-                putInCacheIfAbsent = true
+            id = id,
+            putInCacheIfAbsent = true
         )
     }
 
     override fun findById(id: String, exceptionFunction: Function<String, RuntimeException>): Mono<ChatRole> {
         return findByChatId(
-                chatId = id,
-                putInCacheIfAbsent = true,
-                exceptionFunction = exceptionFunction
+            chatId = id,
+            putInCacheIfAbsent = true,
+            exceptionFunction = exceptionFunction
         )
     }
 
     override fun findById(id: String, putInCacheIfAbsent: Boolean): Mono<ChatRole> {
         return findByChatId(
-                chatId = id,
-                putInCacheIfAbsent = putInCacheIfAbsent
+            chatId = id,
+            putInCacheIfAbsent = putInCacheIfAbsent
         )
     }
 
     fun findByChatId(chatId: String, putInCacheIfAbsent: Boolean = true): Mono<ChatRole> = findByChatId(
-            chatId = chatId,
-            putInCacheIfAbsent = putInCacheIfAbsent
+        chatId = chatId,
+        putInCacheIfAbsent = putInCacheIfAbsent
     ) { id -> NoDefaultChatRoleException("Chat $id doesn't have a default role") }
 
-    fun findByChatId(chatId: String, putInCacheIfAbsent: Boolean, exceptionFunction: Function<String, RuntimeException>): Mono<ChatRole> {
+    fun findByChatId(
+        chatId: String,
+        putInCacheIfAbsent: Boolean,
+        exceptionFunction: Function<String, RuntimeException>
+    ): Mono<ChatRole> {
         return mono {
             var role = cacheService.find(chatId).awaitFirstOrNull()
 
@@ -96,6 +100,6 @@ class DefaultRoleOfChatCacheWrapper @Autowired constructor(
 
             return@mono roles
         }
-                .flatMapMany { Flux.fromIterable(it) }
+            .flatMapMany { Flux.fromIterable(it) }
     }
 }

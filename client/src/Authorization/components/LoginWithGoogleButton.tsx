@@ -1,11 +1,11 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {stringify} from "query-string";
 import {useLocalization, useRouter, useStore} from "../../store";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     loginWithGoogleButton: {
         color: "white",
         backgroundColor: "#cb3837",
@@ -27,14 +27,14 @@ export const LoginWithGoogleButton: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const router = useRouter();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const handleClick = (): void => {
         const currentPath = router.currentRoute?.path;
         const currentParams = router.params;
         const queryParams = router.queryParams;
 
-        setOriginalPath(currentPath ? currentPath : "");
+        setOriginalPath(currentPath ?? "");
         currentParams && setOriginalParams(currentParams);
         queryParams && setOriginalQueryParams(queryParams);
 

@@ -1,7 +1,6 @@
 package chatox.user.repository
 
 import chatox.user.domain.GlobalBan
-import chatox.user.domain.User
 import chatox.user.repository.custom.GlobalBanCustomRepository
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository

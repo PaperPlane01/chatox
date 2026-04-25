@@ -16,9 +16,10 @@ import reactor.core.publisher.Mono
 
 @Service
 class ChatParticipantsCountServiceImpl(
-        private val chatParticipantsCountRepository: ChatParticipantsCountRepository,
-        private val chatParticipantsCountCacheWrapper: ReactiveRepositoryCacheWrapper<ChatParticipantsCount, String>,
-        private val chatParticipantsCountCacheService: ReactiveCacheService<ChatParticipantsCount, String>) : ChatParticipantsCountService {
+    private val chatParticipantsCountRepository: ChatParticipantsCountRepository,
+    private val chatParticipantsCountCacheWrapper: ReactiveRepositoryCacheWrapper<ChatParticipantsCount, String>,
+    private val chatParticipantsCountCacheService: ReactiveCacheService<ChatParticipantsCount, String>
+) : ChatParticipantsCountService {
 
     override fun getChatParticipantsCount(chatId: String): Mono<ChatParticipantsCount> {
         return chatParticipantsCountCacheWrapper.findById(chatId)
@@ -26,25 +27,25 @@ class ChatParticipantsCountServiceImpl(
 
     override fun getChatParticipantsCount(chatIds: List<String>): Mono<Map<String, ChatParticipantsCount>> {
         return chatParticipantsCountCacheWrapper.findByIds(chatIds)
-                .collectList()
-                .map { result -> result.associateBy { it.chatId } }
+            .collectList()
+            .map { result -> result.associateBy { it.chatId } }
     }
 
     override fun getPopularChatsParticipantsCount(paginationRequest: PaginationRequest): Mono<Map<String, ChatParticipantsCount>> {
         return mono {
             val pageRequest = PageRequest.of(
-                    paginationRequest.page!!,
-                    paginationRequest.pageSize!!,
-                    Sort.by(
-                            Sort.Order.desc("onlineParticipantsCount"),
-                            Sort.Order.desc("participantsCount")
-                    )
+                paginationRequest.page!!,
+                paginationRequest.pageSize!!,
+                Sort.by(
+                    Sort.Order.desc("onlineParticipantsCount"),
+                    Sort.Order.desc("participantsCount")
+                )
             )
 
             return@mono chatParticipantsCountRepository.findAllByHideFromSearchFalse(pageRequest)
-                    .collectList()
-                    .map { result -> result.associateBy { it.chatId } }
-                    .awaitFirst()
+                .collectList()
+                .map { result -> result.associateBy { it.chatId } }
+                .awaitFirst()
         }
     }
 
@@ -55,8 +56,8 @@ class ChatParticipantsCountServiceImpl(
     override fun increaseChatParticipantsCount(chatId: String, number: Int): Mono<ChatParticipantsCount> {
         return mono {
             val chatParticipantsCount = chatParticipantsCountRepository
-                    .increaseParticipantsCount(chatId, number)
-                    .awaitFirst()
+                .increaseParticipantsCount(chatId, number)
+                .awaitFirst()
 
             return@mono chatParticipantsCountCacheService.put(chatParticipantsCount).awaitFirst()
         }
@@ -69,8 +70,8 @@ class ChatParticipantsCountServiceImpl(
     override fun decreaseChatParticipantsCount(chatId: String, number: Int): Mono<ChatParticipantsCount> {
         return mono {
             val chatParticipantsCount = chatParticipantsCountRepository
-                    .decreaseParticipantsCount(chatId, number)
-                    .awaitFirst()
+                .decreaseParticipantsCount(chatId, number)
+                .awaitFirst()
 
             return@mono chatParticipantsCountCacheService.put(chatParticipantsCount).awaitFirst()
         }
@@ -83,8 +84,8 @@ class ChatParticipantsCountServiceImpl(
     override fun increaseOnlineParticipantsCount(chatId: String, number: Int): Mono<ChatParticipantsCount> {
         return mono {
             val chatParticipantsCount = chatParticipantsCountRepository
-                    .increaseOnlineParticipantsCount(chatId, number)
-                    .awaitFirst()
+                .increaseOnlineParticipantsCount(chatId, number)
+                .awaitFirst()
 
             return@mono chatParticipantsCountCacheService.put(chatParticipantsCount).awaitFirst()
         }
@@ -97,20 +98,24 @@ class ChatParticipantsCountServiceImpl(
     override fun decreaseOnlineParticipantsCount(chatId: String, number: Int): Mono<ChatParticipantsCount> {
         return mono {
             val chatParticipantsCount = chatParticipantsCountRepository
-                    .decreaseOnlineParticipantsCount(chatId, number)
-                    .awaitFirst()
+                .decreaseOnlineParticipantsCount(chatId, number)
+                .awaitFirst()
 
             return@mono chatParticipantsCountCacheService.put(chatParticipantsCount).awaitFirst()
         }
     }
 
-    override fun initializeForChat(chatId: String, participantsCount: Int, onlineParticipantsCount: Int): Mono<ChatParticipantsCount> {
+    override fun initializeForChat(
+        chatId: String,
+        participantsCount: Int,
+        onlineParticipantsCount: Int
+    ): Mono<ChatParticipantsCount> {
         return mono {
             val chatParticipantsCount = ChatParticipantsCount(
-                    id = ObjectId().toHexString(),
-                    chatId = chatId,
-                    participantsCount = participantsCount,
-                    onlineParticipantsCount = onlineParticipantsCount
+                id = ObjectId().toHexString(),
+                chatId = chatId,
+                participantsCount = participantsCount,
+                onlineParticipantsCount = onlineParticipantsCount
             )
             chatParticipantsCountRepository.save(chatParticipantsCount).awaitFirst()
             chatParticipantsCountCacheService.put(chatParticipantsCount).awaitFirst()
@@ -122,9 +127,9 @@ class ChatParticipantsCountServiceImpl(
     override fun setHideFromSearch(chatId: String, hideFromSearch: Boolean): Mono<ChatParticipantsCount> {
         return mono {
             val chatParticipantsCount = chatParticipantsCountRepository
-                    .findByChatId(chatId)
-                    .map { it.copy(hideFromSearch = hideFromSearch) }
-                    .awaitFirst()
+                .findByChatId(chatId)
+                .map { it.copy(hideFromSearch = hideFromSearch) }
+                .awaitFirst()
 
             chatParticipantsCountRepository.save(chatParticipantsCount).awaitFirst()
 

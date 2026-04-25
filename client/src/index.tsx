@@ -1,39 +1,30 @@
 import React from "react";
 import {createRoot} from "react-dom/client";
 import {Provider} from "mobx-react";
-import {parse} from "query-string";
-import {startRouter} from "mobx-router";
+import {setWasmUrl} from "@lottiefiles/dotlottie-react";
+import wasmUrl from "@lottiefiles/dotlottie-web/dist/dotlottie-player.wasm?url";
+import data from "@emoji-mart/data/sets/15/all.json";
+import {init} from "emoji-mart"
 import {App} from "./App";
-import {store, rootStore} from "./store";
-import {RouterStoreAware, Routes} from "./router";
+import {rootStore, store} from "./store";
+import {RouterStoreAware} from "./router";
 import * as serviceWorker from "./serviceWorker";
+
+init({data});
+
+setWasmUrl(import.meta.env.VITE_PUBLIC_URL + wasmUrl);
 
 const routerStore = rootStore.router;
 const routerStoreAware: RouterStoreAware[] = [
     store.messageCreation,
     store.chatDeletion,
-    store.joinChatByInvite
+    store.joinChatByInvite,
+    store.stickerPackCreation,
+    store.chatOwnershipTransfer
 ];
 
-const injectRouterStore = (): void => {
-    routerStoreAware.forEach(store => store.setRouterStore(routerStore));
-};
-
-injectRouterStore();
-
-startRouter(Routes, rootStore, {
-    notfound: () => {
-        if (window.location.href.includes(`${import.meta.env.VITE_PUBLIC_URL}/oauth/google/`)) {
-            const queryStringParameters = parse(
-                window.location.href.substring(`${import.meta.env.VITE_PUBLIC_URL}/oauth/google/`.length)
-            );
-            const access_token = queryStringParameters.access_token ? `${queryStringParameters.access_token}` : "";
-            routerStore.goTo(Routes.googleAuthentication, {}, {access_token});
-        } else {
-            routerStore.goTo(Routes.notFound);
-        }
-    }
-});
+rootStore.startRouter();
+rootStore.injectRouterStore(routerStoreAware);
 
 const root = createRoot(document.getElementById("root")!);
 root.render(
@@ -53,9 +44,7 @@ if (localStorage.getItem("accessToken")) {
 }
 
 if (import.meta.env.DEV) {
-    import("mobx").then(mobxModule => {
-        (window as any).toJS = mobxModule.toJS;
-    });
+    import("mobx").then(mobxModule => (window as any).toJS = mobxModule.toJS) // expose for convenient debugging
 }
 
 // If you want your app to work offline and load faster, you can change

@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {parseSendMessageButton, SendMessageButton} from "../types";
+import {MessageEditorType, parseMessageEditorType, parseSendMessageButton, SendMessageButton} from "../types";
 
 export class ChatsPreferencesStore {
     enableVirtualScroll: boolean = false;
@@ -10,13 +10,15 @@ export class ChatsPreferencesStore {
 
     enablePartialVirtualization: boolean = false;
 
-    useSharedWorker: boolean = false;
-
     sendTypingNotification: boolean = true;
 
     displayUnreadMessagesCount: boolean = false;
 
     displayUnreadChatsCount: boolean = false;
+
+    messageEditorType: MessageEditorType = MessageEditorType.PLAIN_TEXT;
+
+    saveDraftMessagesToServer: boolean = false;
 
     constructor() {
         makeAutoObservable(this);
@@ -41,10 +43,6 @@ export class ChatsPreferencesStore {
             this.enablePartialVirtualization = localStorage.getItem("enablePartialVirtualization") === "true";
         }
 
-        if (localStorage.getItem("useSharedWorker")) {
-            this.useSharedWorker = localStorage.getItem("useSharedWorker") === "true";
-        }
-
         if (localStorage.getItem("sendTypingNotification") !== null) {
             this.sendTypingNotification = localStorage.getItem("sendTypingNotification") === "true";
         }
@@ -55,6 +53,14 @@ export class ChatsPreferencesStore {
 
         if (localStorage.getItem("displayUnreadChatsCount") !== null) {
             this.displayUnreadChatsCount = localStorage.getItem("displayUnreadChatsCount") === "true";
+        }
+
+        if (localStorage.getItem("messageEditorType") !== null) {
+            this.messageEditorType = parseMessageEditorType(localStorage.getItem("messageEditorType"));
+        }
+
+        if (localStorage.getItem("saveDraftMessagesToServer") !== null) {
+            this.saveDraftMessagesToServer = localStorage.getItem("saveDraftMessagesToServer") === "true";
         }
     }
 
@@ -80,12 +86,6 @@ export class ChatsPreferencesStore {
         localStorage.setItem("enablePartialVirtualization", `${enablePartialVirtualization}`);
     }
 
-    setUseSharedWorker = (useSharedWorker: boolean): void => {
-        this.useSharedWorker = useSharedWorker;
-        localStorage.setItem("useSharedWorker", `${useSharedWorker}`);
-        window.location.reload();
-    }
-
     setSendTypingNotification = (sendTypingNotification: boolean): void => {
         this.sendTypingNotification = sendTypingNotification;
         localStorage.setItem("sendTypingNotification", `${sendTypingNotification}`);
@@ -99,5 +99,15 @@ export class ChatsPreferencesStore {
     setDisplayUnreadChatsCount = (displayUnreadChatsCount: boolean): void => {
         this.displayUnreadChatsCount = displayUnreadChatsCount;
         localStorage.setItem("displayUnreadChatsCount", `${displayUnreadChatsCount}`);
+    }
+
+    setMessageEditorType = (messageEditorType: MessageEditorType): void => {
+        this.messageEditorType = messageEditorType;
+        localStorage.setItem("messageEditorType", messageEditorType);
+    }
+
+    setSaveDraftMessagesToServer = (saveDraftMessagesToServer: boolean): void => {
+        this.saveDraftMessagesToServer = saveDraftMessagesToServer;
+        localStorage.setItem("saveDraftMessagesToServer", `${saveDraftMessagesToServer}`);
     }
 }

@@ -13,10 +13,10 @@ class MongoDateTimeConfig {
     @Bean
     fun customConversions(): MongoCustomConversions {
         return MongoCustomConversions(
-                arrayListOf(
-                        zonedDateTimeReadConverter(),
-                        zonedDateTimeWriteConverter()
-                )
+            arrayListOf(
+                zonedDateTimeReadConverter(),
+                zonedDateTimeWriteConverter()
+            )
         )
     }
 

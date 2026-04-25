@@ -1,18 +1,19 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItem, ListItemText} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {EditChatInviteButton} from "./EditChatInviteButton";
 import {getChatInviteLink} from "../utils";
 import {CopyToClipboardButton} from "../../CopyToClipboardButton";
-import {useEntities, useStore} from "../../store";
+import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {isStringEmpty} from "../../utils/string-utils";
 
 interface ChatInviteListItemProps {
     chatInviteId: string
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     chatInviteListItem: {
         cursor: "pointer"
     }
@@ -26,14 +27,9 @@ export const ChatInviteListItem: FunctionComponent<ChatInviteListItemProps> = ob
             openDialogToInvite
         }
     } = useStore();
-    const {
-        chatInvites: {
-            findById: findChatInvite
-        }
-    } = useEntities();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
-    const chatInvite = findChatInvite(chatInviteId);
+    const chatInvite = useEntityById("chatInvites", chatInviteId);
 
     const handleClick = (): void => {
         openDialogToInvite(chatInviteId);

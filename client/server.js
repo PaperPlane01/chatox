@@ -3,7 +3,7 @@ import {config} from "dotenv";
 config();
 
 import express from "express";
-import * as path from "path";
+import * as path from "node:path";
 
 const BUILD_DIRECTORY = "dist";
 const staticDirectory = path.join(process.cwd(), BUILD_DIRECTORY);
@@ -12,7 +12,7 @@ const expressServer = express();
 
 expressServer.use(express.static(staticDirectory));
 
-expressServer.get("/*", (request, response) => {
+expressServer.get("/*files", (request, response) => {
     response.sendFile(path.resolve(staticDirectory, "index.html"));
 });
 

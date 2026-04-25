@@ -24,11 +24,13 @@ import {
     LeaveChatStore,
     PendingChatsOfCurrentUserStore,
     PopularChatsStore,
+    TransferChatOwnershipStore,
     TypingUsersStore,
     UpdateChatStore
 } from "../Chat";
 import {
     ApproveJoinChatRequestsStore,
+    ChatParticipantsAutoCompleteStore,
     ChatParticipantsSearchStore,
     ChatParticipantsStore,
     JoinChatRequestsStore,
@@ -36,11 +38,11 @@ import {
     KickChatParticipantStore,
     OnlineChatParticipantsStore,
     RejectJoinChatRequestsStore,
-    UpdateChatParticipantStore,
+    UpdateChatParticipantStore
 } from "../ChatParticipant";
 import {MarkdownPreviewDialogStore} from "../Markdown";
 import {LocaleStore} from "../localization";
-import {EntitiesStore, RawEntitiesStore} from "../entities-store";
+import {EntitiesStore, RawEntitiesStore, ReferencedEntitiesStore} from "../entities-store";
 import {
     createSetChangePasswordStepCallback,
     CreateUserProfilePhotoStore,
@@ -58,11 +60,9 @@ import {
 } from "../User";
 import {
     ClosedPinnedMessagesStore,
-    CreateMessageStore,
     DeleteMessageStore,
     DeleteScheduledMessageStore,
     DownloadMessageFileStore,
-    EmojiPickerTabsStore,
     ForwardMessagesStore,
     MarkMessageReadStore,
     MessageDialogStore,
@@ -70,15 +70,21 @@ import {
     MessagesOfChatStore,
     PinMessageStore,
     PinnedMessagesStore,
-    PublishScheduledMessageStore, RecordVoiceMessageStore,
+    PublishScheduledMessageStore,
     ScheduledMessagesOfChatStore,
-    ScheduleMessageStore,
     SearchMessagesStore,
-    UnpinMessageStore,
+    UnpinMessageStore
+} from "../Message";
+import {
+    CreateMessageStore,
+    EmojiPickerTabsStore,
+    RecordVoiceMessageStore,
+    ScheduleMessageStore,
+    StickerSuggestionsStore,
     UpdateMessageStore,
     UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
-} from "../Message";
+} from "../MessageForm";
 import {WebsocketStore} from "../websocket";
 import {
     BlockUserInChatByIdOrSlugStore,
@@ -89,7 +95,7 @@ import {
     CreateChatBlockingStore,
     UpdateChatBlockingStore
 } from "../ChatBlocking";
-import {UploadImageStore} from "../Upload";
+import {UploadCacheService, UploadImageStore} from "../Upload";
 import {SettingsTabsStore} from "../Settings";
 import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
 import {EmojiSettingsStore} from "../Emoji";
@@ -116,15 +122,24 @@ import {
 } from "../Report";
 import {ReportType} from "../api/types/response";
 import {
-    CreateStickerPackStore,
+    DeleteStickerPackStore,
     InstalledStickerPacksStore,
     InstallStickerPackStore,
     SearchStickerPacksStore,
-    StickerEmojiPickerDialogStore,
+    StickerAnimationDataStore,
     StickerPackDialogStore,
+    StickerPackStore,
     StickerPickerStore,
+    StickerPreviewDialogStore,
+    StickersPreferencesStore,
     UninstallStickerPackStore
 } from "../Sticker";
+import {
+    CreateStickerPackStore,
+    ImportStickerPackStore,
+    StickerEmojiPickerDialogStore,
+    UpdateStickerPackStore
+} from "../StickerPackForm/stores";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
 import {
     AllChatsMessagesSearchStore,
@@ -175,11 +190,28 @@ import {
     JoinChatByInviteStore,
     UpdateChatInviteStore
 } from "../ChatInvite";
+import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
+import {
+    ChatNotificationExceptionsDialogStore,
+    DeleteChatNotificationSettingsStore,
+    NotificationSoundSelectDialogStore,
+    NotificationsSettingsStore,
+    SoundNotificationStore,
+    UpdateChatNotificationsSettingsStore,
+    UpdateGlobalNotificationsSettingsStore,
+    UpdateUserNotificationSettingsInChatDialogStore,
+    UserNotificationExceptionsDialogStore
+} from "../Notification";
+import {ConfirmationTokenStore, CreateConfirmationTokenStore} from "../ConfirmationToken/stores";
+import {DexieRepositories, Repositories} from "../repositories";
 
+const referencedEntities = new ReferencedEntitiesStore();
+const authorization = new AuthorizationStore();
+
+const repositories: Repositories = new DexieRepositories();
 const snackbarService = new SnackbarService();
 
-const rawEntities = new RawEntitiesStore();
-const authorization = new AuthorizationStore();
+const rawEntities = new RawEntitiesStore(repositories);
 const userChatRoles = new UserChatRolesStore();
 const entities = new EntitiesStore(rawEntities, authorization, userChatRoles);
 
@@ -200,11 +232,11 @@ const userRegistration = new UserRegistrationStore(
 );
 const appBar = new AppBarStore();
 const markdownPreviewDialog = new MarkdownPreviewDialogStore();
-const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entities);
+const chatsOfCurrentUser = new ChatsOfCurrentUserStore(entities, rawEntities, repositories.getRepository("draftMessages")!);
 const chatCreation = new CreateChatStore(entities);
 const chat = new ChatStore(entities);
 const chatParticipants = new ChatParticipantsStore(entities, chat);
-const messageUploads = new UploadMessageAttachmentsStore(entities);
+const messageUploads = new UploadMessageAttachmentsStore(entities, chat);
 const chatsPreferences = new ChatsPreferencesStore();
 const messagesForwarding = new ForwardMessagesStore(chat, entities);
 const voiceRecording = new RecordVoiceMessageStore(
@@ -212,20 +244,32 @@ const voiceRecording = new RecordVoiceMessageStore(
     language,
     snackbarService
 );
+const uploadCache = new UploadCacheService();
 const messageCreation = new CreateMessageStore(
     chat,
     messageUploads,
     entities,
     chatsPreferences,
     messagesForwarding,
-    voiceRecording
+    voiceRecording,
+    authorization,
+    uploadCache,
+    repositories.getRepository("draftMessages")!
 );
 const pendingChats = new PendingChatsOfCurrentUserStore(entities);
 const messagesSearch = new SearchMessagesStore(entities, chat);
-const messagesOfChat = new MessagesOfChatStore(entities, chat, messagesSearch);
+const messagesOfChat = new MessagesOfChatStore(
+    entities,
+    rawEntities,
+    chat,
+    messagesSearch,
+    referencedEntities,
+    chatsPreferences,
+    repositories.getRepository("messages")!
+);
 const joinChat = new JoinChatStore(entities, pendingChats, language, authorization, snackbarService);
 const userProfile = new UserProfileStore(entities);
-const createChatBlocking = new CreateChatBlockingStore(chat, entities);
+const createChatBlocking = new CreateChatBlockingStore(chat, entities, snackbarService, language);
 const chatBlockingsOfChat = new ChatBlockingsOfChatStore(entities, chat);
 const chatBlockingsDialog = new ChatBlockingsDialogStore();
 const cancelChatBlocking = new CancelChatBlockingStore(entities);
@@ -258,7 +302,7 @@ const passwordChange = new PasswordChangeStore(
     authorization
 );
 const emoji = new EmojiSettingsStore();
-const audioPlayer = new AudioPlayerStore();
+const audioPlayer = new AudioPlayerStore(entities);
 const messageFileDownload = new DownloadMessageFileStore();
 const passwordRecoveryDialog = new PasswordRecoveryDialogStore();
 const passwordRecoveryEmailConfirmationCodeSending = new SendPasswordRecoveryEmailConfirmationCodeStore(
@@ -324,9 +368,21 @@ const selectedReportedChatsCreatorsBan = new BanUsersRelatedToSelectedReportsSto
 );
 const googleLogin = new LoginWithGoogleStore(authorization);
 const messagesListScrollPositions = new MessagesListScrollPositionsStore(chat);
-const markMessageRead = new MarkMessageReadStore(entities, chat, messagesListScrollPositions);
+const markMessageRead = new MarkMessageReadStore(
+    entities,
+    chat,
+    messagesListScrollPositions,
+    authorization
+);
 const balance = new BalanceStore(authorization);
 const typingUsers = new TypingUsersStore(entities, authorization);
+const notificationsSettings = new NotificationsSettingsStore(authorization, entities);
+const soundNotification = new SoundNotificationStore(
+    notificationsSettings,
+    chat,
+    authorization,
+    entities
+);
 const websocket = new WebsocketStore(
     authorization,
     entities,
@@ -335,20 +391,25 @@ const websocket = new WebsocketStore(
     messagesListScrollPositions,
     markMessageRead,
     balance,
-    chatsPreferences,
     typingUsers,
     pendingChats,
     language,
+    soundNotification,
+    notificationsSettings,
     snackbarService
 );
-const stickerPackCreation = new CreateStickerPackStore(entities);
+const stickerPackCreation = new CreateStickerPackStore(entities, language, snackbarService);
 const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
-const installedStickerPacks = new InstalledStickerPacksStore(authorization, entities);
-const stickerPackInstallation = new InstallStickerPackStore(installedStickerPacks);
-const stickerPackUninstallation = new UninstallStickerPackStore(installedStickerPacks);
-const stickerPacksSearch = new SearchStickerPacksStore(entities);
-const stickerPackDialog = new StickerPackDialogStore();
+
+const stickerAnimationData = new StickerAnimationDataStore(entities, referencedEntities, repositories);
+const installedStickerPacks = new InstalledStickerPacksStore(authorization, entities, stickerAnimationData);
 const stickerPicker = new StickerPickerStore(installedStickerPacks, authorization);
+stickerAnimationData.setStickerPicker(stickerPicker);
+
+const stickerPackInstallation = new InstallStickerPackStore(installedStickerPacks, language, snackbarService);
+const stickerPackUninstallation = new UninstallStickerPackStore(installedStickerPacks, language, snackbarService);
+const stickerPacksSearch = new SearchStickerPacksStore(entities);
+const stickerPackDialog = new StickerPackDialogStore(entities, language, snackbarService);
 const emojiPickerTabs = new EmojiPickerTabsStore();
 const blacklistedUsers = new BlacklistedUsersStore(entities);
 const addUserToBlacklist = new AddUserToBlacklistStore(blacklistedUsers);
@@ -507,6 +568,56 @@ const joinChatRequestsRejection = new RejectJoinChatRequestsStore(
     language,
     snackbarService
 );
+const mentions = new MentionsStore(entities, chat, chatsOfCurrentUser);
+const editorLink = new CreateEditorLinkDialogStore();
+const notificationSoundSelectDialog = new NotificationSoundSelectDialogStore(soundNotification);
+const updateGlobalNotificationsSettings = new UpdateGlobalNotificationsSettingsStore(
+    notificationsSettings,
+    language,
+    snackbarService
+);
+const updateChatNotificationsSettings = new UpdateChatNotificationsSettingsStore(
+    notificationsSettings,
+    language,
+    snackbarService
+);
+const chatNotificationExceptionsDialog = new ChatNotificationExceptionsDialogStore();
+const deleteChatNotificationsSettings = new DeleteChatNotificationSettingsStore(
+    notificationsSettings,
+    language,
+    snackbarService
+);
+const chatParticipantsAutoComplete = new ChatParticipantsAutoCompleteStore(entities);
+const userNotificationExceptionsDialog = new UserNotificationExceptionsDialogStore();
+const updateUserNotificationsSettingsInChatDialog = new UpdateUserNotificationSettingsInChatDialogStore(updateChatNotificationsSettings);
+const stickerPackUpdate = new UpdateStickerPackStore(entities, snackbarService, language);
+const stickerPack = new StickerPackStore(entities);
+const stickerPackDeletion = new DeleteStickerPackStore(
+    authorization,
+    entities,
+    installedStickerPacks,
+    stickerPackDialog,
+    stickerPicker
+);
+const stickersPreferences = new StickersPreferencesStore();
+const stickerPreviewDialog = new StickerPreviewDialogStore();
+const stickerSuggestions = new StickerSuggestionsStore(
+    installedStickerPacks,
+    messageCreation,
+    rawEntities,
+    repositories
+);
+const stickerPackImport = new ImportStickerPackStore(stickerPackCreation, language, snackbarService);
+const confirmationToken = new ConfirmationTokenStore();
+const confirmationTokenDialog = new CreateConfirmationTokenStore(confirmationToken);
+const chatOwnershipTransfer = new TransferChatOwnershipStore(
+    chat,
+    confirmationToken,
+    entities,
+    authorization,
+    language,
+    snackbarService
+);
 
 const _store: IAppState = {
     authorization,
@@ -662,7 +773,31 @@ const _store: IAppState = {
     joinChatRequests,
     joinChatRequestsApproval,
     joinChatRequestsRejection,
-    voiceRecording
+    voiceRecording,
+    mentions,
+    editorLink,
+    referencedEntities,
+    notificationsSettings,
+    soundNotification,
+    notificationSoundSelectDialog,
+    updateGlobalNotificationsSettings,
+    updateChatNotificationsSettings,
+    chatNotificationExceptionsDialog,
+    deleteChatNotificationsSettings,
+    chatParticipantsAutoComplete,
+    userNotificationExceptionsDialog,
+    updateUserNotificationsSettingsInChatDialog,
+    stickerPackUpdate,
+    stickerPack,
+    stickerPackDeletion,
+    stickerAnimationData,
+    stickersPreferences,
+    stickerPreviewDialog,
+    stickerSuggestions,
+    stickerPackImport,
+    confirmationToken,
+    confirmationTokenDialog,
+    chatOwnershipTransfer
 };
 
 //Hack to avoid loss of application state on HMR

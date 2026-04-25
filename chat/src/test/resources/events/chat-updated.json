@@ -28,7 +28,10 @@
     "unit": "MINUTES"
   },
   "slug": "test",
-  "tags": ["test", " chat"],
+  "tags": [
+    "test",
+    " chat"
+  ],
   "type": "GROUP",
   "hideFromSearch": false
 }

@@ -1,6 +1,6 @@
 import {HttpException, HttpStatus, Logger} from "@nestjs/common";
 import {Response} from "express";
-import {createReadStream, PathLike} from "fs";
+import {createReadStream, PathLike, promises as fileSystem} from "fs";
 import {FileTypeResult, fromFile} from "file-type";
 
 export const streamFileToResponse = (path: PathLike, response: Response, logger?: Logger): Promise<void> => {
@@ -27,4 +27,19 @@ export const streamFileToResponse = (path: PathLike, response: Response, logger?
 
 export const getFileType = async (path: string): Promise<FileTypeResult> => {
     return await fromFile(path);
+};
+
+export const createFileFromBuffer = async (path: PathLike, buffer: Buffer): Promise<void> => {
+    const fileHandle = await fileSystem.open(path, "w");
+    await fileSystem.writeFile(fileHandle, buffer);
+    await fileHandle.close();
+};
+
+export const exists = async (path: PathLike): Promise<boolean> => {
+    try {
+        await fileSystem.access(path);
+        return true;
+    } catch (error) {
+        return false;
+    }
 };

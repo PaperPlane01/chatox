@@ -1,9 +1,11 @@
-import {makeAutoObservable, reaction, runInAction, toJS} from "mobx";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
 import {MessagesListScrollPositionsStore} from "./MessagesListScrollPositionsStore";
 import {EntitiesStore} from "../../entities-store";
 import {MessageApi} from "../../api";
 import {ChatStore} from "../../Chat";
+import {AuthorizationStore} from "../../Authorization";
+import {CurrentUser} from "../../api/types/response";
 
 export class MarkMessageReadStore {
     pendingMap: {[messageId: string]: boolean} = {};
@@ -14,9 +16,14 @@ export class MarkMessageReadStore {
         return this.chatStore.selectedChatId;
     }
 
+    get currentUser(): CurrentUser | undefined {
+        return this.authorization.currentUser;
+    }
+
     constructor(private readonly entities: EntitiesStore,
                 private readonly chatStore: ChatStore,
-                private readonly scrollPositionStore: MessagesListScrollPositionsStore) {
+                private readonly scrollPositionStore: MessagesListScrollPositionsStore,
+                private readonly authorization: AuthorizationStore) {
         makeAutoObservable(this);
 
         reaction(
@@ -30,7 +37,13 @@ export class MarkMessageReadStore {
 
                         if (!message.readByCurrentUser) {
                             this.markMessageRead(lastMessageId)
-                                .then(() => runInAction(() => this.entities.chats.setUnreadMessagesCountOfChat(message.chatId, 0)))
+                                .then(() => runInAction(
+                                    () => this.entities.chats.setUnreadMessagesCountOfChat(
+                                        message.chatId,
+                                        0,
+                                        0
+                                    ))
+                                );
                         }
                     }
                 }
@@ -88,12 +101,15 @@ export class MarkMessageReadStore {
             return;
         }
 
+        const currentUserMentioned = message.mentionedUsers.length !== 0
+            && this.currentUser
+            && message.mentionedUsers.includes(this.currentUser.id);
         this.pendingMap[messageId] = true;
 
         return MessageApi.markMessageAsRead(this.selectedChatId, messageId)
             .then(() => {
                 this.entities.messages.insertEntity({...message, readByCurrentUser: true});
-                this.entities.chats.decreaseUnreadMessagesCountOfChat(message.chatId);
+                this.entities.chats.decreaseUnreadMessagesCountOfChat(message.chatId, currentUserMentioned);
             });
     };
 }

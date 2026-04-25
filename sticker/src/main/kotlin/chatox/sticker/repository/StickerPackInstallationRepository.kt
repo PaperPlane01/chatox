@@ -7,5 +7,6 @@ import reactor.core.publisher.Mono
 
 interface StickerPackInstallationRepository : ReactiveMongoRepository<StickerPackInstallation, String> {
     fun findAllByUserId(userId: String): Flux<StickerPackInstallation>
-    fun deleteByUserIdAndStickerPackId(userId: String, stickerPackId: String): Mono<Void>
+    fun deleteByUserIdAndStickerPackId(userId: String, stickerPackId: String): Mono<Unit>
+    fun findAllByStickerPackId(stickerPackId: String): Flux<StickerPackInstallation>
 }

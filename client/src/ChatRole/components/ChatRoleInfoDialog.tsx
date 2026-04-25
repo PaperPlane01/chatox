@@ -6,6 +6,7 @@ import {ChatRoleFeatures} from "./ChatRoleFeatures";
 import {EditChatRoleForm} from "./EditChatRoleForm";
 import {getChatRoleTranslation} from "../utils";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 
 export const ChatRoleInfoDialog: FunctionComponent = observer(() => {
@@ -17,11 +18,6 @@ export const ChatRoleInfoDialog: FunctionComponent = observer(() => {
             closeDialog,
             setEditMode
         },
-        entities: {
-            chatRoles: {
-                findById: findChatRole
-            }
-        },
         editChatRole: {
             pending,
             setRoleId,
@@ -30,16 +26,15 @@ export const ChatRoleInfoDialog: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const {fullScreen} = useMobileDialog();
+    const chatRole = useEntityById("chatRoles", roleId);
 
-    if (!roleId) {
+    if (!chatRole) {
         return null;
     }
 
     const handleClose = (): void => {
         closeDialog();
     };
-
-    const chatRole = findChatRole(roleId);
 
     const handleBackClick = (): void => {
         if (editMode) {

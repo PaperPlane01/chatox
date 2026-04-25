@@ -14,15 +14,17 @@ class BalanceEventsListener(private val balanceService: BalanceService) {
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     @RabbitListener(queues = ["user_service_balance_updated"])
-    fun onBalanceUpdated(balanceUpdated: BalanceUpdated,
-                         channel: Channel,
-                         @Header(AmqpHeaders.DELIVERY_TAG) tag: Long) {
+    fun onBalanceUpdated(
+        balanceUpdated: BalanceUpdated,
+        channel: Channel,
+        @Header(AmqpHeaders.DELIVERY_TAG) tag: Long
+    ) {
         log.info("Received balanceUpdated event $balanceUpdated")
 
         balanceService
-                .handleBalanceUpdate(balanceUpdated)
-                .doOnSuccess { channel.basicAck(tag, false) }
-                .doOnError { channel.basicNack(tag, false, true) }
-                .subscribe()
+            .handleBalanceUpdate(balanceUpdated)
+            .doOnSuccess { channel.basicAck(tag, false) }
+            .doOnError { channel.basicNack(tag, false, true) }
+            .subscribe()
     }
 }

@@ -6,7 +6,8 @@ import {format} from "date-fns";
 import {EditRewardButton} from "./EditRewardButton";
 import {RewardProperty} from "./RewardProperty";
 import {UserLink} from "../../UserLink";
-import {useEntities, useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {isStringEmpty} from "../../utils/string-utils";
 import {Labels} from "../../localization";
 
@@ -17,14 +18,6 @@ interface RewardCardProps {
 export const RewardCard: FunctionComponent<RewardCardProps> = observer(({
     rewardId
 }) => {
-    const {
-        rewards: {
-            findById: findReward
-        },
-        users: {
-            findById: findUser
-        }
-    } = useEntities();
     const {l} = useLocalization();
     const {
         rewardDetails: {
@@ -34,15 +27,11 @@ export const RewardCard: FunctionComponent<RewardCardProps> = observer(({
         }
     } = useStore();
 
-    const reward = findReward(rewardId);
+    const reward = useEntityById("rewards", rewardId);
     const rewardDetailsExpanded = isRewardDetailsExpanded(rewardId);
-    const rewardedUser = reward.rewardedUserId
-        ? findUser(reward.rewardedUserId)
-        : undefined;
-    const createdBy = findUser(reward.createdById);
-    const updatedBy = reward.updatedById
-        ? findUser(reward.updatedById)
-        : undefined;
+    const rewardedUser = useEntityById("users", reward.rewardedUserId);
+    const createdBy = useEntityById("users", reward.createdById);
+    const updatedBy = useEntityById("users", reward.updatedById);
     const rewardTitle = isStringEmpty(reward.name)
         ? l("reward.with-no-name")
         : l("reward.with-name", {rewardName: reward.name});

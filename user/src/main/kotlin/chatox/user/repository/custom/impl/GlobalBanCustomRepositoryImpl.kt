@@ -13,8 +13,10 @@ import org.springframework.stereotype.Repository
 import reactor.core.publisher.Flux
 
 @Repository
-class GlobalBanCustomRepositoryImpl(private val mongoTemplate: ReactiveMongoTemplate,
-                                    private val timeService: TimeService) : GlobalBanCustomRepository {
+class GlobalBanCustomRepositoryImpl(
+    private val mongoTemplate: ReactiveMongoTemplate,
+    private val timeService: TimeService
+) : GlobalBanCustomRepository {
     override fun searchGlobalBans(globalBanFilters: GlobalBanFilters, pageable: Pageable): Flux<GlobalBan> {
         val query = Query().with(pageable)
 
@@ -25,8 +27,8 @@ class GlobalBanCustomRepositoryImpl(private val mongoTemplate: ReactiveMongoTemp
         if (globalBanFilters.excludeExpired) {
             val now = timeService.now()
             val criteria = Criteria().orOperator(
-                    Criteria.where("permanent").`is`(true),
-                    Criteria.where("expiresAt").gt(now)
+                Criteria.where("permanent").`is`(true),
+                Criteria.where("expiresAt").gt(now)
             )
             query.addCriteria(criteria)
         }
@@ -44,8 +46,8 @@ class GlobalBanCustomRepositoryImpl(private val mongoTemplate: ReactiveMongoTemp
 
     override fun findActiveByBannedUser(user: User): Flux<GlobalBan> {
         val query = Query()
-                .addCriteria(Criteria.where("bannedUserId").`is`(user.id))
-                .addCriteria(active())
+            .addCriteria(Criteria.where("bannedUserId").`is`(user.id))
+            .addCriteria(active())
 
         return mongoTemplate.find(query, GlobalBan::class.java)
     }
@@ -53,8 +55,8 @@ class GlobalBanCustomRepositoryImpl(private val mongoTemplate: ReactiveMongoTemp
     override fun findActiveByBannedUsers(users: List<User>): Flux<GlobalBan> {
         val usersIds = users.map { user -> user.id }
         val query = Query()
-                .addCriteria(Criteria.where("bannedUserId").`in`(usersIds))
-                .addCriteria(active())
+            .addCriteria(Criteria.where("bannedUserId").`in`(usersIds))
+            .addCriteria(active())
 
         return mongoTemplate.find(query, GlobalBan::class.java)
     }
@@ -63,11 +65,11 @@ class GlobalBanCustomRepositoryImpl(private val mongoTemplate: ReactiveMongoTemp
         val now = timeService.now()
 
         return Criteria().andOperator(
-                Criteria.where("canceled").`is`(false),
-                Criteria().orOperator(
-                        Criteria.where("permanent").`is`(true),
-                        Criteria.where("expiresAt").gt(now)
-                )
+            Criteria.where("canceled").`is`(false),
+            Criteria().orOperator(
+                Criteria.where("permanent").`is`(true),
+                Criteria.where("expiresAt").gt(now)
+            )
         )
     }
 }

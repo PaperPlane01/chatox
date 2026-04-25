@@ -21,7 +21,7 @@ export class TypingUsersStore {
         return this.getTypingUsersIds(chatId).length !== 0;
     })
 
-    getTypingUsersIds = computedFn((chatId: string): readonly string[] => {
+    getTypingUsersIds = computedFn((chatId: string): string[] => {
         if (this.typingUsers.get(chatId)) {
             return keys(this.typingUsers.get(chatId)!) as string[];
         } else {

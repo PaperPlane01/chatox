@@ -23,8 +23,8 @@ class ChatMigrations {
 
     @Changeset(order = 1, author = "mongration")
     fun setHideFromSearchForGroupChats(
-            reactiveMongoTemplate: ReactiveMongoTemplate,
-            chatSearchService: ChatSearchService
+        reactiveMongoTemplate: ReactiveMongoTemplate,
+        chatSearchService: ChatSearchService
     ): Mono<Unit> {
         return mono {
             log.info("Executing migration: set hideFromSearch to false for all group chats")
@@ -36,11 +36,11 @@ class ChatMigrations {
             update.set("hideFromSearch", false)
 
             reactiveMongoTemplate.updateMulti(
-                    query,
-                    update,
-                    Chat::class.java
+                query,
+                update,
+                Chat::class.java
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             chatSearchService.importChatsToElasticsearch(deleteIndex = true).awaitFirstOrNull()
         }
@@ -57,11 +57,11 @@ class ChatMigrations {
             val query = Query()
 
             reactiveMongoTemplate.updateMulti(
-                    query,
-                    update,
-                    ChatParticipantsCount::class.java
+                query,
+                update,
+                ChatParticipantsCount::class.java
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             return@mono
         }
@@ -73,18 +73,18 @@ class ChatMigrations {
             log.info("Executing migration: set lastReadMessageId and lastReadMessageCreatedAt")
 
             val updateAggregation = Aggregation.newUpdate(
-                    Aggregation.addFields()
-                            .addFieldWithValue("lastMessageReadByAnyoneId", "\$lastMessageId")
-                            .addFieldWithValue("lastMessageReadByAnyoneCreatedAt", "\$lastMessageDate")
-                            .build()
+                Aggregation.addFields()
+                    .addFieldWithValue("lastMessageReadByAnyoneId", "\$lastMessageId")
+                    .addFieldWithValue("lastMessageReadByAnyoneCreatedAt", "\$lastMessageDate")
+                    .build()
             )
 
             reactiveMongoTemplate.updateMulti(
-                    Query(),
-                    updateAggregation,
-                    Chat::class.java
+                Query(),
+                updateAggregation,
+                Chat::class.java
             )
-                    .awaitFirst()
+                .awaitFirst()
 
             return@mono
         }

@@ -7,7 +7,8 @@ export interface UseChatManagementPermissions {
     canCreateChatRole: boolean,
     canBlockUsersInChat: boolean,
     canManageInvites: boolean,
-    canApproveJoinChatRequests: boolean
+    canApproveJoinChatRequests: boolean,
+    canTransferChatOwnership: boolean
 }
 
 const NO_PERMISSIONS: UseChatManagementPermissions = {
@@ -17,7 +18,8 @@ const NO_PERMISSIONS: UseChatManagementPermissions = {
     canUpdateChat: false,
     hasAccessToChatManagementPage: false,
     canManageInvites: false,
-    canApproveJoinChatRequests: false
+    canApproveJoinChatRequests: false,
+    canTransferChatOwnership: false
 };
 
 export const useChatManagementPermissions = (): UseChatManagementPermissions => {
@@ -31,6 +33,7 @@ export const useChatManagementPermissions = (): UseChatManagementPermissions => 
         chats: {
             canUpdateChat,
             canDeleteChat,
+            canTransferChatOwnership,
             hasAccessToChatManagementPage
         },
         chatRoles: {
@@ -58,6 +61,7 @@ export const useChatManagementPermissions = (): UseChatManagementPermissions => 
         canDeleteChat: canDeleteChat(selectedChat),
         canManageInvites: canManageInvites(selectedChat.id),
         canApproveJoinChatRequests: canApproveJoinChatRequests(selectedChat.id),
+        canTransferChatOwnership: canTransferChatOwnership(selectedChat.id),
         hasAccessToChatManagementPage: true
     };
 }

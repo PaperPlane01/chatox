@@ -23,7 +23,7 @@ public abstract class AbstractSecurityConfig<U> {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
-                                           AuthenticationManager authenticationManager) throws Exception {
+                                           AuthenticationManager authenticationManager) {
         http
                 .authorizeHttpRequests(authorize -> authorize.requestMatchers("/**").permitAll())
                 .csrf(csrf -> csrf.disable())

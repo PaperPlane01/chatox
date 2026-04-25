@@ -3,12 +3,16 @@ package chatox.chat.service.impl
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.exception.MessageNotFoundException
 import chatox.chat.mapper.MessageMapper
+import chatox.chat.messaging.rabbitmq.event.DraftMessageDeleted
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
+import chatox.chat.model.DraftMessage
 import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.User
+import chatox.chat.repository.mongodb.DraftMessageRepository
 import chatox.chat.repository.mongodb.MessageMongoRepository
 import chatox.chat.service.MessageEntityService
+import chatox.chat.util.runAsync
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
@@ -20,34 +24,54 @@ import java.time.ZonedDateTime
 
 @Service
 class MessageEntityServiceImpl(
-        private val messageRepository: MessageMongoRepository,
-        private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
-        private val chatEventsPublisher: ChatEventsPublisher,
-        private val messageMapper: MessageMapper,
-        private val authenticationHolder: ReactiveAuthenticationHolder<User>
+    private val messageRepository: MessageMongoRepository,
+    private val draftMessageRepository: DraftMessageRepository,
+    private val messageCacheWrapper: ReactiveRepositoryCacheWrapper<Message, String>,
+    private val chatEventsPublisher: ChatEventsPublisher,
+    private val messageMapper: MessageMapper,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>
 ) : MessageEntityService {
 
     override fun deleteMessage(message: Message): Mono<Unit> {
         return mono {
             val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull()
 
-            messageRepository.save(message.copy(
+            messageRepository.save(
+                message.copy(
                     deleted = true,
                     deletedAt = ZonedDateTime.now(),
                     deletedById = currentUser?.id,
                     attachments = listOf(),
                     uploadAttachmentsIds = listOf(),
                     text = "",
-                    emoji = EmojiInfo()
-            ))
-                    .awaitFirst()
+                    emoji = EmojiInfo(),
+                    mentionedUsers = listOf(),
+                    sticker = null,
+                    referredMessageId = null
+                )
+            )
+                .awaitFirst()
 
-            Mono.fromRunnable<Void> {
+            runAsync {
                 chatEventsPublisher.messageDeleted(chatId = message.chatId, messageId = message.id)
             }
-                    .subscribe()
 
             return@mono
+        }
+    }
+
+    override fun deleteDraftMessage(draftMessage: DraftMessage): Mono<Unit> {
+        return mono {
+            draftMessageRepository.delete(draftMessage).awaitFirstOrNull()
+
+            runAsync {
+                val event = DraftMessageDeleted(
+                    chatId = draftMessage.chatId,
+                    draftMessageId = draftMessage.id,
+                    senderId = draftMessage.senderId
+                )
+                chatEventsPublisher.draftMessageDeleted(event)
+            }
         }
     }
 
@@ -55,39 +79,45 @@ class MessageEntityServiceImpl(
         return mono {
             val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull()
 
-            messageRepository.saveAll(messages.map { message -> message.copy(
+            messageRepository.saveAll(messages.map { message ->
+                message.copy(
                     deleted = true,
                     deletedAt = ZonedDateTime.now(),
                     deletedById = currentUser?.id,
                     text = "",
                     emoji = EmojiInfo(),
                     attachments = listOf(),
-                    uploadAttachmentsIds = listOf()
-            ) }).collectList().awaitFirst()
+                    uploadAttachmentsIds = listOf(),
+                    mentionedUsers = listOf(),
+                    sticker = null,
+                    referredMessageId = null
+                )
+            }).collectList().awaitFirst()
 
             messages.forEach { message ->
-                Mono.fromRunnable<Void> {
+                runAsync {
                     chatEventsPublisher.messageDeleted(chatId = message.chatId, messageId = message.id)
                 }
-                        .subscribe()
             }
         }
     }
 
     override fun updateMessage(message: Message): Mono<MessageResponse> {
         return mono {
-            messageRepository.save(message.copy(
+            messageRepository.save(
+                message.copy(
                     updatedAt = ZonedDateTime.now()
-            )).awaitFirst()
+                )
+            ).awaitFirst()
 
             val response = messageMapper.toMessageResponse(
-                    message = message,
-                    readByCurrentUser = true,
-                    mapReferredMessage = true,
+                message = message,
+                readByCurrentUser = true,
+                mapReferredMessage = true,
             )
-                    .awaitFirst()
+                .awaitFirst()
 
-            Mono.fromRunnable<Void> { chatEventsPublisher.messageUpdated(response) }.subscribe()
+            runAsync { chatEventsPublisher.messageUpdated(response) }
 
             return@mono response
         }
@@ -97,7 +127,11 @@ class MessageEntityServiceImpl(
         return findMessageEntityById(id = id, retrieveFromCache = true, throwIfNotFound = true)
     }
 
-    override fun findMessageEntityById(id: String, retrieveFromCache: Boolean, throwIfNotFound: Boolean): Mono<Message> {
+    override fun findMessageEntityById(
+        id: String,
+        retrieveFromCache: Boolean,
+        throwIfNotFound: Boolean
+    ): Mono<Message> {
         return mono {
             val message = if (retrieveFromCache) {
                 messageCacheWrapper.findById(id).awaitFirstOrNull()
@@ -107,7 +141,7 @@ class MessageEntityServiceImpl(
 
             return@mono message
         }
-                .switchIfEmpty(Mono.defer { onEmptyMessage(id, throwIfNotFound) })
+            .switchIfEmpty(Mono.defer { onEmptyMessage(id, throwIfNotFound) })
     }
 
     private fun onEmptyMessage(id: String, throwIfNotFound: Boolean): Mono<Message> {

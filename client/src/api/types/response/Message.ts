@@ -27,5 +27,6 @@ export interface Message {
     forwardedFromChatId?: string,
     forwardedFromMessageId?: string,
     forwardedBy?: User,
-    readByAnyone: boolean
+    readByAnyone: boolean,
+    mentionedUsers: User[]
 }

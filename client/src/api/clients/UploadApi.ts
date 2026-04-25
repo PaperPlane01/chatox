@@ -1,7 +1,26 @@
 import {AxiosPromise, AxiosRequestConfig} from "axios";
+import {stringify} from "query-string";
 import {axiosInstance} from "../axios-instance";
-import {AudioUploadMetadata, ImageUploadMetadata, Upload, VideoUploadMetadata} from "../types/response";
-import {AUDIOS, FILES, IMAGES, UPLOADS, VIDEOS, VOICE} from "../endpoints";
+import {
+    AudioUploadMetadata,
+    ImageUploadMetadata,
+    StickerUploadMetadata,
+    Upload,
+    VideoUploadMetadata
+} from "../types/response";
+import {
+    AUDIOS,
+    FILES,
+    IMAGE_STICKER,
+    IMAGES,
+    INFO,
+    LOTTIE_STICKER,
+    STICKERS,
+    UPLOADS, VIDEO_STICKER,
+    VIDEOS,
+    VOICE,
+    WEBP_STICKER
+} from "../endpoints";
 
 export type ProgressCallback = (percentage: number) => void;
 
@@ -24,6 +43,22 @@ export class UploadApi {
 
     public static uploadFile(file: File, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<any>> {
         return UploadApi.doUpload<any>(file, `/${UPLOADS}/${FILES}`, onUploadProgress);
+    }
+
+    public static uploadImageSticker(file: File, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<StickerUploadMetadata>> {
+        return UploadApi.doUpload<StickerUploadMetadata>(file, `/${UPLOADS}/${STICKERS}/${IMAGE_STICKER}`, onUploadProgress);
+    }
+
+    public static uploadWebpSticker(file: File, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<StickerUploadMetadata>> {
+        return UploadApi.doUpload<StickerUploadMetadata>(file, `/${UPLOADS}/${STICKERS}/${WEBP_STICKER}`, onUploadProgress);
+    }
+
+    public static uploadLottieSticker(file: File, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<StickerUploadMetadata>> {
+        return UploadApi.doUpload<StickerUploadMetadata>(file, `/${UPLOADS}/${STICKERS}/${LOTTIE_STICKER}`, onUploadProgress);
+    }
+
+    public static uploadVideoSticker(file: File, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<StickerUploadMetadata>> {
+        return UploadApi.doUpload<StickerUploadMetadata>(file, `/${UPLOADS}/${STICKERS}/${VIDEO_STICKER}`, onUploadProgress);
     }
 
     public static doUpload<MetadataType>(file: File, url: string, onUploadProgress?: ProgressCallback): AxiosPromise<Upload<MetadataType>> {
@@ -62,5 +97,12 @@ export class UploadApi {
         }
 
         return axiosInstance.get(`/${UPLOADS}/${FILES}/${fileName}`, config);
+    }
+    
+    public static getUploadsInfoByIds(ids: string[]): AxiosPromise<Array<Upload<any>>> {
+        const request = {
+            ids: JSON.stringify(ids)
+        };
+        return axiosInstance.get(`/${UPLOADS}/${INFO}?${stringify(request)}`)
     }
 }

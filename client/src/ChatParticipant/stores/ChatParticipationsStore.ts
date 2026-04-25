@@ -47,17 +47,17 @@ export class ChatParticipationsStore extends AbstractEntityStore<
     findByChat = computedFn((chatId: string) => {
         return this.ids
             .filter(id => this.findById(id).chatId === chatId);
-    });
+    })
 
     findByUserAndChat = createTransformer((options: FindChatParticipationByUserAndChatOptions) => {
         return this.ids.map(id => this.findById(id))
             .find(chatParticipation => chatParticipation.chatId === options.chatId
                 && chatParticipation.userId === options.userId)
-    });
+    })
 
     existsByUserAndChat = createTransformer((options: FindChatParticipationByUserAndChatOptions) => Boolean(
         this.findByUserAndChat(options)
-    ));
+    ))
 
     deleteById(id: string, options?: DeleteChatParticipantOptions) {
         const chatParticipation = this.findByIdOptional(id);

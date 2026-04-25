@@ -1,8 +1,7 @@
 import React, {Fragment, FunctionComponent, useLayoutEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
-import {Hidden, Theme, useMediaQuery} from "@mui/material";
-import {createStyles, makeStyles, useTheme} from "@mui/styles";
-import clsx from "clsx";
+import {Box, Theme, useMediaQuery, useTheme} from "@mui/material";
+import {makeStyles} from "tss-react/mui";
 import {ChatsOfCurrentUserList} from "./ChatsOfCurrentUserList";
 import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
 import {CreateChatDialog} from "./CreateChatDialog";
@@ -11,10 +10,15 @@ import {ChatsAndMessagesSearchInput, ChatsAndMessagesSearchResult} from "../../C
 import {usePermissions, useStore} from "../../store";
 import {commonStyles} from "../../style";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     centered: commonStyles.centered,
     chatListWrapper: {
         [theme.breakpoints.up("lg")]: {
+            height: `calc(100vh - 64px)`,
+            width: 300,
+            overflow: "auto"
+        },
+        [theme.breakpoints.up("xl")]: {
             height: `calc(100vh - 64px)`,
             width: 480,
             overflow: "auto"
@@ -49,7 +53,7 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
         }
     } = usePermissions();
 
-    const classes = useStyles();
+    const {classes, cx} = useStyles();
     const [hovered, setHovered] = useState(false);
     const [createChatButtonRight, setCreateChatButtonRight] = useState<number | undefined>();
     const theme = useTheme<Theme>();
@@ -70,7 +74,7 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
     const listProps: ChatsOfCurrentUserListProps = {
         classes: {
             circularProgress: classes.centered,
-            list: clsx({
+            list: cx({
                 [classes.noTopBottomPadding]: true,
                 [classes.chatList]: true
             }),
@@ -85,7 +89,12 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
                  onMouseEnter={() => setHovered(true)}
                  onMouseLeave={() => setHovered(false)}
             >
-                <Hidden lgDown>
+                <Box sx={{
+                    display: {
+                        xs: "none",
+                        lg: "block"
+                    }
+                }}>
                     <div style={{
                         flex: 1,
                         position: "sticky",
@@ -95,19 +104,29 @@ export const ChatsOfCurrentUserListWrapper: FunctionComponent = observer(() => {
                     }}>
                         <ChatsAndMessagesSearchInput style={{padding: theme.spacing(1)}}/>
                     </div>
-                </Hidden>
+                </Box>
                 <div ref={listRef}>
                     {searchModeActive
                         ? <ChatsAndMessagesSearchResult {...listProps}/>
                         : <ChatsOfCurrentUserList {...listProps}/>
                     }
                 </div>
-                <Hidden lgUp>
+                <Box sx={{
+                    display: {
+                        lg: "none",
+                        xs: "block"
+                    }
+                }}>
                     {canCreateChat && <CreateChatFloatingActionButton/>}
-                </Hidden>
-                <Hidden lgDown>
+                </Box>
+                <Box sx={{
+                    display: {
+                        xs: "none",
+                        lg: "block"
+                    }
+                }}>
                     {hovered && canCreateChat && <CreateChatFloatingActionButton right={createChatButtonRight}/>}
-                </Hidden>
+                </Box>
             </div>
             <CreateChatDialog/>
         </Fragment>

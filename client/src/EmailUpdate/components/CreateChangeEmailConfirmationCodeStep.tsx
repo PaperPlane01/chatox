@@ -1,11 +1,11 @@
 import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
 import {DialogContent, DialogTitle, DialogActions, Button, CircularProgress, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {useStore, useLocalization} from "../../store";
 import {commonStyles} from "../../style";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     centered: commonStyles.centered
 }));
 
@@ -22,7 +22,7 @@ export const CreateChangeEmailConfirmationCodeStep: FunctionComponent = observer
         }
     } = useStore();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     return (
         <Fragment>

@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Grid, Hidden} from "@mui/material";
+import {Box, Grid} from "@mui/material";
 import {
     ChatInfoContainer,
     ChatInfoDialog,
@@ -8,20 +8,20 @@ import {
     ConfirmChatDeletionDialog,
     SpecifyChatDeletionReasonDialog
 } from "../Chat";
-import {UpdateChatParticipantDialog} from "../ChatParticipant";
-import {ChatAppBar} from "../ChatAppBar";
+import {UpdateChatParticipantDialog} from "../ChatParticipant/components";
+import {ChatAppBar} from "../ChatAppBar/components";
 import {
-    AttachedFilesDialog,
     MessageDialog,
     MessagesListWrapper,
     PinMessageSnackbarManager,
     ScheduleMessageDialog,
     UnpinMessageSnackbarManager
-} from "../Message";
-import {BlockUserInChatByIdOrSlugDialog, CreateChatBlockingDialog} from "../ChatBlocking";
-import {BanUserGloballyDialog} from "../GlobalBan";
-import {ReportChatDialog, ReportMessageDialog} from "../Report";
-import {StickerPackDialog} from "../Sticker";
+} from "../Message/components";
+import {AttachedFilesDialog} from "../MessageForm/components";
+import {BlockUserInChatByIdOrSlugDialog, CreateChatBlockingDialog} from "../ChatBlocking/components";
+import {BanUserGloballyDialog} from "../GlobalBan/components";
+import {ReportChatDialog, ReportMessageDialog} from "../Report/components";
+import {DeleteStickerPackDialog, StickerPackDialog, StickerPreviewDialog} from "../Sticker/components";
 import {useStore} from "../store";
 import {ChatType} from "../api/types/response";
 
@@ -35,27 +35,35 @@ export const ChatPage: FunctionComponent = observer(() => {
     return (
         <Fragment>
             <Grid container>
-                <Grid item xs={12}>
+                <Grid size={12}>
                     <ChatAppBar/>
                 </Grid>
-                <Grid item xs={12}>
-                    <Grid item xs={12}
+                <Grid container size={12}>
+                    <Grid container size={12}
                           style={{display: "flex"}}
                           justifyContent="space-between"
                     >
-                        <Hidden xlDown>
+                        <Grid sx={{
+                            display: {
+                                xs: "none",
+                                lg: "block"
+                            }
+                        }}
+                              size="auto"
+                        >
                             <ChatsOfCurrentUserListWrapper/>
-                        </Hidden>
-                        <Grid container>
-                            <Grid item xs={12} lg={selectedChat && selectedChat.type === ChatType.DIALOG ? 12 : 9}>
+                        </Grid>
+                        <Grid container size="grow">
+                            <Grid size={{
+                                xs: 12,
+                                lg: selectedChat?.type === ChatType.DIALOG ? 12 : 9
+                            }}>
                                 <MessagesListWrapper/>
                             </Grid>
-                            {selectedChat && selectedChat.type !== ChatType.DIALOG && (
-                                <Hidden xlDown>
-                                    <Grid item lg={3}>
-                                        <ChatInfoContainer/>
-                                    </Grid>
-                                </Hidden>
+                            {selectedChat?.type !== ChatType.DIALOG && (
+                                <Grid sx={{display: {xs: "none", lg: "block"}}} size={{lg: 3}}>
+                                    <ChatInfoContainer/>
+                                </Grid>
                             )}
                         </Grid>
                     </Grid>
@@ -76,6 +84,8 @@ export const ChatPage: FunctionComponent = observer(() => {
             <ConfirmChatDeletionDialog/>
             <SpecifyChatDeletionReasonDialog/>
             <CreateChatBlockingDialog/>
+            <DeleteStickerPackDialog/>
+            <StickerPreviewDialog/>
         </Fragment>
     );
 });

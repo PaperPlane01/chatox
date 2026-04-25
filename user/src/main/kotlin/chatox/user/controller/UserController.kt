@@ -21,9 +21,11 @@ import reactor.core.publisher.Mono
 
 @RestController
 @RequestMapping("/api/v1/users")
-class UserController(private val userService: UserService,
-                     private val userSessionService: UserSessionService,
-                     private val currentUserService: CurrentUserService) {
+class UserController(
+    private val userService: UserService,
+    private val userSessionService: UserSessionService,
+    private val currentUserService: CurrentUserService
+) {
 
     @PreAuthorize("hasAuthority('SCOPE_internal_create_user')")
     @PostMapping
@@ -31,14 +33,16 @@ class UserController(private val userService: UserService,
 
     @PreAuthorize("authentication.details.id == #id")
     @PutMapping("/{id}")
-    fun updateUser(@PathVariable id: String,
-                   @RequestBody @Valid updateUserRequest: UpdateUserRequest) = userService.updateUser(id, updateUserRequest)
+    fun updateUser(
+        @PathVariable id: String,
+        @RequestBody @Valid updateUserRequest: UpdateUserRequest
+    ) = userService.updateUser(id, updateUserRequest)
 
     @PreAuthorize("hasRole('ADMIN') || authentication.details.id == #id")
     @DeleteMapping("/{id}")
     fun deleteUser(@PathVariable id: String): Mono<ResponseEntity<Void>> {
         return userService.deleteUser(id)
-                .map { ResponseEntity.noContent().build<Void>() }
+            .map { ResponseEntity.noContent().build<Void>() }
     }
 
     @PreAuthorize("hasRole('USER') || hasRole('ANONYMOUS_USER')")
@@ -48,7 +52,7 @@ class UserController(private val userService: UserService,
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/me/sessions")
     fun getSessionsOfCurrentUser(paginationRequest: PaginationRequest) = userSessionService.findSessionsOfCurrentUser(
-            paginationRequest
+        paginationRequest
     )
 
     @GetMapping("/{idOrSlug}")

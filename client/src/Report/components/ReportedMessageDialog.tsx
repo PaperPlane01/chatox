@@ -1,7 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Dialog, DialogContent, DialogActions, Button} from "@mui/material";
-import {useStore, useLocalization, useEntities} from "../../store";
+import {Button, Dialog, DialogActions, DialogContent} from "@mui/material";
+import {useEntities, useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 import {MessagesListItem} from "../../Message";
 
@@ -13,9 +14,6 @@ export const ReportedMessageDialog: FunctionComponent = observer(() => {
         }
     } = useStore();
     const {
-        reports: {
-            findById: findReport
-        },
         reportedMessages: {
             findById: findReportedMessage
         },
@@ -26,11 +24,11 @@ export const ReportedMessageDialog: FunctionComponent = observer(() => {
     const {l} = useLocalization();
     const {fullScreen} = useMobileDialog();
 
-    if (!reportId) {
+    const report = useEntityById("reports", reportId);
+
+    if (!report) {
         return null;
     }
-
-    const report = findReport(reportId);
 
     return (
         <Dialog open={Boolean(reportId)}

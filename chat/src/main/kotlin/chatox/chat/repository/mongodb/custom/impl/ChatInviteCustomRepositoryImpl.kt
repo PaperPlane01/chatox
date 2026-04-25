@@ -15,7 +15,7 @@ import java.time.ZonedDateTime
 
 @Repository
 class ChatInviteCustomRepositoryImpl(
-        private val reactiveMongoTemplate: ReactiveMongoTemplate
+    private val reactiveMongoTemplate: ReactiveMongoTemplate
 ) : ChatInviteCustomRepository {
 
     override fun findById(id: String, activeOnly: Boolean): Mono<ChatInvite> {
@@ -55,7 +55,11 @@ class ChatInviteCustomRepositoryImpl(
         return reactiveMongoTemplate.find(query, ChatInvite::class.java)
     }
 
-    override fun updateChatInviteUsage(chatInvite: ChatInvite, lastUsedBy: String, lastUsedAt: ZonedDateTime): Mono<ChatInvite> {
+    override fun updateChatInviteUsage(
+        chatInvite: ChatInvite,
+        lastUsedBy: String,
+        lastUsedAt: ZonedDateTime
+    ): Mono<ChatInvite> {
         val query = Query()
 
         query.addCriteria(Criteria.where("_id").`is`(chatInvite.id))
@@ -63,13 +67,18 @@ class ChatInviteCustomRepositoryImpl(
         val update = createUsageUpdate(1, lastUsedAt, lastUsedBy)
 
         return reactiveMongoTemplate.findAndModify(
-                query,
-                update,
-                ChatInvite::class.java
+            query,
+            update,
+            ChatInvite::class.java
         )
     }
 
-    override fun updateChatInviteUsage(inviteId: String, lastUsedBy: String, lastUsedAt: ZonedDateTime, useTimesIncrease: Int): Mono<ChatInvite> {
+    override fun updateChatInviteUsage(
+        inviteId: String,
+        lastUsedBy: String,
+        lastUsedAt: ZonedDateTime,
+        useTimesIncrease: Int
+    ): Mono<ChatInvite> {
         val query = Query()
 
         query.addCriteria(Criteria.where("_id").`is`(inviteId))
@@ -77,9 +86,9 @@ class ChatInviteCustomRepositoryImpl(
         val update = createUsageUpdate(useTimesIncrease, lastUsedAt, lastUsedBy)
 
         return reactiveMongoTemplate.findAndModify(
-                query,
-                update,
-                ChatInvite::class.java
+            query,
+            update,
+            ChatInvite::class.java
         )
     }
 
@@ -93,20 +102,20 @@ class ChatInviteCustomRepositoryImpl(
     }
 
     private fun createActiveCriteria() = Criteria().andOperator(
-            Criteria.where("active").`is`(true),
-            Criteria().andOperator(
-                    Criteria().orOperator(
-                            Criteria.where("expiresAt").isNull,
-                            Criteria.where("expiresAt").gt(ZonedDateTime.now())
-                    ),
-                    Criteria().orOperator(
-                            Criteria.where("maxUseTimes").isNull,
-                            Criteria.expr(
-                                    ComparisonOperators.Gt
-                                            .valueOf("\$maxUseTimes")
-                                            .greaterThan("\$useTimes")
-                            )
-                    )
+        Criteria.where("active").`is`(true),
+        Criteria().andOperator(
+            Criteria().orOperator(
+                Criteria.where("expiresAt").isNull,
+                Criteria.where("expiresAt").gt(ZonedDateTime.now())
+            ),
+            Criteria().orOperator(
+                Criteria.where("maxUseTimes").isNull,
+                Criteria.expr(
+                    ComparisonOperators.Gt
+                        .valueOf("\$maxUseTimes")
+                        .greaterThan("\$useTimes")
+                )
             )
+        )
     )
 }

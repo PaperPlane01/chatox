@@ -1,12 +1,13 @@
 import React from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {VirtualMessagesList} from "./VirtualMessagesList";
 import {MessagesList} from "./MessagesList";
 import {ChatDeletionLabel} from "../../Chat";
 import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     centered: {
         display: "flex",
         alignItems: "center",
@@ -22,20 +23,16 @@ export const MessagesListWrapper = observer(() => {
             errorsMap,
             currentSlug
         },
-        entities: {
-            chats: {
-                findById: findChat
-            }
-        },
         chatsPreferences: {
             enableVirtualScroll
         }
     } = useStore();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
+    const chat = useEntityById("chats", selectedChatId);
     const error = currentSlug ? errorsMap[currentSlug] : undefined;
 
-    if (error && error.metadata && error.metadata.errorCode === "CHAT_DELETED") {
+    if (error?.metadata?.errorCode === "CHAT_DELETED") {
         const comment = error.metadata.additional ? error.metadata.additional.comment : undefined;
         const reason = error.metadata.additional ? error.metadata.additional.reason : undefined;
 
@@ -48,13 +45,7 @@ export const MessagesListWrapper = observer(() => {
         );
     }
 
-    if (!selectedChatId) {
-        return null;
-    }
-
-    const chat = findChat(selectedChatId);
-
-    if (chat.deleted) {
+    if (chat?.deleted) {
         return (
             <ChatDeletionLabel deletionComment={chat.deletionComment}
                                deletionReason={chat.deletionReason}

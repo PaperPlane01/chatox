@@ -1,7 +1,9 @@
 import React, {FunctionComponent, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import ReactPlayer from "react-player";
-import {useEntities, useStore} from "../../store";
+import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
+import {isDefined} from "../../utils/object-utils";
 
 export const AudioPlayerContainer: FunctionComponent = observer(() => {
     const {
@@ -9,38 +11,38 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
             currentTrackId,
             playing,
             volume,
-            setCurrentPosition,
+            setCurrentTime,
             setPlaying,
-            seekTo
+            seekToTime
         }
     } = useStore();
-    const {
-        uploads: {
-            findAudio
-        }
-    } = useEntities();
-
-    const playerRef = useRef<ReactPlayer>(null);
+    const playerRef = useRef<HTMLVideoElement | null>(null);
 
     useEffect(
         () => {
-            if (playerRef.current && seekTo !== undefined && playing) {
-                playerRef.current.seekTo(seekTo, "fraction");
+            if (playerRef.current && isDefined(seekToTime) && playing) {
+                playerRef.current.currentTime = seekToTime;
             }
         },
-        [seekTo]
+        [seekToTime]
     );
 
-    if (!currentTrackId) {
+    const audio = useEntityById("uploads", currentTrackId);
+
+    if (!audio) {
         return null;
     }
 
-    const audio = findAudio(currentTrackId);
+    const handleTimeUpdate = (): void => {
+        if (playerRef.current) {
+            setCurrentTime(playerRef.current.currentTime);
+        }
+    };
 
     return (
-        <ReactPlayer url={`${audio.uri}/stream`}
+        <ReactPlayer src={`${audio.uri}/stream`}
                      playing={playing}
-                     onProgress={progress => setCurrentPosition(progress.played)}
+                     onTimeUpdate={handleTimeUpdate}
                      style={{
                          display: "none"
                      }}
@@ -48,7 +50,7 @@ export const AudioPlayerContainer: FunctionComponent = observer(() => {
                      height={0}
                      onEnded={() => {
                          setPlaying(false);
-                         setCurrentPosition(0);
+                         setCurrentTime(0);
                      }}
                      volume={volume}
                      ref={playerRef}

@@ -11,18 +11,20 @@ import {
     FormControlLabel,
     TextField,
     Typography
-} from "@mui/material"
+} from "@mui/material";
 import {DateTimePicker} from "@mui/x-date-pickers";
 import {useSnackbar} from "notistack";
+import {HttpStatusCode} from "axios";
 import {GlobalBanReasonSelect} from "./GlobalBanReasonSelect";
 import {useLocalization, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 import {getUserDisplayedName} from "../../User/utils/labels";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 
 const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
-    if (error.status === 403) {
+    if (error.status === HttpStatusCode.Forbidden) {
         return l("global.ban.update.error.no-permission");
     } else if (error.status === API_UNREACHABLE_STATUS) {
         return l("global.ban.update.error.server-unreachable");
@@ -33,11 +35,6 @@ const getErrorLabel = (error: ApiError, l: TranslationFunction): string => {
 
 export const UpdateGlobalBanDialog: FunctionComponent = observer(() => {
     const {
-        entities: {
-            users: {
-                findById: findUser
-            }
-        },
         updateGlobalBan: {
             updateGlobalBanDialogOpen,
             updatedGlobalBan,
@@ -65,17 +62,17 @@ export const UpdateGlobalBanDialog: FunctionComponent = observer(() => {
             }
         }
     );
-    
-    if (!updatedGlobalBan) {
+
+    const bannedUser = useEntityById("users", updatedGlobalBan?.bannedUserId);
+
+    if (!bannedUser) {
         return null;
     }
-    
+
     const closeDialog = (): void => {
         setUpdateGlobalBanDialogOpen(false);
         setUpdatedGlobalBanId(undefined);
     }
-    
-    const bannedUser = findUser(updatedGlobalBan.bannedUserId);
 
     return (
         <Dialog open={updateGlobalBanDialogOpen}
@@ -91,17 +88,17 @@ export const UpdateGlobalBanDialog: FunctionComponent = observer(() => {
                 <DateTimePicker value={updateGlobalBanForm.expiresAt || null}
                                 onChange={date => setFormValue("expiresAt", date || undefined)}
                                 disabled={updateGlobalBanForm.permanent}
-                                inputFormat="dd MMMM yyyy HH:mm"
+                                format="dd MMMM yyyy HH:mm"
                                 disablePast
-                                renderInput={props => (
-                                    <TextField {...props}
-                                               label={l("global.ban.expires-at")}
-                                               error={Boolean(formErrors.expiresAt)}
-                                               helperText={formErrors.expiresAt && l(formErrors.expiresAt)}
-                                               margin="dense"
-                                               fullWidth
-                                    />
-                                )}
+                                label={l("global.ban.expires-at")}
+                                slotProps={{
+                                    textField: {
+                                        error: Boolean(formErrors.expiresAt),
+                                        helperText: formErrors.expiresAt && l(formErrors.expiresAt),
+                                        margin: "dense",
+                                        fullWidth: true
+                                    }
+                                }}
                 />
                 <GlobalBanReasonSelect onSelect={reason => setFormValue("reason", reason)}
                                        value={updateGlobalBanForm.reason}

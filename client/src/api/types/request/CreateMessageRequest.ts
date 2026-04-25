@@ -3,5 +3,6 @@ export interface CreateMessageRequest {
     referredMessageId?: string,
     uploadAttachments: string[],
     scheduledAt?: string,
-    stickerId?: string
+    stickerId?: string,
+    draft?: boolean
 }

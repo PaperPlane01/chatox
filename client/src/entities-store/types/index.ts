@@ -1,4 +1,4 @@
-import {MessageEntity} from "../../Message/types";
+import {MessageEntity} from "../../Message";
 import {ChatOfCurrentUserEntity, ChatUploadEntity} from "../../Chat";
 import {ChatParticipationEntity, PendingChatParticipationEntity} from "../../ChatParticipant";
 import {UserEntity, UserProfilePhotoEntity} from "../../User";
@@ -6,7 +6,7 @@ import {ChatBlockingEntity} from "../../ChatBlocking";
 import {Upload} from "../../api/types/response";
 import {GlobalBanEntity} from "../../GlobalBan/types";
 import {ChatWithCreatorIdEntity, ReportEntity} from "../../Report/types";
-import {StickerEntity, StickerPackEntity} from "../../Sticker";
+import {StickerAnimationData, StickerEntity, StickerPackEntity} from "../../Sticker";
 import {ChatRoleEntity} from "../../ChatRole/types";
 import {RequiredField} from "../../utils/types";
 import {RewardEntity, UserRewardEntity} from "../../Reward/types";
@@ -35,10 +35,14 @@ export type Entities = "messages"
     | "userInteractions"
     | "userProfilePhotos"
     | "chatInvites"
-    | "pendingChatParticipations";
+    | "pendingChatParticipations"
+    | "draftMessages"
+    | "stickerAnimationData";
+
+export type PersistentEntities = Extract<Entities, "messages" | "users" | "uploads" | "stickers" | "stickerPacks" | "chatRoles" | "draftMessages" | "stickerAnimationData">;
 
 interface EntityMap<T> {
-    [key: string]: T
+    [key: string]: T;
 }
 
 //@formatter:off
@@ -66,10 +70,12 @@ export type GetEntityType<Key extends Entities>
     : Key extends "userProfilePhotos" ? UserProfilePhotoEntity
     : Key extends "chatInvites" ? ChatInviteEntity
     : Key extends "pendingChatParticipations" ? PendingChatParticipationEntity
+    : Key extends "draftMessages" ? MessageEntity
+    : Key extends "stickerAnimationData" ? StickerAnimationData
     : never;
 //@formatter:on
 
-type GetEntityMapType<Key extends Entities> = EntityMap<GetEntityType<Key>>;
+export type GetEntityMapType<Key extends Entities> = EntityMap<GetEntityType<Key>>;
 
 export type RawEntities = {
     [Key in Entities]: GetEntityMapType<Key>
@@ -89,4 +95,8 @@ export type EntitiesPatch = {
 export type PopulatedEntitiesPatch<T extends Entities> = {
     entities: RequiredField<Partial<RawEntities>, T>,
     ids: RequiredField<Partial<EntitiesIds>, T>
+};
+
+export type RelationshipsIds = {
+    [key in Entities]?: string[]
 };

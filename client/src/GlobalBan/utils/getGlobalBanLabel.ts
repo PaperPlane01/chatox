@@ -1,10 +1,7 @@
+import {format, Locale} from "date-fns";
 import {Labels, TranslationFunction} from "../../localization/types";
-import {User} from "../../api/types/response";
 import {UserEntity} from "../../User/types";
 import {GlobalBanEntity} from "../types";
-import {format} from "date-fns";
-
-type FindUserFunction = (id: string) => UserEntity
 
 interface PossibleBindings {
     createdByUsername: string,
@@ -13,8 +10,12 @@ interface PossibleBindings {
     comment?: string
 }
 
-export const getGlobalBanLabel = (globalBan: GlobalBanEntity, l: TranslationFunction, dateFnsLocale: Locale, findUser: FindUserFunction): string => {
-    const createdBy = findUser(globalBan.createdById);
+export const getGlobalBanLabel = (
+    globalBan: GlobalBanEntity,
+    l: TranslationFunction,
+    dateFnsLocale: Locale,
+    createdBy: UserEntity // TODO: make this parameter optional
+): string => {
     let label: keyof Labels;
     let bindings: PossibleBindings;
 

@@ -1,7 +1,6 @@
 package chatox.chat.model
 
 import com.fasterxml.jackson.annotation.JsonCreator
-import java.lang.IllegalArgumentException
 
 enum class ChatType {
     GROUP,

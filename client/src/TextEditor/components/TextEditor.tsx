@@ -1,0 +1,265 @@
+import React, {Fragment, FunctionComponent, ReactNode, useCallback, useState} from "react";
+import {observer} from "mobx-react";
+import {Box, Theme} from "@mui/material";
+import {makeStyles} from "tss-react/mui";
+import {LexicalComposer} from "@lexical/react/LexicalComposer";
+import {RichTextPlugin} from "@lexical/react/LexicalRichTextPlugin";
+import {ListPlugin} from "@lexical/react/LexicalListPlugin";
+import {LinkPlugin} from "@lexical/react/LexicalLinkPlugin";
+import {OnChangePlugin} from "@lexical/react/LexicalOnChangePlugin";
+import {MarkdownShortcutPlugin} from "@lexical/react/LexicalMarkdownShortcutPlugin";
+import {ClearEditorPlugin} from "@lexical/react/LexicalClearEditorPlugin";
+import {CodeNode} from "@lexical/code";
+import {AutoLinkNode, LinkNode} from "@lexical/link";
+import {ListItemNode, ListNode} from "@lexical/list";
+import {HeadingNode, QuoteNode} from "@lexical/rich-text";
+import {HorizontalRuleNode} from "@lexical/react/LexicalHorizontalRuleNode";
+import {ContentEditable} from "@lexical/react/LexicalContentEditable";
+import {$convertFromMarkdownString, $convertToMarkdownString} from "@lexical/markdown";
+import {LexicalErrorBoundary} from "@lexical/react/LexicalErrorBoundary";
+import {EditorState, LexicalEditor} from "lexical";
+import {
+    BeautifulMentionComponentProps,
+    BeautifulMentionsPlugin,
+    createBeautifulMentionNode
+} from "lexical-beautiful-mentions";
+import {ContainedEmojiPicker} from "./ContainedEmojiPicker";
+import {UncontainedEmojiPicker} from "./UncontainedEmojiPicker";
+import {Mention} from "./Mention";
+import {MENTION_MENU_ANCHOR_CLASS_NAME, MentionsMenu} from "./MentionsMenu";
+import {MentionsMenuItem} from "./MentionsMenuItem";
+import {
+    AutoLinkPlugin,
+    CreateEditorLinkPlugin,
+    EditorReadyListenerPlugin,
+    EmojiPlugin,
+    EnterActionsPlugin,
+    FloatingToolbarPlugin
+} from "../plugins";
+import {EnterAction} from "../types";
+import {adornmentStyle} from "../styles";
+import {TRANSFORMERS} from "../transformers";
+import {EmojiPickerVariant} from "../../EmojiPicker";
+import {useStore} from "../../store";
+import {createBlockquoteStyles} from "../../style";
+import {CSSObject} from "tss-react";
+
+const useStyles= makeStyles()((theme: Theme) => ({
+	editorWrapper: {
+		display: "flex",
+	},
+	editorContainer: {
+		position: "relative",
+		flex: 1
+	},
+	editorInput: {
+		maxHeight: 250,
+		overflowY: "auto",
+		outline: 0
+	},
+	ltr: {
+		textAlign: "left"
+	},
+	rtr: {
+		textAlign: "right"
+	},
+	placeholder: {
+		...theme.typography.body1 as unknown as CSSObject,
+		paddingBottom: theme.spacing(1),
+		marginBlockStart: 0,
+		marginBlockEnd: 0,
+		color: theme.palette.text.secondary,
+		userSelect: "none",
+		pointerEvents: "none",
+		overflow: "hidden",
+		position: "absolute",
+		top: 0,
+		left: 5
+	},
+	paragraph: {
+		...theme.typography.body1 as unknown as CSSObject,
+		marginBlockStart: 0,
+		marginBlockEnd: 0,
+		paddingBottom: theme.spacing(1)
+	},
+	heading1: theme.typography.h1 as unknown as CSSObject,
+	heading2: theme.typography.h2 as unknown as CSSObject,
+	heading3: theme.typography.h3 as unknown as CSSObject,
+	heading4: theme.typography.h4 as unknown as CSSObject,
+	heading5: theme.typography.h5 as unknown as CSSObject,
+	heading6: theme.typography.h6 as unknown as CSSObject,
+	bold: {
+		fontWeight: theme.typography.fontWeightBold
+	},
+	italic: {
+		fontStyle: "italic"
+	},
+	underline: {
+		textDecoration: "underline"
+	},
+	strikethrough: {
+		textDecoration: "line-through"
+	},
+	underlineStrikeThrough: {
+		textDecoration: "underline line-through"
+	},
+	emojiPickerButton: adornmentStyle,
+	blockquote: createBlockquoteStyles(theme)
+}));
+
+const EDITOR_NODES = [
+	CodeNode,
+	HeadingNode,
+	AutoLinkNode,
+	LinkNode,
+	ListNode,
+	ListItemNode,
+	QuoteNode,
+	HorizontalRuleNode,
+	...createBeautifulMentionNode(Mention as unknown as FunctionComponent<BeautifulMentionComponentProps>)
+];
+
+interface TextEditorProps {
+	initialText: string,
+	placeholder: string,
+	onEnter: EnterAction,
+	onCtrlEnter: EnterAction,
+	startAdornment?: ReactNode,
+	endAdornment?: ReactNode,
+	emojiPickerVariant?: "none" | EmojiPickerVariant,
+	useEmojiCodes?: boolean,
+	emojiPickerExpanded?: boolean,
+	editorKey?: string,
+	setEmojiPickerExpanded?: (emojiPickerExpanded: boolean) => void,
+	onUpdate: (text: string) => void,
+	onEditorReady?: (editor: LexicalEditor) => void
+}
+
+export const TextEditor: FunctionComponent<TextEditorProps> = observer(({
+	initialText,
+	placeholder,
+	onEnter = "insertNewParagraph",
+	onCtrlEnter = "insertNewParagraph",
+	startAdornment,
+	endAdornment,
+	useEmojiCodes,
+	emojiPickerExpanded,
+	setEmojiPickerExpanded,
+	emojiPickerVariant = "none",
+	editorKey,
+	onUpdate,
+	onEditorReady,
+}) => {
+	const {
+		mentions: {
+			searchMentions
+		}
+	} = useStore();
+
+	const [editor, setEditor] = useState<LexicalEditor | undefined>(undefined);
+	const {classes} = useStyles();
+
+	const handleEditorReady = useCallback((editor: LexicalEditor) => {
+		setEditor(editor);
+
+		if (onEditorReady) {
+			onEditorReady(editor);
+		}
+	}, [editor]);
+
+	const handleChange = (state: EditorState): void => {
+		state.read(() => {
+			const markdown = $convertToMarkdownString(TRANSFORMERS);
+			onUpdate(markdown);
+		});
+	};
+
+	return (
+		<Fragment>
+			<div className={classes.editorWrapper}>
+				{startAdornment}
+				<div className={classes.editorContainer}>
+					<LexicalComposer initialConfig={{
+						namespace: "chatox-editor",
+						nodes: EDITOR_NODES,
+						theme: {
+							ltr: classes.ltr,
+							rtl: classes.rtr,
+							placeholder: classes.placeholder,
+							paragraph: classes.paragraph,
+							heading: {
+								h1: classes.heading1,
+								h2: classes.heading2,
+								h3: classes.heading3,
+								h4: classes.heading4,
+								h5: classes.heading5,
+								h6: classes.heading6
+							},
+							text: {
+								bold: classes.bold,
+								italic: classes.italic,
+								underline: classes.underline,
+								strikethrough: classes.strikethrough,
+								underlineStrikethrough: classes.underlineStrikeThrough
+							},
+							quote: classes.blockquote
+						},
+						editorState: () => $convertFromMarkdownString(initialText, TRANSFORMERS),
+						onError: error => console.error(error)
+					}}
+									 key={editorKey}
+					>
+						<RichTextPlugin contentEditable={<ContentEditable className={classes.editorInput}/>}
+										placeholder={(
+											<div className={classes.placeholder}>
+												{placeholder}
+											</div>
+										)}
+										ErrorBoundary={LexicalErrorBoundary}
+						/>
+						<EditorReadyListenerPlugin onEditorReady={handleEditorReady}/>
+						<OnChangePlugin onChange={handleChange}/>
+						<ListPlugin/>
+						<LinkPlugin/>
+						<MarkdownShortcutPlugin/>
+						<FloatingToolbarPlugin/>
+						<EnterActionsPlugin onEnter={onEnter} onCtrlEnter={onCtrlEnter}/>
+						<ClearEditorPlugin/>
+						{emojiPickerVariant !== "none" && <EmojiPlugin useEmojiCodes={useEmojiCodes}/>}
+						<BeautifulMentionsPlugin
+                            triggers={["@"]}
+                            onSearch={(_, query) => searchMentions(query ?? "")}
+                            creatable={false}
+                            menuItemComponent={MentionsMenuItem}
+                            menuComponent={MentionsMenu}
+                            menuAnchorClassName={MENTION_MENU_ANCHOR_CLASS_NAME}
+						/>
+						<AutoLinkPlugin/>
+						<CreateEditorLinkPlugin/>
+					</LexicalComposer>
+				</div>
+				{emojiPickerVariant !== "none" && (
+					<ContainedEmojiPicker variant={emojiPickerVariant}
+										  editor={editor}
+										  iconButtonClassName={classes.emojiPickerButton}
+					/>
+				)}
+				{endAdornment}
+			</div>
+			{emojiPickerVariant !== "none" && emojiPickerExpanded && (
+                <Box sx={{
+                    display: {
+                        lg: "none",
+                        xs: "block"
+                    }
+                }}>
+                    <UncontainedEmojiPicker variant={emojiPickerVariant}
+                                            emojiPickerExpanded={emojiPickerExpanded}
+                                            setEmojiPickerExpanded={setEmojiPickerExpanded}
+                                            editor={editor}
+                    />
+                </Box>
+			)}
+		</Fragment>
+	);
+});

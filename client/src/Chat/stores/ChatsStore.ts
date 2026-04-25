@@ -2,22 +2,23 @@ import {action, computed, makeObservable, observable, override} from "mobx";
 import {computedFn} from "mobx-utils";
 import {mergeWith, uniq} from "lodash";
 import {ChatOfCurrentUserEntity} from "../types";
-import {SoftDeletableEntityStore} from "../../entity-store";
+import {EntityDeletionOptions, SoftDeletableEntityStore} from "../../entity-store";
 import {
     ChatDeletionReason,
     ChatOfCurrentUser,
     ChatParticipation,
     ChatType,
     CurrentUser,
-    populateJoinAllowanceSettings
+    populateJoinAllowanceSettings,
+    UserVerificationLevel
 } from "../../api/types/response";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
-import {mergeCustomizer} from "../../utils/object-utils";
+import {isDefined, mergeCustomizer} from "../../utils/object-utils";
 import {AuthorizationStore} from "../../Authorization";
 import {PartialBy} from "../../utils/types";
 import {ChatUpdated, PrivateChatCreated} from "../../api/types/websocket";
 
-interface DeleteChatOptions {
+interface DeleteChatOptions extends EntityDeletionOptions {
     deletionReason?: ChatDeletionReason,
     deletionComment?: string
 }
@@ -25,9 +26,9 @@ interface DeleteChatOptions {
 export class ChatsStore extends SoftDeletableEntityStore<
     "chats",
     ChatOfCurrentUserEntity,
-    PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted">,
+    PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted" | "unreadMentionsCount">,
     {},
-    {deletionReason: ChatDeletionReason, deletionComment: string}
+    DeleteChatOptions
     > {
     privateChats: {[userId: string]: string} = {};
 
@@ -123,7 +124,8 @@ export class ChatsStore extends SoftDeletableEntityStore<
             scheduledMessages: [],
             tags: [],
             joinAllowanceSettings: populateJoinAllowanceSettings({}),
-            hideFromSearch: true
+            hideFromSearch: true,
+            unreadMentionsCount: 0
         };
         patch.ids.chats.push(privateChatCreated.id);
 
@@ -148,7 +150,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
         this.insertEntity(chat);
     };
 
-    increaseUnreadMessagesCountOfChat = (chatId: string): void => {
+    increaseUnreadMessagesCountOfChat = (chatId: string, currentUserMentioned: boolean = false): void => {
         const chat = this.findByIdOptional(chatId);
 
         if (!chat) {
@@ -156,10 +158,15 @@ export class ChatsStore extends SoftDeletableEntityStore<
         }
 
         chat.unreadMessagesCount = chat.unreadMessagesCount + 1;
+
+        if (currentUserMentioned) {
+            chat.unreadMentionsCount = chat.unreadMentionsCount + 1;
+        }
+
         this.insertEntity(chat);
     }
 
-    decreaseUnreadMessagesCountOfChat = (chatId: string): void => {
+    decreaseUnreadMessagesCountOfChat = (chatId: string, currentUserMentioned: boolean = false): void => {
         const chat = this.findByIdOptional(chatId);
 
         if (!chat) {
@@ -168,13 +175,23 @@ export class ChatsStore extends SoftDeletableEntityStore<
 
         if (chat.unreadMessagesCount !== 0) {
             chat.unreadMessagesCount = chat.unreadMessagesCount - 1;
+
+            if (currentUserMentioned && chat.unreadMentionsCount !== 0) {
+                chat.unreadMentionsCount = chat.unreadMessagesCount - 1;
+            }
+
             this.insertEntity(chat);
         }
     }
 
-    setUnreadMessagesCountOfChat = (chatId: string, unreadMessagesCount: number): void => {
+    setUnreadMessagesCountOfChat = (chatId: string, unreadMessagesCount: number, unreadMentionsCount?: number): void => {
         const chat = this.findById(chatId);
         chat.unreadMessagesCount = unreadMessagesCount;
+
+        if (isDefined(unreadMentionsCount)) {
+            chat.unreadMentionsCount = unreadMentionsCount;
+        }
+
         this.insertEntity(chat);
     }
 
@@ -291,6 +308,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
                     ...denormalizedEntity.chatParticipation,
                     user: {
                         ...this.currentUser,
+                        anonymous: this.currentUser.verificationLevel === UserVerificationLevel.ANONYMOUS,
                         online: true,
                         deleted: false
                     },
@@ -309,13 +327,17 @@ export class ChatsStore extends SoftDeletableEntityStore<
                 chat.messages.push(denormalizedEntity.lastReadMessage.id);
             }
 
-            if (denormalizedEntity.lastMessage) {
+            if (denormalizedEntity.lastMessage && denormalizedEntity.lastMessage.id !== denormalizedEntity.lastReadMessage?.id) {
                 patches.push(this.entities.messages.createPatch(denormalizedEntity.lastMessage, {
                     skipSettingLastMessage: true,
                     skipUpdatingChat: true
                 }));
                 chat.lastMessage = denormalizedEntity.lastMessage.id;
                 chat.messages.push(denormalizedEntity.lastMessage.id);
+            }
+
+            if (denormalizedEntity.draftMessage) {
+                patches.push(this.entities.draftMessages.createPatch(denormalizedEntity.draftMessage));
             }
 
             if (denormalizedEntity.avatar) {
@@ -331,7 +353,9 @@ export class ChatsStore extends SoftDeletableEntityStore<
         return mergeWith(patch, ...patches, mergeCustomizer);
     }
 
-    protected convertToNormalizedForm(denormalizedEntity: PartialBy<ChatOfCurrentUser, "unreadMessagesCount">): ChatOfCurrentUserEntity {
+    protected convertToNormalizedForm(
+        denormalizedEntity: PartialBy<ChatOfCurrentUser, "unreadMessagesCount" | "deleted" | "unreadMentionsCount">
+    ): ChatOfCurrentUserEntity {
         const indexToMessageMap: {[index: number]: string} = {};
 
         if (denormalizedEntity.lastMessage) {
@@ -339,14 +363,17 @@ export class ChatsStore extends SoftDeletableEntityStore<
         }
 
         let unreadMessagesCount = 0;
+        let unreadMentionsCount = 0;
 
-        if (denormalizedEntity.unreadMessagesCount !== undefined) {
+        if (denormalizedEntity.unreadMessagesCount !== undefined && denormalizedEntity.unreadMentionsCount !== undefined) {
             unreadMessagesCount = denormalizedEntity.unreadMessagesCount;
+            unreadMentionsCount = denormalizedEntity.unreadMentionsCount;
         } else {
             const existingChat = this.findByIdOptional(denormalizedEntity.id);
 
             if (existingChat) {
                 unreadMessagesCount = existingChat.unreadMessagesCount;
+                unreadMentionsCount = existingChat.unreadMentionsCount;
             }
         }
 
@@ -361,6 +388,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
             messages: denormalizedEntity.lastMessage ? [denormalizedEntity.lastMessage.id] : [],
             indexToMessageMap,
             unreadMessagesCount,
+            unreadMentionsCount,
             participantsCount: denormalizedEntity.participantsCount,
             participants: [],
             currentUserParticipationId: denormalizedEntity.chatParticipation?.id,
@@ -369,7 +397,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
             createdByCurrentUser: denormalizedEntity.createdByCurrentUser,
             tags: denormalizedEntity.tags,
             onlineParticipantsCount: denormalizedEntity.onlineParticipantsCount,
-            deleted: denormalizedEntity.deleted,
+            deleted: denormalizedEntity.deleted ?? false,
             deletionComment: denormalizedEntity.deletionComment,
             deletionReason: denormalizedEntity.deletionReason,
             scheduledMessages: [],

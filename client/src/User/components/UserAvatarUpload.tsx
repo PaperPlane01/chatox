@@ -1,18 +1,14 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {getUserAvatarLabel} from "../utils/labels";
 import {AvatarUpload} from "../../Upload";
 import {useAuthorization, useStore} from "../../store";
+import {commonStyles} from "../../style";
 
-const useStyles = makeStyles(() => createStyles({
-    centered: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column"
-    }
+const useStyles = makeStyles()(() => ({
+    centered: commonStyles.centered
 }));
 
 export const UserAvatarUpload: FunctionComponent = observer(() => {
@@ -26,7 +22,7 @@ export const UserAvatarUpload: FunctionComponent = observer(() => {
         }
     } = useStore();
     const {currentUser} = useAuthorization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     if (!currentUser) {
         return null;

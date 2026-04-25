@@ -14,6 +14,7 @@ import {
 import {DateTimePicker} from "@mui/x-date-pickers";
 import {useSnackbar} from "notistack";
 import {addMinutes, addMonths} from "date-fns";
+import {HttpStatusCode} from "axios";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
@@ -21,7 +22,7 @@ import {TranslationFunction} from "../../localization";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
 
 const getErrorText = (error: ApiError, l: TranslationFunction): string => {
-    if (error.metadata && error.metadata.errorCode) {
+    if (error.metadata?.errorCode) {
         if (error.metadata.errorCode === "LIMIT_OF_SCHEDULED_MESSAGES_REACHED") {
             return l("message.delayed-message.limit-reached");
         } else if (error.metadata.errorCode === "SCHEDULED_MESSAGE_IS_TOO_CLOSE_TO_ANOTHER_SCHEDULED_MESSAGE") {
@@ -32,7 +33,7 @@ const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     switch (error.status) {
         case API_UNREACHABLE_STATUS:
             return l("message.delayed-message.update.server-unreachable");
-        case 404:
+        case HttpStatusCode.NotFound:
             return l("message.delayed-message.update.error.deleted-or-published");
         default:
             return l("message.delayed-message.update.error.unknown", {errorStatus: error.status});
@@ -95,35 +96,36 @@ export const UpdateScheduledMessageDialog: FunctionComponent = observer(() => {
                            multiline
                            rows={4}
                            maxRows={Number.MAX_SAFE_INTEGER}
-                           InputProps={{
-                               endAdornment: (
-                                   <InputAdornment position="end">
-                                       <OpenMarkdownPreviewDialogButton/>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: (
+                                       <InputAdornment position="end">
+                                           <OpenMarkdownPreviewDialogButton/>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
                 <DateTimePicker value={formValues.scheduledAt}
                                 onChange={date => setFormValue("scheduledAt", date!)}
                                 openTo="day"
-                                inputFormat="dd MMMM yyyy HH:mm"
+                                format="dd MMMM yyyy HH:mm"
                                 minDate={addMinutes(new Date(), 5)}
                                 maxDate={addMonths(new Date(), 1)}
                                 disablePast
                                 ampm={false}
-                                renderInput={props => (
-                                    <TextField {...props}
-                                               fullWidth
-                                               margin="dense"
-                                               error={Boolean(
-                                                   formErrors.scheduledAt
-                                                   || (error && error.metadata
-                                                       && error.metadata.errorCode
-                                                       && error.metadata.errorCode === "SCHEDULED_MESSAGE_IS_TOO_CLOSE_TO_ANOTHER_SCHEDULED_MESSAGE")
-                                               )}
-                                               helperText={formErrors.scheduledAt && l(formErrors.scheduledAt)}
-                                    />
-                                )}
+                                slotProps={{
+                                    textField: {
+                                        fullWidth: true,
+                                        margin: "dense",
+                                        error: Boolean(
+                                            formErrors.scheduledAt
+                                            || error?.metadata?.errorCode
+                                            === "SCHEDULED_MESSAGE_IS_TOO_CLOSE_TO_ANOTHER_SCHEDULED_MESSAGE"
+                                        ),
+                                        helperText: formErrors.scheduledAt && l(formErrors.scheduledAt)
+                                    }
+                                }}
                 />
                 <Typography style={{color: "red"}}>
                     {error && getErrorText(error, l)}

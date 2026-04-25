@@ -4,6 +4,7 @@ export enum SettingsTab {
     SECURITY = "security",
     APPEARANCE = "appearance",
     CHATS = "chats",
+    NOTIFICATIONS = "notifications",
     STICKERS = "stickers",
     BLACKLIST = "blacklist"
 }
@@ -24,10 +25,12 @@ export const getSettingsTabFromString = (settingsTab?: string): SettingsTab => {
             return SettingsTab.APPEARANCE;
         case "chats":
             return SettingsTab.CHATS;
+        case "notifications":
+            return SettingsTab.NOTIFICATIONS;
         case "stickers":
             return SettingsTab.STICKERS;
         case "blacklist":
-            return SettingsTab.BLACKLIST
+            return SettingsTab.BLACKLIST;
         default:
             return SettingsTab.PROFILE;
     }

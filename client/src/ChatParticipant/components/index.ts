@@ -11,3 +11,4 @@ export * from "./UpdateChatParticipantMenuItem";
 export * from "./ChatParticipantSearchTextField";
 export * from "./ChatParticipantsCard";
 export * from "./JoinChatRequestsCard";
+export * from "./ChatParticipantsAutoComplete";

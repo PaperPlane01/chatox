@@ -1,0 +1,55 @@
+import React, {Fragment, FunctionComponent} from "react";
+import {observer} from "mobx-react";
+import {CircularProgress, Grid, Typography} from "@mui/material";
+import {makeStyles} from "tss-react/mui";
+import {AppBar} from "../AppBar/components";
+import {Layout} from "../Layout/components";
+import {StickerPackCard, StickerPreviewDialog} from "../Sticker/components";
+import {getLoadErrorText} from "../Sticker/utils";
+import {useStore, useLocalization} from "../store";
+import {commonStyles} from "../style";
+
+const useStyle = makeStyles()(() => ({
+    centered: commonStyles.centered
+}));
+
+export const StickerPackPage: FunctionComponent = observer(() => {
+	const {
+		stickerPack: {
+			stickerPackId,
+			pending,
+			error
+		}
+	} = useStore();
+	const {l} = useLocalization();
+	const {classes} = useStyle();
+
+	return (
+		<Fragment>
+			<Grid container>
+				<Grid size={12}>
+					<AppBar/>
+				</Grid>
+				<Grid size={12}>
+					<Layout>
+						{pending && (
+							<CircularProgress size={50}
+											  color="primary"
+											  className={classes.centered}
+							/>
+						)}
+						{error && (
+							<Typography>
+								{getLoadErrorText(error, l)}
+							</Typography>
+						)}
+						<StickerPackCard stickerPackId={stickerPackId}/>
+					</Layout>
+				</Grid>
+			</Grid>
+			<StickerPreviewDialog/>
+		</Fragment>
+	);
+});
+
+export default StickerPackPage;

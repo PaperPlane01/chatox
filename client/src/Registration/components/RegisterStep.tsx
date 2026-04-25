@@ -41,66 +41,72 @@ export const RegisterStep: FunctionComponent = observer(() => {
             <DialogContent>
                 <TextField label={l("username")}
                            value={registerUserForm.username}
-                           onChange={event => setFormValue("username", event.target.value as string)}
+                           onChange={event => setFormValue("username", event.target.value)}
                            error={Boolean(errors.username)}
                            helperText={errors.username && l(errors.username)}
                            fullWidth
                            margin="dense"
-                           InputProps={{
-                               endAdornment: checkingUsernameAvailability
-                                   ? (
-                                       <InputAdornment position="end">
-                                           <CircularProgress color="primary" size={20}/>
-                                       </InputAdornment>
-                                   )
-                                   : null
+                           slotProps={{
+                               input: {
+                                   endAdornment: checkingUsernameAvailability
+                                       ? (
+                                           <InputAdornment position="end">
+                                               <CircularProgress color="primary" size={20}/>
+                                           </InputAdornment>
+                                       )
+                                       : null
+                               }
                            }}
                 />
                 <TextField label={l("password")}
                            value={registerUserForm.password}
-                           onChange={event => setFormValue("password", event.target.value as string)}
+                           onChange={event => setFormValue("password", event.target.value)}
                            error={Boolean(errors.password)}
                            helperText={errors.password && l(errors.password)}
                            fullWidth
                            margin="dense"
                            type={displayPassword ? "text" : "password"}
-                           InputProps={{
-                               endAdornment: (
-                                   <InputAdornment position="end">
-                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)} size="large">
-                                           {displayPassword
-                                               ? <VisibilityOff/>
-                                               : <Visibility/>
-                                           }
-                                       </IconButton>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: (
+                                       <InputAdornment position="end">
+                                           <IconButton onClick={() => setDisplayPassword(!displayPassword)} size="large">
+                                               {displayPassword
+                                                   ? <VisibilityOff/>
+                                                   : <Visibility/>
+                                               }
+                                           </IconButton>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
                 <TextField label={l("repeatedPassword")}
                            value={registerUserForm.repeatedPassword}
-                           onChange={event => setFormValue("repeatedPassword", event.target.value as string)}
+                           onChange={event => setFormValue("repeatedPassword", event.target.value)}
                            error={Boolean(errors.repeatedPassword)}
                            helperText={errors.repeatedPassword && l(errors.repeatedPassword)}
                            fullWidth
                            margin="dense"
                            type={displayPassword ? "text" : "password"}
-                           InputProps={{
-                               endAdornment: (
-                                   <InputAdornment position="end">
-                                       <IconButton onClick={() => setDisplayPassword(!displayPassword)} size="large">
-                                           {displayPassword
-                                               ? <VisibilityOff/>
-                                               : <Visibility/>
-                                           }
-                                       </IconButton>
-                                   </InputAdornment>
-                               )
+                           slotProps={{
+                               input: {
+                                   endAdornment: (
+                                       <InputAdornment position="end">
+                                           <IconButton onClick={() => setDisplayPassword(!displayPassword)} size="large">
+                                               {displayPassword
+                                                   ? <VisibilityOff/>
+                                                   : <Visibility/>
+                                               }
+                                           </IconButton>
+                                       </InputAdornment>
+                                   )
+                               }
                            }}
                 />
                 <TextField label={l("firstName")}
                            value={registerUserForm.firstName}
-                           onChange={event => setFormValue("firstName", event.target.value as string)}
+                           onChange={event => setFormValue("firstName", event.target.value)}
                            error={Boolean(errors.firstName)}
                            helperText={errors.firstName && l(errors.firstName)}
                            fullWidth
@@ -108,7 +114,7 @@ export const RegisterStep: FunctionComponent = observer(() => {
                 />
                 <TextField label={l("lastName")}
                            value={registerUserForm.lastName}
-                           onChange={event => setFormValue("lastName", event.target.value as string)}
+                           onChange={event => setFormValue("lastName", event.target.value)}
                            error={Boolean(errors.lastName)}
                            helperText={errors.lastName && l(errors.lastName)}
                            fullWidth
@@ -116,19 +122,21 @@ export const RegisterStep: FunctionComponent = observer(() => {
                 />
                 <TextField label={l("slug")}
                            value={registerUserForm.slug}
-                           onChange={event => setFormValue("slug", event.target.value as string)}
+                           onChange={event => setFormValue("slug", event.target.value)}
                            error={Boolean(errors.slug)}
                            helperText={errors.slug && l(errors.slug)}
                            fullWidth
                            margin="dense"
-                           InputProps={{
-                               endAdornment: checkingSlugAvailability
-                                   ? (
-                                       <InputAdornment position="end">
-                                           <CircularProgress color="primary" size={20}/>
-                                       </InputAdornment>
-                                   )
-                                   : null
+                           slotProps={{
+                               input: {
+                                   endAdornment: checkingSlugAvailability
+                                       ? (
+                                           <InputAdornment position="end">
+                                               <CircularProgress color="primary" size={20}/>
+                                           </InputAdornment>
+                                       )
+                                       : null
+                               }
                            }}
                 />
                 {registrationError && (

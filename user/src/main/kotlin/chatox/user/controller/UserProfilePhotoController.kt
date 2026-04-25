@@ -27,8 +27,8 @@ class UserProfilePhotoController(private val userProfilePhotoService: UserProfil
     @ReactivePermissionCheck("@userProfilePhotoPermissions.canCreateUserProfilePhoto(#userId)")
     @PostMapping("/{userId}/photos")
     fun createUserProfilePhoto(
-            @PathVariable userId: String,
-            @RequestBody @Valid createUserProfilePhotoRequest: CreateUserProfilePhotoRequest
+        @PathVariable userId: String,
+        @RequestBody @Valid createUserProfilePhotoRequest: CreateUserProfilePhotoRequest
     ) = userProfilePhotoService.createUserProfilePhoto(userId, createUserProfilePhotoRequest)
 
     @GetMapping("/{userId}/photos")
@@ -39,18 +39,22 @@ class UserProfilePhotoController(private val userProfilePhotoService: UserProfil
     @ReactivePermissionCheck("@userProfilePhotoPermissions.canCreateUserProfilePhoto(#userId)")
     @PutMapping("/{userId}/photos/{userProfilePhotoId}")
     fun setUserProfilePhotoAsAvatar(
-            @PathVariable userId: String,
-            @PathVariable userProfilePhotoId: String,
-            @RequestBody @Valid setUserProfilePhotoAsAvatarRequest: SetUserProfilePhotoAsAvatarRequest
-    ) = userProfilePhotoService.setUserProfilePhotoAsAvatar(userId, userProfilePhotoId, setUserProfilePhotoAsAvatarRequest)
+        @PathVariable userId: String,
+        @PathVariable userProfilePhotoId: String,
+        @RequestBody @Valid setUserProfilePhotoAsAvatarRequest: SetUserProfilePhotoAsAvatarRequest
+    ) = userProfilePhotoService.setUserProfilePhotoAsAvatar(
+        userId,
+        userProfilePhotoId,
+        setUserProfilePhotoAsAvatarRequest
+    )
 
     @PreAuthorize("hasRole('USER')")
     //language=SpEL
     @ReactivePermissionCheck("@userProfilePhotoPermissions.canDeleteUserProfilePhoto(#userId)")
     @DeleteMapping("/{userId}/photos/{userProfilePhotoId}")
     fun deleteUserProfilePhoto(
-            @PathVariable userId: String,
-            @PathVariable userProfilePhotoId: String
+        @PathVariable userId: String,
+        @PathVariable userProfilePhotoId: String
     ) = userProfilePhotoService.deleteUserProfilePhoto(userId, userProfilePhotoId)
 
     @PreAuthorize("hasRole('USER')")
@@ -59,7 +63,7 @@ class UserProfilePhotoController(private val userProfilePhotoService: UserProfil
     @DeleteMapping("/{userId}/photos")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteMultipleUserProfilePhotos(
-            @PathVariable userId: String,
-            @RequestBody @Valid deleteMultipleUserProfilePhotosRequest: DeleteMultipleUserProfilePhotosRequest
+        @PathVariable userId: String,
+        @RequestBody @Valid deleteMultipleUserProfilePhotosRequest: DeleteMultipleUserProfilePhotosRequest
     ) = userProfilePhotoService.deleteMultipleUserProfilePhotos(userId, deleteMultipleUserProfilePhotosRequest)
 }

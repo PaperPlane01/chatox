@@ -10,13 +10,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import reactor.core.scheduler.Schedulers
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
 @Component
 class ScheduledMessagesChecker(
-        private val scheduledMessageRepository: ScheduledMessageRepository,
-        private val scheduledMessageService: ScheduledMessageService
+    private val scheduledMessageRepository: ScheduledMessageRepository,
+    private val scheduledMessageService: ScheduledMessageService
 ) {
     private companion object {
         const val MAX_NUMBER_OF_FAILED_ATTEMPTS_TO_PUBLISH_SCHEDULED_MESSAGE = 5
@@ -45,27 +46,30 @@ class ScheduledMessagesChecker(
 
             for (message in scheduledMessages) {
                 scheduledMessageService.publishScheduledMessage(message, localUsersCache, localReferredMessagesCache)
-                        .doOnSuccess { log.trace("Scheduled message ${message.id} has been published") }
-                        .doOnError {
-                            val numberOfFailedAttempts = message.numberOfFailedAttemptsToPublish + 1
-                            log.error("Failed to publish scheduled message ${message.id}, number of failed attempts: $numberOfFailedAttempts")
+                    .doOnSuccess { log.trace("Scheduled message ${message.id} has been published") }
+                    .publishOn(Schedulers.boundedElastic())
+                    .doOnError {
+                        val numberOfFailedAttempts = message.numberOfFailedAttemptsToPublish + 1
+                        log.error("Failed to publish scheduled message ${message.id}, number of failed attempts: $numberOfFailedAttempts")
 
-                            if (numberOfFailedAttempts < MAX_NUMBER_OF_FAILED_ATTEMPTS_TO_PUBLISH_SCHEDULED_MESSAGE) {
-                                log.debug("Message ${message.id} will be re-scheduled for publishing")
+                        if (numberOfFailedAttempts < MAX_NUMBER_OF_FAILED_ATTEMPTS_TO_PUBLISH_SCHEDULED_MESSAGE) {
+                            log.debug("Message ${message.id} will be re-scheduled for publishing")
 
-                                scheduledMessageRepository.save(message.copy(
-                                        scheduledAt = message.scheduledAt.plusMinutes(1),
-                                        numberOfFailedAttemptsToPublish = numberOfFailedAttempts
-                                ))
-                                        .subscribe()
-                            } else {
-                                log.error("Message ${message.id} has been failed to be published within $MAX_NUMBER_OF_FAILED_ATTEMPTS_TO_PUBLISH_SCHEDULED_MESSAGE attempts, so it will be removed")
-                                scheduledMessageRepository.delete(message).subscribe()
-                            }
+                            scheduledMessageRepository.save(
+                                message.copy(
+                                    scheduledAt = message.scheduledAt.plusMinutes(1),
+                                    numberOfFailedAttemptsToPublish = numberOfFailedAttempts
+                                )
+                            )
+                                .subscribe()
+                        } else {
+                            log.error("Message ${message.id} has been failed to be published within $MAX_NUMBER_OF_FAILED_ATTEMPTS_TO_PUBLISH_SCHEDULED_MESSAGE attempts, so it will be removed")
+                            scheduledMessageRepository.delete(message).subscribe()
                         }
-                        .subscribe()
+                    }
+                    .subscribe()
             }
         }
-                .subscribe()
+            .subscribe()
     }
 }

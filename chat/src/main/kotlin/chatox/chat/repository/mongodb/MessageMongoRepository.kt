@@ -22,4 +22,6 @@ interface MessageMongoRepository : ReactiveMongoRepository<Message, String> {
     fun findFirstByChatIdAndSenderIdOrderByCreatedAtDesc(chatId: String, senderId: String): Mono<Message>
     fun findAllByIdInOrderByCreatedAtDesc(ids: List<String>): Flux<Message>
     fun findAllByIdInOrderByCreatedAtAsc(ids: List<String>): Flux<Message>
+    fun findAllBy(pageable: Pageable): Flux<Message>
+    fun findByStickerStickerPackId(stickerPackId: String, pageable: Pageable): Flux<Message>
 }

@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component
 @Component
 class UserSessionMapper {
     fun toUserSessionResponse(userSession: UserSession) = UserSessionResponse(
-            id = userSession.id,
-            ipAddress = userSession.ipAddress,
-            createdAt = userSession.createdAt,
-            disconnectedAt = userSession.disconnectedAt,
-            userAgent = userSession.userAgent
+        id = userSession.id,
+        ipAddress = userSession.ipAddress,
+        createdAt = userSession.createdAt,
+        disconnectedAt = userSession.disconnectedAt,
+        userAgent = userSession.userAgent
     )
 }

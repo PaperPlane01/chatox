@@ -1,0 +1,42 @@
+import React, {FunctionComponent} from "react";
+import {observer} from "mobx-react";
+import {makeStyles} from "tss-react/mui";
+import {BaseStickerProps} from "./BaseStickerProps";
+import {useStickerLongClick} from "../hooks";
+import {stickerWrapperStyle} from "../styles";
+import {useEntityById, useEntitySelector} from "../../entities";
+
+const useStyles = makeStyles()(() => ({
+    stickerWrapper: stickerWrapperStyle,
+    image: {
+		maxWidth: "100%",
+		maxHeight: "100%",
+		height: "inherit",
+		objectFit: "contain"
+	}
+}));
+
+export const ImageSticker: FunctionComponent<BaseStickerProps> = observer(({
+	stickerId,
+	size,
+	onClick,
+	onLongClick,
+	onLoad
+}) => {
+	const sticker = useEntityById("stickers", stickerId);
+	const upload = useEntitySelector("uploads", entities => entities.uploads.findSticker(sticker.uploadId));
+	const {classes} = useStyles();
+	const sizeQuery = size ? `?size=${size}` : "";
+	const longPressHandlers = useStickerLongClick({stickerId, onClick, onLongClick});
+
+	return (
+		<div className={classes.stickerWrapper}
+			 {...longPressHandlers}
+		>
+			<img src={`${upload.uri}${sizeQuery}`}
+				 className={classes.image}
+				 onLoad={onLoad}
+			/>
+		</div>
+	);
+});

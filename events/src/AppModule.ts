@@ -11,6 +11,7 @@ import {GlobalBansModule} from "./global-bans";
 import {ChatRoleModule} from "./chat-roles";
 import {config} from "./env-config";
 import {BalanceModule} from "./balance";
+import {NotificationsSettingsModule} from "./notifications-settings";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import {BalanceModule} from "./balance";
       GlobalBansModule,
       ChatRoleModule,
       BalanceModule,
+      NotificationsSettingsModule,
       MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.EVENTS_SERVICE_DATABASE_NAME}`, {
           autoIndex: true
       })

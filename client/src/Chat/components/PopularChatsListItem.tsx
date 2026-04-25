@@ -1,12 +1,14 @@
 import React, {Fragment, FunctionComponent, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {Card, CardActions, CardContent, CardHeader, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import randomColor from "randomcolor";
 import {Link} from "mobx-router";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {commonStyles} from "../../style";
+import {useLocalization, useRouter} from "../../store";
+import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 import {Avatar} from "../../Avatar";
 import {getAvatarLabel} from "../utils";
@@ -17,34 +19,24 @@ interface PopularChatsListItemProps {
     action?: ReactNode
 }
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     tagTypography: {
         textDecoration: "underline",
         cursor: "pointer"
     },
-    undecoratedLink: {
-        textDecoration: "none",
-        color: "inherit"
-    }
-}))
+    undecoratedLink: commonStyles.undecoratedLink
+}));
 
 export const PopularChatsListItem: FunctionComponent<PopularChatsListItemProps> = observer(({
     chatId,
     action
 }) => {
-    const {
-        entities: {
-            chats: {
-                findById: findChat
-            }
-        }
-    } = useStore();
     const {l} = useLocalization();
     const routerStore = useRouter();
-    const classes = useStyles();
+    const {classes} = useStyles();
     const luminosity = useLuminosity();
 
-    const chat = findChat(chatId);
+    const chat = useEntityById("chats", chatId);
     const chatColor = randomColor({seed: chat.id, luminosity});
 
     return (

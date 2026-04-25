@@ -1,5 +1,6 @@
 import {RawEntitiesStore} from "./RawEntitiesStore";
 import {EntitiesAware} from "./EntitiesAware";
+import {Entities, GetEntityType} from "./types";
 import {MessagesStore} from "../Message";
 import {ChatsStore} from "../Chat";
 import {UploadsStore} from "../Upload";
@@ -14,6 +15,13 @@ import {GlobalBansStore} from "../GlobalBan";
 import {RewardsStore, UserRewardsStore} from "../Reward";
 import {UserInteractionsStore} from "../UserInteraction";
 import {ChatInvitesStore} from "../ChatInvite";
+import {EntityStore} from "../entity-store";
+
+type EntitiesStores = {
+    [Entity in Entities]: Entity extends "chatUploads" | "stickerAnimationData"
+        ? any
+        : EntityStore<Entity, GetEntityType<Entity>, any, any>
+}
 
 export class EntitiesStore {
     public messages: MessagesStore<"messages">;
@@ -38,6 +46,37 @@ export class EntitiesStore {
     public userProfilePhotos: UserProfilePhotosStore;
     public chatInvites: ChatInvitesStore;
     public pendingChatParticipations: PendingChatParticipationsStore;
+    public draftMessages: MessagesStore<"draftMessages">;
+
+    get stores(): EntitiesStores {
+        return {
+            messages: this.messages,
+            chats: this.chats,
+            uploads: this.uploads,
+            users: this.users,
+            chatRoles: this.chatRoles,
+            chatBlockings: this.chatBlockings,
+            globalBans: this.globalBans,
+            chatParticipations: this.chatParticipations,
+            stickers: this.stickers,
+            stickerPacks: this.stickerPacks,
+            scheduledMessages: this.scheduledMessages,
+            reportedMessages: this.reportedMessages,
+            reportedMessageSenders: this.reportedMessageSenders,
+            reportedChats: this.reportedChats,
+            reportedUsers: this.reportedUsers,
+            reports: this.reports,
+            rewards: this.rewards,
+            userRewards: this.userRewards,
+            userInteractions: this.userInteractions,
+            userProfilePhotos: this.userProfilePhotos,
+            chatInvites: this.chatInvites,
+            pendingChatParticipations: this.pendingChatParticipations,
+            chatUploads: undefined,
+            draftMessages: this.draftMessages,
+            stickerAnimationData: undefined
+        }
+    }
 
     constructor(rawEntities: RawEntitiesStore, authorization: AuthorizationStore, userChatRoles: UserChatRolesStore) {
         this.messages = new MessagesStore(rawEntities, "messages", this, userChatRoles);
@@ -62,6 +101,7 @@ export class EntitiesStore {
         this.userProfilePhotos = new UserProfilePhotosStore(rawEntities, "userProfilePhotos", this);
         this.chatInvites = new ChatInvitesStore(rawEntities, "chatInvites", this);
         this.pendingChatParticipations = new PendingChatParticipationsStore(rawEntities, "pendingChatParticipations", this);
+        this.draftMessages = new MessagesStore(rawEntities, "draftMessages", this, userChatRoles);
     }
 
     public setEntitiesStore(entitiesAwareStores: EntitiesAware[]): void {

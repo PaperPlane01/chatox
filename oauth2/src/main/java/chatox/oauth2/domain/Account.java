@@ -1,6 +1,7 @@
 package chatox.oauth2.domain;
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -44,6 +45,7 @@ public class Account {
     private boolean locked;
 
     @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     private List<String> userIds;
 
     private String email;

@@ -1,7 +1,6 @@
 package chatox.wallet.model;
 
 import chatox.wallet.api.response.ImageMetadata;
-import chatox.wallet.api.response.UploadResponse;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,7 +39,7 @@ public class User {
 
     @Column(name = "avatar", columnDefinition = "jsonb")
     @Type(JsonBinaryType.class)
-    private UploadResponse<ImageMetadata> avatar;
+    private Upload<ImageMetadata> avatar;
 
     private String externalAvatarUri;
 }

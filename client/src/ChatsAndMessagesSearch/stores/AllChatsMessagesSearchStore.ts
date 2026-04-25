@@ -69,10 +69,15 @@ export class AllChatsMessagesSearchStore {
                     skipSettingLastMessage: true,
                     skipUpdatingChat: true
                 });
-                this.foundMessages = data.map(message => ({
-                    chatId: message.chatId,
-                    messageId: message.id
-                }));
+                this.foundMessages = data.map(message => {
+                    const chat = this.entities.chats.findById(message.chatId);
+
+                    return {
+                        chatId: message.chatId,
+                        messageId: message.id,
+                        chatType: chat.type
+                    }
+                });
             }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.pending = false));

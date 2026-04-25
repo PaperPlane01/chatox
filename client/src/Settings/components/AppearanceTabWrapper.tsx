@@ -5,10 +5,10 @@ import {EmojiSetPicker} from "../../Emoji";
 
 export const AppearanceTabWrapper: FunctionComponent = () => (
     <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid size={12}>
             <ThemePicker/>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
             <EmojiSetPicker/>
         </Grid>
     </Grid>

@@ -1,8 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {MenuItem, ListItemAvatar, ListItemText} from "@mui/material";
+import {ListItemAvatar, ListItemText, MenuItem} from "@mui/material";
 import randomColor from "randomcolor";
 import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {Avatar} from "../../Avatar";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 
@@ -14,29 +15,21 @@ export const GlobalBansListItem: FunctionComponent<GlobalBansListItemProps> = ob
     globalBanId
 }) => {
     const {
-        entities: {
-            globalBans: {
-                findById: findGlobalBan
-            },
-            users: {
-                findById: findUser
-            }
-        },
         globalBanDetailsDialog: {
             setGlobalBanId,
             setGlobalBanDetailsDialogOpen
         }
     } = useStore();
 
-    const globalBan = findGlobalBan(globalBanId);
-    const bannedUser = findUser(globalBan.bannedUserId);
+    const globalBan = useEntityById("globalBans", globalBanId);
+    const bannedUser = useEntityById("users", globalBan.bannedUserId);
     const avatarLabel = getUserAvatarLabel(bannedUser);
     const avatarColor = randomColor({seed: bannedUser.id});
 
     const handleClick = (): void => {
         setGlobalBanId(globalBanId);
         setGlobalBanDetailsDialogOpen(true);
-    }
+    };
 
     return (
         <MenuItem onClick={handleClick}>

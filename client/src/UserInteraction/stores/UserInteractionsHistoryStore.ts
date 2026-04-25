@@ -1,7 +1,7 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {v4} from "uuid";
 import {ApiError, getInitialApiErrorFromResponse, UserInteractionsApi} from "../../api";
-import {CurrentUser, UserInteraction, UserInteractionType} from "../../api/types/response";
+import {CurrentUser, UserInteraction, UserInteractionType, UserVerificationLevel} from "../../api/types/response";
 import {PaginationRequest} from "../../api/types/request";
 import {PaginationWithSortingState} from "../../utils/types";
 import {UserProfileStore} from "../../User";
@@ -111,6 +111,7 @@ export class UserInteractionsHistoryStore {
             id: v4(),
             user: {
                 ...this.currentUser,
+                anonymous: this.currentUser.verificationLevel === UserVerificationLevel.ANONYMOUS,
                 deleted: false,
                 online: true
             },

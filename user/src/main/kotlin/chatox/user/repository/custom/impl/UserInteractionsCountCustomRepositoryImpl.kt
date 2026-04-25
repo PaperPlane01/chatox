@@ -12,7 +12,8 @@ import reactor.core.publisher.Mono
 
 @Repository
 class UserInteractionsCountCustomRepositoryImpl(
-        private val reactiveMongoTemplate: ReactiveMongoTemplate) : UserInteractionsCountCustomRepository {
+    private val reactiveMongoTemplate: ReactiveMongoTemplate
+) : UserInteractionsCountCustomRepository {
 
     override fun incrementLikesCount(userId: String): Mono<UserInteractionsCount> {
         val query = createUserIdQuery(userId)
@@ -57,8 +58,8 @@ class UserInteractionsCountCustomRepositoryImpl(
         update.inc(field)
 
         PROPERTIES
-                .filter { property -> property != field }
-                .forEach { property -> update.setOnInsert(property, 0) }
+            .filter { property -> property != field }
+            .forEach { property -> update.setOnInsert(property, 0) }
 
         return update
     }
@@ -70,17 +71,21 @@ class UserInteractionsCountCustomRepositoryImpl(
         return update
     }
 
-    private fun executeFindAndModify(query: Query, update: Update, upsert: Boolean = true): Mono<UserInteractionsCount> {
+    private fun executeFindAndModify(
+        query: Query,
+        update: Update,
+        upsert: Boolean = true
+    ): Mono<UserInteractionsCount> {
         val options = FindAndModifyOptions.options()
-                .returnNew(true)
-                .upsert(upsert)
+            .returnNew(true)
+            .upsert(upsert)
 
 
         return reactiveMongoTemplate.findAndModify(
-                query,
-                update,
-                options,
-                UserInteractionsCount::class.java
+            query,
+            update,
+            options,
+            UserInteractionsCount::class.java
         )
     }
 

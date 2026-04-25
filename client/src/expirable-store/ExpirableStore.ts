@@ -1,31 +1,39 @@
 import {action, makeObservable, observable, runInAction} from "mobx";
 import {differenceInMilliseconds} from "date-fns";
 import {Duration} from "../utils/date-utils";
-import {computedFn} from "mobx-utils";
 
 type ExpireCallback<K> = (key: K) => boolean;
+type TimeToLiveProvider<V> = (value: V) => Date;
 
 export class ExpirableStore<K, V> {
     public readonly storage = observable.map<K, V>();
 
-    constructor(private readonly timeToLive: Duration, private readonly onExpire?: ExpireCallback<K>) {
+    constructor(private readonly timeToLive: Duration | TimeToLiveProvider<V>, private readonly onExpire?: ExpireCallback<K>) {
         makeObservable<ExpirableStore<K, V>>(this, {
-            insert: action,
-            get: action
+            insert: action.bound,
+            set: action.bound,
+            get: action.bound
         });
     }
 
-    insert = (key: K, value: V): void => {
+    set(key: K, value: V): void {
         this.storage.set(key, value);
         this.initiateDeleteTimeout(key, value);
     }
 
-    private initiateDeleteTimeout = (key: K, value: V): void => {
+    insert(key: K, value: V): void {
+       this.set(key, value);
+    }
+
+    private initiateDeleteTimeout(key: K, value: V): void {
         const currentDate = new Date();
-        const timeoutDuration = differenceInMilliseconds(this.timeToLive.addToDate(currentDate), currentDate);
+        const timeoutDuration = differenceInMilliseconds(
+            typeof this.timeToLive === "function" ? this.timeToLive(value) : this.timeToLive.addToDate(currentDate),
+            currentDate
+        );
 
         setTimeout(() => runInAction(() => {
-            const shouldDelete = this.onExpire && this.onExpire(key);
+            const shouldDelete = this.onExpire ? this.onExpire(key) : true;
 
             if (shouldDelete) {
                 this.storage.delete(key);
@@ -35,5 +43,7 @@ export class ExpirableStore<K, V> {
         }), timeoutDuration);
     }
 
-    get = computedFn((key: K): V | undefined => this.storage.get(key))
+    get(key: K): V | undefined {
+        return this.storage.get(key);
+    }
 }

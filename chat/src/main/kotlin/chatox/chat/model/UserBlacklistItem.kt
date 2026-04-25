@@ -6,12 +6,12 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
 data class UserBlacklistItem(
-        @Id
-        val id: String,
+    @Id
+    val id: String,
 
-        @Indexed
-        val userId: String,
+    @Indexed
+    val userId: String,
 
-        @Indexed
-        val blacklistedById: String
+    @Indexed
+    val blacklistedById: String
 )

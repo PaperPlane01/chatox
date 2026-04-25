@@ -1,39 +1,33 @@
-import React, {FunctionComponent, Fragment} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {IconButton, AppBar, Typography, Toolbar} from "@mui/material";
+import {AppBar, IconButton, Toolbar, Typography} from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
-import {useRouter, useStore, useLocalization} from "../../store";
+import {commonStyles} from "../../style";
+import {useLocalization, useRouter, useStore} from "../../store";
+import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 
-const useStyles = makeStyles(() => createStyles({
-    undecoratedLink: {
-        textDecoration: "none",
-        color: "inherit"
-    }
+const useStyles = makeStyles()(() => ({
+    undecoratedLink: commonStyles.undecoratedLink
 }));
 
 export const ScheduledMessagesAppBar: FunctionComponent = observer(() => {
     const {
         chat: {
             selectedChatId
-        },
-        entities: {
-            chats: {
-                findById: findChat
-            }
         }
     } = useStore();
     const router = useRouter();
     const {l} = useLocalization();
-    const classes = useStyles();
+    const { classes } = useStyles();
 
-    if (!selectedChatId) {
+    const chat = useEntityById("chats", selectedChatId);
+
+    if (!chat) {
         return null;
     }
-
-    const chat = findChat(selectedChatId);
 
     return (
         <Fragment>

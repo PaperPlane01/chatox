@@ -1,16 +1,17 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import { Badge, IconButton, CircularProgress, Typography, Theme } from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {Badge, CircularProgress, IconButton, Theme, Typography} from "@mui/material";
+import {makeStyles} from "tss-react/mui";
 import {FileCopy} from "@mui/icons-material";
 import prettyBytes from "pretty-bytes";
-import {useEntities, useStore} from "../../store";
+import {useStore} from "../../store";
+import {useEntityById} from "../../entities";
 
 interface MessageFileProps {
     chatUploadId: string
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     fileContainer: {
         display: "flex",
         alignItems: "center",
@@ -30,29 +31,20 @@ export const MessageFile: FunctionComponent<MessageFileProps> = observer(({
     const {
         messageFileDownload: {
             downloadFile,
-            downloadProgressMap
+            getDownloadProgress
         }
     } = useStore();
-    const {
-        uploads: {
-            findById: findUpload
-        }
-    } = useEntities();
-    const classes = useStyles();
-
-    const file = findUpload(chatUploadId);
-
-    const handleDownloadButtonClick = (): void => {
-        if (!downloadProgressMap[file.name] || !downloadProgressMap[file.name].downloading) {
-            downloadFile(file.name, file.originalName);
-        }
-    }
+    const {classes} = useStyles();
+    const file = useEntityById("uploads", chatUploadId);
+    const {downloading, percentage} = getDownloadProgress(file.id);
 
     return (
         <div className={classes.fileContainer}>
-            <IconButton onClick={handleDownloadButtonClick} size="large">
-                <Badge badgeContent={downloadProgressMap[file.name] && downloadProgressMap[file.name].downloading && (
-                    <CircularProgress color="primary" variant="determinate" value={downloadProgressMap[file.name].percentage} size={15}/>
+            <IconButton onClick={() => downloadFile(file)}
+                        size="large"
+            >
+                <Badge badgeContent={downloading && (
+                    <CircularProgress color="primary" variant="determinate" value={percentage} size={15}/>
                 )}
                        anchorOrigin={{
                            horizontal: "right",

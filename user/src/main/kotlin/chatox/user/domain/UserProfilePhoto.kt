@@ -7,12 +7,12 @@ import java.time.ZonedDateTime
 
 @Document
 data class UserProfilePhoto(
-        @Id
-        val id: String,
+    @Id
+    val id: String,
 
-        @Indexed
-        val userId: String,
+    @Indexed
+    val userId: String,
 
-        val upload: Upload<ImageUploadMetadata>,
-        val createdAt: ZonedDateTime
+    val upload: Upload<ImageUploadMetadata>,
+    val createdAt: ZonedDateTime
 )

@@ -5,13 +5,13 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 
 @Document
-data class Sticker<MetadataType>(
-        @Id
-        val id: String,
-        val image: Upload<MetadataType>,
+data class Sticker(
+    @Id
+    val id: String,
+    val upload: Upload<StickerUploadMetadata>,
 
-        @Indexed
-        val stickerPackId: String,
-        val keywords: List<String>,
-        val emojis: List<EmojiData>
+    @Indexed
+    val stickerPackId: String,
+    val keywords: List<String>,
+    val emojis: List<EmojiData>
 )

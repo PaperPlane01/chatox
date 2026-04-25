@@ -16,10 +16,4 @@ export const trimString = (string: string, targetLength: number): string => {
     return string.substring(0, targetLength - 3) + "...";
 };
 
-/**
- * @deprecated use {@link capitalize} instead
- * @param text
- */
-export const upperCaseFirstLetter = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
-
-export const capitalize = upperCaseFirstLetter;
+export const capitalize = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);

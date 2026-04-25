@@ -1,26 +1,25 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {List, ListItemIcon, ListItemText, MenuItem, Typography} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
-import {ChatBubble, Image, Language, Palette, Person, Security} from "@mui/icons-material";
+import {ChatBubble, Image, Language, Notifications, Palette, Person, Security} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
 import {SettingsFullScreenDialog} from "./SettingsFullScreenDialog";
 import {SecurityTabWrapper} from "./SecurityTabWrapper";
 import {AppearanceTabWrapper} from "./AppearanceTabWrapper";
+import {StickersTabWrapper} from "./StickersTabWrapper";
 import {SettingsTab} from "../types";
+import {commonStyles} from "../../style";
 import {EditProfileForm} from "../../User";
 import {LanguagePicker} from "../../localization";
 import {Routes} from "../../router";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {ChatsPreferencesCard} from "../../Chat";
 import {HasAnyRole} from "../../Authorization";
-import {InstalledStickerPacksList} from "../../Sticker";
+import {GlobalNotificationsSettingsUpdate} from "../../Notification";
 
-const useStyles = makeStyles(() => createStyles({
-    undecoratedLink: {
-        textDecoration: "none",
-        color: "inherit"
-    }
+const useStyles = makeStyles()(() => ({
+    undecoratedLink: commonStyles.undecoratedLink
 }));
 
 export const SettingsMenu: FunctionComponent = observer(() => {
@@ -31,7 +30,7 @@ export const SettingsMenu: FunctionComponent = observer(() => {
     } = useStore();
     const {l} = useLocalization();
     const routerStore = useRouter();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     return (
         <Fragment>
@@ -108,6 +107,20 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                 </Link>
                 <Link className={classes.undecoratedLink}
                       route={Routes.settingsTabPage}
+                      params={{tab: SettingsTab.NOTIFICATIONS}}
+                      router={routerStore}
+                >
+                    <MenuItem>
+                        <ListItemIcon>
+                            <Notifications/>
+                        </ListItemIcon>
+                        <ListItemText>
+                            {l("settings.notifications")}
+                        </ListItemText>
+                    </MenuItem>
+                </Link>
+                <Link className={classes.undecoratedLink}
+                      route={Routes.settingsTabPage}
                       params={{tab: SettingsTab.STICKERS}}
                       router={routerStore}
                 >
@@ -146,6 +159,11 @@ export const SettingsMenu: FunctionComponent = observer(() => {
             >
                 <ChatsPreferencesCard/>
             </SettingsFullScreenDialog>
+            <SettingsFullScreenDialog title={l("settings.notifications")}
+                                      open={activeTab === SettingsTab.NOTIFICATIONS}
+            >
+                <GlobalNotificationsSettingsUpdate/>
+            </SettingsFullScreenDialog>
             <SettingsFullScreenDialog title={l("sticker.pack.list")}
                                       open={activeTab === SettingsTab.STICKERS}>
                 <HasAnyRole roles={["ROLE_USER", "ROLE_ANONYMOUS_USER"]}
@@ -155,7 +173,7 @@ export const SettingsMenu: FunctionComponent = observer(() => {
                                 </Typography>
                             }
                 >
-                    <InstalledStickerPacksList/>
+                    <StickersTabWrapper/>
                 </HasAnyRole>
             </SettingsFullScreenDialog>
         </Fragment>

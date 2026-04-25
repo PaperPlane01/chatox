@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
@@ -93,7 +94,7 @@ public class Client {
                 })
                 .clientSettings(ClientSettings.builder().build())
                 .authorizationGrantTypes(grantTypes -> grantTypes.addAll(authorizedGrantTypes.stream()
-                        .map(AuthorizedGrantType::toAuthorizationGrantType)
+                        .map(grantType -> new AuthorizationGrantType(grantType.getName().name()))
                         .toList()
                 ))
                 .scopes(scopes -> scopes.addAll(scope.stream().map(Scope::getName).toList()))

@@ -11,14 +11,15 @@ interface ChatInviteCustomRepository {
     fun findByIdAndChatId(id: String, chatId: String, activeOnly: Boolean): Mono<ChatInvite>
     fun findByChatId(chatId: String, activeOnly: Boolean, pageable: Pageable): Flux<ChatInvite>
     fun updateChatInviteUsage(
-            chatInvite: ChatInvite,
-            lastUsedBy: String,
-            lastUsedAt: ZonedDateTime
+        chatInvite: ChatInvite,
+        lastUsedBy: String,
+        lastUsedAt: ZonedDateTime
     ): Mono<ChatInvite>
+
     fun updateChatInviteUsage(
-            inviteId: String,
-            lastUsedBy: String,
-            lastUsedAt: ZonedDateTime,
-            useTimesIncrease: Int
+        inviteId: String,
+        lastUsedBy: String,
+        lastUsedAt: ZonedDateTime,
+        useTimesIncrease: Int
     ): Mono<ChatInvite>
 }

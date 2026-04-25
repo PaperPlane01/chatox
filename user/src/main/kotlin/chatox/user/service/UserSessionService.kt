@@ -1,9 +1,9 @@
 package chatox.user.service
 
+import chatox.platform.pagination.PaginationRequest
 import chatox.user.api.response.UserSessionResponse
 import chatox.user.messaging.rabbitmq.event.UserConnected
 import chatox.user.messaging.rabbitmq.event.UserDisconnected
-import chatox.platform.pagination.PaginationRequest
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 

@@ -53,7 +53,7 @@
     "sticker": {
       "id": "61969ac255e84a1dd36fae28",
       "stickerPackId": "61969ac255e84a1dd36fae26",
-      "image": {
+      "upload": {
         "id": "61968e77404913462c8bd1b4",
         "name": "61968e77404913462c8bd1b4.png",
         "extension": "png",
@@ -344,7 +344,7 @@
     "sticker": {
       "id": "61969ac255e84a1dd36fae28",
       "stickerPackId": "61969ac255e84a1dd36fae26",
-      "image": {
+      "upload": {
         "id": "61968e77404913462c8bd1b4",
         "name": "61968e77404913462c8bd1b4.png",
         "extension": "png",

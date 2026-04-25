@@ -1,16 +1,17 @@
 import React, {Fragment, FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
-import {Button, Hidden, IconButton, Menu, Skeleton, Theme} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {Box, Button, IconButton, Menu, Skeleton, Theme} from "@mui/material";
 import {AccountCircle} from "@mui/icons-material";
+import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
 import {LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
 import {PasswordRecoveryDialog} from "../../PasswordRecovery";
 import {Avatar} from "../../Avatar";
 import {useAuthorization} from "../../store";
+import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => ({
     userButton: {
         textTransform: "none"
     },
@@ -24,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
 export const UserAppBarMenu: FunctionComponent = observer(() => {
     const [anchorElement, setAnchorElement] = useState<Element | null>(null);
     const {currentUser, fetchingCurrentUser} = useAuthorization();
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     if (fetchingCurrentUser) {
         return (
@@ -38,11 +39,7 @@ export const UserAppBarMenu: FunctionComponent = observer(() => {
             </Fragment>
         );
     } else if (currentUser) {
-        let avatarLetter = `${currentUser.firstName[0]}`;
-
-        if (currentUser.lastName) {
-            avatarLetter = `${avatarLetter}${currentUser.lastName[0]}`;
-        }
+        const avatarLetter = getUserAvatarLabel(currentUser);
 
         return (
             <Fragment>
@@ -57,9 +54,12 @@ export const UserAppBarMenu: FunctionComponent = observer(() => {
                                 avatarUri={currentUser.externalAvatarUri}
                         />
                     </div>
-                    <Hidden lgDown>
-                        {currentUser.firstName}{currentUser.lastName && ` ${currentUser.lastName}`}
-                    </Hidden>
+                    <Box display={{
+                        xs: "none",
+                        lg: "block",
+                    }}>
+                        {getUserDisplayedName(currentUser)}
+                    </Box>
                 </Button>
                 <Menu open={Boolean(anchorElement)}
                       anchorEl={anchorElement}

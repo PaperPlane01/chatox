@@ -1,8 +1,8 @@
 import React, {FunctionComponent, PropsWithChildren} from "react";
 import {Grid} from "@mui/material";
-import {createStyles, makeStyles} from "@mui/styles";
+import {makeStyles} from "tss-react/mui";
 
-const useStyles = makeStyles(() => createStyles({
+const useStyles = makeStyles()(() => ({
     defaultLayout: {
         paddingLeft: '2.08333333334%',
         paddingRight: '2.08333333334%',
@@ -11,11 +11,11 @@ const useStyles = makeStyles(() => createStyles({
 }));
 
 export const Layout: FunctionComponent<PropsWithChildren<{}>> = ({children}) => {
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     return (
         <Grid container className={classes.defaultLayout}>
-            <Grid item xs={12}>
+            <Grid size={12}>
                 {children}
             </Grid>
         </Grid>
