@@ -26,16 +26,14 @@ const useStyles = makeStyles()((theme: Theme) => ({
     blockquote: createBlockquoteStyles(theme)
 }));
 
-const DISALLOWED_TAGS = new Map<string, boolean>(
-    [
-        ["img", false],
-        ["table", false],
-        ["th", false],
-        ["tr", false],
-        ["td", false],
-        ["input", false]
-    ]
-)
+const DISALLOWED_TAGS = new Set<string>([
+    "img",
+    "table",
+    "th",
+    "tr",
+    "td",
+    "input"
+]);
 
 export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps> = observer(({
     text,
@@ -63,7 +61,7 @@ export const MarkdownTextWithEmoji: FunctionComponent<MarkdownTextWithEmojiProps
     return (
         <TargetMarkdownComponent
             remarkPlugins={plugins}
-            allowElement={element => DISALLOWED_TAGS.get(element.tagName) ?? true}
+            allowElement={element => !DISALLOWED_TAGS.has(element.tagName)}
             components={{
                 p: renderParagraph(renderParagraphsAsSpan),
                 a: renderLink(renderLinksAsPlainText),
