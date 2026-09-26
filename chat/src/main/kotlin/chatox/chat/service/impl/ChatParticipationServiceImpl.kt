@@ -27,7 +27,6 @@ import chatox.chat.model.ChatType
 import chatox.chat.model.JoinChatAllowance
 import chatox.chat.model.JoinChatRejectionReason
 import chatox.chat.model.PendingChatParticipation
-import chatox.chat.model.TextInfo
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatInviteRepository
 import chatox.chat.repository.mongodb.ChatParticipationRepository
@@ -43,6 +42,7 @@ import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.text.api.response.TextInfo
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono

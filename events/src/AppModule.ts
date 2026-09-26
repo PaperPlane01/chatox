@@ -12,6 +12,7 @@ import {ChatRoleModule} from "./chat-roles";
 import {config} from "./env-config";
 import {BalanceModule} from "./balance";
 import {NotificationsSettingsModule} from "./notifications-settings";
+import {MessageReactionsModule} from "./message-reactions";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import {NotificationsSettingsModule} from "./notifications-settings";
       ChatRoleModule,
       BalanceModule,
       NotificationsSettingsModule,
+      MessageReactionsModule,
       MongooseModule.forRoot(`mongodb://${config.MONGODB_HOST}:${config.MONGODB_PORT}/${config.EVENTS_SERVICE_DATABASE_NAME}`, {
           autoIndex: true
       })

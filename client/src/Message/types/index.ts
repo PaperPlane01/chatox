@@ -12,3 +12,5 @@ export * from "./MessagesCleanupState";
 export * from "./CleanedUpMessageMetadata";
 export * from "./CleanedUpMessagesMetadata";
 export * from "./DownloadProgress";
+export * from "./MessageEntityReactionsCount";
+export * from "./MessageEntityReactionsCountMap";

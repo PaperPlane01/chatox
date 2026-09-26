@@ -11,6 +11,8 @@ import {
     ChatUpdated,
     DraftMessageDeleted,
     MessageDeleted,
+    MessageReactionAdded,
+    MessageReactionDeleted,
     MessageRead,
     MessagesDeleted,
     PrivateChatCreated,
@@ -39,6 +41,7 @@ import {SnackbarService} from "../../Snackbar";
 import {getSocketIoWorker, SocketIoWorker} from "../../workers";
 import {isDefined} from "../../utils/object-utils";
 import {NotificationsSettingsStore, SoundNotificationStore} from "../../Notification";
+import type {ReactionsToMessagesStore} from "../../MessageReaction/stores";
 
 type ConnectionType = "socketIo" | "sharedWorker";
 
@@ -67,6 +70,7 @@ export class WebsocketStore {
                 private readonly locale: LocaleStore,
                 private readonly soundNotification: SoundNotificationStore,
                 private readonly notificationsSettings: NotificationsSettingsStore,
+                private readonly reactionsToMessages: ReactionsToMessagesStore,
                 private readonly snackbarService: SnackbarService) {
         makeAutoObservable(this);
 
@@ -352,6 +356,14 @@ export class WebsocketStore {
             WebsocketEventType.DRAFT_MESSAGE_DELETED,
             (event: WebsocketEvent<DraftMessageDeleted>) => this.handleDraftMessageDeleted(event.payload)
         );
+        map.set(
+            WebsocketEventType.MESSAGE_REACTION_ADDED,
+            (event: WebsocketEvent<MessageReactionAdded>) => this.reactionsToMessages.onMessageReactionAdded(event.payload)
+        );
+        map.set(
+            WebsocketEventType.MESSAGE_REACTION_DELETED,
+            (event: WebsocketEvent<MessageReactionDeleted>) => this.reactionsToMessages.onMessageReactionDeleted(event.payload)
+        )
         
         return map;
     }

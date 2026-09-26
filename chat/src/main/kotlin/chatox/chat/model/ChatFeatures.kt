@@ -31,7 +31,8 @@ data class ChatFeatures(
     val showRoleNameInMessages: DefaultChatFeatureData = DefaultChatFeatureData(enabled = false),
     val pinMessages: DefaultChatFeatureData = DefaultChatFeatureData(enabled = false),
     val manageInvites: DefaultChatFeatureData = DefaultChatFeatureData(enabled = false),
-    val approveJoinChatRequests: DefaultChatFeatureData = DefaultChatFeatureData(enabled = false)
+    val approveJoinChatRequests: DefaultChatFeatureData = DefaultChatFeatureData(enabled = false),
+    val addReactions: AddReactionsFeatureData = AddReactionsFeatureData(enabled = true)
 ) {
     @get:JsonIgnore
     val enabled: List<ChatFeatureData<*>>

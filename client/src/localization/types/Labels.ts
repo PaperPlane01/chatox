@@ -98,6 +98,9 @@ export interface Labels {
     "chat.edit": string,
     "chat.feature.additional.fromLevel": string,
     "chat.feature.additional.upToLevel": string,
+    "chat.feature.add-reactions": string,
+    "chat.features.add-reactions.allowed-emojis": string,
+    "chat.features.add-reactions.allowed-emojis.all": string,
     "chat.feature.assignChatRole": string,
     "chat.feature.blockUsers": string,
     "chat.feature.blockUsers.allowPermanent": string,
@@ -839,4 +842,7 @@ export interface Labels {
     "username.has-already-been-taken": string
     "username.too-long": string,
     "username.too-short": string,
+    "message.reaction.list": string,
+    "message.reaction.create.error": string,
+    "message.reaction.delete.error": string,
 }

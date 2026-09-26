@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {merge, union} from "lodash";
+import {mergeWith, union, unionBy} from "lodash";
 import {
     Entities,
     EntitiesIds,
@@ -21,9 +21,10 @@ const SERIALIZABLE_DATE_FIELDS_MAP: DateFieldsMap = {
     messages: ["createdAt", "updatedAt", "scheduledAt"],
     draftMessages: ["createdAt", "updatedAt", "scheduledAt"],
     users: ["lastSeen", "createdAt", "dateOfBirth"],
-    chatRoles: ["createdAt", "updatedAt"]
+    chatRoles: ["createdAt", "updatedAt"],
+    messageReactions: ["createdAt"]
 };
-const ENTITIES_WITH_SERIALIZABLE_DATE_FIELDS = Object.keys(SERIALIZABLE_DATE_FIELDS_MAP) as PersistentEntities[];
+const ENTITIES_WITH_SERIALIZABLE_DATE_FIELDS = new Set(Object.keys(SERIALIZABLE_DATE_FIELDS_MAP) as PersistentEntities[]);
 
 export class RawEntitiesStore {
     entities: RawEntities = {
@@ -51,7 +52,8 @@ export class RawEntitiesStore {
         chatInvites: {},
         pendingChatParticipations: {},
         draftMessages: {},
-        stickerAnimationData: {}
+        stickerAnimationData: {},
+        messageReactions: {}
     };
 
     ids: EntitiesIds = {
@@ -79,18 +81,19 @@ export class RawEntitiesStore {
         chatInvites: [],
         pendingChatParticipations: [],
         draftMessages: [],
-        stickerAnimationData: []
+        stickerAnimationData: [],
+        messageReactions: []
     };
 
     constructor(private readonly repositories: Repositories) {
-        makeAutoObservable(this);
+        makeAutoObservable(this, {}, {autoBind: true});
     }
 
-    applyPatch = (patch: EntitiesPatch, skipInsertingToDatabase: boolean = false, priority: "high" | "low" = "high"): void => {
+    applyPatch(patch: EntitiesPatch, skipInsertingToDatabase: boolean = false, priority: "high" | "low" = "high"): void {
         if (priority === "high") {
-            merge(this.entities, patch.entities);
+            mergeWith(this.entities, patch.entities, this.ensureIdUniqueness);
         } else {
-            this.entities = merge({}, patch.entities, this.entities);
+            this.entities = mergeWith({}, patch.entities, this.entities, this.ensureIdUniqueness);
         }
 
         Object.keys(patch.ids).forEach(key => {
@@ -100,6 +103,12 @@ export class RawEntitiesStore {
 
         if (!skipInsertingToDatabase) {
             this.insertEntitiesToDatabase(patch.entities);
+        }
+    }
+
+    private ensureIdUniqueness(object: unknown, source: unknown): Array<any> | undefined {
+        if (Array.isArray(object) && ((typeof object[0] === "object") || typeof (source as Array<any>)[0] === "object")) {
+            return unionBy(object, source as Array<any>, item => item.id);
         }
     }
 
@@ -120,28 +129,28 @@ export class RawEntitiesStore {
         await Promise.all(inserts);
     }
 
-    private collectEntities = <EntityName extends PersistentEntities>(
+    private collectEntities<EntityName extends PersistentEntities>(
         entityName: EntityName,
         entityMap: GetEntityMapType<EntityName>
-    ): Array<GetEntityType<EntityName>> => {
+    ): Array<GetEntityType<EntityName>> {
         const array: Array<GetEntityType<EntityName>> = [];
         Object.values(entityMap).forEach(entity => array.push(this.serialize(entityName, entity)));
         return array;
     }
 
-    private serialize = <T extends object>(entityName: PersistentEntities, obj: T): T => {
-        if (!ENTITIES_WITH_SERIALIZABLE_DATE_FIELDS.includes(entityName)) {
+    private serialize<T extends object>(entityName: PersistentEntities, obj: T): T {
+        if (!ENTITIES_WITH_SERIALIZABLE_DATE_FIELDS.has(entityName)) {
             return JSON.parse(JSON.stringify(obj));
         }
 
         const dateFields = SERIALIZABLE_DATE_FIELDS_MAP[entityName]!;
         const pairs: Array<[keyof T, any]> = [];
 
-        Object.keys(obj).filter(key => dateFields.includes(key as never)).forEach(key => {
-            const value = obj[key as keyof T];
+        dateFields.forEach(field => {
+            const value = obj[field as keyof T];
 
             if (isDefined(value)) {
-                pairs.push([key as keyof T, value]);
+                pairs.push([field as keyof T, value]);
             }
         });
 
@@ -152,7 +161,7 @@ export class RawEntitiesStore {
         return serialized;
     }
 
-    deleteEntity = (entityName: Entities, id: string, skipRemovingFromDatabase: boolean = false): void => {
+    deleteEntity(entityName: Entities, id: string, skipRemovingFromDatabase: boolean = false) {
         this.ids[entityName] = this.ids[entityName].filter(entityId => entityId !== id);
         delete this.entities[entityName][id];
 

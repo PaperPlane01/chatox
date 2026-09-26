@@ -6,9 +6,9 @@ import chatox.chat.api.response.ChatParticipationMinifiedResponse
 import chatox.chat.api.response.ChatParticipationResponse
 import chatox.chat.api.response.PendingChatParticipationResponse
 import chatox.chat.model.ChatParticipation
-import chatox.chat.model.TextInfo
 import chatox.chat.model.User
 import chatox.platform.pagination.PaginationRequest
+import chatox.platform.text.api.response.TextInfo
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 

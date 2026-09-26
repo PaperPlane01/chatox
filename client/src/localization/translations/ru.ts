@@ -100,6 +100,9 @@ export const ru: Labels = {
     "chat.edit": "Редактировать чат",
     "chat.feature.additional.fromLevel": "Начиная с уровня",
     "chat.feature.additional.upToLevel": "До уровня",
+    "chat.feature.add-reactions": "Добавление реакций",
+    "chat.features.add-reactions.allowed-emojis": "Разрешённые реакции",
+    "chat.features.add-reactions.allowed-emojis.all": "Разрешены любые реакции",
     "chat.feature.assignChatRole": "Назначение ролей",
     "chat.feature.blockUsers": "Блокировка пользователей",
     "chat.feature.blockUsers.allowPermanent": "Может блокировать навсегда",
@@ -841,4 +844,7 @@ export const ru: Labels = {
     "username.has-already-been-taken": "Имя пользователя уже используется",
     "username.too-long": "Имя пользователя слишком длинное",
     "username.too-short": "Имя пользователя слишком короткое",
+    "message.reaction.list": "Реакции",
+    "message.reaction.create.error": "При создании реакции произошла ошибка",
+    "message.reaction.delete.error": "При удалении реакции произошла ошибка",
 };

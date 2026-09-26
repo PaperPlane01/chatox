@@ -11,6 +11,7 @@ import {
 } from "../Sticker/repositories";
 import {UploadDexieRepository} from "../Upload/repositories";
 import {ChatRoleDexieRepository} from "../ChatRole/repositories";
+import {MessageReactionDexieRepository} from "../MessageReaction/repositories";
 
 export class DexieRepositories implements Repositories {
 	repositoriesMap: RepositoriesMap = {};
@@ -25,6 +26,7 @@ export class DexieRepositories implements Repositories {
 		this.repositoriesMap.stickerPacks = new StickerPackDexieRepository(database, this);
 		this.repositoriesMap.draftMessages = new DraftMessageDexieRepository(database, this);
 		this.repositoriesMap.stickerAnimationData = new StickerAnimationDataDexieRepository(database);
+        this.repositoriesMap.messageReactions = new MessageReactionDexieRepository(database, this);
 	}
 
 	getRepository<EntityName extends Entities>(entityName: EntityName): RepositoriesMap[EntityName] | undefined {

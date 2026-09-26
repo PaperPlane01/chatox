@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Card, CardActions, CardContent, CardHeader, lighten, Theme, Tooltip, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {Done, DoneAll, Edit, Event, Forward} from "@mui/icons-material";
-import {format, isBefore, isEqual, isSameDay, isSameYear, Locale} from "date-fns";
+import {isBefore, isEqual, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import {useInViewport} from "react-in-viewport";
 import {Link} from "mobx-router";
@@ -29,7 +29,9 @@ import {useLuminosity} from "../../utils/hooks";
 import {commonStyles} from "../../style";
 import {UploadType} from "../../api/types/response";
 import {isDefined} from "../../utils/object-utils";
+import {getCreatedAtLabel} from "../../utils/date-utils";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {MessageReactionButton} from "../../MessageReaction/components";
 
 type MenuItemClickCallback = (menuItemType: MessageMenuItemType | ScheduledMessageMenuItemType) => void;
 
@@ -46,18 +48,6 @@ interface MessagesListItemProps {
     findMessageSenderFunction?: FindMessageSenderFunction,
     menu?: ReactNode
 }
-
-const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
-    const currentDate = new Date();
-
-    if (isSameDay(createdAt, currentDate)) {
-        return format(createdAt, "HH:mm", {locale});
-    } else if (isSameYear(createdAt, currentDate)) {
-        return format(createdAt, "d MMM HH:mm", {locale});
-    } else {
-        return format(createdAt, "d MMM yyyy HH:mm", {locale});
-    }
-};
 
 const getScheduledAtLabel = (scheduledAt: Date, locale: Locale, l: TranslationFunction): string => {
     const dateLabel = getCreatedAtLabel(scheduledAt, locale);
@@ -126,7 +116,11 @@ const useStyles = makeStyles()((theme: Theme) => ({
     },
     cardActionsRoot: {
         paddingTop: 0,
-        float: "right"
+        display: "flex"
+    },
+    cardActionsText: {
+        marginLeft: "auto !important",
+        alignSelf: "end"
     },
     undecoratedLink: commonStyles.undecoratedLink,
     zeroHeight: {
@@ -458,31 +452,42 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                 <CardActions classes={{
                     root: classes.cardActionsRoot
                 }}>
-                    <Typography variant="caption"
-                                color="textSecondary"
-                                className={classes.messageBottomText}
-                    >
-                        {scheduledMessage && <Event fontSize="inherit"/>}
-                        {createAtLabel}
-                        {message.updatedAt && (
-                            <Tooltip title={l(
-                                "message.updated-at",
-                                {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)}
-                            )}>
+                    {Object.keys(message.reactionsCount).map(emojiId => (
+                        <MessageReactionButton key={`message_${message.id}_reactionButton_${emojiId}`}
+                                               messageId={message.id}
+                                               emojiId={emojiId}
+                                               reactionsCount={message.reactionsCount[emojiId].count}
+                                               reactedByCurrentUser={message.reactionsCount[emojiId].reactedByCurrentUser}
+                                               lastReactionsIds={message.reactionsCount[emojiId].lastReactions}
+                        />
+                    ))}
+                    <div className={classes.cardActionsText}>
+                        <Typography variant="caption"
+                                    color="textSecondary"
+                                    className={classes.messageBottomText}
+                        >
+                            {scheduledMessage && <Event fontSize="inherit"/>}
+                            {createAtLabel}
+                            {message.updatedAt && (
+                                <Tooltip title={l(
+                                    "message.updated-at",
+                                    {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)}
+                                )}>
                                 <span>
                                     ,
                                     {" "}
                                     <Edit fontSize="inherit"/>
                                     {l("message.edited")}
                                 </span>
-                            </Tooltip>
-                        )}
-                        {sentByCurrentUser && (
-                            readByAnyone
-                                ? <DoneAll fontSize="small" color="primary"/>
-                                : <Done fontSize="small" color="primary"/>
-                        )}
-                    </Typography>
+                                </Tooltip>
+                            )}
+                            {sentByCurrentUser && (
+                                readByAnyone
+                                    ? <DoneAll fontSize="small" color="primary"/>
+                                    : <Done fontSize="small" color="primary"/>
+                            )}
+                        </Typography>
+                    </div>
                 </CardActions>
             </Card>
         </div>

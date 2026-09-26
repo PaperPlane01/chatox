@@ -2,6 +2,7 @@ package chatox.chat.mapper
 
 import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.ChatRoleResponse
+import chatox.chat.api.response.MessageReactionsCountResponse
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.UserResponse
 import chatox.chat.config.CacheWrappersConfig
@@ -10,17 +11,22 @@ import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
 import chatox.chat.model.ChatType
 import chatox.chat.model.DraftMessage
-import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.MessageInterface
+import chatox.chat.model.MessageReaction
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.UnreadMessagesCount
 import chatox.chat.model.Upload
+import chatox.chat.model.User
+import chatox.chat.repository.mongodb.MessageReactionRepository
 import chatox.chat.service.UserService
 import chatox.chat.support.cache.MessageDataLocalCache
-import chatox.chat.util.NTuple7
+import chatox.chat.support.cache.MessageDataReferredIds
+import chatox.chat.util.NTuple8
 import chatox.chat.util.isDateBeforeOrEquals
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
+import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.text.api.response.EmojiInfo
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -40,8 +46,139 @@ class MessageMapper(
     @param:Qualifier(CacheWrappersConfig.CHAT_ROLE_CACHE_WRAPPER)
     private val chatRoleCacheWrapper: ReactiveRepositoryCacheWrapper<ChatRole, String>,
     private val chatParticipationCacheWrapper: ReactiveRepositoryCacheWrapper<ChatParticipation, String>,
-    private val chatRoleMapper: ChatRoleMapper
+    private val chatRoleMapper: ChatRoleMapper,
+    private val messageReactionMapper: MessageReactionMapper,
+    private val messageReactionRepository: MessageReactionRepository,
+    private val authenticationHolder: ReactiveAuthenticationHolder<User>
 ) {
+
+    fun <T: MessageInterface> mapMessages(
+        messages: List<T>,
+        unreadMessagesCount: UnreadMessagesCount?,
+        lastReadMessageCreatedAt: ZonedDateTime?
+    ): Flux<MessageResponse> {
+        return mono {
+            val referredIds = getReferredIds(messages)
+            val currentUserId = authenticationHolder.currentUserDetails.awaitFirstOrNull()?.id
+            currentUserId?.let { referredIds.usersIds.add(it) }
+
+            val cache = getPrePopulatedCache(messages, referredIds, currentUserId).awaitFirst()
+
+            return@mono if (unreadMessagesCount?.lastMessageReadAt != null) {
+                Flux.fromIterable(messages).flatMapSequential { message ->
+                    return@flatMapSequential toMessageResponse(
+                        message = message,
+                        readByCurrentUser = isDateBeforeOrEquals(
+                            dateToCheck = message.createdAt,
+                            dateToCompareWith = unreadMessagesCount.lastMessageReadAt
+                        ),
+                        readByAnyone = if (lastReadMessageCreatedAt == null) {
+                            false
+                        } else {
+                            isDateBeforeOrEquals(
+                                dateToCheck = message.createdAt,
+                                dateToCompareWith = lastReadMessageCreatedAt
+                            )
+                        },
+                        mapReferredMessage = true,
+                        cache = cache
+                    )
+                }
+            } else {
+                Flux.fromIterable(messages).flatMapSequential { message ->
+                    return@flatMapSequential toMessageResponse(
+                        message = message,
+                        readByCurrentUser = false,
+                        readByAnyone = if (lastReadMessageCreatedAt == null) {
+                            false
+                        } else {
+                            isDateBeforeOrEquals(
+                                dateToCheck = message.createdAt,
+                                dateToCompareWith = lastReadMessageCreatedAt
+                            )
+                        },
+                        mapReferredMessage = true,
+                        cache = cache
+                    )
+                }
+            }
+        }
+            .flatMapMany { it }
+    }
+
+    private fun <T: MessageInterface> getReferredIds(messages: List<T>): MessageDataReferredIds {
+        val referredIds = MessageDataReferredIds()
+
+        messages.forEach { message ->
+            referredIds.apply {
+                usersIds.add(message.senderId)
+                message.deletedById?.let(usersIds::add)
+                message.forwardedById?.let(usersIds::add)
+                usersIds.addAll(message.mentionedUsers)
+                usersIds.addAll(message.lastReactions.values.flatten().map(MessageReaction::userId))
+            }
+        }
+
+        return referredIds
+    }
+
+    private fun <T: MessageInterface> getPrePopulatedCache(
+        messages: List<T>,
+        referredIds: MessageDataReferredIds,
+        currentUserId: String?
+    ): Mono<MessageDataLocalCache> = mono {
+        val cache = MessageDataLocalCache()
+
+        val users = userService.findAllById(referredIds.usersIds)
+            .collectList()
+            .awaitFirst()
+            .associateBy(UserResponse::id)
+        cache.usersCache.putAll(users)
+
+        val chatParticipations = chatParticipationCacheWrapper.findByIds(referredIds.chatParticipationIds.toList())
+            .collectList()
+            .awaitFirst()
+            .associateBy(ChatParticipation::id)
+        cache.chatParticipationsCache.putAll(chatParticipations)
+
+        val chatRoles = chatRoleCacheWrapper.findByIds(
+            chatParticipations.values.map(ChatParticipation::roleId)
+        )
+            .collectList()
+            .awaitFirst()
+            .map(chatRoleMapper::toChatRoleResponse)
+            .associateBy(ChatRoleResponse::id)
+        cache.chatRolesCache.putAll(chatRoles)
+
+        val currentUserReactions = currentUserId?.let {
+            messageReactionRepository
+                .findByUserIdAndMessageIdIn(it, messages.map(MessageInterface::id))
+                .collectList()
+                .awaitFirst()
+                .associateBy { reaction -> "${reaction.messageId}_${reaction.emojiId}" }
+        }
+            ?: mapOf()
+        val reactionsCountCache = messages.associate { message ->
+            message.id to message.reactionsCount.map { reactionsCount ->
+                val currentUserReaction = currentUserReactions["${message.id}_${reactionsCount.emojiId}"]
+
+                return@map MessageReactionsCountResponse(
+                    emoji = reactionsCount.emoji,
+                    count = reactionsCount.count,
+                    lastReactions = (message.lastReactions[reactionsCount.emojiId] ?: listOf()).map { reaction ->
+                        messageReactionMapper.toMessageReactionResponseWithUsersCache(reaction, cache.usersCache)
+                    },
+                    reactedByCurrentUser = currentUserReaction != null,
+                    currentUserReaction = currentUserReaction?.let { reaction ->
+                        messageReactionMapper.toMessageReactionResponseWithUsersCache(reaction, cache.usersCache)
+                    }
+                )
+            }
+        }
+        cache.reactionsCountCache.putAll(reactionsCountCache)
+
+        return@mono cache
+    }
 
     fun <T : MessageInterface> mapMessages(
         messages: Flux<T>,
@@ -105,7 +242,8 @@ class MessageMapper(
                 chatRole,
                 chatParticipationInSourceChat,
                 forwardedBy,
-                mentionedUsers
+                mentionedUsers,
+                reactionsCount
             ) = getDataForMessageResponse(
                 message = message,
                 mapReferredMessage = mapReferredMessage,
@@ -113,7 +251,8 @@ class MessageMapper(
                 localReferredMessagesCache = cache?.referredMessagesCache,
                 localUsersCache = cache?.usersCache,
                 localChatParticipationsCache = cache?.chatParticipationsCache,
-                localChatRolesCache = cache?.chatRolesCache
+                localChatRolesCache = cache?.chatRolesCache,
+                localMessageReactionsCountCache = cache?.reactionsCountCache
             )
                 .awaitFirst()
 
@@ -157,7 +296,11 @@ class MessageMapper(
                 },
                 forwardedBy = forwardedBy,
                 readByAnyone = readByAnyone,
-                mentionedUsers = mentionedUsers
+                mentionedUsers = mentionedUsers,
+                reactionsCount = reactionsCount.associateBy { it.emoji.id }
+                    .entries
+                    .sortedBy { it.value.count }
+                    .associate { it.toPair() }
             )
         }
     }
@@ -244,8 +387,9 @@ class MessageMapper(
         localReferredMessagesCache: MutableMap<String, MessageResponse>? = null,
         localUsersCache: MutableMap<String, UserResponse>? = null,
         localChatParticipationsCache: MutableMap<String, ChatParticipation>? = null,
-        localChatRolesCache: MutableMap<String, ChatRoleResponse>? = null
-    ): Mono<NTuple7<MessageResponse?, UserResponse, UserResponse?, ChatRoleResponse, ChatParticipation?, UserResponse?, List<UserResponse>>> {
+        localChatRolesCache: MutableMap<String, ChatRoleResponse>? = null,
+        localMessageReactionsCountCache: MutableMap<String, List<MessageReactionsCountResponse>>? = null
+    ): Mono<NTuple8<MessageResponse?, UserResponse, UserResponse?, ChatRoleResponse, ChatParticipation?, UserResponse?, List<UserResponse>, List<MessageReactionsCountResponse>>> {
         return mono {
             val referredMessage: MessageResponse? = if (!mapReferredMessage || message.referredMessageId == null) {
                 null
@@ -279,15 +423,18 @@ class MessageMapper(
                     .collectList()
                     .awaitFirst()
             }
+            val reactionsCount = getReactionsCount(message, localMessageReactionsCountCache, localUsersCache)
+                .awaitFirst()
 
-            return@mono NTuple7(
+            return@mono NTuple8(
                 referredMessage,
                 sender,
                 pinnedBy,
                 chatRole,
                 chatParticipationInSourceChat,
                 forwardedBy,
-                mentionedUsers
+                mentionedUsers,
+                reactionsCount
             )
         }
     }
@@ -341,6 +488,42 @@ class MessageMapper(
                localChatRolesCache
            ) { it.id }
         }
+    }
+
+    private fun getReactionsCount(
+        message: MessageInterface,
+        localMessageReactionsCountCache: MutableMap<String, List<MessageReactionsCountResponse>>?,
+        localUsersCache: MutableMap<String, UserResponse>?,
+    ): Mono<List<MessageReactionsCountResponse>> = mono {
+        var reactionsCountResponse = localMessageReactionsCountCache?.get(message.id)
+
+        if (reactionsCountResponse != null) {
+            return@mono reactionsCountResponse
+        }
+
+        val currentUserReaction = authenticationHolder.currentUserDetails?.awaitFirstOrNull()?.id?.let {
+            messageReactionRepository.findByUserIdAndMessageId(it, message.id)
+                .awaitFirstOrNull()
+        }
+        val users = userService.findAllByIdAndPutInLocalCache(
+            message.lastReactions.values.flatten().map(MessageReaction::userId),
+            localUsersCache
+        )
+            .collectList()
+            .awaitFirst()
+            .associateBy(UserResponse::id)
+
+        reactionsCountResponse = message.reactionsCount.map { reactionsCount -> MessageReactionsCountResponse(
+            emoji = reactionsCount.emoji,
+            count = reactionsCount.count,
+            lastReactions = (message.lastReactions[reactionsCount.emojiId] ?: listOf()).map { reaction ->
+                messageReactionMapper.toMessageReactionResponseWithUsersCache(reaction, users)
+            },
+            reactedByCurrentUser = currentUserReaction?.emojiId == reactionsCount.emojiId
+        ) }
+        localMessageReactionsCountCache?.put(message.id, reactionsCountResponse)
+
+        return@mono reactionsCountResponse
     }
 
     private fun <T> putInLocalCache(item: T, cache: MutableMap<String, T>?, extractKey: (T) -> String): T {

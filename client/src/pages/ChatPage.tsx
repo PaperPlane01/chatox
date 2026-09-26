@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Box, Grid} from "@mui/material";
+import {Grid} from "@mui/material";
 import {
     ChatInfoContainer,
     ChatInfoDialog,
@@ -22,6 +22,7 @@ import {BlockUserInChatByIdOrSlugDialog, CreateChatBlockingDialog} from "../Chat
 import {BanUserGloballyDialog} from "../GlobalBan/components";
 import {ReportChatDialog, ReportMessageDialog} from "../Report/components";
 import {DeleteStickerPackDialog, StickerPackDialog, StickerPreviewDialog} from "../Sticker/components";
+import {MessageReactionsDialog} from "../MessageReaction/components";
 import {useStore} from "../store";
 import {ChatType} from "../api/types/response";
 
@@ -86,6 +87,7 @@ export const ChatPage: FunctionComponent = observer(() => {
             <CreateChatBlockingDialog/>
             <DeleteStickerPackDialog/>
             <StickerPreviewDialog/>
+            <MessageReactionsDialog/>
         </Fragment>
     );
 });

@@ -2,10 +2,10 @@ package chatox.chat.test
 
 import chatox.chat.model.Message
 import chatox.chat.model.Sticker
-import chatox.chat.model.TextInfo
 import chatox.chat.repository.mongodb.StickerRepository
 import chatox.chat.service.MessageEntityService
-import chatox.chat.service.TextParserService
+import chatox.platform.text.api.reactive.TextParserApi
+import chatox.platform.text.api.response.TextInfo
 import io.mockk.every
 import reactor.core.publisher.Mono
 
@@ -27,9 +27,11 @@ fun mockFindMessageById(messageId: String?, messageEntityService: MessageEntityS
     }
 }
 
-fun mockParseText(text: String, textParserService: TextParserService, textInfo: TextInfo): TextInfo {
+fun mockParseText(text: String, textParserApi: TextParserApi, textInfo: TextInfo): TextInfo {
     return if (text.isNotBlank()) {
-        every { textParserService.parseText(text, any()) } returns Mono.just(textInfo)
+        every {
+            textParserApi.parseText(match { request -> request.text == text })
+        } returns Mono.just(textInfo)
         textInfo
     } else {
         TextInfo()

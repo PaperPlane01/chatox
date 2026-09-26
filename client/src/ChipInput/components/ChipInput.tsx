@@ -78,6 +78,7 @@ const _ChipInput = <ChipType extends {toString: () => string}>(props: ChipInputP
                    fullWidth
                    margin="dense"
                    slotProps={{
+                       ...rest.slotProps,
                        input: {
                            startAdornment: (
                                <InputAdornment position="start">
@@ -86,7 +87,6 @@ const _ChipInput = <ChipType extends {toString: () => string}>(props: ChipInputP
                            ),
                            onKeyDown: event => handleTagsInputKeydown(event),
                        },
-                       ...rest.slotProps
                    }}
         />
     );

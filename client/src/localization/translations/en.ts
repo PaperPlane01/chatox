@@ -100,6 +100,9 @@ export const en: Labels = {
     "chat.edit": "Edit chat",
     "chat.feature.additional.fromLevel": "From level",
     "chat.feature.additional.upToLevel": "Up to level",
+    "chat.feature.add-reactions": "Add reactions",
+    "chat.features.add-reactions.allowed-emojis": "Allowed reactions",
+    "chat.features.add-reactions.allowed-emojis.all": "All reactions are allowed",
     "chat.feature.assignChatRole": "Assign chat role",
     "chat.feature.blockUsers": "Blocking users",
     "chat.feature.blockUsers.allowPermanent": "Can block permanently",
@@ -841,4 +844,7 @@ export const en: Labels = {
     "username.has-already-been-taken": "This username is already taken",
     "username.too-long": "Username is too long",
     "username.too-short": "Username is too short",
+    "message.reaction.list": "Reactions list",
+    "message.reaction.create.error": "Error occurred when tried to create a reaction",
+    "message.reaction.delete.error": "Error occurred when tried to delete a reaction"
 };

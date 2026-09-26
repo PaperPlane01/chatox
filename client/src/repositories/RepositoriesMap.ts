@@ -4,6 +4,7 @@ import {UserRepository} from "../User/repositories";
 import {UploadRepository} from "../Upload/repositories";
 import {ChatRoleRepository} from "../ChatRole/repositories";
 import {StickerAnimationDataRepository, StickerPackRepository, StickerRepository} from "../Sticker/repositories";
+import {MessageReactionRepository} from "../MessageReaction/repositories";
 
 type GetRepositoryType<Entity extends Entities> =
 	Entity extends "messages" ? MessageRepository
@@ -14,6 +15,7 @@ type GetRepositoryType<Entity extends Entities> =
 	: Entity extends "stickerPacks" ? StickerPackRepository
 	: Entity extends "draftMessages" ? DraftMessageRepository
 	: Entity extends "stickerAnimationData" ? StickerAnimationDataRepository
+    : Entity extends "messageReactions" ? MessageReactionRepository
 	: never;
 
 export type RepositoriesMap = {

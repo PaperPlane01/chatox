@@ -16,6 +16,7 @@ import {RewardsStore, UserRewardsStore} from "../Reward";
 import {UserInteractionsStore} from "../UserInteraction";
 import {ChatInvitesStore} from "../ChatInvite";
 import {EntityStore} from "../entity-store";
+import {MessageReactionsStore} from "../MessageReaction/stores";
 
 type EntitiesStores = {
     [Entity in Entities]: Entity extends "chatUploads" | "stickerAnimationData"
@@ -47,6 +48,7 @@ export class EntitiesStore {
     public chatInvites: ChatInvitesStore;
     public pendingChatParticipations: PendingChatParticipationsStore;
     public draftMessages: MessagesStore<"draftMessages">;
+    public messageReactions: MessageReactionsStore;
 
     get stores(): EntitiesStores {
         return {
@@ -74,7 +76,8 @@ export class EntitiesStore {
             pendingChatParticipations: this.pendingChatParticipations,
             chatUploads: undefined,
             draftMessages: this.draftMessages,
-            stickerAnimationData: undefined
+            stickerAnimationData: undefined,
+            messageReactions: this.messageReactions
         }
     }
 
@@ -102,6 +105,7 @@ export class EntitiesStore {
         this.chatInvites = new ChatInvitesStore(rawEntities, "chatInvites", this);
         this.pendingChatParticipations = new PendingChatParticipationsStore(rawEntities, "pendingChatParticipations", this);
         this.draftMessages = new MessagesStore(rawEntities, "draftMessages", this, userChatRoles);
+        this.messageReactions = new MessageReactionsStore(rawEntities, "messageReactions", this);
     }
 
     public setEntitiesStore(entitiesAwareStores: EntitiesAware[]): void {

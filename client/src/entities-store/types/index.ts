@@ -12,6 +12,7 @@ import {RequiredField} from "../../utils/types";
 import {RewardEntity, UserRewardEntity} from "../../Reward/types";
 import {UserInteractionEntity} from "../../UserInteraction/types";
 import {ChatInviteEntity} from "../../ChatInvite/types";
+import {MessageReactionEntity} from "../../MessageReaction/types";
 
 export type Entities = "messages"
     | "chats"
@@ -37,9 +38,10 @@ export type Entities = "messages"
     | "chatInvites"
     | "pendingChatParticipations"
     | "draftMessages"
-    | "stickerAnimationData";
+    | "stickerAnimationData"
+    | "messageReactions";
 
-export type PersistentEntities = Extract<Entities, "messages" | "users" | "uploads" | "stickers" | "stickerPacks" | "chatRoles" | "draftMessages" | "stickerAnimationData">;
+export type PersistentEntities = Extract<Entities, "messages" | "users" | "uploads" | "stickers" | "stickerPacks" | "chatRoles" | "draftMessages" | "stickerAnimationData" | "messageReactions">;
 
 interface EntityMap<T> {
     [key: string]: T;
@@ -72,6 +74,7 @@ export type GetEntityType<Key extends Entities>
     : Key extends "pendingChatParticipations" ? PendingChatParticipationEntity
     : Key extends "draftMessages" ? MessageEntity
     : Key extends "stickerAnimationData" ? StickerAnimationData
+    : Key extends "messageReactions" ? MessageReactionEntity
     : never;
 //@formatter:on
 
