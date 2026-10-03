@@ -120,7 +120,8 @@ const useStyles = makeStyles()((theme: Theme) => ({
     },
     cardActionsText: {
         marginLeft: "auto !important",
-        alignSelf: "end"
+        alignSelf: "end",
+        paddingLeft: theme.spacing(1)
     },
     undecoratedLink: commonStyles.undecoratedLink,
     zeroHeight: {
