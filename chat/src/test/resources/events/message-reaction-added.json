@@ -1,0 +1,46 @@
+{
+  "id": "6a88a38c5f6e898bcc2d4ffe",
+  "user": {
+    "id": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+    "firstName": "Admin",
+    "lastName": "Admin",
+    "slug": "iamtheadmin",
+    "avatarUri": null,
+    "deleted": false,
+    "bio": "__Hello, world!__ 👏",
+    "lastSeen": "2026-08-23T09:43:02.98Z",
+    "dateOfBirth": "1900-01-14T00:00:00.000Z",
+    "createdAt": "2021-01-31T15:48:29.868Z",
+    "online": true,
+    "avatar": {
+      "id": "650bf56f4601db875936d9ee",
+      "name": "650bf56f4601db875936d9ee.jpg",
+      "extension": "jpg",
+      "mimeType": "image/jpeg",
+      "meta": {
+        "width": 2048,
+        "height": 1630
+      },
+      "preview": null,
+      "type": "IMAGE",
+      "originalName": "wallhaven-g7xkyl.jpg",
+      "uri": "http://localhost:8080/api/v1/uploads/images/650bf56f4601db875936d9ee.jpg",
+      "size": 903411
+    },
+    "anonymous": false,
+    "externalAvatarUri": null
+  },
+  "createdAt": "2026-08-22T19:14:20.862Z",
+  "emojiId": "heart",
+  "emoji": {
+    "id": "heart",
+    "name": "Red Heart",
+    "colons": ":heart:",
+    "emoticons": ["<3"],
+    "unified": "2764-fe0f",
+    "native": "❤\uFE0F",
+    "originalSet": "apple"
+  },
+  "messageId": "718d17ea-41a3-429e-8078-b513ffdaa7e2",
+  "chatId": "02cdb5e4-699b-4e10-a6fe-2cd5cd1bd514"
+}

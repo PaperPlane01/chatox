@@ -1,5 +1,6 @@
 package chatox.chat.model
 
+import chatox.platform.text.api.response.EmojiInfo
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
@@ -44,5 +45,7 @@ data class ScheduledMessage(
     override val forwardedFromDialogChatType: ChatType? = null,
     override val forwardedById: String? = null,
     override val mentionedUsers: List<String> = listOf(),
-    val numberOfFailedAttemptsToPublish: Int = 0
+    override val reactionsCount: List<MessageReactionsCount> = listOf(),
+    override val lastReactions: Map<String, List<MessageReaction>> = mapOf(),
+    val numberOfFailedAttemptsToPublish: Int = 0,
 ) : MessageInterface

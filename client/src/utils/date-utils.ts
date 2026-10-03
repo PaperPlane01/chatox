@@ -1,4 +1,16 @@
-import {addDays, addHours, addMinutes, addMonths, addSeconds, addWeeks, addYears} from "date-fns";
+import {
+    addDays,
+    addHours,
+    addMinutes,
+    addMonths,
+    addSeconds,
+    addWeeks,
+    addYears,
+    format,
+    isSameDay,
+    isSameYear,
+    Locale
+} from "date-fns";
 import {TimeUnit} from "../api/types/response";
 
 export class Duration {
@@ -34,3 +46,15 @@ export class Duration {
         return new Duration({value, unit});
     }
 }
+
+export const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
+    const currentDate = new Date();
+
+    if (isSameDay(createdAt, currentDate)) {
+        return format(createdAt, "HH:mm", {locale});
+    } else if (isSameYear(createdAt, currentDate)) {
+        return format(createdAt, "d MMM HH:mm", {locale});
+    } else {
+        return format(createdAt, "d MMM yyyy HH:mm", {locale});
+    }
+};

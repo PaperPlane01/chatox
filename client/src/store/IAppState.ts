@@ -192,6 +192,12 @@ import {
     UserNotificationExceptionsDialogStore
 } from "../Notification";
 import {ConfirmationTokenStore, CreateConfirmationTokenStore} from "../ConfirmationToken/stores";
+import {
+    MessageReactionOperationsStore,
+    MessageReactionPickerStore,
+    MessageReactionsDialogStore,
+    ReactionsToMessagesStore
+} from "../MessageReaction/stores";
 
 export interface IAppState {
     language: LocaleStore,
@@ -371,5 +377,9 @@ export interface IAppState {
     stickerPackImport: ImportStickerPackStore,
     confirmationToken: ConfirmationTokenStore,
     confirmationTokenDialog: CreateConfirmationTokenStore,
-    chatOwnershipTransfer: TransferChatOwnershipStore
+    chatOwnershipTransfer: TransferChatOwnershipStore,
+    messageReactionOperations: MessageReactionOperationsStore,
+    reactionsToMessages: ReactionsToMessagesStore,
+    messageReactionsDialog: MessageReactionsDialogStore,
+    messageReactionPicker: MessageReactionPickerStore,
 }

@@ -5,6 +5,7 @@ import {SendMessagesChatFeatureForm} from "./SendMessagesChatFeatureForm";
 import {DefaultChatFeatureForm} from "./DefaultChatFeatureForm";
 import {LevelBasedChatFeatureForm} from "./LevelBasedChatFeatureForm";
 import {BlockUsersInChatFeatureForm} from "./BlockUsersInChatFeatureForm";
+import {AddReactionsChatFeatureForm} from "./AddReactionsChatFeatureForm";
 import {useStore, useLocalization} from "../../store";
 
 export const ChatRoleFeatureForms: FunctionComponent = observer(() => {
@@ -32,6 +33,8 @@ export const ChatRoleFeatureForms: FunctionComponent = observer(() => {
     return (
         <Fragment>
             <SendMessagesChatFeatureForm/>
+            <Divider/>
+            <AddReactionsChatFeatureForm/>
             <Divider/>
             <DefaultChatFeatureForm formValues={showRoleNameInMessages.formValues}
                                     name={l("chat.feature.showRoleNameInChat")}

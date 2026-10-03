@@ -29,6 +29,7 @@ export const EmojiPicker: FunctionComponent<EmojiPickerProps> = observer(({
                              onEmojiSelect={onEmojiPicked}
                              autoFocus={false}
                              dynamicWidth={onSmallScreen}
+                             stickySearch={true}
             />
         </div>
 	);

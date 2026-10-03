@@ -1,11 +1,12 @@
 package chatox.chat.messaging.rabbitmq.event
 
 import chatox.chat.api.response.ChatRoleResponse
+import chatox.chat.api.response.MessageReactionsCountResponse
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.api.response.StickerResponse
 import chatox.chat.api.response.UploadResponse
 import chatox.chat.api.response.UserResponse
-import chatox.chat.model.EmojiInfo
+import chatox.platform.text.api.response.EmojiInfo
 import java.time.ZonedDateTime
 
 data class MessageCreated(
@@ -33,7 +34,8 @@ data class MessageCreated(
     val forwardedFromMessageId: String? = null,
     val forwardedFromChatId: String? = null,
     val readByAnyone: Boolean = false,
-    val mentionedUsers: List<UserResponse> = listOf()
+    val mentionedUsers: List<UserResponse> = listOf(),
+    val reactionsCount: List<MessageReactionsCountResponse> = listOf()
 ) {
     fun toMessageResponse() = MessageResponse(
         id,

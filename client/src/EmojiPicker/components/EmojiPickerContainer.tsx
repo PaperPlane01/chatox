@@ -65,10 +65,14 @@ export const EmojiPickerContainer: FunctionComponent<EmojiPickerContainerProps> 
     };
 
     useEffect(() => {
-        document.addEventListener("mousedown", handleClickOutside);
+        if (open) {
+            document.addEventListener("mousedown", handleClickOutside);
+        } else {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
 
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    }, [open]);
 
     const handleOpenEmojiPickerButtonClick = (): void => {
        setOpen(!open);

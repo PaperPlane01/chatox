@@ -40,6 +40,7 @@ import {
     ChatNotificationsSettingsUpdated,
     GlobalNotificationsSettingsUpdated
 } from "../notifications-settings";
+import {MessageReactionAdded, MessageReactionDeleted} from "../message-reactions/types/events";
 
 @WebSocketGateway({
     path: "/api/v1/events/",
@@ -508,5 +509,23 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             }
         };
         await this.connectionsStateHolder.publishEventToUsers([draftMessageDeleted.senderId], event);
+    }
+
+    public async publishMessageReactionAdded(messageReactionAdded: MessageReactionAdded): Promise<void> {
+        const event: WebsocketEvent<MessageReactionAdded> = {
+            type: EventType.MESSAGE_REACTION_ADDED,
+            payload: messageReactionAdded
+        };
+        await this.connectionsStateHolder.publishEventToChatParticipants(messageReactionAdded.chatId, event);
+        await this.connectionsStateHolder.publishEventToUsersSubscribedToChat(messageReactionAdded.chatId, event);
+    }
+
+    public async publishMessageReactionDeleted(messageReactionDeleted: MessageReactionDeleted): Promise<void> {
+        const event: WebsocketEvent<MessageReactionDeleted> = {
+            type: EventType.MESSAGE_REACTION_DELETED,
+            payload: messageReactionDeleted
+        };
+        await this.connectionsStateHolder.publishEventToChatParticipants(messageReactionDeleted.chatId, event);
+        await this.connectionsStateHolder.publishEventToUsersSubscribedToChat(messageReactionDeleted.chatId, event);
     }
 }

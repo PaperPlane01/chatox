@@ -204,6 +204,12 @@ import {
 } from "../Notification";
 import {ConfirmationTokenStore, CreateConfirmationTokenStore} from "../ConfirmationToken/stores";
 import {DexieRepositories, Repositories} from "../repositories";
+import {
+    MessageReactionOperationsStore,
+    MessageReactionPickerStore,
+    MessageReactionsDialogStore,
+    ReactionsToMessagesStore
+} from "../MessageReaction/stores";
 
 const referencedEntities = new ReferencedEntitiesStore();
 const authorization = new AuthorizationStore();
@@ -383,6 +389,7 @@ const soundNotification = new SoundNotificationStore(
     authorization,
     entities
 );
+const reactionsToMessages = new ReactionsToMessagesStore(entities, authorization, repositories);
 const websocket = new WebsocketStore(
     authorization,
     entities,
@@ -396,6 +403,7 @@ const websocket = new WebsocketStore(
     language,
     soundNotification,
     notificationsSettings,
+    reactionsToMessages,
     snackbarService
 );
 const stickerPackCreation = new CreateStickerPackStore(entities, language, snackbarService);
@@ -618,6 +626,15 @@ const chatOwnershipTransfer = new TransferChatOwnershipStore(
     language,
     snackbarService
 );
+const messageReactionOperations = new MessageReactionOperationsStore(
+    reactionsToMessages,
+    entities,
+    language,
+    authorization,
+    snackbarService
+);
+const messageReactionsDialog = new MessageReactionsDialogStore(reactionsToMessages);
+const messageReactionPicker = new MessageReactionPickerStore();
 
 const _store: IAppState = {
     authorization,
@@ -797,7 +814,11 @@ const _store: IAppState = {
     stickerPackImport,
     confirmationToken,
     confirmationTokenDialog,
-    chatOwnershipTransfer
+    chatOwnershipTransfer,
+    reactionsToMessages,
+    messageReactionOperations,
+    messageReactionsDialog,
+    messageReactionPicker
 };
 
 //Hack to avoid loss of application state on HMR

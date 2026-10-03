@@ -7,6 +7,7 @@ import chatox.chat.api.response.UserResponse
 import chatox.chat.exception.ChatRoleTemplateAlreadyExistsException
 import chatox.chat.exception.ChatRoleTemplateNotFoundException
 import chatox.chat.mapper.ChatRoleTemplateMapper
+import chatox.chat.model.AddReactionsFeatureAdditionalData
 import chatox.chat.model.ChatBlockingFeatureAdditionalData
 import chatox.chat.model.ChatBlockingFeatureData
 import chatox.chat.model.ChatFeatures
@@ -18,6 +19,7 @@ import chatox.chat.model.StandardChatRole
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatRoleTemplateRepository
 import chatox.chat.service.ChatRoleTemplateService
+import chatox.chat.support.validation.ChatFeaturesValidator
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
@@ -34,7 +36,8 @@ import java.time.ZonedDateTime
 class ChatRoleTemplateServiceImpl(
     private val chatRoleTemplateRepository: ChatRoleTemplateRepository,
     private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-    private val chatRoleTemplateMapper: ChatRoleTemplateMapper
+    private val chatRoleTemplateMapper: ChatRoleTemplateMapper,
+    private val chatFeaturesValidator: ChatFeaturesValidator
 ) : ChatRoleTemplateService {
     override fun createChatRoleTemplate(createChatRoleTemplateRequest: CreateChatRoleTemplateRequest): Mono<ChatRoleTemplateResponse> {
         return mono {
@@ -44,9 +47,15 @@ class ChatRoleTemplateServiceImpl(
                 throw ChatRoleTemplateAlreadyExistsException("Chat role template with name ${createChatRoleTemplateRequest.name} already exists")
             }
 
+            val emojis = chatFeaturesValidator.validateAndGetEmojis(createChatRoleTemplateRequest.features.addReactions).awaitFirst()
+
             val chatRoleTemplate = ChatRoleTemplate(
                 id = ObjectId().toHexString(),
-                features = createChatRoleTemplateRequest.features,
+                features = createChatRoleTemplateRequest.features.copy(
+                    addReactions = createChatRoleTemplateRequest.features.addReactions.copy(
+                        additional = AddReactionsFeatureAdditionalData(emojis)
+                    )
+                ),
                 createdAt = ZonedDateTime.now(),
                 createdBy = currentUser.id,
                 name = createChatRoleTemplateRequest.name,
@@ -68,9 +77,15 @@ class ChatRoleTemplateServiceImpl(
             var chatRoleTemplate = chatRoleTemplateRepository.findById(id).awaitFirstOrNull()
                 ?: throw ChatRoleTemplateNotFoundException("Could not find chat role template with id $id")
 
+            val emojis = chatFeaturesValidator.validateAndGetEmojis(updateChatRoleTemplateRequest.features.addReactions).awaitFirst()
+
             chatRoleTemplate = chatRoleTemplate.copy(
                 name = updateChatRoleTemplateRequest.name,
-                features = updateChatRoleTemplateRequest.features,
+                features = updateChatRoleTemplateRequest.features.copy(
+                    addReactions = updateChatRoleTemplateRequest.features.addReactions.copy(
+                        additional = AddReactionsFeatureAdditionalData(emojis)
+                    )
+                ),
                 updatedAt = ZonedDateTime.now(),
                 updatedBy = currentUser.id
             )

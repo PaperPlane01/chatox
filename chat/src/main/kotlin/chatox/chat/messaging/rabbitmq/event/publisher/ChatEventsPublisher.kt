@@ -8,6 +8,8 @@ import chatox.chat.messaging.rabbitmq.event.ChatParticipationDeleted
 import chatox.chat.messaging.rabbitmq.event.ChatUpdated
 import chatox.chat.messaging.rabbitmq.event.DraftMessageDeleted
 import chatox.chat.messaging.rabbitmq.event.MessageCreated
+import chatox.chat.messaging.rabbitmq.event.MessageReactionAdded
+import chatox.chat.messaging.rabbitmq.event.MessageReactionDeleted
 import chatox.chat.messaging.rabbitmq.event.MessageReadEvent
 import chatox.chat.messaging.rabbitmq.event.PrivateChatCreated
 import chatox.chat.messaging.rabbitmq.event.UserLeftChat
@@ -181,5 +183,17 @@ class ChatEventsPublisher(private val rabbitTemplate: RabbitTemplate) {
         "chat.events",
         "chat.draft.message.updated.#",
         message
+    )
+
+    fun messageReactionAdded(messageReactionAdded: MessageReactionAdded) = rabbitTemplate.convertAndSend(
+        "chat.events",
+        "chat.message.reaction.added.#",
+        messageReactionAdded
+    )
+
+    fun messageReactionDeleted(messageReactionDeleted: MessageReactionDeleted) = rabbitTemplate.convertAndSend(
+        "chat.events",
+        "chat.message.reaction.deleted.#",
+        messageReactionDeleted
     )
 }

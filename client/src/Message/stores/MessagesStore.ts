@@ -25,11 +25,12 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages" 
             return [message, {}];
         }
 
-        const relationships: RequiredField<RelationshipsIds, "users" | "uploads" | "stickers" | "chatRoles"> = {
+        const relationships: RequiredField<RelationshipsIds, "users" | "uploads" | "stickers" | "chatRoles" | "messageReactions"> = {
             users: [],
             uploads: [],
             stickers: [],
-            chatRoles: []
+            chatRoles: [],
+            messageReactions: []
         };
 
         const [sender, senderRelationships] = this.entities.users.findByIdWithRelationships(message.sender);
@@ -58,6 +59,16 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages" 
         if (senderRole) {
             relationships.chatRoles.push(senderRole.id);
         }
+
+        const messageReactionsIds = Object.keys(message.reactionsCount)
+            .flatMap(emojiId => [...message.reactionsCount[emojiId].lastReactions, message.reactionsCount[emojiId].currentUserReactionId])
+            .filter(isDefined);
+        this.entities.messageReactions.findAllByIdWithRelationships(messageReactionsIds)
+            .forEach(([reaction, reactionRelationships]) => {
+                relationships.messageReactions.push(reaction.id);
+                relationships.users.push(...reactionRelationships.users ?? []);
+                relationships.uploads.push(...reactionRelationships.uploads ?? []);
+            });
 
         mentionedUsersWithRelationships.forEach(([user]) => relationships.users.push(user.id));
         const nestedRelationships = merge(
@@ -150,6 +161,14 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages" 
                     )
                 );
             }
+
+            const reactions = Object.keys(message.reactionsCount)
+                .flatMap(emojiId => [
+                    ...message.reactionsCount[emojiId].lastReactions,
+                    message.reactionsCount[emojiId].currentUserReaction
+                ])
+                .filter(isDefined);
+            patches.push(this.entities.messageReactions.createPatchForArray(reactions));
         });
 
         return mergeWith(patch, ...patches, mergeCustomizer);

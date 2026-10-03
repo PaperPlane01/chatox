@@ -6,7 +6,7 @@ import {EntitiesStore} from "../../entities-store";
 import {AuthorizationStore} from "../../Authorization";
 import {UserChatRolesStore} from "../../ChatRole";
 import {ChatParticipationEntity} from "../../ChatParticipant";
-import {CurrentUser, SendMessagesFeatureData} from "../../api/types/response";
+import {AddReactionsFeatureData, CurrentUser, SendMessagesFeatureData} from "../../api/types/response";
 import {ChatRoleEntity} from "../../ChatRole/types";
 import {isBetween} from "../../utils/number-utils";
 import {isDefined} from "../../utils/object-utils";
@@ -212,6 +212,20 @@ export class MessagePermissions {
         })!;
 
         return currentUserRole.level > senderRole.level;
+    });
+
+    getAddReactionsFeature = computedFn((chatId: string): AddReactionsFeatureData => {
+        if (!this.currentUser) {
+            return {
+                enabled: false,
+                additional: {
+                    allowedEmojis: []
+                }
+            };
+        }
+
+        const chatRole = this.getRoleOfCurrentUserInChat(chatId);
+        return chatRole.features.addReactions;
     });
 
     private canCurrentUserSendMessages = computedFn((chatId: string) => {

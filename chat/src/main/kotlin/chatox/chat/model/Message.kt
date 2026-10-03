@@ -1,12 +1,15 @@
 package chatox.chat.model
 
 import chatox.chat.model.elasticsearch.MessageElasticsearch
+import chatox.platform.text.api.response.EmojiInfo
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.CompoundIndex
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
 
 @Document
+@CompoundIndex(name = "message_reaction_count_emoji_id", def = "{'reactionCount.emojiId': 1}")
 data class Message(
     @Id
     override val id: String,
@@ -52,7 +55,9 @@ data class Message(
     override val forwardedFromDialogChatType: ChatType? = null,
     override val forwardedById: String? = null,
     override val chatParticipationIdInSourceChat: String? = null,
-    override val mentionedUsers: List<String> = listOf()
+    override val mentionedUsers: List<String> = listOf(),
+    override val reactionsCount: List<MessageReactionsCount> = listOf(),
+    override val lastReactions: Map<String, List<MessageReaction>> = mapOf()
 ) : MessageInterface {
     fun toElasticsearch() = MessageElasticsearch(
         id,
@@ -81,6 +86,8 @@ data class Message(
         forwardedFromDialogChatType,
         forwardedById,
         chatParticipationIdInSourceChat,
-        mentionedUsers
+        mentionedUsers,
+        reactionsCount,
+        lastReactions
     )
 }

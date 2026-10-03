@@ -3,6 +3,7 @@ import {BlockUsersFeatureFormStore} from "./BlockUsersFeatureFormStore";
 import {SendMessagesFeatureFormStore} from "./SendMessagesFeatureFormStore";
 import {DefaultChatFeatureFormStore} from "./DefaultChatFeatureFormStore";
 import {LevelBasedChatFeatureFromStore} from "./LevelBasedChatFeatureFromStore";
+import {AddReactionsFeatureFormStore} from "./AddReactionsFeatureFormStore";
 import {EntitiesStore} from "../../entities-store";
 import {ChatFeatures} from "../../api/types/response";
 
@@ -21,7 +22,8 @@ interface FeaturesForms {
     messageDeletionsImmunity: LevelBasedChatFeatureFromStore,
     showRoleNameInMessages: DefaultChatFeatureFormStore,
     pinMessages: DefaultChatFeatureFormStore,
-    deleteChat: DefaultChatFeatureFormStore
+    addReactions: AddReactionsFeatureFormStore,
+    deleteChat: DefaultChatFeatureFormStore,
 }
 
 export class ChatFeaturesFormStore {
@@ -78,6 +80,7 @@ export class ChatFeaturesFormStore {
         return [
             this.featuresForms.blockUsers,
             this.featuresForms.sendMessages,
+            this.featuresForms.addReactions,
             this.featuresForms.kickUsers,
             this.featuresForms.deleteOwnMessages,
             this.featuresForms.deleteOtherUsersMessages,
@@ -110,6 +113,7 @@ export class ChatFeaturesFormStore {
         const showRoleNameInMessages = new DefaultChatFeatureFormStore(entities, "showRoleNameInMessages");
         const pinMessages = new DefaultChatFeatureFormStore(entities, "pinMessages");
         const deleteChat = new DefaultChatFeatureFormStore(entities, "deleteChat");
+        const addReactions = new AddReactionsFeatureFormStore(entities);
 
         return new ChatFeaturesFormStore({
             blockUsers,
@@ -126,7 +130,8 @@ export class ChatFeaturesFormStore {
             messageDeletionsImmunity,
             showRoleNameInMessages,
             pinMessages,
-            deleteChat
+            deleteChat,
+            addReactions
         });
     }
 }

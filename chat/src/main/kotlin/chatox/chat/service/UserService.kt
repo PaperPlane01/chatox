@@ -11,8 +11,10 @@ interface UserService {
         localCache: MutableMap<String, UserResponse>? = null
     ): Mono<UserResponse>
 
+    fun findAllById(ids: Collection<String>): Flux<UserResponse>
+
     fun findAllByIdAndPutInLocalCache(
-        ids: List<String>,
+        ids: Collection<String>,
         localCache: MutableMap<String, UserResponse>? = null
     ): Flux<UserResponse>
 }

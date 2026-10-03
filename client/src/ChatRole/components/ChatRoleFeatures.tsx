@@ -1,6 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Divider} from "@mui/material";
+import {AddReactionsChatFeature} from "./AddReactionsChatFeature";
 import {DefaultChatFeature} from "./DefaultChatFeature";
 import {BlockUsersInChatFeature} from "./BlockUsersInChatFeature";
 import {SendMessagesChatFeature} from "./SendMessagesChatFeature";
@@ -18,6 +19,8 @@ export const ChatRoleFeatures: FunctionComponent<ChatRoleFeaturesProps> = observ
    return (
        <Fragment>
            <SendMessagesChatFeature feature={role.features.sendMessages}/>
+           <Divider/>
+           <AddReactionsChatFeature feature={role.features.addReactions}/>
            <Divider/>
            <DefaultChatFeature name={l("chat.feature.showRoleNameInChat")} feature={role.features.showRoleNameInMessages}/>
            <Divider/>

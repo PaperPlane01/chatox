@@ -1,7 +1,7 @@
 package chatox.chat.service.impl
 
 import chatox.chat.config.CacheWrappersConfig
-import chatox.chat.exception.MessageNotFoundException
+import chatox.chat.exception.metadata.MessageNotFoundException
 import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.messaging.rabbitmq.event.MessageReadEvent
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher

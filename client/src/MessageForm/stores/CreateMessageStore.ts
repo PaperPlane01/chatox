@@ -503,7 +503,8 @@ export class CreateMessageStore extends AbstractMessageFormStore<CreateMessageFo
                 audiosCount: audios.length,
                 index: -1,
                 local: true,
-                forwarded: false
+                forwarded: false,
+                reactionsCount: {}
             };
 
             this.entities.uploads.insertAllEntities(uploads);

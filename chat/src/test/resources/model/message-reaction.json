@@ -1,0 +1,17 @@
+{
+  "id": "6a88a39b5f6e898bcc2d5000",
+  "_class": "chatox.chat.model.MessageReaction",
+  "createdAt": "2026-08-22T19:14:35.044Z",
+  "emoji": {
+    "id": "heart",
+    "name": "Red Heart",
+    "colons": ":heart:",
+    "emoticons": ["<3"],
+    "unified": "2764-fe0f",
+    "native": "❤\uFE0F",
+    "originalSet": "apple"
+  },
+  "emojiId": "heart",
+  "messageId": "f94a526c-3cc9-4954-9cc6-0997072acff1",
+  "userId": "9d588b8f-205c-4123-afa3-2e72af7f00c8"
+}

@@ -1,18 +1,29 @@
-import React, {FunctionComponent, MouseEvent, ReactNode, useState} from "react";
+import React, {
+    Fragment,
+    FunctionComponent,
+    MouseEvent as ReactMouseEvent,
+    ReactNode,
+    useEffect,
+    useRef,
+    useState
+} from "react";
 import {observer} from "mobx-react";
-import {Divider, IconButton, Menu} from "@mui/material";
+import {Divider, IconButton, Menu, useTheme} from "@mui/material";
 import {MoreVert} from "@mui/icons-material";
+import {autoUpdate, flip, FloatingPortal, useFloating} from "@floating-ui/react";
 import {BlockMessageAuthorInChatMenuItem} from "./BlockMessageAuthorInChatMenuItem";
 import {ReplyToMessageMenuItem} from "./ReplyToMessageMenuItem";
 import {EditMessageMenuItem} from "./EditMessageMenuItem";
 import {DeleteMessageMenuItem} from "./DeleteMessageMenuItem";
 import {PinMessageMenuItem} from "./PinMessageMenuItem";
 import {ForwardMessageMenuItem} from "./ForwardMessageMenuItem";
-import {useAuthorization, usePermissions} from "../../store";
+import {MessageReactionPicker} from "../../MessageReaction/components";
+import {useAuthorization, usePermissions, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {BanUserGloballyMenuItem} from "../../GlobalBan";
 import {ReportMessageMenuItem} from "../../Report";
 import {BlacklistUserActionMenuItemWrapper} from "../../Blacklist";
+import {ensureEventWontPropagate} from "../../utils/event-utils";
 
 export type MessageMenuItemType = "blockMessageAuthorInChat"
     | "replyToMessage"
@@ -38,7 +49,8 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
             canCreateMessage,
             canEditMessage,
             canDeleteMessage,
-            canPinMessage
+            canPinMessage,
+            getAddReactionsFeature
         },
         chatBlockings: {
             canBlockUserInChat
@@ -47,14 +59,46 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
             canBanUsersGlobally
         }
     } = usePermissions();
+    const {
+        messageReactionPicker: {
+            isExpanded,
+            collapsePicker
+        }
+    } = useStore();
     const {currentUser} = useAuthorization();
     const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
     const message = useEntityById("messages", messageId);
-
+    const theme = useTheme();
     const menuOpen = Boolean(anchorElement);
+    const expanded = isExpanded(messageId);
+    const {refs, floatingStyles} = useFloating({
+        open: menuOpen,
+        strategy: "fixed",
+        placement: expanded ? "bottom-end" : "top-start",
+        whileElementsMounted: autoUpdate,
+        middleware: [
+            flip({
+                mainAxis: true,
+                crossAxis: true,
+                fallbackStrategy: "bestFit"
+            })
+        ]
+    });
+    const iconButtonRef = useRef<HTMLButtonElement>(null);
+    const menuPaperRef = useRef<HTMLDivElement>(null);
 
-    const handleOpenClick = (event: MouseEvent<HTMLElement>): void => {
+    useEffect(() => {
+        if (expanded) {
+            refs.setReference(iconButtonRef.current);
+            setAnchorElement(null);
+        } else if (menuOpen) {
+            refs.setReference(menuPaperRef.current);
+        }
+    }, [expanded, menuOpen]);
+
+    const handleOpenClick = (event: ReactMouseEvent<HTMLElement>): void => {
         setAnchorElement(event.currentTarget);
+        refs.setReference(event.currentTarget);
     };
 
     const handleClose = (menuItemType?: MessageMenuItemType) => (): void => {
@@ -63,6 +107,8 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
         }
 
         setAnchorElement(null);
+        refs.setReference(null);
+        collapsePicker();
     };
 
     const menuItems: ReactNode[] = [];
@@ -73,32 +119,36 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
 
     if (canCreateMessage(message.chatId)) {
         menuItems.push(
-            <ReplyToMessageMenuItem messageId={messageId}
-                                    onClick={handleClose("replyToMessage")}
+            <ReplyToMessageMenuItem
+                messageId={messageId}
+                onClick={handleClose("replyToMessage")}
             />
         );
     }
 
     if (currentUser) {
         menuItems.push(
-            <ForwardMessageMenuItem messageId={messageId}
-                                    onClick={handleClose("forwardMessage")}
+            <ForwardMessageMenuItem
+                messageId={messageId}
+                onClick={handleClose("forwardMessage")}
             />
-        )
+        );
     }
 
     if (canDeleteMessage(message)) {
         menuItems.push(
-            <DeleteMessageMenuItem messageId={messageId}
-                                   onClick={handleClose("deleteMessage")}
+            <DeleteMessageMenuItem
+                messageId={messageId}
+                onClick={handleClose("deleteMessage")}
             />
         );
     }
 
     if (canBlockUserInChat(message.chatId, message.sender)) {
         menuItems.push(
-            <BlockMessageAuthorInChatMenuItem onClick={handleClose("blockMessageAuthorInChat")}
-                                              messageId={messageId}
+            <BlockMessageAuthorInChatMenuItem
+                onClick={handleClose("blockMessageAuthorInChat")}
+                messageId={messageId}
             />
         );
     }
@@ -107,24 +157,31 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
         menuItems.push(<PinMessageMenuItem messageId={messageId} onClick={handleClose("pinMessage")}/>);
     }
 
-    if (canBanUsersGlobally) {
-        menuItems.push(<Divider/>);
+    if (canBanUsersGlobally && message.sender !== currentUser?.id) {
         menuItems.push(
-            <BanUserGloballyMenuItem userId={message.sender}
-                                     onClick={handleClose("banUserGlobally")}
+            <Divider/>,
+            <BanUserGloballyMenuItem
+                userId={message.sender}
+                onClick={handleClose("banUserGlobally")}
             />
         );
     }
 
-    if (!message.deleted) {
-        menuItems.push(<Divider/>);
-        menuItems.push(<ReportMessageMenuItem messageId={messageId} onClick={handleClose("reportMessage")}/>);
+    if (!message.deleted && message.sender !== currentUser?.id) {
+        menuItems.push(
+            <Divider/>,
+            <ReportMessageMenuItem
+                messageId={messageId}
+                onClick={handleClose("reportMessage")}
+            />
+        );
     }
 
-    if (currentUser) {
+    if (currentUser && message.sender !== currentUser.id) {
         menuItems.push(
-            <BlacklistUserActionMenuItemWrapper userId={message.sender}
-                                                onClick={handleClose("blacklistOrRemoveFromBlacklist")}
+            <BlacklistUserActionMenuItemWrapper
+                userId={message.sender}
+                onClick={handleClose("blacklistOrRemoveFromBlacklist")}
             />
         );
     }
@@ -133,19 +190,59 @@ export const MessageMenu: FunctionComponent<MessageMenuProps> = observer(({
         return null;
     }
 
+    const {
+        enabled: canAddReactions,
+        additional: {
+            allowedEmojis
+        }
+    } = getAddReactionsFeature(message.chatId);
+
     return (
-        <div>
-            <IconButton onClick={handleOpenClick}
-                        size="small"
+        <Fragment>
+            <IconButton
+                onClick={handleOpenClick}
+                size="small"
+                ref={ref => {
+                    if (expanded) {
+                        refs.setReference(ref);
+                    }
+                }}
             >
                 <MoreVert/>
             </IconButton>
-            <Menu open={menuOpen}
-                  onClose={handleClose()}
-                  anchorEl={anchorElement}
+            <Menu
+                open={menuOpen}
+                anchorEl={anchorElement}
+                onClose={handleClose()}
+                slotProps={{
+                    paper: {
+                        ref: (ref: HTMLDivElement | null) => {
+                            if (!expanded) {
+                                refs.setReference(ref)
+                            }
+                        }
+                      }
+                  }}
             >
-                {menuItems}
+                {!expanded && menuItems}
             </Menu>
-        </div>
+            {canAddReactions && (menuOpen || expanded) && (
+                <FloatingPortal>
+                    <div style={{
+                        ...floatingStyles,
+                        zIndex: theme.zIndex.modal + 1
+                    }}
+                         ref={refs.setFloating}
+                    >
+                        <MessageReactionPicker
+                            messageId={messageId}
+                            allowedEmojis={allowedEmojis}
+                            onEmojiPicked={handleClose()}
+                            onClose={handleClose()}
+                        />
+                    </div>
+                </FloatingPortal>
+            )}
+        </Fragment>
     );
 });

@@ -11,3 +11,5 @@ export * from "./PrivateChatCreated";
 export * from "./BalanceUpdated";
 export * from "./UserStartedTyping";
 export * from "./DraftMessageDeleted";
+export * from "./MessageReactionAdded";
+export * from "./MessageReactionDeleted";
