@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {AvatarGroup} from "@mui/material";
-import {MessageReactionUserAvatar} from "./MessageReactionUserAvatar";
+import {UserAvatar} from "../../UserAvatar/components";
 
 interface MessageReactionUserAvatarsProps {
     userIds: string[]
@@ -12,9 +12,11 @@ export const MessageReactionUserAvatars: FunctionComponent<MessageReactionUserAv
 }) => (
     <AvatarGroup spacing="small">
         {userIds.map(userId => (
-            <MessageReactionUserAvatar
-                userId={userId}
+            <UserAvatar
                 key={userId}
+                userId={userId}
+                width={20}
+                height={20}
             />
         ))}
     </AvatarGroup>
