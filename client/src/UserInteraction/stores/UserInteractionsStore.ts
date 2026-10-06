@@ -11,9 +11,7 @@ export class UserInteractionsStore extends AbstractEntityStore<"userInteractions
         const patches: EntitiesPatch[] = [];
 
         denormalizedEntities.forEach(userInteraction => {
-            patch.ids.userInteractions.push(userInteraction.id);
-            patch.entities.userInteractions[userInteraction.id] = this.convertToNormalizedForm(userInteraction);
-
+            patch.entities.userInteractions.set(userInteraction.id, this.convertToNormalizedForm(userInteraction));
             patches.push(this.entities.users.createPatch(userInteraction.user));
         });
 

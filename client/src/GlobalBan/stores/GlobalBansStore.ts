@@ -29,8 +29,7 @@ export class GlobalBansStore extends AbstractEntityStore<"globalBans", GlobalBan
         const patches: EntitiesPatch[] = [];
 
         denormalizedEntities.forEach(globalBan => {
-            patch.entities.globalBans[globalBan.id] = this.convertToNormalizedForm(globalBan);
-            patch.ids.globalBans.push(globalBan.id);
+            patch.entities.globalBans.set(globalBan.id, this.convertToNormalizedForm(globalBan));
 
             const users = [
                 globalBan.createdBy,

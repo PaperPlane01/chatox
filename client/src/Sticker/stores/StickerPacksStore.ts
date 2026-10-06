@@ -24,8 +24,7 @@ export class StickerPacksStore extends AbstractEntityStore<"stickerPacks", Stick
         const patch = this.createEmptyEntitiesPatch("stickerPacks");
 
         denormalizedEntities.forEach(stickerPack => {
-            patch.entities.stickerPacks[stickerPack.id] = this.convertToNormalizedForm(stickerPack);
-            patch.ids.stickerPacks.push(stickerPack.id);
+            patch.entities.stickerPacks.set(stickerPack.id, this.convertToNormalizedForm(stickerPack));
             patches.push(this.entities.stickers.createPatchForArray(stickerPack.stickers));
         });
 

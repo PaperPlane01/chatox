@@ -1,11 +1,11 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Grid, CircularProgress, Typography} from "@mui/material";
+import {CircularProgress, Grid, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {CreateRewardButton} from "./CreateRewardButton";
 import {RewardCard} from "./RewardCard";
 import {ShowActiveRewardsOnlySwitch} from "./ShowActiveRewardsOnlySwitch";
-import {useStore, useLocalization} from "../../store";
+import {useLocalization, useStore} from "../../store";
 import {commonStyles} from "../../style";
 
 const useStyles = makeStyles()(() => ({

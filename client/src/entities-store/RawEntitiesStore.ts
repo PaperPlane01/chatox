@@ -1,17 +1,10 @@
-import {makeAutoObservable} from "mobx";
-import {mergeWith, union, unionBy} from "lodash";
-import {
-    Entities,
-    EntitiesIds,
-    EntitiesPatch,
-    GetEntityMapType,
-    GetEntityType,
-    PersistentEntities,
-    RawEntities
-} from "./types";
+import {makeAutoObservable, observable} from "mobx";
+import {mergeWith, unionBy} from "lodash";
+import {Entities, EntitiesPatch, GetEntityType, PersistentEntities, RawEntities} from "./types";
 import {Repositories} from "../repositories";
 import {isDefined} from "../utils/object-utils";
 import {KeyOfType} from "../utils/types";
+import {BaseEntity} from "../entity-store";
 
 type DateFieldsMap = {
     [EntityName in PersistentEntities]?: Array<KeyOfType<GetEntityType<EntityName>, Date | null | undefined>>
@@ -28,61 +21,32 @@ const ENTITIES_WITH_SERIALIZABLE_DATE_FIELDS = new Set(Object.keys(SERIALIZABLE_
 
 export class RawEntitiesStore {
     entities: RawEntities = {
-        messages: {},
-        chats: {},
-        users: {},
-        chatParticipations: {},
-        chatBlockings: {},
-        uploads: {},
-        chatUploads: {},
-        globalBans: {},
-        scheduledMessages: {},
-        reports: {},
-        reportedMessages: {},
-        reportedMessageSenders: {},
-        reportedUsers: {},
-        reportedChats: {},
-        stickers: {},
-        stickerPacks: {},
-        chatRoles: {},
-        rewards: {},
-        userRewards: {},
-        userInteractions: {},
-        userProfilePhotos: {},
-        chatInvites: {},
-        pendingChatParticipations: {},
-        draftMessages: {},
-        stickerAnimationData: {},
-        messageReactions: {}
-    };
-
-    ids: EntitiesIds = {
-        messages: [],
-        chats: [],
-        users: [],
-        chatParticipations: [],
-        chatBlockings: [],
-        uploads: [],
-        chatUploads: [],
-        globalBans: [],
-        scheduledMessages: [],
-        reports: [],
-        reportedMessages: [],
-        reportedMessageSenders: [],
-        reportedUsers: [],
-        reportedChats: [],
-        stickers: [],
-        stickerPacks: [],
-        chatRoles: [],
-        rewards: [],
-        userRewards: [],
-        userInteractions: [],
-        userProfilePhotos: [],
-        chatInvites: [],
-        pendingChatParticipations: [],
-        draftMessages: [],
-        stickerAnimationData: [],
-        messageReactions: []
+        messages: observable.map(),
+        chats: observable.map(),
+        users: observable.map(),
+        chatParticipations: observable.map(),
+        chatBlockings: observable.map(),
+        uploads: observable.map(),
+        chatUploads: observable.map(),
+        globalBans: observable.map(),
+        scheduledMessages: observable.map(),
+        reports: observable.map(),
+        reportedMessages: observable.map(),
+        reportedMessageSenders: observable.map(),
+        reportedUsers: observable.map(),
+        reportedChats: observable.map(),
+        stickers: observable.map(),
+        stickerPacks: observable.map(),
+        chatRoles: observable.map(),
+        rewards: observable.map(),
+        userRewards: observable.map(),
+        userInteractions: observable.map(),
+        userProfilePhotos: observable.map(),
+        chatInvites: observable.map(),
+        pendingChatParticipations: observable.map(),
+        draftMessages: observable.map(),
+        stickerAnimationData: observable.map(),
+        messageReactions: observable.map()
     };
 
     constructor(private readonly repositories: Repositories) {
@@ -90,15 +54,22 @@ export class RawEntitiesStore {
     }
 
     applyPatch(patch: EntitiesPatch, skipInsertingToDatabase: boolean = false, priority: "high" | "low" = "high"): void {
-        if (priority === "high") {
-            mergeWith(this.entities, patch.entities, this.ensureIdUniqueness);
-        } else {
-            this.entities = mergeWith({}, patch.entities, this.entities, this.ensureIdUniqueness);
-        }
+        Object.keys(patch.entities).forEach(key => {
+            const entityName = key as Entities;
+            const updates: Map<string, BaseEntity> = patch.entities[entityName]!;
+            const currentEntities: Map<string, BaseEntity> = this.entities[entityName];
 
-        Object.keys(patch.ids).forEach(key => {
-            const entity = key as Entities;
-            this.ids[entity] = union(this.ids[entity], patch.ids[entity]);
+            updates.forEach((entity, id) => {
+                const existingEntity = currentEntities.get(id);
+
+                if (!existingEntity) {
+                    currentEntities.set(id, entity);
+                } else if (priority === "high") {
+                    currentEntities.set(id, mergeWith(existingEntity, entity, this.ensureIdUniqueness));
+                } else {
+                    currentEntities.set(id, mergeWith(entity, existingEntity, this.ensureIdUniqueness));
+                }
+            });
         });
 
         if (!skipInsertingToDatabase) {
@@ -112,7 +83,7 @@ export class RawEntitiesStore {
         }
     }
 
-    private async insertEntitiesToDatabase(entities: Partial<RawEntities>): Promise<void> {
+    private async insertEntitiesToDatabase(entities: Partial<EntitiesPatch["entities"]>): Promise<void> {
         const entityNames = Object.keys(entities) as any as PersistentEntities[];
         const inserts: Array<Promise<any>> = [];
 
@@ -120,7 +91,7 @@ export class RawEntitiesStore {
             const repository = this.repositories.getRepository(entityName);
 
             if (repository) {
-                const entityMap = entities[entityName]!;
+                const entityMap = entities[entityName as PersistentEntities]! as unknown as Map<string, GetEntityType<PersistentEntities>>;
                 const entitiesArray = this.collectEntities(entityName, entityMap);
                 inserts.push(repository.bulkUpsert(entitiesArray as []));
             }
@@ -131,14 +102,14 @@ export class RawEntitiesStore {
 
     private collectEntities<EntityName extends PersistentEntities>(
         entityName: EntityName,
-        entityMap: GetEntityMapType<EntityName>
+        entityMap: Map<string, GetEntityType<EntityName>>
     ): Array<GetEntityType<EntityName>> {
         const array: Array<GetEntityType<EntityName>> = [];
-        Object.values(entityMap).forEach(entity => array.push(this.serialize(entityName, entity)));
+        entityMap.forEach(value => array.push(this.serialize(entityName, value)))
         return array;
     }
 
-    private serialize<T extends object>(entityName: PersistentEntities, obj: T): T {
+    private serialize<E extends PersistentEntities, T extends GetEntityType<E>>(entityName: E, obj: T): T {
         if (!ENTITIES_WITH_SERIALIZABLE_DATE_FIELDS.has(entityName)) {
             return JSON.parse(JSON.stringify(obj));
         }
@@ -161,9 +132,8 @@ export class RawEntitiesStore {
         return serialized;
     }
 
-    deleteEntity(entityName: Entities, id: string, skipRemovingFromDatabase: boolean = false) {
-        this.ids[entityName] = this.ids[entityName].filter(entityId => entityId !== id);
-        delete this.entities[entityName][id];
+    deleteEntity(entityName: Entities, id: string, skipRemovingFromDatabase: boolean = false): void {
+        this.entities[entityName].delete(id);
 
         if (!skipRemovingFromDatabase) {
             const repository = this.repositories.getRepository(entityName);

@@ -45,8 +45,7 @@ export class StickersStore extends AbstractEntityStore<"stickers", StickerEntity
 
         denormalizedEntities.forEach(sticker => {
             const stickerEntity = this.convertToNormalizedForm(sticker);
-            patch.entities.stickers[stickerEntity.id] = stickerEntity;
-            patch.ids.stickers.push(stickerEntity.id);
+            patch.entities.stickers.set(stickerEntity.id, stickerEntity);
             patches.push(this.entities.uploads.createPatch(sticker.upload));
         });
 

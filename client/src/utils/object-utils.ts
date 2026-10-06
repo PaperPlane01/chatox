@@ -1,4 +1,4 @@
-import {union} from "lodash";
+import {mergeWith, union} from "lodash";
 
 export const countNotUndefinedValues = <T extends object>(object: T, stopAfterFirst: boolean = false): number => {
     let notUndefinedValues = 0;
@@ -27,6 +27,11 @@ export const isPromise = <T>(value: any): value is Promise<T> => Boolean(value &
 export const mergeCustomizer = (object: unknown, source: unknown): unknown => {
     if (Array.isArray(object)) {
         return union(object, source as Array<any>);
+    }
+
+    if (object instanceof Map && source instanceof Map) {
+        source.forEach((value, key) => object.set(key, mergeWith(object.get(key), value, mergeCustomizer)));
+        return object;
     }
 }
 

@@ -24,11 +24,11 @@ export abstract class SoftDeletableEntityStore<
         super(rawEntities, entityName, entities);
     }
 
-    deleteAllById(ids: string[], options?: EntityDeletionOptions): void {
+    deleteAllById(ids: Iterable<string>, options?: EntityDeletionOptions): void {
         const hardDelete = options?.hardDelete ?? false;
 
         if (hardDelete) {
-            ids.forEach(id => this.rawEntities.deleteEntity(this.entityName, id));
+            super.deleteAllById(ids, options);
         } else {
             const entities = this.findAllById(ids);
             entities.forEach(entity => entity.deleted = true);

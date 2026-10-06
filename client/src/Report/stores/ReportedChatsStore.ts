@@ -25,8 +25,7 @@ export class ReportedChatsStore extends AbstractEntityStore<"reportedChats", Cha
 
         denormalizedEntities.forEach(reportedChat => {
             const entity = this.convertToNormalizedForm(reportedChat);
-            patch.entities.reportedChats[reportedChat.id] = entity;
-            patch.ids.reportedChats.push(entity.id);
+            patch.entities.reportedChats.set(reportedChat.id, entity);
 
             if (reportedChat.avatar) {
                 patches.push(this.entities.uploads.createPatch(reportedChat.avatar));
