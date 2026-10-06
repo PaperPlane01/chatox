@@ -17,7 +17,6 @@ import {MessageSticker} from "./MessageSticker";
 import {SelectMessageForForwardingRadioButton} from "./SelectMessageForForwardingRadioButton";
 import {FindMessageFunction, FindMessageSenderFunction} from "../types";
 import {useMessageById, useMessageSenderById} from "../hooks";
-import {Avatar} from "../../Avatar/components";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
@@ -30,8 +29,9 @@ import {commonStyles} from "../../style";
 import {UploadType} from "../../api/types/response";
 import {isDefined} from "../../utils/object-utils";
 import {getCreatedAtLabel} from "../../utils/date-utils";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {getUserDisplayedName} from "../../User/utils/labels";
 import {MessageReactionButton} from "../../MessageReaction/components";
+import {UserAvatar} from "../../UserAvatar/components";
 
 type MenuItemClickCallback = (menuItemType: MessageMenuItemType | ScheduledMessageMenuItemType) => void;
 
@@ -275,7 +275,6 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
         : getScheduledAtLabel(message.scheduledAt!, dateFnsLocale, l);
     const senderChatRole = useEntityById("chatRoles", message.senderRoleId);
     const color = randomColor({seed: sender.id, luminosity});
-    const avatarLetter = getUserAvatarLabel(sender);
     const senderName = getUserDisplayedName(sender);
     const sentByCurrentUser = currentUser && isDefined(message.forwardedById)
         ? message.forwardedById === currentUser.id
@@ -342,11 +341,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                           route={Routes.userPage}
                           params={{slug: sender.slug ?? sender.id}}
                     >
-                        <Avatar avatarLetter={avatarLetter}
-                                avatarColor={color}
-                                avatarId={sender.avatarId}
-                                avatarUri={sender.externalAvatarUri}
-                        />
+                        <UserAvatar user={sender}/>
                     </Link>
                 )
             }

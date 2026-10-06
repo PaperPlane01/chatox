@@ -2,15 +2,13 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CardHeader, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import randomColor from "randomcolor";
 import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
 import {TypingIndicator} from "../../Chat/components";
-import {Avatar} from "../../Avatar/components";
-import {getOnlineOrLastSeenLabel, getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {getOnlineOrLastSeenLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {trimString} from "../../utils/string-utils";
-import {useLuminosity} from "../../utils/hooks";
+import {UserAvatar} from "../../UserAvatar/components";
 
 interface DialogChatAppBarContentProps {
     chatId: string
@@ -39,7 +37,6 @@ export const DialogChatAppBarContent: FunctionComponent<DialogChatAppBarContentP
     const onSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
     const chat = useEntityById("chats", showInput ? undefined : chatId);
     const user = useEntityById("users", chat?.userId);
-    const luminosity = useLuminosity();
 
     if (showInput) {
         return <ChatAppBarSearchInput/>;
@@ -77,11 +74,7 @@ export const DialogChatAppBarContent: FunctionComponent<DialogChatAppBarContentP
                         subheader={chatSubheader}
                         avatar={(
                             <div>
-                                <Avatar avatarLetter={getUserAvatarLabel(user)}
-                                        avatarColor={randomColor({seed: user.id, luminosity})}
-                                        avatarUri={user.externalAvatarUri}
-                                        avatarId={user.avatarId}
-                                />
+                                <UserAvatar user={user}/>
                             </div>
                         )}
                         style={{

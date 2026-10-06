@@ -1,16 +1,14 @@
-import React, {FunctionComponent, useCallback, MouseEvent} from "react";
+import React, {FunctionComponent, MouseEvent, useCallback} from "react";
 import {observer} from "mobx-react";
-import {ListItem, ListItemAvatar, ListItemText, IconButton, Tooltip, useTheme} from "@mui/material";
+import {IconButton, ListItem, ListItemAvatar, ListItemText, Tooltip, useTheme} from "@mui/material";
 import {Delete} from "@mui/icons-material";
-import randomColor from "randomcolor";
 import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
-import {Avatar} from "../../Avatar/components";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {useLuminosity} from "../../utils/hooks";
+import {getUserDisplayedName} from "../../User/utils/labels";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 import {Labels} from "../../localization";
 import {NotificationLevel} from "../../api/types/response";
+import {UserAvatar} from "../../UserAvatar/components";
 
 interface UserNotificationExceptionProps {
 	chatId: string,
@@ -41,8 +39,6 @@ export const UserNotificationException: FunctionComponent<UserNotificationExcept
 	} = useStore();
 	const {l} = useLocalization();
 	const user = useEntityById("users", userId);
-	const luminosity = useLuminosity();
-	const avatarColor = randomColor({seed: user.id, luminosity});
 	const theme = useTheme();
 	const settings = getNotificationsSettingsForUserInChat(chatId, userId);
 
@@ -81,10 +77,7 @@ export const UserNotificationException: FunctionComponent<UserNotificationExcept
 				  style={{cursor: "pointer"}}
 		>
 			<ListItemAvatar>
-				<Avatar avatarLetter={getUserAvatarLabel(user)}
-						avatarColor={avatarColor}
-						avatarId={user.avatarId}
-				/>
+                <UserAvatar user={user}/>
 			</ListItemAvatar>
 			<ListItemText primary={getUserDisplayedName(user)}
 						  secondary={settingsLabel}
