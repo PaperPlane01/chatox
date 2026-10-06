@@ -1,5 +1,5 @@
 import {action, computed, makeObservable, observable, reaction, runInAction} from "mobx";
-import {throttle} from "lodash";
+import {throttle} from "lodash-es";
 import type {ChatStore} from "./ChatStore";
 import {ChatOfCurrentUserEntity, TagErrorsMap, UpdateChatFormData} from "../types";
 import {

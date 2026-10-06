@@ -1,5 +1,5 @@
 import {makeAutoObservable, observable} from "mobx";
-import {mergeWith, unionBy} from "lodash";
+import {mergeWith, unionBy} from "lodash-es";
 import {Entities, EntitiesPatch, GetEntityType, PersistentEntities, RawEntities} from "./types";
 import {Repositories} from "../repositories";
 import {isDefined} from "../utils/object-utils";

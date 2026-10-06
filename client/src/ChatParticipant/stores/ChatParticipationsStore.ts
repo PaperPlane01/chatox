@@ -1,6 +1,6 @@
 import {computed, makeObservable} from "mobx";
 import {computedFn, createTransformer} from "mobx-utils";
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {ChatParticipationEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";

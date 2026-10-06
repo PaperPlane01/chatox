@@ -1,4 +1,4 @@
-import {debounce} from "lodash";
+import {debounce} from "lodash-es";
 
 export const debounceAsync = <
 	F extends (...args: any[]) => Promise<any>

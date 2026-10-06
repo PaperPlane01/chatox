@@ -1,5 +1,5 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {debounce} from "lodash";
+import {debounce} from "lodash-es";
 import type {ChatsAndMessagesSearchQueryStore} from "./ChatsAndMessagesSearchQueryStore";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import type {EntitiesStore} from "../../entities-store";

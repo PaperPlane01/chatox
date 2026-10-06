@@ -1,4 +1,4 @@
-import {merge, mergeWith, uniq} from "lodash";
+import {merge, mergeWith, uniq} from "lodash-es";
 import {MessageInsertOptions} from "../types";
 import {convertMessageToNormalizedForm} from "../utils";
 import {SoftDeletableEntityStore} from "../../entity-store";

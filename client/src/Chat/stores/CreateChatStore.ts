@@ -1,5 +1,5 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {throttle} from "lodash";
+import {throttle} from "lodash-es";
 import {CreateChatFormData, TagErrorsMapContainer} from "../types";
 import {
     validateChatDescription,

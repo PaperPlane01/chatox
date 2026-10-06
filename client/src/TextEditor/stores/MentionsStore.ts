@@ -1,6 +1,6 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
-import {uniqBy} from "lodash";
+import {uniqBy} from "lodash-es";
 import {MentionItem} from "../types";
 import type {EntitiesStore} from "../../entities-store";
 import type {ChatsOfCurrentUserStore, ChatStore} from "../../Chat/stores";

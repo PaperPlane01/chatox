@@ -1,5 +1,5 @@
 import {makeAutoObservable, reaction} from "mobx";
-import {throttle} from "lodash";
+import {throttle} from "lodash-es";
 import type {SendConfirmationCodeStore} from "./SendConfirmationCodeStore";
 import type {RegistrationDialogStore} from "./RegistrationDialogStore";
 import {

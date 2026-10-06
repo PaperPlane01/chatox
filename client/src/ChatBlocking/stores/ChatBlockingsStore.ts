@@ -1,6 +1,6 @@
 import {action, computed, makeObservable} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {ChatBlockingEntity, ChatBlockingSortableProperties} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {ChatBlocking, CurrentUser} from "../../api/types/response";

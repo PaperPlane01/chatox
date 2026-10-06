@@ -2,7 +2,7 @@ import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Dialog, DialogActions, DialogContent} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import {noop} from "lodash";
+import {noop} from "lodash-es";
 import {EditableStickerPreview} from "./EditableStickerPreview";
 import {StickerEmojiPickerDialog} from "./StickerEmojiPickerDialog";
 import {StickerUpload} from "./StickerUpload";

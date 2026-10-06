@@ -1,5 +1,5 @@
 import {makeAutoObservable, reaction} from "mobx";
-import {throttle} from "lodash";
+import {throttle} from "lodash-es";
 import type {RegistrationDialogStore} from "./RegistrationDialogStore";
 import {validateEmail} from "../validation";
 import {RegistrationStep, SendVerificationEmailFormData} from "../types";

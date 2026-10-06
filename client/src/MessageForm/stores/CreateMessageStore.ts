@@ -1,7 +1,7 @@
 import {action, computed, makeObservable, observable, reaction} from "mobx";
 import {computedFn} from "mobx-utils";
 import {RouterStore} from "mobx-router";
-import {debounce} from "lodash";
+import {debounce} from "lodash-es";
 import {v4} from "uuid";
 import {AbstractMessageFormStore} from "./AbstractMessageFormStore";
 import type {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";

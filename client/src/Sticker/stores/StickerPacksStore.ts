@@ -1,4 +1,4 @@
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {StickerPackEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {StickerPack} from "../../api/types/response";

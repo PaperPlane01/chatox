@@ -1,4 +1,4 @@
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {UserProfilePhotoEntity} from "../types";
 import {UserProfilePhoto} from "../../api/types/response";
 import {AbstractEntityStore} from "../../entity-store";

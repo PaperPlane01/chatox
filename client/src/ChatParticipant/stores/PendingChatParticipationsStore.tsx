@@ -1,4 +1,4 @@
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {PendingChatParticipationEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {PendingChatParticipant} from "../../api/types/response";

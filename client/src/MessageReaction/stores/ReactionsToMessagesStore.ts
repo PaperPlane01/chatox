@@ -1,7 +1,7 @@
 import {makeAutoObservable, observable, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
 import {EmojiData} from "emoji-mart";
-import {orderBy, last} from "lodash";
+import {orderBy, last} from "lodash-es";
 import {MessageReactionEntity} from "../types";
 import {createMessageEmojiKey} from "../utils";
 import {MessageReactionRepository} from "../repositories";

@@ -1,5 +1,5 @@
 import {makeObservable, observable, ObservableSet, override} from "mobx";
-import {mergeWith, orderBy} from "lodash";
+import {mergeWith, orderBy} from "lodash-es";
 import {MessageReactionEntity} from "../types";
 import {createMessageEmojiKey} from "../utils";
 import {MessageReaction} from "../../api/types/response";

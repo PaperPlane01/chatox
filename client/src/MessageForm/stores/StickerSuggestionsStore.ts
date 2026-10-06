@@ -1,5 +1,5 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {unionBy} from "lodash";
+import {unionBy} from "lodash-es";
 import {EmojiData, getEmojiDataFromNative} from "emoji-mart";
 import type {CreateMessageStore} from "./CreateMessageStore";
 import {StickerEntity} from "../../Sticker/types";

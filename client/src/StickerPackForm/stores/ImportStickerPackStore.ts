@@ -1,6 +1,6 @@
 import {makeAutoObservable} from "mobx";
 import {proxy, transfer} from "comlink";
-import {chunk} from "lodash";
+import {chunk} from "lodash-es";
 import type {CreateStickerPackStore} from "./CreateStickerPackStore";
 import {StickerContainer} from "./StickerContainer";
 import {STICKER_PACK_MAX_SIZE} from "../constants";

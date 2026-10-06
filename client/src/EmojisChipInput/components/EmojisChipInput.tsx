@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Dialog, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {Close} from "@mui/icons-material";
 import {EmojiData} from "emoji-mart";
-import {noop} from "lodash";
+import {noop} from "lodash-es";
 import {ChipInput} from "../../ChipInput/components";
 import {EmojiPicker} from "../../EmojiPicker/components";
 import {useSelectedEmojiSet} from "../../Emoji/hooks";

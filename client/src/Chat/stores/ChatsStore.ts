@@ -1,6 +1,6 @@
 import {action, computed, makeObservable, observable, override} from "mobx";
 import {computedFn} from "mobx-utils";
-import {mergeWith, uniq} from "lodash";
+import {mergeWith, uniq} from "lodash-es";
 import {ChatOfCurrentUserEntity} from "../types";
 import {EntityDeletionOptions, SoftDeletableEntityStore} from "../../entity-store";
 import {
