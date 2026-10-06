@@ -4,7 +4,7 @@ import {Button, Card, CardActions, CardContent, CardHeader, Chip, CircularProgre
 import randomColor from "randomcolor";
 import {ConfirmationTokenDialog} from "../../ConfirmationToken/components";
 import {BaseSettingsTabProps} from "../../utils/types";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {ChatParticipantsAutoComplete} from "../../ChatParticipant/components";
 import {useEntityById} from "../../entities";
 import {Avatar} from "../../Avatar/components";

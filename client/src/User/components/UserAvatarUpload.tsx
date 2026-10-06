@@ -4,7 +4,7 @@ import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {getUserAvatarLabel} from "../utils/labels";
 import {AvatarUpload} from "../../Upload/components";
-import {useAuthorization, useStore} from "../../store";
+import {useAuthorization, useStore} from "../../store/hooks";
 import {commonStyles} from "../../style";
 
 const useStyles = makeStyles()(() => ({

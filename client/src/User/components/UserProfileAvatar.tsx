@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {Avatar} from "../../Avatar/components";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {isDefined} from "../../utils/object-utils";
 import {getUserAvatarLabel} from "../utils/labels";

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {MessageReactionsCountButton} from "./MessageReactionsCountButton";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 interface MessageReactionButtonProps {
     messageId: string,

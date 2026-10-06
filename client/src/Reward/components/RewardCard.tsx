@@ -6,7 +6,7 @@ import {format} from "date-fns";
 import {EditRewardButton} from "./EditRewardButton";
 import {RewardProperty} from "./RewardProperty";
 import {UserLink} from "../../UserLink/components";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {isStringEmpty} from "../../utils/string-utils";
 import {Labels} from "../../localization";

@@ -6,7 +6,7 @@ import {makeStyles} from 'tss-react/mui';
 import randomColor from "randomcolor";
 import {JoinChatRequestMenu} from "./JoinChatRequestMenu";
 import {Avatar} from "../../Avatar/components";
-import {useRouter, useStore} from "../../store";
+import {useRouter, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";

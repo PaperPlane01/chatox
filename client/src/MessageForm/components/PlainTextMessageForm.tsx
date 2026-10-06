@@ -9,7 +9,7 @@ import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton
 import {RecordVoiceMessageButton} from "./RecordVoiceMessageButton";
 import {MessageFormData} from "../types";
 import {EmojiAndStickerPicker, EmojiPickerContainer} from "../../EmojiPicker/components";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {SendMessageButton as SendMessageButtonType} from "../../Chat/types";
 import {ClaimRewardButton} from "../../Reward/components";
 import {Countdown} from "../../Countdown/components";

@@ -4,7 +4,7 @@ import {Close, KeyboardVoice, Pause} from "@mui/icons-material";
 import {IconButton, Typography} from "@mui/material";
 import {SendMessageButton} from "./SendMessageButton";
 import {AudioPlayerControls} from "../../AudioPlayer/components";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {UploadType} from "../../api/types/response";
 
 const POSTFIX_MAX_LENGTH = 6;

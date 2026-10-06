@@ -12,7 +12,7 @@ import {
     Typography
 } from "@mui/material";
 import {HttpStatusCode} from "axios";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {ChatAvatarUpload} from "../../Chat/components";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown/components";
 import {ChipInput} from "../../ChipInput/components";

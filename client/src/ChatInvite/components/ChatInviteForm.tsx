@@ -4,7 +4,7 @@ import {FormControlLabel, Switch, TextField, Typography} from "@mui/material";
 import {DateTimePicker} from "@mui/x-date-pickers";
 import {ChatInviteFormData} from "../types";
 import {JoinChatAllowanceForm} from "../../JoinChatAllowanceForm/components";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {FormErrors} from "../../utils/types";
 import {JoinChatAllowance, UserVerificationLevel} from "../../api/types/response";
 

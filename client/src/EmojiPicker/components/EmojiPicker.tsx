@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {useMediaQuery, useTheme} from "@mui/material";
 import {EmojiData} from "emoji-mart";
 import {EmojiMartPicker} from "./EmojiMartPicker";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 interface EmojiPickerProps {
 	onEmojiPicked: (emoji: EmojiData) => void

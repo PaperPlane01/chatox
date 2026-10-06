@@ -10,7 +10,7 @@ import {getChatLinkProps} from "../utils";
 import {ChatLinkPropsGenerationStrategy} from "../types";
 import {useChatName} from "../hooks";
 import {commonStyles} from "../../style";
-import {useRouter, useStore} from "../../store";
+import {useRouter, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 
 interface ChatsOfCurrentUserListItemProps {

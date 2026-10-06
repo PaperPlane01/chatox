@@ -4,7 +4,7 @@ import {ListItemAvatar, ListItemText, MenuItem} from "@mui/material";
 import randomColor from "randomcolor";
 import {Avatar} from "../../Avatar/components";
 import {getUserAvatarLabel} from "../../User/utils/labels";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 
 interface ChatBlockingsListItemProps {

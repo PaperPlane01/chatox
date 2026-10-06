@@ -5,7 +5,7 @@ import {AppBar} from "../AppBar/components";
 import {CreateStickerPackForm} from "../StickerPackForm/components";
 import {HasRole} from "../Authorization/components";
 import {Layout} from "../Layout/components";
-import {useLocalization} from "../store";
+import {useLocalization} from "../store/hooks";
 
 export const CreateStickerPackPage: FunctionComponent = observer(() => {
     const  {l} = useLocalization();

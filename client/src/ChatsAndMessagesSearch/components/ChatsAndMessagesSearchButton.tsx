@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {IconButton} from "@mui/material";
 import {Search} from "@mui/icons-material";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 export const ChatsAndMessagesSearchButton: FunctionComponent = observer(() => {
     const {

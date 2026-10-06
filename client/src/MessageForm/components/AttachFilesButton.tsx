@@ -8,7 +8,7 @@ import {AttachImageMenuItem} from "./AttachImageMenuItem";
 import {ShowAttachedFilesMenuItem} from "./ShowAttachedFiledMenuItem";
 import {AttachAudioMenuItem} from "./AttachAudioMenuItem";
 import {AttachFileMenuItem} from "./AttachFileMenuItem";
-import {useLocalization, usePermissions, useStore} from "../../store";
+import {useLocalization, usePermissions, useStore} from "../../store/hooks";
 import {createAttachFileButtonStyles} from "../../style";
 import {isDefined} from "../../utils/object-utils";
 

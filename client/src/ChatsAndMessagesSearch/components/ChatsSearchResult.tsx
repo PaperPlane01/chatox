@@ -9,7 +9,7 @@ import {
     List,
     Typography
 } from "@mui/material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {ChatsOfCurrentUserListItem} from "../../Chat/components";
 import {ChatsOfCurrentUserListProps} from "../../Chat/types";
 

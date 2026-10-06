@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
 import {NOTIFICATION_SOUNDS, NotificationSound} from "../../api/types/response";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 
 export const NotificationSoundSelectDialog: FunctionComponent = observer(() => {

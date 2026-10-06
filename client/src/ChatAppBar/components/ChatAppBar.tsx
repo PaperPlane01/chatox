@@ -13,7 +13,7 @@ import {ForwardMessagesAppBarContent} from "./ForwardMessagesAppBarContent";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {ChatType} from "../../api/types/response";
 import {Labels} from "../../localization";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 import {commonStyles} from "../../style";

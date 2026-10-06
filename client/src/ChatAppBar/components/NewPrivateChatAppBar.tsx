@@ -5,7 +5,7 @@ import {ArrowBack} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {Link} from "mobx-router";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {trimString} from "../../utils/string-utils";
 import {getOnlineOrLastSeenLabel, getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";

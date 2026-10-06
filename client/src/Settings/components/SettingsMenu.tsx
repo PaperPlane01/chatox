@@ -13,7 +13,7 @@ import {commonStyles} from "../../style";
 import {EditProfileForm} from "../../User/components";
 import {LanguagePicker} from "../../localization/components";
 import {Routes} from "../../router";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store/hooks";
 import {ChatsPreferencesCard} from "../../Chat/components";
 import {HasAnyRole} from "../../Authorization/components";
 import {GlobalNotificationsSettingsUpdate} from "../../Notification/components";

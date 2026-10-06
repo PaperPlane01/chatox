@@ -4,7 +4,7 @@ import {Card, CardActions, CardContent, CardHeader} from "@mui/material";
 import {StickersGridList} from "./StickersGridList";
 import {StickerPackMenu} from "./StickerPackMenu";
 import {StickerPackInstallationButtons} from "./StickerPackInstallationButtons";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {HasAnyRole} from "../../Authorization/components";
 

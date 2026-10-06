@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Button, Icon, Theme} from "@mui/material";
 import {Add} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     createChatRoleButton: {

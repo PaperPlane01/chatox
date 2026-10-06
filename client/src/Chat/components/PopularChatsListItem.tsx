@@ -7,7 +7,7 @@ import remarkBreaks from "remark-breaks";
 import randomColor from "randomcolor";
 import {Link} from "mobx-router";
 import {commonStyles} from "../../style";
-import {useLocalization, useRouter} from "../../store";
+import {useLocalization, useRouter} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 import {Avatar} from "../../Avatar/components";

@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {DefaultChatFeatureForm} from "./DefaultChatFeatureForm";
-import {useStore, useLocalization} from "../../store";
+import {useStore, useLocalization} from "../../store/hooks";
 import {EmojiChipInput} from "../../EmojisChipInput/components";
 
 export const AddReactionsChatFeatureForm: FunctionComponent = observer(() => {

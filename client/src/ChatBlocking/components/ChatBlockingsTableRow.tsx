@@ -6,7 +6,7 @@ import {CancelChatBlockingButton} from "./CancelChatBlockingButton";
 import {UpdateChatBlockingButton} from "./UpdateChatBlockingButton";
 import {isChatBlockingActive} from "../utils";
 import {UserLink} from "../../UserLink/components";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 
 interface ChatBlockingsTableRowProps {

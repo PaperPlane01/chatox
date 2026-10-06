@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {TextFieldProps} from "@mui/material";
 import {SearchTextField} from "../../SearchTextField/components";
 import {HasRole} from "../../Authorization/components";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 type ChatsAndMessagesSearchInputProps = TextFieldProps &  {
     alwaysShowClearButton?: boolean

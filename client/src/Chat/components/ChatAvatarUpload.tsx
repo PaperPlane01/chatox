@@ -5,7 +5,7 @@ import randomColor from "randomcolor";
 import {getAvatarLabel} from "../utils";
 import {commonStyles} from "../../style";
 import {AvatarUpload} from "../../Upload/components";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 
 const useStyles = makeStyles()(() => ({

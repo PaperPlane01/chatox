@@ -11,7 +11,7 @@ import {HasAnyRole, HasRole} from "../../Authorization/components";
 import {EditProfileForm} from "../../User/components";
 import {ChatsPreferencesCard} from "../../Chat/components";
 import {LanguagePicker} from "../../localization/components";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store/hooks";
 import {Routes} from "../../router";
 import {BlacklistedUsersList} from "../../Blacklist/components";
 import {createTabStyles} from "../../style";

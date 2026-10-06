@@ -4,7 +4,7 @@ import {Button} from "@mui/material";
 import {Add} from "@mui/icons-material";
 import {ChatParticipantsAutoComplete} from "../../ChatParticipant/components";
 import {ChatParticipationEntity} from "../../ChatParticipant/types";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 interface UseNotificationExceptionsButtonProps {
 	chatId: string

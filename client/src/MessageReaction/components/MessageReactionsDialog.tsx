@@ -12,7 +12,7 @@ import {
 import {Close} from "@mui/icons-material";
 import {MessageReactionsList} from "./MessageReactionsList";
 import {MessageReactionsCountButton} from "./MessageReactionsCountButton";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 import {isScrolledToBottom} from "../../utils/event-utils";
 import {isDefined} from "../../utils/object-utils";

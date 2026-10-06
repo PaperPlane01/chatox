@@ -5,7 +5,7 @@ import {Layout} from "../Layout/components";
 import {AppBar} from "../AppBar/components";
 import {HasRole} from "../Authorization/components";
 import {BanChatsCreatorsDialog, ChatReportsActions, RejectReportsSnackbarManager, ReportedChatsTable} from "../Report/components";
-import {useLocalization, useStore} from "../store";
+import {useLocalization, useStore} from "../store/hooks";
 
 export const ChatReportsPage: FunctionComponent = observer(() => {
     const {l} = useLocalization();

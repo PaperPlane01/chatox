@@ -4,7 +4,7 @@ import {TextField, Button, CircularProgress, Chip, Theme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {SelectUserFormData} from "../types";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {FormErrors} from "../../utils/types";
 import {ApiError} from "../../api";
 import {UserEntity} from "../../User/types";

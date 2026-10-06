@@ -4,7 +4,7 @@ import {Badge, CircularProgress, IconButton, Theme, Typography} from "@mui/mater
 import {makeStyles} from "tss-react/mui";
 import {FileCopy} from "@mui/icons-material";
 import prettyBytes from "pretty-bytes";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 
 interface MessageFileProps {

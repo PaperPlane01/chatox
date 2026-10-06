@@ -6,7 +6,7 @@ import {TabContext, TabList, TabPanel} from "@mui/lab";
 import {EmojiData} from "emoji-mart";
 import {EmojiPicker} from "./EmojiPicker";
 import {StickerPicker} from "../../Sticker/components";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 interface EmojiAndStickerPickerProps {
     onEmojiPicked: (emoji: EmojiData) => void,

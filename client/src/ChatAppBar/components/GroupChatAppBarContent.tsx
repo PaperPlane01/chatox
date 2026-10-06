@@ -6,7 +6,7 @@ import randomColor from "randomcolor";
 import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
 import {ChatMenu, TypingIndicator} from "../../Chat/components";
 import {getAvatarLabel} from "../../Chat/utils";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {trimString} from "../../utils/string-utils";
 import {Avatar} from "../../Avatar/components";

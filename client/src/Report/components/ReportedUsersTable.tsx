@@ -13,7 +13,7 @@ import {
 import {ShowNotViewedOnlySwitch} from "./ShowNotViewedOnlySwitch";
 import {ReportedUsersTableHeader} from "./ReportedUsersTableHeader";
 import {ReportedUsersTableRow} from "./ReportedUsersTableRow";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const ReportedUsersTable: FunctionComponent = observer(() => {
     const {

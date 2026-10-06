@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Backdrop, CircularProgress, Theme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import {useAuthorization} from "../../store";
+import {useAuthorization} from "../../store/hooks";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     backdrop: {

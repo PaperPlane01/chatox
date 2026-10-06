@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Autocomplete, TextField} from "@mui/material";
 import {ChatParticipantsListItem} from "./ChatParticipantsListItem";
 import {ChatParticipationEntity} from "../types";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useEntitiesByIds} from "../../entities";
 import {getUserDisplayedName} from "../../User/utils/labels";
 

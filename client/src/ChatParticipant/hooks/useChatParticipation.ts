@@ -1,5 +1,5 @@
 import {useEffect} from "react";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {ChatParticipationEntity} from "../types";
 
 export const useChatParticipation = (chatId?: string, userId?: string): ChatParticipationEntity | undefined => {

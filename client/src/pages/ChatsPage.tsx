@@ -8,7 +8,7 @@ import {HasRole} from "../Authorization/components";
 import {AppBar} from "../AppBar/components";
 import {ChatsOfCurrentUserListWrapper} from "../Chat/components";
 import {ChatsAndMessagesSearchInputWrapper} from "../ChatsAndMessagesSearch/components";
-import {useLocalization, useStore} from "../store";
+import {useLocalization, useStore} from "../store/hooks";
 
 const useStyles = makeStyles()(() => ({
     centered: {

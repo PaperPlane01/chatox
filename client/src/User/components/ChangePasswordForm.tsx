@@ -16,7 +16,7 @@ import {Visibility, VisibilityOff} from "@mui/icons-material";
 import {useSnackbar} from "notistack";
 import {HttpStatusCode} from "axios";
 import {ChangePasswordStep} from "../types";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {Labels, TranslationFunction} from "../../localization";
 

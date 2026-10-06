@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
 import {AccountCircle} from "@mui/icons-material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 interface SetPhotoAsAvatarMenuItemProps {
     photoId: string,

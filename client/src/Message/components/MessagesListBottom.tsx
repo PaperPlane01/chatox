@@ -6,7 +6,7 @@ import {format, Locale} from "date-fns";
 import {MessageForm} from "../../MessageForm/components";
 import {JoinChatButton} from "../../ChatParticipant/components";
 import {useChatParticipation} from "../../ChatParticipant/hooks";
-import {useAuthorization, useLocalization, useStore} from "../../store";
+import {useAuthorization, useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {ChatBlockingEntity} from "../../ChatBlocking/types";
 import {isChatBlockingActive} from "../../ChatBlocking/utils";

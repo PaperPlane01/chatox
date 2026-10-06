@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
 import {Report} from "@mui/icons-material";
-import {useStore, useLocalization} from "../../store";
+import {useStore, useLocalization} from "../../store/hooks";
 
 interface ReportUserMenuItemProps {
     userId: string,

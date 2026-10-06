@@ -6,7 +6,7 @@ import {keyframes} from "tss-react";
 import {makeStyles} from "tss-react/mui";
 import {UserEntity} from "../../User/types";
 import {TranslationFunction} from "../../localization";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntitiesByIds} from "../../entities";
 
 const typingAnimation = keyframes`

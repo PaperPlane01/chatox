@@ -15,7 +15,7 @@ import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from ".
 import {RegistrationDialog, RegistrationMenuItem} from "../../Registration/components";
 import {PasswordRecoveryDialog} from "../../PasswordRecovery/components";
 import {BalanceList} from "../../Balance/components";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 export const NavigationalDrawer: FunctionComponent = observer(() => {
     const {appBar} = useStore();

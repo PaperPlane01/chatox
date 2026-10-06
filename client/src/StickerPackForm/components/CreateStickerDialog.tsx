@@ -9,7 +9,7 @@ import {useStickerPackForm} from "../hooks";
 import {StickerPackFormContext} from "../types";
 import {StickerContainer} from "../stores";
 import {ChipInput} from "../../ChipInput";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 interface CreateStickerDialogProps {
     stickerContainer: StickerContainer,

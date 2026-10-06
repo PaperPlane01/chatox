@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {Grid, Typography} from "@mui/material";
 import {Layout} from "../Layout/components";
 import {AppBar} from "../AppBar/components";
-import {useLocalization} from "../store";
+import {useLocalization} from "../store/hooks";
 
 export const NotFoundPage: FunctionComponent = () => {
     const {l} = useLocalization();

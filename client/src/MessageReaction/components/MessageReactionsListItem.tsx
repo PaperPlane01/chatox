@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
 import {MessageReactionEntity} from "../types";
 import {useEntityById} from "../../entities";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {getCreatedAtLabel} from "../../utils/date-utils";
 import {UserLink} from "../../UserLink/components";
 import {useSelectedEmojiSet} from "../../Emoji/hooks";

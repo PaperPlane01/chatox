@@ -13,7 +13,7 @@ import {useChatParticipantsListScroll} from "../hooks";
 import {ChatOfCurrentUserEntity} from "../../Chat/types";
 import {TranslationFunction} from "../../localization";
 import {commonStyles} from "../../style";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 const ChatParticipantsLists: Record<ChatParticipantsListMode, ReactNode> = {
     all: <AllChatParticipantsList/>,

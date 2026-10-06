@@ -5,7 +5,7 @@ import {makeStyles} from "tss-react/mui";
 import {MessageReactionPickerBaseProps} from "./MessageReactionPickerBaseProps";
 import {MessageReactionMinifiedPicker} from "./MessageReactionMinifiedPicker";
 import {ConstrainedEmojiPicker, EmojiPicker} from "../../EmojiPicker/components";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {EmojiDataResponse} from "../../api/types/response";
 

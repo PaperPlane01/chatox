@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {SpeedDial, SpeedDialAction} from "@mui/material";
 import {Add, FolderZip} from "@mui/icons-material";
-import {useLocalization, useRouter} from "../../store";
+import {useLocalization, useRouter} from "../../store/hooks";
 import {Routes} from "../../router";
 
 export const CreateStickerPackSpeedDial: FunctionComponent = observer(() => {

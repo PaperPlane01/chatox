@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {FormControl, InputLabel, MenuItem, Select} from "@mui/material";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {GlobalBanReason} from "../../api/types/response";
 import {Labels} from "../../localization";
 

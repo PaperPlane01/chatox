@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Card, CardContent, Theme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {Sticker} from "../../Sticker/components";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useEntitiesByIds} from "../../entities";
 
 const useStyles = makeStyles()((theme: Theme) => ({

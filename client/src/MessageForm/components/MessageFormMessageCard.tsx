@@ -5,7 +5,7 @@ import {Close} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {getForwardMessagesLabel} from "../../Message/utils";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {MarkdownTextWithEmoji} from "../../Markdown/components";
 import {getUserDisplayedName} from "../../User/utils/labels";

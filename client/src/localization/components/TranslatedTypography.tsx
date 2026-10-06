@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Typography, TypographyProps} from "@mui/material";
 import {Labels} from "../types";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 
 interface TranslatedTypographyProps extends TypographyProps {
     label: keyof Labels,

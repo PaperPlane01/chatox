@@ -1,6 +1,6 @@
 import {useEffect} from "react";
 import {Entities, GetEntityType} from "../../entities-store";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {isDefined} from "../../utils/object-utils";
 
 type UseEntityById = <T extends Exclude<Entities, "chatUploads">, ID extends string | undefined | null>(

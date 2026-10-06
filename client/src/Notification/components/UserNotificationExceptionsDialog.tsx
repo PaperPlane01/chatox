@@ -4,7 +4,7 @@ import {entries} from "mobx";
 import {Dialog, DialogTitle, DialogContent, List, IconButton, Button} from "@mui/material";
 import {Add, ArrowBack} from "@mui/icons-material";
 import {UserNotificationException} from "./UserNotificationException";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 import {useEntityById} from "../../entities";
 import {ChatParticipantsAutoComplete} from "../../ChatParticipant/components";

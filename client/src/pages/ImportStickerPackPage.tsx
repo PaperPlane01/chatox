@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Grid, Typography} from "@mui/material";
 import {AppBar} from "../AppBar/components";
 import {StickerPackImport} from "../StickerPackForm/components";
-import {useLocalization} from "../store";
+import {useLocalization} from "../store/hooks";
 import {Layout} from "../Layout/components";
 import {HasRole} from "../Authorization/components";
 

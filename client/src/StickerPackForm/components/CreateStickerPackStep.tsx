@@ -4,7 +4,7 @@ import {CreateStickerDialog} from "./CreateStickerDialog";
 import {EditStickerDialog} from "./EditStickerDialog";
 import {StickerPackFormFields} from "./StickerPackFormFields";
 import {getCreateStickerPackText} from "../utils";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 export const CreateStickerPackStep: FunctionComponent = observer(() => {
 	const {

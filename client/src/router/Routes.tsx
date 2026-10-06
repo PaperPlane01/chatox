@@ -1,7 +1,7 @@
 import React, {lazy, Suspense} from "react";
 import {CircularProgress} from "@mui/material";
 import {QueryParams, Route, RouteParams} from "mobx-router";
-import {store} from "../store";
+import {store} from "../store/store";
 import {getSettingsTabFromString} from "../Settings/types";
 import {ErrorBoundary} from "../ErrorBoundary/components";
 import {getChatManagementTabFromString} from "../ChatManagement/types";

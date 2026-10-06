@@ -5,7 +5,7 @@ import {CreateMessageRichTextForm} from "./CreateMessageRichTextForm";
 import {UpdateMessagePlainTextForm} from "./UpdateMessagePlainTextForm";
 import {UpdateMessageRichTextForm} from "./UpdateMessageRichTextForm";
 import {VoiceRecorder} from "./VoiceRecorder";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {MessageEditorType} from "../../Chat/types";
 
 export const MessageForm: FunctionComponent = observer(() => {

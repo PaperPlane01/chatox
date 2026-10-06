@@ -17,7 +17,7 @@ import {format} from "date-fns";
 import {CancelChatBlockingButton} from "./CancelChatBlockingButton";
 import {UserLink} from "../../UserLink/components";
 import {isStringEmpty} from "../../utils/string-utils";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 
 export const ChatBlockingInfoDialog: FunctionComponent = observer(() => {

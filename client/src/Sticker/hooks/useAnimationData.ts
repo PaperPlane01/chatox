@@ -1,4 +1,4 @@
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 export const useAnimationData = (stickerId: string): string | undefined => {
 	const {

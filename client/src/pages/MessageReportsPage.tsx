@@ -12,7 +12,7 @@ import {
     DeleteMessagesSnackbarManager,
     BanMessageSendersDialog
 } from "../Report/components";
-import {useLocalization, useStore} from "../store";
+import {useLocalization, useStore} from "../store/hooks";
 
 export const MessageReportsPage: FunctionComponent = observer(() => {
     const {l} = useLocalization();

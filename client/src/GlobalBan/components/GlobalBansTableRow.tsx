@@ -8,7 +8,7 @@ import {CancelGlobalBanButton} from "./CancelGlobalBanButton";
 import {UpdateGlobalBanButton} from "./UpdateGlobalBanButton";
 import {isGlobalBanActive} from "../utils";
 import {UserLink} from "../../UserLink/components";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {Labels} from "../../localization";
 

@@ -4,7 +4,7 @@ import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton} f
 import {Add, ArrowBack} from "@mui/icons-material";
 import {ChatNotificationExceptionsList} from "./ChatNotificationExceptionsList";
 import {ChatOfCurrentUserSelect} from "../../Chat/components";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 import {ChatType} from "../../api/types/response";
 

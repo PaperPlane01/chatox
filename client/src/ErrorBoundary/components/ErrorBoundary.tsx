@@ -4,7 +4,7 @@ import {Grid, Typography} from "@mui/material";
 import {Layout} from "../../Layout/components";
 import {Language, TranslationFunction} from "../../localization";
 import {replacePlaceholder} from "../../localization/utils";
-import {IAppState} from "../../store";
+import {IAppState} from "../../store/IAppState";
 
 interface ErrorBoundaryMobxProps {
     currentLanguage: Language,

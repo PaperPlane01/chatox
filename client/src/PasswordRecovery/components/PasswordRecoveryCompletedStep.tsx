@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, DialogActions, DialogContent, DialogTitle} from "@mui/material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const PasswordRecoveryCompletedStep: FunctionComponent = observer(() => {
     const {

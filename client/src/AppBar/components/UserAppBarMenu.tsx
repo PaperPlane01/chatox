@@ -8,7 +8,7 @@ import {RegistrationDialog, RegistrationMenuItem} from "../../Registration/compo
 import {LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization/components";
 import {PasswordRecoveryDialog} from "../../PasswordRecovery/components";
 import {Avatar} from "../../Avatar/components";
-import {useAuthorization} from "../../store";
+import {useAuthorization} from "../../store/hooks";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 
 const useStyles = makeStyles()((theme: Theme) => ({

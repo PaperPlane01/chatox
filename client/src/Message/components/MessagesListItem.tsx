@@ -18,7 +18,7 @@ import {SelectMessageForForwardingRadioButton} from "./SelectMessageForForwardin
 import {FindMessageFunction, FindMessageSenderFunction} from "../types";
 import {useMessageById, useMessageSenderById} from "../hooks";
 import {Avatar} from "../../Avatar/components";
-import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
+import {useAuthorization, useLocalization, useRouter, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 import {MarkdownTextWithEmoji} from "../../Markdown/components";

@@ -26,7 +26,7 @@ import {RecentMessagesDeletionPeriod} from "../types";
 import {Labels, TranslationFunction} from "../../localization";
 import {Avatar} from "../../Avatar/components";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {useLuminosity, useMobileDialog} from "../../utils/hooks";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";

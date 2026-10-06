@@ -4,7 +4,7 @@ import {Theme, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {Avatar} from "../../Avatar/components";
-import {useAuthorization} from "../../store";
+import {useAuthorization} from "../../store/hooks";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 
 const useStyles = makeStyles()((theme: Theme) => ({

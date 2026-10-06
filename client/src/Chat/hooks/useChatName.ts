@@ -1,5 +1,5 @@
 import {ChatOfCurrentUserEntity} from "../types";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {UserEntity} from "../../User/types";
 
 export const useChatName = (chat?: ChatOfCurrentUserEntity, chatUser?: UserEntity): string => {

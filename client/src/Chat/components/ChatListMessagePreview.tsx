@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Theme} from "@mui/material";
 import {Audiotrack, FileCopy, Image, KeyboardVoice, VideoLibrary} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntitiesByIds, useEntityById} from "../../entities";
 import {Upload, UploadType} from "../../api/types/response";
 import {capitalize} from "../../utils/string-utils";

@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {List} from "@mui/material";
 import {MessageReactionsListItem} from "./MessageReactionsListItem";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useEntitiesSelector} from "../../entities";
 
 export const MessageReactionsList: FunctionComponent = observer(() => {

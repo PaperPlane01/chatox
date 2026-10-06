@@ -5,7 +5,7 @@ import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {getAvatarLabel} from "../utils";
-import {useRouter} from "../../store";
+import {useRouter} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {commonStyles} from "../../style";
 import {Routes} from "../../router";

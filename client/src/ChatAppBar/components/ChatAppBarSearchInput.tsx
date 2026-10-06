@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {SearchTextField} from "../../SearchTextField/components";
 
 export const ChatAppBarSearchInput: FunctionComponent = observer(() => {

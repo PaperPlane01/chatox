@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Dialog, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {Close} from "@mui/icons-material";
 import {EmojiData} from "emoji-mart";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {EmojiMartPicker} from "../../EmojiPicker/components";
 
 interface StickerEmojiPickerDialogProps {

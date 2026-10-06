@@ -6,7 +6,7 @@ import {autoUpdate, offset, useFloating} from "@floating-ui/react";
 import {MessageFormMessageCard} from "./MessageFormMessageCard";
 import {PlainTextMessageForm} from "./PlainTextMessageForm";
 import {StickerSuggestions} from "./StickerSuggestions";
-import {usePermissions, useStore} from "../../store";
+import {usePermissions, useStore} from "../../store/hooks";
 import {isDefined} from "../../utils/object-utils";
 
 export const CreateMessagePlainTextForm: FunctionComponent = observer(() => {

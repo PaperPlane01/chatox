@@ -2,7 +2,7 @@ import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
 import {Typography} from "@mui/material";
 import {LinearProgressWithLabel} from "../../LinearProgressWithLabel/components";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {isDefined} from "../../utils/object-utils";
 
 export const UploadingFilesStep: FunctionComponent = observer(() => {

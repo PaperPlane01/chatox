@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Checkbox, ImageListItem, Theme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {useLongPress} from "use-long-press";
-import {usePermissions, useStore} from "../../store";
+import {usePermissions, useStore} from "../../store/hooks";
 import {ensureEventWontPropagate, isPointerEvent} from "../../utils/event-utils";
 
 const useStyles = makeStyles()((theme: Theme) => ({

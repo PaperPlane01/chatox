@@ -2,7 +2,7 @@ import React, {FunctionComponent, MouseEvent, useCallback} from "react";
 import {observer} from "mobx-react";
 import {IconButton, ListItem, ListItemAvatar, ListItemText, Tooltip, useTheme} from "@mui/material";
 import {Delete} from "@mui/icons-material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {ChatType, NotificationLevel} from "../../api/types/response";
 import {ChatAvatar} from "../../Chat/components";

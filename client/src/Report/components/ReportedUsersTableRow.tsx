@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {format} from "date-fns";
 import {Checkbox, TableCell, TableRow} from "@mui/material";
 import {Remove} from "@mui/icons-material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {Labels} from "../../localization";
 import {UserLink} from "../../UserLink/components";
 

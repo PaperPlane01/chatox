@@ -4,7 +4,7 @@ import {Button, Typography} from "@mui/material";
 import {FolderZip} from "@mui/icons-material";
 import {LinearProgressWithLabel} from "../../LinearProgressWithLabel/components";
 import {commonStyles} from "../../style";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {isDefined} from "../../utils/object-utils";
 
 export const ReadingArchiveStep: FunctionComponent = observer(() => {

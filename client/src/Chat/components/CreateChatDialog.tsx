@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {ChipInput} from "../../ChipInput";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store/hooks";
 import {Routes} from "../../router";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown/components";

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Dialog} from "@mui/material";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {ChangePasswordStep} from "../types";
 import {CheckEmailConfirmationCodeDialogContent} from "../../EmailConfirmation/components";
 import {useMobileDialog} from "../../utils/hooks";

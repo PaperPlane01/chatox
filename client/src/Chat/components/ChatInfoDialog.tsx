@@ -9,7 +9,7 @@ import {getAvatarLabel} from "../utils";
 import {Avatar} from "../../Avatar/components";
 import {ChatParticipantsCard} from "../../ChatParticipant/components";
 import {useChatParticipantsListScroll} from "../../ChatParticipant/hooks";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {useLuminosity, useMobileDialog} from "../../utils/hooks";
 import {ChatType} from "../../api/types/response";

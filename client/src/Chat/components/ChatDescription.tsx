@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Card, CardContent, Skeleton} from "@mui/material";
 import {Info} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {MarkdownTextWithEmoji} from "../../Markdown/components";
 

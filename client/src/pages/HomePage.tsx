@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, Grid, Typography} from "@mui/material";
-import {usePermissions} from "../store";
+import {usePermissions} from "../store/hooks";
 import {Layout} from "../Layout/components";
 import {AppBar} from "../AppBar/components";
 import {HasRole} from "../Authorization/components";

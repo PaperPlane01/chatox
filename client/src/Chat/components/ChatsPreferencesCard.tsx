@@ -14,7 +14,7 @@ import {
     Typography
 } from "@mui/material";
 import {MessageEditorType, parseMessageEditorType, parseSendMessageButton, SendMessageButton} from "../types";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 interface ChatsPreferencesCardProps {
     hideHeader?: boolean

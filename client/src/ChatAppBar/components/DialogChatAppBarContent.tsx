@@ -7,7 +7,7 @@ import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
 import {TypingIndicator} from "../../Chat/components";
 import {Avatar} from "../../Avatar/components";
 import {getOnlineOrLastSeenLabel, getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {trimString} from "../../utils/string-utils";
 import {useLuminosity} from "../../utils/hooks";

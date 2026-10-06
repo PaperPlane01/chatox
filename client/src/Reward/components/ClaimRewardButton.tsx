@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {IconButton, Theme, Typography} from "@mui/material";
 import {Wallet} from "@mui/icons-material"
 import {makeStyles} from "tss-react/mui";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     rewardText: {

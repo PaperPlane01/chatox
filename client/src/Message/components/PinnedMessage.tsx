@@ -6,7 +6,7 @@ import {makeStyles} from "tss-react/mui";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {ClosePinnedMessageMenuItem} from "./ClosePinnedMessageMenuItem";
 import {UnpinMessageMenuItem} from "./UnpinMessageMenuItem";
-import {useLocalization, usePermissions, useStore} from "../../store";
+import {useLocalization, usePermissions, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 import {MarkdownTextWithEmoji} from "../../Markdown/components";

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CreateReportDialog} from "./CreateReportDialog";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const ReportMessageDialog: FunctionComponent = observer(() => {
     const {

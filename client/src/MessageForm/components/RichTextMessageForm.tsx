@@ -6,7 +6,7 @@ import {AttachFilesButton} from "./AttachFilesButton";
 import {RecordVoiceMessageButton} from "./RecordVoiceMessageButton";
 import {SendMessageButton} from "./SendMessageButton";
 import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {TextEditor} from "../../TextEditor/components";
 import {adornmentStyle} from "../../TextEditor/styles";
 import {EnterAction} from "../../TextEditor/types";

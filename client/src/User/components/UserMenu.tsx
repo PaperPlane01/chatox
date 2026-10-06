@@ -7,7 +7,7 @@ import {OpenUserPhotosMenuItem} from "./OpenUserPhotosMenuItem";
 import {ReportUserMenuItem} from "../../Report/components";
 import {canReportUser} from "../../Report/permissions";
 import {UserInteractionsHistoryMenuItem} from "../../UserInteraction/components";
-import {useAuthorization} from "../../store";
+import {useAuthorization} from "../../store/hooks";
 
 interface UserMenuProps {
     userId: string

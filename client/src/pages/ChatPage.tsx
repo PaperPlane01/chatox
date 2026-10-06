@@ -23,7 +23,7 @@ import {BanUserGloballyDialog} from "../GlobalBan/components";
 import {ReportChatDialog, ReportMessageDialog} from "../Report/components";
 import {DeleteStickerPackDialog, StickerPackDialog, StickerPreviewDialog} from "../Sticker/components";
 import {MessageReactionsDialog} from "../MessageReaction/components";
-import {useStore} from "../store";
+import {useStore} from "../store/hooks";
 import {ChatType} from "../api/types/response";
 
 export const ChatPage: FunctionComponent = observer(() => {

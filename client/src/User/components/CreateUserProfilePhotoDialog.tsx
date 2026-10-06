@@ -4,7 +4,7 @@ import {Dialog, DialogTitle, DialogContent, IconButton, FormControlLabel, Switch
 import {ArrowBack, Close} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
 import {HttpStatusCode} from "axios";
-import {useStore, useLocalization} from "../../store";
+import {useStore, useLocalization} from "../../store/hooks";
 import {ImageUpload} from "../../Upload/components";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";

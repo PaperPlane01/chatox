@@ -6,7 +6,7 @@ import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
 import {HasAnyRole} from "../../Authorization/components";
 import {Routes} from "../../router";
-import {useLocalization, useRouter} from "../../store";
+import {useLocalization, useRouter} from "../../store/hooks";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     appBarLinks: {

@@ -8,7 +8,7 @@ import {Avatar} from "../../Avatar/components";
 import {UserEntity} from "../../User/types";
 import {Routes} from "../../router";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {useRouter} from "../../store";
+import {useRouter} from "../../store/hooks";
 import {useLuminosity} from "../../utils/hooks";
 
 interface UserLinkProps {

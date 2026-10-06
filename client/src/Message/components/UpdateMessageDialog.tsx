@@ -14,7 +14,7 @@ import {
 import {HttpStatusCode} from "axios";
 import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown/components";
 import {Language, TranslationFunction} from "../../localization";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {useMobileDialog} from "../../utils/hooks";
 
