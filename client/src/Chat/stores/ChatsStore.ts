@@ -106,7 +106,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
         const patch = this.createEmptyEntitiesPatch("chats", "chatParticipations");
         const patches: EntitiesPatch[] = [];
 
-        patch.entities.chats[privateChatCreated.id] = {
+        patch.entities.chats.set(privateChatCreated.id, {
             id: privateChatCreated.id,
             name: "",
             lastMessage: privateChatCreated.message.id,
@@ -126,8 +126,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
             joinAllowanceSettings: populateJoinAllowanceSettings({}),
             hideFromSearch: true,
             unreadMentionsCount: 0
-        };
-        patch.ids.chats.push(privateChatCreated.id);
+        });
 
         patches.push(this.entities.chatParticipations.createPatchForArray([currentUserChatParticipation, otherUserChatParticipation]));
 
@@ -346,8 +345,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
 
             chat.messages = uniq(chat.messages);
 
-            patch.entities.chats[denormalizedEntity.id] = chat;
-            patch.ids.chats.push(chat.id);
+            patch.entities.chats.set(chat.id, chat);
         });
 
         return mergeWith(patch, ...patches, mergeCustomizer);

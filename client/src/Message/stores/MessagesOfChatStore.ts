@@ -249,7 +249,7 @@ export class MessagesOfChatStore {
 
         runInAction(() => {
             const chat = this.entities.chats.findById(chatId);
-            const messagesIds = entitiesPatch.ids.messages ?? [];
+            const messagesIds = [...(entitiesPatch.entities.messages?.keys() ?? [])];
             chat.messages = [...messagesIds, ...chat.messages];
             this.entities.chats.insertEntity(chat);
 

@@ -4,15 +4,15 @@ import {MessageReactionEntity} from "../types";
 import {createMessageEmojiKey} from "../utils";
 import {MessageReaction} from "../../api/types/response";
 import {AbstractEntityStore} from "../../entity-store";
-import {EntitiesPatch, EntitiesStore, RawEntitiesStore, RawEntityKey, RelationshipsIds} from "../../entities-store";
+import {EntitiesPatch, EntitiesStore, RawEntitiesStore, RelationshipsIds} from "../../entities-store";
 import {mergeCustomizer} from "../../utils/object-utils";
 
 export class MessageReactionsStore extends AbstractEntityStore<"messageReactions", MessageReactionEntity, MessageReaction> {
     private readonly messageIndex = observable.map<string, ObservableSet<string>>();
     private readonly messageEmojiIndex = observable.map<string, ObservableSet<string>>();
 
-    constructor(rawEntities: RawEntitiesStore, entityName: RawEntityKey, entities: EntitiesStore) {
-        super(rawEntities, entityName, entities);
+    constructor(rawEntities: RawEntitiesStore, entities: EntitiesStore) {
+        super(rawEntities, "messageReactions", entities);
 
         makeObservable(this, {
             insert: override,
@@ -63,7 +63,7 @@ export class MessageReactionsStore extends AbstractEntityStore<"messageReactions
         return createMessageEmojiKey(messageReaction.messageId, messageReaction.emojiId);
     }
 
-    deleteAllById(ids: string[], options?: {}) {
+    deleteAllById(ids: Iterable<string>, options?: {}) {
         const entities = this.findAllById(ids);
         entities.forEach(entity => this.cleanupIndexes(entity));
 
@@ -123,12 +123,11 @@ export class MessageReactionsStore extends AbstractEntityStore<"messageReactions
         const patches: EntitiesPatch[] = [];
 
         denormalizedEntities.forEach(messageReaction => {
-            patch.entities.messageReactions[messageReaction.id] = this.convertToNormalizedForm(messageReaction);
-            patch.ids.messageReactions.push(messageReaction.id);
+            patch.entities.messageReactions.set(messageReaction.id, this.convertToNormalizedForm(messageReaction))
             patches.push(this.entities.users.createPatch(messageReaction.user, {retrieveOnlineStatusFromExistingUser: true}));
         });
 
-        return mergeWith(patch, patches, mergeCustomizer);
+        return mergeWith(patch, ...patches, mergeCustomizer);
     }
 
 

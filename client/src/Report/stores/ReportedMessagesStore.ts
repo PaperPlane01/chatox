@@ -35,8 +35,7 @@ export class ReportedMessagesStore extends AbstractEntityStore<"reportedMessages
                 patches.push(this.entities.reportedMessageSenders.createPatch(message.forwardedBy));
             }
 
-            patch.entities.reportedMessages[message.id] = entity;
-            patch.ids.reportedMessages.push(message.id);
+            patch.entities.reportedMessages.set(entity.id, entity);
         });
 
         return mergeWith(patch, ...patches, mergeCustomizer);

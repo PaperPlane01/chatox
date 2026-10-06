@@ -33,8 +33,7 @@ export class ReportsStore extends AbstractEntityStore<"reports", ReportEntity, R
         const patches: EntitiesPatch[] = [];
 
         denormalizedEntities.forEach(report => {
-            patch.entities.reports[report.id] = this.convertToNormalizedForm(report);
-            patch.ids.reports.push(report.id);
+            patch.entities.reports.set(report.id, this.convertToNormalizedForm(report));
 
             patches.push(this.createPatchForReportedObject(report));
         });

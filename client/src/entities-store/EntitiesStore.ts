@@ -25,20 +25,20 @@ type EntitiesStores = {
 }
 
 export class EntitiesStore {
-    public messages: MessagesStore<"messages">;
+    public messages: MessagesStore;
     public chats: ChatsStore;
     public uploads: UploadsStore;
-    public users: UsersStore<"users">;
+    public users: UsersStore;
     public chatRoles: ChatRolesStore;
     public chatBlockings: ChatBlockingsStore;
     public globalBans: GlobalBansStore;
     public chatParticipations: ChatParticipationsStore;
     public stickers: StickersStore;
     public stickerPacks: StickerPacksStore;
-    public scheduledMessages: MessagesStore<"scheduledMessages">;
-    public reportedUsers: UsersStore<"reportedUsers">;
+    public scheduledMessages: MessagesStore;
+    public reportedUsers: UsersStore;
     public reportedMessages: ReportedMessagesStore;
-    public reportedMessageSenders: UsersStore<"reportedMessageSenders">;
+    public reportedMessageSenders: UsersStore;
     public reportedChats: ReportedChatsStore;
     public reports: ReportsStore;
     public rewards: RewardsStore;
@@ -47,7 +47,7 @@ export class EntitiesStore {
     public userProfilePhotos: UserProfilePhotosStore;
     public chatInvites: ChatInvitesStore;
     public pendingChatParticipations: PendingChatParticipationsStore;
-    public draftMessages: MessagesStore<"draftMessages">;
+    public draftMessages: MessagesStore;
     public messageReactions: MessageReactionsStore;
 
     get stores(): EntitiesStores {
@@ -105,7 +105,7 @@ export class EntitiesStore {
         this.chatInvites = new ChatInvitesStore(rawEntities, "chatInvites", this);
         this.pendingChatParticipations = new PendingChatParticipationsStore(rawEntities, "pendingChatParticipations", this);
         this.draftMessages = new MessagesStore(rawEntities, "draftMessages", this, userChatRoles);
-        this.messageReactions = new MessageReactionsStore(rawEntities, "messageReactions", this);
+        this.messageReactions = new MessageReactionsStore(rawEntities, this);
     }
 
     public setEntitiesStore(entitiesAwareStores: EntitiesAware[]): void {
