@@ -1,4 +1,4 @@
-import {type ObservableMap, type ObservableSet} from "mobx";
+import {type ObservableMap} from "mobx";
 import {MessageEntity} from "../../Message";
 import {ChatOfCurrentUserEntity, ChatUploadEntity} from "../../Chat";
 import {ChatParticipationEntity, PendingChatParticipationEntity} from "../../ChatParticipant";
@@ -52,10 +52,6 @@ export type PersistentEntities = Extract<Entities, "messages" | "users" | "uploa
 export type GetEntityType<Key extends Entities> = RawEntities[Key] extends ObservableMap<string, infer Entity extends BaseEntity>
     ? Entity
     : never;
-
-export type EntitiesIds = {
-    [Key in Entities]: ObservableSet<string>
-};
 
 export type EntitiesPatch = {
     entities: Partial<{
