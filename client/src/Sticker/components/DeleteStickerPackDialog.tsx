@@ -15,7 +15,7 @@ import {
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
-import {HasRole} from "../../Authorization";
+import {HasRole} from "../../Authorization/components";
 
 export const DeleteStickerPackDialog: FunctionComponent = observer(() => {
 	const {

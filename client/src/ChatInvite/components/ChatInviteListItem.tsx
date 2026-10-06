@@ -4,7 +4,7 @@ import {ListItem, ListItemText} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {EditChatInviteButton} from "./EditChatInviteButton";
 import {getChatInviteLink} from "../utils";
-import {CopyToClipboardButton} from "../../CopyToClipboardButton";
+import {CopyToClipboardButton} from "../../CopyToClipboardButton/components";
 import {useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {isStringEmpty} from "../../utils/string-utils";

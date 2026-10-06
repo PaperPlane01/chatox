@@ -6,7 +6,7 @@ import {AbstractEntityStore} from "../../entity-store";
 import {ChatBlocking, CurrentUser} from "../../api/types/response";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {mergeCustomizer} from "../../utils/object-utils";
-import {AuthorizationStore} from "../../Authorization";
+import {AuthorizationStore} from "../../Authorization/stores";
 import {SortingDirection} from "../../utils/types";
 
 export interface FindChatBlockingsByChatOptions {

@@ -4,11 +4,11 @@ import {AbstractChatInviteFormStore} from "./AbstractChatInviteFormStore";
 import {ChatInviteApi} from "../../api";
 import {ChatInviteRequest} from "../../api/types/request";
 import {ChatInvite} from "../../api/types/response";
-import {Labels, LocaleStore} from "../../localization";
-import {ChatStore} from "../../Chat";
-import {EntitiesStore} from "../../entities-store";
-import {SelectUserStore} from "../../UserSelect";
-import {SnackbarService} from "../../Snackbar";
+import {Labels, type LocaleStore} from "../../localization";
+import type {ChatStore} from "../../Chat/stores";
+import type {EntitiesStore} from "../../entities-store";
+import type {SelectUserStore} from "../../UserSelect/stores";
+import type {SnackbarService} from "../../Snackbar/services";
 
 export class UpdateChatInviteStore extends AbstractChatInviteFormStore {
     chatInviteId?: string = undefined;

@@ -2,7 +2,7 @@ import React, {ChangeEvent, CSSProperties, Fragment, FunctionComponent} from "re
 import {observer} from "mobx-react";
 import {Button, Typography} from "@mui/material";
 import {FolderZip} from "@mui/icons-material";
-import {LinearProgressWithLabel} from "../../LinearProgressWithLabel";
+import {LinearProgressWithLabel} from "../../LinearProgressWithLabel/components";
 import {commonStyles} from "../../style";
 import {useLocalization, useStore} from "../../store";
 import {isDefined} from "../../utils/object-utils";

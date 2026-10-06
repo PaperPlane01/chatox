@@ -1,11 +1,11 @@
 import {makeAutoObservable, reaction} from "mobx";
-import {EmailConfirmationArguments, PasswordChangeFormSubmissionStore} from "./PasswordChangeFormSubmissionStore";
-import {SendPasswordChangeEmailConfirmationCodeStore} from "./SendPasswordChangeEmailConfirmationCodeStore";
+import {EmailConfirmationArguments, type PasswordChangeFormSubmissionStore} from "./PasswordChangeFormSubmissionStore";
+import type {SendPasswordChangeEmailConfirmationCodeStore} from "./SendPasswordChangeEmailConfirmationCodeStore";
+import type {PasswordChangeStepStore} from "./PasswordChangeStepStore";
 import {ChangePasswordStep} from "../types";
-import {AuthorizationStore} from "../../Authorization/stores";
+import type {AuthorizationStore} from "../../Authorization/stores";
+import type {CheckEmailConfirmationCodeStore} from "../../EmailConfirmation/stores";
 import {CurrentUser} from "../../api/types/response";
-import {PasswordChangeStepStore} from "./PasswordChangeStepStore";
-import {CheckEmailConfirmationCodeStore} from "../../EmailConfirmation";
 
 export class PasswordChangeStore {
     showSuccessSnackbar: boolean = false;

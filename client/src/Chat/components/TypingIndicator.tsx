@@ -4,7 +4,7 @@ import {Theme} from "@mui/material";
 import {ModeEdit} from "@mui/icons-material";
 import {keyframes} from "tss-react";
 import {makeStyles} from "tss-react/mui";
-import {UserEntity} from "../../User";
+import {UserEntity} from "../../User/types";
 import {TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
 import {useEntitiesByIds} from "../../entities";

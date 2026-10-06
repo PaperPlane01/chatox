@@ -2,12 +2,12 @@ import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {addHours, subDays, subHours, subMinutes, subYears} from "date-fns";
 import {CreateChatBlockingFormData, RecentMessagesDeletionPeriod} from "../types";
 import {validateBlockedUntil, validateBlockingDescription} from "../validation";
-import {ChatStore} from "../../Chat";
+import type {ChatStore} from "../../Chat/stores";
 import {ApiError, ChatBlockingApi, getInitialApiErrorFromResponse} from "../../api";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
-import {SnackbarService} from "../../Snackbar";
-import {LocaleStore} from "../../localization";
+import type {EntitiesStore} from "../../entities-store";
+import type {SnackbarService} from "../../Snackbar/services";
+import type {LocaleStore} from "../../localization";
 
 // TODO: extend from AbstractFormStore
 export class CreateChatBlockingStore {

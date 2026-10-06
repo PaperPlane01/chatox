@@ -4,11 +4,13 @@ import {RouterStore} from "mobx-router";
 import {debounce} from "lodash";
 import {v4} from "uuid";
 import {AbstractMessageFormStore} from "./AbstractMessageFormStore";
-import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
-import {RecordVoiceMessageStore} from "./RecordVoiceMessageStore";
+import type {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
+import type {RecordVoiceMessageStore} from "./RecordVoiceMessageStore";
 import {CreateMessageFormData} from "../types";
-import {ForwardMessagesStore, MessageEntity} from "../../Message";
-import {ChatsPreferencesStore, ChatStore} from "../../Chat";
+import type {ForwardMessagesStore} from "../../Message/stores";
+import {MessageEntity} from "../../Message/types";
+import {DraftMessageRepository} from "../../Message/repositories";
+import type {ChatsPreferencesStore, ChatStore} from "../../Chat/stores";
 import {ChatApi, getInitialApiErrorFromResponse, MessageApi, UploadApi} from "../../api";
 import {CurrentUser, Upload, UploadType} from "../../api/types/response";
 import {CreateMessageRequest} from "../../api/types/request";
@@ -19,10 +21,9 @@ import {createWithUndefinedValues, isDefined} from "../../utils/object-utils";
 import {Duration} from "../../utils/date-utils";
 import {isStringEmpty} from "../../utils/string-utils";
 import {UploadedFileContainer} from "../../utils/file-utils";
-import {UploadCacheService} from "../../Upload";
-import {AuthorizationStore} from "../../Authorization";
+import {UploadCacheService} from "../../Upload/services";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {splitUploads} from "../../Message/utils";
-import {DraftMessageRepository} from "../../Message/repositories";
 
 const INITIAL_FORM_VALUES: CreateMessageFormData = {
     text: "",

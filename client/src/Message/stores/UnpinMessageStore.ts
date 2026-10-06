@@ -1,7 +1,8 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {ChatOfCurrentUserEntity, ChatStore} from "../../Chat";
-import {EntitiesStore} from "../../entities-store";
+import {ChatOfCurrentUserEntity} from "../../Chat/types";
+import type {ChatStore} from "../../Chat/stores";
+import type {EntitiesStore} from "../../entities-store";
 
 export class UnpinMessageStore {
     pending: boolean = false;

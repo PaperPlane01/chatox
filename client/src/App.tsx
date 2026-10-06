@@ -9,12 +9,12 @@ import "yet-another-react-lightbox/styles.css";
 import {SnackbarProvider} from "notistack";
 import {MobxRouter} from "mobx-router";
 import {themes} from "./themes";
-import {LoadingCurrentUserProgressIndicator} from "./Authorization";
+import {LoadingCurrentUserProgressIndicator} from "./Authorization/components";
 import {rootStore, useLocalization, useStore} from "./store";
-import {AudioPlayerContainer} from "./AudioPlayer";
-import {ErrorBoundary} from "./ErrorBoundary";
-import {AnonymousRegistrationDialog} from "./Registration";
-import {SnackbarManager} from "./Snackbar";
+import {AudioPlayerContainer} from "./AudioPlayer/components";
+import {ErrorBoundary} from "./ErrorBoundary/components";
+import {AnonymousRegistrationDialog} from "./Registration/components";
+import {SnackbarManager} from "./Snackbar/components";
 import {useTitle} from "./utils/hooks";
 
 export const App: FunctionComponent = observer(() => {

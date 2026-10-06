@@ -2,7 +2,7 @@ import React, {Fragment, FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
 import {Button} from "@mui/material";
 import {Add} from "@mui/icons-material";
-import {ChatOfCurrentUserSelect} from "../../Chat";
+import {ChatOfCurrentUserSelect} from "../../Chat/components";
 import {useStore, useLocalization} from "../../store";
 import {ChatType} from "../../api/types/response";
 

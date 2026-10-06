@@ -1,7 +1,7 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
 import {ApiError, getInitialApiErrorFromResponse, GlobalBanApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 export class CancelGlobalBanStore {
     pendingCancellationsMap: {

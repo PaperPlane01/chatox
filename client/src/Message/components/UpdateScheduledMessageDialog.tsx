@@ -19,7 +19,7 @@ import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
-import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown/components";
 
 const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     if (error.metadata?.errorCode) {

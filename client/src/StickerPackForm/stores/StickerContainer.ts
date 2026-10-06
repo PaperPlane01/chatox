@@ -3,7 +3,7 @@ import {v4} from "uuid";
 import {EmojiData} from "emoji-mart";
 import {AxiosError, AxiosPromise} from "axios";
 import {validateStickerEmojis, validateStickerKeywords} from "../validation";
-import {StickerEntity} from "../../Sticker";
+import {StickerEntity} from "../../Sticker/types";
 import {getMaxFileSize, UploadedFileContainer} from "../../utils/file-utils";
 import {ApiError, getInitialApiErrorFromResponse, ProgressCallback, UploadApi} from "../../api";
 import {StickerType, StickerUploadMetadata, Upload, UploadType} from "../../api/types/response";

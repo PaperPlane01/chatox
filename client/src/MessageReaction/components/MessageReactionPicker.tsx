@@ -4,7 +4,7 @@ import {Card} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {MessageReactionPickerBaseProps} from "./MessageReactionPickerBaseProps";
 import {MessageReactionMinifiedPicker} from "./MessageReactionMinifiedPicker";
-import {ConstrainedEmojiPicker, EmojiPicker} from "../../EmojiPicker";
+import {ConstrainedEmojiPicker, EmojiPicker} from "../../EmojiPicker/components";
 import {useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {EmojiDataResponse} from "../../api/types/response";

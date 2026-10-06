@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Close, KeyboardVoice, Pause} from "@mui/icons-material";
 import {IconButton, Typography} from "@mui/material";
 import {SendMessageButton} from "./SendMessageButton";
-import {AudioPlayerControls} from "../../AudioPlayer";
+import {AudioPlayerControls} from "../../AudioPlayer/components";
 import {useLocalization, useStore} from "../../store";
 import {UploadType} from "../../api/types/response";
 

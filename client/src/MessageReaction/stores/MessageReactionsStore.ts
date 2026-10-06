@@ -4,7 +4,7 @@ import {MessageReactionEntity} from "../types";
 import {createMessageEmojiKey} from "../utils";
 import {MessageReaction} from "../../api/types/response";
 import {AbstractEntityStore} from "../../entity-store";
-import {EntitiesPatch, EntitiesStore, RawEntitiesStore, RelationshipsIds} from "../../entities-store";
+import {EntitiesPatch, type EntitiesStore, type RawEntitiesStore, RelationshipsIds} from "../../entities-store";
 import {mergeCustomizer} from "../../utils/object-utils";
 
 export class MessageReactionsStore extends AbstractEntityStore<"messageReactions", MessageReactionEntity, MessageReaction> {

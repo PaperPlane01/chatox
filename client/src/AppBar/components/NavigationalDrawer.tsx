@@ -11,10 +11,10 @@ import {GlobalBansMenuItem} from "./GlobalBansMenuItem";
 import {ReportsMenuItem} from "./ReportsMenuItem";
 import {RewardsManagementMenuItem} from "./RewardsManagementMenuItem";
 import {PendingChatsMenuItem} from "./PendingChatsMenuItem";
-import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
-import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
-import {PasswordRecoveryDialog} from "../../PasswordRecovery";
-import {BalanceList} from "../../Balance";
+import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization/components";
+import {RegistrationDialog, RegistrationMenuItem} from "../../Registration/components";
+import {PasswordRecoveryDialog} from "../../PasswordRecovery/components";
+import {BalanceList} from "../../Balance/components";
 import {useStore} from "../../store";
 
 export const NavigationalDrawer: FunctionComponent = observer(() => {

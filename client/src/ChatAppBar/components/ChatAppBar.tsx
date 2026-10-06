@@ -8,15 +8,15 @@ import {HttpStatusCode} from "axios";
 import {DialogChatAppBarContent} from "./DialogChatAppBarContent";
 import {GroupChatAppBarContent} from "./GroupChatAppBarContent";
 import {NewPrivateChatAppBar} from "./NewPrivateChatAppBar";
-import {NavigationalDrawer, OpenDrawerButton} from "../../AppBar";
+import {NavigationalDrawer, OpenDrawerButton} from "../../AppBar/components";
+import {ForwardMessagesAppBarContent} from "./ForwardMessagesAppBarContent";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
+import {ChatType} from "../../api/types/response";
 import {Labels} from "../../localization";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
-import {ChatType} from "../../api/types/response";
 import {commonStyles} from "../../style";
-import {ForwardMessagesAppBarContent} from "./ForwardMessagesAppBarContent";
 
 const useStyles = makeStyles()(() => ({
     undecoratedLink: commonStyles.undecoratedLink

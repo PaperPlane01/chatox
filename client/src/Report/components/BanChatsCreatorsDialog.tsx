@@ -2,7 +2,7 @@ import React, {FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
 import {useSnackbar} from "notistack";
 import {useLocalization, useStore} from "../../store";
-import {BanUserGloballyDialogBase} from "../../GlobalBan";
+import {BanUserGloballyDialogBase} from "../../GlobalBan/components";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 

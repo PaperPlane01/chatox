@@ -1,7 +1,7 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
 import {ApiError, BlacklistApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {User} from "../../api/types/response";
 
 export class BlacklistedUsersStore {

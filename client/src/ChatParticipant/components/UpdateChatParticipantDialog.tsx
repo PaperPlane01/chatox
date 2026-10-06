@@ -2,7 +2,7 @@ import React, {FunctionComponent, useEffect} from "react";
 import {observer} from "mobx-react";
 import {Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Typography} from "@mui/material";
 import {useSnackbar} from "notistack";
-import {ChatRoleSelect} from "../../ChatRole";
+import {ChatRoleSelect} from "../../ChatRole/components";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";

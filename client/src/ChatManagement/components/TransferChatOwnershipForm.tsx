@@ -1,13 +1,13 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Card, CardActions, CardContent, CardHeader, Chip, CircularProgress, Typography} from "@mui/material";
+import randomColor from "randomcolor";
 import {ConfirmationTokenDialog} from "../../ConfirmationToken/components";
 import {BaseSettingsTabProps} from "../../utils/types";
 import {useLocalization, useStore} from "../../store";
-import {ChatParticipantsAutoComplete} from "../../ChatParticipant";
+import {ChatParticipantsAutoComplete} from "../../ChatParticipant/components";
 import {useEntityById} from "../../entities";
-import {Avatar} from "../../Avatar";
-import randomColor from "randomcolor";
+import {Avatar} from "../../Avatar/components";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {useLuminosity} from "../../utils/hooks";
 

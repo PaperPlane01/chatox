@@ -1,7 +1,7 @@
 import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
 import {Typography} from "@mui/material";
-import {LinearProgressWithLabel} from "../../LinearProgressWithLabel";
+import {LinearProgressWithLabel} from "../../LinearProgressWithLabel/components";
 import {useLocalization, useStore} from "../../store";
 import {isDefined} from "../../utils/object-utils";
 

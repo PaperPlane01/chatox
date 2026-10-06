@@ -1,6 +1,6 @@
 import {action, makeObservable, observable, runInAction} from "mobx";
 import {AxiosError} from "axios";
-import {AuthorizationStore} from "./AuthorizationStore";
+import type {AuthorizationStore} from "./AuthorizationStore";
 import {LoginFormData} from "../types";
 import {API_UNREACHABLE_STATUS, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {FormErrors} from "../../utils/types";

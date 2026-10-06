@@ -1,11 +1,11 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Grid, Typography} from "@mui/material";
-import {AppBar} from "../AppBar";
+import {AppBar} from "../AppBar/components";
 import {StickerPackImport} from "../StickerPackForm/components";
 import {useLocalization} from "../store";
-import {Layout} from "../Layout";
-import {HasRole} from "../Authorization";
+import {Layout} from "../Layout/components";
+import {HasRole} from "../Authorization/components";
 
 export const ImportStickerPackPage: FunctionComponent = observer(() => {
 	const {l} = useLocalization();

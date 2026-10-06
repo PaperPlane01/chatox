@@ -1,7 +1,7 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {debounce} from "lodash";
-import {EntitiesStore} from "../../entities-store";
-import {ChatStore} from "../../Chat";
+import type {EntitiesStore} from "../../entities-store";
+import type {ChatStore} from "../../Chat/stores";
 import {PaginationState} from "../../utils/types";
 import {ApiError, ChatParticipantApi, getInitialApiErrorFromResponse} from "../../api";
 import {PaginationRequest} from "../../api/types/request";

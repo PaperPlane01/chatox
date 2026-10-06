@@ -5,7 +5,7 @@ import {Info} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
-import {MarkdownTextWithEmoji} from "../../Markdown";
+import {MarkdownTextWithEmoji} from "../../Markdown/components";
 
 const useStyles = makeStyles()(() => ({
     root: {

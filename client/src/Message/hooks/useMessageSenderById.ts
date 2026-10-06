@@ -1,5 +1,5 @@
 import {FindMessageSenderFunction} from "../types";
-import {UserEntity} from "../../User";
+import {UserEntity} from "../../User/types";
 import {useEntityById} from "../../entities";
 
 export function useMessageSenderById(senderId: string, override?: FindMessageSenderFunction): UserEntity;

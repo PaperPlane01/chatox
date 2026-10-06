@@ -4,7 +4,7 @@ import {AbstractChatFeatureFormStore} from "./AbstractChatFeatureFormStore";
 import {ConvertableChatFeatureFormStore} from "./ConvertableChatFeatureFormStore";
 import {AddReactionsFeatureFormData} from "../types";
 import {ChatFeatures, fromEmojiData, toEmojiData} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {FormErrors} from "../../utils/types";
 import {createWithUndefinedValues} from "../../utils/object-utils";
 

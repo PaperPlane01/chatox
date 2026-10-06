@@ -5,7 +5,7 @@ import {
     ScheduledMessagesList,
     PublishScheduledMessageSnackbarManager,
     UpdateScheduledMessageDialog
-} from "../Message";
+} from "../Message/components";
 
 export const ScheduledMessagesPage: FunctionComponent = () => (
     <Fragment>

@@ -1,10 +1,10 @@
 import {action, makeObservable, observable, reaction, runInAction} from "mobx";
-import {UpdateEmailDialogStore} from "./UpdateEmailDialogStore";
+import type {UpdateEmailDialogStore} from "./UpdateEmailDialogStore";
 import {UpdateEmailStep} from "../types";
-import {AbstractCreateEmailConfirmationCodeStore} from "../../EmailConfirmation";
+import {AbstractCreateEmailConfirmationCodeStore} from "../../EmailConfirmation/stores";
 import {UserApi} from "../../api";
 import {EmailConfirmationCodeType} from "../../api/types/request";
-import {LocaleStore} from "../../localization";
+import type {LocaleStore} from "../../localization";
 import {validateEmail} from "../../Registration/validation";
 
 export class SendNewEmailConfirmationCodeStore extends AbstractCreateEmailConfirmationCodeStore {
@@ -23,7 +23,7 @@ export class SendNewEmailConfirmationCodeStore extends AbstractCreateEmailConfir
             () => this.emailConfirmationCode,
             emailConfirmationCode => {
                 if (emailConfirmationCode) {
-                    updateEmailDialogStore.setCurrentStep(UpdateEmailStep.CHECK_NEW_EMAIL_CONFIRMATION_CODE);
+                    this.updateEmailDialogStore.setCurrentStep(UpdateEmailStep.CHECK_NEW_EMAIL_CONFIRMATION_CODE);
                 }
             }
         );

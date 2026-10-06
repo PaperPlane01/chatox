@@ -10,7 +10,7 @@ import {ScheduleMessageMenuItem} from "./ScheduleMessageMenuItem";
 import {ShowScheduledMessagesMenuItem} from "./ShowScheduledMessagesMenuItem";
 import {ShowPinnedMessageMenuItem} from "./ShowPinnedMessageMenuItem";
 import {ChatManagementMenuItem} from "./ChatManagementMenuItem";
-import {ReportChatMenuItem} from "../../Report";
+import {ReportChatMenuItem} from "../../Report/components";
 import {useAuthorization, usePermissions, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 

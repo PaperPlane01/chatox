@@ -4,8 +4,8 @@ import {MessageFormData} from "../types";
 import {validateMessageText} from "../validation";
 import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
-import {ChatStore} from "../../Chat";
-import {EntitiesStore} from "../../entities-store";
+import type {ChatStore} from "../../Chat/stores";
+import type {EntitiesStore} from "../../entities-store";
 import {MessageEntity} from "../../Message/types";
 
 export abstract class AbstractMessageFormStore<T extends MessageFormData> extends AbstractFormStore<T> {

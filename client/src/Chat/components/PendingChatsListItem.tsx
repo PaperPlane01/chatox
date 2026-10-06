@@ -9,7 +9,7 @@ import {useRouter} from "../../store";
 import {useEntityById} from "../../entities";
 import {commonStyles} from "../../style";
 import {Routes} from "../../router";
-import {Avatar} from "../../Avatar";
+import {Avatar} from "../../Avatar/components";
 import {useLuminosity} from "../../utils/hooks";
 
 interface PendingChatListItemProps {

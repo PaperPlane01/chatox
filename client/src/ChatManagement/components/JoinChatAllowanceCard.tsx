@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, CardActions, CircularProgress, Button} from "@mui/material";
-import {JoinChatAllowanceForm} from "../../JoinChatAllowanceForm";
+import {JoinChatAllowanceForm} from "../../JoinChatAllowanceForm/components";
 import {useLocalization, useStore} from "../../store";
 import {BaseSettingsTabProps} from "../../utils/types";
 

@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {makeStyles} from "tss-react/mui";
 import {VirtualMessagesList} from "./VirtualMessagesList";
 import {MessagesList} from "./MessagesList";
-import {ChatDeletionLabel} from "../../Chat";
+import {ChatDeletionLabel} from "../../Chat/components";
 import {useStore} from "../../store";
 import {useEntityById} from "../../entities";
 

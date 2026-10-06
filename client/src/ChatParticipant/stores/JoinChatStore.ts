@@ -2,11 +2,11 @@ import {makeAutoObservable, runInAction} from "mobx";
 import {HttpStatusCode} from "axios";
 import {API_UNREACHABLE_STATUS, ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {JoinChatRejectionReason, UserVerificationLevel} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
-import {AuthorizationStore} from "../../Authorization";
-import {PendingChatsOfCurrentUserStore} from "../../Chat";
-import {SnackbarService} from "../../Snackbar";
-import {Labels, LocaleStore} from "../../localization";
+import type {EntitiesStore} from "../../entities-store";
+import type {AuthorizationStore} from "../../Authorization/stores";
+import type {PendingChatsOfCurrentUserStore} from "../../Chat/stores";
+import type {SnackbarService} from "../../Snackbar/services";
+import {Labels, type LocaleStore} from "../../localization";
 
 export class JoinChatStore {
     chatId?: string = undefined;

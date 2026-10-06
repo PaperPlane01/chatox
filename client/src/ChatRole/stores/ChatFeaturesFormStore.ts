@@ -4,7 +4,7 @@ import {SendMessagesFeatureFormStore} from "./SendMessagesFeatureFormStore";
 import {DefaultChatFeatureFormStore} from "./DefaultChatFeatureFormStore";
 import {LevelBasedChatFeatureFromStore} from "./LevelBasedChatFeatureFromStore";
 import {AddReactionsFeatureFormStore} from "./AddReactionsFeatureFormStore";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {ChatFeatures} from "../../api/types/response";
 
 interface FeaturesForms {

@@ -1,9 +1,9 @@
 import {makeAutoObservable} from "mobx";
-import {NotificationsSettingsStore} from "./NotificationsSettingsStore";
-import {ChatStore} from "../../Chat";
-import {EntitiesStore} from "../../entities-store";
-import {MessageEntity} from "../../Message";
-import {AuthorizationStore} from "../../Authorization";
+import type {NotificationsSettingsStore} from "./NotificationsSettingsStore";
+import type {ChatStore} from "../../Chat/stores";
+import type {EntitiesStore} from "../../entities-store";
+import {MessageEntity} from "../../Message/types";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {
 	ChatType,
 	CurrentUser,

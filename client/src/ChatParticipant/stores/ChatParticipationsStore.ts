@@ -6,7 +6,7 @@ import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {ChatParticipation, CurrentUser} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
-import {AuthorizationStore} from "../../Authorization";
+import {AuthorizationStore} from "../../Authorization/stores";
 
 interface InsertChatParticipantOptions {
     increaseChatParticipantsCount: boolean

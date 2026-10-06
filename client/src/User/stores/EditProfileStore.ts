@@ -1,16 +1,16 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {throttle} from "lodash";
 import {EditProfileFormData} from "../types";
+import {validateBio} from "../validation";
 import {FormErrors} from "../../utils/types";
 import {validateFirstName, validateLastName, validateSlug} from "../../Registration/validation";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
-import {validateBio} from "../validation";
-import {AuthorizationStore} from "../../Authorization";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {CurrentUser, ImageUploadMetadata} from "../../api/types/response";
-import {UploadImageStore} from "../../Upload/stores";
+import type {UploadImageStore} from "../../Upload/stores";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {Labels} from "../../localization/types";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 export class EditProfileStore {
     editProfileForm: EditProfileFormData = {

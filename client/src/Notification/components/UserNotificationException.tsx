@@ -5,7 +5,7 @@ import {Delete} from "@mui/icons-material";
 import randomColor from "randomcolor";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
-import {Avatar} from "../../Avatar";
+import {Avatar} from "../../Avatar/components";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {useLuminosity} from "../../utils/hooks";
 import {ensureEventWontPropagate} from "../../utils/event-utils";

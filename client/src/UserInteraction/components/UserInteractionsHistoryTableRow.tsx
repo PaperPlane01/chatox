@@ -7,7 +7,7 @@ import {USER_INTERACTIONS_ICONS_MAP} from "./UserInteractionIcons";
 import {useLocalization} from "../../store";
 import {useEntityById} from "../../entities";
 import {Labels} from "../../localization";
-import {UserLink} from "../../UserLink";
+import {UserLink} from "../../UserLink/components";
 
 interface UserInteractionsTableRowProps {
     userInteractionId: string

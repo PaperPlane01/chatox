@@ -2,8 +2,8 @@ import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {connect, Socket} from "socket.io-client";
 import {proxy, Remote} from "comlink";
 import {isBefore} from "date-fns";
-import {AuthorizationStore} from "../../Authorization";
-import {EntitiesStore} from "../../entities-store";
+import type {AuthorizationStore} from "../../Authorization/stores";
+import type {EntitiesStore} from "../../entities-store";
 import {ChatApi} from "../../api";
 import {
     BalanceUpdated,
@@ -33,14 +33,15 @@ import {
     GlobalNotificationsSettings,
     Message
 } from "../../api/types/response";
-import {ChatOfCurrentUserEntity, ChatStore, PendingChatsOfCurrentUserStore, TypingUsersStore} from "../../Chat";
-import {MarkMessageReadStore, MessagesListScrollPositionsStore, MessagesOfChatStore} from "../../Message";
-import {BalanceStore} from "../../Balance";
-import {LocaleStore} from "../../localization";
-import {SnackbarService} from "../../Snackbar";
+import type {ChatStore, PendingChatsOfCurrentUserStore, TypingUsersStore} from "../../Chat/stores";
+import {ChatOfCurrentUserEntity} from "../../Chat/types";
+import {MarkMessageReadStore, MessagesListScrollPositionsStore, MessagesOfChatStore} from "../../Message/stores";
+import {BalanceStore} from "../../Balance/stores";
+import {LocaleStore} from "../../localization/stores";
+import type {SnackbarService} from "../../Snackbar/services";
 import {getSocketIoWorker, SocketIoWorker} from "../../workers";
 import {isDefined} from "../../utils/object-utils";
-import {NotificationsSettingsStore, SoundNotificationStore} from "../../Notification";
+import type {NotificationsSettingsStore, SoundNotificationStore} from "../../Notification/stores";
 import type {ReactionsToMessagesStore} from "../../MessageReaction/stores";
 
 type ConnectionType = "socketIo" | "sharedWorker";

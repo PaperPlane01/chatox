@@ -24,7 +24,7 @@ import randomColor from "randomcolor";
 import {HttpStatusCode} from "axios";
 import {RecentMessagesDeletionPeriod} from "../types";
 import {Labels, TranslationFunction} from "../../localization";
-import {Avatar} from "../../Avatar";
+import {Avatar} from "../../Avatar/components";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";

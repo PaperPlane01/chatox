@@ -1,7 +1,7 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {ChatStore} from "../../Chat";
+import type {ChatStore} from "../../Chat/stores";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 export class KickChatParticipantStore {
     error?: ApiError = undefined;

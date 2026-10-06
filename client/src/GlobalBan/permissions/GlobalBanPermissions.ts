@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {AuthorizationStore} from "../../Authorization";
+import type {AuthorizationStore} from "../../Authorization/stores";
 
 export class GlobalBanPermissions {
     get canBanUsersGlobally(): boolean {

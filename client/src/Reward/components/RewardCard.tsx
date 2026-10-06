@@ -5,7 +5,7 @@ import {ExpandMore} from "@mui/icons-material";
 import {format} from "date-fns";
 import {EditRewardButton} from "./EditRewardButton";
 import {RewardProperty} from "./RewardProperty";
-import {UserLink} from "../../UserLink";
+import {UserLink} from "../../UserLink/components";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {isStringEmpty} from "../../utils/string-utils";

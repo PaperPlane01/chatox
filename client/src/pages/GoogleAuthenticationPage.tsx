@@ -1,7 +1,7 @@
 import React, {FunctionComponent, useEffect, Fragment} from "react";
 import {observer} from "mobx-react";
 import {Typography, Grid, CircularProgress} from "@mui/material";
-import {AppBar} from "../AppBar";
+import {AppBar} from "../AppBar/components";
 import {useAuthorization, useLocalization, useRouter, useStore} from "../store";
 import {getRouteByPath} from "../router";
 import {API_UNREACHABLE_STATUS} from "../api";

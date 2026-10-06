@@ -1,14 +1,14 @@
 import React, {FunctionComponent} from "react";
 import {Grid} from "@mui/material";
-import {Layout} from "../Layout";
+import {Layout} from "../Layout/components";
 import {
     ChatManagementAppBar,
     ChatManagementTabsContainer
-} from "../ChatManagement";
-import {ConfirmChatDeletionDialog, SpecifyChatDeletionReasonDialog} from "../Chat";
-import {ChatBlockingInfoDialog, UpdateChatBlockingDialog} from "../ChatBlocking";
-import {ChatRoleInfoDialog, CreateChatRoleDialog} from "../ChatRole";
-import {ChatInviteInfoDialog, CreateChatInviteDialog, UpdateChatInviteDialog} from "../ChatInvite";
+} from "../ChatManagement/components";
+import {ConfirmChatDeletionDialog, SpecifyChatDeletionReasonDialog} from "../Chat/components";
+import {ChatBlockingInfoDialog, UpdateChatBlockingDialog} from "../ChatBlocking/components";
+import {ChatRoleInfoDialog, CreateChatRoleDialog} from "../ChatRole/components";
+import {ChatInviteInfoDialog, CreateChatInviteDialog, UpdateChatInviteDialog} from "../ChatInvite/components";
 
 export const ChatManagementPage: FunctionComponent = () => (
     <Grid container>

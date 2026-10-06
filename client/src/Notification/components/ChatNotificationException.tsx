@@ -5,7 +5,8 @@ import {Delete} from "@mui/icons-material";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {ChatType, NotificationLevel} from "../../api/types/response";
-import {ChatAvatar, useChatName} from "../../Chat";
+import {ChatAvatar} from "../../Chat/components";
+import {useChatName} from "../../Chat/hooks";
 import {Labels} from "../../localization";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 

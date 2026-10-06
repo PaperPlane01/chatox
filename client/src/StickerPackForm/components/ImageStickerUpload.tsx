@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {StickerUploadProps} from "./StickerUploadProps";
 import {useLocalization} from "../../store";
-import {ImageUpload} from "../../Upload";
+import {ImageUpload} from "../../Upload/components";
 
 export const ImageStickerUpload: FunctionComponent<StickerUploadProps> = observer(({
 	stickerContainer

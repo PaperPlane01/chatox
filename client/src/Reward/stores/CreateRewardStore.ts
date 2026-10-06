@@ -1,13 +1,13 @@
 import {action, makeObservable, observable} from "mobx";
 import {AxiosPromise} from "axios";
 import {AbstractRewardFormStore} from "./AbstractRewardFormStore";
-import {EntitiesStore} from "../../entities-store";
-import {SnackbarService} from "../../Snackbar";
-import {Labels, LocaleStore} from "../../localization";
+import type {EntitiesStore} from "../../entities-store";
+import type {SnackbarService} from "../../Snackbar/services";
+import {Labels, type LocaleStore} from "../../localization";
 import {RewardApi} from "../../api";
 import {RewardRequest} from "../../api/types/request";
 import {Reward} from "../../api/types/response";
-import {SelectUserStore} from "../../UserSelect";
+import type {SelectUserStore} from "../../UserSelect/stores";
 
 export class CreateRewardStore extends AbstractRewardFormStore {
     createRewardDialogOpen = false;

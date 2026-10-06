@@ -5,7 +5,7 @@ import {format} from "date-fns";
 import {CancelChatBlockingButton} from "./CancelChatBlockingButton";
 import {UpdateChatBlockingButton} from "./UpdateChatBlockingButton";
 import {isChatBlockingActive} from "../utils";
-import {UserLink} from "../../UserLink";
+import {UserLink} from "../../UserLink/components";
 import {useLocalization} from "../../store";
 import {useEntityById} from "../../entities";
 

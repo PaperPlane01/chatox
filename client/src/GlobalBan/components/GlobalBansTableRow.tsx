@@ -7,7 +7,7 @@ import {format} from "date-fns";
 import {CancelGlobalBanButton} from "./CancelGlobalBanButton";
 import {UpdateGlobalBanButton} from "./UpdateGlobalBanButton";
 import {isGlobalBanActive} from "../utils";
-import {UserLink} from "../../UserLink";
+import {UserLink} from "../../UserLink/components";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {Labels} from "../../localization";

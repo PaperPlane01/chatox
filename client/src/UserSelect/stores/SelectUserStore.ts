@@ -4,8 +4,8 @@ import {validateSelectedUserIdOrSlug} from "../validation";
 import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
 import {containsNotUndefinedValues, createWithUndefinedValues} from "../../utils/object-utils";
-import {EntitiesStore} from "../../entities-store";
-import {UserEntity} from "../../User";
+import type {EntitiesStore} from "../../entities-store";
+import {UserEntity} from "../../User/types";
 import {getInitialApiErrorFromResponse, UserApi} from "../../api";
 
 const INITIAL_FORM_VALUES: SelectUserFormData = {

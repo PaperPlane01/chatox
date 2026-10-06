@@ -7,7 +7,7 @@ import {
     ChatsOfCurrentUserListWrapper,
     ConfirmChatDeletionDialog,
     SpecifyChatDeletionReasonDialog
-} from "../Chat";
+} from "../Chat/components";
 import {UpdateChatParticipantDialog} from "../ChatParticipant/components";
 import {ChatAppBar} from "../ChatAppBar/components";
 import {

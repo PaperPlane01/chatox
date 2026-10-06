@@ -2,10 +2,16 @@ import {merge, mergeWith, uniq} from "lodash";
 import {MessageInsertOptions} from "../types";
 import {convertMessageToNormalizedForm} from "../utils";
 import {SoftDeletableEntityStore} from "../../entity-store";
-import {EntitiesPatch, EntitiesStore, GetEntityType, RawEntitiesStore, RelationshipsIds} from "../../entities-store";
+import {
+    EntitiesPatch,
+    type EntitiesStore,
+    GetEntityType,
+    type RawEntitiesStore,
+    RelationshipsIds
+} from "../../entities-store";
 import {Message} from "../../api/types/response";
 import {isDefined, mergeCustomizer} from "../../utils/object-utils";
-import {UserChatRolesStore} from "../../ChatRole";
+import type {UserChatRolesStore} from "../../ChatRole/stores";
 import {RequiredField} from "../../utils/types";
 
 type MessageType = "messages" | "scheduledMessages" | "draftMessages";

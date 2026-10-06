@@ -1,9 +1,9 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
-import {StickerAnimationDataStore} from "./StickerAnimationDataStore";
+import type {StickerAnimationDataStore} from "./StickerAnimationDataStore";
 import {ApiError, getInitialApiErrorFromResponse, StickerApi} from "../../api";
-import {AuthorizationStore} from "../../Authorization";
-import {EntitiesStore} from "../../entities-store";
+import type {AuthorizationStore} from "../../Authorization/stores";
+import type {EntitiesStore} from "../../entities-store";
 
 export class InstalledStickerPacksStore {
     installedStickerPacksIds: string[] = [];

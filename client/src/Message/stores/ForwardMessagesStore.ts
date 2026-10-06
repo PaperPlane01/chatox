@@ -1,10 +1,10 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
+import {AxiosError} from "axios";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
 import {ForwardMessagesRequest} from "../../api/types/request";
-import {EntitiesStore} from "../../entities-store";
-import {ChatStore} from "../../Chat";
-import {AxiosError} from "axios";
+import type {EntitiesStore} from "../../entities-store";
+import type {ChatStore} from "../../Chat/stores";
 
 export class ForwardMessagesStore {
     forwardedMessagesIds: string[] = [];

@@ -10,9 +10,9 @@ import {getDateOfBirthLabel, getOnlineOrLastSeenLabel} from "../utils/labels";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
-import {HasAnyRole} from "../../Authorization";
-import {UserInteractionsCount} from "../../UserInteraction";
-import {MarkdownTextWithEmoji} from "../../Markdown";
+import {HasAnyRole} from "../../Authorization/components";
+import {UserInteractionsCount} from "../../UserInteraction/components";
+import {MarkdownTextWithEmoji} from "../../Markdown/components";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     centered: {

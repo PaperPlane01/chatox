@@ -4,7 +4,7 @@ import {Button, Chip, Dialog, DialogActions, DialogContent, Typography} from "@m
 import {makeStyles} from "tss-react/mui";
 import {Sticker} from "./Sticker";
 import {useLocalization, useStore} from "../../store";
-import {Countdown} from "../../Countdown";
+import {Countdown} from "../../Countdown/components";
 import {useEntityById} from "../../entities";
 import {commonStyles} from "../../style";
 

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {Grid} from "@mui/material";
-import {ChangePasswordContainer} from "../../User";
-import {EditEmailContainer} from "../../EmailUpdate";
+import {ChangePasswordContainer} from "../../User/components";
+import {EditEmailContainer} from "../../EmailUpdate/components";
 
 export const SecurityTabWrapper: FunctionComponent = () => (
     <Grid container spacing={2}>

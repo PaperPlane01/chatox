@@ -9,8 +9,8 @@ import {useLocalization, useRouter, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {trimString} from "../../utils/string-utils";
 import {getOnlineOrLastSeenLabel, getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {Avatar} from "../../Avatar";
-import {NavigationalDrawer, OpenDrawerButton} from "../../AppBar";
+import {Avatar} from "../../Avatar/components";
+import {NavigationalDrawer, OpenDrawerButton} from "../../AppBar/components";
 import {Routes} from "../../router";
 import {useLuminosity} from "../../utils/hooks";
 

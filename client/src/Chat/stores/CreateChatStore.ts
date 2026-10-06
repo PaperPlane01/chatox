@@ -12,7 +12,7 @@ import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {FormErrors} from "../../utils/types";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
 import {ChatOfCurrentUser} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 export class CreateChatStore {
     createChatForm: CreateChatFormData = {

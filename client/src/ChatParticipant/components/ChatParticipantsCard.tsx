@@ -10,7 +10,7 @@ import {OnlineChatParticipantsList} from "./OnlineChatParticipantsList";
 import {SearchChatParticipantsList} from "./SearchChatParticipantsList";
 import {ChatParticipantsListMode} from "../types";
 import {useChatParticipantsListScroll} from "../hooks";
-import {ChatOfCurrentUserEntity} from "../../Chat";
+import {ChatOfCurrentUserEntity} from "../../Chat/types";
 import {TranslationFunction} from "../../localization";
 import {commonStyles} from "../../style";
 import {useLocalization, useStore} from "../../store";

@@ -12,7 +12,7 @@ import {
     FormControlLabel
 } from "@mui/material";
 import {useStore, useLocalization} from "../../store";
-import {TimeUnitSelect} from "../../TimeUnitSelect";
+import {TimeUnitSelect} from "../../TimeUnitSelect/components";
 import {TimeUnit} from "../../api/types/response";
 import {BaseSettingsTabProps} from "../../utils/types";
 

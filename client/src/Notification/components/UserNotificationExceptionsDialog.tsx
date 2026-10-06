@@ -7,7 +7,8 @@ import {UserNotificationException} from "./UserNotificationException";
 import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {useEntityById} from "../../entities";
-import {ChatParticipantsAutoComplete, ChatParticipationEntity} from "../../ChatParticipant";
+import {ChatParticipantsAutoComplete} from "../../ChatParticipant/components";
+import {ChatParticipationEntity} from "../../ChatParticipant/types";
 
 export const UserNotificationExceptionsDialog: FunctionComponent = observer(() => {
 	const [userSelectModeActive, setUserSelectModeActive] = useState(false);

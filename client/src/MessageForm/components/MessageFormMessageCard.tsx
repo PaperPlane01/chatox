@@ -7,7 +7,7 @@ import randomColor from "randomcolor";
 import {getForwardMessagesLabel} from "../../Message/utils";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
-import {MarkdownTextWithEmoji} from "../../Markdown";
+import {MarkdownTextWithEmoji} from "../../Markdown/components";
 import {getUserDisplayedName} from "../../User/utils/labels";
 import {useLuminosity} from "../../utils/hooks";
 

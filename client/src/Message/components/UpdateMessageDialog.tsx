@@ -12,7 +12,7 @@ import {
     Typography,
 } from "@mui/material";
 import {HttpStatusCode} from "axios";
-import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown/components";
 import {Language, TranslationFunction} from "../../localization";
 import {useLocalization, useStore} from "../../store";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";

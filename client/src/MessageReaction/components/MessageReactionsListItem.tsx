@@ -5,7 +5,7 @@ import {MessageReactionEntity} from "../types";
 import {useEntityById} from "../../entities";
 import {useLocalization} from "../../store";
 import {getCreatedAtLabel} from "../../utils/date-utils";
-import {UserLink} from "../../UserLink";
+import {UserLink} from "../../UserLink/components";
 import {useSelectedEmojiSet} from "../../Emoji/hooks";
 import {UserAvatar} from "../../UserAvatar/components";
 

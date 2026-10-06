@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Typography} from "@mui/material";
 import {JoinChatByInviteButton} from "./JoinChatByInviteButton";
-import {PopularChatsListItem} from "../../Chat";
+import {PopularChatsListItem} from "../../Chat/components";
 import {useLocalization, useStore} from "../../store";
 import {JoinChatRejectionReason} from "../../api/types/response";
 import {Labels, TranslationFunction} from "../../localization";

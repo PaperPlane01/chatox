@@ -3,8 +3,8 @@ import {observer} from "mobx-react";
 import randomColor from "randomcolor";
 import {ChatOfCurrentUserEntity} from "../types";
 import {getAvatarLabel} from "../utils";
-import {Avatar} from "../../Avatar";
-import {UserEntity} from "../../User";
+import {Avatar} from "../../Avatar/components";
+import {UserEntity} from "../../User/types";
 import {getUserAvatarLabel} from "../../User/utils/labels";
 import {useLuminosity} from "../../utils/hooks";
 

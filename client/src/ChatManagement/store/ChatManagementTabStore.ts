@@ -1,9 +1,9 @@
 import {makeAutoObservable, reaction} from "mobx";
 import {ChatManagementTab} from "../types";
-import {ChatParticipantsStore, JoinChatRequestsStore} from "../../ChatParticipant";
-import {RolesOfChatStore} from "../../ChatRole";
-import {ChatBlockingsOfChatStore} from "../../ChatBlocking";
-import {ChatInviteListStore} from "../../ChatInvite";
+import type {ChatParticipantsStore, JoinChatRequestsStore} from "../../ChatParticipant/stores";
+import type {RolesOfChatStore} from "../../ChatRole/stores";
+import type {ChatBlockingsOfChatStore} from "../../ChatBlocking/stores";
+import type {ChatInviteListStore} from "../../ChatInvite/stores";
 
 export class ChatManagementTabStore {
     activeTab?: ChatManagementTab = undefined;

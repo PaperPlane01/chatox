@@ -17,7 +17,7 @@ import {ChipInput} from "../../ChipInput";
 import {useLocalization, useRouter, useStore} from "../../store";
 import {Routes} from "../../router";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
-import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown/components";
 import {useMobileDialog} from "../../utils/hooks";
 
 const useStyles = makeStyles()((theme: Theme) => ({

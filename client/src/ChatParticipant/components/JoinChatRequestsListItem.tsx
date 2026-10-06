@@ -5,7 +5,7 @@ import {Checkbox, ListItem, ListItemAvatar, ListItemText} from "@mui/material";
 import {makeStyles} from 'tss-react/mui';
 import randomColor from "randomcolor";
 import {JoinChatRequestMenu} from "./JoinChatRequestMenu";
-import {Avatar} from "../../Avatar";
+import {Avatar} from "../../Avatar/components";
 import {useRouter, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {Routes} from "../../router";

@@ -4,7 +4,7 @@ import {Button, Dialog, DialogActions, DialogContent} from "@mui/material";
 import {useEntities, useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
-import {MessagesListItem} from "../../Message";
+import {MessagesListItem} from "../../Message/components";
 
 export const ReportedMessageDialog: FunctionComponent = observer(() => {
     const {

@@ -2,9 +2,9 @@ import React, {lazy, Suspense} from "react";
 import {CircularProgress} from "@mui/material";
 import {QueryParams, Route, RouteParams} from "mobx-router";
 import {store} from "../store";
-import {getSettingsTabFromString} from "../Settings";
-import {ErrorBoundary} from "../ErrorBoundary";
-import {getChatManagementTabFromString} from "../ChatManagement";
+import {getSettingsTabFromString} from "../Settings/types";
+import {ErrorBoundary} from "../ErrorBoundary/components";
+import {getChatManagementTabFromString} from "../ChatManagement/types";
 
 const fallback = (
     <div style={{

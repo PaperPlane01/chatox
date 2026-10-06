@@ -6,7 +6,7 @@ import {StickerPackMenu} from "./StickerPackMenu";
 import {StickerPackInstallationButtons} from "./StickerPackInstallationButtons";
 import {useLocalization} from "../../store";
 import {useEntityById} from "../../entities";
-import {HasAnyRole} from "../../Authorization";
+import {HasAnyRole} from "../../Authorization/components";
 
 interface StickerPackCardProps {
 	stickerPackId?: string

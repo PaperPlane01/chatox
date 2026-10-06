@@ -9,7 +9,7 @@ import {UnpinMessageMenuItem} from "./UnpinMessageMenuItem";
 import {useLocalization, usePermissions, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
-import {MarkdownTextWithEmoji} from "../../Markdown";
+import {MarkdownTextWithEmoji} from "../../Markdown/components";
 
 interface PinnedMessageProps {
     width?: string | number

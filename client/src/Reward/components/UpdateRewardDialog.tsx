@@ -6,7 +6,7 @@ import {useLocalization, useStore} from "../../store";
 import {useMobileDialog} from "../../utils/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
-import {UserSelect} from "../../UserSelect";
+import {UserSelect} from "../../UserSelect/components";
 
 const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     if (error.status === API_UNREACHABLE_STATUS) {

@@ -10,7 +10,7 @@ import {commonStyles} from "../../style";
 import {useLocalization, useRouter} from "../../store";
 import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
-import {Avatar} from "../../Avatar";
+import {Avatar} from "../../Avatar/components";
 import {getAvatarLabel} from "../utils";
 import {useLuminosity} from "../../utils/hooks";
 

@@ -2,7 +2,7 @@ import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
 import {ChangePasswordForm} from "./ChangePasswordForm";
 import {CheckPasswordChangeEmailConfirmationDialog} from "./CheckPasswordChangeEmailConfirmationDialog";
-import {EmailConfirmationCodeCreationPendingDialog} from "../../EmailConfirmation";
+import {EmailConfirmationCodeCreationPendingDialog} from "../../EmailConfirmation/components";
 import {useStore} from "../../store";
 
 export const ChangePasswordContainer: FunctionComponent = observer(() => {

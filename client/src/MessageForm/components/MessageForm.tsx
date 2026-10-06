@@ -6,7 +6,7 @@ import {UpdateMessagePlainTextForm} from "./UpdateMessagePlainTextForm";
 import {UpdateMessageRichTextForm} from "./UpdateMessageRichTextForm";
 import {VoiceRecorder} from "./VoiceRecorder";
 import {useStore} from "../../store";
-import {MessageEditorType} from "../../Chat";
+import {MessageEditorType} from "../../Chat/types";
 
 export const MessageForm: FunctionComponent = observer(() => {
     const {

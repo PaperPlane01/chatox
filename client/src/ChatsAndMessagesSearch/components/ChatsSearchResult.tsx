@@ -10,7 +10,8 @@ import {
     Typography
 } from "@mui/material";
 import {useLocalization, useStore} from "../../store";
-import {ChatsOfCurrentUserListProps, ChatsOfCurrentUserListItem} from "../../Chat";
+import {ChatsOfCurrentUserListItem} from "../../Chat/components";
+import {ChatsOfCurrentUserListProps} from "../../Chat/types";
 
 export const ChatsSearchResult: FunctionComponent<ChatsOfCurrentUserListProps> = observer(({classes}) => {
     const {

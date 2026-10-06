@@ -8,9 +8,9 @@ import {useEntitiesByIds, useEntityById} from "../../entities";
 import {Upload, UploadType} from "../../api/types/response";
 import {capitalize} from "../../utils/string-utils";
 import {Labels, TranslationFunction} from "../../localization";
-import {StickerEntity} from "../../Sticker";
+import {StickerEntity} from "../../Sticker/types";
 import {MessageEntity} from "../../Message/types";
-import {MarkdownTextWithEmoji} from "../../Markdown";
+import {MarkdownTextWithEmoji} from "../../Markdown/components";
 import {EmojiSet} from "../../Emoji/types";
 
 interface ChatListMessagePreviewProps {

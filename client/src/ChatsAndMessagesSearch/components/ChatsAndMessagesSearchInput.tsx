@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {TextFieldProps} from "@mui/material";
-import {SearchTextField} from "../../SearchTextField";
-import {HasRole} from "../../Authorization";
+import {SearchTextField} from "../../SearchTextField/components";
+import {HasRole} from "../../Authorization/components";
 import {useStore} from "../../store";
 
 type ChatsAndMessagesSearchInputProps = TextFieldProps &  {

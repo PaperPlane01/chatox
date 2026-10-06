@@ -1,8 +1,8 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {debounce} from "lodash";
-import {ChatsAndMessagesSearchQueryStore} from "./ChatsAndMessagesSearchQueryStore";
+import type {ChatsAndMessagesSearchQueryStore} from "./ChatsAndMessagesSearchQueryStore";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 export class ChatsOfCurrentUserSearchStore {
     foundChats: string[] = [];

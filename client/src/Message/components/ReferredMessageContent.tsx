@@ -4,9 +4,9 @@ import {CardContent, CardHeader, Theme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {FindMessageFunction, FindMessageSenderFunction} from "../types";
 import {useMessageById, useMessageSenderById} from "../hooks";
-import {UserLink} from "../../UserLink";
+import {UserLink} from "../../UserLink/components";
 import {useLocalization, useStore} from "../../store";
-import {MarkdownTextWithEmoji} from "../../Markdown";
+import {MarkdownTextWithEmoji} from "../../Markdown/components";
 
 interface ReferredMessageContentProps {
     messageId: string,

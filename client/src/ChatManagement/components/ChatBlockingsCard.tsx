@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader} from "@mui/material";
-import {ChatBlockingsListWrapper} from "../../ChatBlocking";
+import {ChatBlockingsListWrapper} from "../../ChatBlocking/components";
 import {useLocalization, useStore} from "../../store";
 import {BaseSettingsTabProps} from "../../utils/types";
 

@@ -1,10 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Avatar, AvatarProps} from "../../Avatar";
+import {Avatar, AvatarProps} from "../../Avatar/components";
 import {useEntitySelector} from "../../entities";
 import {useRandomColor} from "../../utils/hooks";
 import {getUserAvatarLabel} from "../../User/utils/labels";
-import {UserEntity} from "../../User";
+import {UserEntity} from "../../User/types";
 
 type UserAvatarProps = Omit<AvatarProps, "avatarId" | "avatarLetter" | "avatarColor" | "avatarUri"> & {
     userId?: string,

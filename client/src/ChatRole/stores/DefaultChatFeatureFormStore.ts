@@ -1,9 +1,9 @@
 import {action, makeObservable} from "mobx";
-import {EntitiesStore} from "../../entities-store";
-import {ChatFeatures} from "../../api/types/response";
 import {AbstractChatFeatureFormStore} from "./AbstractChatFeatureFormStore";
-import {ChatFeatureFormData} from "../types";
 import {ConvertableChatFeatureFormStore} from "./ConvertableChatFeatureFormStore";
+import type {EntitiesStore} from "../../entities-store";
+import {ChatFeatures} from "../../api/types/response";
+import {ChatFeatureFormData} from "../types";
 
 export class DefaultChatFeatureFormStore
     extends AbstractChatFeatureFormStore<ChatFeatureFormData>

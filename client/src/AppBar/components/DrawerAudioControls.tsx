@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {AudioPlayerControls} from "../../AudioPlayer";
+import {AudioPlayerControls} from "../../AudioPlayer/components";
 import {useStore} from "../../store";
 
 export const DrawerAudioControls: FunctionComponent = observer(() => {

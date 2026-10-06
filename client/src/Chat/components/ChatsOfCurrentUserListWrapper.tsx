@@ -6,7 +6,7 @@ import {ChatsOfCurrentUserList} from "./ChatsOfCurrentUserList";
 import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
 import {CreateChatDialog} from "./CreateChatDialog";
 import {ChatsOfCurrentUserListProps} from "../types";
-import {ChatsAndMessagesSearchInput, ChatsAndMessagesSearchResult} from "../../ChatsAndMessagesSearch";
+import {ChatsAndMessagesSearchInput, ChatsAndMessagesSearchResult} from "../../ChatsAndMessagesSearch/components";
 import {usePermissions, useStore} from "../../store";
 import {commonStyles} from "../../style";
 

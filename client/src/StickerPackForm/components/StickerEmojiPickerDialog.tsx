@@ -4,7 +4,7 @@ import {Dialog, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {Close} from "@mui/icons-material";
 import {EmojiData} from "emoji-mart";
 import {useStore} from "../../store";
-import {EmojiMartPicker} from "../../EmojiPicker";
+import {EmojiMartPicker} from "../../EmojiPicker/components";
 
 interface StickerEmojiPickerDialogProps {
     onEmojiPicked: (emoji: EmojiData) => void

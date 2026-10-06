@@ -2,11 +2,11 @@ import {MessageEntity, MessageRelationships} from "../types";
 import {AbstractRelationshipsLoader, Repository} from "../../repository";
 import {Repositories} from "../../repositories";
 import {emptyArray} from "../../utils/array-utils";
-import {UserEntity} from "../../User";
+import {UserEntity} from "../../User/types";
 import {isDefined} from "../../utils/object-utils";
 import {Upload} from "../../api/types/response";
 import {ChatRoleEntity} from "../../ChatRole/types";
-import {StickerEntity} from "../../Sticker";
+import {StickerEntity} from "../../Sticker/types";
 import {MessageReactionEntity} from "../../MessageReaction/types";
 
 export class MessageRelationshipsLoader extends AbstractRelationshipsLoader<MessageEntity, MessageRelationships> {

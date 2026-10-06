@@ -4,12 +4,12 @@ import {CardHeader, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {ChatAppBarSearchInput} from "./ChatAppBarSearchInput";
-import {ChatMenu, TypingIndicator} from "../../Chat";
+import {ChatMenu, TypingIndicator} from "../../Chat/components";
 import {getAvatarLabel} from "../../Chat/utils";
 import {useLocalization, useStore} from "../../store";
 import {useEntityById} from "../../entities";
 import {trimString} from "../../utils/string-utils";
-import {Avatar} from "../../Avatar";
+import {Avatar} from "../../Avatar/components";
 import {useLuminosity} from "../../utils/hooks";
 
 interface GroupChatAppBarContentProps {

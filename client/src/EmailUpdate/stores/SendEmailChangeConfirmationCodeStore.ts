@@ -1,10 +1,10 @@
-import {action, computed, makeObservable, override, reaction} from "mobx";
+import {action, computed, makeObservable, reaction} from "mobx";
 import {UpdateEmailDialogStore} from "./UpdateEmailDialogStore";
 import {UpdateEmailStep} from "../types";
 import {EmailConfirmationCodeType} from "../../api/types/request";
-import {AbstractCreateEmailConfirmationCodeStore} from "../../EmailConfirmation";
-import {AuthorizationStore} from "../../Authorization";
-import {LocaleStore} from "../../localization";
+import {AbstractCreateEmailConfirmationCodeStore} from "../../EmailConfirmation/stores";
+import type {AuthorizationStore} from "../../Authorization/stores";
+import type {LocaleStore} from "../../localization";
 
 export class SendEmailChangeConfirmationCodeStore extends AbstractCreateEmailConfirmationCodeStore {
     get currentUserEmail(): string {
