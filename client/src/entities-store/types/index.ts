@@ -64,5 +64,5 @@ export type PopulatedEntitiesPatch<T extends Entities> = {
 };
 
 export type RelationshipsIds = {
-    [key in Entities]?: string[]
+    [Key in Entities]?: string[]
 };
