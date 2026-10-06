@@ -8,6 +8,7 @@ import {mergeCustomizer} from "../../utils/object-utils";
 export class UserProfilePhotosStore extends AbstractEntityStore<"userProfilePhotos", UserProfilePhotoEntity, UserProfilePhoto> {
     createPatchForArray(denormalizedEntities: UserProfilePhoto[], options: {} | undefined): EntitiesPatch {
         const patch = this.createEmptyEntitiesPatch("uploads", "userProfilePhotos");
+        const patches: EntitiesPatch[] = [];
 
         denormalizedEntities.forEach(userProfilePhoto => {
             patch.entities.userProfilePhotos.set(userProfilePhoto.id, this.convertToNormalizedForm(userProfilePhoto));
@@ -15,11 +16,11 @@ export class UserProfilePhotosStore extends AbstractEntityStore<"userProfilePhot
             const uploadsPatch = this.entities.uploads.createPatch(userProfilePhoto.upload);
 
             if (this.isPatchPopulated(uploadsPatch, "uploads")) {
-                mergeWith(patch.entities.uploads, uploadsPatch.entities.uploads, mergeCustomizer);
+                patches.push(uploadsPatch);
             }
         });
 
-        return patch;
+        return mergeWith(patch, ...patches, mergeCustomizer);
     }
 
     protected convertToNormalizedForm(denormalizedEntity: UserProfilePhoto): UserProfilePhotoEntity {
