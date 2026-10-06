@@ -7,7 +7,7 @@ import {BlockUsersInChatFeature} from "./BlockUsersInChatFeature";
 import {SendMessagesChatFeature} from "./SendMessagesChatFeature";
 import {LevelBasedChatFeature} from "./LevelBasedChatFeature";
 import {ChatRoleEntity} from "../types";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 
 interface ChatRoleFeaturesProps {
     role: ChatRoleEntity

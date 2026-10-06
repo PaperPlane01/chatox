@@ -6,7 +6,7 @@ import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks
 import {EditScheduledMessageMenuItem} from "./EditScheduledMessageMenuItem";
 import {PublishScheduledMessageNowMenuItem} from "./PublishScheduledMessageNowMenuItem";
 import {DeleteScheduledMessageMenuItem} from "./DeleteScheduledMessageMenuItem";
-import {usePermissions} from "../../store";
+import {usePermissions} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 
 export type ScheduledMessageMenuItemType = "publishScheduledMessage" | "deleteScheduledMessage" | "editScheduledMessage";

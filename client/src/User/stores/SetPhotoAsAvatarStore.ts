@@ -1,11 +1,11 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {UserProfileStore} from "./UserProfileStore";
+import type {UserProfileStore} from "./UserProfileStore";
 import {UserEntity} from "../types";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {CurrentUser} from "../../api/types/response";
-import {SnackbarService} from "../../Snackbar";
-import {EntitiesStore} from "../../entities-store";
-import {AuthorizationStore} from "../../Authorization";
+import type {SnackbarService} from "../../Snackbar/services";
+import type {EntitiesStore} from "../../entities-store";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {LocaleStore} from "../../localization";
 
 export class SetPhotoAsAvatarStore {

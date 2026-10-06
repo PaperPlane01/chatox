@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Button, Tooltip} from "@mui/material";
 import shortNumber from "short-number";
 import {USER_INTERACTIONS_ICONS_MAP} from "./UserInteractionIcons";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {UserInteractionType} from "../../api/types/response";
 import {isDefined} from "../../utils/object-utils";
 import {Labels} from "../../localization";

@@ -4,11 +4,11 @@ import {Box, Button, IconButton, Menu, Skeleton, Theme} from "@mui/material";
 import {AccountCircle} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
-import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
-import {LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
-import {PasswordRecoveryDialog} from "../../PasswordRecovery";
-import {Avatar} from "../../Avatar";
-import {useAuthorization} from "../../store";
+import {RegistrationDialog, RegistrationMenuItem} from "../../Registration/components";
+import {LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization/components";
+import {PasswordRecoveryDialog} from "../../PasswordRecovery/components";
+import {Avatar} from "../../Avatar/components";
+import {useAuthorization} from "../../store/hooks";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 
 const useStyles = makeStyles()((theme: Theme) => ({

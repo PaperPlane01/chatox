@@ -1,9 +1,9 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {getLoadErrorText} from "../utils";
-import {EntitiesStore} from "../../entities-store";
-import {SnackbarService} from "../../Snackbar";
+import type {EntitiesStore} from "../../entities-store";
+import type {SnackbarService} from "../../Snackbar/services";
 import {getInitialApiErrorFromResponse, StickerApi} from "../../api";
-import {LocaleStore} from "../../localization";
+import type {LocaleStore} from "../../localization";
 
 export class StickerPackDialogStore {
     stickerPackId?: string = undefined;

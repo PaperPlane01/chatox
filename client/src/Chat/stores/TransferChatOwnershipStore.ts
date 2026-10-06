@@ -4,12 +4,12 @@ import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {ChatStore} from "./ChatStore";
 import {isDefined} from "../../utils/object-utils";
 import {EntitiesStore} from "../../entities-store";
-import {AuthorizationStore} from "../../Authorization";
+import {AuthorizationStore} from "../../Authorization/stores";
 import {RouterStoreAware, Routes} from "../../router";
 import {RouterStore} from "mobx-router";
 import {LocaleStore} from "../../localization";
-import {SnackbarService} from "../../Snackbar";
-import {UserEntity} from "../../User";
+import {SnackbarService} from "../../Snackbar/services";
+import {UserEntity} from "../../User/types";
 
 export class TransferChatOwnershipStore implements RouterStoreAware {
     selectedUserId: string | undefined = undefined;

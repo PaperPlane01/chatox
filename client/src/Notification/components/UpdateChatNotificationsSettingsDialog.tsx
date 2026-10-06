@@ -13,7 +13,7 @@ import {
 import {ArrowBack} from "@mui/icons-material";
 import {NotificationLevelSelect} from "./NotificationLevelSelect";
 import {UserNotificationExceptionsButton} from "./UserNotificationExceptionsButton";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 import {useEntityById} from "../../entities";
 import {getUserDisplayedName} from "../../User/utils/labels";

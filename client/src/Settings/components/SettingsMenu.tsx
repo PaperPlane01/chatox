@@ -10,13 +10,13 @@ import {AppearanceTabWrapper} from "./AppearanceTabWrapper";
 import {StickersTabWrapper} from "./StickersTabWrapper";
 import {SettingsTab} from "../types";
 import {commonStyles} from "../../style";
-import {EditProfileForm} from "../../User";
-import {LanguagePicker} from "../../localization";
+import {EditProfileForm} from "../../User/components";
+import {LanguagePicker} from "../../localization/components";
 import {Routes} from "../../router";
-import {useLocalization, useRouter, useStore} from "../../store";
-import {ChatsPreferencesCard} from "../../Chat";
-import {HasAnyRole} from "../../Authorization";
-import {GlobalNotificationsSettingsUpdate} from "../../Notification";
+import {useLocalization, useRouter, useStore} from "../../store/hooks";
+import {ChatsPreferencesCard} from "../../Chat/components";
+import {HasAnyRole} from "../../Authorization/components";
+import {GlobalNotificationsSettingsUpdate} from "../../Notification/components";
 
 const useStyles = makeStyles()(() => ({
     undecoratedLink: commonStyles.undecoratedLink

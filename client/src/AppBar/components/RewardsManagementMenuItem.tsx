@@ -4,7 +4,7 @@ import {MenuItem, ListItemIcon, ListItemText} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {EmojiEvents} from "@mui/icons-material";
 import {Link} from "mobx-router";
-import {useRouter, useLocalization} from "../../store";
+import {useRouter, useLocalization} from "../../store/hooks";
 import {commonStyles} from "../../style";
 import {Routes} from "../../router";
 

@@ -2,8 +2,8 @@ import React, {ChangeEvent, FunctionComponent, useState} from "react";
 import {observer} from "mobx-react";
 import {Button, ListItemIcon, ListItemText, MenuItem} from "@mui/material";
 import {AudioFile, Audiotrack} from "@mui/icons-material";
-import {useLocalization, useStore} from "../../store";
-import {AudioType} from "../../AudioPlayer";
+import {useLocalization, useStore} from "../../store/hooks";
+import {AudioType} from "../../AudioPlayer/types";
 import {UploadType} from "../../api/types/response";
 
 interface AttachAudioMenuItemProps {

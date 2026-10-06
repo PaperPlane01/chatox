@@ -4,7 +4,7 @@ import {Labels} from "../../localization";
 import {ApiError} from "../../api";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ImageUploadMetadata} from "../../api/types/response";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 
 interface AvatarUploadProps {
     onFileAttached: (file: File) => void,

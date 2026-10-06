@@ -1,11 +1,11 @@
 import {makeAutoObservable} from "mobx";
+import type {PasswordChangeStepStore} from "./PasswordChangeStepStore";
+import {ChangePasswordStep} from "../types";
 import {ApiError, EmailConfirmationCodeApi, getInitialApiErrorFromResponse} from "../../api";
 import {EmailConfirmationCodeResponse} from "../../api/types/response";
-import {LocaleStore} from "../../localization/stores";
+import type {LocaleStore} from "../../localization/stores";
 import {Language} from "../../localization/types";
 import {EmailConfirmationCodeType} from "../../api/types/request";
-import {PasswordChangeStepStore} from "./PasswordChangeStepStore";
-import {ChangePasswordStep} from "../types";
 
 export class SendPasswordChangeEmailConfirmationCodeStore {
     pending: boolean = false;

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {FormControl, FormControlLabel, RadioGroup, Radio, Card, CardHeader, CardContent} from "@mui/material";
-import {useStore, useLocalization} from "../../store";
+import {useStore, useLocalization} from "../../store/hooks";
 import {Themes, themes} from "../../themes";
 import {Labels} from "../../localization";
 

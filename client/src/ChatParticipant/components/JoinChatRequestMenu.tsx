@@ -5,7 +5,7 @@ import {MoreVert} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {ApproveJoinChatRequestMenuItem} from "./ApproveJoinChatRequestMenuItem";
 import {RejectJoinChatRequestMenuItem} from "./RejectJoinChatRequestMenuItem";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 
 interface JoinChatRequestMenuProps {

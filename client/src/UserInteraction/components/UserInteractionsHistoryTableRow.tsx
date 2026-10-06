@@ -4,10 +4,10 @@ import {TableCell, TableRow, Theme, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {format} from "date-fns";
 import {USER_INTERACTIONS_ICONS_MAP} from "./UserInteractionIcons";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {Labels} from "../../localization";
-import {UserLink} from "../../UserLink";
+import {UserLink} from "../../UserLink/components";
 
 interface UserInteractionsTableRowProps {
     userInteractionId: string

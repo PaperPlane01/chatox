@@ -2,7 +2,7 @@ import React, {FunctionComponent, MouseEvent} from "react";
 import {observer} from "mobx-react";
 import {BeautifulMentionComponentProps} from "lexical-beautiful-mentions";
 import {MentionData} from "../types";
-import {useRouter} from "../../store";
+import {useRouter} from "../../store/hooks";
 import {Routes} from "../../router";
 
 export const Mention: FunctionComponent<BeautifulMentionComponentProps<MentionData>> = observer(({

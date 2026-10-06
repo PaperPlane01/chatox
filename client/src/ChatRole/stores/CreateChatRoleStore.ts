@@ -1,11 +1,12 @@
 import {action, computed, makeObservable, observable} from "mobx";
 import {AbstractChatRoleFormStore} from "./AbstractChatRoleFormStore";
-import {ChatFeaturesFormStore} from "./ChatFeaturesFormStore";
+import type {ChatFeaturesFormStore} from "./ChatFeaturesFormStore";
 import {EntitiesStore} from "../../entities-store";
 import {ChatRoleApi, getInitialApiErrorFromResponse} from "../../api";
-import {ChatOfCurrentUserEntity, ChatStore} from "../../Chat";
-import {SnackbarService} from "../../Snackbar";
-import {Labels, LocaleStore} from "../../localization";
+import {ChatOfCurrentUserEntity} from "../../Chat/types";
+import type {ChatStore} from "../../Chat/stores";
+import type {SnackbarService} from "../../Snackbar/services";
+import {Labels, type LocaleStore} from "../../localization";
 
 export class CreateChatRoleStore extends AbstractChatRoleFormStore {
     createChatRoleDialogOpen: boolean = false;

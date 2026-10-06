@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {BaseStickerPackPreviewProps} from "./BaseStickerPackPreviewProps";
-import {Avatar} from "../../Avatar";
+import {Avatar} from "../../Avatar/components";
 
 export const ImageStickerPackPreview: FunctionComponent<BaseStickerPackPreviewProps> = observer(({
 	upload,

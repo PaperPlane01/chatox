@@ -4,12 +4,12 @@ import {TextField, Button, CircularProgress, Chip, Theme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {SelectUserFormData} from "../types";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {FormErrors} from "../../utils/types";
 import {ApiError} from "../../api";
-import {UserEntity} from "../../User";
+import {UserEntity} from "../../User/types";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {Avatar} from "../../Avatar";
+import {Avatar} from "../../Avatar/components";
 
 interface UserSelectProps {
     selectedUser?: UserEntity,

@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, CircularProgress} from "@mui/material";
-import {useStore, useLocalization} from "../../store";
+import {useStore, useLocalization} from "../../store/hooks";
 
 interface StickerPackInstallationButtonsProps {
 	stickerPackId: string

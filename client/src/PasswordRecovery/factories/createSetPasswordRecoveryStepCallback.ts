@@ -1,4 +1,4 @@
-import {PasswordRecoveryDialogStore} from "../stores";
+import type {PasswordRecoveryDialogStore} from "../stores";
 import {PasswordRecoveryStep} from "../types";
 
 export const createSetPasswordRecoveryStepCallback = (passwordRecoveryDialogStore: PasswordRecoveryDialogStore) => (): void => {

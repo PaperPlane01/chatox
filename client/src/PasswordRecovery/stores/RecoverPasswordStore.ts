@@ -1,9 +1,9 @@
 import {makeAutoObservable, reaction} from "mobx";
-import {SendPasswordRecoveryEmailConfirmationCodeStore} from "./SendPasswordRecoveryEmailConfirmationCodeStore";
-import {PasswordRecoveryDialogStore} from "./PasswordRecoveryDialogStore";
+import type {SendPasswordRecoveryEmailConfirmationCodeStore} from "./SendPasswordRecoveryEmailConfirmationCodeStore";
+import type {PasswordRecoveryDialogStore} from "./PasswordRecoveryDialogStore";
 import {PasswordRecoveryStep, RecoverPasswordForm} from "../types";
 import {FormErrors} from "../../utils/types";
-import {CheckEmailConfirmationCodeStore} from "../../EmailConfirmation/stores";
+import type {CheckEmailConfirmationCodeStore} from "../../EmailConfirmation/stores";
 import {validatePassword, validateRepeatedPassword} from "../../Registration/validation";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 

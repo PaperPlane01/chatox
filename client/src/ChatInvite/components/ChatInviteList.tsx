@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {List} from "@mui/material";
 import {ChatInviteListItem} from "./ChatInviteListItem";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 export const ChatInviteList: FunctionComponent = observer(() => {
     const {

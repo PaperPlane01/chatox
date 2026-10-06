@@ -1,12 +1,12 @@
 import {makeAutoObservable, observable, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
-import {ReactionsToMessagesStore} from "./ReactionsToMessagesStore";
+import type {ReactionsToMessagesStore} from "./ReactionsToMessagesStore";
 import {createMessageEmojiKey} from "../utils";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {MessageReactionApi} from "../../api";
-import {SnackbarService} from "../../Snackbar";
-import {LocaleStore} from "../../localization";
-import {AuthorizationStore} from "../../Authorization/stores";
+import type {SnackbarService} from "../../Snackbar/services";
+import type {LocaleStore} from "../../localization";
+import type {AuthorizationStore} from "../../Authorization/stores";
 
 export class MessageReactionOperationsStore {
     pendingReactions = observable.set<string>();

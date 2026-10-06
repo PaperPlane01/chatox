@@ -15,7 +15,7 @@ import {
 import {Visibility, VisibilityOff} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
 import {LoginWithGoogleButton} from "./LoginWithGoogleButton";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 import {PasswordRecoveryStep} from "../../PasswordRecovery/types";
 

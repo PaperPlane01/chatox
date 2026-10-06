@@ -5,7 +5,7 @@ import {EmojiSetDemo} from "./EmojiSetDemo";
 import {UseEmojiCodesSwitch} from "./UseEmojiCodesSwitch";
 import {EmojiSet} from "../types";
 import {ALLOWED_EMOJI_SETS} from "../internal/constants";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {Labels} from "../../localization";
 
 interface EmojiSetPickerProps {

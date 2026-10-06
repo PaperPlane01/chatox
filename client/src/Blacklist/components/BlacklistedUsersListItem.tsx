@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
 import randomColor from "randomcolor";
 import {BlacklistedUserMenu} from "./BlacklistedUserMenu";
-import {Avatar} from "../../Avatar";
+import {Avatar} from "../../Avatar/components";
 import {useEntityById} from "../../entities";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 

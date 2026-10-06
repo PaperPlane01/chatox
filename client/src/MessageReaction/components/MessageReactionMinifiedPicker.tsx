@@ -5,7 +5,7 @@ import {ArrowDownward} from "@mui/icons-material";
 import {MessageReactionPickerBaseProps} from "./MessageReactionPickerBaseProps";
 import {MessageReactionPickerButton} from "./MessageReactionPickerButton";
 import {useEntityById} from "../../entities";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {isDefined} from "../../utils/object-utils";
 
 interface MessageReactionMinifiedPickerProps extends MessageReactionPickerBaseProps {

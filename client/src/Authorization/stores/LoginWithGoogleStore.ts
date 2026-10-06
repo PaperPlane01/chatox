@@ -1,5 +1,5 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {AuthorizationStore} from "./AuthorizationStore";
+import type {AuthorizationStore} from "./AuthorizationStore";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 
 export class LoginWithGoogleStore {

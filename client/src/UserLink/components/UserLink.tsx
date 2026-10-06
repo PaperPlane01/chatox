@@ -4,11 +4,11 @@ import randomColor from "randomcolor";
 import {Theme, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
-import {Avatar} from "../../Avatar";
-import {UserEntity} from "../../User";
+import {Avatar} from "../../Avatar/components";
+import {UserEntity} from "../../User/types";
 import {Routes} from "../../router";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {useRouter} from "../../store";
+import {useRouter} from "../../store/hooks";
 import {useLuminosity} from "../../utils/hooks";
 
 interface UserLinkProps {

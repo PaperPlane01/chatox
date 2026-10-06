@@ -1,9 +1,9 @@
 import {makeAutoObservable} from "mobx";
 import {computedFn} from "mobx-utils";
 import {ChatOfCurrentUserEntity} from "../types";
-import {EntitiesStore} from "../../entities-store";
-import {AuthorizationStore} from "../../Authorization";
-import {UserChatRolesStore} from "../../ChatRole";
+import type {EntitiesStore} from "../../entities-store";
+import type {AuthorizationStore} from "../../Authorization/stores";
+import type {UserChatRolesStore} from "../../ChatRole/stores";
 import {ChatFeatures, CurrentUser, UserRole} from "../../api/types/response";
 import {isDefined} from "../../utils/object-utils";
 

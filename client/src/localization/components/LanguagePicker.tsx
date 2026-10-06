@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, FormControlLabel, Radio, RadioGroup} from "@mui/material";
 import {Language} from "../types";
 import {LanguageLabel} from "./LanguageLabel";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 interface LanguagePickerProps {
     hideHeader?: boolean

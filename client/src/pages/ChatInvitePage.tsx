@@ -1,9 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Grid} from "@mui/material";
-import {AppBar} from "../AppBar";
-import {Layout} from "../Layout";
-import {ChatInviteCardWrapper} from "../ChatInvite";
+import {AppBar} from "../AppBar/components";
+import {Layout} from "../Layout/components";
+import {ChatInviteCardWrapper} from "../ChatInvite/components";
 
 export const ChatInvitePage: FunctionComponent = observer(() => (
     <Grid container>

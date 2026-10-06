@@ -1,4 +1,4 @@
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 const DEFAULT_TITLE = "Chatox";
 

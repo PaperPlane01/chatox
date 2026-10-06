@@ -1,6 +1,6 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {ChatBlockingApi} from "../../api/clients";
 
 export class CancelChatBlockingStore {

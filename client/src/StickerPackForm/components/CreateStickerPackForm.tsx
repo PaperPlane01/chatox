@@ -6,7 +6,7 @@ import {EditStickerDialog} from "./EditStickerDialog";
 import {StickersTypeSelect} from "./StickersTypeSelect";
 import {StickerPackFormFields} from "./StickerPackFormFields";
 import {getCreateStickerPackText} from "../utils";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const CreateStickerPackForm: FunctionComponent = observer(() => {
     const {

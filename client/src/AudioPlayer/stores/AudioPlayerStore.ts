@@ -1,7 +1,7 @@
 import {makeAutoObservable, reaction} from "mobx";
 import {AudioUploadMetadata, Upload, UploadType} from "../../api/types/response";
 import {AudioType} from "../types";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {isDefined} from "../../utils/object-utils";
 
 export class AudioPlayerStore {

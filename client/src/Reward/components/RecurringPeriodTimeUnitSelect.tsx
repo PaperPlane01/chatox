@@ -1,9 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {TimeUnit} from "../../api/types/response";
 import {Labels} from "../../localization";
-import {TimeUnitSelect} from "../../TimeUnitSelect";
+import {TimeUnitSelect} from "../../TimeUnitSelect/components";
 
 interface RecurringPeriodTimeUnitSelectProps {
     value?: TimeUnit,

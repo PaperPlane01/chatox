@@ -4,7 +4,7 @@ import {ListItemText, MenuItem, Theme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {ChatParticipantMenu} from "./ChatParticipantMenu";
-import {Avatar} from "../../Avatar";
+import {Avatar} from "../../Avatar/components";
 import {useEntityById} from "../../entities";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {useLuminosity} from "../../utils/hooks";

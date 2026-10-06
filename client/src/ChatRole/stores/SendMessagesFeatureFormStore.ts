@@ -4,7 +4,7 @@ import {ConvertableChatFeatureFormStore} from "./ConvertableChatFeatureFormStore
 import {SendMessagesFeatureFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {ChatFeatures} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 const INITIAL_FORM_VALUES: SendMessagesFeatureFormData = {
     enabled: false,

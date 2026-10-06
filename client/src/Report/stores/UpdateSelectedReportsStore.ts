@@ -1,6 +1,6 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {CurrentReportsListStore} from "./CurrentReportsListStore";
-import {EntitiesStore} from "../../entities-store";
+import type {CurrentReportsListStore} from "./CurrentReportsListStore";
+import type {EntitiesStore} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse, ReportsApi} from "../../api";
 import {ReportStatus, ReportTakenAction} from "../../api/types/response";
 import {UpdateReportRequest} from "../../api/types/request";

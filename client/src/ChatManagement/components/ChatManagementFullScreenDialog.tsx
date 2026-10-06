@@ -2,7 +2,7 @@ import React, {FunctionComponent, PropsWithChildren, ReactNode} from "react";
 import {observer} from "mobx-react";
 import {Dialog, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
-import {useRouter} from "../../store";
+import {useRouter} from "../../store/hooks";
 import {Routes} from "../../router";
 
 interface ChatManagementFullScreenDialogProps extends PropsWithChildren {

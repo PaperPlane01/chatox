@@ -11,8 +11,8 @@ import {
     Switch,
     FormControlLabel
 } from "@mui/material";
-import {useStore, useLocalization} from "../../store";
-import {TimeUnitSelect} from "../../TimeUnitSelect";
+import {useStore, useLocalization} from "../../store/hooks";
+import {TimeUnitSelect} from "../../TimeUnitSelect/components";
 import {TimeUnit} from "../../api/types/response";
 import {BaseSettingsTabProps} from "../../utils/types";
 

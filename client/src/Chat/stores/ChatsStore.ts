@@ -1,6 +1,6 @@
 import {action, computed, makeObservable, observable, override} from "mobx";
 import {computedFn} from "mobx-utils";
-import {mergeWith, uniq} from "lodash";
+import {mergeWith, uniq} from "lodash-es";
 import {ChatOfCurrentUserEntity} from "../types";
 import {EntityDeletionOptions, SoftDeletableEntityStore} from "../../entity-store";
 import {
@@ -14,7 +14,7 @@ import {
 } from "../../api/types/response";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {isDefined, mergeCustomizer} from "../../utils/object-utils";
-import {AuthorizationStore} from "../../Authorization";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {PartialBy} from "../../utils/types";
 import {ChatUpdated, PrivateChatCreated} from "../../api/types/websocket";
 

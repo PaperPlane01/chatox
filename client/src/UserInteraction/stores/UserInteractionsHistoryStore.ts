@@ -4,9 +4,9 @@ import {ApiError, getInitialApiErrorFromResponse, UserInteractionsApi} from "../
 import {CurrentUser, UserInteraction, UserInteractionType, UserVerificationLevel} from "../../api/types/response";
 import {PaginationRequest} from "../../api/types/request";
 import {PaginationWithSortingState} from "../../utils/types";
-import {UserProfileStore} from "../../User";
-import {AuthorizationStore} from "../../Authorization";
-import {EntitiesStore} from "../../entities-store";
+import type {UserProfileStore} from "../../User/stores";
+import type {AuthorizationStore} from "../../Authorization/stores";
+import type {EntitiesStore} from "../../entities-store";
 
 const PAGE_SIZE = 100;
 const INITIAL_PAGINATION_STATE: PaginationWithSortingState = {

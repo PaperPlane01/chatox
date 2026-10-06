@@ -1,9 +1,9 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {Grid, Typography} from "@mui/material";
-import {CreateRewardDialog, RewardList, UpdateRewardDialog} from "../Reward";
-import {AppBar} from "../AppBar";
-import {Layout} from "../Layout";
-import {HasRole} from "../Authorization";
+import {CreateRewardDialog, RewardList, UpdateRewardDialog} from "../Reward/components";
+import {AppBar} from "../AppBar/components";
+import {Layout} from "../Layout/components";
+import {HasRole} from "../Authorization/components";
 
 export const RewardsManagementPage: FunctionComponent = () => (
    <Fragment>

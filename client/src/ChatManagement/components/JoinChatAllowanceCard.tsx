@@ -1,8 +1,8 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, CardActions, CircularProgress, Button} from "@mui/material";
-import {JoinChatAllowanceForm} from "../../JoinChatAllowanceForm";
-import {useLocalization, useStore} from "../../store";
+import {JoinChatAllowanceForm} from "../../JoinChatAllowanceForm/components";
+import {useLocalization, useStore} from "../../store/hooks";
 import {BaseSettingsTabProps} from "../../utils/types";
 
 export const JoinChatAllowanceCard: FunctionComponent<BaseSettingsTabProps> = observer(({

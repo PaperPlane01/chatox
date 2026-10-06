@@ -5,8 +5,8 @@ import {EntitiesStore} from "../../entities-store";
 import {ApiError, ChatApi, ChatRoleApi, getInitialApiErrorFromResponse} from "../../api";
 import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
-import {UserChatRolesStore} from "../../ChatRole";
-import {AuthorizationStore} from "../../Authorization";
+import {UserChatRolesStore} from "../../ChatRole/stores";
+import {AuthorizationStore} from "../../Authorization/stores";
 import {isBetween} from "../../utils/number-utils";
 
 const INITIAL_FORM_VALUES: UpdateChatParticipantFormData = {

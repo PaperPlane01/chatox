@@ -1,12 +1,12 @@
 import {makeAutoObservable, reaction} from "mobx";
 import {RouterStore} from "mobx-router";
-import {ChatStore} from "./ChatStore";
+import type {ChatStore} from "./ChatStore";
 import {ChatDeletionStep, ChatOfCurrentUserEntity, DeleteChatFormData} from "../types";
 import {validateChatDeletionComment} from "../validation";
 import {ChatDeletionReason} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {DeleteChatRequest} from "../../api/types/request";
 import {RouterStoreAware, Routes} from "../../router";
 

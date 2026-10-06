@@ -5,7 +5,7 @@ import {BeautifulMentionsMenuItemProps} from "lexical-beautiful-mentions";
 import randomColor from "randomcolor";
 import {MentionItem} from "../types";
 import {useEntityById} from "../../entities";
-import {Avatar} from "../../Avatar";
+import {Avatar} from "../../Avatar/components";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
 import {useLuminosity} from "../../utils/hooks";
 

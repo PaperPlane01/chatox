@@ -18,12 +18,11 @@ import {DeleteMessageMenuItem} from "./DeleteMessageMenuItem";
 import {PinMessageMenuItem} from "./PinMessageMenuItem";
 import {ForwardMessageMenuItem} from "./ForwardMessageMenuItem";
 import {MessageReactionPicker} from "../../MessageReaction/components";
-import {useAuthorization, usePermissions, useStore} from "../../store";
+import {useAuthorization, usePermissions, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
-import {BanUserGloballyMenuItem} from "../../GlobalBan";
-import {ReportMessageMenuItem} from "../../Report";
-import {BlacklistUserActionMenuItemWrapper} from "../../Blacklist";
-import {ensureEventWontPropagate} from "../../utils/event-utils";
+import {BanUserGloballyMenuItem} from "../../GlobalBan/components";
+import {ReportMessageMenuItem} from "../../Report/components";
+import {BlacklistUserActionMenuItemWrapper} from "../../Blacklist/components";
 
 export type MessageMenuItemType = "blockMessageAuthorInChat"
     | "replyToMessage"

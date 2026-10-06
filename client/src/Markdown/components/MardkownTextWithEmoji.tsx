@@ -8,7 +8,8 @@ import remarkGfm from "remark-gfm";
 import {EmojiData} from "emoji-mart";
 import {emojiPlugin, emojiPluginAsync} from "../plugins";
 import {MessageEmoji} from "../../api/types/response";
-import {rootStore, useStore} from "../../store";
+import {useStore} from "../../store/hooks";
+import {rootStore} from "../../store/root-store";
 import {createBlockquoteStyles} from "../../style";
 
 interface MarkdownTextWithEmojiProps {

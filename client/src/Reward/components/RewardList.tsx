@@ -5,7 +5,7 @@ import {makeStyles} from "tss-react/mui";
 import {CreateRewardButton} from "./CreateRewardButton";
 import {RewardCard} from "./RewardCard";
 import {ShowActiveRewardsOnlySwitch} from "./ShowActiveRewardsOnlySwitch";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {commonStyles} from "../../style";
 
 const useStyles = makeStyles()(() => ({

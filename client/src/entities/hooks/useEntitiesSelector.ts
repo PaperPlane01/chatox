@@ -1,6 +1,6 @@
 import {useEffect} from "react";
 import {Entities, EntitiesStore, GetEntityType} from "../../entities-store";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 type UseEntitiesSelector = <T extends Exclude<Entities, "chatUploads">, R extends GetEntityType<T>>(
 	entityName: T,

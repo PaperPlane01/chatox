@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CircularProgress, List, Typography} from "@mui/material";
 import {ChatBlockingsListItem} from "./ChatBlockingsListItem";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const ChatBlockingsList: FunctionComponent = observer(() => {
     const {

@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {SoundNotificationStore} from "./SoundNotificationStore";
+import type {SoundNotificationStore} from "./SoundNotificationStore";
 import {NotificationSound} from "../../api/types/response";
 
 interface OpenNotificationSoundSelectDialogOptions {

@@ -1,8 +1,8 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {InstalledStickerPacksStore} from "./InstalledStickerPacksStore";
+import type {InstalledStickerPacksStore} from "./InstalledStickerPacksStore";
 import {StickerApi} from "../../api";
-import {SnackbarService} from "../../Snackbar";
-import {LocaleStore} from "../../localization";
+import type {SnackbarService} from "../../Snackbar/services";
+import type {LocaleStore} from "../../localization";
 
 export class UninstallStickerPackStore {
     pendingUninstallationsMap: {[stickerPackId: string]: boolean} = {};

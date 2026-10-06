@@ -15,12 +15,12 @@ import {ArrowBack, Remove} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
 import {format} from "date-fns";
 import {getChatInviteLink} from "../utils";
-import {JoinChatAllowanceInfo} from "../../JoinChatAllowanceForm";
-import {useLocalization, useStore} from "../../store";
+import {JoinChatAllowanceInfo} from "../../JoinChatAllowanceForm/components";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
-import {CopyToClipboardButton} from "../../CopyToClipboardButton";
-import {UserLink} from "../../UserLink";
+import {CopyToClipboardButton} from "../../CopyToClipboardButton/components";
+import {UserLink} from "../../UserLink/components";
 import {isDefined} from "../../utils/object-utils";
 import {commonStyles} from "../../style";
 

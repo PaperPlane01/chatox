@@ -1,5 +1,5 @@
 import {makeAutoObservable, reaction} from "mobx";
-import {ReactionsToMessagesStore} from "./ReactionsToMessagesStore";
+import type {ReactionsToMessagesStore} from "./ReactionsToMessagesStore";
 import {isDefined} from "../../utils/object-utils";
 
 export class MessageReactionsDialogStore {

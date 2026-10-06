@@ -12,10 +12,10 @@ import {
     Typography
 } from "@mui/material";
 import {HttpStatusCode} from "axios";
-import {useLocalization, useStore} from "../../store";
-import {ChatAvatarUpload} from "../../Chat";
-import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
-import {ChipInput} from "../../ChipInput";
+import {useLocalization, useStore} from "../../store/hooks";
+import {ChatAvatarUpload} from "../../Chat/components";
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown/components";
+import {ChipInput} from "../../ChipInput/components";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {Language, TranslationFunction} from "../../localization";

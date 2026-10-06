@@ -1,4 +1,4 @@
-import {mergeWith, union} from "lodash";
+import {mergeWith, union} from "lodash-es";
 
 export const countNotUndefinedValues = <T extends object>(object: T, stopAfterFirst: boolean = false): number => {
     let notUndefinedValues = 0;

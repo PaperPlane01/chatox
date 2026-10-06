@@ -4,7 +4,7 @@ import {TextField, Typography} from "@mui/material";
 import {EditableStickersList} from "./EditableStickersList";
 import {StickerPackFormContext} from "../types";
 import {useStickerPackForm} from "../hooks";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 

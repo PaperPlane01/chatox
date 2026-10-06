@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CSSProperties, FormControl, InputLabel, MenuItem, Select, Theme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {NOTIFICATION_LEVELS, NotificationLevel} from "../../api/types/response";
 import {Labels} from "../../localization";
 

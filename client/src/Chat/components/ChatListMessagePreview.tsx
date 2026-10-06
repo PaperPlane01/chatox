@@ -3,14 +3,14 @@ import {observer} from "mobx-react";
 import {Theme} from "@mui/material";
 import {Audiotrack, FileCopy, Image, KeyboardVoice, VideoLibrary} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntitiesByIds, useEntityById} from "../../entities";
 import {Upload, UploadType} from "../../api/types/response";
 import {capitalize} from "../../utils/string-utils";
 import {Labels, TranslationFunction} from "../../localization";
-import {StickerEntity} from "../../Sticker";
+import {StickerEntity} from "../../Sticker/types";
 import {MessageEntity} from "../../Message/types";
-import {MarkdownTextWithEmoji} from "../../Markdown";
+import {MarkdownTextWithEmoji} from "../../Markdown/components";
 import {EmojiSet} from "../../Emoji/types";
 
 interface ChatListMessagePreviewProps {

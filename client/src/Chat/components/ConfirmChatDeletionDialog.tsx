@@ -13,7 +13,7 @@ import {
 import {makeStyles} from "tss-react/mui";
 import {useSnackbar} from "notistack";
 import {getChatDeletionErrorText} from "../utils";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {Language} from "../../localization";
 import {ChatDeletionStep} from "../types";
 import {useMobileDialog} from "../../utils/hooks";

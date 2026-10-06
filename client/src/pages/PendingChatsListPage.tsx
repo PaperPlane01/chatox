@@ -1,9 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Grid} from "@mui/material";
-import {AppBar} from "../AppBar";
-import {Layout} from "../Layout";
-import {PendingChatsList} from "../Chat";
+import {AppBar} from "../AppBar/components";
+import {Layout} from "../Layout/components";
+import {PendingChatsList} from "../Chat/components";
 
 export const PendingChatsListPage: FunctionComponent = observer(() => (
     <Grid container>

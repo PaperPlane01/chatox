@@ -7,15 +7,15 @@ import {SecurityTabWrapper} from "./SecurityTabWrapper";
 import {AppearanceTabWrapper} from "./AppearanceTabWrapper";
 import {StickersTabWrapper} from "./StickersTabWrapper";
 import {SettingsTab} from "../types";
-import {HasAnyRole, HasRole} from "../../Authorization";
-import {EditProfileForm} from "../../User";
-import {ChatsPreferencesCard} from "../../Chat";
-import {LanguagePicker} from "../../localization";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {HasAnyRole, HasRole} from "../../Authorization/components";
+import {EditProfileForm} from "../../User/components";
+import {ChatsPreferencesCard} from "../../Chat/components";
+import {LanguagePicker} from "../../localization/components";
+import {useLocalization, useRouter, useStore} from "../../store/hooks";
 import {Routes} from "../../router";
-import {BlacklistedUsersList} from "../../Blacklist";
+import {BlacklistedUsersList} from "../../Blacklist/components";
 import {createTabStyles} from "../../style";
-import {GlobalNotificationsSettingsUpdate} from "../../Notification";
+import {GlobalNotificationsSettingsUpdate} from "../../Notification/components";
 
 const useStyles = createTabStyles();
 

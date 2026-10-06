@@ -12,7 +12,7 @@ import {
 import {StickersGridList} from "./StickersGridList";
 import {StickerPackInstallationButtons} from "./StickerPackInstallationButtons";
 import {StickerPackMenu} from "./StickerPackMenu";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 import {commonStyles} from "../../style";

@@ -7,7 +7,7 @@ import {useSnackbar} from "notistack";
 import {isAfter} from "date-fns";
 import {StickersGridList} from "./StickersGridList";
 import {StickerPackPreview} from "./StickerPackPreview";
-import {useLocalization, usePermissions, useStore} from "../../store";
+import {useLocalization, usePermissions, useStore} from "../../store/hooks";
 import {isDefined} from "../../utils/object-utils";
 import {useEntitiesByIds, useEntitiesSelector} from "../../entities";
 import {commonStyles} from "../../style";

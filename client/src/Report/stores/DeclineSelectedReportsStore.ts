@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {UpdateSelectedReportsStore} from "./UpdateSelectedReportsStore";
+import type {UpdateSelectedReportsStore} from "./UpdateSelectedReportsStore";
 import {ApiError} from "../../api";
 import {ReportStatus} from "../../api/types/response";
 

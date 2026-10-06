@@ -17,9 +17,9 @@ import randomColor from "randomcolor";
 import {HttpStatusCode} from "axios";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {Avatar} from "../../Avatar";
+import {Avatar} from "../../Avatar/components";
 import {TranslationFunction} from "../../localization";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {useLuminosity, useMobileDialog} from "../../utils/hooks";
 

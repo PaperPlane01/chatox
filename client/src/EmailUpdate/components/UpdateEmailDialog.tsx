@@ -8,7 +8,7 @@ import {CreateNewEmailConfirmationCodeStep} from "./CreateNewEmailConfirmationCo
 import {UpdateEmailPending} from "./UpdateEmailPending";
 import {UpdateEmailErrorStep} from "./UpdateEmailErrorStep";
 import {UpdateEmailStep} from "../types";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 
 type UpdateEmailDialogContent = {

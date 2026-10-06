@@ -7,7 +7,7 @@ import {EmojiData} from "emoji-mart";
 import {EmojiAndStickerPicker} from "./EmojiAndStickerPicker";
 import {EmojiPicker} from "./EmojiPicker";
 import {EmojiPickerVariant} from "../types";
-import {useRouter, useStore} from "../../store";
+import {useRouter, useStore} from "../../store/hooks";
 
 interface EmojiPickerContainerProps {
     onEmojiSelected: (emoji: EmojiData) => void,

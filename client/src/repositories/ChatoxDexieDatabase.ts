@@ -1,8 +1,8 @@
 import Dexie, {Table} from "dexie";
-import {MessageEntity} from "../Message";
-import {UserEntity} from "../User";
+import {MessageEntity} from "../Message/types";
+import {UserEntity} from "../User/types";
 import {Upload} from "../api/types/response";
-import {StickerAnimationData, StickerEntity, StickerPackEntity} from "../Sticker";
+import {StickerAnimationData, StickerEntity, StickerPackEntity} from "../Sticker/types";
 import {ChatRoleEntity} from "../ChatRole/types";
 import {MessageReactionEntity} from "../MessageReaction/types";
 

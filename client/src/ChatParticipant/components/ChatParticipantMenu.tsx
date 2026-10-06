@@ -6,8 +6,8 @@ import {BlockChatParticipantMenuItem} from "./BlockChatParticipantMenuItem";
 import {KickChatParticipantMenuItem} from "./KickChatParticipantMenuItem";
 import {UpdateChatParticipantMenuItem} from "./UpdateChatParticipantMenuItem";
 import {ChatParticipationEntity} from "../types";
-import {BanUserGloballyMenuItem} from "../../GlobalBan";
-import {usePermissions} from "../../store";
+import {BanUserGloballyMenuItem} from "../../GlobalBan/components";
+import {usePermissions} from "../../store/hooks";
 
 interface ChatParticipantMenuProps {
     chatParticipation: ChatParticipationEntity

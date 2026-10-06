@@ -1,12 +1,12 @@
 import {computed, makeObservable} from "mobx";
 import {computedFn, createTransformer} from "mobx-utils";
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {ChatParticipationEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {ChatParticipation, CurrentUser} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
-import {AuthorizationStore} from "../../Authorization";
+import {AuthorizationStore} from "../../Authorization/stores";
 
 interface InsertChatParticipantOptions {
     increaseChatParticipantsCount: boolean

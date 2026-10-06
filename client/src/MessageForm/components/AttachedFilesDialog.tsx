@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Dialog, DialogContent, DialogActions, DialogTitle, List} from "@mui/material";
 import {MessageFormMediaAttachment} from "./MessageFormMediaAttachment";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 
 export const AttachedFilesDialog: FunctionComponent = observer(() => {

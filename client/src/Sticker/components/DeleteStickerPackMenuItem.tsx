@@ -2,7 +2,7 @@ import React, {FunctionComponent, SyntheticEvent} from "react";
 import {observer} from "mobx-react";
 import {MenuItem, ListItemIcon, ListItemText} from "@mui/material";
 import {Delete} from "@mui/icons-material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 interface DeleteStickerPackMenuItemProps {
 	stickerPackId: string,

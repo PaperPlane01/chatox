@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent, PropsWithChildren, ReactElement} from "react";
 import {observer} from "mobx-react";
-import {useAuthorization} from "../../store";
+import {useAuthorization} from "../../store/hooks";
 
 interface HasAnyRoleProps {
     roles: Array<"ROLE_ADMIN" | "ROLE_USER" | "ROLE_ANONYMOUS_USER" | "ROLE_ACCESS_TOKEN_PRESENT" | "ROLE_NOT_LOGGED_IN">,

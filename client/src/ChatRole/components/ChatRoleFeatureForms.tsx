@@ -6,7 +6,7 @@ import {DefaultChatFeatureForm} from "./DefaultChatFeatureForm";
 import {LevelBasedChatFeatureForm} from "./LevelBasedChatFeatureForm";
 import {BlockUsersInChatFeatureForm} from "./BlockUsersInChatFeatureForm";
 import {AddReactionsChatFeatureForm} from "./AddReactionsChatFeatureForm";
-import {useStore, useLocalization} from "../../store";
+import {useStore, useLocalization} from "../../store/hooks";
 
 export const ChatRoleFeatureForms: FunctionComponent = observer(() => {
     const {

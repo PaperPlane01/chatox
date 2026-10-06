@@ -5,7 +5,7 @@ import {ReportReasonSelect} from "./ReportReasonSelect";
 import {CreateReportFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 
 interface CreateReportDialogProps {

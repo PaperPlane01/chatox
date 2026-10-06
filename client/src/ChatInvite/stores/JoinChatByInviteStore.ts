@@ -1,13 +1,13 @@
 import {runInAction} from "mobx";
 import {RouterStore} from "mobx-router";
-import {ChatInviteInfoStore} from "./ChatInviteInfoStore";
+import type {ChatInviteInfoStore} from "./ChatInviteInfoStore";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStore} from "../../entities-store";
-import {SnackbarService} from "../../Snackbar";
-import {PendingChatsOfCurrentUserStore} from "../../Chat";
-import {AuthorizationStore} from "../../Authorization";
+import type {EntitiesStore} from "../../entities-store";
+import type {SnackbarService} from "../../Snackbar/services";
+import type {PendingChatsOfCurrentUserStore} from "../../Chat/stores";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {RouterStoreAware, Routes} from "../../router";
-import {LocaleStore} from "../../localization";
+import type {LocaleStore} from "../../localization";
 import {
     ChatInviteMinified,
     ChatParticipationWithoutUser,

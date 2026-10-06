@@ -10,16 +10,16 @@ import {
     validateRecurringPeriodValue
 } from "../validation";
 import {AbstractFormStore} from "../../form-store";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {Currency, Reward} from "../../api/types/response";
 import {getInitialApiErrorFromResponse} from "../../api";
 import {RewardRequest} from "../../api/types/request";
 import {FormErrors} from "../../utils/types";
 import {containsNotUndefinedValues, createWithUndefinedValues, isDefined} from "../../utils/object-utils";
 import {isStringEmpty} from "../../utils/string-utils";
-import {SnackbarService} from "../../Snackbar";
-import {Labels, LocaleStore} from "../../localization";
-import {SelectUserStore} from "../../UserSelect";
+import type {SnackbarService} from "../../Snackbar/services";
+import {Labels, type LocaleStore} from "../../localization";
+import type {SelectUserStore} from "../../UserSelect/stores";
 
 const INITIAL_FORM_VALUES: RewardFormData = {
     active: true,

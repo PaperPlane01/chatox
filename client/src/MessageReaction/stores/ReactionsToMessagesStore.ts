@@ -1,13 +1,13 @@
 import {makeAutoObservable, observable, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
 import {EmojiData} from "emoji-mart";
-import {orderBy, last} from "lodash";
+import {orderBy, last} from "lodash-es";
 import {MessageReactionEntity} from "../types";
 import {createMessageEmojiKey} from "../utils";
 import {MessageReactionRepository} from "../repositories";
 import {FetchOptions, PaginationState} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
-import {AuthorizationStore} from "../../Authorization";
+import type {EntitiesStore} from "../../entities-store";
+import {AuthorizationStore} from "../../Authorization/stores";
 import {CurrentUser, MessageReaction, TimeUnit} from "../../api/types/response";
 import {MessageReactionApi} from "../../api";
 import {PaginationRequest} from "../../api/types/request";
@@ -15,7 +15,7 @@ import {getEmojiDataFromColons} from "../../Emoji/utils";
 import {MessageReactionAdded, MessageReactionDeleted} from "../../api/types/websocket";
 import {isDefined} from "../../utils/object-utils";
 import {Duration} from "../../utils/date-utils";
-import {MessageEntity} from "../../Message";
+import {MessageEntity} from "../../Message/types";
 import {ExpirableStore} from "../../expirable-store";
 import {Repositories} from "../../repositories";
 

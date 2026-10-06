@@ -1,10 +1,10 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
 import {ChatListEntry, ChatOfCurrentUserEntity} from "../types";
-import {EntitiesStore, RawEntitiesStore} from "../../entities-store";
+import type {EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {ChatType} from "../../api/types/response";
-import {UserEntity} from "../../User";
+import {UserEntity} from "../../User/types";
 import {getUserDisplayedName} from "../../User/utils/labels";
 import {DraftMessageRepository} from "../../Message/repositories";
 import {isDefined} from "../../utils/object-utils";

@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Typography, TypographyProps} from "@mui/material";
 import {ChatDeletionReason} from "../../api/types/response";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {Labels, TranslationFunction} from "../../localization";
 import {isStringEmpty} from "../../utils/string-utils";
 

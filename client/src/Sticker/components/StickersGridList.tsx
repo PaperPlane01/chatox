@@ -4,7 +4,7 @@ import {ImageList, ImageListItem, Theme, useMediaQuery} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {Sticker} from "./Sticker";
 import {useEntityById} from "../../entities";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 interface StickersGridListProps {
     stickerPackId: string,

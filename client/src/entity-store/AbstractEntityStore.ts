@@ -1,6 +1,6 @@
 import {action, computed, makeObservable, observable} from "mobx";
 import {computedFn} from "mobx-utils";
-import {orderBy} from "lodash";
+import {orderBy} from "lodash-es";
 import {BaseEntity, EntityStore} from "./EntityStore";
 import {
     Entities,

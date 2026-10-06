@@ -9,7 +9,7 @@ import {
     InputAdornment,
     TextField
 } from "@mui/material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const CreateNewEmailConfirmationCodeStep: FunctionComponent = observer(() => {
     const {

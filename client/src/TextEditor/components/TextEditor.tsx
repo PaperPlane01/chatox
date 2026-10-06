@@ -39,8 +39,8 @@ import {
 import {EnterAction} from "../types";
 import {adornmentStyle} from "../styles";
 import {TRANSFORMERS} from "../transformers";
-import {EmojiPickerVariant} from "../../EmojiPicker";
-import {useStore} from "../../store";
+import {EmojiPickerVariant} from "../../EmojiPicker/types";
+import {useStore} from "../../store/hooks";
 import {createBlockquoteStyles} from "../../style";
 import {CSSObject} from "tss-react";
 

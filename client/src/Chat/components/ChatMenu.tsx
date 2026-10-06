@@ -10,8 +10,8 @@ import {ScheduleMessageMenuItem} from "./ScheduleMessageMenuItem";
 import {ShowScheduledMessagesMenuItem} from "./ShowScheduledMessagesMenuItem";
 import {ShowPinnedMessageMenuItem} from "./ShowPinnedMessageMenuItem";
 import {ChatManagementMenuItem} from "./ChatManagementMenuItem";
-import {ReportChatMenuItem} from "../../Report";
-import {useAuthorization, usePermissions, useStore} from "../../store";
+import {ReportChatMenuItem} from "../../Report/components";
+import {useAuthorization, usePermissions, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 
 export const ChatMenu: FunctionComponent = observer(() => {

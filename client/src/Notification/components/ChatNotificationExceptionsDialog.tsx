@@ -3,8 +3,8 @@ import {observer} from "mobx-react";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {Add, ArrowBack} from "@mui/icons-material";
 import {ChatNotificationExceptionsList} from "./ChatNotificationExceptionsList";
-import {ChatOfCurrentUserSelect} from "../../Chat";
-import {useLocalization, useStore} from "../../store";
+import {ChatOfCurrentUserSelect} from "../../Chat/components";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 import {ChatType} from "../../api/types/response";
 
