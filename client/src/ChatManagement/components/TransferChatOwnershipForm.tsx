@@ -1,15 +1,13 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Card, CardActions, CardContent, CardHeader, Chip, CircularProgress, Typography} from "@mui/material";
-import randomColor from "randomcolor";
 import {ConfirmationTokenDialog} from "../../ConfirmationToken/components";
 import {BaseSettingsTabProps} from "../../utils/types";
 import {useLocalization, useStore} from "../../store/hooks";
 import {ChatParticipantsAutoComplete} from "../../ChatParticipant/components";
 import {useEntityById} from "../../entities";
-import {Avatar} from "../../Avatar/components";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {useLuminosity} from "../../utils/hooks";
+import {getUserDisplayedName} from "../../User/utils/labels";
+import {UserAvatar} from "../../UserAvatar/components";
 
 export const TransferChatOwnershipForm: FunctionComponent<BaseSettingsTabProps> = observer(({
     hideHeader
@@ -34,7 +32,6 @@ export const TransferChatOwnershipForm: FunctionComponent<BaseSettingsTabProps> 
     } = useStore();
     const selectedUser = useEntityById("users", selectedUserId);
     const {l} = useLocalization();
-    const luminosity = useLuminosity();
 
     if (!selectedChatId) {
         return null;
@@ -59,13 +56,7 @@ export const TransferChatOwnershipForm: FunctionComponent<BaseSettingsTabProps> 
                     </Typography>
                     {selectedUser && (
                         <Chip avatar={
-                            <Avatar avatarColor={randomColor({seed: selectedUser.id, luminosity})}
-                                    avatarLetter={getUserAvatarLabel(selectedUser)}
-                                    width={20}
-                                    height={20}
-                                    avatarId={selectedUser.avatarId}
-                                    avatarUri={selectedUser.externalAvatarUri}
-                            />
+                            <UserAvatar user={selectedUser} width={20} height={20}/>
                         }
                               label={getUserDisplayedName(selectedUser)}
                               onDelete={resetSelectedUserId}

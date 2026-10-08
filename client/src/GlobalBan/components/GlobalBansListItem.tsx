@@ -1,11 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItemAvatar, ListItemText, MenuItem} from "@mui/material";
-import randomColor from "randomcolor";
 import {useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
-import {Avatar} from "../../Avatar/components";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {getUserDisplayedName} from "../../User/utils/labels";
+import {UserAvatar} from "../../UserAvatar/components";
 
 interface GlobalBansListItemProps {
     globalBanId: string
@@ -23,8 +22,6 @@ export const GlobalBansListItem: FunctionComponent<GlobalBansListItemProps> = ob
 
     const globalBan = useEntityById("globalBans", globalBanId);
     const bannedUser = useEntityById("users", globalBan.bannedUserId);
-    const avatarLabel = getUserAvatarLabel(bannedUser);
-    const avatarColor = randomColor({seed: bannedUser.id});
 
     const handleClick = (): void => {
         setGlobalBanId(globalBanId);
@@ -34,7 +31,7 @@ export const GlobalBansListItem: FunctionComponent<GlobalBansListItemProps> = ob
     return (
         <MenuItem onClick={handleClick}>
             <ListItemAvatar>
-                <Avatar avatarLetter={avatarLabel} avatarColor={avatarColor} avatarId={bannedUser.avatarId} avatarUri={bannedUser.externalAvatarUri}/>
+                <UserAvatar user={bannedUser}/>
             </ListItemAvatar>
             <ListItemText>
                 {getUserDisplayedName(bannedUser)}

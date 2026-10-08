@@ -5,9 +5,9 @@ import {BeautifulMentionsMenuItemProps} from "lexical-beautiful-mentions";
 import randomColor from "randomcolor";
 import {MentionItem} from "../types";
 import {useEntityById} from "../../entities";
-import {Avatar} from "../../Avatar/components";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {getUserDisplayedName} from "../../User/utils/labels";
 import {useLuminosity} from "../../utils/hooks";
+import {UserAvatar} from "../../UserAvatar/components";
 
 const _MentionsMenuItem = forwardRef<
 	HTMLLIElement,
@@ -27,10 +27,7 @@ const _MentionsMenuItem = forwardRef<
 				  {...props}
 		>
 			<ListItemAvatar>
-				<Avatar avatarLetter={getUserAvatarLabel(user)}
-						avatarColor={avatarColor}
-						avatarId={user.avatarId}
-				/>
+                <UserAvatar user={user}/>
 			</ListItemAvatar>
 			<ListItemText>
 				{getUserDisplayedName(user)}

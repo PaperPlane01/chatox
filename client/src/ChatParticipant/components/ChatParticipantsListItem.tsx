@@ -2,12 +2,10 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItemText, MenuItem, Theme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import randomColor from "randomcolor";
 import {ChatParticipantMenu} from "./ChatParticipantMenu";
-import {Avatar} from "../../Avatar/components";
 import {useEntityById} from "../../entities";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {useLuminosity} from "../../utils/hooks";
+import {getUserDisplayedName} from "../../User/utils/labels";
+import {UserAvatar} from "../../UserAvatar/components";
 
 interface ChatParticipantsListItemProps {
     participantId: string,
@@ -34,8 +32,6 @@ export const ChatParticipantsListItem: FunctionComponent<ChatParticipantsListIte
     const {classes} = useStyles();
     const chatParticipant = useEntityById("chatParticipations", participantId);
     const user = useEntityById("users", chatParticipant.userId);
-    const luminosity = useLuminosity();
-    const avatarLetters = getUserAvatarLabel(user);
 
     const handleClick = () => {
         if (onClick) {
@@ -50,11 +46,7 @@ export const ChatParticipantsListItem: FunctionComponent<ChatParticipantsListIte
                   }}
         >
             <div className={classes.avatar}>
-                <Avatar avatarLetter={avatarLetters}
-                        avatarColor={randomColor({seed: user.id, luminosity})}
-                        avatarId={user.avatarId}
-                        avatarUri={user.externalAvatarUri}
-                />
+                <UserAvatar user={user}/>
             </div>
             <ListItemText slotProps={{
                 primary: {

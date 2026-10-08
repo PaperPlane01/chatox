@@ -1,15 +1,14 @@
-import React, {FunctionComponent, Fragment} from "react";
+import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {TextField, Button, CircularProgress, Chip, Theme} from "@mui/material";
+import {Button, Chip, CircularProgress, TextField, Theme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import randomColor from "randomcolor";
 import {SelectUserFormData} from "../types";
 import {useLocalization} from "../../store/hooks";
 import {FormErrors} from "../../utils/types";
 import {ApiError} from "../../api";
 import {UserEntity} from "../../User/types";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {Avatar} from "../../Avatar/components";
+import {getUserDisplayedName} from "../../User/utils/labels";
+import {UserAvatar} from "../../UserAvatar/components";
 
 interface UserSelectProps {
     selectedUser?: UserEntity,
@@ -46,12 +45,9 @@ export const UserSelect: FunctionComponent<UserSelectProps> = observer(({
            {selectedUser
                ? (
                    <Chip avatar={
-                       <Avatar avatarColor={randomColor({seed: selectedUser.id})}
-                               avatarLetter={getUserAvatarLabel(selectedUser)}
-                               width={20}
-                               height={20}
-                               avatarId={selectedUser.avatarId}
-                               avatarUri={selectedUser.externalAvatarUri}
+                       <UserAvatar user={selectedUser}
+                                   width={20}
+                                   height={20}
                        />
                    }
                          label={getUserDisplayedName(selectedUser)}

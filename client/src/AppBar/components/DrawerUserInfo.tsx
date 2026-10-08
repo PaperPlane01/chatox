@@ -2,10 +2,10 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Theme, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import randomColor from "randomcolor";
-import {Avatar} from "../../Avatar/components";
 import {useAuthorization} from "../../store/hooks";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {getUserDisplayedName} from "../../User/utils/labels";
+import {UserAvatar} from "../../UserAvatar/components";
+import {useEntityById} from "../../entities";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     userInfoContainer: {
@@ -22,25 +22,21 @@ const useStyles = makeStyles()((theme: Theme) => ({
 export const DrawerUserInfo: FunctionComponent = observer(() => {
     const {classes} = useStyles();
     const {currentUser} = useAuthorization();
+    const currentUserEntity = useEntityById("users", currentUser?.id);
 
-    if (!currentUser) {
+    if (!currentUserEntity) {
         return null;
     }
 
-    const avatarLetter = getUserAvatarLabel(currentUser);
-    const username = getUserDisplayedName(currentUser);
-
     return (
         <div className={classes.userInfoContainer}>
-            <Avatar avatarLetter={avatarLetter}
-                    avatarColor={randomColor({seed: currentUser.id})}
-                    width={60}
-                    height={60}
-                    avatarId={currentUser.avatarId}
-                    avatarUri={currentUser.externalAvatarUri}
+            <UserAvatar
+                user={currentUserEntity}
+                width={60}
+                height={60}
             />
             <Typography className={classes.username}>
-                {username}
+                {getUserDisplayedName(currentUserEntity)}
             </Typography>
         </div>
     )
