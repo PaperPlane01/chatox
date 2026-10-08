@@ -152,7 +152,7 @@ export class ReactionsToMessagesStore {
                 const lastReactions = this.entities.messageReactions.findAllById(message.reactionsCount[emojiId].lastReactions);
                 lastReactions.push(messageReaction);
                 message.reactionsCount[emojiId].lastReactions = orderBy(lastReactions, reaction => reaction.createdAt, "desc")
-                    .slice(0, 2)
+                    .slice(0, 3)
                     .map(reaction => reaction.id);
 
                 if (messageReaction.userId === this.currentUser?.id) {
