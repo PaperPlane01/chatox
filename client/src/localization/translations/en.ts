@@ -846,5 +846,10 @@ export const en: Labels = {
     "username.too-short": "Username is too short",
     "message.reaction.list": "Reactions list",
     "message.reaction.create.error": "Error occurred when tried to create a reaction",
-    "message.reaction.delete.error": "Error occurred when tried to delete a reaction"
+    "message.reaction.delete.error": "Error occurred when tried to delete a reaction",
+    "settings.color-scheme": "Color scheme",
+    "settings.color-scheme.light": "Light",
+    "settings.color-scheme.dark": "Dark",
+    "settings.color-scheme.system": "System",
+    "settings.dark-mode": "Dark mode"
 };

@@ -847,4 +847,9 @@ export const ru: Labels = {
     "message.reaction.list": "Реакции",
     "message.reaction.create.error": "При создании реакции произошла ошибка",
     "message.reaction.delete.error": "При удалении реакции произошла ошибка",
+    "settings.color-scheme": "Цветовая схема",
+    "settings.color-scheme.light": "Светлая",
+    "settings.color-scheme.dark": "Тёмная",
+    "settings.color-scheme.system": "Системная",
+    "settings.dark-mode": "Тёмный режим"
 };

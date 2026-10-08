@@ -93,8 +93,8 @@ const useStyles = makeStyles()((theme: Theme) => ({
         overflowX: "auto"
     },
     messageOfCurrentUserCard: {
-        backgroundColor: theme.palette.primary.light,
-        color: theme.palette.getContrastText(theme.palette.primary.light)
+        backgroundColor: theme.palette.mode === "light" ? theme.palette.primary.light : theme.palette.primary.dark,
+        color: theme.palette.getContrastText(theme.palette.mode === "light" ? theme.palette.primary.light : theme.palette.primary.dark),
     },
     cardHeaderRoot: {
         paddingBottom: 0,

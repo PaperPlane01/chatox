@@ -845,4 +845,9 @@ export interface Labels {
     "message.reaction.list": string,
     "message.reaction.create.error": string,
     "message.reaction.delete.error": string,
+    "settings.color-scheme": string,
+    "settings.color-scheme.light": string,
+    "settings.color-scheme.dark": string,
+    "settings.color-scheme.system": string,
+    "settings.dark-mode": string
 }
