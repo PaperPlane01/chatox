@@ -9,7 +9,8 @@ import {mergeCustomizer} from "../../utils/object-utils";
 import {AuthorizationStore} from "../../Authorization/stores";
 
 interface InsertChatParticipantOptions {
-    increaseChatParticipantsCount: boolean
+    increaseChatParticipantsCount?: boolean,
+    setCurrentUserChatParticipationId?: boolean
 }
 
 type DecreaseChatParticipantsCountCallback = (chatParticipation?: ChatParticipationEntity, currentUser?: CurrentUser) => boolean;
@@ -100,11 +101,18 @@ export class ChatParticipationsStore extends AbstractEntityStore<
                 patches.push(this.entities.chatBlockings.createPatch(chatParticipation.activeChatBlocking));
             }
 
-            if (options?.increaseChatParticipantsCount) {
+            if (options?.increaseChatParticipantsCount || options?.setCurrentUserChatParticipationId) {
                 const chat = this.entities.chats.findById(chatParticipation.chatId);
-                chat.participantsCount = chat.participantsCount + 1;
 
-                patch.entities.chats.set(chatParticipation.id, chat);
+                if (options?.increaseChatParticipantsCount) {
+                    chat.participantsCount = chat.participantsCount + 1;
+                }
+
+                if (options?.setCurrentUserChatParticipationId && chatParticipation.user.id === this.currentUser?.id) {
+                    chat.currentUserParticipationId = chatParticipation.id;
+                }
+
+                patch.entities.chats.set(chatParticipation.chatId, chat);
             }
         });
 
