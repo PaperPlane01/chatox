@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {Switch, useColorScheme, useMediaQuery, FormControlLabel} from "@mui/material";
+import {FormControlLabel, Switch, useColorScheme, useMediaQuery} from "@mui/material";
 import {useLocalization} from "../../store/hooks";
 
 export const DarkModeSwitch: FunctionComponent = observer(() => {
