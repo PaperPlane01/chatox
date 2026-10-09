@@ -8,15 +8,18 @@ export class LeaveChatStore {
     error?: ApiError = undefined;
 
     constructor(private readonly entities: EntitiesStore) {
-       makeAutoObservable(this);
+       makeAutoObservable(this, {}, {autoBind: true});
     }
 
-    leaveChat = (chatId: string, chatParticipationId: string): void => {
+    leaveChat(chatId: string, chatParticipationId: string): void {
         this.pending = true;
         this.error = undefined;
 
         ChatApi.leaveChat(chatId)
-            .then(() => this.entities.chatParticipations.deleteById(chatParticipationId, {decreaseChatParticipantsCount: true}))
+            .then(() => this.entities.chatParticipations.deleteById(chatParticipationId, {
+                decreaseChatParticipantsCount: true,
+                clearCurrentUserChatParticipationId: true
+            }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.pending = false));
     };

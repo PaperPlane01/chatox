@@ -16,7 +16,8 @@ interface InsertChatParticipantOptions {
 type DecreaseChatParticipantsCountCallback = (chatParticipation?: ChatParticipationEntity, currentUser?: CurrentUser) => boolean;
 
 interface DeleteChatParticipantOptions {
-    decreaseChatParticipantsCount?: boolean | DecreaseChatParticipantsCountCallback
+    decreaseChatParticipantsCount?: boolean | DecreaseChatParticipantsCountCallback,
+    clearCurrentUserChatParticipationId?: boolean
 }
 
 export interface FindChatParticipationByUserAndChatOptions {
@@ -59,20 +60,31 @@ export class ChatParticipationsStore extends AbstractEntityStore<
         this.findByUserAndChat(options)
     ))
 
-    deleteById(id: string, options?: DeleteChatParticipantOptions) {
+    deleteById(id: string, options?: DeleteChatParticipantOptions): void {
         const chatParticipation = this.findByIdOptional(id);
 
         if (!chatParticipation) {
             return;
         }
 
-        if (options?.decreaseChatParticipantsCount) {
-            const decreaseChatParticipantsCount = typeof options.decreaseChatParticipantsCount === "function"
-                ? options.decreaseChatParticipantsCount(chatParticipation, this.currentUser)
-                : options.decreaseChatParticipantsCount;
-            if (decreaseChatParticipantsCount) {
-                this.entities.chats.decreaseChatParticipantsCount(chatParticipation.chatId);
+        if (options?.decreaseChatParticipantsCount || options?.clearCurrentUserChatParticipationId) {
+            const chat = this.entities.chats.findById(chatParticipation.chatId);
+
+            if (options?.decreaseChatParticipantsCount) {
+                const decreaseChatParticipantsCount = typeof options.decreaseChatParticipantsCount === "function"
+                    ? options.decreaseChatParticipantsCount(chatParticipation, this.currentUser)
+                    : options.decreaseChatParticipantsCount;
+
+                if (decreaseChatParticipantsCount) {
+                    chat.participantsCount = chat.participantsCount - 1;
+                }
             }
+
+            if (options?.clearCurrentUserChatParticipationId && chatParticipation.userId === this.currentUser?.id) {
+                chat.currentUserParticipationId = undefined;
+            }
+
+            this.entities.chats.insertEntity(chat);
         }
 
         super.deleteById(id);
