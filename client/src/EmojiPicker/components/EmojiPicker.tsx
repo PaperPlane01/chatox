@@ -1,6 +1,6 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {useMediaQuery, useTheme} from "@mui/material";
+import {useColorScheme, useMediaQuery, useTheme} from "@mui/material";
 import {EmojiData} from "emoji-mart";
 import {EmojiMartPicker} from "./EmojiMartPicker";
 import {useStore} from "../../store/hooks";
@@ -19,17 +19,21 @@ export const EmojiPicker: FunctionComponent<EmojiPickerProps> = observer(({
 	} = useStore();
 	const theme = useTheme();
 	const onSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
+    const {mode} = useColorScheme();
 	const pickerStyles = onSmallScreen
 		? {width: "100%", backgroundColor: theme.palette.background.paper}
 		: {};
+    const emojiMartTheme = mode === "system" ? "auto" : mode;
 
 	return (
 		<div style={pickerStyles}>
-            <EmojiMartPicker set={selectedEmojiSet}
-                             onEmojiSelect={onEmojiPicked}
-                             autoFocus={false}
-                             dynamicWidth={onSmallScreen}
-                             stickySearch={true}
+            <EmojiMartPicker
+                set={selectedEmojiSet}
+                onEmojiSelect={onEmojiPicked}
+                autoFocus={false}
+                dynamicWidth={onSmallScreen}
+                stickySearch={true}
+                theme={emojiMartTheme}
             />
         </div>
 	);
