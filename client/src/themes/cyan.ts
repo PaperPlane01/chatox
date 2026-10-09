@@ -7,20 +7,17 @@ const palette: PaletteOptions = {
     primary: {
         light: "rgb(71,247,255,0.19)",
         main: PRIMARY_MAIN,
-        dark: darken(PRIMARY_MAIN, 0.7),
-        contrastText: "#fff"
+        dark: darken(PRIMARY_MAIN, 0.7)
     },
     secondary: {
         light: "rgb(94, 146, 243, 1)",
         main: "rgb(21, 101, 192, 1)",
-        dark: "rgb(0, 60, 143, 1)",
-        contrastText: "#fff"
+        dark: "rgb(0, 60, 143, 1)"
     },
     error: {
         light: "#e57373",
         main: "#f44336",
-        dark: "#d32f2f",
-        contrastText: "#fff"
+        dark: "#d32f2f"
     }
 };
 
