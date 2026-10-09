@@ -236,7 +236,10 @@ export class WebsocketStore {
             WebsocketEventType.USER_KICKED_FROM_CHAT,
             (event: WebsocketEvent<UserKickedFromChat>) => this.entities.chatParticipations.deleteById(
                 event.payload.chatParticipationId,
-                {decreaseChatParticipantsCount: true}
+                {
+                    decreaseChatParticipantsCount: true,
+                    clearCurrentUserChatParticipationId: event.payload.userId === this.currentUser?.id
+                }
             )
         );
         map.set(
