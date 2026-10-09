@@ -243,7 +243,10 @@ export class WebsocketStore {
             WebsocketEventType.USER_LEFT_CHAT,
             (event: WebsocketEvent<UserLeftChat>) => this.entities.chatParticipations.deleteById(
                 event.payload.chatParticipationId,
-                {decreaseChatParticipantsCount: true}
+                {
+                    decreaseChatParticipantsCount: true,
+                    clearCurrentUserChatParticipationId: event.payload.userId === this.currentUser?.id
+                }
             )
         );
         map.set(
