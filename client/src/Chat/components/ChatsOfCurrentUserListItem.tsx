@@ -33,8 +33,8 @@ const useStyles = makeStyles()((theme: Theme) => ({
     },
     selected: {
         [theme.breakpoints.up("lg")]: {
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.getContrastText(theme.palette.primary.main)
+            backgroundColor: theme.palette.mode === "light" ? theme.palette.primary.main : theme.palette.primary.dark,
+            color: theme.palette.getContrastText(theme.palette.mode === "light" ? theme.palette.primary.main : theme.palette.primary.dark),
         }
     },
     listItemHeaderRoot: {
