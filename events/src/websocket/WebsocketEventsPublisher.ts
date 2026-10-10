@@ -181,8 +181,8 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             [userLeftChat.userId],
             userLeftEvent
         );
+        await this.connectionsStateHolder.removeUserFromChat(userLeftChat.userId, userLeftChat.chatId);
         this.connectionsStateHolder.publishEventToChat(userLeftChat.chatId, userLeftEvent);
-        this.connectionsStateHolder.removeUserFromChat(userLeftChat.userId, userLeftChat.chatId);
     }
 
     public async publishUserKickedFromChat(userKickedFromChat: UserKickedFromChat) {
