@@ -3,6 +3,7 @@ import {MessageEmoji} from "./MessageEmoji";
 import {Upload} from "./Upload";
 import {Sticker} from "./Sticker";
 import {ChatRole} from "./ChatRole";
+import {MessageReactionsCountMap} from "./MessageReactionsCountMap";
 
 export interface Message {
     id: string,
@@ -28,5 +29,6 @@ export interface Message {
     forwardedFromMessageId?: string,
     forwardedBy?: User,
     readByAnyone: boolean,
-    mentionedUsers: User[]
+    mentionedUsers: User[],
+    reactionsCount: MessageReactionsCountMap
 }

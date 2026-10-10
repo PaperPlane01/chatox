@@ -1,6 +1,6 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {PaginationState} from "../../utils/types";
 
 const PAGE_SIZE = 10;

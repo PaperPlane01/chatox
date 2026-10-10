@@ -16,7 +16,7 @@ import {DateTimePicker} from "@mui/x-date-pickers";
 import {useSnackbar} from "notistack";
 import {HttpStatusCode} from "axios";
 import {GlobalBanReasonSelect} from "./GlobalBanReasonSelect";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 import {getUserDisplayedName} from "../../User/utils/labels";

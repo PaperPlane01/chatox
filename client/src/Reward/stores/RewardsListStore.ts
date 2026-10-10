@@ -1,7 +1,7 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {AxiosPromise} from "axios";
 import {PaginationState} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse, RewardApi} from "../../api";
 import {PaginationRequest} from "../../api/types/request";
 import {Reward} from "../../api/types/response";

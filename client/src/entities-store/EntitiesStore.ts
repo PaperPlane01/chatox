@@ -1,21 +1,22 @@
 import {RawEntitiesStore} from "./RawEntitiesStore";
 import {EntitiesAware} from "./EntitiesAware";
 import {Entities, GetEntityType} from "./types";
-import {MessagesStore} from "../Message";
-import {ChatsStore} from "../Chat";
-import {UploadsStore} from "../Upload";
-import {UserProfilePhotosStore, UsersStore} from "../User";
-import {ChatRolesStore, UserChatRolesStore} from "../ChatRole";
-import {ChatBlockingsStore} from "../ChatBlocking";
-import {ChatParticipationsStore, PendingChatParticipationsStore} from "../ChatParticipant";
-import {AuthorizationStore} from "../Authorization";
-import {StickersStore, StickerPacksStore} from "../Sticker";
-import {ReportedChatsStore, ReportedMessagesStore, ReportsStore} from "../Report";
-import {GlobalBansStore} from "../GlobalBan";
-import {RewardsStore, UserRewardsStore} from "../Reward";
-import {UserInteractionsStore} from "../UserInteraction";
-import {ChatInvitesStore} from "../ChatInvite";
+import {MessagesStore} from "../Message/stores";
+import {ChatsStore} from "../Chat/stores";
+import {UploadsStore} from "../Upload/stores";
+import {UserProfilePhotosStore, UsersStore} from "../User/stores";
+import {ChatRolesStore, UserChatRolesStore} from "../ChatRole/stores";
+import {ChatBlockingsStore} from "../ChatBlocking/stores";
+import {ChatParticipationsStore, PendingChatParticipationsStore} from "../ChatParticipant/stores";
+import {AuthorizationStore} from "../Authorization/stores";
+import {StickersStore, StickerPacksStore} from "../Sticker/stores";
+import {ReportedChatsStore, ReportedMessagesStore, ReportsStore} from "../Report/stores";
+import {GlobalBansStore} from "../GlobalBan/stores";
+import {RewardsStore, UserRewardsStore} from "../Reward/stores";
+import {UserInteractionsStore} from "../UserInteraction/stores";
+import {ChatInvitesStore} from "../ChatInvite/stores";
 import {EntityStore} from "../entity-store";
+import {MessageReactionsStore} from "../MessageReaction/stores";
 
 type EntitiesStores = {
     [Entity in Entities]: Entity extends "chatUploads" | "stickerAnimationData"
@@ -24,20 +25,20 @@ type EntitiesStores = {
 }
 
 export class EntitiesStore {
-    public messages: MessagesStore<"messages">;
+    public messages: MessagesStore;
     public chats: ChatsStore;
     public uploads: UploadsStore;
-    public users: UsersStore<"users">;
+    public users: UsersStore;
     public chatRoles: ChatRolesStore;
     public chatBlockings: ChatBlockingsStore;
     public globalBans: GlobalBansStore;
     public chatParticipations: ChatParticipationsStore;
     public stickers: StickersStore;
     public stickerPacks: StickerPacksStore;
-    public scheduledMessages: MessagesStore<"scheduledMessages">;
-    public reportedUsers: UsersStore<"reportedUsers">;
+    public scheduledMessages: MessagesStore;
+    public reportedUsers: UsersStore;
     public reportedMessages: ReportedMessagesStore;
-    public reportedMessageSenders: UsersStore<"reportedMessageSenders">;
+    public reportedMessageSenders: UsersStore;
     public reportedChats: ReportedChatsStore;
     public reports: ReportsStore;
     public rewards: RewardsStore;
@@ -46,7 +47,8 @@ export class EntitiesStore {
     public userProfilePhotos: UserProfilePhotosStore;
     public chatInvites: ChatInvitesStore;
     public pendingChatParticipations: PendingChatParticipationsStore;
-    public draftMessages: MessagesStore<"draftMessages">;
+    public draftMessages: MessagesStore;
+    public messageReactions: MessageReactionsStore;
 
     get stores(): EntitiesStores {
         return {
@@ -74,7 +76,8 @@ export class EntitiesStore {
             pendingChatParticipations: this.pendingChatParticipations,
             chatUploads: undefined,
             draftMessages: this.draftMessages,
-            stickerAnimationData: undefined
+            stickerAnimationData: undefined,
+            messageReactions: this.messageReactions
         }
     }
 
@@ -102,6 +105,7 @@ export class EntitiesStore {
         this.chatInvites = new ChatInvitesStore(rawEntities, "chatInvites", this);
         this.pendingChatParticipations = new PendingChatParticipationsStore(rawEntities, "pendingChatParticipations", this);
         this.draftMessages = new MessagesStore(rawEntities, "draftMessages", this, userChatRoles);
+        this.messageReactions = new MessageReactionsStore(rawEntities, this);
     }
 
     public setEntitiesStore(entitiesAwareStores: EntitiesAware[]): void {

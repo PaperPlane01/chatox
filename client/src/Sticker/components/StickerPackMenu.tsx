@@ -5,7 +5,7 @@ import {MoreVert} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {EditStickerPackMenuItem} from "./EditStickerPackMenuItem";
 import {DeleteStickerPackMenuItem} from "./DeleteStickerPackMenuItem";
-import {useAuthorization, usePermissions} from "../../store";
+import {useAuthorization, usePermissions} from "../../store/hooks";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 import {useEntityById} from "../../entities";
 

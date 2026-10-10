@@ -7,8 +7,8 @@ import {ChatInviteCard} from "./ChatInviteCard";
 import {commonStyles} from "../../style";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
-import {useLocalization, useStore} from "../../store";
-import {HasAnyRole} from "../../Authorization";
+import {useLocalization, useStore} from "../../store/hooks";
+import {HasAnyRole} from "../../Authorization/components";
 
 const useStyles = makeStyles()(() => ({
     chatInviteWrapper: commonStyles.centered

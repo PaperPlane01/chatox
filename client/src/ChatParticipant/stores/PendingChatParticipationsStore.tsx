@@ -1,4 +1,4 @@
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {PendingChatParticipationEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {PendingChatParticipant} from "../../api/types/response";
@@ -12,8 +12,7 @@ export class PendingChatParticipationsStore extends AbstractEntityStore<"pending
 
         denormalizedEntities.forEach(pendingChatParticipant => {
             const entity = this.convertToNormalizedForm(pendingChatParticipant);
-            patch.ids.pendingChatParticipations.push(entity.id);
-            patch.entities.pendingChatParticipations[entity.id] = entity;
+            patch.entities.pendingChatParticipations.set(entity.id, entity);
             patches.push(this.entities.users.createPatch(pendingChatParticipant.user));
         });
 

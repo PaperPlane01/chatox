@@ -1,19 +1,19 @@
 import {IAppState} from "./IAppState";
-import {AppBarStore} from "../AppBar";
+import {AppBarStore} from "../AppBar/stores";
 import {AuthorizationStore, LoginStore, LoginWithGoogleStore} from "../Authorization/stores";
 import {
-    createSetPasswordRecoveryStepCallback,
     PasswordRecoveryDialogStore,
     RecoverPasswordStore,
     SendPasswordRecoveryEmailConfirmationCodeStore
-} from "../PasswordRecovery";
+} from "../PasswordRecovery/stores";
+import {createSetPasswordRecoveryStepCallback} from "../PasswordRecovery/factories";
 import {
     AnonymousRegistrationDialogStore,
-    createSetRegistrationStepCallback,
     RegistrationDialogStore,
     SendConfirmationCodeStore,
     UserRegistrationStore
-} from "../Registration";
+} from "../Registration/stores";
+import {createSetRegistrationStepCallback} from "../Registration/stores/factories";
 import {
     ChatInfoDialogStore,
     ChatsOfCurrentUserStore,
@@ -27,7 +27,7 @@ import {
     TransferChatOwnershipStore,
     TypingUsersStore,
     UpdateChatStore
-} from "../Chat";
+} from "../Chat/stores";
 import {
     ApproveJoinChatRequestsStore,
     ChatParticipantsAutoCompleteStore,
@@ -39,9 +39,9 @@ import {
     OnlineChatParticipantsStore,
     RejectJoinChatRequestsStore,
     UpdateChatParticipantStore
-} from "../ChatParticipant";
-import {MarkdownPreviewDialogStore} from "../Markdown";
-import {LocaleStore} from "../localization";
+} from "../ChatParticipant/stores";
+import {MarkdownPreviewDialogStore} from "../Markdown/stores";
+import {LocaleStore} from "../localization/stores";
 import {EntitiesStore, RawEntitiesStore, ReferencedEntitiesStore} from "../entities-store";
 import {
     createSetChangePasswordStepCallback,
@@ -57,7 +57,7 @@ import {
     SetPhotoAsAvatarStore,
     UserProfilePhotosGalleryStore,
     UserProfileStore
-} from "../User";
+} from "../User/stores";
 import {
     ClosedPinnedMessagesStore,
     DeleteMessageStore,
@@ -74,7 +74,7 @@ import {
     ScheduledMessagesOfChatStore,
     SearchMessagesStore,
     UnpinMessageStore
-} from "../Message";
+} from "../Message/stores";
 import {
     CreateMessageStore,
     EmojiPickerTabsStore,
@@ -84,7 +84,7 @@ import {
     UpdateMessageStore,
     UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
-} from "../MessageForm";
+} from "../MessageForm/stores";
 import {WebsocketStore} from "../websocket";
 import {
     BlockUserInChatByIdOrSlugStore,
@@ -94,32 +94,35 @@ import {
     ChatBlockingsOfChatStore,
     CreateChatBlockingStore,
     UpdateChatBlockingStore
-} from "../ChatBlocking";
-import {UploadCacheService, UploadImageStore} from "../Upload";
-import {SettingsTabsStore} from "../Settings";
-import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
-import {EmojiSettingsStore} from "../Emoji";
-import {AudioPlayerStore} from "../AudioPlayer";
+} from "../ChatBlocking/stores";
+import {UploadImageStore} from "../Upload/stores";
+import {UploadCacheService} from "../Upload/services";
+import {SettingsTabsStore} from "../Settings/stores";
+import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation/stores";
+import {EmojiSettingsStore} from "../Emoji/stores";
+import {AudioPlayerStore} from "../AudioPlayer/stores";
 import {
     BanUserStore,
     CancelGlobalBanStore,
     GlobalBanDetailsDialogStore,
     GlobalBansListStore,
     UpdateGlobalBanStore
-} from "../GlobalBan";
+} from "../GlobalBan/stores";
 import {
     BanUsersRelatedToSelectedReportsStore,
     CreateReportStore,
     CurrentReportsListStore,
     DeclineSelectedReportsStore,
     DeleteSelectedReportedMessagesStore,
-    reportedChatsCreatorsSelector,
     ReportedMessageDialogStore,
-    reportedMessagesSendersSelector,
-    reportedUsersSelector,
     ReportsListStore,
     UpdateSelectedReportsStore
-} from "../Report";
+} from "../Report/stores";
+import {
+    reportedChatsCreatorsSelector,
+    reportedMessagesSendersSelector,
+    reportedUsersSelector
+} from "../Report/selectors";
 import {ReportType} from "../api/types/response";
 import {
     DeleteStickerPackStore,
@@ -133,19 +136,19 @@ import {
     StickerPreviewDialogStore,
     StickersPreferencesStore,
     UninstallStickerPackStore
-} from "../Sticker";
+} from "../Sticker/stores";
 import {
     CreateStickerPackStore,
     ImportStickerPackStore,
     StickerEmojiPickerDialogStore,
     UpdateStickerPackStore
 } from "../StickerPackForm/stores";
-import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
+import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist/stores";
 import {
     AllChatsMessagesSearchStore,
     ChatsAndMessagesSearchQueryStore,
     ChatsOfCurrentUserSearchStore
-} from "../ChatsAndMessagesSearch";
+} from "../ChatsAndMessagesSearch/stores";
 import {
     ChatFeaturesFormStore,
     ChatRoleInfoDialogStore,
@@ -153,17 +156,19 @@ import {
     EditChatRoleStore,
     RolesOfChatStore,
     UserChatRolesStore
-} from "../ChatRole";
-import {SnackbarService} from "../Snackbar";
+} from "../ChatRole/stores";
+import {SnackbarService} from "../Snackbar/services";
 import {
-    createSetCreateNewEmailConfirmationCodeCallback,
-    createSetUpdateEmailStepCallback,
     SendEmailChangeConfirmationCodeStore,
     SendNewEmailConfirmationCodeStore,
     UpdateEmailDialogStore,
     UpdateEmailStore
-} from "../EmailUpdate";
-import {ThemeStore} from "../Theme";
+} from "../EmailUpdate/stores";
+import {
+    createSetCreateNewEmailConfirmationCodeCallback,
+    createSetUpdateEmailStepCallback,
+} from "../EmailUpdate/factories";
+import {ThemeStore} from "../Theme/stores";
 import {
     ClaimableRewardsStore,
     CreateRewardStore,
@@ -172,16 +177,16 @@ import {
     RewardDetailsStore,
     RewardsListStore,
     UpdateRewardStore
-} from "../Reward";
-import {BalanceStore} from "../Balance";
+} from "../Reward/stores";
+import {BalanceStore} from "../Balance/stores";
 import {
     CreateUserInteractionStore,
     UserInteractionCostsStore,
     UserInteractionsCountStore,
     UserInteractionsHistoryStore
-} from "../UserInteraction";
-import {ChatManagementTabStore} from "../ChatManagement";
-import {SelectUserStore} from "../UserSelect";
+} from "../UserInteraction/stores";
+import {ChatManagementTabStore} from "../ChatManagement/store";
+import {SelectUserStore} from "../UserSelect/stores";
 import {
     ChatInviteDialogStore,
     ChatInviteInfoStore,
@@ -189,8 +194,8 @@ import {
     CreateChatInviteStore,
     JoinChatByInviteStore,
     UpdateChatInviteStore
-} from "../ChatInvite";
-import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
+} from "../ChatInvite/stores";
+import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor/stores";
 import {
     ChatNotificationExceptionsDialogStore,
     DeleteChatNotificationSettingsStore,
@@ -201,9 +206,15 @@ import {
     UpdateGlobalNotificationsSettingsStore,
     UpdateUserNotificationSettingsInChatDialogStore,
     UserNotificationExceptionsDialogStore
-} from "../Notification";
+} from "../Notification/stores";
 import {ConfirmationTokenStore, CreateConfirmationTokenStore} from "../ConfirmationToken/stores";
 import {DexieRepositories, Repositories} from "../repositories";
+import {
+    MessageReactionOperationsStore,
+    MessageReactionPickerStore,
+    MessageReactionsDialogStore,
+    ReactionsToMessagesStore
+} from "../MessageReaction/stores";
 
 const referencedEntities = new ReferencedEntitiesStore();
 const authorization = new AuthorizationStore();
@@ -383,6 +394,7 @@ const soundNotification = new SoundNotificationStore(
     authorization,
     entities
 );
+const reactionsToMessages = new ReactionsToMessagesStore(entities, authorization, repositories);
 const websocket = new WebsocketStore(
     authorization,
     entities,
@@ -396,6 +408,7 @@ const websocket = new WebsocketStore(
     language,
     soundNotification,
     notificationsSettings,
+    reactionsToMessages,
     snackbarService
 );
 const stickerPackCreation = new CreateStickerPackStore(entities, language, snackbarService);
@@ -618,6 +631,15 @@ const chatOwnershipTransfer = new TransferChatOwnershipStore(
     language,
     snackbarService
 );
+const messageReactionOperations = new MessageReactionOperationsStore(
+    reactionsToMessages,
+    entities,
+    language,
+    authorization,
+    snackbarService
+);
+const messageReactionsDialog = new MessageReactionsDialogStore(reactionsToMessages);
+const messageReactionPicker = new MessageReactionPickerStore();
 
 const _store: IAppState = {
     authorization,
@@ -797,7 +819,11 @@ const _store: IAppState = {
     stickerPackImport,
     confirmationToken,
     confirmationTokenDialog,
-    chatOwnershipTransfer
+    chatOwnershipTransfer,
+    reactionsToMessages,
+    messageReactionOperations,
+    messageReactionsDialog,
+    messageReactionPicker
 };
 
 //Hack to avoid loss of application state on HMR

@@ -1,16 +1,16 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {AxiosPromise} from "axios";
-import {UserInteractionsCountStore} from "./UserInteractionsCountStore";
-import {UserInteractionCostsStore} from "./UserInteractionCostsStore";
-import {UserInteractionsHistoryStore} from "./UserInteractionsHistoryStore";
-import {BalanceStore} from "../../Balance";
-import {AuthorizationStore} from "../../Authorization";
+import type {UserInteractionsCountStore} from "./UserInteractionsCountStore";
+import type {UserInteractionCostsStore} from "./UserInteractionCostsStore";
+import type {UserInteractionsHistoryStore} from "./UserInteractionsHistoryStore";
+import type {BalanceStore} from "../../Balance/stores";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {LocaleStore} from "../../localization";
-import {UserProfileStore} from "../../User";
+import type {UserProfileStore} from "../../User/stores";
 import {ApiError, getInitialApiErrorFromResponse, UserInteractionsApi} from "../../api";
 import {Currency, CurrentUser, UserInteractionsCount, UserInteractionType, UserRole} from "../../api/types/response";
 import {isDefined} from "../../utils/object-utils";
-import {SnackbarService} from "../../Snackbar";
+import type {SnackbarService} from "../../Snackbar/services";
 
 type CreateUserInteractionFunctionMap = {
     [key in UserInteractionType]: (userId: string) => AxiosPromise<UserInteractionsCount>

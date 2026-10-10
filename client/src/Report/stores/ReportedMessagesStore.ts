@@ -1,7 +1,7 @@
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch} from "../../entities-store";
-import {MessageEntity} from "../../Message";
+import {MessageEntity} from "../../Message/types";
 import {convertMessageToNormalizedForm} from "../../Message/utils";
 import {Message} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
@@ -35,8 +35,7 @@ export class ReportedMessagesStore extends AbstractEntityStore<"reportedMessages
                 patches.push(this.entities.reportedMessageSenders.createPatch(message.forwardedBy));
             }
 
-            patch.entities.reportedMessages[message.id] = entity;
-            patch.ids.reportedMessages.push(message.id);
+            patch.entities.reportedMessages.set(entity.id, entity);
         });
 
         return mergeWith(patch, ...patches, mergeCustomizer);

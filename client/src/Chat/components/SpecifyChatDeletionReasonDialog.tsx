@@ -14,7 +14,7 @@ import {useSnackbar} from "notistack";
 import {ChatDeletionReasonSelect} from "./ChatDeletionReasonSelect";
 import {ChatDeletionStep} from "../types";
 import {getChatDeletionErrorText} from "../utils";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 
 export const SpecifyChatDeletionReasonDialog: FunctionComponent = observer(() => {

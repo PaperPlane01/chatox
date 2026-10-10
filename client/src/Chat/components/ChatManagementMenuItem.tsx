@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
 import {AdminPanelSettings} from "@mui/icons-material";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store/hooks";
 import {Routes} from "../../router";
 
 interface ChatManagementMenuItemProps {

@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, IconButton, FormControlLabel, Switch, TextField} from "@mui/material";
 import {Close} from "@mui/icons-material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const StickersPreferencesCard: FunctionComponent = observer(() => {
 	const {

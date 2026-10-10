@@ -4,7 +4,7 @@ import {makeStyles} from "tss-react/mui";
 import {CircularProgress, Theme} from "@mui/material";
 import {CreateUserInteractionButton} from "./CreateUserInteractionButton";
 import {commonStyles} from "../../style";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {UserInteractionType} from "../../api/types/response";
 
 const useStyles = makeStyles()((theme: Theme) => ({

@@ -2,7 +2,7 @@ import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {FormControlLabel, Checkbox, Typography} from "@mui/material";
 import {ChatFeatureFormData} from "../types";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 
 interface DefaultChatFeatureFormProps {
     formValues: ChatFeatureFormData,

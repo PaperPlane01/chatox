@@ -2,7 +2,7 @@ import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
 import {DialogTitle, DialogContent, DialogActions, Button, TextField, CircularProgress, Typography} from "@mui/material";
 import {CheckEmailConfirmationCodeStore} from "../stores";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 

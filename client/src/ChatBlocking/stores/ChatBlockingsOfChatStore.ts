@@ -2,9 +2,9 @@ import {makeAutoObservable} from "mobx";
 import {computedFn} from "mobx-utils";
 import {ChatBlockingEntity, ChatBlockingSortableProperties} from "../types";
 import {isChatBlockingActive} from "../utils";
-import {ChatStore} from "../../Chat";
+import type {ChatStore} from "../../Chat/stores";
 import {FetchOptions, PaginationWithSortingState, SortingDirection} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {ChatBlockingApi} from "../../api";
 import {ChatBlocking} from "../../api/types/response";
 

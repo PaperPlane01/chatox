@@ -2,7 +2,7 @@ import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Dialog, DialogActions, DialogContent} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import {noop} from "lodash";
+import {noop} from "lodash-es";
 import {EditableStickerPreview} from "./EditableStickerPreview";
 import {StickerEmojiPickerDialog} from "./StickerEmojiPickerDialog";
 import {StickerUpload} from "./StickerUpload";
@@ -10,7 +10,7 @@ import {useStickerPackForm} from "../hooks";
 import {StickerPackFormContext} from "../types";
 import {StickerContainer} from "../stores";
 import {ChipInput} from "../../ChipInput";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 interface EditStickerDialogProps {
 	stickerContainer: StickerContainer,

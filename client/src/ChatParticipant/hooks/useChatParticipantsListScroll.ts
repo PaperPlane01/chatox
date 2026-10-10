@@ -1,7 +1,7 @@
 import {UIEvent} from "react";
 import {Theme, useMediaQuery, useTheme} from "@mui/material";
 import {ChatParticipantsListMode} from "../types";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {isScrolledToBottom} from "../../utils/event-utils";
 
 interface UseChatParticipantsListScroll {

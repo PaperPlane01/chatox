@@ -1,10 +1,10 @@
 import {makeAutoObservable, observable, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
-import {NotificationsSettingsStore} from "./NotificationsSettingsStore";
-import {SnackbarService} from "../../Snackbar";
+import type {NotificationsSettingsStore} from "./NotificationsSettingsStore";
+import type {SnackbarService} from "../../Snackbar/services";
 import {NotificationsSettingsApi} from "../../api";
 import {ChatType} from "../../api/types/response";
-import {LocaleStore} from "../../localization";
+import type {LocaleStore} from "../../localization";
 
 export class DeleteChatNotificationSettingsStore {
 	pendingMap = observable.map<string, boolean>();

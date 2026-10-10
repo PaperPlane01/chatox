@@ -2,7 +2,7 @@ import {makeAutoObservable, observable, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
 import {ApiError, getInitialApiErrorFromResponse, UserInteractionsApi} from "../../api";
 import {UserInteractionType} from "../../api/types/response";
-import {UserProfileStore} from "../../User";
+import type {UserProfileStore} from "../../User/stores";
 
 export class UserInteractionCostsStore {
     costs = observable.map<UserInteractionType, number>();

@@ -6,7 +6,7 @@ import {ConfirmSkippingEmailStep} from "./ConfirmSkippingEmailStep";
 import {CheckVerificationCodeStep} from "./CheckVerificationCodeStep";
 import {RegisterStep} from "./RegisterStep";
 import {RegistrationStep} from "../types";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 
 const registrationDialogContentMap = {

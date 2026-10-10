@@ -2,6 +2,7 @@ import {SendMessagesFeatureData} from "./SendMessagesFeatureData";
 import {BlockUsersFeatureData} from "./BlockUsersFeatureData";
 import {ChatFeatureData} from "./ChatFeatureData";
 import {LevelBasedChatFeatureData} from "./LevelBasedChatFeatureData";
+import {AddReactionsFeatureData} from "./AddReactionsFeatureData";
 
 export interface ChatFeatures {
     sendMessages: SendMessagesFeatureData,
@@ -20,5 +21,6 @@ export interface ChatFeatures {
     showRoleNameInMessages: ChatFeatureData,
     pinMessages: ChatFeatureData,
     manageInvites: ChatFeatureData,
-    approveJoinChatRequests: ChatFeatureData
+    approveJoinChatRequests: ChatFeatureData,
+    addReactions: AddReactionsFeatureData
 }

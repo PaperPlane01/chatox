@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Card, CardHeader, CardContent} from "@mui/material";
 import {ChatRolesList} from "./ChatRolesList";
 import {BaseSettingsTabProps} from "../../utils/types";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const ChatRolesCard: FunctionComponent<BaseSettingsTabProps> = observer(({
     hideHeader = false

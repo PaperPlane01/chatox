@@ -1,17 +1,17 @@
-import {AppBarStore} from "../AppBar";
-import {AuthorizationStore, LoginStore, LoginWithGoogleStore} from "../Authorization/stores";
+import type {AppBarStore} from "../AppBar/stores";
+import type {AuthorizationStore, LoginStore, LoginWithGoogleStore} from "../Authorization/stores";
 import {
     PasswordRecoveryDialogStore,
     RecoverPasswordStore,
     SendPasswordRecoveryEmailConfirmationCodeStore
-} from "../PasswordRecovery";
-import {
+} from "../PasswordRecovery/stores";
+import type {
     AnonymousRegistrationDialogStore,
     RegistrationDialogStore,
     SendConfirmationCodeStore,
     UserRegistrationStore
-} from "../Registration";
-import {
+} from "../Registration/stores";
+import type {
     ChatInfoDialogStore,
     ChatsOfCurrentUserStore,
     ChatsPreferencesStore,
@@ -24,8 +24,8 @@ import {
     TransferChatOwnershipStore,
     TypingUsersStore,
     UpdateChatStore
-} from "../Chat";
-import {
+} from "../Chat/stores";
+import type {
     ApproveJoinChatRequestsStore,
     ChatParticipantsAutoCompleteStore,
     ChatParticipantsSearchStore,
@@ -36,11 +36,11 @@ import {
     OnlineChatParticipantsStore,
     RejectJoinChatRequestsStore,
     UpdateChatParticipantStore
-} from "../ChatParticipant";
-import {MarkdownPreviewDialogStore} from "../Markdown";
-import {LocaleStore} from "../localization";
-import {EntitiesStore, RawEntitiesStore, ReferencedEntitiesStore} from "../entities-store";
-import {
+} from "../ChatParticipant/stores";
+import type {MarkdownPreviewDialogStore} from "../Markdown/stores";
+import type {LocaleStore} from "../localization";
+import type {EntitiesStore, RawEntitiesStore, ReferencedEntitiesStore} from "../entities-store";
+import type {
     CreateUserProfilePhotoStore,
     DeleteSelectedUserProfilePhotosStore,
     DeleteUserProfilePhotoStore,
@@ -53,8 +53,8 @@ import {
     SetPhotoAsAvatarStore,
     UserProfilePhotosGalleryStore,
     UserProfileStore
-} from "../User";
-import {
+} from "../User/stores";
+import type {
     ClosedPinnedMessagesStore,
     DeleteMessageStore,
     DeleteScheduledMessageStore,
@@ -70,8 +70,8 @@ import {
     ScheduledMessagesOfChatStore,
     SearchMessagesStore,
     UnpinMessageStore
-} from "../Message";
-import {
+} from "../Message/stores";
+import type {
     CreateMessageStore,
     EmojiPickerTabsStore,
     RecordVoiceMessageStore,
@@ -80,9 +80,9 @@ import {
     UpdateMessageStore,
     UpdateScheduledMessageStore,
     UploadMessageAttachmentsStore
-} from "../MessageForm";
-import {WebsocketStore} from "../websocket";
-import {
+} from "../MessageForm/stores";
+import type {WebsocketStore} from "../websocket";
+import type {
     BlockUserInChatByIdOrSlugStore,
     CancelChatBlockingStore,
     ChatBlockingInfoDialogStore,
@@ -90,20 +90,20 @@ import {
     ChatBlockingsOfChatStore,
     CreateChatBlockingStore,
     UpdateChatBlockingStore
-} from "../ChatBlocking";
-import {UploadImageStore} from "../Upload";
-import {SettingsTabsStore} from "../Settings";
-import {CheckEmailConfirmationCodeStore} from "../EmailConfirmation";
-import {EmojiSettingsStore} from "../Emoji";
-import {AudioPlayerStore} from "../AudioPlayer";
-import {
+} from "../ChatBlocking/stores";
+import type {UploadImageStore} from "../Upload/stores";
+import {SettingsTabsStore} from "../Settings/stores";
+import type {CheckEmailConfirmationCodeStore} from "../EmailConfirmation/stores";
+import type {EmojiSettingsStore} from "../Emoji/stores";
+import type {AudioPlayerStore} from "../AudioPlayer/stores";
+import type {
     BanUserStore,
     CancelGlobalBanStore,
     GlobalBanDetailsDialogStore,
     GlobalBansListStore,
     UpdateGlobalBanStore
-} from "../GlobalBan";
-import {
+} from "../GlobalBan/stores";
+import type {
     BanUsersRelatedToSelectedReportsStore,
     CreateReportStore,
     CurrentReportsListStore,
@@ -112,8 +112,8 @@ import {
     ReportedMessageDialogStore,
     ReportsListStore,
     UpdateSelectedReportsStore
-} from "../Report";
-import {
+} from "../Report/stores";
+import type {
     DeleteStickerPackStore,
     InstalledStickerPacksStore,
     InstallStickerPackStore,
@@ -125,35 +125,35 @@ import {
     StickerPreviewDialogStore,
     StickersPreferencesStore,
     UninstallStickerPackStore
-} from "../Sticker";
-import {
+} from "../Sticker/stores";
+import type {
     CreateStickerPackStore,
     ImportStickerPackStore,
     StickerEmojiPickerDialogStore,
     UpdateStickerPackStore
 } from "../StickerPackForm/stores";
-import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist";
-import {
+import type {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist/stores";
+import type {
     AllChatsMessagesSearchStore,
     ChatsAndMessagesSearchQueryStore,
     ChatsOfCurrentUserSearchStore
-} from "../ChatsAndMessagesSearch";
-import {
+} from "../ChatsAndMessagesSearch/stores";
+import type {
     ChatFeaturesFormStore,
     ChatRoleInfoDialogStore,
     CreateChatRoleStore,
     EditChatRoleStore,
     RolesOfChatStore,
     UserChatRolesStore
-} from "../ChatRole";
-import {
+} from "../ChatRole/stores";
+import type {
     SendEmailChangeConfirmationCodeStore,
     SendNewEmailConfirmationCodeStore,
     UpdateEmailDialogStore,
     UpdateEmailStore
-} from "../EmailUpdate";
-import {ThemeStore} from "../Theme";
-import {
+} from "../EmailUpdate/stores";
+import type {ThemeStore} from "../Theme/stores";
+import type {
     ClaimableRewardsStore,
     CreateRewardStore,
     RewardClaimStore,
@@ -161,26 +161,26 @@ import {
     RewardDetailsStore,
     RewardsListStore,
     UpdateRewardStore
-} from "../Reward";
-import {BalanceStore} from "../Balance";
-import {
+} from "../Reward/stores";
+import type {BalanceStore} from "../Balance/stores";
+import type {
     CreateUserInteractionStore,
     UserInteractionCostsStore,
     UserInteractionsCountStore,
     UserInteractionsHistoryStore
-} from "../UserInteraction";
-import {ChatManagementTabStore} from "../ChatManagement";
-import {SelectUserStore} from "../UserSelect";
-import {
+} from "../UserInteraction/stores";
+import type {ChatManagementTabStore} from "../ChatManagement/store";
+import type {SelectUserStore} from "../UserSelect/stores";
+import type {
     ChatInviteDialogStore,
     ChatInviteInfoStore,
     ChatInviteListStore,
     CreateChatInviteStore,
     JoinChatByInviteStore,
     UpdateChatInviteStore
-} from "../ChatInvite";
-import {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor";
-import {
+} from "../ChatInvite/stores";
+import type {CreateEditorLinkDialogStore, MentionsStore} from "../TextEditor/stores";
+import type {
     ChatNotificationExceptionsDialogStore,
     DeleteChatNotificationSettingsStore,
     NotificationSoundSelectDialogStore,
@@ -190,8 +190,14 @@ import {
     UpdateGlobalNotificationsSettingsStore,
     UpdateUserNotificationSettingsInChatDialogStore,
     UserNotificationExceptionsDialogStore
-} from "../Notification";
-import {ConfirmationTokenStore, CreateConfirmationTokenStore} from "../ConfirmationToken/stores";
+} from "../Notification/stores";
+import type {ConfirmationTokenStore, CreateConfirmationTokenStore} from "../ConfirmationToken/stores";
+import type {
+    MessageReactionOperationsStore,
+    MessageReactionPickerStore,
+    MessageReactionsDialogStore,
+    ReactionsToMessagesStore
+} from "../MessageReaction/stores";
 
 export interface IAppState {
     language: LocaleStore,
@@ -371,5 +377,9 @@ export interface IAppState {
     stickerPackImport: ImportStickerPackStore,
     confirmationToken: ConfirmationTokenStore,
     confirmationTokenDialog: CreateConfirmationTokenStore,
-    chatOwnershipTransfer: TransferChatOwnershipStore
+    chatOwnershipTransfer: TransferChatOwnershipStore,
+    messageReactionOperations: MessageReactionOperationsStore,
+    reactionsToMessages: ReactionsToMessagesStore,
+    messageReactionsDialog: MessageReactionsDialogStore,
+    messageReactionPicker: MessageReactionPickerStore,
 }

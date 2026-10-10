@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CircularProgress, DialogContent, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {commonStyles} from "../../style";
 
 const useStyles = makeStyles()(() => ({

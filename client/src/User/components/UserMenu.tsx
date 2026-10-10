@@ -4,9 +4,10 @@ import {IconButton, Menu} from "@mui/material";
 import {MoreVert} from "@mui/icons-material";
 import {usePopupState, bindMenu, bindToggle} from "material-ui-popup-state/hooks";
 import {OpenUserPhotosMenuItem} from "./OpenUserPhotosMenuItem";
-import {canReportUser, ReportUserMenuItem} from "../../Report";
-import {UserInteractionsHistoryMenuItem} from "../../UserInteraction";
-import {useAuthorization} from "../../store";
+import {ReportUserMenuItem} from "../../Report/components";
+import {canReportUser} from "../../Report/permissions";
+import {UserInteractionsHistoryMenuItem} from "../../UserInteraction/components";
+import {useAuthorization} from "../../store/hooks";
 
 interface UserMenuProps {
     userId: string

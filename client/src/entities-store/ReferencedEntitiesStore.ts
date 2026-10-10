@@ -32,7 +32,8 @@ export class ReferencedEntitiesStore {
 		userRewards: observable.map(),
 		users: observable.map(),
 		draftMessages: observable.map(),
-		stickerAnimationData: observable.map()
+		stickerAnimationData: observable.map(),
+        messageReactions: observable.map(),
 	};
 
 	constructor() {

@@ -1,8 +1,7 @@
 import {makeAutoObservable} from "mobx";
 import {computedFn} from "mobx-utils";
 import {UserChatRolesStore} from "../stores";
-import {EntitiesStore} from "../../entities-store";
-import {AuthorizationStore} from "../../Authorization";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {ChatFeatures, CurrentUser} from "../../api/types/response";
 
 export class ChatRolePermissions {
@@ -10,8 +9,7 @@ export class ChatRolePermissions {
         return this.authorization.currentUser;
     }
 
-    constructor(private readonly entities: EntitiesStore,
-                private readonly authorization: AuthorizationStore,
+    constructor(private readonly authorization: AuthorizationStore,
                 private readonly userChatRoles: UserChatRolesStore) {
         makeAutoObservable(this);
     }

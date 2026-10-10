@@ -4,7 +4,7 @@ import {useMediaQuery, useTheme} from "@mui/material";
 import {ShowActiveOnlySwitch} from "./ShowActiveOnlySwitch";
 import {ChatBlockingsList} from "./ChatBlockingsList";
 import {ChatBlockingsTable} from "./ChatBlockingsTable";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 export const ChatBlockingsListWrapper: FunctionComponent = observer(() => {
     const {

@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Box} from "@mui/material";
 import {ChatsAndMessagesSearchButton} from "./ChatsAndMessagesSearchButton";
 import {ChatsAndMessagesSearchInput} from "./ChatsAndMessagesSearchInput";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 export const ChatsAndMessagesSearchInputWrapper: FunctionComponent = observer(() => {
     const {

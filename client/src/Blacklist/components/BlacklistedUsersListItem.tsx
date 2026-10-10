@@ -1,11 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItem, ListItemAvatar, ListItemText} from "@mui/material";
-import randomColor from "randomcolor";
 import {BlacklistedUserMenu} from "./BlacklistedUserMenu";
-import {Avatar} from "../../Avatar";
 import {useEntityById} from "../../entities";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {getUserDisplayedName} from "../../User/utils/labels";
+import {UserAvatar} from "../../UserAvatar/components";
 
 interface BlacklistedUsersListItemProps {
     userId: string
@@ -19,9 +18,7 @@ export const BlacklistedUsersListItem: FunctionComponent<BlacklistedUsersListIte
     return (
         <ListItem>
             <ListItemAvatar>
-                <Avatar avatarLetter={getUserAvatarLabel(user)}
-                        avatarColor={randomColor({seed: user.id})}
-                />
+                <UserAvatar user={user}/>
             </ListItemAvatar>
             <ListItemText>
                 {getUserDisplayedName(user)}

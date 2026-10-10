@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {MenuItem, ListItemIcon, ListItemText} from "@mui/material";
 import {Delete} from "@mui/icons-material";
 import {ChatDeletionStep} from "../types";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 interface DeleteChatMenuItemProps {
     onClick?: () => void

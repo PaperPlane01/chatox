@@ -1,0 +1,58 @@
+{
+  "id": "4d0850f3-bdd7-40e1-a772-d87b88230089",
+  "_class": "chatox.chat.model.Message",
+  "attachments": [],
+  "chatId": "02cdb5e4-699b-4e10-a6fe-2cd5cd1bd514",
+  "chatParticipationId": "6a88a2ce5f6e898bcc2d4ff9",
+  "createdAt": "2026-08-22T19:14:00.920Z",
+  "deleted": false,
+  "emoji": {
+    "emojiPositions": [],
+    "emoji": {
+    }
+  },
+  "fromScheduled": false,
+  "index": 2,
+  "lastReactions": {
+    "heart": [
+      {
+        "id": "6a88a37d5f6e898bcc2d4ffc",
+        "emoji": {
+          "id": "heart",
+          "name": "Red Heart",
+          "colons": ":heart:",
+          "emoticons": ["<3"],
+          "unified": "2764-fe0f",
+          "native": "❤\uFE0F",
+          "originalSet": "apple"
+        },
+        "emojiId": "heart",
+        "userId": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+        "messageId": "4d0850f3-bdd7-40e1-a772-d87b88230089",
+        "createdAt": "2026-08-22T19:14:05.457Z"
+      }
+    ]
+  },
+  "mentionedUsers": [],
+  "pinned": false,
+  "reactionsCount": [
+    {
+      "id": "6a88a37d5f6e898bcc2d4ffd",
+      "messageId": "4d0850f3-bdd7-40e1-a772-d87b88230089",
+      "emojiId": "heart",
+      "emoji": {
+        "id": "heart",
+        "name": "Red Heart",
+        "colons": ":heart:",
+        "emoticons": ["<3"],
+        "unified": "2764-fe0f",
+        "native": "❤\uFE0F",
+        "originalSet": "apple"
+      },
+      "count": 1
+    }
+  ],
+  "senderId": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+  "text": "Message with one reaction",
+  "uploadAttachmentsIds": []
+}

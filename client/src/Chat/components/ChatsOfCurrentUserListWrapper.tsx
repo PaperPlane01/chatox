@@ -6,8 +6,8 @@ import {ChatsOfCurrentUserList} from "./ChatsOfCurrentUserList";
 import {CreateChatFloatingActionButton} from "./CreateChatFloatingActionButton";
 import {CreateChatDialog} from "./CreateChatDialog";
 import {ChatsOfCurrentUserListProps} from "../types";
-import {ChatsAndMessagesSearchInput, ChatsAndMessagesSearchResult} from "../../ChatsAndMessagesSearch";
-import {usePermissions, useStore} from "../../store";
+import {ChatsAndMessagesSearchInput, ChatsAndMessagesSearchResult} from "../../ChatsAndMessagesSearch/components";
+import {usePermissions, useStore} from "../../store/hooks";
 import {commonStyles} from "../../style";
 
 const useStyles = makeStyles()((theme: Theme) => ({

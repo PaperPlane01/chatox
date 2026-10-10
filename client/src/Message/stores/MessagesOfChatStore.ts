@@ -2,7 +2,7 @@ import {makeAutoObservable, observable, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
 import {AxiosPromise} from "axios";
 import {isAfter, isBefore} from "date-fns";
-import {SearchMessagesStore} from "./SearchMessagesStore";
+import type {SearchMessagesStore} from "./SearchMessagesStore";
 import {MessageRepository} from "../repositories";
 import {createSortMessages} from "../utils";
 import {
@@ -13,8 +13,8 @@ import {
     MessageEntity,
     MessagesCleanupState
 } from "../types";
-import {Entities, EntitiesStore, RawEntitiesStore, ReferencedEntitiesStore} from "../../entities-store";
-import {ChatsPreferencesStore, ChatStore} from "../../Chat";
+import {Entities, type EntitiesStore, type RawEntitiesStore, type ReferencedEntitiesStore} from "../../entities-store";
+import type {ChatsPreferencesStore, ChatStore} from "../../Chat/stores";
 import {MessageApi} from "../../api";
 import {Message} from "../../api/types/response";
 import {isDefined} from "../../utils/object-utils";
@@ -162,7 +162,7 @@ export class MessagesOfChatStore {
        }
 
        if (options.beforeId || cleanupState === "absent") {
-           this.fetchMessagesFromApi(chatId, options.beforeId);
+           this.fetchMessagesFromApi(chatId, options.beforeId, options.skipSettingLastMessage);
        } else if (cleanupState === "cleaned") {
            this.fetchMessagesFromDatabase(chatId);
        } else {
@@ -249,7 +249,7 @@ export class MessagesOfChatStore {
 
         runInAction(() => {
             const chat = this.entities.chats.findById(chatId);
-            const messagesIds = entitiesPatch.ids.messages ?? [];
+            const messagesIds = [...(entitiesPatch.entities.messages?.keys() ?? [])];
             chat.messages = [...messagesIds, ...chat.messages];
             this.entities.chats.insertEntity(chat);
 

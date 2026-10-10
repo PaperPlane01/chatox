@@ -1,6 +1,6 @@
 import {makeAutoObservable, observable, reaction, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, WalletApi} from "../../api";
-import {AuthorizationStore} from "../../Authorization";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {Currency} from "../../api/types/response";
 
 export class BalanceStore {

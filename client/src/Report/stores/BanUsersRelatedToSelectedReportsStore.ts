@@ -1,12 +1,12 @@
-import {action, computed, makeAutoObservable, makeObservable, observable, reaction} from "mobx";
-import {UpdateSelectedReportsStore} from "./UpdateSelectedReportsStore";
-import {ReportsListStore} from "./ReportsListStore";
+import {action, computed, makeObservable, observable, reaction} from "mobx";
+import type {UpdateSelectedReportsStore} from "./UpdateSelectedReportsStore";
+import type {ReportsListStore} from "./ReportsListStore";
 import {CalculateUsersIdsToBanFunction} from "../types";
 import {AbstractFormStore} from "../../form-store";
 import {BanUserFormData} from "../../GlobalBan/types";
 import {validateGlobalBanComment, validateGlobalBanExpirationDate} from "../../GlobalBan/validation";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {GlobalBanReason, ReportStatus, ReportTakenAction} from "../../api/types/response";
 import {BanUserRequest} from "../../api/types/request";
 import {GlobalBanApi} from "../../api/clients";

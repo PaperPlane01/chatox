@@ -1,7 +1,7 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {ChatBlockingEntity, UpdateChatBlockingFormData} from "../types";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {ApiError, ChatBlockingApi, getInitialApiErrorFromResponse} from "../../api";
 import {validateBlockedUntil, validateBlockingDescription} from "../validation";
 

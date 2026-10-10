@@ -1,11 +1,10 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItemAvatar, ListItemText, MenuItem} from "@mui/material";
-import randomColor from "randomcolor";
-import {Avatar} from "../../Avatar";
-import {getUserAvatarLabel} from "../../User/utils/labels";
-import {useStore} from "../../store";
+import {getUserDisplayedName} from "../../User/utils/labels";
+import {useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
+import {UserAvatar} from "../../UserAvatar/components";
 
 interface ChatBlockingsListItemProps {
     chatBlockingId: string
@@ -21,8 +20,6 @@ export const ChatBlockingsListItem: FunctionComponent<ChatBlockingsListItemProps
 
     const chatBlocking = useEntityById("chatBlockings", chatBlockingId);
     const blockedUser = useEntityById("users", chatBlocking.blockedUserId);
-    const avatarLabel = getUserAvatarLabel(blockedUser);
-    const color = randomColor({seed: blockedUser.id});
 
     const handleClick = (): void => {
         setChatBlockingId(chatBlockingId);
@@ -32,10 +29,10 @@ export const ChatBlockingsListItem: FunctionComponent<ChatBlockingsListItemProps
     return (
         <MenuItem onClick={handleClick}>
             <ListItemAvatar>
-                <Avatar avatarLetter={avatarLabel} avatarColor={color} avatarId={blockedUser.avatarId}/>
+                <UserAvatar user={blockedUser}/>
             </ListItemAvatar>
             <ListItemText>
-                {blockedUser.firstName} {blockedUser.lastName && blockedUser.lastName}
+                {getUserDisplayedName(blockedUser)}
             </ListItemText>
         </MenuItem>
     );

@@ -14,8 +14,8 @@ import {
 import {DatePicker} from "@mui/x-date-pickers";
 import {useSnackbar} from "notistack";
 import {UserAvatarUpload} from "./UserAvatarUpload";
-import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown";
-import {useLocalization, useStore} from "../../store";
+import {MarkdownPreviewDialog, OpenMarkdownPreviewDialogButton} from "../../Markdown/components";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {getGlobalBanLabel} from "../../GlobalBan/utils";
 

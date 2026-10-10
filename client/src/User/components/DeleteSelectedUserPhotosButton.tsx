@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, CircularProgress} from "@mui/material";
 import {Delete} from "@mui/icons-material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 interface DeleteSelectedUserPhotosButtonProps {
     showCount?: boolean

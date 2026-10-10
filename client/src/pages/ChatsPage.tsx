@@ -4,11 +4,11 @@ import {Grid, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import ScrollLock from "react-scrolllock";
 import {commonStyles} from "../style";
-import {HasRole} from "../Authorization";
-import {AppBar} from "../AppBar";
-import {ChatsOfCurrentUserListWrapper} from "../Chat";
-import {ChatsAndMessagesSearchInputWrapper} from "../ChatsAndMessagesSearch";
-import {useLocalization, useStore} from "../store";
+import {HasRole} from "../Authorization/components";
+import {AppBar} from "../AppBar/components";
+import {ChatsOfCurrentUserListWrapper} from "../Chat/components";
+import {ChatsAndMessagesSearchInputWrapper} from "../ChatsAndMessagesSearch/components";
+import {useLocalization, useStore} from "../store/hooks";
 
 const useStyles = makeStyles()(() => ({
     centered: {

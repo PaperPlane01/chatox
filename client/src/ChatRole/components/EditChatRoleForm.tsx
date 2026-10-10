@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {TextField, Typography, FormControlLabel, Switch} from "@mui/material";
 import {ChatRoleFeatureForms} from "./ChatRoleFeatureForms";
 import {ChatRoleSelect} from "./ChatRoleSelect";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 

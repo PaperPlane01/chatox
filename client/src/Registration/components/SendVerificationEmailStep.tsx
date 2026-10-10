@@ -13,7 +13,7 @@ import {
 import {RegistrationStep} from "../types";
 import {TranslationFunction} from "../../localization";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 const getErrorText = (apiError: ApiError, l: TranslationFunction): string => {
     if (apiError.status === 409) {

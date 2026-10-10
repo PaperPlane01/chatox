@@ -5,7 +5,7 @@ import {Edit} from "@mui/icons-material";
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {MessageFormMessageCard} from "./MessageFormMessageCard";
 import {RichTextMessageForm} from "./RichTextMessageForm";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {LexicalEditor} from "lexical";
 
 export const UpdateMessageRichTextForm: FunctionComponent = observer(() => {

@@ -6,7 +6,7 @@ import {PasswordRecoveryCheckEmailConfirmationCodeStep} from "./PasswordRecovery
 import {PasswordRecoveryChangePasswordStep} from "./PasswordRecoveryChangePasswordStep";
 import {PasswordRecoveryCompletedStep} from "./PasswordRecoveryCompletedStep";
 import {PasswordRecoveryStep} from "../types";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 
 type RecoverPasswordStepsMap = {

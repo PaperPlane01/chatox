@@ -1,6 +1,6 @@
 import {computedFn} from "mobx-utils";
 import {StickerPackEntity} from "../types";
-import {AuthorizationStore} from "../../Authorization";
+import type {AuthorizationStore} from "../../Authorization/stores";
 
 export class StickerPackPermissions {
 	constructor(private readonly authorization: AuthorizationStore) {

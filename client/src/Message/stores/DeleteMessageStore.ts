@@ -1,6 +1,6 @@
 import {makeAutoObservable} from "mobx";
-import {EntitiesStore} from "../../entities-store";
-import {ChatStore} from "../../Chat";
+import type {EntitiesStore} from "../../entities-store";
+import type {ChatStore} from "../../Chat/stores";
 import {MessageApi} from "../../api";
 
 export class DeleteMessageStore {

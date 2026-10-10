@@ -9,7 +9,7 @@ import {$getSelection, $isRangeSelection, FORMAT_TEXT_COMMAND} from "lexical";
 import {FloatingElementCoordinates} from "../types";
 import {getSelectedNode} from "../utils";
 import {isDefined} from "../../utils/object-utils";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     editorToolbarButton: {

@@ -1,17 +1,10 @@
-import {makeAutoObservable} from "mobx";
-import {merge, union} from "lodash";
-import {
-    Entities,
-    EntitiesIds,
-    EntitiesPatch,
-    GetEntityMapType,
-    GetEntityType,
-    PersistentEntities,
-    RawEntities
-} from "./types";
+import {makeAutoObservable, observable} from "mobx";
+import {mergeWith, unionBy} from "lodash-es";
+import {Entities, EntitiesPatch, GetEntityType, PersistentEntities, RawEntities} from "./types";
 import {Repositories} from "../repositories";
 import {isDefined} from "../utils/object-utils";
 import {KeyOfType} from "../utils/types";
+import {BaseEntity} from "../entity-store";
 
 type DateFieldsMap = {
     [EntityName in PersistentEntities]?: Array<KeyOfType<GetEntityType<EntityName>, Date | null | undefined>>
@@ -21,81 +14,62 @@ const SERIALIZABLE_DATE_FIELDS_MAP: DateFieldsMap = {
     messages: ["createdAt", "updatedAt", "scheduledAt"],
     draftMessages: ["createdAt", "updatedAt", "scheduledAt"],
     users: ["lastSeen", "createdAt", "dateOfBirth"],
-    chatRoles: ["createdAt", "updatedAt"]
+    chatRoles: ["createdAt", "updatedAt"],
+    messageReactions: ["createdAt"]
 };
-const ENTITIES_WITH_SERIALIZABLE_DATE_FIELDS = Object.keys(SERIALIZABLE_DATE_FIELDS_MAP) as PersistentEntities[];
+const ENTITIES_WITH_SERIALIZABLE_DATE_FIELDS = new Set(Object.keys(SERIALIZABLE_DATE_FIELDS_MAP) as PersistentEntities[]);
 
 export class RawEntitiesStore {
     entities: RawEntities = {
-        messages: {},
-        chats: {},
-        users: {},
-        chatParticipations: {},
-        chatBlockings: {},
-        uploads: {},
-        chatUploads: {},
-        globalBans: {},
-        scheduledMessages: {},
-        reports: {},
-        reportedMessages: {},
-        reportedMessageSenders: {},
-        reportedUsers: {},
-        reportedChats: {},
-        stickers: {},
-        stickerPacks: {},
-        chatRoles: {},
-        rewards: {},
-        userRewards: {},
-        userInteractions: {},
-        userProfilePhotos: {},
-        chatInvites: {},
-        pendingChatParticipations: {},
-        draftMessages: {},
-        stickerAnimationData: {}
-    };
-
-    ids: EntitiesIds = {
-        messages: [],
-        chats: [],
-        users: [],
-        chatParticipations: [],
-        chatBlockings: [],
-        uploads: [],
-        chatUploads: [],
-        globalBans: [],
-        scheduledMessages: [],
-        reports: [],
-        reportedMessages: [],
-        reportedMessageSenders: [],
-        reportedUsers: [],
-        reportedChats: [],
-        stickers: [],
-        stickerPacks: [],
-        chatRoles: [],
-        rewards: [],
-        userRewards: [],
-        userInteractions: [],
-        userProfilePhotos: [],
-        chatInvites: [],
-        pendingChatParticipations: [],
-        draftMessages: [],
-        stickerAnimationData: []
+        messages: observable.map(),
+        chats: observable.map(),
+        users: observable.map(),
+        chatParticipations: observable.map(),
+        chatBlockings: observable.map(),
+        uploads: observable.map(),
+        chatUploads: observable.map(),
+        globalBans: observable.map(),
+        scheduledMessages: observable.map(),
+        reports: observable.map(),
+        reportedMessages: observable.map(),
+        reportedMessageSenders: observable.map(),
+        reportedUsers: observable.map(),
+        reportedChats: observable.map(),
+        stickers: observable.map(),
+        stickerPacks: observable.map(),
+        chatRoles: observable.map(),
+        rewards: observable.map(),
+        userRewards: observable.map(),
+        userInteractions: observable.map(),
+        userProfilePhotos: observable.map(),
+        chatInvites: observable.map(),
+        pendingChatParticipations: observable.map(),
+        draftMessages: observable.map(),
+        stickerAnimationData: observable.map(),
+        messageReactions: observable.map()
     };
 
     constructor(private readonly repositories: Repositories) {
-        makeAutoObservable(this);
+        makeAutoObservable(this, {}, {autoBind: true});
     }
 
-    applyPatch = (patch: EntitiesPatch, skipInsertingToDatabase: boolean = false, priority: "high" | "low" = "high"): void => {
-        if (priority === "high") {
-            merge(this.entities, patch.entities);
-        } else {
-            this.entities = merge({}, patch.entities, this.entities);
-        }
+    applyPatch(patch: EntitiesPatch, skipInsertingToDatabase: boolean = false, priority: "high" | "low" = "high"): void {
+        Object.keys(patch.entities).forEach(key => {
+            const entityName = key as Entities;
+            const updates: Map<string, BaseEntity> = patch.entities[entityName]!;
+            const currentEntities: Map<string, BaseEntity> = this.entities[entityName];
 
-        Object.keys(patch.ids).forEach(key => {
-            const entity = key as Entities;
-            this.ids[entity] = union(this.ids[entity], patch.ids[entity]);
+            updates.forEach((entity, id) => {
+                const existingEntity = currentEntities.get(id);
+
+                if (!existingEntity) {
+                    currentEntities.set(id, entity);
+                } else if (priority === "high") {
+                    currentEntities.set(id, mergeWith(existingEntity, entity, this.ensureIdUniqueness));
+                } else {
+                    currentEntities.set(id, mergeWith(entity, existingEntity, this.ensureIdUniqueness));
+                }
+            });
         });
 
         if (!skipInsertingToDatabase) {
@@ -103,7 +77,13 @@ export class RawEntitiesStore {
         }
     }
 
-    private async insertEntitiesToDatabase(entities: Partial<RawEntities>): Promise<void> {
+    private ensureIdUniqueness(object: unknown, source: unknown): Array<any> | undefined {
+        if (Array.isArray(object) && ((typeof object[0] === "object") || typeof (source as Array<any>)[0] === "object")) {
+            return unionBy(object, source as Array<any>, item => item.id);
+        }
+    }
+
+    private async insertEntitiesToDatabase(entities: Partial<EntitiesPatch["entities"]>): Promise<void> {
         const entityNames = Object.keys(entities) as any as PersistentEntities[];
         const inserts: Array<Promise<any>> = [];
 
@@ -111,7 +91,7 @@ export class RawEntitiesStore {
             const repository = this.repositories.getRepository(entityName);
 
             if (repository) {
-                const entityMap = entities[entityName]!;
+                const entityMap = entities[entityName as PersistentEntities]! as unknown as Map<string, GetEntityType<PersistentEntities>>;
                 const entitiesArray = this.collectEntities(entityName, entityMap);
                 inserts.push(repository.bulkUpsert(entitiesArray as []));
             }
@@ -120,28 +100,28 @@ export class RawEntitiesStore {
         await Promise.all(inserts);
     }
 
-    private collectEntities = <EntityName extends PersistentEntities>(
+    private collectEntities<EntityName extends PersistentEntities>(
         entityName: EntityName,
-        entityMap: GetEntityMapType<EntityName>
-    ): Array<GetEntityType<EntityName>> => {
+        entityMap: Map<string, GetEntityType<EntityName>>
+    ): Array<GetEntityType<EntityName>> {
         const array: Array<GetEntityType<EntityName>> = [];
-        Object.values(entityMap).forEach(entity => array.push(this.serialize(entityName, entity)));
+        entityMap.forEach(value => array.push(this.serialize(entityName, value)))
         return array;
     }
 
-    private serialize = <T extends object>(entityName: PersistentEntities, obj: T): T => {
-        if (!ENTITIES_WITH_SERIALIZABLE_DATE_FIELDS.includes(entityName)) {
+    private serialize<E extends PersistentEntities, T extends GetEntityType<E>>(entityName: E, obj: T): T {
+        if (!ENTITIES_WITH_SERIALIZABLE_DATE_FIELDS.has(entityName)) {
             return JSON.parse(JSON.stringify(obj));
         }
 
         const dateFields = SERIALIZABLE_DATE_FIELDS_MAP[entityName]!;
         const pairs: Array<[keyof T, any]> = [];
 
-        Object.keys(obj).filter(key => dateFields.includes(key as never)).forEach(key => {
-            const value = obj[key as keyof T];
+        dateFields.forEach(field => {
+            const value = obj[field as keyof T];
 
             if (isDefined(value)) {
-                pairs.push([key as keyof T, value]);
+                pairs.push([field as keyof T, value]);
             }
         });
 
@@ -152,9 +132,8 @@ export class RawEntitiesStore {
         return serialized;
     }
 
-    deleteEntity = (entityName: Entities, id: string, skipRemovingFromDatabase: boolean = false): void => {
-        this.ids[entityName] = this.ids[entityName].filter(entityId => entityId !== id);
-        delete this.entities[entityName][id];
+    deleteEntity(entityName: Entities, id: string, skipRemovingFromDatabase: boolean = false): void {
+        this.entities[entityName].delete(id);
 
         if (!skipRemovingFromDatabase) {
             const repository = this.repositories.getRepository(entityName);

@@ -8,12 +8,12 @@ import {ChatInviteRequest} from "../../api/types/request";
 import {ChatInvite, JoinChatAllowance, UserVerificationLevel} from "../../api/types/response";
 import {containsNotUndefinedValues, createWithUndefinedValues} from "../../utils/object-utils";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
-import {SelectUserStore} from "../../UserSelect";
+import type {EntitiesStore} from "../../entities-store";
+import type {SelectUserStore} from "../../UserSelect/stores";
 import {Labels, LocaleStore} from "../../localization";
-import {SnackbarService} from "../../Snackbar";
+import type {SnackbarService} from "../../Snackbar/services";
 import {isStringEmpty} from "../../utils/string-utils";
-import {ChatStore} from "../../Chat";
+import type {ChatStore} from "../../Chat/stores";
 
 const INITIAL_FORM_VALUES: ChatInviteFormData = {
     active: true,

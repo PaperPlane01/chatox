@@ -6,7 +6,7 @@ import {ArrowBack} from "@mui/icons-material";
 import {Link} from "mobx-router";
 import {commonStyles} from "../../style";
 import {Routes} from "../../router";
-import {useRouter} from "../../store";
+import {useRouter} from "../../store/hooks";
 
 interface SettingsFullScreenDialogProps {
     title: ReactNode,

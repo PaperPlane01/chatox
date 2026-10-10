@@ -2,10 +2,10 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
-import {commonStyles} from "../../style";
-import {AvatarUpload} from "../../Upload";
 import {getAvatarLabel} from "../utils";
-import {useStore} from "../../store";
+import {commonStyles} from "../../style";
+import {AvatarUpload} from "../../Upload/components";
+import {useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 
 const useStyles = makeStyles()(() => ({

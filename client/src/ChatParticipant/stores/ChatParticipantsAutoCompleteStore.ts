@@ -1,8 +1,8 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {debounce, uniq} from "lodash";
+import {debounce, uniq} from "lodash-es";
 import {ApiError, ChatApi, ChatParticipantApi, getInitialApiErrorFromResponse} from "../../api";
 import {ChatParticipation, TimeUnit} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {ExpirableStore} from "../../expirable-store";
 import {Duration} from "../../utils/date-utils";
 import {isStringEmpty} from "../../utils/string-utils";

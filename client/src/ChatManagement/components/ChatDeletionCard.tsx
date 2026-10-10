@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader} from "@mui/material";
 import {DeleteChatButton} from "./DeleteChatButton";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {BaseSettingsTabProps} from "../../utils/types";
 
 export const ChatDeletionCard: FunctionComponent<BaseSettingsTabProps> = observer(({

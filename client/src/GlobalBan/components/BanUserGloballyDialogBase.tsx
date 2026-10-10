@@ -18,7 +18,7 @@ import {BanUserFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 
 interface BanUserGloballyDialogBaseProps {

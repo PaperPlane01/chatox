@@ -1,4 +1,4 @@
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {RewardEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
@@ -18,8 +18,7 @@ export class RewardsStore extends AbstractEntityStore<"rewards", RewardEntity, R
         const patches: EntitiesPatch[] = [];
 
         denormalizedEntities.forEach(reward => {
-            patch.entities.rewards[reward.id] = this.convertToNormalizedForm(reward);
-            patch.ids.rewards.push(reward.id);
+            patch.entities.rewards.set(reward.id, this.convertToNormalizedForm(reward));
 
             const users = [
                 reward.createdBy,

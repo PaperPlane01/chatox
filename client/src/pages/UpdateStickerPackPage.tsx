@@ -7,7 +7,7 @@ import {UpdateStickerPackForm} from "../StickerPackForm/components";
 import {getLoadErrorText} from "../Sticker/utils";
 import {HasRole} from "../Authorization/components";
 import {Layout} from "../Layout/components";
-import {useLocalization, usePermissions, useStore} from "../store";
+import {useLocalization, usePermissions, useStore} from "../store/hooks";
 import {useEntityById} from "../entities";
 import {commonStyles} from "../style";
 

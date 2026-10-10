@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Checkbox, FormControlLabel} from "@mui/material";
 import {DefaultChatFeature} from "./DefaultChatFeature";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {SendMessagesFeatureData} from "../../api/types/response";
 
 interface SendMessagesChatFeatureProps {

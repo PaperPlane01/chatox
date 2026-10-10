@@ -1,7 +1,7 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {isDefined} from "../../utils/object-utils";
-import {EntitiesStore} from "../../entities-store";
-import {ChatStore} from "../../Chat";
+import type {EntitiesStore} from "../../entities-store";
+import type {ChatStore} from "../../Chat/stores";
 import {ApiError, ChatInviteApi, getInitialApiErrorFromResponse} from "../../api";
 
 export class ChatInviteDialogStore {

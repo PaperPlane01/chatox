@@ -9,9 +9,9 @@ import {TransferChatOwnershipForm} from "./TransferChatOwnershipForm";
 import {ChatManagementTab, ChatManagementTabRenderers} from "../types";
 import {TranslatedTypography} from "../../localization";
 import {BaseSettingsTabProps} from "../../utils/types";
-import {ChatParticipantsCard, JoinChatRequestsCard} from "../../ChatParticipant";
-import {ChatRolesCard} from "../../ChatRole";
-import {ChatInvitesCard} from "../../ChatInvite";
+import {ChatParticipantsCard, JoinChatRequestsCard} from "../../ChatParticipant/components";
+import {ChatRolesCard} from "../../ChatRole/components";
+import {ChatInvitesCard} from "../../ChatInvite/components";
 
 const chatManagementTabRenderers: ChatManagementTabRenderers = {
     BLOCKINGS: props => <ChatBlockingsCard {...props}/>,

@@ -4,7 +4,7 @@ import {IconButton, useMediaQuery, useTheme} from "@mui/material";
 import {Close} from "@mui/icons-material";
 import {DeleteSelectedUserPhotosButton} from "./DeleteSelectedUserPhotosButton";
 import {SetSelectedPhotoAsAvatarButton} from "./SetSelectedPhotoAsAvatarButton";
-import {useLocalization, usePermissions, useStore} from "../../store";
+import {useLocalization, usePermissions, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {TranslationFunction} from "../../localization";
 

@@ -1,8 +1,8 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {Box, Grid} from "@mui/material";
-import {ChatAppBar} from "../ChatAppBar";
-import {MessagesListWrapper} from "../Message";
-import {ChatsOfCurrentUserList} from "../Chat";
+import {ChatAppBar} from "../ChatAppBar/components";
+import {MessagesListWrapper} from "../Message/components";
+import {ChatsOfCurrentUserList} from "../Chat/components";
 import {DeleteStickerPackDialog, StickerPackDialog} from "../Sticker/components";
 
 export const NewPrivateChatPage: FunctionComponent = () => (

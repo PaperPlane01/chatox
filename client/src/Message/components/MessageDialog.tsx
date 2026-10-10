@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {CircularProgress, Dialog, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {Close} from "@mui/icons-material";
 import {MessagesListItem} from "./MessagesListItem";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 
 export const MessageDialog: FunctionComponent = observer(() => {

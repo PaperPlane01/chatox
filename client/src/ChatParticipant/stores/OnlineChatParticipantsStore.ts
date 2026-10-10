@@ -1,8 +1,8 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
-import {ChatStore} from "../../Chat";
+import type {ChatStore} from "../../Chat/stores";
 import {FetchingState, FetchOptions} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {ChatApi} from "../../api";
 
 interface OnlineChatParticipantsFetchingStateMap {

@@ -16,10 +16,10 @@ import {makeStyles} from "tss-react/mui";
 import {format} from "date-fns";
 import {GlobalBanMenu} from "./GlobalBanMenu";
 import {isGlobalBanActive} from "../utils";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {getUserDisplayedName} from "../../User/utils/labels";
-import {UserLink} from "../../UserLink";
+import {UserLink} from "../../UserLink/components";
 import {Labels} from "../../localization";
 
 const useStyles = makeStyles()(() => ({

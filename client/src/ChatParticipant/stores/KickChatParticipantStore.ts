@@ -1,7 +1,7 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {ChatStore} from "../../Chat";
+import type {ChatStore} from "../../Chat/stores";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 export class KickChatParticipantStore {
     error?: ApiError = undefined;
@@ -27,7 +27,8 @@ export class KickChatParticipantStore {
         ChatApi.deleteChatParticipation(this.selectedChatId, chatParticipantId)
             .then(() => {
                 this.entities.chatParticipations.deleteById(chatParticipantId, {
-                    decreaseChatParticipantsCount: true
+                    // DO NOT update chat participants count here, it will be updated from websocket event
+                    decreaseChatParticipantsCount: false
                 });
                 this.setShowSnackbar(true);
             })

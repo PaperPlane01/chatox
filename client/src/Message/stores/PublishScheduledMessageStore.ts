@@ -1,7 +1,7 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
-import {ChatStore} from "../../Chat";
+import type {EntitiesStore} from "../../entities-store";
+import type {ChatStore} from "../../Chat/stores";
 
 export class PublishScheduledMessageStore {
     pendingMessagesMap: {[messageId: string]: boolean} = {};

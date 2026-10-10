@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Card, CardContent, Grid, GridSize, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {ClearReportsSelectionButton} from "./ClearReportsSelectionButton";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 interface ReportsActionsProps {
     children: ReactNode[]

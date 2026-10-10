@@ -1,12 +1,12 @@
-import {mergeWith} from "lodash";
+import {action, computed, makeObservable} from "mobx";
+import {createTransformer} from "mobx-utils";
+import {mergeWith} from "lodash-es";
 import {ChatBlockingEntity, ChatBlockingSortableProperties} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {ChatBlocking, CurrentUser} from "../../api/types/response";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {mergeCustomizer} from "../../utils/object-utils";
-import {AuthorizationStore} from "../../Authorization";
-import { action, computed, makeObservable } from "mobx";
-import {createTransformer} from "mobx-utils";
+import {AuthorizationStore} from "../../Authorization/stores";
 import {SortingDirection} from "../../utils/types";
 
 export interface FindChatBlockingsByChatOptions {
@@ -32,7 +32,7 @@ export class ChatBlockingsStore extends AbstractEntityStore<"chatBlockings", Cha
         });
     }
 
-    findByChat = createTransformer((options: FindChatBlockingsByChatOptions) => {
+    findByChat = createTransformer((options: FindChatBlockingsByChatOptions): string[] => {
         const {
             chatId,
             sortingProperty = "blockedUntil",
@@ -83,11 +83,12 @@ export class ChatBlockingsStore extends AbstractEntityStore<"chatBlockings", Cha
 
         denormalizedEntities.forEach(chatBlocking => {
             const chatBlockingEntity = this.convertToNormalizedForm(chatBlocking);
-            patch.entities.chatBlockings[chatBlocking.id] = chatBlockingEntity;
-            patch.ids.chatBlockings.push(chatBlocking.id);
+            patch.entities.chatBlockings.set(chatBlockingEntity.id, chatBlockingEntity);
 
-            patches.push(this.entities.users.createPatch(chatBlocking.blockedUser));
-            patches.push(this.entities.users.createPatch(chatBlocking.blockedBy));
+            patches.push(
+                this.entities.users.createPatch(chatBlocking.blockedUser),
+                this.entities.users.createPatch(chatBlocking.blockedBy)
+            );
 
             if (chatBlocking.canceledBy) {
                 patches.push(this.entities.users.createPatch(chatBlocking.canceledBy));
@@ -97,7 +98,7 @@ export class ChatBlockingsStore extends AbstractEntityStore<"chatBlockings", Cha
                 patches.push(this.entities.users.createPatch(chatBlocking.lastModifiedBy));
             }
 
-            if (this.currentUser && chatBlocking.blockedUser.id === this.currentUser.id) {
+            if (this.currentUser?.id === chatBlockingEntity.blockedUserId) {
                 const chatParticipation = this.entities.chatParticipations.findByUserAndChat({
                     userId: this.currentUser.id,
                     chatId: chatBlocking.chatId
@@ -105,7 +106,7 @@ export class ChatBlockingsStore extends AbstractEntityStore<"chatBlockings", Cha
 
                 if (chatParticipation) {
                     chatParticipation.activeChatBlockingId = chatBlocking.id;
-                    patch.entities.chatParticipations[chatParticipation.id] = chatParticipation;
+                    patch.entities.chatParticipations.set(chatParticipation.id, chatParticipation)
                 }
             }
         });
@@ -122,11 +123,11 @@ export class ChatBlockingsStore extends AbstractEntityStore<"chatBlockings", Cha
             blockedUserId: denormalizedEntity.blockedUser.id,
             canceled: denormalizedEntity.canceled,
             canceledAt: denormalizedEntity.canceledAt ? new Date(denormalizedEntity.canceledAt) : undefined,
-            canceledByUserId: denormalizedEntity.canceledBy && denormalizedEntity.canceledBy.id,
+            canceledByUserId: denormalizedEntity.canceledBy?.id,
             chatId: denormalizedEntity.chatId,
             description: denormalizedEntity.description,
             lastModifiedAt: denormalizedEntity.lastModifiedAt ? new Date(denormalizedEntity.lastModifiedAt) : undefined,
-            lastModifiedByUserId: denormalizedEntity.lastModifiedBy && denormalizedEntity.lastModifiedBy.id,
+            lastModifiedByUserId: denormalizedEntity.lastModifiedBy?.id,
             hidden: false,
             createdAt: new Date(denormalizedEntity.createdAt)
         }

@@ -4,12 +4,12 @@ import randomColor from "randomcolor";
 import {Theme, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
-import {Avatar} from "../../Avatar";
-import {UserEntity} from "../../User";
+import {UserEntity} from "../../User/types";
 import {Routes} from "../../router";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {useRouter} from "../../store";
+import {getUserDisplayedName} from "../../User/utils/labels";
+import {useRouter} from "../../store/hooks";
 import {useLuminosity} from "../../utils/hooks";
+import {UserAvatar} from "../../UserAvatar/components";
 
 interface UserLinkProps {
     user: UserEntity,
@@ -45,7 +45,6 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
     const {classes} = useStyles();
     const luminosity = useLuminosity();
     const color = randomColor({seed: user.id, luminosity});
-    const avatarLabel = getUserAvatarLabel(user);
     const text = getUserDisplayedName(user);
 
     if (displayAvatar) {
@@ -56,12 +55,9 @@ export const UserLink: FunctionComponent<UserLinkProps> = observer(({
                       className={classes.userLink}
                       router={routerStore}
                 >
-                    <Avatar avatarLetter={avatarLabel}
-                            avatarColor={color}
-                            width={avatarWidth}
-                            height={avatarHeight}
-                            avatarId={user.avatarId}
-                            avatarUri={user.externalAvatarUri}
+                    <UserAvatar user={user}
+                                width={avatarWidth}
+                                height={avatarHeight}
                     />
                     <Typography className={classes.userNicknameTypography}
                                 style={{color}}

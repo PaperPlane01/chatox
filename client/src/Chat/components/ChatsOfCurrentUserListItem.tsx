@@ -10,7 +10,7 @@ import {getChatLinkProps} from "../utils";
 import {ChatLinkPropsGenerationStrategy} from "../types";
 import {useChatName} from "../hooks";
 import {commonStyles} from "../../style";
-import {useRouter, useStore} from "../../store";
+import {useRouter, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 
 interface ChatsOfCurrentUserListItemProps {
@@ -33,8 +33,8 @@ const useStyles = makeStyles()((theme: Theme) => ({
     },
     selected: {
         [theme.breakpoints.up("lg")]: {
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.getContrastText(theme.palette.primary.main)
+            backgroundColor: theme.palette.mode === "light" ? theme.palette.primary.main : theme.palette.primary.dark,
+            color: theme.palette.getContrastText(theme.palette.mode === "light" ? theme.palette.primary.main : theme.palette.primary.dark),
         }
     },
     listItemHeaderRoot: {

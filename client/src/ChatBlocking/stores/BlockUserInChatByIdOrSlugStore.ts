@@ -1,6 +1,6 @@
 import {makeAutoObservable, reaction} from "mobx";
-import {CreateChatBlockingStore} from "./CreateChatBlockingStore";
-import {EntitiesStore} from "../../entities-store";
+import type {CreateChatBlockingStore} from "./CreateChatBlockingStore";
+import type {EntitiesStore} from "../../entities-store";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {isStringEmpty} from "../../utils/string-utils";
 

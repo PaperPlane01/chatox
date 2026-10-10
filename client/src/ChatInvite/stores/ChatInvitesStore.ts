@@ -1,4 +1,4 @@
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {ChatInviteEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch} from "../../entities-store";
@@ -31,8 +31,7 @@ export class ChatInvitesStore extends AbstractEntityStore<"chatInvites", ChatInv
         const patches: EntitiesPatch[] = [];
 
         denormalizedEntities.forEach(chatInvite => {
-            patch.entities.chatInvites[chatInvite.id] = this.convertToNormalizedForm(chatInvite);
-            patch.ids.chatInvites.push(chatInvite.id);
+            patch.entities.chatInvites.set(chatInvite.id, this.convertToNormalizedForm(chatInvite));
             const users = [
                 chatInvite.createdBy,
                 chatInvite.updatedBy,

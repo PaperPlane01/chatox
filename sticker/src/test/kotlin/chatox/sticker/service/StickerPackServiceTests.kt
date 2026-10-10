@@ -2,6 +2,9 @@ package chatox.sticker.service
 
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.text.api.reactive.TextParserApi
+import chatox.platform.text.api.request.GetEmojiInfoRequest
+import chatox.platform.text.api.response.EmojiData
 import chatox.platform.upload.UploadType
 import chatox.platform.util.JsonLoader.loadResource
 import chatox.sticker.api.request.CreateStickerPackRequest
@@ -12,12 +15,10 @@ import chatox.sticker.api.response.StickerResponse
 import chatox.sticker.exception.metadata.StickerNotFoundException
 import chatox.sticker.exception.metadata.StickerPackNotFoundException
 import chatox.sticker.exception.metadata.UploadsNotFoundException
-import chatox.sticker.external.TextParserApi
 import chatox.sticker.mapper.StickerMapper
 import chatox.sticker.mapper.StickerPackMapper
 import chatox.sticker.messaging.rabbitmq.event.StickerPackUpdated
 import chatox.sticker.messaging.rabbitmq.event.producer.StickerEventsProducer
-import chatox.sticker.model.EmojiData
 import chatox.sticker.model.Sticker
 import chatox.sticker.model.StickerPack
 import chatox.sticker.model.StickerPackInstallation
@@ -108,7 +109,7 @@ class StickerPackServiceTests {
                 object : TypeReference<Map<String, EmojiData>>() {
                 }
             )
-            every { textParserApi.getEmojiInfo(emojiIds) } returns Mono.just(emojiMap)
+            every { textParserApi.getEmojiInfo(GetEmojiInfoRequest(emojiIds)) } returns Mono.just(emojiMap)
 
             val resultStickers = loadResource(
                 "model/stickers-array.json",
@@ -132,8 +133,9 @@ class StickerPackServiceTests {
                 }
             )
             val mappedStickerPackSlot = slot<StickerPack<StickerUploadMetadata>>()
-            every { stickerPackMapper.toStickerPackResponse(capture(mappedStickerPackSlot), resultStickers) } returns
-                    resultResponse
+            every {
+                stickerPackMapper.toStickerPackResponse(capture(mappedStickerPackSlot), resultStickers)
+            } returns resultResponse
             every { stickerEventsProducer.stickerPackCreated(resultResponse) } returns Unit
 
             StepVerifier
@@ -229,7 +231,7 @@ class StickerPackServiceTests {
                 object : TypeReference<Map<String, EmojiData>>() {
                 }
             )
-            every { textParserApi.getEmojiInfo(emojiIds) } returns Mono.just(emojiMap)
+            every { textParserApi.getEmojiInfo(GetEmojiInfoRequest(emojiIds)) } returns Mono.just(emojiMap)
 
             val savedStickersSlot = slot<List<Sticker>>()
             every { stickerRepository.saveAll(capture(savedStickersSlot)) } answers { Flux.fromIterable(firstArg()) }
@@ -411,7 +413,7 @@ class StickerPackServiceTests {
                     object : TypeReference<Map<String, EmojiData>>() {
                     }
                 )
-                every { textParserApi.getEmojiInfo(emojiIds) } returns Mono.just(emojiMap)
+                every { textParserApi.getEmojiInfo(GetEmojiInfoRequest(emojiIds)) } returns Mono.just(emojiMap)
 
                 every {
                     stickerRepository.saveAll(capture(updatedStickersSlot))

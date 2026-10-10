@@ -1,7 +1,7 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {ClaimableRewardsStore} from "./ClaimableRewardsStore";
+import type {ClaimableRewardsStore} from "./ClaimableRewardsStore";
 import {ApiError, getInitialApiErrorFromResponse, RewardApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 export class RewardClaimStore {
     claimedAmount?: number = undefined;

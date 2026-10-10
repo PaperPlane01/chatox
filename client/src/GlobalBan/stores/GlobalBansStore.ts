@@ -1,4 +1,4 @@
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {GlobalBanEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch} from "../../entities-store";
@@ -29,8 +29,7 @@ export class GlobalBansStore extends AbstractEntityStore<"globalBans", GlobalBan
         const patches: EntitiesPatch[] = [];
 
         denormalizedEntities.forEach(globalBan => {
-            patch.entities.globalBans[globalBan.id] = this.convertToNormalizedForm(globalBan);
-            patch.ids.globalBans.push(globalBan.id);
+            patch.entities.globalBans.set(globalBan.id, this.convertToNormalizedForm(globalBan));
 
             const users = [
                 globalBan.createdBy,

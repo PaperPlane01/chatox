@@ -3,7 +3,8 @@ import {observer} from "mobx-react";
 import {Theme, useTheme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {ChatDescription} from "./ChatDescription";
-import {ChatParticipantsCard, useChatParticipantsListScroll} from "../../ChatParticipant";
+import {ChatParticipantsCard} from "../../ChatParticipant/components";
+import {useChatParticipantsListScroll} from "../../ChatParticipant/hooks";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     chatInfoContainer: {

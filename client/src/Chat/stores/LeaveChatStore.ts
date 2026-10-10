@@ -1,6 +1,6 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 export class LeaveChatStore {
     pending: boolean = false;
@@ -8,15 +8,19 @@ export class LeaveChatStore {
     error?: ApiError = undefined;
 
     constructor(private readonly entities: EntitiesStore) {
-       makeAutoObservable(this);
+       makeAutoObservable(this, {}, {autoBind: true});
     }
 
-    leaveChat = (chatId: string, chatParticipationId: string): void => {
+    leaveChat(chatId: string, chatParticipationId: string): void {
         this.pending = true;
         this.error = undefined;
 
         ChatApi.leaveChat(chatId)
-            .then(() => this.entities.chatParticipations.deleteById(chatParticipationId, {decreaseChatParticipantsCount: true}))
+            .then(() => this.entities.chatParticipations.deleteById(chatParticipationId, {
+                // DO NOT update chat participant count, it will be updated from websocket event
+                decreaseChatParticipantsCount: false,
+                clearCurrentUserChatParticipationId: true
+            }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))
             .finally(() => runInAction(() => this.pending = false));
     };

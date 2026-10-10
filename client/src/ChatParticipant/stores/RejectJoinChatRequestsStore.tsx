@@ -1,12 +1,12 @@
 import {makeAutoObservable, observable, runInAction, values} from "mobx";
 import {computedFn} from "mobx-utils";
 import {HttpStatusCode} from "axios";
-import {JoinChatRequestsStore} from "./JoinChatRequestsStore";
+import type {JoinChatRequestsStore} from "./JoinChatRequestsStore";
 import {API_UNREACHABLE_STATUS, ApiError, ChatParticipantApi, getInitialApiErrorFromResponse} from "../../api";
-import {ChatStore} from "../../Chat";
-import {EntitiesStore} from "../../entities-store";
-import {LocaleStore} from "../../localization";
-import {SnackbarService} from "../../Snackbar";
+import type {ChatStore} from "../../Chat/stores";
+import type {EntitiesStore} from "../../entities-store";
+import type {LocaleStore} from "../../localization";
+import type {SnackbarService} from "../../Snackbar/services";
 import {PendingChatParticipantsRequest} from "../../api/types/request";
 
 export class RejectJoinChatRequestsStore {

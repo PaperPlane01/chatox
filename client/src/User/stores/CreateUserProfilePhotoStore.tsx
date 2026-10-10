@@ -1,12 +1,12 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {UserProfilePhotosGalleryStore} from "./UserProfilePhotosGalleryStore";
+import type {UserProfilePhotosGalleryStore} from "./UserProfilePhotosGalleryStore";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {CreateUserProfilePhotoRequest} from "../../api/types/request";
 import {CurrentUser, ImageUploadMetadata, Upload} from "../../api/types/response";
-import {UploadImageStore} from "../../Upload";
-import {AuthorizationStore} from "../../Authorization";
+import type {UploadImageStore} from "../../Upload/stores";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {Labels} from "../../localization";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 export class CreateUserProfilePhotoStore {
     userProfilePhotoPending = false;

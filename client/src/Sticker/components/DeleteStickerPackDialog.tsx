@@ -12,10 +12,10 @@ import {
 	FormControlLabel,
 	FormHelperText
 } from "@mui/material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
-import {HasRole} from "../../Authorization";
+import {HasRole} from "../../Authorization/components";
 
 export const DeleteStickerPackDialog: FunctionComponent = observer(() => {
 	const {

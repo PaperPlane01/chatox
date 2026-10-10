@@ -1,6 +1,6 @@
 import {action, computed, makeObservable, observable, reaction, runInAction} from "mobx";
-import {throttle} from "lodash";
-import {ChatStore} from "./ChatStore";
+import {throttle} from "lodash-es";
+import type {ChatStore} from "./ChatStore";
 import {ChatOfCurrentUserEntity, TagErrorsMap, UpdateChatFormData} from "../types";
 import {
     validateChatDescription,
@@ -14,13 +14,13 @@ import {
 import {ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {ImageUploadMetadata, JoinChatAllowance, SlowMode, UserVerificationLevel} from "../../api/types/response";
 import {AbstractFormStore} from "../../form-store";
-import {UploadImageStore} from "../../Upload";
-import {EntitiesStore} from "../../entities-store";
+import type {UploadImageStore} from "../../Upload/stores";
+import type {EntitiesStore} from "../../entities-store";
 import {Labels, LocaleStore} from "../../localization";
 import {FormErrors} from "../../utils/types";
 import {containsNotUndefinedValues, createWithUndefinedValues, isDefined} from "../../utils/object-utils";
 import {UploadedFileContainer} from "../../utils/file-utils";
-import {SnackbarService} from "../../Snackbar";
+import type {SnackbarService} from "../../Snackbar/services";
 
 const INITIAL_FORM_VALUES: UpdateChatFormData = {
     description: undefined,

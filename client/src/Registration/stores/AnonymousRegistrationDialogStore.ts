@@ -2,7 +2,7 @@ import {makeAutoObservable, reaction} from "mobx";
 import {RegisterAnonymousUserFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
-import {AuthorizationStore} from "../../Authorization/stores";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {validateFirstName, validateLastName} from "../validation";
 import {UserVerificationLevel} from "../../api/types/response";
 

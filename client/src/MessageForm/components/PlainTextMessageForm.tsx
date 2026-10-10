@@ -8,12 +8,12 @@ import {SendMessageButton} from "./SendMessageButton";
 import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
 import {RecordVoiceMessageButton} from "./RecordVoiceMessageButton";
 import {MessageFormData} from "../types";
-import {EmojiAndStickerPicker, EmojiPickerContainer} from "../../EmojiPicker";
-import {useLocalization, useStore} from "../../store";
-import {SendMessageButton as SendMessageButtonType} from "../../Chat";
-import {ClaimRewardButton} from "../../Reward";
-import {Countdown} from "../../Countdown";
-import {MessageEntity} from "../../Message";
+import {EmojiAndStickerPicker, EmojiPickerContainer} from "../../EmojiPicker/components";
+import {useLocalization, useStore} from "../../store/hooks";
+import {SendMessageButton as SendMessageButtonType} from "../../Chat/types";
+import {ClaimRewardButton} from "../../Reward/components";
+import {Countdown} from "../../Countdown/components";
+import {MessageEntity} from "../../Message/types";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     textField: {

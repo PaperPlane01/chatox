@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Card, CardActions, CardContent, CardHeader, lighten, Theme, Tooltip, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {Done, DoneAll, Edit, Event, Forward} from "@mui/icons-material";
-import {format, isBefore, isEqual, isSameDay, isSameYear, Locale} from "date-fns";
+import {isBefore, isEqual, Locale} from "date-fns";
 import randomColor from "randomcolor";
 import {useInViewport} from "react-in-viewport";
 import {Link} from "mobx-router";
@@ -17,11 +17,10 @@ import {MessageSticker} from "./MessageSticker";
 import {SelectMessageForForwardingRadioButton} from "./SelectMessageForForwardingRadioButton";
 import {FindMessageFunction, FindMessageSenderFunction} from "../types";
 import {useMessageById, useMessageSenderById} from "../hooks";
-import {Avatar} from "../../Avatar";
-import {useAuthorization, useLocalization, useRouter, useStore} from "../../store";
+import {useAuthorization, useLocalization, useRouter, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
-import {MarkdownTextWithEmoji} from "../../Markdown";
+import {MarkdownTextWithEmoji} from "../../Markdown/components";
 import {TranslationFunction} from "../../localization";
 import {getChatRoleTranslation} from "../../ChatRole/utils";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
@@ -29,7 +28,10 @@ import {useLuminosity} from "../../utils/hooks";
 import {commonStyles} from "../../style";
 import {UploadType} from "../../api/types/response";
 import {isDefined} from "../../utils/object-utils";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {getCreatedAtLabel} from "../../utils/date-utils";
+import {getUserDisplayedName} from "../../User/utils/labels";
+import {MessageReactionButton} from "../../MessageReaction/components";
+import {UserAvatar} from "../../UserAvatar/components";
 
 type MenuItemClickCallback = (menuItemType: MessageMenuItemType | ScheduledMessageMenuItemType) => void;
 
@@ -46,18 +48,6 @@ interface MessagesListItemProps {
     findMessageSenderFunction?: FindMessageSenderFunction,
     menu?: ReactNode
 }
-
-const getCreatedAtLabel = (createdAt: Date, locale: Locale): string => {
-    const currentDate = new Date();
-
-    if (isSameDay(createdAt, currentDate)) {
-        return format(createdAt, "HH:mm", {locale});
-    } else if (isSameYear(createdAt, currentDate)) {
-        return format(createdAt, "d MMM HH:mm", {locale});
-    } else {
-        return format(createdAt, "d MMM yyyy HH:mm", {locale});
-    }
-};
 
 const getScheduledAtLabel = (scheduledAt: Date, locale: Locale, l: TranslationFunction): string => {
     const dateLabel = getCreatedAtLabel(scheduledAt, locale);
@@ -103,8 +93,8 @@ const useStyles = makeStyles()((theme: Theme) => ({
         overflowX: "auto"
     },
     messageOfCurrentUserCard: {
-        backgroundColor: theme.palette.primary.light,
-        color: theme.palette.getContrastText(theme.palette.primary.light)
+        backgroundColor: theme.palette.mode === "light" ? theme.palette.primary.light : theme.palette.primary.dark,
+        color: theme.palette.getContrastText(theme.palette.mode === "light" ? theme.palette.primary.light : theme.palette.primary.dark),
     },
     cardHeaderRoot: {
         paddingBottom: 0,
@@ -126,7 +116,12 @@ const useStyles = makeStyles()((theme: Theme) => ({
     },
     cardActionsRoot: {
         paddingTop: 0,
-        float: "right"
+        display: "flex"
+    },
+    cardActionsText: {
+        marginLeft: "auto !important",
+        alignSelf: "end",
+        paddingLeft: theme.spacing(1)
     },
     undecoratedLink: commonStyles.undecoratedLink,
     zeroHeight: {
@@ -280,7 +275,6 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
         : getScheduledAtLabel(message.scheduledAt!, dateFnsLocale, l);
     const senderChatRole = useEntityById("chatRoles", message.senderRoleId);
     const color = randomColor({seed: sender.id, luminosity});
-    const avatarLetter = getUserAvatarLabel(sender);
     const senderName = getUserDisplayedName(sender);
     const sentByCurrentUser = currentUser && isDefined(message.forwardedById)
         ? message.forwardedById === currentUser.id
@@ -347,11 +341,7 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                           route={Routes.userPage}
                           params={{slug: sender.slug ?? sender.id}}
                     >
-                        <Avatar avatarLetter={avatarLetter}
-                                avatarColor={color}
-                                avatarId={sender.avatarId}
-                                avatarUri={sender.externalAvatarUri}
-                        />
+                        <UserAvatar user={sender}/>
                     </Link>
                 )
             }
@@ -458,31 +448,42 @@ export const MessagesListItem: FunctionComponent<MessagesListItemProps> = observ
                 <CardActions classes={{
                     root: classes.cardActionsRoot
                 }}>
-                    <Typography variant="caption"
-                                color="textSecondary"
-                                className={classes.messageBottomText}
-                    >
-                        {scheduledMessage && <Event fontSize="inherit"/>}
-                        {createAtLabel}
-                        {message.updatedAt && (
-                            <Tooltip title={l(
-                                "message.updated-at",
-                                {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)}
-                            )}>
+                    {Object.keys(message.reactionsCount).map(emojiId => (
+                        <MessageReactionButton key={`message_${message.id}_reactionButton_${emojiId}`}
+                                               messageId={message.id}
+                                               emojiId={emojiId}
+                                               reactionsCount={message.reactionsCount[emojiId].count}
+                                               reactedByCurrentUser={message.reactionsCount[emojiId].reactedByCurrentUser}
+                                               lastReactionsIds={message.reactionsCount[emojiId].lastReactions}
+                        />
+                    ))}
+                    <div className={classes.cardActionsText}>
+                        <Typography variant="caption"
+                                    color="textSecondary"
+                                    className={classes.messageBottomText}
+                        >
+                            {scheduledMessage && <Event fontSize="inherit"/>}
+                            {createAtLabel}
+                            {message.updatedAt && (
+                                <Tooltip title={l(
+                                    "message.updated-at",
+                                    {updatedAt: getCreatedAtLabel(message.updatedAt, dateFnsLocale)}
+                                )}>
                                 <span>
                                     ,
                                     {" "}
                                     <Edit fontSize="inherit"/>
                                     {l("message.edited")}
                                 </span>
-                            </Tooltip>
-                        )}
-                        {sentByCurrentUser && (
-                            readByAnyone
-                                ? <DoneAll fontSize="small" color="primary"/>
-                                : <Done fontSize="small" color="primary"/>
-                        )}
-                    </Typography>
+                                </Tooltip>
+                            )}
+                            {sentByCurrentUser && (
+                                readByAnyone
+                                    ? <DoneAll fontSize="small" color="primary"/>
+                                    : <Done fontSize="small" color="primary"/>
+                            )}
+                        </Typography>
+                    </div>
                 </CardActions>
             </Card>
         </div>

@@ -1,7 +1,7 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Checkbox, FormControlLabel, Typography} from "@mui/material";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {ChatFeatureData} from "../../api/types/response";
 
 interface DefaultChatFeatureProps {

@@ -5,14 +5,16 @@ export const getEmojiDataFromColons = async (colons: string): Promise<EmojiData 
 	const code = colons.slice(1, - 1);
 	const rawEmojiData: any = emojiData.emojis[code as keyof typeof emojiData.emojis];
 
-	if (!rawEmojiData) {
+	if (!rawEmojiData?.skins) {
 		return undefined;
 	}
 
-	const unified= rawEmojiData.unified as string;
+	const unified = rawEmojiData.skins[0]?.unified as string;
 	const nativeEmoji = unified.split("-")
-		.map(unicode => String.fromCodePoint(Number.parseInt(unicode, 16)))
-		.join();
+        .map(unicode => Number.parseInt(unicode, 16))
+        .map(unicode => String.fromCodePoint(unicode))
+        .reduce((left, right) => left + right)
+
 
 	return await getEmojiDataFromNative(nativeEmoji);
 };

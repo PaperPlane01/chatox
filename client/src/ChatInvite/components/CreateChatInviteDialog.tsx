@@ -4,7 +4,7 @@ import {Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTi
 import {HttpStatusCode} from "axios";
 import {ChatInviteForm} from "./ChatInviteForm";
 import {ChatInviteCreationUserSelect} from "./ChatInviteCreationUserSelect";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";

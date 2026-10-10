@@ -1,102 +1,68 @@
-import {MessageEntity} from "../../Message";
-import {ChatOfCurrentUserEntity, ChatUploadEntity} from "../../Chat";
-import {ChatParticipationEntity, PendingChatParticipationEntity} from "../../ChatParticipant";
-import {UserEntity, UserProfilePhotoEntity} from "../../User";
-import {ChatBlockingEntity} from "../../ChatBlocking";
+import {type ObservableMap} from "mobx";
+import {MessageEntity} from "../../Message/types";
+import {ChatOfCurrentUserEntity, ChatUploadEntity} from "../../Chat/types";
+import {ChatParticipationEntity, PendingChatParticipationEntity} from "../../ChatParticipant/types";
+import {UserEntity, UserProfilePhotoEntity} from "../../User/types";
+import {ChatBlockingEntity} from "../../ChatBlocking/types";
 import {Upload} from "../../api/types/response";
 import {GlobalBanEntity} from "../../GlobalBan/types";
 import {ChatWithCreatorIdEntity, ReportEntity} from "../../Report/types";
-import {StickerAnimationData, StickerEntity, StickerPackEntity} from "../../Sticker";
+import {StickerAnimationData, StickerEntity, StickerPackEntity} from "../../Sticker/types";
 import {ChatRoleEntity} from "../../ChatRole/types";
 import {RequiredField} from "../../utils/types";
 import {RewardEntity, UserRewardEntity} from "../../Reward/types";
 import {UserInteractionEntity} from "../../UserInteraction/types";
 import {ChatInviteEntity} from "../../ChatInvite/types";
+import {MessageReactionEntity} from "../../MessageReaction/types";
+import {BaseEntity} from "../../entity-store";
 
-export type Entities = "messages"
-    | "chats"
-    | "users"
-    | "chatParticipations"
-    | "chatBlockings"
-    | "uploads"
-    | "chatUploads"
-    | "globalBans"
-    | "scheduledMessages"
-    | "reports"
-    | "reportedMessages"
-    | "reportedMessageSenders"
-    | "reportedUsers"
-    | "reportedChats"
-    | "stickers"
-    | "stickerPacks"
-    | "chatRoles"
-    | "rewards"
-    | "userRewards"
-    | "userInteractions"
-    | "userProfilePhotos"
-    | "chatInvites"
-    | "pendingChatParticipations"
-    | "draftMessages"
-    | "stickerAnimationData";
-
-export type PersistentEntities = Extract<Entities, "messages" | "users" | "uploads" | "stickers" | "stickerPacks" | "chatRoles" | "draftMessages" | "stickerAnimationData">;
-
-interface EntityMap<T> {
-    [key: string]: T;
+export interface RawEntities {
+    messages: ObservableMap<string, MessageEntity>,
+    chats: ObservableMap<string, ChatOfCurrentUserEntity>,
+    users: ObservableMap<string, UserEntity>,
+    chatParticipations: ObservableMap<string, ChatParticipationEntity>,
+    chatBlockings: ObservableMap<string, ChatBlockingEntity>,
+    uploads: ObservableMap<string, Upload<any>>,
+    chatUploads: ObservableMap<string, ChatUploadEntity>,
+    globalBans: ObservableMap<string, GlobalBanEntity>,
+    scheduledMessages: ObservableMap<string, MessageEntity>,
+    reports: ObservableMap<string, ReportEntity>,
+    reportedMessages: ObservableMap<string, MessageEntity>,
+    reportedMessageSenders: ObservableMap<string, UserEntity>,
+    reportedUsers: ObservableMap<string, UserEntity>,
+    reportedChats: ObservableMap<string, ChatWithCreatorIdEntity>,
+    stickers: ObservableMap<string, StickerEntity>,
+    stickerPacks: ObservableMap<string, StickerPackEntity>,
+    chatRoles: ObservableMap<string, ChatRoleEntity>,
+    rewards: ObservableMap<string, RewardEntity>,
+    userRewards: ObservableMap<string, UserRewardEntity>,
+    userInteractions: ObservableMap<string, UserInteractionEntity>,
+    userProfilePhotos: ObservableMap<string, UserProfilePhotoEntity>,
+    chatInvites: ObservableMap<string, ChatInviteEntity>,
+    pendingChatParticipations: ObservableMap<string, PendingChatParticipationEntity>,
+    draftMessages: ObservableMap<string, MessageEntity>,
+    stickerAnimationData: ObservableMap<string, StickerAnimationData>,
+    messageReactions: ObservableMap<string, MessageReactionEntity>
 }
 
-//@formatter:off
-export type GetEntityType<Key extends Entities>
-    = Key extends "messages" ? MessageEntity
-    : Key extends "chats" ? ChatOfCurrentUserEntity
-    : Key extends "users" ? UserEntity
-    : Key extends "chatParticipations" ? ChatParticipationEntity
-    : Key extends "chatBlockings" ? ChatBlockingEntity
-    : Key extends "uploads" ? Upload<any>
-    : Key extends "chatUploads" ? ChatUploadEntity
-    : Key extends "globalBans" ? GlobalBanEntity
-    : Key extends "scheduledMessages" ? MessageEntity
-    : Key extends "reports" ? ReportEntity
-    : Key extends "reportedMessages" ? MessageEntity
-    : Key extends "reportedMessageSenders" ? UserEntity
-    : Key extends "reportedUsers" ? UserEntity
-    : Key extends "reportedChats" ? ChatWithCreatorIdEntity
-    : Key extends "stickers" ? StickerEntity
-    : Key extends "stickerPacks" ? StickerPackEntity
-    : Key extends "chatRoles" ? ChatRoleEntity
-    : Key extends "rewards" ? RewardEntity
-    : Key extends "userRewards" ? UserRewardEntity
-    : Key extends "userInteractions" ? UserInteractionEntity
-    : Key extends "userProfilePhotos" ? UserProfilePhotoEntity
-    : Key extends "chatInvites" ? ChatInviteEntity
-    : Key extends "pendingChatParticipations" ? PendingChatParticipationEntity
-    : Key extends "draftMessages" ? MessageEntity
-    : Key extends "stickerAnimationData" ? StickerAnimationData
+export type Entities = keyof RawEntities;
+
+export type PersistentEntities = Extract<Entities, "messages" | "users" | "uploads" | "stickers" | "stickerPacks" | "chatRoles" | "draftMessages" | "stickerAnimationData" | "messageReactions">;
+
+export type GetEntityType<Key extends Entities> = RawEntities[Key] extends ObservableMap<string, infer Entity extends BaseEntity>
+    ? Entity
     : never;
-//@formatter:on
-
-export type GetEntityMapType<Key extends Entities> = EntityMap<GetEntityType<Key>>;
-
-export type RawEntities = {
-    [Key in Entities]: GetEntityMapType<Key>
-};
-
-export type RawEntityKey = Entities & keyof RawEntities;
-
-export type EntitiesIds = {
-    [Key in Entities]: string[]
-};
 
 export type EntitiesPatch = {
-    entities: Partial<RawEntities>,
-    ids: Partial<EntitiesIds>
+    entities: Partial<{
+        [Key in Entities]: Map<string, GetEntityType<Key>>
+    }>
 };
 
 export type PopulatedEntitiesPatch<T extends Entities> = {
-    entities: RequiredField<Partial<RawEntities>, T>,
-    ids: RequiredField<Partial<EntitiesIds>, T>
+    entities: RequiredField<EntitiesPatch["entities"], T>
 };
 
 export type RelationshipsIds = {
-    [key in Entities]?: string[]
+    [Key in Entities]?: string[]
 };

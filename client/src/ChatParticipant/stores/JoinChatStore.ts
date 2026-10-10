@@ -2,11 +2,11 @@ import {makeAutoObservable, runInAction} from "mobx";
 import {HttpStatusCode} from "axios";
 import {API_UNREACHABLE_STATUS, ApiError, ChatApi, getInitialApiErrorFromResponse} from "../../api";
 import {JoinChatRejectionReason, UserVerificationLevel} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
-import {AuthorizationStore} from "../../Authorization";
-import {PendingChatsOfCurrentUserStore} from "../../Chat";
-import {SnackbarService} from "../../Snackbar";
-import {Labels, LocaleStore} from "../../localization";
+import type {EntitiesStore} from "../../entities-store";
+import type {AuthorizationStore} from "../../Authorization/stores";
+import type {PendingChatsOfCurrentUserStore} from "../../Chat/stores";
+import type {SnackbarService} from "../../Snackbar/services";
+import {Labels, type LocaleStore} from "../../localization";
 
 export class JoinChatStore {
     chatId?: string = undefined;
@@ -20,19 +20,19 @@ export class JoinChatStore {
                 private readonly localization: LocaleStore,
                 private readonly authorization: AuthorizationStore,
                 private readonly snackbarService: SnackbarService) {
-        makeAutoObservable(this);
+        makeAutoObservable(this, {}, {autoBind: true});
     }
 
-    joinChat = (chatId: string): void => {
+    joinChat(chatId: string): void {
         this.chatId = chatId;
         this.pending = true;
         const user = this.authorization.currentUser!;
 
         ChatApi.joinChat(chatId)
-            .then(({data}) => {
+            .then(({data}) => runInAction(() => {
                 if (data.pending) {
-                   this.pendingChats.addChatId(chatId);
-                   this.showPendingSnackbar();
+                    this.pendingChats.addChatId(chatId);
+                    this.showPendingSnackbar();
                 } else {
                     this.entities.chatParticipations.insert({
                         ...data,
@@ -44,11 +44,12 @@ export class JoinChatStore {
                             anonymous: user.verificationLevel === UserVerificationLevel.ANONYMOUS
                         }
                     }, {
-                        increaseChatParticipantsCount: true
+                        increaseChatParticipantsCount: true,
+                        setCurrentUserChatParticipationId: true
                     });
                     this.showSuccessfulJoinSnackbar();
                 }
-            })
+            }))
             .catch(error => runInAction(() => {
                 this.error = getInitialApiErrorFromResponse(error);
                 this.handleError();
@@ -56,19 +57,19 @@ export class JoinChatStore {
             .finally(() => runInAction(() => this.pending = false));
     }
 
-    private showSuccessfulJoinSnackbar = (): void => {
+    private showSuccessfulJoinSnackbar(): void {
         this.snackbarService.enqueueSnackbar(
             this.localization.getCurrentLanguageLabel("chat.join.success")
         );
     }
 
-    private showPendingSnackbar = (): void => {
+    private showPendingSnackbar(): void {
         this.snackbarService.enqueueSnackbar(
             this.localization.getCurrentLanguageLabel("chat.join.pending")
         );
     }
 
-    private handleError = (): void => {
+    private handleError(): void {
         if (!this.error) {
             return;
         }
@@ -119,7 +120,7 @@ export class JoinChatStore {
         }
     }
 
-    private showUnknownErrorSnackbar = (): void => {
+    private showUnknownErrorSnackbar(): void {
         this.snackbarService.error(
             this.localization.getCurrentLanguageLabel("chat.join.error")
         );

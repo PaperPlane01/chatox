@@ -4,7 +4,7 @@ import {ImageList, useMediaQuery, useTheme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {CreateUserProfilePhotoButton} from "./CreateUserProfilePhotoButton";
 import {UserProfileGalleryPhoto} from "./UserProfileGalleryPhoto";
-import {usePermissions, useStore} from "../../store";
+import {usePermissions, useStore} from "../../store/hooks";
 
 const useStyles = makeStyles()(() => ({
     galleryContainer: {

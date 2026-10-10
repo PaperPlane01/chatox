@@ -1,14 +1,14 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
-import {uniqBy} from "lodash";
+import {uniqBy} from "lodash-es";
 import {MentionItem} from "../types";
-import {EntitiesStore} from "../../entities-store";
-import {ChatsOfCurrentUserStore, ChatStore} from "../../Chat";
+import type {EntitiesStore} from "../../entities-store";
+import type {ChatsOfCurrentUserStore, ChatStore} from "../../Chat/stores";
 import {getUserDisplayedName} from "../../User/utils/labels";
 import {ChatParticipantApi} from "../../api";
 import {ChatType} from "../../api/types/response";
 import {debounceAsync} from "../../utils/debounce-async";
-import {UserEntity} from "../../User";
+import {UserEntity} from "../../User/types";
 
 export class MentionsStore {
 	get selectedChatId(): string | undefined {

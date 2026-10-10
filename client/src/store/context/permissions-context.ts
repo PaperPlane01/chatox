@@ -3,8 +3,8 @@ import {store} from "../store";
 import {MessagePermissions} from "../../Message/permissions";
 import {ChatPermissions} from "../../Chat/permissions";
 import {ChatParticipantPermissions} from "../../ChatParticipant/permissions";
-import {ChatBlockingPermissions} from "../../ChatBlocking";
-import {GlobalBanPermissions} from "../../GlobalBan";
+import {ChatBlockingPermissions} from "../../ChatBlocking/permissions";
+import {GlobalBanPermissions} from "../../GlobalBan/permissions";
 import {ChatRolePermissions} from "../../ChatRole/permissions";
 import {UserPermissions} from "../../User/permissions";
 import {ChatInvitePermissions} from "../../ChatInvite/permissions";
@@ -47,7 +47,6 @@ const globalBans = new GlobalBanPermissions(
     store.authorization
 );
 const chatRoles = new ChatRolePermissions(
-    store.entities,
     store.authorization,
     store.userChatRoles
 );

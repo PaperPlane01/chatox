@@ -1,5 +1,5 @@
 import {computedFn} from "mobx-utils";
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {ReportEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch} from "../../entities-store";
@@ -33,8 +33,7 @@ export class ReportsStore extends AbstractEntityStore<"reports", ReportEntity, R
         const patches: EntitiesPatch[] = [];
 
         denormalizedEntities.forEach(report => {
-            patch.entities.reports[report.id] = this.convertToNormalizedForm(report);
-            patch.ids.reports.push(report.id);
+            patch.entities.reports.set(report.id, this.convertToNormalizedForm(report));
 
             patches.push(this.createPatchForReportedObject(report));
         });
