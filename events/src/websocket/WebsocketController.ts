@@ -12,7 +12,7 @@ export class WebsocketController {
     }
 
     @Get("user/:userId")
-    public getSessionsOfUser(@Param("userId") userId: string): string[] {
-        return this.websocketEventsPublisher.getSessionsOfUser(userId);
+    public async getSessionsOfUser(@Param("userId") userId: string): Promise<string[]> {
+        return await this.websocketEventsPublisher.getSessionsOfUser(userId);
     }
 }

@@ -2,7 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
-import {Socket} from "socket.io";
+import {Server, Socket} from "socket.io";
 import {parse, ParsedUrlQuery} from "querystring";
 import {DisconnectionResult, JwtPayload, WebsocketEvent} from "./types";
 import {PersistentWebsocketEvent, PersistentWebsocketEventDocument} from "./entities";
@@ -10,43 +10,13 @@ import {ChatParticipationService} from "../chat-participation";
 import {LoggerFactory} from "../logging";
 import {ChatFeatures} from "../chat-roles";
 
+const USER_ROOM_PREFIX = "user-";
+
 @Injectable()
 export class WebsocketConnectionsStateHolder {
-    /**
-     * key: userId, value: sockets
-     */
-    private usersToSockets = new Map<string, Socket[]>();
+    private connectedSockets = new Set<string>();
 
-    /**
-     * key: socketId, value: user id
-     */
-    private socketsToUsers = new Map<string, string>();
-
-    /**
-     *
-     * key: userId, value: ids of chats
-     */
-    private usersToChats = new Map<string, string[]>();
-
-    /**
-     * key: chatId, value: ids of users
-     */
-    private chatsToUsers = new Map<string, string[]>()
-
-    /**
-     * key: chatId, value: sockets
-     */
-    private chatParticipantsSubscriptions = new Map<string, Socket[]>();
-
-    /**
-     * key: chatId, value: sockets
-     */
-    private nonParticipantsChatSubscriptions = new Map<string, Socket[]>();
-
-    /**
-     * key: socketId, value: chatsIds
-     */
-    private nonParticipantsSocketsSubscribedToChats = new Map<string, string[]>();
+    private server: Server;
 
     private readonly log = LoggerFactory.getLogger(WebsocketConnectionsStateHolder);
 
@@ -54,6 +24,10 @@ export class WebsocketConnectionsStateHolder {
     constructor(private readonly chatParticipationService: ChatParticipationService,
                 private readonly jwtService: JwtService,
                 @InjectModel(PersistentWebsocketEvent.name) private readonly websocketEventModel: Model<PersistentWebsocketEventDocument>) {
+    }
+
+    public setServer(server: Server): void {
+        this.server = server;
     }
 
     public async handleConnection(socket: Socket): Promise<JwtPayload & {accessToken: string} | undefined> {
@@ -64,34 +38,12 @@ export class WebsocketConnectionsStateHolder {
         }
 
         const chatParticipations = await this.chatParticipationService.findByUserId(userInfo.user_id);
+        const chatIds = chatParticipations.map(chatParticipation => chatParticipation.chatId);
+        socket.join(chatIds);
+        socket.userId = userInfo.user_id;
+        socket.join(`${USER_ROOM_PREFIX}${userInfo.user_id}`);
 
-        if (this.usersToSockets.has(userInfo.user_id)) {
-            this.usersToSockets.get(userInfo.user_id)?.push(socket);
-        } else {
-            this.usersToSockets.set(userInfo.user_id, [socket]);
-        }
-
-        this.socketsToUsers.set(socket.id, userInfo.user_id);
-
-        chatParticipations.forEach(chatParticipation => {
-            if (this.chatParticipantsSubscriptions.has(chatParticipation.chatId)) {
-                this.chatParticipantsSubscriptions.get(chatParticipation.chatId)?.push(socket);
-            } else {
-                this.chatParticipantsSubscriptions.set(chatParticipation.chatId, [socket]);
-            }
-
-            if (this.usersToChats.has(chatParticipation.userId)) {
-                this.usersToChats.get(chatParticipation.userId)?.push(chatParticipation.chatId);
-            } else {
-                this.usersToChats.set(chatParticipation.userId, [chatParticipation.chatId]);
-            }
-
-            if (this.chatsToUsers.has(chatParticipation.chatId)) {
-                this.chatsToUsers.get(chatParticipation.chatId)?.push(chatParticipation.userId);
-            } else {
-                this.chatsToUsers.set(chatParticipation.chatId, [chatParticipation.userId]);
-            }
-        });
+        this.connectedSockets.add(socket.id);
 
         return userInfo;
     }
@@ -114,225 +66,66 @@ export class WebsocketConnectionsStateHolder {
         return {...jwtPayload, accessToken: queryParameters.accessToken as string};
     }
 
-    public handleDisconnect(disconnectedSocket: Socket): DisconnectionResult {
-        const {userId, noMoreConnections} = this.removeSocketFromUsersToSocketsMap(disconnectedSocket);
-        this.removeSocketFromChatParticipantsSubscriptions(
-            disconnectedSocket,
-            userId,
-            noMoreConnections
-        );
-        this.removeSocketFromNonChatParticipantsSubscription(disconnectedSocket);
-        this.socketsToUsers.delete(disconnectedSocket.id);
-
-        return {
-            userId,
-            noMoreConnections
-        };
+    public handleDisconnect(disconnectedSocket: Socket): Promise<DisconnectionResult> {
+        this.connectedSockets.delete(disconnectedSocket.id);
+        return this.removeSocketFromUsersToSocketsMap(disconnectedSocket);
     }
 
-    private removeSocketFromUsersToSocketsMap(disconnectedSocket: Socket): DisconnectionResult {
-        let noMoreConnections = false;
-        let userId: string | undefined = undefined;
-
-        for (const [connectedUserId, sockets] of this.usersToSockets.entries()) {
-            if (this.removeSocketFromArray(disconnectedSocket, sockets)) {
-                if (sockets.length === 0) {
-                    noMoreConnections = true;
-                    this.usersToSockets.delete(userId);
-                }
-
-                userId = connectedUserId;
-                break;
-            }
-        }
-
+    private async removeSocketFromUsersToSocketsMap(disconnectedSocket: Socket): Promise<DisconnectionResult> {
+        const noMoreConnections = !(await this.server.fetchSockets())
+            .some(socket => socket.userId === disconnectedSocket.userId);
+        const userId = disconnectedSocket.userId;
         return {
             noMoreConnections,
             userId
         };
     }
 
-    private removeSocketFromChatParticipantsSubscriptions(
-        disconnectedSocket: Socket,
-        disconnectedUserId: string,
-        noMoreConnections: boolean
-    ): void {
-        const chatsIds = this.usersToChats.get(disconnectedUserId);
-
-        if (!chatsIds) {
-            return;
-        }
-
-        chatsIds.forEach(chatId => {
-            const connectedSockets = this.chatParticipantsSubscriptions.get(chatId);
-
-            if (connectedSockets) {
-                this.removeSocketFromArray(disconnectedSocket, connectedSockets);
-
-                if (connectedSockets.length === 0) {
-                    this.chatParticipantsSubscriptions.delete(chatId);
-                }
-            }
-
-            const usersIds = this.chatsToUsers.get(chatId);
-
-            if (usersIds) {
-                const userIndex = usersIds.indexOf(disconnectedUserId);
-
-                if (userIndex > -1) {
-                    usersIds.splice(userIndex, 1);
-                }
-
-                if (usersIds.length === 0) {
-                    this.chatsToUsers.delete(chatId);
-                }
-            }
-        });
-
-        if (noMoreConnections) {
-            this.usersToChats.delete(disconnectedUserId);
-        }
-    }
-
-    private removeSocketFromNonChatParticipantsSubscription(disconnectedSocket: Socket): void {
-        if (!this.nonParticipantsSocketsSubscribedToChats.has(disconnectedSocket.id)) {
-            return;
-        }
-
-        const chatsIds = this.nonParticipantsSocketsSubscribedToChats.get(disconnectedSocket.id) || [];
-
-        this.nonParticipantsSocketsSubscribedToChats.delete(disconnectedSocket.id);
-
-        if (chatsIds.length === 0) {
-            return;
-        }
-
-        chatsIds.forEach(chatId => {
-            const sockets = this.nonParticipantsChatSubscriptions.get(chatId);
-            this.removeSocketFromArray(disconnectedSocket, sockets);
-
-            if (sockets.length === 0) {
-                this.nonParticipantsChatSubscriptions.delete(chatId);
-            }
-        });
-    }
-
-    private removeSocketFromArray(socket: Socket, sockets: Socket[]): boolean {
-        let socketIndex = -1;
-        let removed = false;
-
-        for (let index = 0; index < sockets.length; index++) {
-            const currentSocket = sockets[index];
-
-            if (currentSocket.id === socket.id) {
-                socketIndex = index;
-                removed = true;
-                break;
-            }
-        }
-
-        if (socketIndex > -1) {
-            sockets.splice(socketIndex, 1);
-        }
-
-        return removed;
-    }
-
-    public addUserToChat(userId: string, chatId: string): void {
+    public async addUserToChat(userId: string, chatId: string): Promise<void> {
         this.log.log(`Adding user ${userId} to chat ${chatId}`);
-        const sockets = this.usersToSockets.get(userId) ?? [];
+
+        const sockets = await this.server.in(this.getUserRoom(userId)).fetchSockets();
 
         if (sockets.length === 0) {
             this.log.log(`User ${userId} doesn't have sockets, exiting`);
             return;
         }
 
-        if (this.usersToChats.has(userId)) {
-            this.usersToChats.get(userId).push(chatId);
-        } else {
-            this.usersToChats.set(userId, [chatId]);
-        }
-
-        if (this.chatParticipantsSubscriptions.has(chatId)) {
-            this.chatParticipantsSubscriptions.get(chatId).push(...sockets);
-        } else {
-            this.chatParticipantsSubscriptions.set(chatId, sockets);
-        }
+        sockets.forEach(socket => socket.join(chatId));
     }
 
-    public removeUserFromChat(userId: string, chatId: string): void {
-        const sockets = this.usersToSockets.get(userId) ?? [];
+    public addSocketToChat(socket: Socket, chatId: string): void {
+        socket.join(chatId);
+    }
+
+    public async removeUserFromChat(userId: string, chatId: string): Promise<void> {
+        const sockets = (await this.server.in(this.getUserRoom(userId)).fetchSockets())
+            .filter(socket => socket.userId === userId);
 
         if (sockets.length === 0) {
             return;
         }
 
-        if (this.usersToChats.has(userId)) {
-            const index = this.usersToChats.get(userId)?.indexOf(chatId);
-
-            if (index > -1) {
-                this.usersToChats.get(userId)?.splice(index, 1);
-            }
-
-            if (this.usersToSockets.get(userId)?.length === 0) {
-                this.usersToChats.delete(userId);
-            }
-        }
-
-        const chatSockets = this.chatParticipantsSubscriptions.get(chatId) ?? [];
-
-        if (chatSockets.length !== 0) {
-            chatSockets.forEach(socket => this.removeSocketFromArray(socket, chatSockets));
-        }
+        sockets.forEach(socket => socket.leave(chatId));
     }
 
-    public subscribeSocketToChat(socket: Socket, chatId: string): void {
-        if (this.nonParticipantsChatSubscriptions.has(chatId)) {
-            this.nonParticipantsChatSubscriptions.get(chatId)?.push(socket);
-        } else {
-            this.nonParticipantsChatSubscriptions.set(chatId, [socket]);
-        }
-
-        if (this.nonParticipantsSocketsSubscribedToChats.has(chatId)) {
-            this.nonParticipantsSocketsSubscribedToChats.get(chatId)?.push(socket.id);
-        } else {
-            this.nonParticipantsSocketsSubscribedToChats.set(chatId, [socket.id]);
-        }
+    public removeSocketFromChat(socket: Socket, chatId: string): void {
+        socket.leave(chatId);
     }
 
-    public unsubscribeSocketFromChat(socket: Socket, chatId: string): void {
-        const existingSockets = this.nonParticipantsChatSubscriptions.get(chatId);
+    public publishEventToChat(chatId: string, event: WebsocketEvent): void {
+        const broadcast = this.server.to(chatId);
+        broadcast.emit(event.type, event);
 
-        if (existingSockets?.length !== 0) {
-            this.removeSocketFromArray(socket, existingSockets);
+        broadcast.fetchSockets().then(sockets => {
+            const recipients = sockets
+                .map(socket => socket.userId)
+                .filter(userId => userId !== null && userId !== undefined);
 
-            if (existingSockets.length === 0) {
-                this.nonParticipantsChatSubscriptions.delete(chatId);
+            if (recipients.length !== 0) {
+                this.saveEvent(event, recipients);
             }
-        }
-
-        const existingSocketsIds = this.nonParticipantsSocketsSubscribedToChats.get(chatId);
-
-        if (existingSockets?.length !== 0) {
-            const index = existingSocketsIds.indexOf(socket.id);
-
-            if (index > -1) {
-                existingSocketsIds.splice(index, 1);
-            }
-
-            if (existingSocketsIds.length === 0) {
-                this.nonParticipantsSocketsSubscribedToChats.delete(chatId);
-            }
-        }
-    }
-
-    public async publishEventToChatParticipants(chatId: string, event: WebsocketEvent): Promise<void> {
-        const sockets = this.chatParticipantsSubscriptions.get(chatId) ?? [];
-        const recipients: string[] = this.emitEventForSocketsAndGetRecipients(sockets, event);
-
-        if (recipients.length !== 0) {
-            this.saveEvent(event, recipients);
-        }
+        })
     }
 
     public async publishEventToChatParticipantsWithEnabledFeatures(
@@ -340,7 +133,11 @@ export class WebsocketConnectionsStateHolder {
         event: WebsocketEvent,
         ...features: Array<keyof ChatFeatures>
     ): Promise<void> {
-        const usersIds = this.chatsToUsers.get(chatId) || [];
+        const sockets = await this.server.to(chatId).fetchSockets();
+        const usersIds = sockets
+            .flatMap(socket => [...socket.rooms])
+            .filter(roomId => roomId.startsWith(USER_ROOM_PREFIX))
+            .map(roomId => roomId.substring(USER_ROOM_PREFIX.length));
 
         if (usersIds.length === 0) {
             return;
@@ -357,35 +154,8 @@ export class WebsocketConnectionsStateHolder {
         this.saveEvent(event, usersWithFeatures);
     }
 
-    public async publishEventToUsersSubscribedToChat(chatId: string, event: WebsocketEvent): Promise<void> {
-        const sockets = this.nonParticipantsChatSubscriptions.get(chatId) || [];
-        const recipients = this.emitEventForSocketsAndGetRecipients(sockets, event);
-
-        if (recipients.length !== 0) {
-            this.saveEvent(event, recipients);
-        }
-    }
-
-    private emitEventForSocketsAndGetRecipients(sockets: Socket[], event: WebsocketEvent): string[] {
-        const recipients: string[] = [];
-
-        if (sockets.length !== 0) {
-            sockets.forEach(socket => {
-                socket.emit(event.type, event);
-
-                if (this.socketsToUsers.has(socket.id)) {
-                    recipients.push(this.socketsToUsers.get(socket.id));
-                }
-            });
-        }
-
-        return recipients;
-    }
-
     public async publishEventToUsers(usersIds: string[], event: WebsocketEvent): Promise<void> {
-        usersIds.forEach(userId => {
-            this.usersToSockets.get(userId)?.forEach(socket => socket.emit(event.type, event));
-        });
+        this.server.to(usersIds.map(this.getUserRoom)).emit(event.type, event);
         this.saveEvent(event, usersIds);
     }
 
@@ -398,10 +168,16 @@ export class WebsocketConnectionsStateHolder {
     }
 
     public isSocketActive(socketId: string): boolean {
-        return this.socketsToUsers.has(socketId);
+        return this.connectedSockets.has(socketId);
     }
 
-    public getSocketIdsOfUser(userId: string): string[] {
-        return this.usersToSockets.get(userId)?.map(socket => socket.id) ?? [];
+    public async getSocketIdsOfUser(userId: string): Promise<string[]> {
+        const sockets = await this.server.to(this.getUserRoom(userId))
+            .fetchSockets();
+        return sockets.map(socket => socket.id);
+    }
+
+    private getUserRoom(userId: string): string {
+        return `${USER_ROOM_PREFIX}${userId}`;
     }
 }
