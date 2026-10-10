@@ -1,5 +1,6 @@
 package chatox.sticker.model
 
+import chatox.platform.text.api.response.EmojiData
 import chatox.sticker.api.request.UpdateStickerRequest
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
