@@ -474,8 +474,11 @@ export class WebsocketStore {
                     }
                 )
             } else {
-                // TODO: we should move tracking off the client and update it with events from websocket
-                // because it's so easy to make a mistake and update it twice
+                /*
+                TODO: we should move tracking of participants count off the client
+                and update it with events from websocket
+                because it's so easy to make a mistake and update it twice from multiple places
+                */
                 chat.participantsCount = chat.participantsCount - 1;
                 this.entities.chats.insertEntity(chat);
             }
