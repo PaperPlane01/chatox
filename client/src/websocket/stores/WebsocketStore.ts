@@ -432,11 +432,6 @@ export class WebsocketStore {
             });
         }
 
-        this.entities.chats.insertEntity({
-            ...chat,
-            currentUserParticipationId: chatParticipation.id
-        });
-
         if (!chat.lastMessage) {
             this.messagesOfChatStore.fetchMessages({
                 abortIfInitiallyFetched: true,
@@ -472,7 +467,7 @@ export class WebsocketStore {
                         decreaseChatParticipantsCount: true,
                         clearCurrentUserChatParticipationId: event.userId === this.currentUser?.id
                     }
-                )
+                );
             } else {
                 /*
                 TODO: we should move tracking of participants count off the client
