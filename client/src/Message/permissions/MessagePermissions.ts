@@ -215,7 +215,7 @@ export class MessagePermissions {
     });
 
     getAddReactionsFeature = computedFn((chatId: string): AddReactionsFeatureData => {
-        if (!this.currentUser) {
+        if (!this.currentUser || !this.isCurrentUserParticipantOfChat(chatId)) {
             return {
                 enabled: false,
                 additional: {
