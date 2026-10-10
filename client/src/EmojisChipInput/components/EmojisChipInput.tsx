@@ -55,6 +55,7 @@ export const EmojiChipInput: FunctionComponent<EmojisChipInputProps> = observer(
                 onClose={closeDialog}
                 fullWidth
                 maxWidth="sm"
+                disableEnforceFocus
             >
                 <DialogTitle>
                     <IconButton

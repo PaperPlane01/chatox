@@ -137,12 +137,7 @@ import {
     StickersPreferencesStore,
     UninstallStickerPackStore
 } from "../Sticker/stores";
-import {
-    CreateStickerPackStore,
-    ImportStickerPackStore,
-    StickerEmojiPickerDialogStore,
-    UpdateStickerPackStore
-} from "../StickerPackForm/stores";
+import {CreateStickerPackStore, ImportStickerPackStore, UpdateStickerPackStore} from "../StickerPackForm/stores";
 import {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist/stores";
 import {
     AllChatsMessagesSearchStore,
@@ -412,7 +407,6 @@ const websocket = new WebsocketStore(
     snackbarService
 );
 const stickerPackCreation = new CreateStickerPackStore(entities, language, snackbarService);
-const stickerEmojiPickerDialog = new StickerEmojiPickerDialogStore();
 
 const stickerAnimationData = new StickerAnimationDataStore(entities, referencedEntities, repositories);
 const installedStickerPacks = new InstalledStickerPacksStore(authorization, entities, stickerAnimationData);
@@ -730,7 +724,6 @@ const _store: IAppState = {
     messagesListScrollPositions,
     markMessageRead,
     stickerPackCreation,
-    stickerEmojiPickerDialog,
     installedStickerPacks,
     stickerPackInstallation,
     stickerPackUninstallation,

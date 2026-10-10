@@ -1,16 +1,15 @@
-import React, {Fragment, FunctionComponent} from "react";
+import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, Dialog, DialogActions, DialogContent} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import {noop} from "lodash-es";
 import {EditableStickerPreview} from "./EditableStickerPreview";
-import {StickerEmojiPickerDialog} from "./StickerEmojiPickerDialog";
 import {StickerUpload} from "./StickerUpload";
 import {useStickerPackForm} from "../hooks";
 import {StickerPackFormContext} from "../types";
 import {StickerContainer} from "../stores";
 import {ChipInput} from "../../ChipInput";
-import {useLocalization, useStore} from "../../store/hooks";
+import {EmojiChipInput} from "../../EmojisChipInput/components";
+import {useLocalization} from "../../store/hooks";
 
 interface EditStickerDialogProps {
 	stickerContainer: StickerContainer,
@@ -32,14 +31,6 @@ export const EditStickerDialog: FunctionComponent<EditStickerDialogProps> = obse
     context,
 	hideUploadInput = false
 }) => {
-	const {
-		stickerEmojiPickerDialog: {
-			setStickerEmojiPickerDialogOpen
-		},
-		emoji: {
-			selectedEmojiSet
-		}
-	} = useStore();
 	const {
 		editStickerDialogOpen,
 		editSticker,
@@ -63,64 +54,54 @@ export const EditStickerDialog: FunctionComponent<EditStickerDialogProps> = obse
 	};
 
 	return (
-		<Fragment>
-			<Dialog open={editStickerDialogOpen}
-					onClose={handleClose}
-					fullWidth
-					maxWidth="sm"
-			>
-				<DialogContent>
-					<div className={classes.centered}>
-						{!hideUploadInput && (
-							<StickerUpload stickerContainer={stickerContainer}/>
-						)}
-						{hideUploadInput && stickerContainer.uploadContainer && (
-							<EditableStickerPreview stickerContainer={stickerContainer}/>
-						)}
-					</div>
-					<ChipInput value={stickerContainer.emojis}
-							   onDelete={index => stickerContainer.removeEmojiByIndex(index)}
-							   onClick={() => setStickerEmojiPickerDialogOpen(true)}
-                               slotProps={{
-                                   input: {
-                                       onChange: noop
-                                   }
-                               }}
-							   renderLabel={emoji => (
-								   <em-emoji size="16"
-                                             id={emoji.id}
-                                             set={selectedEmojiSet}
-                                             native={emoji.native}
-								   />
-							   )}
-							   label={l("sticker.emojis")}
-							   getChipKey={emoji => emoji.name}
-					/>
-					<ChipInput value={stickerContainer.keywords}
-							   onAdd={keyword => stickerContainer.addKeyword(keyword)}
-							   onDelete={index => stickerContainer.removeKeywordByIndex(index)}
-							   helperText={stickerContainer.errors.keywords && l(stickerContainer.errors.keywords)}
-							   label={l("sticker.keywords")}
-							   fullWidth
-							   margin="dense"
-					/>
-				</DialogContent>
-				<DialogActions>
-					<Button onClick={handleClose}
-							variant="outlined"
-							color="secondary"
-					>
-						{l("close")}
-					</Button>
-					<Button onClick={handleAdd}
-							variant="contained"
-							color="primary"
-					>
-						{l("save-changes")}
-					</Button>
-				</DialogActions>
-			</Dialog>
-			<StickerEmojiPickerDialog onEmojiPicked={stickerContainer.addEmoji}/>
-		</Fragment>
+        <Dialog
+            open={editStickerDialogOpen}
+            onClose={handleClose}
+            fullWidth
+            maxWidth="sm"
+            disableEnforceFocus
+        >
+            <DialogContent>
+                <div className={classes.centered}>
+                    {!hideUploadInput && (
+                        <StickerUpload stickerContainer={stickerContainer}/>
+                    )}
+                    {hideUploadInput && stickerContainer.uploadContainer && (
+                        <EditableStickerPreview stickerContainer={stickerContainer}/>
+                    )}
+                </div>
+                <EmojiChipInput
+                    value={stickerContainer.emojis}
+                    label={l("sticker.emojis")}
+                    onDelete={stickerContainer.removeEmojiByIndex}
+                    onEmojiPicked={stickerContainer.addEmoji}
+                />
+                <ChipInput
+                    value={stickerContainer.keywords}
+                    onAdd={keyword => stickerContainer.addKeyword(keyword)}
+                    onDelete={index => stickerContainer.removeKeywordByIndex(index)}
+                    helperText={stickerContainer.errors.keywords && l(stickerContainer.errors.keywords)}
+                    label={l("sticker.keywords")}
+                    fullWidth
+                    margin="dense"
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button
+                    onClick={handleClose}
+                    variant="outlined"
+                    color="secondary"
+                >
+                    {l("close")}
+                </Button>
+                <Button
+                    onClick={handleAdd}
+                    variant="contained"
+                    color="primary"
+                >
+                    {l("save-changes")}
+                </Button>
+            </DialogActions>
+        </Dialog>
 	);
 });

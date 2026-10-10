@@ -126,12 +126,7 @@ import type {
     StickersPreferencesStore,
     UninstallStickerPackStore
 } from "../Sticker/stores";
-import type {
-    CreateStickerPackStore,
-    ImportStickerPackStore,
-    StickerEmojiPickerDialogStore,
-    UpdateStickerPackStore
-} from "../StickerPackForm/stores";
+import type {CreateStickerPackStore, ImportStickerPackStore, UpdateStickerPackStore} from "../StickerPackForm/stores";
 import type {AddUserToBlacklistStore, BlacklistedUsersStore, RemoveUserFromBlacklistStore} from "../Blacklist/stores";
 import type {
     AllChatsMessagesSearchStore,
@@ -289,7 +284,6 @@ export interface IAppState {
     messagesListScrollPositions: MessagesListScrollPositionsStore,
     markMessageRead: MarkMessageReadStore,
     stickerPackCreation: CreateStickerPackStore,
-    stickerEmojiPickerDialog: StickerEmojiPickerDialogStore,
     installedStickerPacks: InstalledStickerPacksStore,
     stickerPackInstallation: InstallStickerPackStore,
     stickerPackUninstallation: UninstallStickerPackStore,
