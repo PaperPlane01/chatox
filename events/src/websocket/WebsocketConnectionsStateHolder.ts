@@ -20,7 +20,6 @@ export class WebsocketConnectionsStateHolder {
 
     private readonly log = LoggerFactory.getLogger(WebsocketConnectionsStateHolder);
 
-
     constructor(private readonly chatParticipationService: ChatParticipationService,
                 private readonly jwtService: JwtService,
                 @InjectModel(PersistentWebsocketEvent.name) private readonly websocketEventModel: Model<PersistentWebsocketEventDocument>) {
