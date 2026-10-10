@@ -4,6 +4,7 @@ import {
     MessageBody,
     OnGatewayConnection,
     OnGatewayDisconnect,
+    OnGatewayInit,
     SubscribeMessage,
     WebSocketGateway
 } from "@nestjs/websockets";
@@ -49,12 +50,16 @@ import {MessageReactionAdded, MessageReactionDeleted} from "../message-reactions
         "polling"
     ]
 })
-export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayDisconnect {
+export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     private readonly log = LoggerFactory.getLogger(WebsocketEventsPublisher);
 
     constructor(private readonly amqpConnection: AmqpConnection,
                 private readonly connectionsStateHolder: WebsocketConnectionsStateHolder,
                 @Inject(forwardRef(() => ChatsService)) private readonly chatsService: ChatsService) {
+    }
+
+    afterInit(server: any): void {
+        this.connectionsStateHolder.setServer(server);
     }
 
     public async handleConnection(client: Socket, ...args: any[]): Promise<void> {
@@ -72,24 +77,25 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
                     userAgent: client.request.headers["user-agent"],
                     accessToken: jwtPayload.accessToken
                 }
-            )
+            );
         }
     }
 
     public handleDisconnect(client: Socket): void {
-        const {noMoreConnections, userId} = this.connectionsStateHolder.handleDisconnect(client);
-
-        if (noMoreConnections && userId) {
-            this.log.debug("Publishing user disconnected event");
-            this.amqpConnection.publish(
-                "websocket.events",
-                "user.disconnected.#",
-                {
-                    userId,
-                    socketIoId: client.id
+        this.connectionsStateHolder.handleDisconnect(client)
+            .then(({noMoreConnections, userId}) => {
+                if (noMoreConnections && userId) {
+                    this.log.debug("Publishing user disconnected event");
+                    this.amqpConnection.publish(
+                        "websocket.events",
+                        "user.disconnected.#",
+                        {
+                            userId,
+                            socketIoId: client.id
+                        }
+                    );
                 }
-            );
-        }
+            });
     }
 
     public isSessionActive(socketIoId: string): SessionActivityStatusResponse {
@@ -97,8 +103,8 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
         return {active};
     }
 
-    public getSessionsOfUser(userId: string): string[] {
-        return this.connectionsStateHolder.getSocketIdsOfUser(userId);
+    public async getSessionsOfUser(userId: string): Promise<string[]> {
+        return await this.connectionsStateHolder.getSocketIdsOfUser(userId);
     }
 
     @SubscribeMessage(EventType.CHAT_SUBSCRIPTION)
@@ -111,13 +117,13 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             throw new ForbiddenException("Subscriptions to private chats is prohibited");
         }
 
-        this.connectionsStateHolder.subscribeSocketToChat(client, chatId);
+        this.connectionsStateHolder.addSocketToChat(client, chatId);
     }
 
     @SubscribeMessage(EventType.CHAT_UNSUBSCRIPTION)
     public handleChatUnsubscription(@MessageBody() message: WebsocketEvent<ChatUnsubscription>,
                                     @ConnectedSocket() client: Socket): void {
-        this.connectionsStateHolder.unsubscribeSocketFromChat(client, message.payload.chatId);
+        this.connectionsStateHolder.removeSocketFromChat(client, message.payload.chatId);
     }
 
     public async publishMessageCreated(message: ChatMessage) {
@@ -126,8 +132,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: message
         };
         this.log.debug("Publishing new message");
-        await this.connectionsStateHolder.publishEventToChatParticipants(message.chatId, messageCreatedEvent);
-        await this.connectionsStateHolder.publishEventToUsersSubscribedToChat(message.chatId, messageCreatedEvent);
+        this.connectionsStateHolder.publishEventToChat(message.chatId, messageCreatedEvent);
     }
 
     public async publishMessageUpdated(message: ChatMessage) {
@@ -135,8 +140,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.MESSAGE_UPDATED,
             payload: message
         };
-        await this.connectionsStateHolder.publishEventToChatParticipants(message.chatId, messageUpdatedEvent);
-        await this.connectionsStateHolder.publishEventToUsersSubscribedToChat(message.chatId, messageUpdatedEvent);
+        this.connectionsStateHolder.publishEventToChat(message.chatId, messageUpdatedEvent);
     }
 
     public async publishMessageDeleted(messageDeleted: MessageDeleted) {
@@ -144,14 +148,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.MESSAGE_DELETED,
             payload: messageDeleted
         };
-        this.log.debug(`Publishing ${EventType.MESSAGES_DELETED} event`);
-        this.log.debug(JSON.stringify(messageDeleted));
-
-        await this.connectionsStateHolder.publishEventToChatParticipants(messageDeleted.chatId, messageDeletedEvent);
-        await this.connectionsStateHolder.publishEventToUsersSubscribedToChat(
-            messageDeleted.chatId,
-            messageDeletedEvent
-        );
+        this.connectionsStateHolder.publishEventToChat(messageDeleted.chatId, messageDeletedEvent);
     }
 
     public async publishMessagesDeleted(messagesDeleted: MessagesDeleted) {
@@ -159,11 +156,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.MESSAGES_DELETED,
             payload: messagesDeleted
         };
-        await this.connectionsStateHolder.publishEventToChatParticipants(messagesDeleted.chatId, messagesDeletedEvent);
-        await this.connectionsStateHolder.publishEventToUsersSubscribedToChat(
-            messagesDeleted.chatId,
-            messagesDeletedEvent
-        );
+        this.connectionsStateHolder.publishEventToChat(messagesDeleted.chatId, messagesDeletedEvent);
     }
 
     public async publishUserJoinedChat(createChatParticipationDto: ChatParticipationDto) {
@@ -175,15 +168,8 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             [createChatParticipationDto.user.id],
             userJoinedEvent
         );
-        await this.connectionsStateHolder.publishEventToChatParticipants(
-            createChatParticipationDto.chatId,
-            userJoinedEvent
-        );
-        await this.connectionsStateHolder.publishEventToUsersSubscribedToChat(
-            createChatParticipationDto.chatId,
-            userJoinedEvent
-        );
-        this.connectionsStateHolder.addUserToChat(createChatParticipationDto.user.id, createChatParticipationDto.chatId);
+        this.connectionsStateHolder.publishEventToChat(createChatParticipationDto.chatId, userJoinedEvent);
+        await this.connectionsStateHolder.addUserToChat(createChatParticipationDto.user.id, createChatParticipationDto.chatId);
     }
 
     public async publishUserLeftChat(userLeftChat: UserLeftChat) {
@@ -195,15 +181,8 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             [userLeftChat.userId],
             userLeftEvent
         );
-        await this.connectionsStateHolder.publishEventToChatParticipants(
-            userLeftChat.chatId,
-            userLeftEvent
-        );
-        await this.connectionsStateHolder.publishEventToUsersSubscribedToChat(
-            userLeftChat.chatId,
-            userLeftEvent
-        );
-        this.connectionsStateHolder.removeUserFromChat(userLeftChat.userId, userLeftChat.chatId);
+        await this.connectionsStateHolder.removeUserFromChat(userLeftChat.userId, userLeftChat.chatId);
+        this.connectionsStateHolder.publishEventToChat(userLeftChat.chatId, userLeftEvent);
     }
 
     public async publishUserKickedFromChat(userKickedFromChat: UserKickedFromChat) {
@@ -215,15 +194,8 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             [userKickedFromChat.userId],
             userKickedEvent
         );
-        await this.connectionsStateHolder.publishEventToChatParticipants(
-            userKickedFromChat.chatId,
-            userKickedEvent
-        );
-        await this.connectionsStateHolder.publishEventToUsersSubscribedToChat(
-            userKickedFromChat.chatId,
-            userKickedEvent
-        );
-        this.connectionsStateHolder.removeUserFromChat(userKickedFromChat.userId, userKickedFromChat.chatId);
+        await this.connectionsStateHolder.removeUserFromChat(userKickedFromChat.userId, userKickedFromChat.chatId);
+        this.connectionsStateHolder.publishEventToChat(userKickedFromChat.chatId, userKickedEvent);
     }
 
     public async publishChatBlockingCreated(chatBlocking: ChatBlocking) {
@@ -248,14 +220,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
                 payload: participant,
                 type: EventType.CHAT_PARTICIPANT_WENT_ONLINE
             };
-            this.connectionsStateHolder.publishEventToChatParticipants(
-                participant.chatId,
-                chatParticipantWentOnline
-            )
-            this.connectionsStateHolder.publishEventToUsersSubscribedToChat(
-                participant.chatId,
-                chatParticipantWentOnline
-            );
+            this.connectionsStateHolder.publishEventToChat(participant.chatId, chatParticipantWentOnline);
         })
     }
 
@@ -265,14 +230,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
                 payload: participant,
                 type: EventType.CHAT_PARTICIPANT_WENT_OFFLINE
             };
-            this.connectionsStateHolder.publishEventToChatParticipants(
-                participant.chatId,
-                chatParticipantWentOffline
-            )
-            this.connectionsStateHolder.publishEventToUsersSubscribedToChat(
-                participant.chatId,
-                chatParticipantWentOffline
-            );
+            this.connectionsStateHolder.publishEventToChat(participant.chatId, chatParticipantWentOffline);
         })
     }
 
@@ -281,7 +239,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: chatParticipant,
             type: EventType.CHAT_PARTICIPANT_UPDATED
         };
-        await this.connectionsStateHolder.publishEventToChatParticipants(chatParticipant.chatId, chatParticipantUpdated);
+        this.connectionsStateHolder.publishEventToChat(chatParticipant.chatId, chatParticipantUpdated);
     }
 
     public async publishChatUpdated(chat: Chat) {
@@ -289,10 +247,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: chat,
             type: EventType.CHAT_UPDATED
         };
-        await Promise.all([
-            this.connectionsStateHolder.publishEventToChatParticipants(chat.id, chatUpdated),
-            this.connectionsStateHolder.publishEventToChatParticipants(chat.id, chatUpdated)
-        ]);
+        this.connectionsStateHolder.publishEventToChat(chat.id, chatUpdated);
     }
 
     public async publishChatDeleted(chatDeleted: ChatDeleted) {
@@ -300,10 +255,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: chatDeleted,
             type: EventType.CHAT_DELETED
         };
-        await Promise.all([
-            this.connectionsStateHolder.publishEventToChatParticipants(chatDeleted.id, chatDeletedEvent),
-            this.connectionsStateHolder.publishEventToChatParticipants(chatDeleted.id, chatDeletedEvent)
-        ]);
+        this.connectionsStateHolder.publishEventToChat(chatDeleted.id, chatDeletedEvent);
     }
 
     public async publishGlobalBanCreated(globalBan: GlobalBan) {
@@ -327,10 +279,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: message,
             type: EventType.MESSAGE_PINNED
         };
-        await Promise.all([
-            this.connectionsStateHolder.publishEventToChatParticipants(message.chatId, messagePinnedEvent),
-            this.connectionsStateHolder.publishEventToUsersSubscribedToChat(message.chatId, messagePinnedEvent)
-        ]);
+        this.connectionsStateHolder.publishEventToChat(message.chatId, messagePinnedEvent);
     }
 
     public async publishMessageUnpinned(message: ChatMessage) {
@@ -338,10 +287,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: message,
             type: EventType.MESSAGE_UNPINNED
         };
-        await Promise.all([
-            this.connectionsStateHolder.publishEventToChatParticipants(message.chatId, messageUnpinnedEvent),
-            this.connectionsStateHolder.publishEventToUsersSubscribedToChat(message.chatId, messageUnpinnedEvent)
-        ]);
+        this.connectionsStateHolder.publishEventToChat(message.chatId, messageUnpinnedEvent);
     }
 
     public async publishScheduledMessageCreated(message: ChatMessage) {
@@ -414,7 +360,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: chatRole,
             type: EventType.CHAT_ROLE_CREATED
         };
-        await this.connectionsStateHolder.publishEventToChatParticipants(chatRole.chatId, chatRoleCreated);
+        this.connectionsStateHolder.publishEventToChat(chatRole.chatId, chatRoleCreated);
     }
 
     public async publishChatRoleUpdated(chatRole: ChatRoleResponse) {
@@ -422,7 +368,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: chatRole,
             type: EventType.CHAT_ROLE_UPDATED
         };
-        await this.connectionsStateHolder.publishEventToChatParticipants(chatRole.chatId, chatRoleUpdated);
+        this.connectionsStateHolder.publishEventToChat(chatRole.chatId, chatRoleUpdated);
     }
 
     public async publishBalanceUpdated(balance: BalanceUpdated) {
@@ -438,10 +384,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             payload: userStartedTyping,
             type: EventType.USER_STARTED_TYPING
         };
-        await Promise.all([
-            this.connectionsStateHolder.publishEventToChatParticipants(userStartedTyping.chatId, event),
-            this.connectionsStateHolder.publishEventToUsersSubscribedToChat(userStartedTyping.chatId, event)
-        ]);
+        this.connectionsStateHolder.publishEventToChat(userStartedTyping.chatId, event);
     }
 
     public async publishChatNotificationsSettingsUpdated(chatNotificationsSettingsUpdated: ChatNotificationsSettingsUpdated) {
@@ -516,8 +459,7 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.MESSAGE_REACTION_ADDED,
             payload: messageReactionAdded
         };
-        await this.connectionsStateHolder.publishEventToChatParticipants(messageReactionAdded.chatId, event);
-        await this.connectionsStateHolder.publishEventToUsersSubscribedToChat(messageReactionAdded.chatId, event);
+        this.connectionsStateHolder.publishEventToChat(messageReactionAdded.chatId, event);
     }
 
     public async publishMessageReactionDeleted(messageReactionDeleted: MessageReactionDeleted): Promise<void> {
@@ -525,7 +467,6 @@ export class WebsocketEventsPublisher implements OnGatewayConnection, OnGatewayD
             type: EventType.MESSAGE_REACTION_DELETED,
             payload: messageReactionDeleted
         };
-        await this.connectionsStateHolder.publishEventToChatParticipants(messageReactionDeleted.chatId, event);
-        await this.connectionsStateHolder.publishEventToUsersSubscribedToChat(messageReactionDeleted.chatId, event);
+        this.connectionsStateHolder.publishEventToChat(messageReactionDeleted.chatId, event);
     }
 }

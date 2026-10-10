@@ -27,7 +27,8 @@ export class KickChatParticipantStore {
         ChatApi.deleteChatParticipation(this.selectedChatId, chatParticipantId)
             .then(() => {
                 this.entities.chatParticipations.deleteById(chatParticipantId, {
-                    decreaseChatParticipantsCount: true
+                    // DO NOT update chat participants count here, it will be updated from websocket event
+                    decreaseChatParticipantsCount: false
                 });
                 this.setShowSnackbar(true);
             })

@@ -115,7 +115,7 @@ export class MessagesStore
         const patch = this.createEmptyEntitiesPatch("messages", "chats");
         const patches: EntitiesPatch[] = [];
 
-        messages.forEach(message => {
+        messages.forEach((message, index) => {
             patch.entities.messages.set(message.id, this.convertToNormalizedForm(message));
 
             const chat = insertOptions?.skipUpdatingChat
@@ -126,7 +126,9 @@ export class MessagesStore
                 chat.messages = uniq(chat.messages.concat(message.id));
                 chat.indexToMessageMap[message.index] = message.id;
 
-                if (!insertOptions?.skipSettingLastMessage) {
+                // messages are received in reverse order from server so we set last message of chat to the first
+                // element of the array
+                if (!insertOptions?.skipSettingLastMessage && index === 0) {
                     chat.lastMessage = message.id;
                 }
 

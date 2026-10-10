@@ -234,20 +234,11 @@ export class WebsocketStore {
         );
         map.set(
             WebsocketEventType.USER_KICKED_FROM_CHAT,
-            (event: WebsocketEvent<UserKickedFromChat>) => this.entities.chatParticipations.deleteById(
-                event.payload.chatParticipationId,
-                {decreaseChatParticipantsCount: true}
-            )
+            (event: WebsocketEvent<UserKickedFromChat>) => this.handleUserLeftChat(event.payload)
         );
         map.set(
             WebsocketEventType.USER_LEFT_CHAT,
-            (event: WebsocketEvent<UserLeftChat>) => this.entities.chatParticipations.deleteById(
-                event.payload.chatParticipationId,
-                {
-                    decreaseChatParticipantsCount: true,
-                    clearCurrentUserChatParticipationId: event.payload.userId === this.currentUser?.id
-                }
-            )
+            (event: WebsocketEvent<UserLeftChat>) => this.handleUserLeftChat(event.payload)
         );
         map.set(
             WebsocketEventType.CHAT_DELETED,
@@ -434,11 +425,12 @@ export class WebsocketStore {
             return;
         }
 
-        this.entities.chatParticipations.insert(chatParticipation, {increaseChatParticipantsCount: true});
-        this.entities.chats.insertEntity({
-            ...chat,
-            currentUserParticipationId: chatParticipation.id
-        });
+        if (!this.entities.chatParticipations.findByIdOptional(chatParticipation.id)) {
+            this.entities.chatParticipations.insert(chatParticipation, {
+                increaseChatParticipantsCount: true,
+                setCurrentUserChatParticipationId: chatParticipation.user.id === this.currentUser?.id
+            });
+        }
 
         if (!chat.lastMessage) {
             this.messagesOfChatStore.fetchMessages({
@@ -456,6 +448,36 @@ export class WebsocketStore {
                 this.locale.getCurrentLanguageLabel("chat.join.request.approved", {chatName: chat.name})
             );
         }
+    }
+
+    private handleUserLeftChat(event: UserLeftChat | UserKickedFromChat): void {
+        runInAction(() => {
+            const chat = this.entities.chats.findByIdOptional(event.chatId);
+
+            if (!chat) {
+                return;
+            }
+
+            const existingChatParticipation = this.entities.chatParticipations.findByIdOptional(event.chatParticipationId);
+
+            if (existingChatParticipation) {
+                this.entities.chatParticipations.deleteById(
+                    event.chatParticipationId,
+                    {
+                        decreaseChatParticipantsCount: true,
+                        clearCurrentUserChatParticipationId: event.userId === this.currentUser?.id
+                    }
+                );
+            } else {
+                /*
+                TODO: we should move tracking of participants count off the client
+                and update it with events from websocket
+                because it's so easy to make a mistake and update it twice from multiple places
+                */
+                chat.participantsCount = chat.participantsCount - 1;
+                this.entities.chats.insertEntity(chat);
+            }
+        });
     }
 
     private getChat = async (chatId: string): Promise<ChatOfCurrentUserEntity | undefined> => {

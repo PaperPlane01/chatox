@@ -17,7 +17,8 @@ export class LeaveChatStore {
 
         ChatApi.leaveChat(chatId)
             .then(() => this.entities.chatParticipations.deleteById(chatParticipationId, {
-                decreaseChatParticipantsCount: true,
+                // DO NOT update chat participant count, it will be updated from websocket event
+                decreaseChatParticipantsCount: false,
                 clearCurrentUserChatParticipationId: true
             }))
             .catch(error => runInAction(() => this.error = getInitialApiErrorFromResponse(error)))

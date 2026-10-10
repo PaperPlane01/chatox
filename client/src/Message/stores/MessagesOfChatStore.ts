@@ -162,7 +162,7 @@ export class MessagesOfChatStore {
        }
 
        if (options.beforeId || cleanupState === "absent") {
-           this.fetchMessagesFromApi(chatId, options.beforeId);
+           this.fetchMessagesFromApi(chatId, options.beforeId, options.skipSettingLastMessage);
        } else if (cleanupState === "cleaned") {
            this.fetchMessagesFromDatabase(chatId);
        } else {
