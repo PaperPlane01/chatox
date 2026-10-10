@@ -1,6 +1,6 @@
 package chatox.sticker.api.response
 
-import chatox.sticker.model.EmojiData
+import chatox.platform.text.api.response.EmojiData
 import chatox.sticker.model.StickerUploadMetadata
 
 data class StickerResponse(
