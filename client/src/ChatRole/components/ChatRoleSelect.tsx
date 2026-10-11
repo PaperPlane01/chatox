@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {CircularProgress, FormControl, FormHelperText, InputLabel, MenuItem, Select} from "@mui/material";
 import {getChatRoleTranslation} from "../utils";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {useEntitiesByIds} from "../../entities";
 
 interface ChatRoleSelectProps {

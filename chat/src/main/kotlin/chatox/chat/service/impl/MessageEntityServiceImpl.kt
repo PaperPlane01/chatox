@@ -1,12 +1,11 @@
 package chatox.chat.service.impl
 
 import chatox.chat.api.response.MessageResponse
-import chatox.chat.exception.MessageNotFoundException
+import chatox.chat.exception.metadata.MessageNotFoundException
 import chatox.chat.mapper.MessageMapper
 import chatox.chat.messaging.rabbitmq.event.DraftMessageDeleted
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.DraftMessage
-import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.DraftMessageRepository
@@ -15,6 +14,7 @@ import chatox.chat.service.MessageEntityService
 import chatox.chat.util.runAsync
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.text.api.response.EmojiInfo
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -142,6 +142,14 @@ class MessageEntityServiceImpl(
             return@mono message
         }
             .switchIfEmpty(Mono.defer { onEmptyMessage(id, throwIfNotFound) })
+    }
+
+    override fun ensureMessageExists(id: String): Mono<Unit> {
+        return mono {
+            findMessageEntityById(id).awaitFirstOrNull()
+                ?: throw MessageNotFoundException("Couldn't find message by id: $id")
+            return@mono
+        }
     }
 
     private fun onEmptyMessage(id: String, throwIfNotFound: Boolean): Mono<Message> {

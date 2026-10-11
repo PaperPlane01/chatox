@@ -1,10 +1,10 @@
 import {keys, makeAutoObservable, observable, ObservableMap} from "mobx";
 import {computedFn} from "mobx-utils";
+import {differenceInSeconds} from "date-fns";
 import {EntitiesStore} from "../../entities-store";
-import {AuthorizationStore} from "../../Authorization";
+import {AuthorizationStore} from "../../Authorization/stores";
 import {CurrentUser} from "../../api/types/response";
 import {UserStartedTyping} from "../../api/types/websocket";
-import {differenceInSeconds} from "date-fns";
 
 export class TypingUsersStore {
     typingUsers: ObservableMap<string, ObservableMap<string, Date>> = observable.map();

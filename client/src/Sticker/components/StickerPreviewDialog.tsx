@@ -3,8 +3,8 @@ import {observer} from "mobx-react";
 import {Button, Chip, Dialog, DialogActions, DialogContent, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {Sticker} from "./Sticker";
-import {useLocalization, useStore} from "../../store";
-import {Countdown} from "../../Countdown";
+import {useLocalization, useStore} from "../../store/hooks";
+import {Countdown} from "../../Countdown/components";
 import {useEntityById} from "../../entities";
 import {commonStyles} from "../../style";
 

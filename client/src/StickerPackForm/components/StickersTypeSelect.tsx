@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {FormControl, InputLabel, MenuItem, Select} from "@mui/material";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {STICKER_TYPES, StickerType} from "../../api/types/response";
 import {Labels} from "../../localization";
 

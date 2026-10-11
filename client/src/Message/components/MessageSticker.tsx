@@ -2,8 +2,8 @@ import React, {FunctionComponent, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {ImageList, ImageListItem} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import {Sticker} from "../../Sticker";
-import {useStore} from "../../store";
+import {Sticker} from "../../Sticker/components";
+import {useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {isLottieSticker} from "../../api/types/response";
 

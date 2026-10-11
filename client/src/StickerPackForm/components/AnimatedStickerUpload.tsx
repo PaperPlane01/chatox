@@ -6,7 +6,7 @@ import {StickerUploadProps} from "./StickerUploadProps";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 
 interface AnimatedStickerUploadProps extends StickerUploadProps {
 	icon: ReactNode,

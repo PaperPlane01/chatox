@@ -4,7 +4,7 @@ import {IconButton, Menu} from "@mui/material";
 import {Send} from "@mui/icons-material";
 import {LongPressCallbackReason, useLongPress} from "use-long-press";
 import {SendMessageMenuItem} from "./SendMessageMenuItem";
-import {ShowPreviewMenuItem} from "../../Message";
+import {ShowPreviewMenuItem} from "../../Message/components";
 
 interface SendMessageButtonProps {
     onClick: () => void,

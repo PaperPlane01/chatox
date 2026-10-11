@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {AudioPlayerControls} from "../../AudioPlayer";
+import {AudioPlayerControls} from "../../AudioPlayer/components";
 import {AudioType} from "../../AudioPlayer/types";
 
 interface MessageAudiosProps {

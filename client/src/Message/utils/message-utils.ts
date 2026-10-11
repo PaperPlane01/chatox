@@ -1,5 +1,5 @@
-import {MessageEntity, MessageUploadsStats, UploadsGroupedByType} from "../types";
-import {Message, Upload, UploadType} from "../../api/types/response";
+import {MessageEntity, MessageEntityReactionsCountMap, MessageUploadsStats, UploadsGroupedByType} from "../types";
+import {Message, MessageReactionsCountMap, Upload, UploadType} from "../../api/types/response";
 
 export const sortMessages = (leftMessageId: string, rightMessageId: string, findMessage: (messageId: string) => MessageEntity, reverse: boolean): number => {
     const leftMessage = findMessage(leftMessageId);
@@ -51,8 +51,32 @@ export const convertMessageToNormalizedForm = (message: Message): MessageEntity 
         forwardedFromChatId: message.forwardedFromChatId,
         forwardedFromMessageId: message.forwardedFromMessageId,
         readByAnyone: message.readByAnyone,
-        mentionedUsers: message.mentionedUsers.map(user => user.id)
+        mentionedUsers: message.mentionedUsers.map(user => user.id),
+        reactionsCount: getReactionsCount(message.reactionsCount)
     };
+};
+
+const getReactionsCount = (messageReactionsCountMap: MessageReactionsCountMap): MessageEntityReactionsCountMap => {
+    const result: MessageEntityReactionsCountMap = {};
+
+    Object.keys(messageReactionsCountMap).forEach(emojiId => {
+        const {
+            emoji,
+            lastReactions,
+            count,
+            reactedByCurrentUser,
+            currentUserReaction
+        } = messageReactionsCountMap[emojiId];
+        result[emojiId] = {
+            emoji,
+            count,
+            reactedByCurrentUser,
+            lastReactions: lastReactions.map(reaction => reaction.id),
+            currentUserReactionId: currentUserReaction?.id
+        }
+    });
+
+    return result;
 };
 
 export const splitUploads = (uploads: Array<Upload<any>>): UploadsGroupedByType => {

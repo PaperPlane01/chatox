@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Button, Card, CardActions, CardContent, CardHeader, Theme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {NotificationLevelSelect} from "./NotificationLevelSelect";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {ChatType} from "../../api/types/response";
 import {Labels} from "../../localization";
 import {ChatNotificationExceptionsButton} from "./ChatNotificationExceptionsButton";

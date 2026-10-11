@@ -2,7 +2,7 @@ import React, {FunctionComponent, MouseEvent} from "react";
 import {observer} from "mobx-react";
 import {IconButton, CircularProgress, Tooltip} from "@mui/material";
 import {Cancel} from "@mui/icons-material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 
 interface CancelGlobalBanButtonProps {

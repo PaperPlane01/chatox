@@ -1,8 +1,8 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
 import {PaginationState} from "../../utils/types";
-import {ChatStore} from "../../Chat";
-import {EntitiesStore} from "../../entities-store";
+import type {ChatStore} from "../../Chat/stores";
+import type {EntitiesStore} from "../../entities-store";
 import {ApiError, ChatInviteApi, getInitialApiErrorFromResponse} from "../../api";
 
 const INITIAL_PAGINATION_STATE: PaginationState = {

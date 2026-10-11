@@ -1,0 +1,15 @@
+{
+  "id": "6a2d3d2cbe233c0c5bcd56f9",
+  "_class": "chatox.chat.model.MessageReactionsCount",
+  "count": 1,
+  "emoji": {
+    "_id": "grin",
+    "name": "Beaming Face with Smiling Eyes",
+    "colons": ":grin:",
+    "unified": "1f601",
+    "native": "\uD83D\uDE01",
+    "originalSet": "apple"
+  },
+  "emojiId": "grin",
+  "messageId": "c07fc864-794d-4fb9-9dc7-878495cbe793"
+}

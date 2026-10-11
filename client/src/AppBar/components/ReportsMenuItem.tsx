@@ -5,7 +5,7 @@ import {ArrowDownward, ArrowUpward, ChatBubble, Message, Person, Report} from "@
 import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
 import {commonStyles} from "../../style";
-import {useLocalization, useRouter} from "../../store";
+import {useLocalization, useRouter} from "../../store/hooks";
 import {Routes} from "../../router";
 
 interface ReportsMenuItemProps {

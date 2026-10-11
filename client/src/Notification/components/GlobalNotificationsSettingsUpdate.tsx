@@ -7,7 +7,7 @@ import {UpdateChatNotificationsSettingsDialog} from "./UpdateChatNotificationsSe
 import {ChatNotificationExceptionsDialog} from "./ChatNotificationExceptionsDialog";
 import {UpdateUserNotificationsSettingsInChatDialog} from "./UpdateUserNotificationsSettingsInChatDialog";
 import {ChatType} from "../../api/types/response";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {UserNotificationExceptionsDialog} from "./UserNotificationExceptionsDialog";
 
 export const GlobalNotificationsSettingsUpdate: FunctionComponent = observer(() => {

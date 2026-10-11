@@ -1,11 +1,11 @@
 import {action, makeObservable, reaction} from "mobx";
 import {AbstractChatFeatureFormStore} from "./AbstractChatFeatureFormStore";
+import {ConvertableChatFeatureFormStore} from "./ConvertableChatFeatureFormStore";
 import {validateFromLevel, validateUpToLevel} from "../validation";
 import {ChatFeatures, LevelBasedChatFeatureData} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {LevelBasedFeatureFromData} from "../types";
 import {FormErrors} from "../../utils/types";
-import {ConvertableChatFeatureFormStore} from "./ConvertableChatFeatureFormStore";
 import {containsNotUndefinedValues, isDefined} from "../../utils/object-utils";
 
 const INITIAL_FORM_VALUES: LevelBasedFeatureFromData = {

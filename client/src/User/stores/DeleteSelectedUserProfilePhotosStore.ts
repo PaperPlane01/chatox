@@ -1,15 +1,15 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {UserProfilePhotosGalleryStore} from "./UserProfilePhotosGalleryStore";
-import {SelectedUserProfilePhotosStore} from "./SelectedUserProfilePhotosStore";
-import {UserProfileStore} from "./UserProfileStore";
+import type {UserProfilePhotosGalleryStore} from "./UserProfilePhotosGalleryStore";
+import type {SelectedUserProfilePhotosStore} from "./SelectedUserProfilePhotosStore";
+import type {UserProfileStore} from "./UserProfileStore";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
-import {SnackbarService} from "../../Snackbar";
+import type {EntitiesStore} from "../../entities-store";
+import type {SnackbarService} from "../../Snackbar/services";
 import {LocaleStore} from "../../localization";
 import {CurrentUser} from "../../api/types/response";
 import {UserEntity} from "../types";
 import {isDefined} from "../../utils/object-utils";
-import {AuthorizationStore} from "../../Authorization";
+import type {AuthorizationStore} from "../../Authorization/stores";
 
 export class DeleteSelectedUserProfilePhotosStore {
     pending = false;

@@ -1,13 +1,13 @@
 import {makeAutoObservable, reaction} from "mobx";
-import {throttle} from "lodash";
-import {RegistrationDialogStore} from "./RegistrationDialogStore";
+import {throttle} from "lodash-es";
+import type {RegistrationDialogStore} from "./RegistrationDialogStore";
 import {validateEmail} from "../validation";
 import {RegistrationStep, SendVerificationEmailFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {EmailConfirmationCodeType} from "../../api/types/request";
 import {EmailConfirmationCodeResponse} from "../../api/types/response";
 import {ApiError, EmailConfirmationCodeApi, getInitialApiErrorFromResponse} from "../../api";
-import {LocaleStore} from "../../localization/stores";
+import type {LocaleStore} from "../../localization/stores";
 
 export class SendConfirmationCodeStore {
     sendVerificationEmailForm: SendVerificationEmailFormData = {

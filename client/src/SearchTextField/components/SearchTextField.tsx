@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {IconButton, InputAdornment, TextField, TextFieldProps} from "@mui/material";
 import {Close, Search} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 
 const useStyles = makeStyles()(() => ({
     inputRoot: {

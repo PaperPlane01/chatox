@@ -2,9 +2,9 @@ import {makeAutoObservable, observable, reaction, runInAction} from "mobx";
 import {differenceInMilliseconds, isAfter, isBefore} from "date-fns";
 import {UserRewardEntity} from "../types";
 import {ApiError, RewardApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {Duration} from "../../utils/date-utils";
-import {AuthorizationStore} from "../../Authorization";
+import type {AuthorizationStore} from "../../Authorization/stores";
 
 export class ClaimableRewardsStore {
     pending = false;

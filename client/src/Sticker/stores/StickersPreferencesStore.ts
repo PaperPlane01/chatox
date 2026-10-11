@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {isInteger} from "lodash";
+import {isInteger} from "lodash-es";
 import {isDefined} from "../../utils/object-utils";
 
 export class StickersPreferencesStore {

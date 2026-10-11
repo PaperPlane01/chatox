@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {Delete} from "@mui/icons-material";
 
 interface DeletePhotoMenuItemProps {

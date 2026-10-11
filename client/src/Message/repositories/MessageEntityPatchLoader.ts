@@ -38,7 +38,6 @@ export class MessageEntityPatchLoader implements EntityPatchLoader<MessageEntity
 	async restoreEntityPatchForEntities(entities: MessageEntity[]): Promise<EntitiesPatch> {
 		if (entities.length === 0) {
 			return {
-				ids: {},
 				entities: {}
 			};
 		}

@@ -1,4 +1,5 @@
 import {MouseEvent as ReactMouseEvent, SyntheticEvent, UIEvent} from "react";
+import {LongPressCallbackReason, LongPressOptions} from "use-long-press";
 
 export const ensureEventWontPropagate = (event: ReactMouseEvent | SyntheticEvent<any>): void => {
     event.preventDefault();
@@ -24,3 +25,8 @@ export const isPointerEvent = <Target extends Element>(event: SyntheticEvent<Tar
 
     return (PointerEvent && event.nativeEvent instanceof PointerEvent) || "pointerId" in event.nativeEvent;
 };
+
+export const createLongPressOptions = (onClick?: () => void): LongPressOptions => ({
+    onCancel: (_, {reason}) => reason === LongPressCallbackReason.CancelledByRelease && onClick?.(),
+    filterEvents: event => isPointerEvent(event) ? event.button !== 2 : true
+});

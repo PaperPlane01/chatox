@@ -2,7 +2,7 @@ import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Typography} from "@mui/material";
 import {DefaultChatFeature} from "./DefaultChatFeature";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {LevelBasedChatFeatureData} from "../../api/types/response";
 import {isDefined} from "../../utils/object-utils";
 

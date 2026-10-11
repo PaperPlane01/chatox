@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {UserSelect} from "../../UserSelect";
-import {useStore} from "../../store";
+import {UserSelect} from "../../UserSelect/components";
+import {useStore} from "../../store/hooks";
 
 export const ChatInviteUpdateUserSelect: FunctionComponent = observer(() => {
     const {

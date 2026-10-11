@@ -1,14 +1,22 @@
-import {merge, mergeWith, uniq} from "lodash";
+import {merge, mergeWith, uniq} from "lodash-es";
 import {MessageInsertOptions} from "../types";
 import {convertMessageToNormalizedForm} from "../utils";
 import {SoftDeletableEntityStore} from "../../entity-store";
-import {EntitiesPatch, EntitiesStore, GetEntityType, RawEntitiesStore, RelationshipsIds} from "../../entities-store";
+import {
+    EntitiesPatch,
+    type EntitiesStore,
+    GetEntityType,
+    type RawEntitiesStore,
+    RelationshipsIds
+} from "../../entities-store";
 import {Message} from "../../api/types/response";
 import {isDefined, mergeCustomizer} from "../../utils/object-utils";
-import {UserChatRolesStore} from "../../ChatRole";
+import type {UserChatRolesStore} from "../../ChatRole/stores";
 import {RequiredField} from "../../utils/types";
 
-export class MessagesStore<MessageType extends "messages" | "scheduledMessages" | "draftMessages">
+type MessageType = "messages" | "scheduledMessages" | "draftMessages";
+
+export class MessagesStore
     extends SoftDeletableEntityStore<MessageType, GetEntityType<MessageType>, Message, MessageInsertOptions> {
 
     constructor(rawEntities: RawEntitiesStore,
@@ -25,11 +33,12 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages" 
             return [message, {}];
         }
 
-        const relationships: RequiredField<RelationshipsIds, "users" | "uploads" | "stickers" | "chatRoles"> = {
+        const relationships: RequiredField<RelationshipsIds, "users" | "uploads" | "stickers" | "chatRoles" | "messageReactions"> = {
             users: [],
             uploads: [],
             stickers: [],
-            chatRoles: []
+            chatRoles: [],
+            messageReactions: []
         };
 
         const [sender, senderRelationships] = this.entities.users.findByIdWithRelationships(message.sender);
@@ -58,6 +67,16 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages" 
         if (senderRole) {
             relationships.chatRoles.push(senderRole.id);
         }
+
+        const messageReactionsIds = Object.keys(message.reactionsCount)
+            .flatMap(emojiId => [...message.reactionsCount[emojiId].lastReactions, message.reactionsCount[emojiId].currentUserReactionId])
+            .filter(isDefined);
+        this.entities.messageReactions.findAllByIdWithRelationships(messageReactionsIds)
+            .forEach(([reaction, reactionRelationships]) => {
+                relationships.messageReactions.push(reaction.id);
+                relationships.users.push(...reactionRelationships.users ?? []);
+                relationships.uploads.push(...reactionRelationships.uploads ?? []);
+            });
 
         mentionedUsersWithRelationships.forEach(([user]) => relationships.users.push(user.id));
         const nestedRelationships = merge(
@@ -96,9 +115,8 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages" 
         const patch = this.createEmptyEntitiesPatch("messages", "chats");
         const patches: EntitiesPatch[] = [];
 
-        messages.forEach(message => {
-            patch.entities.messages[message.id] = this.convertToNormalizedForm(message);
-            patch.ids.messages.push(message.id);
+        messages.forEach((message, index) => {
+            patch.entities.messages.set(message.id, this.convertToNormalizedForm(message));
 
             const chat = insertOptions?.skipUpdatingChat
                 ? undefined
@@ -108,16 +126,17 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages" 
                 chat.messages = uniq(chat.messages.concat(message.id));
                 chat.indexToMessageMap[message.index] = message.id;
 
-                if (!insertOptions || !insertOptions.skipSettingLastMessage) {
+                // messages are received in reverse order from server so we set last message of chat to the first
+                // element of the array
+                if (!insertOptions?.skipSettingLastMessage && index === 0) {
                     chat.lastMessage = message.id;
                 }
 
-                if (insertOptions && insertOptions.pinnedMessageId === message.id) {
+                if (insertOptions?.pinnedMessageId === message.id) {
                     chat.pinnedMessageId = message.id;
                 }
 
-                patch.entities.chats[message.chatId] = chat;
-                patch.ids.chats.push(message.chatId);
+                patch.entities.chats.set(chat.id, chat);
             }
 
             patches.push(this.createUsersPatch(message));
@@ -150,6 +169,14 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages" 
                     )
                 );
             }
+
+            const reactions = Object.keys(message.reactionsCount)
+                .flatMap(emojiId => [
+                    ...message.reactionsCount[emojiId].lastReactions,
+                    message.reactionsCount[emojiId].currentUserReaction
+                ])
+                .filter(isDefined);
+            patches.push(this.entities.messageReactions.createPatchForArray(reactions));
         });
 
         return mergeWith(patch, ...patches, mergeCustomizer);
@@ -160,14 +187,12 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages" 
         const patches: EntitiesPatch[] = [];
 
         messages.forEach(message => {
-            patch.entities.scheduledMessages[message.id] = this.convertToNormalizedForm(message);
-            patch.ids.scheduledMessages.push(message.id);
+            patch.entities.scheduledMessages.set(message.id, this.convertToNormalizedForm(message));
 
-            const chat = this.rawEntities.entities.chats[message.chatId];
+            const chat = this.entities.chats.findById(message.chatId);
             chat.scheduledMessages.push(message.id);
 
-            patch.entities.chats[message.chatId] = chat;
-            patch.ids.chats.push(message.chatId);
+            patch.entities.chats.set(message.id, chat);
 
             patches.push(this.createUsersPatch(message));
 
@@ -206,16 +231,14 @@ export class MessagesStore<MessageType extends "messages" | "scheduledMessages" 
         const patches: EntitiesPatch[] = [];
 
         draftMessages.forEach(draftMessage => {
-            patch.entities.draftMessages[draftMessage.id] = convertMessageToNormalizedForm(draftMessage);
-            patch.ids.draftMessages.push(draftMessage.id);
+            patch.entities.draftMessages.set(draftMessage.id, convertMessageToNormalizedForm(draftMessage))
 
             patches.push(this.createUsersPatch(draftMessage));
 
             if (options?.setDraftMessageToChat) {
                 const chat = this.entities.chats.findById(draftMessage.chatId);
                 chat.draftMessageId = draftMessage.id;
-                patch.entities.chats[chat.id] = chat;
-                patch.ids.chats.push(chat.id);
+                patch.entities.chats.set(chat.id, chat);
             }
 
             if (draftMessage.attachments.length !== 0) {

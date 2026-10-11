@@ -5,7 +5,7 @@ import {Close} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
 import {UserInteractionsHistoryTable} from "./UserInteractionsHistoryTable";
 import {commonStyles} from "../../style";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 
 const useStyles = makeStyles()(() => ({

@@ -1,4 +1,4 @@
-import {useAuthorization, usePermissions, useStore} from "../../store";
+import {useAuthorization, usePermissions, useStore} from "../../store/hooks";
 
 export interface UseChatManagementPermissions {
     canUpdateChat: boolean,

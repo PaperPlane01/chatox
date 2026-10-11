@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton} from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
 import {CreateChatRoleForm} from "./CreateChatRoleForm";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 
 export const CreateChatRoleDialog: FunctionComponent = observer(() => {

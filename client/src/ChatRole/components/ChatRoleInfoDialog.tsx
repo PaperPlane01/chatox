@@ -5,7 +5,7 @@ import {ArrowBack, Edit} from "@mui/icons-material";
 import {ChatRoleFeatures} from "./ChatRoleFeatures";
 import {EditChatRoleForm} from "./EditChatRoleForm";
 import {getChatRoleTranslation} from "../utils";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 

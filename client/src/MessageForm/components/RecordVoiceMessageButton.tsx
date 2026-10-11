@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {IconButton, ListItemIcon, ListItemText, Menu, MenuItem} from "@mui/material";
 import {KeyboardVoice} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {AttachAudioMenuItem} from "./AttachAudioMenuItem";
 import {UploadType} from "../../api/types/response";
 import {createAttachFileButtonStyles} from "../../style";

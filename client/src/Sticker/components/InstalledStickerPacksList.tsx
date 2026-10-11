@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, Typography, List} from "@mui/material";
 import {RouterStore, Link} from "mobx-router";
 import {StickerPacksListItem} from "./StickerPacksListItem";
-import {useStore, useLocalization, useRouter} from "../../store";
+import {useStore, useLocalization, useRouter} from "../../store/hooks";
 import {Language} from "../../localization";
 import {Routes} from "../../router";
 

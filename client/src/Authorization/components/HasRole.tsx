@@ -2,7 +2,7 @@ import React, {Fragment, FunctionComponent, PropsWithChildren, ReactElement} fro
 import {observer} from "mobx-react";
 import {AuthorizationStore} from "../stores";
 import {convertStringToUserRole} from "../../api/types/response";
-import {useAuthorization, useStore} from "../../store";
+import {useAuthorization, useStore} from "../../store/hooks";
 
 interface HasRoleProps {
     role: "ROLE_ADMIN" | "ROLE_USER" | "ROLE_ANONYMOUS_USER" | "ROLE_ACCESS_TOKEN_PRESENT" | "ROLE_NOT_LOGGED_IN",

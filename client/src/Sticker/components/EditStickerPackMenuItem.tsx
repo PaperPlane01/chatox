@@ -2,7 +2,7 @@ import React, {FunctionComponent, MouseEvent, SyntheticEvent} from "react";
 import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
 import {Edit} from "@mui/icons-material";
 import {observer} from "mobx-react";
-import {useLocalization, useRouter} from "../../store";
+import {useLocalization, useRouter} from "../../store/hooks";
 import {Routes} from "../../router";
 
 interface EditStickerPackMenuItemProps {

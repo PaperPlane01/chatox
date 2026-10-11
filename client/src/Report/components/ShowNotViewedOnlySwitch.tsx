@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {FormControlLabel, Switch} from "@mui/material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const ShowNotViewedOnlySwitch: FunctionComponent = observer(() => {
     const {l} = useLocalization();

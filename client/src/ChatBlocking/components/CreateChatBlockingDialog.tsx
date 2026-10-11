@@ -24,12 +24,12 @@ import randomColor from "randomcolor";
 import {HttpStatusCode} from "axios";
 import {RecentMessagesDeletionPeriod} from "../types";
 import {Labels, TranslationFunction} from "../../localization";
-import {Avatar} from "../../Avatar";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {useLuminosity, useMobileDialog} from "../../utils/hooks";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {getUserDisplayedName} from "../../User/utils/labels";
+import {UserAvatar} from "../../UserAvatar/components";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     blockedUserContainer: {
@@ -81,7 +81,6 @@ export const CreateChatBlockingDialog: FunctionComponent = observer(() => {
     }
 
     const userName = getUserDisplayedName(user);
-    const avatarLetters = getUserAvatarLabel(user);
     const color = randomColor({seed: user.id, luminosity});
 
     return (
@@ -101,11 +100,9 @@ export const CreateChatBlockingDialog: FunctionComponent = observer(() => {
                     }}>
                         {l("chat.blocking.block-user")}
                     </Typography>
-                    <Avatar avatarLetter={avatarLetters}
-                            avatarColor={color}
-                            avatarId={user.avatarId}
-                            width={25}
-                            height={25}
+                    <UserAvatar user={user}
+                                width={25}
+                                height={25}
                     />
                     <Typography style={{color}}>
                         {userName}

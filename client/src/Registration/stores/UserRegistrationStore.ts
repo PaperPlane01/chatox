@@ -1,7 +1,7 @@
 import {makeAutoObservable, reaction} from "mobx";
-import {throttle} from "lodash";
-import {SendConfirmationCodeStore} from "./SendConfirmationCodeStore";
-import {RegistrationDialogStore} from "./RegistrationDialogStore";
+import {throttle} from "lodash-es";
+import type {SendConfirmationCodeStore} from "./SendConfirmationCodeStore";
+import type {RegistrationDialogStore} from "./RegistrationDialogStore";
 import {
     validateFirstName,
     validateLastName,
@@ -14,9 +14,9 @@ import {RegisterUserFormData} from "../types";
 import {API_UNREACHABLE_STATUS, ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {EmailConfirmationCodeResponse, RegistrationResponse, UserVerificationLevel} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
-import {AuthorizationStore} from "../../Authorization";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {isStringEmpty} from "../../utils/string-utils";
-import {CheckEmailConfirmationCodeStore} from "../../EmailConfirmation/stores";
+import type {CheckEmailConfirmationCodeStore} from "../../EmailConfirmation/stores";
 
 export class UserRegistrationStore {
     registrationForm: RegisterUserFormData = {

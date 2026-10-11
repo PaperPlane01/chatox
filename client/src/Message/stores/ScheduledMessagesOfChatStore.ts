@@ -2,8 +2,8 @@ import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
 import {ChatMessagesFetchingStateMap} from "../types";
 import {createSortMessages} from "../utils";
-import {ChatStore} from "../../Chat";
-import {EntitiesStore} from "../../entities-store";
+import type {ChatStore} from "../../Chat/stores";
+import type {EntitiesStore} from "../../entities-store";
 import {FetchOptions} from "../../utils/types";
 import {MessageApi} from "../../api";
 

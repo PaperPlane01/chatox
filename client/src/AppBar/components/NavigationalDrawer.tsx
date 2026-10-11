@@ -11,15 +11,20 @@ import {GlobalBansMenuItem} from "./GlobalBansMenuItem";
 import {ReportsMenuItem} from "./ReportsMenuItem";
 import {RewardsManagementMenuItem} from "./RewardsManagementMenuItem";
 import {PendingChatsMenuItem} from "./PendingChatsMenuItem";
-import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
-import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
-import {PasswordRecoveryDialog} from "../../PasswordRecovery";
-import {BalanceList} from "../../Balance";
-import {useStore} from "../../store";
+import {HasAnyRole, HasRole, LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization/components";
+import {RegistrationDialog, RegistrationMenuItem} from "../../Registration/components";
+import {PasswordRecoveryDialog} from "../../PasswordRecovery/components";
+import {BalanceList} from "../../Balance/components";
+import {useStore} from "../../store/hooks";
+import {DarkModeSwitch} from "../../Theme/components";
 
 export const NavigationalDrawer: FunctionComponent = observer(() => {
-    const {appBar} = useStore();
-    const {drawerExpanded, setDrawerExpanded} = appBar;
+    const {
+        appBar: {
+            drawerExpanded,
+            setDrawerExpanded
+        }
+    } = useStore();
 
     const closeDrawer = (): void => setDrawerExpanded(false);
     const openDrawer = (): void => setDrawerExpanded(true);
@@ -72,6 +77,7 @@ export const NavigationalDrawer: FunctionComponent = observer(() => {
                 <HasRole role="ROLE_USER">
                     <BalanceList/>
                 </HasRole>
+                <DarkModeSwitch/>
                 <DrawerAudioControls/>
             </SwipeableDrawer>
             <LoginDialog/>

@@ -9,7 +9,7 @@ import {RichTextMessageForm} from "./RichTextMessageForm";
 import {MessageFormMessageCard} from "./MessageFormMessageCard";
 import {StickerSuggestions} from "./StickerSuggestions";
 import {TRANSFORMERS} from "../../TextEditor/transformers";
-import {usePermissions, useStore} from "../../store";
+import {usePermissions, useStore} from "../../store/hooks";
 
 export const CreateMessageRichTextForm: FunctionComponent = observer(() => {
 	const {

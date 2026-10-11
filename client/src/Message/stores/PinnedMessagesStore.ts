@@ -1,6 +1,7 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {ClosedPinnedMessagesStore} from "./ClosedPinnedMessagesStore";
-import {ChatStore, ChatOfCurrentUserEntity} from "../../Chat";
+import {ChatOfCurrentUserEntity} from "../../Chat/types";
+import type {ChatStore} from "../../Chat/stores";
 import {EntitiesStore} from "../../entities-store";
 import {MessageApi} from "../../api";
 

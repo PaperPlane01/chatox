@@ -5,10 +5,10 @@ import chatox.chat.api.request.UpdateMessageRequest
 import chatox.chat.api.response.MessageResponse
 import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.exception.ChatAlreadyHasPinnedMessageException
-import chatox.chat.exception.MessageNotFoundException
 import chatox.chat.exception.NoPinnedMessageException
 import chatox.chat.exception.metadata.ChatDeletedException
 import chatox.chat.exception.metadata.ChatNotFoundException
+import chatox.chat.exception.metadata.MessageNotFoundException
 import chatox.chat.mapper.MessageMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatEventsPublisher
 import chatox.chat.model.Chat
@@ -29,7 +29,6 @@ import chatox.chat.service.ChatUploadAttachmentEntityService
 import chatox.chat.service.MessageEntityService
 import chatox.chat.service.MessageReadService
 import chatox.chat.service.MessageService
-import chatox.chat.service.TextParserService
 import chatox.chat.util.NTuple2
 import chatox.chat.util.mapTo2Lists
 import chatox.chat.util.runAsync
@@ -39,6 +38,8 @@ import chatox.platform.log.LogExecution
 import chatox.platform.pagination.PaginationRequest
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.text.api.reactive.TextParserApi
+import chatox.platform.text.api.request.ParseTextRequest
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -62,7 +63,7 @@ class MessageServiceImpl(
     private val chatUploadAttachmentRepository: ChatUploadAttachmentRepository,
     private val chatParticipationRepository: ChatParticipationRepository,
     private val authenticationHolder: ReactiveAuthenticationHolder<User>,
-    private val textParser: TextParserService,
+    private val textParserApi: TextParserApi,
     private val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService,
     private val messageEntityService: MessageEntityService,
     private val messageReadService: MessageReadService,
@@ -193,10 +194,11 @@ class MessageServiceImpl(
             var unmentionedChatParticipants = listOf<ChatParticipation>()
 
             if (message.text != updateMessageRequest.text) {
-                val textInfo = textParser.parseText(
+                val textInfo = textParserApi.parseText(ParseTextRequest(
                     text = updateMessageRequest.text,
-                    emojiSet = updateMessageRequest.emojisSet
-                )
+                    emojiSet = updateMessageRequest.emojisSet,
+                    parseColons = true
+                ))
                     .awaitFirst()
                 emojiInfo = textInfo.emoji
                 val mentionedUsersIdsOrSlugs = textInfo.userLinks
@@ -298,6 +300,8 @@ class MessageServiceImpl(
             val chat = findChatById(chatId).awaitFirst()
             val currentUser = authenticationHolder.currentUserDetails.awaitFirstOrNull()
             val messages = messageRepository.findByChatId(chat.id, paginationRequest.toPageRequest())
+                .collectList()
+                .awaitFirst()
             val unreadMessagesCount = currentUser?.let {
                 unreadMessagesCountRepository.findByChatIdAndUserId(chatId, it.id).awaitFirstOrNull()
             }
@@ -321,6 +325,8 @@ class MessageServiceImpl(
                 date = cursorMessage.createdAt,
                 pageable = paginationRequest.toPageRequest()
             )
+                .collectList()
+                .awaitFirst()
             val unreadMessagesCount = currentUser?.let {
                 unreadMessagesCountRepository.findByChatIdAndUserId(chatId, it.id).awaitFirstOrNull()
             }
@@ -352,6 +358,14 @@ class MessageServiceImpl(
         }
             .flatMapMany { it }
     }
+
+    private fun mapMessages(
+        messages: List<Message>,
+        unreadMessagesCount: UnreadMessagesCount?,
+        lastMessageReadByAnyoneCreatedAt: ZonedDateTime?
+    ): Flux<MessageResponse> = messageMapper.mapMessages(
+        messages, unreadMessagesCount, lastMessageReadByAnyoneCreatedAt
+    )
 
     private fun mapMessages(
         messages: Flux<Message>,

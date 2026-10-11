@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {TextField} from "@mui/material";
 import {DefaultChatFeatureForm} from "./DefaultChatFeatureForm";
 import {LevelBasedFeatureFromData} from "../types";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {FormErrors} from "../../utils/types";
 
 interface LevelBasedFeatureFormProps {

@@ -77,3 +77,4 @@ export const LOTTIE_STICKER = "lottie";
 export const VIDEO_STICKER = "video";
 export const CONFIRMATION = "confirmation";
 export const OWNER = "owner";
+export const REACTIONS = "reactions";

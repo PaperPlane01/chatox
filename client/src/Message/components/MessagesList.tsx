@@ -16,7 +16,7 @@ import {MessagesListBottom} from "./MessagesListBottom";
 import {PinnedMessage} from "./PinnedMessage";
 import {calculateMessagesListStyles} from "../utils";
 import {useMessagesListBottomStyles, useMessagesListRefs, useMessagesListStyles} from "../hooks";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {isScrolledToBottom} from "../../utils/event-utils";
 
 const useStyles = makeStyles()((theme: Theme) => ({

@@ -2,7 +2,7 @@ import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, GlobalBanApi} from "../../api";
 import {GlobalBanFilters} from "../../api/types/request";
 import {PaginationWithSortingState} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 const PAGE_SIZE = 30;
 

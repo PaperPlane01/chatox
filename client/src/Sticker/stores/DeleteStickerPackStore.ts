@@ -1,18 +1,18 @@
 import {action, makeObservable, observable, reaction, runInAction} from "mobx";
 import {RouterStore} from "mobx-router";
-import {InstalledStickerPacksStore} from "./InstalledStickerPacksStore";
-import {StickerPackDialogStore} from "./StickerPackDialogStore";
-import {StickerPickerStore} from "./StickerPickerStore";
+import type {InstalledStickerPacksStore} from "./InstalledStickerPacksStore";
+import type {StickerPackDialogStore} from "./StickerPackDialogStore";
+import type {StickerPickerStore} from "./StickerPickerStore";
 import {DeleteStickerPackFormData} from "../types";
 import {validateConsent} from "../validation";
 import {AbstractFormStore} from "../../form-store";
 import {RouterStoreAware, Routes} from "../../router";
 import {containsNotUndefinedValues, createWithUndefinedValues, isDefined} from "../../utils/object-utils";
 import {FormErrors} from "../../utils/types";
-import {AuthorizationStore} from "../../Authorization";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {getInitialApiErrorFromResponse, StickerApi} from "../../api";
 import {DeleteStickerPackRequest} from "../../api/types/request";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 const INITIAL_FORM_VALUES: DeleteStickerPackFormData = {
 	consent: false,

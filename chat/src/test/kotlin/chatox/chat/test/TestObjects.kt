@@ -20,15 +20,16 @@ import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.DialogParticipant
 import chatox.chat.model.DraftMessage
 import chatox.chat.model.Message
+import chatox.chat.model.MessageReaction
 import chatox.chat.model.PendingChatParticipation
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Sticker
-import chatox.chat.model.TextInfo
 import chatox.chat.model.UnreadMessagesCount
 import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.chat.model.UserGlobalNotificationsSettings
 import chatox.platform.security.jwt.JwtPayload
+import chatox.platform.text.api.response.TextInfo
 import chatox.platform.util.JsonLoader.loadResource
 import tools.jackson.core.type.TypeReference
 
@@ -75,7 +76,7 @@ object TestObjects {
     )
 
     fun textInfo(): TextInfo = loadResource(
-        "model/text-info.json",
+        "responses/text-info.json",
         TextInfo::class.java
     )
 
@@ -162,6 +163,11 @@ object TestObjects {
     fun userGlobalNotificationsSettings(): UserGlobalNotificationsSettings = loadResource(
         "model/user-global-notifications-settings.json",
         UserGlobalNotificationsSettings::class.java
+    )
+
+    fun messageReaction(): MessageReaction = loadResource(
+        "model/message-reaction.json",
+        MessageReaction::class.java
     )
 
     fun globalNotificationsSettingsResponse(): GlobalNotificationsSettingsResponse = loadResource(

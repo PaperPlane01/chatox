@@ -2,10 +2,10 @@ import {action, computed, makeObservable, observable, reaction} from "mobx";
 import {addMinutes} from "date-fns";
 import {validateMessageScheduledDate, validateMessageText} from "../validation";
 import {UpdateScheduledMessageFormData} from "../types";
-import {MessageEntity} from "../../Message";
+import {MessageEntity} from "../../Message/types";
 import {AbstractFormStore} from "../../form-store";
 import {getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 export class UpdateScheduledMessageStore extends AbstractFormStore<UpdateScheduledMessageFormData> {
     messageId?: string;

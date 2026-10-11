@@ -3,13 +3,12 @@ import {observer} from "mobx-react";
 import {Box, Button, IconButton, Menu, Skeleton, Theme} from "@mui/material";
 import {AccountCircle} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
-import randomColor from "randomcolor";
-import {RegistrationDialog, RegistrationMenuItem} from "../../Registration";
-import {LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization";
-import {PasswordRecoveryDialog} from "../../PasswordRecovery";
-import {Avatar} from "../../Avatar";
-import {useAuthorization} from "../../store";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
+import {RegistrationDialog, RegistrationMenuItem} from "../../Registration/components";
+import {LoginDialog, LoginMenuItem, LogOutMenuItem} from "../../Authorization/components";
+import {PasswordRecoveryDialog} from "../../PasswordRecovery/components";
+import {useAuthorization} from "../../store/hooks";
+import {getUserDisplayedName} from "../../User/utils/labels";
+import {UserAvatar} from "../../UserAvatar/components";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     userButton: {
@@ -39,8 +38,6 @@ export const UserAppBarMenu: FunctionComponent = observer(() => {
             </Fragment>
         );
     } else if (currentUser) {
-        const avatarLetter = getUserAvatarLabel(currentUser);
-
         return (
             <Fragment>
                 <Button onClick={event => setAnchorElement(event.currentTarget)}
@@ -48,11 +45,7 @@ export const UserAppBarMenu: FunctionComponent = observer(() => {
                         className={classes.userButton}
                 >
                     <div className={classes.userAvatarContainer}>
-                        <Avatar avatarLetter={avatarLetter}
-                                avatarColor={randomColor({seed: currentUser.id})}
-                                avatarId={currentUser.avatarId}
-                                avatarUri={currentUser.externalAvatarUri}
-                        />
+                        <UserAvatar userId={currentUser.id}/>
                     </div>
                     <Box display={{
                         xs: "none",

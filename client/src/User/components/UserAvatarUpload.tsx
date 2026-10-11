@@ -3,8 +3,8 @@ import {observer} from "mobx-react";
 import {makeStyles} from "tss-react/mui";
 import randomColor from "randomcolor";
 import {getUserAvatarLabel} from "../utils/labels";
-import {AvatarUpload} from "../../Upload";
-import {useAuthorization, useStore} from "../../store";
+import {AvatarUpload} from "../../Upload/components";
+import {useAuthorization, useStore} from "../../store/hooks";
 import {commonStyles} from "../../style";
 
 const useStyles = makeStyles()(() => ({

@@ -2,7 +2,7 @@ import React, {FunctionComponent, Fragment} from "react";
 import {observer} from "mobx-react";
 import {TextField, FormControlLabel, Switch, Typography} from "@mui/material";
 import {ChatRoleFeatureForms} from "./ChatRoleFeatureForms";
-import {useStore, useLocalization} from "../../store";
+import {useStore, useLocalization} from "../../store/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 

@@ -78,7 +78,7 @@ export interface EntityStore<
     findByIdAsync: (id: string) => Promise<Entity> | Entity,
     findByIdOptional: (id: string) => Entity | undefined,
     deleteById: (id: string, options?: DeleteOptions) => void,
-    deleteAllById: (id: string[], options?: DeleteOptions) => void,
+    deleteAllById: (id: Iterable<string>, options?: DeleteOptions) => void,
     deleteAll: () => void,
     findAllById: (ids: string[]) => Entity[],
     findAllByIdWithRelationships: (ids: string[]) => Array<readonly [Entity, RelationshipsIds]>

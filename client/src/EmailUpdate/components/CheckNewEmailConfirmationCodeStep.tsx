@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {useStore} from "../../store";
-import {CheckEmailConfirmationCodeDialogContent} from "../../EmailConfirmation";
+import {useStore} from "../../store/hooks";
+import {CheckEmailConfirmationCodeDialogContent} from "../../EmailConfirmation/components";
 
 export const CheckNewEmailConfirmationCodeStep: FunctionComponent = observer(() => {
     const {

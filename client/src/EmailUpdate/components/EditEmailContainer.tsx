@@ -5,7 +5,7 @@ import {makeStyles} from "tss-react/mui";
 import {LinkEmailButton} from "./LinkEmailButton";
 import {UpdateEmailButton} from "./UpdateEmailButton";
 import {UpdateEmailDialog} from "./UpdateEmailDialog";
-import {useAuthorization, useLocalization} from "../../store";
+import {useAuthorization, useLocalization} from "../../store/hooks";
 
 const useStyles = makeStyles()(() => ({
     editEmailWrapper: {

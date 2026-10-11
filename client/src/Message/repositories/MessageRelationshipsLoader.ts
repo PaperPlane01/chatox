@@ -2,11 +2,12 @@ import {MessageEntity, MessageRelationships} from "../types";
 import {AbstractRelationshipsLoader, Repository} from "../../repository";
 import {Repositories} from "../../repositories";
 import {emptyArray} from "../../utils/array-utils";
-import {UserEntity} from "../../User";
+import {UserEntity} from "../../User/types";
 import {isDefined} from "../../utils/object-utils";
 import {Upload} from "../../api/types/response";
 import {ChatRoleEntity} from "../../ChatRole/types";
-import {StickerEntity} from "../../Sticker";
+import {StickerEntity} from "../../Sticker/types";
+import {MessageReactionEntity} from "../../MessageReaction/types";
 
 export class MessageRelationshipsLoader extends AbstractRelationshipsLoader<MessageEntity, MessageRelationships> {
 	constructor(private readonly repositories: Repositories,
@@ -16,13 +17,14 @@ export class MessageRelationshipsLoader extends AbstractRelationshipsLoader<Mess
 
 	async loadRelationships(entity: MessageEntity): Promise<MessageRelationships> {
 		const relationships = this.createEmptyRelationships();
-		const {usersIds, chatRoleId, referredMessageId, uploadsIds, stickerId} = this.getRelationsIds(entity);
-		const [users, chatRole, uploads, referredMessage, sticker] = await Promise.all([
+		const {usersIds, chatRoleId, referredMessageId, uploadsIds, stickerId, reactionsIds} = this.getRelationsIds(entity);
+		const [users, chatRole, uploads, referredMessage, sticker, messageReactions] = await Promise.all([
 			this.repositories.getRepository("users")?.findAllById(usersIds) ?? emptyArray<UserEntity>(),
 			isDefined(chatRoleId) ? this.repositories.getRepository("chatRoles")?.findById(chatRoleId) : undefined,
 			this.repositories.getRepository("uploads")?.findAllById(uploadsIds) ?? emptyArray<Upload<any>>(),
 			isDefined(referredMessageId) ? this.messageRepository.findById(referredMessageId) : undefined,
-			isDefined(stickerId) ? this.repositories.getRepository("stickers")?.findById(stickerId) : undefined
+			isDefined(stickerId) ? this.repositories.getRepository("stickers")?.findById(stickerId) : undefined,
+            this.repositories.getRepository("messageReactions")?.findAllById(reactionsIds) ?? emptyArray<MessageReactionEntity>()
 		]);
 
 		relationships.users.push(...users);
@@ -59,17 +61,27 @@ export class MessageRelationshipsLoader extends AbstractRelationshipsLoader<Mess
 			relationships.messages.push(referredMessage);
 		}
 
+        if (messageReactions.length !== 0) {
+            const messageReactionsRelationships = await this.repositories.getRepository("messageReactions")?.loadRelationshipsForArray(messageReactions);
+
+            if (messageReactionsRelationships) {
+                relationships.users.push(...messageReactionsRelationships.users);
+                relationships.uploads.push(...messageReactionsRelationships.uploads);
+            }
+        }
+
 		return relationships;
 	}
 
 	async loadRelationshipsForArray(messages: MessageEntity[]): Promise<MessageRelationships> {
-		const {usersIds, chatRolesIds, uploadsIds, referredMessagesIds, stickersIds} = this.getRelationsIdsForArray(messages);
-		const [users, chatRoles, uploads, referredMessages, stickers] = await Promise.all([
+		const {usersIds, chatRolesIds, uploadsIds, referredMessagesIds, stickersIds, reactionsIds} = this.getRelationsIdsForArray(messages);
+		const [users, chatRoles, uploads, referredMessages, stickers, messageReactions] = await Promise.all([
 			this.repositories.getRepository("users")?.findAllById(usersIds) ?? emptyArray<UserEntity>(),
 			this.repositories.getRepository("chatRoles")?.findAllById(chatRolesIds) ?? emptyArray<ChatRoleEntity>(),
 			this.repositories.getRepository("uploads")?.findAllById(uploadsIds) ?? emptyArray<Upload<any>>(),
 			this.messageRepository.findAllById(referredMessagesIds),
-			this.repositories.getRepository("stickers")?.findAllById(stickersIds) ?? emptyArray<StickerEntity>()
+			this.repositories.getRepository("stickers")?.findAllById(stickersIds) ?? emptyArray<StickerEntity>(),
+            this.repositories.getRepository("messageReactions")?.findAllById(reactionsIds) ?? emptyArray<MessageReactionEntity>()
 		]);
 
 		const userRelationships = await this.repositories.getRepository("users")?.loadRelationshipsForArray(users);
@@ -100,6 +112,15 @@ export class MessageRelationshipsLoader extends AbstractRelationshipsLoader<Mess
 			referredMessages.push(...referredMessagesRelationships.messages);
 		}
 
+        if (messageReactions.length !== 0) {
+            const messageReactionsRelationships = await this.repositories.getRepository("messageReactions")?.loadRelationshipsForArray(messageReactions);
+
+            if (messageReactionsRelationships) {
+                users.push(...messageReactionsRelationships.users);
+                uploads.push(...messageReactionsRelationships.uploads);
+            }
+        }
+
 		return {users, chatRoles, uploads, messages: referredMessages, stickers};
 	}
 
@@ -121,7 +142,10 @@ export class MessageRelationshipsLoader extends AbstractRelationshipsLoader<Mess
 			usersIds.push(...message.mentionedUsers)
 		}
 
-		return {usersIds, chatRoleId, stickerId, uploadsIds, referredMessageId};
+        const reactionsIds: string[] = [];
+        reactionsIds.push(...this.getReactionsIds(message));
+
+		return {usersIds, chatRoleId, stickerId, uploadsIds, referredMessageId, reactionsIds};
 	}
 
 	private getRelationsIdsForArray(messages: MessageEntity[]) {
@@ -130,6 +154,7 @@ export class MessageRelationshipsLoader extends AbstractRelationshipsLoader<Mess
 		const uploadsIds: string[] = [];
 		const referredMessagesIds: string[] = [];
 		const stickersIds: string[] = [];
+        const reactionsIds: string[] = [];
 
 		for (const message of messages) {
 			usersIds.push(message.sender);
@@ -157,10 +182,30 @@ export class MessageRelationshipsLoader extends AbstractRelationshipsLoader<Mess
 			if (message.stickerId) {
 				stickersIds.push(message.stickerId);
 			}
+
+            if (message.reactionsCount) {
+                reactionsIds.push(...this.getReactionsIds(message));
+            }
 		}
 
-		return {usersIds, chatRolesIds, uploadsIds, referredMessagesIds, stickersIds};
+		return {usersIds, chatRolesIds, uploadsIds, referredMessagesIds, stickersIds, reactionsIds};
 	}
+
+    private getReactionsIds(message: MessageEntity): string[] {
+        const messageReactionsIds: string[] = [];
+
+        if (message.reactionsCount) {
+            Object.keys(message.reactionsCount).forEach(emojiId => {
+                messageReactionsIds.push(...message.reactionsCount[emojiId].lastReactions);
+
+                if (message.reactionsCount[emojiId].currentUserReactionId) {
+                    messageReactionsIds.push(message.reactionsCount[emojiId].currentUserReactionId);
+                }
+            })
+        }
+
+        return messageReactionsIds;
+    }
 
 	protected createEmptyRelationships(): MessageRelationships {
 		return {

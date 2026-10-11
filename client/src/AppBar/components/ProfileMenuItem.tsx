@@ -6,7 +6,7 @@ import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
 import {commonStyles} from "../../style";
 import {Routes} from "../../router";
-import {useAuthorization, useLocalization, useRouter} from "../../store";
+import {useAuthorization, useLocalization, useRouter} from "../../store/hooks";
 
 interface ProfileMenuItemProps {
     onClick?: () => void

@@ -1,0 +1,74 @@
+{
+  "id": "718d17ea-41a3-429e-8078-b513ffdaa7e2",
+  "_class": "chatox.chat.model.Message",
+  "attachments": [],
+  "chatId": "02cdb5e4-699b-4e10-a6fe-2cd5cd1bd514",
+  "chatParticipationId": "6a88a2ce5f6e898bcc2d4ff9",
+  "createdAt": "2026-08-22T19:14:17.301Z",
+  "deleted": false,
+  "emoji": {
+    "emojiPositions": [],
+    "emoji": {
+    }
+  },
+  "fromScheduled": false,
+  "index": 3,
+  "lastReactions": {
+    "heart": [
+      {
+        "id": "6a88a4245f6e898bcc2d5004",
+        "emoji": {
+          "id": "heart",
+          "name": "Red Heart",
+          "colons": ":heart:",
+          "emoticons": ["<3"],
+          "unified": "2764-fe0f",
+          "native": "❤\uFE0F",
+          "originalSet": "apple"
+        },
+        "emojiId": "heart",
+        "userId": "45238fc8-829b-42c0-8f68-9090fa4426dc",
+        "messageId": "718d17ea-41a3-429e-8078-b513ffdaa7e2",
+        "createdAt": "2026-08-22T19:16:52.131Z"
+      },
+      {
+        "id": "6a88a38c5f6e898bcc2d4ffe",
+        "emoji": {
+          "id": "heart",
+          "name": "Red Heart",
+          "colons": ":heart:",
+          "emoticons": ["<3"],
+          "unified": "2764-fe0f",
+          "native": "❤\uFE0F",
+          "originalSet": "apple"
+        },
+        "emojiId": "heart",
+        "userId": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+        "messageId": "718d17ea-41a3-429e-8078-b513ffdaa7e2",
+        "createdAt": "2026-08-22T19:14:20.862Z"
+      }
+    ]
+  },
+  "mentionedUsers": [],
+  "pinned": false,
+  "reactionsCount": [
+    {
+      "id": "6a88a38c5f6e898bcc2d4fff",
+      "messageId": "718d17ea-41a3-429e-8078-b513ffdaa7e2",
+      "emojiId": "heart",
+      "emoji": {
+        "id": "heart",
+        "name": "Red Heart",
+        "colons": ":heart:",
+        "emoticons": ["<3"],
+        "unified": "2764-fe0f",
+        "native": "❤\uFE0F",
+        "originalSet": "apple"
+      },
+      "count": 2
+    }
+  ],
+  "senderId": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+  "text": "Message with multiple same reactions",
+  "uploadAttachmentsIds": []
+}

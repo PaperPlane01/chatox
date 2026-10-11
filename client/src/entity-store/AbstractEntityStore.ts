@@ -1,21 +1,21 @@
 import {action, computed, makeObservable, observable} from "mobx";
 import {computedFn} from "mobx-utils";
-import {orderBy} from "lodash";
+import {orderBy} from "lodash-es";
 import {BaseEntity, EntityStore} from "./EntityStore";
 import {
+    Entities,
     EntitiesPatch,
     EntitiesStore,
     GetEntityType,
     PopulatedEntitiesPatch,
     RawEntitiesStore,
-    RawEntityKey,
     RelationshipsIds
 } from "../entities-store";
 import {SortingDirection} from "../utils/types";
 
 export abstract class AbstractEntityStore<
-    EntityName extends RawEntityKey,
-    Entity extends GetEntityType<EntityName>,
+    EntityName extends Entities,
+    Entity extends GetEntityType<EntityName> & BaseEntity,
     DenormalizedEntity extends BaseEntity,
     InsertOptions extends object = {},
     DeleteOptions extends object = {}
@@ -23,7 +23,7 @@ export abstract class AbstractEntityStore<
     implements EntityStore<EntityName, Entity, DenormalizedEntity, InsertOptions, DeleteOptions> {
 
     get ids(): string[] {
-        return this.rawEntities.ids[this.entityName];
+        return this.rawEntities.entities[this.entityName].keys().toArray();
     }
 
     get sortedIds(): string[] {
@@ -40,7 +40,7 @@ export abstract class AbstractEntityStore<
     protected sortingDirection: SortingDirection = "desc";
 
     public constructor(protected readonly rawEntities: RawEntitiesStore,
-                       protected readonly entityName: RawEntityKey,
+                       protected readonly entityName: EntityName,
                        protected readonly entities: EntitiesStore) {
         makeObservable<AbstractEntityStore<EntityName, Entity, DenormalizedEntity, InsertOptions, DeleteOptions>, "sortingDirection" | "setSortingDirection" | "sortBy" | "setSortBy">(this, {
             ids: computed,
@@ -63,8 +63,10 @@ export abstract class AbstractEntityStore<
         this.deleteAllById(this.ids, options);
     }
 
-    deleteAllById(ids: string[], options?: DeleteOptions): void {
-        ids.forEach(id => this.rawEntities.deleteEntity(this.entityName, id));
+    deleteAllById(ids: Iterable<string>, options?: DeleteOptions): void {
+        for (const id in ids) {
+            this.rawEntities.deleteEntity(this.entityName, id);
+        }
     }
 
     deleteById(id: string, options?: DeleteOptions): void {
@@ -113,7 +115,7 @@ export abstract class AbstractEntityStore<
     }
 
     findByIdOptional = computedFn((id: string): Entity | undefined => {
-        return this.rawEntities.entities[this.entityName][id] as Entity | undefined;
+        return this.rawEntities.entities[this.entityName].get(id) as Entity | undefined;
     })
 
     insert(entity: DenormalizedEntity, options?: InsertOptions): Entity {
@@ -127,17 +129,13 @@ export abstract class AbstractEntityStore<
 
     insertAllEntities(entities: Entity[]): void {
         const patch = this.createEmptyPatch();
-        entities.forEach(entity => {
-            patch.entities[this.entityName][entity.id] = entity;
-            patch.ids[this.entityName].push(entity.id);
-        });
+        entities.forEach((entity => patch.entities[this.entityName]?.set(entity.id, entity as any)));
         this.rawEntities.applyPatch(patch);
     }
 
     insertEntity(entity: Entity): Entity {
         const patch = this.createEmptyPatch();
-        patch.entities[this.entityName][entity.id] = entity;
-        patch.ids[this.entityName].push(entity.id);
+        patch.entities[this.entityName]?.set(entity.id, entity as any);
         this.rawEntities.applyPatch(patch);
         return entity;
     }
@@ -150,30 +148,26 @@ export abstract class AbstractEntityStore<
         this.sortBy = properties;
     }
 
-    protected createEmptyPatch(): PopulatedEntitiesPatch<RawEntityKey> {
+    protected createEmptyPatch(): PopulatedEntitiesPatch<EntityName> {
         return this.createEmptyEntitiesPatch(this.entityName);
     }
 
-    protected createEmptyEntitiesPatch<T extends RawEntityKey>(...entities: T[]): PopulatedEntitiesPatch<T> {
+    protected createEmptyEntitiesPatch<T extends Entities>(...entities: T[]): PopulatedEntitiesPatch<T> {
         const patch: EntitiesPatch = {
             entities: {},
-            ids: {}
         };
 
-        entities.forEach(entityType => {
-            patch.entities[entityType] = {};
-            patch.ids[entityType] = [];
-        });
+        entities.forEach(entityType => patch.entities[entityType] = new Map());
 
         return patch as unknown as PopulatedEntitiesPatch<T>;
     }
 
-    protected isPatchPopulated<T extends RawEntityKey>(
+    protected isPatchPopulated<T extends Entities>(
         patch: EntitiesPatch,
         ...entities: T[]
     ): patch is PopulatedEntitiesPatch<T> {
         for (const entity of entities) {
-            if (!patch.ids[entity] || !patch.entities[entity]) {
+            if (!patch.entities[entity]) {
                 return false;
             }
         }

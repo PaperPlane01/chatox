@@ -1,7 +1,7 @@
 import React, {FunctionComponent, MouseEvent, ChangeEvent} from "react";
 import {observer} from "mobx-react";
 import {Radio} from "@mui/material";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 
 interface SelectMessageForForwardingRadioButtonProps {

@@ -10,7 +10,7 @@ import {
     FormControlLabel,
     Switch
 } from "@mui/material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const ChatVisibilityCard: FunctionComponent = observer(() => {
     const {

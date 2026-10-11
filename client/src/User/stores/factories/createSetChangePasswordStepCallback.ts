@@ -1,4 +1,4 @@
-import {PasswordChangeStepStore} from "../PasswordChangeStepStore";
+import type {PasswordChangeStepStore} from "../PasswordChangeStepStore";
 import {ChangePasswordStep} from "../../types";
 
 export const createSetChangePasswordStepCallback = (passwordChangeStepStore: PasswordChangeStepStore) => (): void => {

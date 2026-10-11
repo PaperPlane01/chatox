@@ -6,7 +6,7 @@ import {EditableStickersList} from "./EditableStickersList";
 import {CreateStickerDialog} from "./CreateStickerDialog";
 import {EditStickerDialog} from "./EditStickerDialog";
 import {StickerPackFormFields} from "./StickerPackFormFields";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";

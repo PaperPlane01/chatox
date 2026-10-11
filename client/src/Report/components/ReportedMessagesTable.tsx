@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import {ReportedMessagesTableHead} from "./ReportedMessagesTableHeader";
 import {ReportedMessagesTableRow} from "./ReportedMessagesTableRow";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {ShowNotViewedOnlySwitch} from "./ShowNotViewedOnlySwitch";
 
 export const ReportedMessagesTable: FunctionComponent = observer(() => {

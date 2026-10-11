@@ -1,10 +1,10 @@
-import {makeAutoObservable, runInAction, toJS} from "mobx";
-import {NotificationsSettingsStore} from "./NotificationsSettingsStore";
+import {makeAutoObservable, runInAction} from "mobx";
+import type {NotificationsSettingsStore} from "./NotificationsSettingsStore";
 import {ApiError, getInitialApiErrorFromResponse, NotificationsSettingsApi} from "../../api";
 import {UpdateChatNotificationsSettingsRequest, UpdateNotificationsSettingsRequest} from "../../api/types/request";
 import {ChatType, NotificationLevel, NotificationSound} from "../../api/types/response";
-import {LocaleStore} from "../../localization";
-import {SnackbarService} from "../../Snackbar";
+import type {LocaleStore} from "../../localization";
+import type {SnackbarService} from "../../Snackbar/services";
 
 interface OpenUpdateChatNotificationSettingsDialogOptions {
 	chatId: string,

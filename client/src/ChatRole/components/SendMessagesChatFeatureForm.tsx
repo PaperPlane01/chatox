@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {FormControlLabel, Checkbox} from "@mui/material";
 import {DefaultChatFeatureForm} from "./DefaultChatFeatureForm";
-import {useStore, useLocalization} from "../../store";
+import {useStore, useLocalization} from "../../store/hooks";
 
 export const SendMessagesChatFeatureForm: FunctionComponent = observer(() => {
     const {

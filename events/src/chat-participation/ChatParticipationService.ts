@@ -25,6 +25,7 @@ export class ChatParticipationService {
 
         if (existingChatParticipation) {
             existingChatParticipation.roleId = chatParticipationDto.role.id;
+            existingChatParticipation.deleted = false;
             await existingChatParticipation.save();
         } else {
             const chatParticipation = new ChatParticipation(chatParticipationDto);

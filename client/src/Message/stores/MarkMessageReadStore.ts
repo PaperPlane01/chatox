@@ -1,10 +1,10 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
 import {MessagesListScrollPositionsStore} from "./MessagesListScrollPositionsStore";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {MessageApi} from "../../api";
-import {ChatStore} from "../../Chat";
-import {AuthorizationStore} from "../../Authorization";
+import type {ChatStore} from "../../Chat/stores";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {CurrentUser} from "../../api/types/response";
 
 export class MarkMessageReadStore {

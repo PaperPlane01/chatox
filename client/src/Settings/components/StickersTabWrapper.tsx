@@ -1,8 +1,8 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Grid} from "@mui/material";
-import {CreateStickerPackSpeedDial, InstalledStickerPacksList, StickersPreferencesCard} from "../../Sticker";
-import {HasRole} from "../../Authorization";
+import {CreateStickerPackSpeedDial, InstalledStickerPacksList, StickersPreferencesCard} from "../../Sticker/components";
+import {HasRole} from "../../Authorization/components";
 
 export const StickersTabWrapper: FunctionComponent = observer(() => (
 	<Fragment>

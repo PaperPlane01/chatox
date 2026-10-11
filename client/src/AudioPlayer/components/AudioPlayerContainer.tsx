@@ -1,7 +1,7 @@
 import React, {FunctionComponent, useEffect, useRef} from "react";
 import {observer} from "mobx-react";
 import ReactPlayer from "react-player";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {isDefined} from "../../utils/object-utils";
 

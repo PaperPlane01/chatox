@@ -2,7 +2,7 @@ import React, {FunctionComponent, useEffect, useState} from "react";
 import {observer} from "mobx-react";
 import {useMediaQuery, useTheme} from "@mui/material";
 import {MessagesListItem} from "./MessagesListItem";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 interface ScheduledMessagesListStyles {
     height: string | number | undefined,

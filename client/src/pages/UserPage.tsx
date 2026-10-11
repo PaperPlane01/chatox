@@ -2,11 +2,11 @@ import React, {Fragment, FunctionComponent} from "react";
 import {Grid} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {commonStyles} from "../style";
-import {AppBar} from "../AppBar";
-import {Layout} from "../Layout";
-import {CreateUserProfilePhotoDialog, UserPhotosDialog, UserPhotosLightbox, UserProfileInfo} from "../User";
-import {ReportUserDialog} from "../Report";
-import {UserInteractionsHistoryDialog} from "../UserInteraction";
+import {AppBar} from "../AppBar/components";
+import {Layout} from "../Layout/components";
+import {CreateUserProfilePhotoDialog, UserPhotosDialog, UserPhotosLightbox, UserProfileInfo} from "../User/components";
+import {ReportUserDialog} from "../Report/components";
+import {UserInteractionsHistoryDialog} from "../UserInteraction/components";
 
 const useStyles = makeStyles()(() => ({
     centered: {

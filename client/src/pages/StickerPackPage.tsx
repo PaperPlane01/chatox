@@ -6,7 +6,7 @@ import {AppBar} from "../AppBar/components";
 import {Layout} from "../Layout/components";
 import {StickerPackCard, StickerPreviewDialog} from "../Sticker/components";
 import {getLoadErrorText} from "../Sticker/utils";
-import {useStore, useLocalization} from "../store";
+import {useStore, useLocalization} from "../store/hooks";
 import {commonStyles} from "../style";
 
 const useStyle = makeStyles()(() => ({

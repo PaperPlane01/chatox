@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {IconButton, Tooltip} from "@mui/material";
 import {Close} from "@mui/icons-material";
-import {useStore, useLocalization} from "../../store";
+import {useStore, useLocalization} from "../../store/hooks";
 
 export const ClearReportsSelectionButton: FunctionComponent = observer(() => {
     const {

@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Table, TableBody, TableCell, TableHead, TableRow} from "@mui/material";
 import {GlobalBansTableRow} from "./GlobalBansTableRow";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const GlobalBansTable: FunctionComponent = observer(() => {
     const {

@@ -9,8 +9,8 @@ import {
 	NotificationLevel,
 	NotificationsSettings
 } from "../../api/types/response";
-import {AuthorizationStore} from "../../Authorization";
-import {EntitiesStore} from "../../entities-store";
+import type {AuthorizationStore} from "../../Authorization/stores";
+import type {EntitiesStore} from "../../entities-store";
 
 const DEFAULT_GROUP_CHATS_NOTIFICATIONS_SETTINGS: NotificationsSettings = {
 	level: NotificationLevel.ALL_MESSAGES,

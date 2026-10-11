@@ -1,11 +1,11 @@
 import {action, makeObservable, observable, reaction, runInAction} from "mobx";
 import {AbstractMessageFormStore} from "./AbstractMessageFormStore";
-import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
+import type {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
 import {UpdateMessageFormData} from "../types";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {getInitialApiErrorFromResponse, MessageApi} from "../../api";
-import {ChatStore} from "../../Chat";
+import type {ChatStore} from "../../Chat/stores";
 import {createWithUndefinedValues} from "../../utils/object-utils";
 import {UploadedFileContainer} from "../../utils/file-utils";
 

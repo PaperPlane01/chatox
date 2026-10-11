@@ -1,11 +1,12 @@
 package chatox.chat.model.elasticsearch
 
 import chatox.chat.model.ChatType
-import chatox.chat.model.EmojiInfo
-import chatox.chat.model.Message
 import chatox.chat.model.MessageInterface
+import chatox.chat.model.MessageReaction
+import chatox.chat.model.MessageReactionsCount
 import chatox.chat.model.Sticker
 import chatox.chat.model.Upload
+import chatox.platform.text.api.response.EmojiInfo
 import org.springframework.data.annotation.Id
 import org.springframework.data.elasticsearch.annotations.DateFormat
 import org.springframework.data.elasticsearch.annotations.Document
@@ -95,34 +96,8 @@ data class MessageElasticsearch(
     override val chatParticipationIdInSourceChat: String? = null,
 
     @Field(type = FieldType.Keyword)
-    override val mentionedUsers: List<String> = listOf()
-) : MessageInterface {
-    fun toMongoDB() = Message(
-        id,
-        text,
-        referredMessageId,
-        senderId,
-        chatId,
-        createdAt,
-        updatedAt,
-        deleted,
-        deletedAt,
-        deletedById,
-        uploadAttachmentsIds,
-        attachments,
-        emoji,
-        pinned,
-        pinnedById,
-        pinnedAt,
-        fromScheduled,
-        index,
-        sticker,
-        scheduledAt,
-        chatParticipationId,
-        forwardedFromMessageId,
-        forwardedFromChatId,
-        forwardedFromDialogChatType,
-        forwardedById,
-        chatParticipationIdInSourceChat
-    )
-}
+    override val mentionedUsers: List<String> = listOf(),
+
+    override val reactionsCount: List<MessageReactionsCount> = listOf(),
+    override val lastReactions: Map<String, List<MessageReaction>> = mapOf()
+) : MessageInterface

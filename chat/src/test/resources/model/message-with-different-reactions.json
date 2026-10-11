@@ -1,0 +1,89 @@
+{
+  "id": "f94a526c-3cc9-4954-9cc6-0997072acff1",
+  "_class": "chatox.chat.model.Message",
+  "attachments": [],
+  "chatId": "02cdb5e4-699b-4e10-a6fe-2cd5cd1bd514",
+  "chatParticipationId": "6a88a2ce5f6e898bcc2d4ff9",
+  "createdAt": "2026-08-22T19:14:31.142Z",
+  "deleted": false,
+  "emoji": {
+    "emojiPositions": [],
+    "emoji": {
+    }
+  },
+  "fromScheduled": false,
+  "index": 4,
+  "lastReactions": {
+    "heart": [
+      {
+        "id": "6a88a39b5f6e898bcc2d5000",
+        "emoji": {
+          "id": "heart",
+          "name": "Red Heart",
+          "colons": ":heart:",
+          "emoticons": ["<3"],
+          "unified": "2764-fe0f",
+          "native": "❤\uFE0F",
+          "originalSet": "apple"
+        },
+        "emojiId": "heart",
+        "userId": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+        "messageId": "f94a526c-3cc9-4954-9cc6-0997072acff1",
+        "createdAt": "2026-08-22T19:14:35.044Z"
+      }
+    ],
+    "grin": [
+      {
+        "id": "6a88a4295f6e898bcc2d5005",
+        "emoji": {
+          "id": "grin",
+          "name": "Beaming Face with Smiling Eyes",
+          "colons": ":grin:",
+          "unified": "1f601",
+          "native": "\uD83D\uDE01",
+          "originalSet": "apple"
+        },
+        "emojiId": "grin",
+        "userId": "45238fc8-829b-42c0-8f68-9090fa4426dc",
+        "messageId": "f94a526c-3cc9-4954-9cc6-0997072acff1",
+        "createdAt": "2026-08-22T19:16:57.466Z"
+      }
+    ]
+  },
+  "mentionedUsers": [],
+  "pinned": false,
+  "reactionsCount": [
+    {
+      "id": "6a88a39b5f6e898bcc2d5001",
+      "messageId": "f94a526c-3cc9-4954-9cc6-0997072acff1",
+      "emojiId": "heart",
+      "emoji": {
+        "id": "heart",
+        "name": "Red Heart",
+        "colons": ":heart:",
+        "emoticons": ["<3"],
+        "unified": "2764-fe0f",
+        "native": "❤\uFE0F",
+        "originalSet": "apple"
+      },
+      "count": 1
+    },
+    {
+      "id": "6a88a4295f6e898bcc2d5006",
+      "messageId": "f94a526c-3cc9-4954-9cc6-0997072acff1",
+      "emojiId": "grin",
+      "emoji": {
+        "id": "grin",
+        "name": "Beaming Face with Smiling Eyes",
+        "colons": ":grin:",
+        "unified": "1f601",
+        "native": "\uD83D\uDE01",
+        "originalSet": "apple"
+      },
+      "count": 1
+    }
+  ],
+  "senderId": "9d588b8f-205c-4123-afa3-2e72af7f00c8",
+  "text": "Message with different reactions",
+  "uploadAttachmentsIds": []
+}

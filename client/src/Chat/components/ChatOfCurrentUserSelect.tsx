@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Autocomplete, TextField} from "@mui/material";
 import {ChatsOfCurrentUserListItemSimple} from "./ChatsOfCurrentUserListItemSimple";
-import {useEntities, useStore} from "../../store";
+import {useEntities, useStore} from "../../store/hooks";
 import {ChatType} from "../../api/types/response";
 
 interface ChatOfCurrentUserSelectProps {

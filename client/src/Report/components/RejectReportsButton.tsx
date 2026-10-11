@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {BottomNavigationAction, CircularProgress} from "@mui/material";
 import {Undo} from "@mui/icons-material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const RejectReportsButton: FunctionComponent = observer(() => {
     const {

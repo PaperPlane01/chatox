@@ -3,7 +3,7 @@ import {AbstractChatFeatureFormStore} from "./AbstractChatFeatureFormStore";
 import {ConvertableChatFeatureFormStore} from "./ConvertableChatFeatureFormStore";
 import {BlockUsersFeatureFormData} from "../types";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {ChatFeatures} from "../../api/types/response";
 
 const INITIAL_FORM_VALUES: BlockUsersFeatureFormData = {

@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, CircularProgress, List, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {PendingChatsListItem} from "./PendingChatsListItem";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {commonStyles} from "../../style";
 
 const useStyles = makeStyles()(() => ({

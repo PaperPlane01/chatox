@@ -2,7 +2,7 @@ import {action, computed, makeObservable, observable, reaction} from "mobx";
 import {CheckEmailConfirmationCodeFormData, ConfirmationCodeSuccessCheckCallback} from "../types";
 import {validateConfirmationCode} from "../validation";
 import {FormErrors} from "../../utils/types";
-import {ApiError, EmailConfirmationCodeApi, getInitialApiErrorFromResponse} from "../../api";
+import {EmailConfirmationCodeApi, getInitialApiErrorFromResponse} from "../../api";
 import {AbstractFormStore} from "../../form-store";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
 

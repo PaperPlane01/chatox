@@ -1,3 +1,4 @@
+import {MessageEntityReactionsCountMap} from "./MessageEntityReactionsCountMap";
 import {MessageEmoji} from "../../api/types/response";
 
 export interface MessageEntity {
@@ -35,5 +36,6 @@ export interface MessageEntity {
     forwardedById?: string,
     readByAnyone: boolean,
     mentionedUsers: string[],
-    local?: boolean
+    local?: boolean,
+    reactionsCount: MessageEntityReactionsCountMap
 }

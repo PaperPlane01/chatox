@@ -6,12 +6,14 @@ import {AttachFilesButton} from "./AttachFilesButton";
 import {RecordVoiceMessageButton} from "./RecordVoiceMessageButton";
 import {SendMessageButton} from "./SendMessageButton";
 import {OpenScheduleMessageDialogButton} from "./OpenScheduleMessageDialogButton";
-import {useLocalization, useStore} from "../../store";
-import {adornmentStyle, EnterAction, TextEditor} from "../../TextEditor";
-import {ClaimRewardButton} from "../../Reward";
-import {SendMessageButton as SendMessageButtonType} from "../../Chat";
-import {Countdown} from "../../Countdown";
-import {MessageEntity} from "../../Message";
+import {useLocalization, useStore} from "../../store/hooks";
+import {TextEditor} from "../../TextEditor/components";
+import {adornmentStyle} from "../../TextEditor/styles";
+import {EnterAction} from "../../TextEditor/types";
+import {ClaimRewardButton} from "../../Reward/components";
+import {SendMessageButton as SendMessageButtonType} from "../../Chat/types";
+import {Countdown} from "../../Countdown/components";
+import {MessageEntity} from "../../Message/types";
 
 const useStyles = makeStyles()(() => ({
     adornment: adornmentStyle

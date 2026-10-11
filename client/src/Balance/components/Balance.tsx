@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Typography, Tooltip} from "@mui/material";
 import shortNumber from "short-number";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {Currency} from "../../api/types/response";
 import {Labels} from "../../localization";
 

@@ -2,7 +2,7 @@ import React, {FunctionComponent, MouseEvent} from "react";
 import {observer} from "mobx-react";
 import {IconButton, Tooltip} from "@mui/material";
 import {Edit} from "@mui/icons-material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 
 interface UpdateGlobalBanButtonProps {

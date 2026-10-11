@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Table, TableBody} from "@mui/material";
 import {UserInteractionsHistoryTableRow} from "./UserInteractionsHistoryTableRow";
 import {UserInteractionsHistoryTableHeader} from "./UserInteractionsHistoryTableHeader";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 export const UserInteractionsHistoryTable: FunctionComponent = observer(() => {
     const {

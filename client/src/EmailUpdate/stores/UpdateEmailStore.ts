@@ -1,15 +1,15 @@
-import {action, computed, observable, reaction, runInAction, makeObservable, makeAutoObservable} from "mobx";
-import {UpdateEmailDialogStore} from "./UpdateEmailDialogStore";
-import {SendEmailChangeConfirmationCodeStore} from "./SendEmailChangeConfirmationCodeStore";
-import {SendNewEmailConfirmationCodeStore} from "./SendNewEmailConfirmationCodeStore";
+import {makeAutoObservable, reaction, runInAction} from "mobx";
+import type {UpdateEmailDialogStore} from "./UpdateEmailDialogStore";
+import type {SendEmailChangeConfirmationCodeStore} from "./SendEmailChangeConfirmationCodeStore";
+import type {SendNewEmailConfirmationCodeStore} from "./SendNewEmailConfirmationCodeStore";
 import {UpdateEmailStep} from "../types";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {UpdateEmailRequest} from "../../api/types/request";
-import {CheckEmailConfirmationCodeStore} from "../../EmailConfirmation";
-import {AuthorizationStore} from "../../Authorization";
+import type {CheckEmailConfirmationCodeStore} from "../../EmailConfirmation/stores";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {CurrentUser} from "../../api/types/response";
-import {SnackbarService} from "../../Snackbar";
-import {LocaleStore} from "../../localization";
+import type {SnackbarService} from "../../Snackbar/services";
+import type {LocaleStore} from "../../localization";
 
 export class UpdateEmailStore {
     pending: boolean = false;

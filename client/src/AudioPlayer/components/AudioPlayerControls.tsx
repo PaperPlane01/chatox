@@ -7,7 +7,7 @@ import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks
 import {format} from "date-fns";
 import {WaveForm} from "./WaveForm";
 import {AudioType} from "../types";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {UploadType} from "../../api/types/response";
 import {useEntitySelector} from "../../entities";
 

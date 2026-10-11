@@ -1,14 +1,14 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
-import {UserProfileStore} from "./UserProfileStore";
-import {EntitiesStore} from "../../entities-store";
-import {AuthorizationStore} from "../../Authorization";
-import {LocaleStore} from "../../localization";
-import {SnackbarService} from "../../Snackbar";
+import type {UserProfileStore} from "./UserProfileStore";
+import type {UserProfilePhotosGalleryStore} from "./UserProfilePhotosGalleryStore";
+import type {EntitiesStore} from "../../entities-store";
+import type {AuthorizationStore} from "../../Authorization/stores";
+import type {LocaleStore} from "../../localization";
+import type {SnackbarService} from "../../Snackbar/services";
 import {UserEntity} from "../types";
 import {CurrentUser} from "../../api/types/response";
 import {isDefined} from "../../utils/object-utils";
-import {UserProfilePhotosGalleryStore} from "./UserProfilePhotosGalleryStore";
 
 export class DeleteUserProfilePhotoStore {
     photoId?: string = undefined;

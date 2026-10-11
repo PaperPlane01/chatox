@@ -1,4 +1,4 @@
-import {AuthorizationStore} from "../../Authorization";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {computedFn} from "mobx-utils";
 import {isDefined} from "../../utils/object-utils";
 

@@ -1,13 +1,13 @@
 import {action, computed, makeObservable, observable, override, reaction} from "mobx";
-import {ChatFeaturesFormStore} from "./ChatFeaturesFormStore";
-import {ChatRoleInfoDialogStore} from "./ChatRoleInfoDialogStore";
+import type {ChatFeaturesFormStore} from "./ChatFeaturesFormStore";
+import type {ChatRoleInfoDialogStore} from "./ChatRoleInfoDialogStore";
 import {AbstractChatRoleFormStore} from "./AbstractChatRoleFormStore";
 import {ChatRoleEntity} from "../types";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {ChatRoleApi, getInitialApiErrorFromResponse} from "../../api";
-import {Labels, LocaleStore} from "../../localization";
+import {Labels, type LocaleStore} from "../../localization";
 import {UpdateChatRoleRequest} from "../../api/types/request";
-import {SnackbarService} from "../../Snackbar";
+import type {SnackbarService} from "../../Snackbar/services";
 
 export class EditChatRoleStore extends AbstractChatRoleFormStore {
     roleId?: string = undefined;

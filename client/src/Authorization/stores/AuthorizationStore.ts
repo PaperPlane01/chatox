@@ -1,7 +1,7 @@
 import {makeAutoObservable} from "mobx";
 import {UserApi} from "../../api";
 import {CurrentUser, UserRole, UserVerificationLevel} from "../../api/types/response";
-import {EntitiesAware, EntitiesStore} from "../../entities-store";
+import {EntitiesAware, type EntitiesStore} from "../../entities-store";
 import {tokenRefreshState} from "../../api/axios-instance";
 import {isGlobalBanActive} from "../../GlobalBan/utils";
 

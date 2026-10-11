@@ -1,7 +1,7 @@
 import {makeAutoObservable} from "mobx";
-import {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
-import {SnackbarService} from "../../Snackbar";
-import {LocaleStore} from "../../localization";
+import type {UploadMessageAttachmentsStore} from "./UploadMessageAttachmentsStore";
+import type {SnackbarService} from "../../Snackbar/services";
+import type {LocaleStore} from "../../localization";
 import {UploadedFileContainer} from "../../utils/file-utils";
 
 export class RecordVoiceMessageStore {

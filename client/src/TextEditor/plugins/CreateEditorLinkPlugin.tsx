@@ -13,7 +13,7 @@ import {
 	SELECTION_CHANGE_COMMAND
 } from "lexical";
 import {getSelectedNode} from "../utils";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     dialogContent: {

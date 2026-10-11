@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {MenuItem, ListItemIcon, ListItemText} from "@mui/material";
 import {Cancel} from "@mui/icons-material";
-import {useStore, useLocalization} from "../../store";
+import {useStore, useLocalization} from "../../store/hooks";
 
 interface CancelGlobalBanMenuItemProps {
     onClick?: () => void,

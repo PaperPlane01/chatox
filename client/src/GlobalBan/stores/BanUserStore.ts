@@ -7,7 +7,7 @@ import {GlobalBanApi} from "../../api/clients";
 import {BanUserRequest} from "../../api/types/request";
 import {GlobalBanReason} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 const BAN_USER_FORM_INITIAL_STATE: BanUserFormData = {
     comment: "",

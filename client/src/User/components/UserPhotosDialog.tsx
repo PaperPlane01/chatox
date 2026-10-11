@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Dialog, DialogContent, DialogTitle} from "@mui/material";
 import {UserPhotosGallery} from "./UserPhotosGallery";
 import {UserPhotosActions} from "./UserPhotosActions";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 
 export const UserPhotosDialog: FunctionComponent = observer(() => {

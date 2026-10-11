@@ -1,6 +1,6 @@
 package chatox.chat.api.response
 
-import chatox.chat.model.EmojiInfo
+import chatox.platform.text.api.response.EmojiInfo
 import java.time.ZonedDateTime
 
 data class MessageResponse(
@@ -27,5 +27,6 @@ data class MessageResponse(
     val forwardedFromMessageId: String? = null,
     val forwardedFromChatId: String? = null,
     val readByAnyone: Boolean = false,
-    val mentionedUsers: List<UserResponse> = listOf()
+    val mentionedUsers: List<UserResponse> = listOf(),
+    val reactionsCount: Map<String, MessageReactionsCountResponse> = mapOf()
 )

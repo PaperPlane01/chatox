@@ -5,7 +5,7 @@ import {IconButton, AppBar, Typography, Toolbar} from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
 import {commonStyles} from "../../style";
-import {useRouter, useStore, useLocalization} from "../../store";
+import {useRouter, useStore, useLocalization} from "../../store/hooks";
 import {Routes} from "../../router";
 
 const useStyles = makeStyles()(() => ({

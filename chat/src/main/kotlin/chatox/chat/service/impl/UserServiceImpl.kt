@@ -50,8 +50,13 @@ class UserServiceImpl(
         }
     }
 
+    override fun findAllById(ids: Collection<String>): Flux<UserResponse> {
+        return userCacheWrapper.findByIds(ids.toList())
+            .map(userMapper::toUserResponse)
+    }
+
     override fun findAllByIdAndPutInLocalCache(
-        ids: List<String>,
+        ids: Collection<String>,
         localCache: MutableMap<String, UserResponse>?
     ): Flux<UserResponse> {
         return mono {

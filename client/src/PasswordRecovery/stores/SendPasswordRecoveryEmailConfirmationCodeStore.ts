@@ -1,9 +1,9 @@
 import {reaction} from "mobx";
-import {PasswordRecoveryDialogStore} from "./PasswordRecoveryDialogStore";
+import type {PasswordRecoveryDialogStore} from "./PasswordRecoveryDialogStore";
 import {PasswordRecoveryStep} from "../types";
-import {LocaleStore} from "../../localization";
+import type {LocaleStore} from "../../localization";
 import {EmailConfirmationCodeType} from "../../api/types/request";
-import {AbstractCreateEmailConfirmationCodeStore} from "../../EmailConfirmation";
+import {AbstractCreateEmailConfirmationCodeStore} from "../../EmailConfirmation/stores";
 
 export class SendPasswordRecoveryEmailConfirmationCodeStore extends AbstractCreateEmailConfirmationCodeStore {
     constructor(private readonly passwordRecoveryDialogStore: PasswordRecoveryDialogStore,

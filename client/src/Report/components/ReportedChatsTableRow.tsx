@@ -7,7 +7,7 @@ import {Remove} from "@mui/icons-material";
 import randomColor from "randomcolor";
 import {Link} from "mobx-router";
 import {commonStyles} from "../../style";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {Labels} from "../../localization";
 import {Routes} from "../../router";

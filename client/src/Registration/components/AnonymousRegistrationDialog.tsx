@@ -11,7 +11,7 @@ import {
     Typography,
 } from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useMobileDialog} from "../../utils/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";

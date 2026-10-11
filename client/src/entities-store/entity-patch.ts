@@ -1,16 +1,11 @@
-import {Entities, GetEntityType, PopulatedEntitiesPatch} from "./types";
+import {Entities, EntitiesPatch, GetEntityType, PopulatedEntitiesPatch} from "./types";
+import {BaseEntity} from "../entity-store";
 
 export const createEmptyEntitiesPatch = <T extends Entities>(...entities: T[]): PopulatedEntitiesPatch<T> => {
-    const patch = {
-        entities: {},
-        ids: {}
+    const patch: EntitiesPatch = {
+        entities: {}
     }
-
-    entities.forEach(entityType => {
-        (patch.entities as any)[entityType] = {};
-        (patch.ids as any)[entityType] = [];
-    });
-
+    entities.forEach(entityType => patch.entities[entityType] = new Map());
     return patch as unknown as PopulatedEntitiesPatch<T>;
 };
 
@@ -20,8 +15,7 @@ export const populatePatch = <T extends Entities>(patch: PopulatedEntitiesPatch<
     }
 
     for (const entity of entities) {
-        const id = entity.id;
-        patch.ids[entityName]!.push(id);
-        (patch.entities[entityName] as any)[entity.id] = entity;
+        const entitiesMap: Map<string, BaseEntity> = patch.entities[entityName]!;
+        entitiesMap.set(entity.id, entity);
     }
 };

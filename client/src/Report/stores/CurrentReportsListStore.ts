@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {ReportsListStore} from "./ReportsListStore";
+import type {ReportsListStore} from "./ReportsListStore";
 
 export class CurrentReportsListStore {
     currentReportsList: ReportsListStore;

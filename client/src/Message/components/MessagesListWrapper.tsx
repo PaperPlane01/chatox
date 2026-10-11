@@ -3,8 +3,8 @@ import {observer} from "mobx-react";
 import {makeStyles} from "tss-react/mui";
 import {VirtualMessagesList} from "./VirtualMessagesList";
 import {MessagesList} from "./MessagesList";
-import {ChatDeletionLabel} from "../../Chat";
-import {useStore} from "../../store";
+import {ChatDeletionLabel} from "../../Chat/components";
+import {useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 
 const useStyles = makeStyles()(() => ({

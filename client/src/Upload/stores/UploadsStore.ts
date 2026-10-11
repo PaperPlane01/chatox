@@ -27,10 +27,7 @@ export class UploadsStore extends AbstractEntityStore<"uploads", Upload<any>, Up
     createPatchForArray(denormalizedEntities: Upload<any>[], options: {} = {}): EntitiesPatch {
         const patch = this.createEmptyEntitiesPatch("uploads");
 
-        denormalizedEntities.forEach(upload => {
-            patch.entities.uploads[upload.id] = upload;
-            patch.ids.uploads.push(upload.id);
-        });
+        denormalizedEntities.forEach(upload => patch.entities.uploads.set(upload.id, upload));
 
         return patch;
     }

@@ -5,7 +5,7 @@ import {makeStyles} from "tss-react/mui";
 import {RemoveCircle} from "@mui/icons-material";
 import {Link} from "mobx-router";
 import {commonStyles} from "../../style";
-import {useLocalization, useRouter} from "../../store";
+import {useLocalization, useRouter} from "../../store/hooks";
 import {Routes} from "../../router";
 
 interface GlobalBansMenuItemProps {

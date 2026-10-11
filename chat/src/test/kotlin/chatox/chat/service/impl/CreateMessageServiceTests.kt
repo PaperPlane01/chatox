@@ -28,13 +28,13 @@ import chatox.chat.service.ChatUploadAttachmentEntityService
 import chatox.chat.service.MessageEntityService
 import chatox.chat.service.MessageReadService
 import chatox.chat.service.MessageService
-import chatox.chat.service.TextParserService
 import chatox.chat.test.TestObjects
 import chatox.chat.test.mockFindMessageById
 import chatox.chat.test.mockFindStickerById
 import chatox.chat.test.mockParseText
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.text.api.reactive.TextParserApi
 import chatox.platform.util.JsonLoader.loadResource
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
@@ -72,7 +72,7 @@ class CreateMessageServiceTests {
     val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String> = mockk()
     val messageEntityService: MessageEntityService = mockk()
     val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService = mockk()
-    val textParser: TextParserService = mockk()
+    val textParserApi: TextParserApi = mockk()
     val messageReadService: MessageReadService = mockk()
     val messageService: MessageService = mockk()
     val chatParticipationService: ChatParticipationService = mockk()
@@ -108,7 +108,7 @@ class CreateMessageServiceTests {
             chatCacheWrapper,
             messageEntityService,
             chatUploadAttachmentEntityService,
-            textParser,
+            textParserApi,
             messageReadService,
             messageService,
             chatParticipationService,
@@ -164,7 +164,7 @@ class CreateMessageServiceTests {
                 } returns Flux.just(chatUploadAttachment)
             }
 
-            val textInfo = mockParseText(request.text, textParser, textInfo)
+            val textInfo = mockParseText(request.text, textParserApi, textInfo)
             every {
                 chatParticipationService.getMentionedChatParticipants(
                     chatId = eq(chatId),
@@ -290,7 +290,7 @@ class CreateMessageServiceTests {
                 every { uploadRepository.findAllById<Any>(request.uploadAttachments) } returns Flux.just(upload)
             }
 
-            val textInfo = mockParseText(request.text, textParser, textInfo)
+            val textInfo = mockParseText(request.text, textParserApi, textInfo)
             every {
                 chatParticipationService.getMentionedChatParticipants(
                     chatId = eq(chatId),
@@ -410,7 +410,7 @@ class CreateMessageServiceTests {
                 every { uploadRepository.findAllById<Any>(request.uploadAttachments) } returns Flux.just(upload)
             }
 
-            val textInfo = mockParseText(request.text, textParser, textInfo)
+            val textInfo = mockParseText(request.text, textParserApi, textInfo)
             every {
                 chatParticipationService.getMentionedChatParticipants(
                     chatId = eq(chatId),
@@ -509,7 +509,7 @@ class CreateMessageServiceTests {
                 } returns Flux.just(chatUploadAttachment)
             }
 
-            val textInfo = mockParseText(request.text, textParser, textInfo)
+            val textInfo = mockParseText(request.text, textParserApi, textInfo)
             every {
                 chatParticipationService.getMentionedChatParticipants(
                     chatId = eq(chatId),

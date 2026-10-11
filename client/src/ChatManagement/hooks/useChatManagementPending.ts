@@ -1,4 +1,4 @@
-import {useAuthorization, useStore} from "../../store";
+import {useAuthorization, useStore} from "../../store/hooks";
 
 export const useChatManagementPending = (): boolean => {
     const {

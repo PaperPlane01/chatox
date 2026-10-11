@@ -1,10 +1,10 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {UserProfileStore} from "../../User";
+import {computedFn} from "mobx-utils";
+import type {UserProfileStore} from "../../User/stores";
 import {UserInteractionsCount, UserInteractionType} from "../../api/types/response";
 import {ApiError, getInitialApiErrorFromResponse, UserInteractionsApi} from "../../api";
-import {SnackbarService} from "../../Snackbar";
-import {LocaleStore} from "../../localization";
-import {computedFn} from "mobx-utils";
+import type {SnackbarService} from "../../Snackbar/services";
+import type {LocaleStore} from "../../localization/stores";
 
 const DEFAULT_USER_INTERACTIONS_COUNT: UserInteractionsCount = {
     likesCount: 0,

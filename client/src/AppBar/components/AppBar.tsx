@@ -7,7 +7,7 @@ import {NavigationalDrawer} from "./NavigationalDrawer";
 import {OpenDrawerButton} from "./OpenDrawerButton";
 import {AppBarMenu} from "./AppBarMenu";
 import {UserAppBarMenu} from "./UserAppBarMenu";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store/hooks";
 import {Routes} from "../../router";
 import {Labels} from "../../localization";
 

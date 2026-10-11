@@ -4,7 +4,7 @@ import {Button, DialogActions, DialogContent, DialogTitle, Typography} from "@mu
 import {StatusCodes} from "http-status-codes";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 const getErrorText = (error: ApiError, l: TranslationFunction): string => {
     switch (error.status) {

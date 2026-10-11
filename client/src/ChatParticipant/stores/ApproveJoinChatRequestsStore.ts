@@ -1,14 +1,14 @@
 import {makeAutoObservable, observable, runInAction, values} from "mobx";
 import {computedFn} from "mobx-utils";
 import {HttpStatusCode} from "axios";
-import {JoinChatRequestsStore} from "./JoinChatRequestsStore";
+import type {JoinChatRequestsStore} from "./JoinChatRequestsStore";
 import {API_UNREACHABLE_STATUS, ApiError, ChatParticipantApi, getInitialApiErrorFromResponse} from "../../api";
 import {PendingChatParticipantsRequest} from "../../api/types/request";
 import {ChatParticipation} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
-import {ChatStore} from "../../Chat";
-import {SnackbarService} from "../../Snackbar";
-import {LocaleStore} from "../../localization";
+import type {EntitiesStore} from "../../entities-store";
+import type {ChatStore} from "../../Chat/stores";
+import type {SnackbarService} from "../../Snackbar/services";
+import type {LocaleStore} from "../../localization";
 
 export class ApproveJoinChatRequestsStore {
     pending = false;

@@ -11,7 +11,7 @@ import {
     Typography,
 } from "@mui/material";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const RegisterStep: FunctionComponent = observer(() => {
     const {

@@ -1,21 +1,23 @@
 import {computed, makeObservable} from "mobx";
 import {computedFn, createTransformer} from "mobx-utils";
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {ChatParticipationEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {ChatParticipation, CurrentUser} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
-import {AuthorizationStore} from "../../Authorization";
+import {AuthorizationStore} from "../../Authorization/stores";
 
 interface InsertChatParticipantOptions {
-    increaseChatParticipantsCount: boolean
+    increaseChatParticipantsCount?: boolean,
+    setCurrentUserChatParticipationId?: boolean
 }
 
 type DecreaseChatParticipantsCountCallback = (chatParticipation?: ChatParticipationEntity, currentUser?: CurrentUser) => boolean;
 
 interface DeleteChatParticipantOptions {
-    decreaseChatParticipantsCount?: boolean | DecreaseChatParticipantsCountCallback
+    decreaseChatParticipantsCount?: boolean | DecreaseChatParticipantsCountCallback,
+    clearCurrentUserChatParticipationId?: boolean
 }
 
 export interface FindChatParticipationByUserAndChatOptions {
@@ -44,9 +46,8 @@ export class ChatParticipationsStore extends AbstractEntityStore<
         });
     }
 
-    findByChat = computedFn((chatId: string) => {
-        return this.ids
-            .filter(id => this.findById(id).chatId === chatId);
+    findByChat = computedFn((chatId: string): string[] => {
+        return this.ids.filter(id => this.findById(id).chatId === chatId);
     })
 
     findByUserAndChat = createTransformer((options: FindChatParticipationByUserAndChatOptions) => {
@@ -59,20 +60,31 @@ export class ChatParticipationsStore extends AbstractEntityStore<
         this.findByUserAndChat(options)
     ))
 
-    deleteById(id: string, options?: DeleteChatParticipantOptions) {
+    deleteById(id: string, options?: DeleteChatParticipantOptions): void {
         const chatParticipation = this.findByIdOptional(id);
 
         if (!chatParticipation) {
             return;
         }
 
-        if (options && options.decreaseChatParticipantsCount) {
-            const decreaseChatParticipantsCount = typeof options.decreaseChatParticipantsCount === "function"
-                ? options.decreaseChatParticipantsCount(chatParticipation, this.currentUser)
-                : options.decreaseChatParticipantsCount;
-            if (decreaseChatParticipantsCount) {
-                this.entities.chats.decreaseChatParticipantsCount(chatParticipation.chatId);
+        if (options?.decreaseChatParticipantsCount || options?.clearCurrentUserChatParticipationId) {
+            const chat = this.entities.chats.findById(chatParticipation.chatId);
+
+            if (options?.decreaseChatParticipantsCount) {
+                const decreaseChatParticipantsCount = typeof options.decreaseChatParticipantsCount === "function"
+                    ? options.decreaseChatParticipantsCount(chatParticipation, this.currentUser)
+                    : options.decreaseChatParticipantsCount;
+
+                if (decreaseChatParticipantsCount) {
+                    chat.participantsCount = chat.participantsCount - 1;
+                }
             }
+
+            if (options?.clearCurrentUserChatParticipationId && chatParticipation.userId === this.currentUser?.id) {
+                chat.currentUserParticipationId = undefined;
+            }
+
+            this.entities.chats.insertEntity(chat);
         }
 
         super.deleteById(id);
@@ -90,21 +102,29 @@ export class ChatParticipationsStore extends AbstractEntityStore<
 
         denormalizedEntities.forEach(chatParticipation => {
             const chatParticipationEntity = this.convertToNormalizedForm(chatParticipation);
-            patch.entities.chatParticipations[chatParticipation.id] = chatParticipationEntity;
-            patch.ids.chatParticipations.push(chatParticipationEntity.id);
+            patch.entities.chatParticipations.set(chatParticipation.id, chatParticipationEntity);
 
-            patches.push(this.entities.users.createPatch(chatParticipation.user));
-            patches.push(this.entities.chatRoles.createPatch(chatParticipation.role));
+            patches.push(
+                this.entities.users.createPatch(chatParticipation.user),
+                this.entities.chatRoles.createPatch(chatParticipation.role)
+            );
 
             if (chatParticipation.activeChatBlocking) {
                 patches.push(this.entities.chatBlockings.createPatch(chatParticipation.activeChatBlocking));
             }
 
-            if (options && options.increaseChatParticipantsCount) {
+            if (options?.increaseChatParticipantsCount || options?.setCurrentUserChatParticipationId) {
                 const chat = this.entities.chats.findById(chatParticipation.chatId);
-                chat.participantsCount = chat.participantsCount + 1;
 
-                patch.entities.chats[chat.id] = chat;
+                if (options?.increaseChatParticipantsCount) {
+                    chat.participantsCount = chat.participantsCount + 1;
+                }
+
+                if (options?.setCurrentUserChatParticipationId && chatParticipation.user.id === this.currentUser?.id) {
+                    chat.currentUserParticipationId = chatParticipation.id;
+                }
+
+                patch.entities.chats.set(chatParticipation.chatId, chat);
             }
         });
 

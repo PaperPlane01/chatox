@@ -1,8 +1,8 @@
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {computedFn} from "mobx-utils";
 import {UserEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
-import {EntitiesPatch, GetEntityType, RawEntityKey, RelationshipsIds} from "../../entities-store";
+import {EntitiesPatch, GetEntityType, RelationshipsIds} from "../../entities-store";
 import {User} from "../../api/types/response";
 import {mergeCustomizer} from "../../utils/object-utils";
 
@@ -10,7 +10,9 @@ interface UserInsertOptions {
     retrieveOnlineStatusFromExistingUser: boolean
 }
 
-export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "reportedUsers"> extends AbstractEntityStore<
+type UserType = "users" | "reportedUsers" | "reportedMessageSenders";
+
+export class UsersStore extends AbstractEntityStore<
     UserType,
     GetEntityType<UserType>,
     User,
@@ -59,8 +61,7 @@ export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "r
                 }
             }
 
-            patch.entities[this.getEntityName()][userEntity.id] = userEntity;
-            patch.ids[this.entityName].push(userEntity.id);
+            patch.entities[this.entityName as UserType].set(userEntity.id, userEntity);
 
             if (user.avatar) {
                 patches.push(this.entities.uploads.createPatch(user.avatar));
@@ -68,10 +69,6 @@ export class UsersStore<UserType extends "users" | "reportedMessageSenders" | "r
         });
 
         return mergeWith(patch, ...patches, mergeCustomizer);
-    }
-
-    private getEntityName(): RawEntityKey {
-        return this.entityName;
     }
 
     protected convertToNormalizedForm(denormalizedEntity: User): GetEntityType<UserType> {

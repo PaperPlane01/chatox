@@ -1,6 +1,6 @@
 import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {Labels} from "../types";
 
 interface TranslatedTextProps {

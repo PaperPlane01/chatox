@@ -13,7 +13,7 @@ import {
 import {ShowNotViewedOnlySwitch} from "./ShowNotViewedOnlySwitch";
 import {ReportedChatsTableHeader} from "./ReportedChatsTableHeader";
 import {ReportedChatsTableRow} from "./ReportedChatsTableRow";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const ReportedChatsTable: FunctionComponent = observer(() => {
     const {

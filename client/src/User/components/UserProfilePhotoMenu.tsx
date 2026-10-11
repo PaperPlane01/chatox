@@ -5,7 +5,7 @@ import {MoreVert} from "@mui/icons-material";
 import {bindMenu, bindToggle, usePopupState} from "material-ui-popup-state/hooks";
 import {DeletePhotoMenuItem} from "./DeletePhotoMenuItem";
 import {SetPhotoAsAvatarMenuItem} from "./SetPhotoAsAvatarMenuItem";
-import {usePermissions, useStore} from "../../store";
+import {usePermissions, useStore} from "../../store/hooks";
 
 export const UserProfilePhotoMenu: FunctionComponent = observer(() => {
     const {

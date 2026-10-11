@@ -2,7 +2,7 @@ import {makeAutoObservable, runInAction} from "mobx";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ApiError, getInitialApiErrorFromResponse, UploadApi} from "../../api";
 import {ImageUploadMetadata, UploadType} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {Labels} from "../../localization";
 
 const IMAGE_MAX_SIZE = import.meta.env.VITE_IMAGE_MAX_SIZE;

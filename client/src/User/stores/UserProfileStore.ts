@@ -1,6 +1,6 @@
 import {makeAutoObservable} from "mobx";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 export class UserProfileStore {
     selectedUserId?: string = undefined;

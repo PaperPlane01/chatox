@@ -1,6 +1,6 @@
 import {makeAutoObservable, reaction} from "mobx";
-import {InstalledStickerPacksStore} from "./InstalledStickerPacksStore";
-import {AuthorizationStore} from "../../Authorization";
+import type {InstalledStickerPacksStore} from "./InstalledStickerPacksStore";
+import type {AuthorizationStore} from "../../Authorization/stores";
 
 export class StickerPickerStore {
     selectedStickerPackId?: string = undefined;

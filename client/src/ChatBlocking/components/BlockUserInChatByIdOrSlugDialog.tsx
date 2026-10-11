@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import {TranslationFunction} from "../../localization";
 import {ApiError} from "../../api";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 

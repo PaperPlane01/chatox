@@ -17,6 +17,14 @@ export default defineConfig({
 		strictPort: true
 	},
 	build: {
-		sourcemap: true
+		sourcemap: true,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    mui: ["@mui/material", "@mui/icons-material"],
+                    dotlottie: ["@lottiefiles/dotlottie-react"]
+                }
+            }
+        }
 	}
 });

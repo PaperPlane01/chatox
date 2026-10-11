@@ -2,8 +2,8 @@ import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {connect, Socket} from "socket.io-client";
 import {proxy, Remote} from "comlink";
 import {isBefore} from "date-fns";
-import {AuthorizationStore} from "../../Authorization";
-import {EntitiesStore} from "../../entities-store";
+import type {AuthorizationStore} from "../../Authorization/stores";
+import type {EntitiesStore} from "../../entities-store";
 import {ChatApi} from "../../api";
 import {
     BalanceUpdated,
@@ -11,6 +11,8 @@ import {
     ChatUpdated,
     DraftMessageDeleted,
     MessageDeleted,
+    MessageReactionAdded,
+    MessageReactionDeleted,
     MessageRead,
     MessagesDeleted,
     PrivateChatCreated,
@@ -31,14 +33,16 @@ import {
     GlobalNotificationsSettings,
     Message
 } from "../../api/types/response";
-import {ChatOfCurrentUserEntity, ChatStore, PendingChatsOfCurrentUserStore, TypingUsersStore} from "../../Chat";
-import {MarkMessageReadStore, MessagesListScrollPositionsStore, MessagesOfChatStore} from "../../Message";
-import {BalanceStore} from "../../Balance";
-import {LocaleStore} from "../../localization";
-import {SnackbarService} from "../../Snackbar";
+import type {ChatStore, PendingChatsOfCurrentUserStore, TypingUsersStore} from "../../Chat/stores";
+import {ChatOfCurrentUserEntity} from "../../Chat/types";
+import {MarkMessageReadStore, MessagesListScrollPositionsStore, MessagesOfChatStore} from "../../Message/stores";
+import {BalanceStore} from "../../Balance/stores";
+import {LocaleStore} from "../../localization/stores";
+import type {SnackbarService} from "../../Snackbar/services";
 import {getSocketIoWorker, SocketIoWorker} from "../../workers";
 import {isDefined} from "../../utils/object-utils";
-import {NotificationsSettingsStore, SoundNotificationStore} from "../../Notification";
+import type {NotificationsSettingsStore, SoundNotificationStore} from "../../Notification/stores";
+import type {ReactionsToMessagesStore} from "../../MessageReaction/stores";
 
 type ConnectionType = "socketIo" | "sharedWorker";
 
@@ -67,6 +71,7 @@ export class WebsocketStore {
                 private readonly locale: LocaleStore,
                 private readonly soundNotification: SoundNotificationStore,
                 private readonly notificationsSettings: NotificationsSettingsStore,
+                private readonly reactionsToMessages: ReactionsToMessagesStore,
                 private readonly snackbarService: SnackbarService) {
         makeAutoObservable(this);
 
@@ -229,17 +234,11 @@ export class WebsocketStore {
         );
         map.set(
             WebsocketEventType.USER_KICKED_FROM_CHAT,
-            (event: WebsocketEvent<UserKickedFromChat>) => this.entities.chatParticipations.deleteById(
-                event.payload.chatParticipationId,
-                {decreaseChatParticipantsCount: true}
-            )
+            (event: WebsocketEvent<UserKickedFromChat>) => this.handleUserLeftChat(event.payload)
         );
         map.set(
             WebsocketEventType.USER_LEFT_CHAT,
-            (event: WebsocketEvent<UserLeftChat>) => this.entities.chatParticipations.deleteById(
-                event.payload.chatParticipationId,
-                {decreaseChatParticipantsCount: true}
-            )
+            (event: WebsocketEvent<UserLeftChat>) => this.handleUserLeftChat(event.payload)
         );
         map.set(
             WebsocketEventType.CHAT_DELETED,
@@ -352,6 +351,14 @@ export class WebsocketStore {
             WebsocketEventType.DRAFT_MESSAGE_DELETED,
             (event: WebsocketEvent<DraftMessageDeleted>) => this.handleDraftMessageDeleted(event.payload)
         );
+        map.set(
+            WebsocketEventType.MESSAGE_REACTION_ADDED,
+            (event: WebsocketEvent<MessageReactionAdded>) => this.reactionsToMessages.onMessageReactionAdded(event.payload)
+        );
+        map.set(
+            WebsocketEventType.MESSAGE_REACTION_DELETED,
+            (event: WebsocketEvent<MessageReactionDeleted>) => this.reactionsToMessages.onMessageReactionDeleted(event.payload)
+        )
         
         return map;
     }
@@ -418,11 +425,12 @@ export class WebsocketStore {
             return;
         }
 
-        this.entities.chatParticipations.insert(chatParticipation, {increaseChatParticipantsCount: true});
-        this.entities.chats.insertEntity({
-            ...chat,
-            currentUserParticipationId: chatParticipation.id
-        });
+        if (!this.entities.chatParticipations.findByIdOptional(chatParticipation.id)) {
+            this.entities.chatParticipations.insert(chatParticipation, {
+                increaseChatParticipantsCount: true,
+                setCurrentUserChatParticipationId: chatParticipation.user.id === this.currentUser?.id
+            });
+        }
 
         if (!chat.lastMessage) {
             this.messagesOfChatStore.fetchMessages({
@@ -440,6 +448,36 @@ export class WebsocketStore {
                 this.locale.getCurrentLanguageLabel("chat.join.request.approved", {chatName: chat.name})
             );
         }
+    }
+
+    private handleUserLeftChat(event: UserLeftChat | UserKickedFromChat): void {
+        runInAction(() => {
+            const chat = this.entities.chats.findByIdOptional(event.chatId);
+
+            if (!chat) {
+                return;
+            }
+
+            const existingChatParticipation = this.entities.chatParticipations.findByIdOptional(event.chatParticipationId);
+
+            if (existingChatParticipation) {
+                this.entities.chatParticipations.deleteById(
+                    event.chatParticipationId,
+                    {
+                        decreaseChatParticipantsCount: true,
+                        clearCurrentUserChatParticipationId: event.userId === this.currentUser?.id
+                    }
+                );
+            } else {
+                /*
+                TODO: we should move tracking of participants count off the client
+                and update it with events from websocket
+                because it's so easy to make a mistake and update it twice from multiple places
+                */
+                chat.participantsCount = chat.participantsCount - 1;
+                this.entities.chats.insertEntity(chat);
+            }
+        });
     }
 
     private getChat = async (chatId: string): Promise<ChatOfCurrentUserEntity | undefined> => {

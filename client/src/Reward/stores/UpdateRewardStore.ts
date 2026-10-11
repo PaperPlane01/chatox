@@ -3,12 +3,12 @@ import {AxiosPromise} from "axios";
 import {AbstractRewardFormStore} from "./AbstractRewardFormStore";
 import {Labels, LocaleStore} from "../../localization";
 import {EntitiesStore} from "../../entities-store";
-import {SnackbarService} from "../../Snackbar";
+import type {SnackbarService} from "../../Snackbar/services";
 import {isDefined} from "../../utils/object-utils";
 import {RewardApi} from "../../api";
 import {RewardRequest} from "../../api/types/request";
 import {Reward} from "../../api/types/response";
-import {SelectUserStore} from "../../UserSelect";
+import type {SelectUserStore} from "../../UserSelect/stores";
 
 export class UpdateRewardStore extends AbstractRewardFormStore {
     rewardId?: string = undefined;

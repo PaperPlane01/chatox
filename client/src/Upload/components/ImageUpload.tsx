@@ -4,7 +4,7 @@ import {Image} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {ImageUploadMetadata} from "../../api/types/response";
-import {Avatar, AvatarProps} from "../../Avatar";
+import {Avatar, AvatarProps} from "../../Avatar/components";
 import {PartialBy} from "../../utils/types";
 
 interface ImageUploadProps {

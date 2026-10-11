@@ -11,6 +11,7 @@ import chatox.chat.exception.metadata.ChatNotFoundException
 import chatox.chat.exception.metadata.DefaultRoleIdMustBeSpecifiedException
 import chatox.chat.mapper.ChatRoleMapper
 import chatox.chat.messaging.rabbitmq.event.publisher.ChatRoleEventsPublisher
+import chatox.chat.model.AddReactionsFeatureAdditionalData
 import chatox.chat.model.Chat
 import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatRole
@@ -20,6 +21,7 @@ import chatox.chat.repository.mongodb.ChatParticipationRepository
 import chatox.chat.repository.mongodb.ChatRoleRepository
 import chatox.chat.repository.mongodb.ChatRoleTemplateRepository
 import chatox.chat.service.ChatRoleService
+import chatox.chat.support.validation.ChatFeaturesValidator
 import chatox.chat.util.NTuple2
 import chatox.chat.util.runAsync
 import chatox.platform.cache.ReactiveCacheService
@@ -58,7 +60,8 @@ class ChatRoleServiceImpl(
     private val chatRoleMapper: ChatRoleMapper,
     private val authenticationHolder: ReactiveAuthenticationHolder<User>,
     private val defaultChatRoleCache: DefaultRoleOfChatCacheWrapper,
-    private val chatRoleEventsPublisher: ChatRoleEventsPublisher
+    private val chatRoleEventsPublisher: ChatRoleEventsPublisher,
+    private val chatFeaturesValidator: ChatFeaturesValidator
 ) : ChatRoleService {
     override fun getRoleOfUserInChat(userId: String, chatId: String): Mono<ChatRole> {
         return getRoleAndChatParticipationOfUserInChat(userId, chatId)
@@ -195,6 +198,9 @@ class ChatRoleServiceImpl(
     override fun createChatRole(chatId: String, createChatRoleRequest: CreateChatRoleRequest): Mono<ChatRoleResponse> {
         return mono {
             val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
+
+            val emojis = chatFeaturesValidator.validateAndGetEmojis(createChatRoleRequest.features.addReactions).awaitFirst()
+
             var formerDefaultRole: ChatRole? = null
 
             if (createChatRoleRequest.default) {
@@ -206,7 +212,11 @@ class ChatRoleServiceImpl(
                 id = ObjectId().toHexString(),
                 chatId = chatId,
                 name = createChatRoleRequest.name,
-                features = createChatRoleRequest.features,
+                features = createChatRoleRequest.features.copy(
+                    addReactions = createChatRoleRequest.features.addReactions.copy(
+                        additional = AddReactionsFeatureAdditionalData(emojis)
+                    )
+                ),
                 level = createChatRoleRequest.level,
                 createdAt = ZonedDateTime.now(),
                 createdBy = currentUser.id,
@@ -245,6 +255,8 @@ class ChatRoleServiceImpl(
             chatCacheWrapper.findById(chatId).awaitFirstOrNull()
                 ?: throw ChatNotFoundException("Could not find chat with id $chatId")
 
+            val emojis = chatFeaturesValidator.validateAndGetEmojis(updateChatRoleRequest.features.addReactions).awaitFirst()
+
             val currentUser = authenticationHolder.requireCurrentUser().awaitFirst()
             var chatRole = chatRoleRepository.findById(roleId).awaitFirst()
 
@@ -276,7 +288,11 @@ class ChatRoleServiceImpl(
             chatRole = chatRole.copy(
                 name = updateChatRoleRequest.name,
                 level = updateChatRoleRequest.level,
-                features = updateChatRoleRequest.features,
+                features = updateChatRoleRequest.features.copy(
+                    addReactions = updateChatRoleRequest.features.addReactions.copy(
+                        additional = AddReactionsFeatureAdditionalData(emojis)
+                    )
+                ),
                 updatedBy = currentUser.id,
                 default = updateChatRoleRequest.default,
                 updatedAt = updatedAt

@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {AddUserToBlacklistMenuItem} from "./AddUserToBlacklistMenuItem";
 import {RemoveUserFromBlacklistMenuItem} from "./RemoveUserFromBlacklistMenuItem";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 interface BlacklistUserActionMenuItemWrapperProps {
     userId: string,

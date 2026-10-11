@@ -1,6 +1,6 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
-import {ChatStore} from "../../Chat";
+import type {ChatStore} from "../../Chat/stores";
 import {PaginationState} from "../../utils/types";
 import {ChatApi} from "../../api";
 import {EntitiesStore} from "../../entities-store";

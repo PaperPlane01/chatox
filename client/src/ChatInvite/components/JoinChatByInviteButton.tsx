@@ -1,7 +1,7 @@
 import React, {CSSProperties, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Button, CircularProgress} from "@mui/material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {commonStyles} from "../../style";
 
 export const JoinChatByInviteButton: FunctionComponent = observer(() => {

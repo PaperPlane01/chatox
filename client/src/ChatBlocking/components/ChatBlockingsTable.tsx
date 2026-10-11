@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import {ChatBlockingsTableRow} from "./ChatBlockingsTableRow";
 import {ChatBlockingSortableProperties} from "../types";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {getOppositeSortingDirection} from "../../utils/types";
 
 export const ChatBlockingsTable: FunctionComponent = observer(() => {

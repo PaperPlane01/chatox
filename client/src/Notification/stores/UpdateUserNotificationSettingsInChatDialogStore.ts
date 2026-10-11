@@ -1,5 +1,5 @@
 import {makeAutoObservable} from "mobx";
-import {UpdateChatNotificationsSettingsStore} from "./UpdateChatNotificationsSettingsStore";
+import type {UpdateChatNotificationsSettingsStore} from "./UpdateChatNotificationsSettingsStore";
 
 interface OpenDialogOptions {
 	chatId: string,

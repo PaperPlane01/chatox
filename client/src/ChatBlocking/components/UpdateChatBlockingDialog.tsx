@@ -16,12 +16,12 @@ import {DateTimePicker} from "@mui/x-date-pickers";
 import randomColor from "randomcolor";
 import {HttpStatusCode} from "axios";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
-import {getUserAvatarLabel, getUserDisplayedName} from "../../User/utils/labels";
-import {Avatar} from "../../Avatar";
+import {getUserDisplayedName} from "../../User/utils/labels";
 import {TranslationFunction} from "../../localization";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {useLuminosity, useMobileDialog} from "../../utils/hooks";
+import {UserAvatar} from "../../UserAvatar/components";
 
 const useStyles = makeStyles()(() => ({
     blockedUserContainer: {
@@ -67,7 +67,6 @@ export const UpdateChatBlockingDialog: FunctionComponent = observer(() => {
     }
 
     const username = getUserDisplayedName(blockedUser);
-    const avatarLetters = getUserAvatarLabel(blockedUser);
     const color = randomColor({seed: blockedUser.id, luminosity});
 
     return (
@@ -93,11 +92,7 @@ export const UpdateChatBlockingDialog: FunctionComponent = observer(() => {
                     }}>
                         {l("chat.blocking.block-user")}
                     </Typography>
-                    <Avatar avatarLetter={avatarLetters}
-                            avatarColor={color}
-                            width={25}
-                            height={25}
-                    />
+                    <UserAvatar user={blockedUser} width={25} height={25}/>
                     <Typography style={{color}}>
                         {username}
                     </Typography>

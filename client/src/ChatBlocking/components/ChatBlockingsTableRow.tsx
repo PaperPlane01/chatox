@@ -5,8 +5,8 @@ import {format} from "date-fns";
 import {CancelChatBlockingButton} from "./CancelChatBlockingButton";
 import {UpdateChatBlockingButton} from "./UpdateChatBlockingButton";
 import {isChatBlockingActive} from "../utils";
-import {UserLink} from "../../UserLink";
-import {useLocalization} from "../../store";
+import {UserLink} from "../../UserLink/components";
+import {useLocalization} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 
 interface ChatBlockingsTableRowProps {

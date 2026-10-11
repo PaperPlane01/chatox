@@ -12,4 +12,5 @@ interface MessageEntityService {
     fun updateMessage(message: Message): Mono<MessageResponse>
     fun findMessageEntityById(id: String): Mono<Message>
     fun findMessageEntityById(id: String, retrieveFromCache: Boolean, throwIfNotFound: Boolean): Mono<Message>
+    fun ensureMessageExists(id: String): Mono<Unit>
 }

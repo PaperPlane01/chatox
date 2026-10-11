@@ -1,10 +1,10 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {NotificationsSettingsStore} from "./NotificationsSettingsStore";
+import type {NotificationsSettingsStore} from "./NotificationsSettingsStore";
 import {ApiError, NotificationsSettingsApi} from "../../api";
 import {UpdateGlobalNotificationsSettingsRequest, UpdateNotificationsSettingsRequest} from "../../api/types/request";
 import {ChatType, NotificationLevel, NotificationSound} from "../../api/types/response";
-import {SnackbarService} from "../../Snackbar";
-import {LocaleStore} from "../../localization";
+import type {SnackbarService} from "../../Snackbar/services";
+import type {LocaleStore} from "../../localization";
 
 type NotificationsSettingsMap = {
 	[C in keyof typeof ChatType]: UpdateNotificationsSettingsRequest

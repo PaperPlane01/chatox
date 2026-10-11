@@ -4,7 +4,7 @@ import {Button, Card, CardActions, CardContent, CardHeader, CircularProgress, Ty
 import {makeStyles} from "tss-react/mui";
 import {ChatInviteList} from "./ChatInviteList";
 import {CreateChatInviteButton} from "./CreateChatInviteButton";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {commonStyles} from "../../style";
 import {BaseSettingsTabProps} from "../../utils/types";
 

@@ -1,5 +1,5 @@
 import {action, makeObservable, observable, reaction} from "mobx";
-import {ConfirmationTokenStore} from "./ConfirmationTokenStore";
+import type {ConfirmationTokenStore} from "./ConfirmationTokenStore";
 import {CreateConfirmationTokenFormData, OpenConfirmationTokenDialogOptions} from "../types";
 import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";

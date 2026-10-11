@@ -4,7 +4,7 @@ import {Button, CircularProgress, Grid, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {PopularChatsListItem} from "./PopularChatsListItem";
 import {commonStyles} from "../../style";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 const useStyles = makeStyles()(() => ({
     centered: {

@@ -7,7 +7,7 @@ import {EditableStickerPreview} from "./EditableStickerPreview";
 import {StickerContainer} from "../stores";
 import {StickerPackFormContext} from "../types";
 import {useStickerPackForm} from "../hooks";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 
 interface EditableStickerProps {
     stickerContainer: StickerContainer,

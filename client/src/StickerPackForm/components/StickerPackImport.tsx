@@ -7,7 +7,7 @@ import {ReadingArchiveStep} from "./ReadingArchiveStep";
 import {UploadingFilesStep} from "./UploadingFilesStep";
 import {StickersTypeSelect} from "./StickersTypeSelect";
 import {StickerPackImportStage} from "../types";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 export const StickerPackImport: FunctionComponent = observer(() => {
 	const {

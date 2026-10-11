@@ -1,8 +1,8 @@
 import {makeAutoObservable} from "mobx";
 import {computedFn} from "mobx-utils";
-import {AuthorizationStore} from "../../Authorization";
-import {UserChatRolesStore} from "../../ChatRole";
-import {CurrentUser, JoinAllowanceMap, JoinChatAllowance} from "../../api/types/response";
+import type {AuthorizationStore} from "../../Authorization/stores";
+import type {UserChatRolesStore} from "../../ChatRole/stores";
+import {CurrentUser} from "../../api/types/response";
 
 export class ChatInvitePermissions {
     get currentUser(): CurrentUser | undefined {

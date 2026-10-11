@@ -5,7 +5,7 @@ import {makeStyles} from "tss-react/mui";
 import {JoinChatRequestsList} from "./JoinChatRequestsList";
 import {ApproveSelectedJoinChatRequestsButton} from "./ApproveSelectedJoinChatRequestsButton";
 import {RejectSelectedJoinChatRequestsButton} from "./RejectSelectedJoinChatRequestsButton";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {commonStyles} from "../../style";
 
 const useClasses = makeStyles()((theme: Theme) => ({

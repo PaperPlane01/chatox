@@ -4,7 +4,7 @@ import {observer} from "mobx-react";
 import {Theme, Typography} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {Balance} from "./Balance";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     balanceList: {

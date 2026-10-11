@@ -4,7 +4,7 @@ import {Link} from "mobx-router";
 import {MenuItem, ListItemIcon, ListItemText} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {HourglassBottom} from "@mui/icons-material";
-import {useLocalization, useRouter} from "../../store";
+import {useLocalization, useRouter} from "../../store/hooks";
 import {commonStyles} from "../../style";
 import {Routes} from "../../router";
 

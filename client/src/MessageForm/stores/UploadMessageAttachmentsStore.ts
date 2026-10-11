@@ -5,8 +5,8 @@ import {getInitialApiErrorFromResponse, ProgressCallback, UploadApi} from "../..
 import {AudioUploadMetadata, Upload, UploadType} from "../../api/types/response";
 import {UploadedFileContainer} from "../../utils/file-utils";
 import {Labels} from "../../localization";
-import {EntitiesStore} from "../../entities-store";
-import {ChatStore} from "../../Chat";
+import type {EntitiesStore} from "../../entities-store";
+import type {ChatStore} from "../../Chat/stores";
 
 type UploadFileFunction = (file: File, onUploadProgress?: ProgressCallback) => AxiosPromise<Upload<any>>;
 

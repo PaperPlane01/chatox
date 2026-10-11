@@ -1,7 +1,7 @@
 import {makeAutoObservable, runInAction} from "mobx";
 import {ApiError, ChatInviteApi, getInitialApiErrorFromResponse} from "../../api";
 import {ChatInviteMinified} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 export class ChatInviteInfoStore {
     chatInvite?: ChatInviteMinified = undefined;

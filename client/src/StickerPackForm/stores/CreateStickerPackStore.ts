@@ -6,12 +6,12 @@ import {StickerPackFormData} from "../types";
 import {FormErrors} from "../../utils/types";
 import {CreateStickerRequest} from "../../api/types/request";
 import {getInitialApiErrorFromResponse, StickerApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {createWithUndefinedValues, isDefined} from "../../utils/object-utils";
 import {RouterStoreAware, Routes} from "../../router";
-import {LocaleStore} from "../../localization";
-import {SnackbarService} from "../../Snackbar";
-import {StickerPackEntity} from "../../Sticker";
+import type {LocaleStore} from "../../localization";
+import type {SnackbarService} from "../../Snackbar/services";
+import {StickerPackEntity} from "../../Sticker/types";
 
 const INITIAL_FORM_VALUES: StickerPackFormData = {
     name: "",

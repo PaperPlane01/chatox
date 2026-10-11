@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {FormControl, InputLabel, MenuItem, Select} from "@mui/material";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {ChatDeletionReason} from "../../api/types/response";
 import {Labels} from "../../localization";
 

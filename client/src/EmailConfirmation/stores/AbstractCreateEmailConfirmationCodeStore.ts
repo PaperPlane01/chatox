@@ -6,7 +6,7 @@ import {EmailConfirmationCodeResponse} from "../../api/types/response";
 import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
 import {containsNotUndefinedValues} from "../../utils/object-utils";
-import {LocaleStore} from "../../localization";
+import type {LocaleStore} from "../../localization";
 import {validateEmail} from "../../Registration/validation";
 
 const INITIAL_FORM_VALUES: CreateEmailConfirmationCodeFormData = {

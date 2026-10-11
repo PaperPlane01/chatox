@@ -1,9 +1,9 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
 import {Slide} from "yet-another-react-lightbox";
-import {UserProfileStore} from "./UserProfileStore";
+import type {UserProfileStore} from "./UserProfileStore";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {ImageUploadMetadata, TimeUnit, Upload} from "../../api/types/response";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {ExpirableStore} from "../../expirable-store";
 import {Duration} from "../../utils/date-utils";
 

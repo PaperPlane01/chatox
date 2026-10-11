@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {entries} from "mobx";
 import {List} from "@mui/material";
 import {ChatNotificationException} from "./ChatNotificationException";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {ChatType} from "../../api/types/response";
 
 interface ChatNotificationExceptionListProps {

@@ -14,7 +14,7 @@ export class EmojiService {
 	public async getEmojiData(request: GetEmojiInfoRequest): Promise<EmojiMap> {
 		const result: EmojiMap = {};
 
-        for (let emojiId in request.emojiIds) {
+        for (let emojiId of request.emojiIds) {
             const emojiData = await this.getEmojiDataFromColons(`:${emojiId}:`, "apple");
 
             if (emojiData) {

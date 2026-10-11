@@ -1,7 +1,7 @@
 import {makeAutoObservable} from "mobx";
 import {proxy, transfer} from "comlink";
-import {chunk} from "lodash";
-import {CreateStickerPackStore} from "./CreateStickerPackStore";
+import {chunk} from "lodash-es";
+import type {CreateStickerPackStore} from "./CreateStickerPackStore";
 import {StickerContainer} from "./StickerContainer";
 import {STICKER_PACK_MAX_SIZE} from "../constants";
 import {getStageNumber, StickerPackImportStage, StickersMap} from "../types";
@@ -10,8 +10,8 @@ import {ZipImportFile, ZipImportResponse} from "../../workers/types";
 import {isDefined} from "../../utils/object-utils";
 import {createTuple} from "../../utils/array-utils";
 import {StickerType, UploadType} from "../../api/types/response";
-import {SnackbarService} from "../../Snackbar";
-import {LocaleStore} from "../../localization";
+import type {SnackbarService} from "../../Snackbar/services";
+import type {LocaleStore} from "../../localization";
 
 interface LoadFilesOptions {
 	zipArchive: File,

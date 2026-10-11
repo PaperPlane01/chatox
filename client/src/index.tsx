@@ -6,7 +6,8 @@ import wasmUrl from "@lottiefiles/dotlottie-web/dist/dotlottie-player.wasm?url";
 import data from "@emoji-mart/data/sets/15/all.json";
 import {init} from "emoji-mart"
 import {App} from "./App";
-import {rootStore, store} from "./store";
+import {rootStore} from "./store/root-store";
+import {store} from "./store/store";
 import {RouterStoreAware} from "./router";
 import * as serviceWorker from "./serviceWorker";
 

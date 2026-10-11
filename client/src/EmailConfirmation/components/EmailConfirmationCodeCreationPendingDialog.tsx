@@ -10,7 +10,7 @@ import {
     Typography,
 } from "@mui/material";
 import {makeStyles} from "tss-react/mui";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";
 import {TranslationFunction} from "../../localization";
 

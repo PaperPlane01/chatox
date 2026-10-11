@@ -5,7 +5,7 @@ import {ArrowBack} from "@mui/icons-material";
 import {makeStyles} from "tss-react/mui";
 import {Link} from "mobx-router";
 import {commonStyles} from "../../style";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {Routes} from "../../router";
 

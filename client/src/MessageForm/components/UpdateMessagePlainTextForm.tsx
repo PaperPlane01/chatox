@@ -4,7 +4,7 @@ import {Divider} from "@mui/material";
 import {Edit} from "@mui/icons-material";
 import {MessageFormMessageCard} from "./MessageFormMessageCard";
 import {PlainTextMessageForm} from "./PlainTextMessageForm";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 export const UpdateMessagePlainTextForm: FunctionComponent = observer(() => {
     const {

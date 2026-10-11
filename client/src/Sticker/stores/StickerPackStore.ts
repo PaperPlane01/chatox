@@ -1,6 +1,6 @@
 import {ApiError, getInitialApiErrorFromResponse, StickerApi} from "../../api";
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 export class StickerPackStore {
 	stickerPackId?: string = undefined;

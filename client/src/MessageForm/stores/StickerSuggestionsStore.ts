@@ -1,14 +1,14 @@
 import {makeAutoObservable, reaction, runInAction} from "mobx";
-import {unionBy} from "lodash";
+import {unionBy} from "lodash-es";
 import {EmojiData, getEmojiDataFromNative} from "emoji-mart";
-import {CreateMessageStore} from "./CreateMessageStore";
+import type {CreateMessageStore} from "./CreateMessageStore";
 import {StickerEntity} from "../../Sticker/types";
-import {InstalledStickerPacksStore} from "../../Sticker/stores";
+import type {InstalledStickerPacksStore} from "../../Sticker/stores";
 import {StickerRepository} from "../../Sticker/repositories";
 import {KEYWORD_MAX_LENGTH} from "../../StickerPackForm/constants";
 import {EMOJI_REGEXP} from "../../Emoji/rules";
 import {getEmojiDataFromColons} from "../../Emoji/utils";
-import {RawEntitiesStore} from "../../entities-store";
+import type {RawEntitiesStore} from "../../entities-store";
 import {Repositories} from "../../repositories";
 import {isStringEmpty} from "../../utils/string-utils";
 import {isDefined} from "../../utils/object-utils";

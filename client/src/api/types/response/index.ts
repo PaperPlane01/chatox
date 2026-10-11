@@ -72,3 +72,8 @@ export * from "./StickerUploadMetadata";
 export * from "./StickerType";
 export * from "./ConfirmationTokenResponse";
 export * from "./TransferChatOwnershipResponse";
+export * from "./MessageReaction";
+export * from "./MessageReactionsCount";
+export * from "./MessageReactionsCountMap";
+export * from "./AddReactionsFeatureData";
+export * from "./EmojiDataResponse";

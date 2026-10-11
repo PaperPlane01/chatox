@@ -7,7 +7,7 @@ import chatox.chat.api.response.MessageResponse
 import chatox.chat.config.CacheWrappersConfig
 import chatox.chat.exception.ForwardingFromDialogsIsNotAllowedException
 import chatox.chat.exception.ForwardingFromMultipleChatsIsNotAllowedException
-import chatox.chat.exception.MessageNotFoundException
+import chatox.chat.exception.metadata.MessageNotFoundException
 import chatox.chat.exception.MessageValidationException
 import chatox.chat.exception.StickersAreNotAllowedInDraftMessageException
 import chatox.chat.exception.metadata.ChatDeletedException
@@ -22,12 +22,10 @@ import chatox.chat.model.ChatParticipation
 import chatox.chat.model.ChatType
 import chatox.chat.model.ChatUploadAttachment
 import chatox.chat.model.DraftMessage
-import chatox.chat.model.EmojiInfo
 import chatox.chat.model.Message
 import chatox.chat.model.MessageType
 import chatox.chat.model.ScheduledMessage
 import chatox.chat.model.Sticker
-import chatox.chat.model.TextInfo
 import chatox.chat.model.Upload
 import chatox.chat.model.User
 import chatox.chat.repository.mongodb.ChatMessagesCounterRepository
@@ -45,7 +43,6 @@ import chatox.chat.service.CreateMessageService
 import chatox.chat.service.MessageEntityService
 import chatox.chat.service.MessageReadService
 import chatox.chat.service.MessageService
-import chatox.chat.service.TextParserService
 import chatox.chat.util.NTuple2
 import chatox.chat.util.NTuple6
 import chatox.chat.util.NTuple7
@@ -53,6 +50,10 @@ import chatox.chat.util.runAsync
 import chatox.platform.cache.ReactiveRepositoryCacheWrapper
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.text.api.reactive.TextParserApi
+import chatox.platform.text.api.request.ParseTextRequest
+import chatox.platform.text.api.response.EmojiInfo
+import chatox.platform.text.api.response.TextInfo
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.mono
@@ -80,7 +81,7 @@ class CreateMessageServiceImpl(
     private val chatCacheWrapper: ReactiveRepositoryCacheWrapper<Chat, String>,
     private val messageEntityService: MessageEntityService,
     private val chatUploadAttachmentEntityService: ChatUploadAttachmentEntityService,
-    private val textParser: TextParserService,
+    private val textParserApi: TextParserApi,
     private val messageReadService: MessageReadService,
     private val messageService: MessageService,
     private val chatParticipationService: ChatParticipationService,
@@ -716,7 +717,11 @@ class CreateMessageServiceImpl(
             return Mono.just(TextInfo())
         }
 
-        return textParser.parseText(text, emojiSet)
+        return textParserApi.parseText(ParseTextRequest(
+            text = text,
+            emojiSet = emojiSet,
+            parseColons = true
+        ))
     }
 
     private fun getUploadsAndAttachments(

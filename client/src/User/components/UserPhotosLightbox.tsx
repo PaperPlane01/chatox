@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Lightbox} from "yet-another-react-lightbox";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {UserProfilePhotoMenu} from "./UserProfilePhotoMenu";
 
 export const UserPhotosLightbox: FunctionComponent = observer(() => {

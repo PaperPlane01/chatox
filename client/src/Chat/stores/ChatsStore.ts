@@ -1,6 +1,6 @@
 import {action, computed, makeObservable, observable, override} from "mobx";
 import {computedFn} from "mobx-utils";
-import {mergeWith, uniq} from "lodash";
+import {mergeWith, uniq} from "lodash-es";
 import {ChatOfCurrentUserEntity} from "../types";
 import {EntityDeletionOptions, SoftDeletableEntityStore} from "../../entity-store";
 import {
@@ -14,7 +14,7 @@ import {
 } from "../../api/types/response";
 import {EntitiesPatch, EntitiesStore, RawEntitiesStore} from "../../entities-store";
 import {isDefined, mergeCustomizer} from "../../utils/object-utils";
-import {AuthorizationStore} from "../../Authorization";
+import type {AuthorizationStore} from "../../Authorization/stores";
 import {PartialBy} from "../../utils/types";
 import {ChatUpdated, PrivateChatCreated} from "../../api/types/websocket";
 
@@ -106,7 +106,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
         const patch = this.createEmptyEntitiesPatch("chats", "chatParticipations");
         const patches: EntitiesPatch[] = [];
 
-        patch.entities.chats[privateChatCreated.id] = {
+        patch.entities.chats.set(privateChatCreated.id, {
             id: privateChatCreated.id,
             name: "",
             lastMessage: privateChatCreated.message.id,
@@ -126,8 +126,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
             joinAllowanceSettings: populateJoinAllowanceSettings({}),
             hideFromSearch: true,
             unreadMentionsCount: 0
-        };
-        patch.ids.chats.push(privateChatCreated.id);
+        });
 
         patches.push(this.entities.chatParticipations.createPatchForArray([currentUserChatParticipation, otherUserChatParticipation]));
 
@@ -346,8 +345,7 @@ export class ChatsStore extends SoftDeletableEntityStore<
 
             chat.messages = uniq(chat.messages);
 
-            patch.entities.chats[denormalizedEntity.id] = chat;
-            patch.ids.chats.push(chat.id);
+            patch.entities.chats.set(chat.id, chat);
         });
 
         return mergeWith(patch, ...patches, mergeCustomizer);

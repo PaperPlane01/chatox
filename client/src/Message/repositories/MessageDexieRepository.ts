@@ -20,10 +20,10 @@ export class MessageDexieRepository extends AbstractDexieRepository<MessageEntit
 		return this.table.where("chatId").equals(chatId).toArray();
 	}
 
-	findByChatIdAndCreatedAtBetween(chatId: string, createdAtBefore: Date, createdAtAfter: Date): Promise<MessageEntity[]> {
+	async findByChatIdAndCreatedAtBetween(chatId: string, createdAtBefore: Date, createdAtAfter: Date): Promise<MessageEntity[]> {
 		return this.table.where("[chatId+createdAt]").between(
-			[chatId, createdAtBefore],
-			[chatId, createdAtAfter]
+			[chatId, createdAtAfter],
+			[chatId, createdAtBefore]
 		)
 			.toArray();
 	}

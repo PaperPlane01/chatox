@@ -1,13 +1,13 @@
 import {action, makeObservable, reaction} from "mobx";
-import {ChatFeaturesFormStore} from "./ChatFeaturesFormStore";
+import type {ChatFeaturesFormStore} from "./ChatFeaturesFormStore";
 import {ChatRoleFormData} from "../types";
 import {validateRoleLevel, validateRoleName} from "../validation";
 import {AbstractFormStore} from "../../form-store";
 import {FormErrors} from "../../utils/types";
 import {CreateChatRoleRequest} from "../../api/types/request";
-import {EntitiesStore} from "../../entities-store";
-import {Labels, LocaleStore} from "../../localization";
-import {SnackbarService} from "../../Snackbar";
+import type {EntitiesStore} from "../../entities-store";
+import {Labels, type LocaleStore} from "../../localization";
+import type {SnackbarService} from "../../Snackbar/services";
 
 const INITIAL_FORM_VALUES: ChatRoleFormData = {
     name: "",

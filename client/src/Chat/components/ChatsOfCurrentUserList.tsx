@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {CircularProgress, Divider, List} from "@mui/material";
 import {ChatsOfCurrentUserListItem} from "./ChatsOfCurrentUserListItem";
 import {ChatsOfCurrentUserListProps} from "../types";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 export const ChatsOfCurrentUserList: FunctionComponent<ChatsOfCurrentUserListProps> = observer(({classes}) => {
     const {

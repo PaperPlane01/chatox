@@ -7,7 +7,7 @@ import {PinnedMessage} from "./PinnedMessage";
 import {MessagesListBottom} from "./MessagesListBottom";
 import {useMessagesListBottomStyles, useMessagesListRefs, useMessagesListStyles} from "../hooks";
 import {calculateMessagesListStyles} from "../utils";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 export const VirtualMessagesList: FunctionComponent = observer(() => {
     const {

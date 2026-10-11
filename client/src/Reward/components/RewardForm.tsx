@@ -5,7 +5,7 @@ import {DateTimePicker} from "@mui/x-date-pickers";
 import {RecurringPeriodTimeUnitSelect} from "./RecurringPeriodTimeUnitSelect";
 import {RewardFormData} from "../types";
 import {FormErrors} from "../../utils/types";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {MAX_RECURRING_PERIOD_VALUE, MAX_REWARD_VALUE} from "../validation";
 
 interface RewardFormProps {

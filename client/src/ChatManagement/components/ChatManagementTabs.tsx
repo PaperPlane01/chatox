@@ -6,7 +6,7 @@ import {ChatManagementTabWrapper} from "./ChatManagementTabWrapper";
 import {ChatManagementMenuItemWrapper} from "./ChatManagementMenuItemWrapper";
 import {CHAT_MANAGEMENT_TABS, ChatManagementTab} from "../types";
 import {useChatManagementPending, useChatManagementPermissions, useTabAccessMap} from "../hooks";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store/hooks";
 import {commonStyles, createTabStyles} from "../../style";
 import {Routes} from "../../router";
 

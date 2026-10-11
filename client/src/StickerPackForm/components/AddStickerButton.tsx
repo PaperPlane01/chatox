@@ -4,7 +4,7 @@ import {Button, Theme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {StickerPackFormContext} from "../types";
 import {useStickerPackForm} from "../hooks";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {commonStyles} from "../../style";
 
 interface AddStickerButtonProps {

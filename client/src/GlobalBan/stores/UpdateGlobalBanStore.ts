@@ -5,7 +5,7 @@ import {validateGlobalBanComment, validateGlobalBanExpirationDate} from "../vali
 import {GlobalBanReason} from "../../api/types/response";
 import {FormErrors} from "../../utils/types";
 import {ApiError, getInitialApiErrorFromResponse, GlobalBanApi} from "../../api";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 
 const UPDATE_GLOBAL_BAN_FORM_INITIAL_STATE: BanUserFormData = {
     comment: "",

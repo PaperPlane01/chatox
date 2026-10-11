@@ -2,7 +2,7 @@ import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ListItemIcon, ListItemText, MenuItem} from "@mui/material";
 import {Send} from "@mui/icons-material";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 
 interface SendMessageMenuItemProps {
     onClick: () => void

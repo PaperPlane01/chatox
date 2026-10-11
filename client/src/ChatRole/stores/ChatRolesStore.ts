@@ -1,5 +1,5 @@
 import {computedFn} from "mobx-utils";
-import {mergeWith} from "lodash";
+import {mergeWith} from "lodash-es";
 import {ChatRoleEntity} from "../types";
 import {AbstractEntityStore} from "../../entity-store";
 import {EntitiesPatch} from "../../entities-store";
@@ -18,8 +18,7 @@ export class ChatRolesStore extends AbstractEntityStore<"chatRoles", ChatRoleEnt
 
         denormalizedEntities.forEach(chatRole => {
             const entity = this.convertToNormalizedForm(chatRole);
-            patch.entities.chatRoles[entity.id] = entity;
-            patch.ids.chatRoles.push(entity.id);
+            patch.entities.chatRoles.set(entity.id, entity);
 
             if (chatRole.createdBy) {
                 patches.push(this.entities.users.createPatch(chatRole.createdBy));

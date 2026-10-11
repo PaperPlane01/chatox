@@ -1,7 +1,7 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {ChatParticipantsList} from "./ChatParticipantsList";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 
 export const AllChatParticipantsList: FunctionComponent = observer(() => {
     const {

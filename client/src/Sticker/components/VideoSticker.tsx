@@ -6,7 +6,7 @@ import {BaseStickerProps} from "./BaseStickerProps";
 import {useStickerLongClick} from "../hooks";
 import {stickerWrapperStyle} from "../styles";
 import {useEntityById, useEntitySelector} from "../../entities";
-import {useStore} from "../../store";
+import {useStore} from "../../store/hooks";
 import {isDefined} from "../../utils/object-utils";
 
 const useStyles = makeStyles()(() => ({

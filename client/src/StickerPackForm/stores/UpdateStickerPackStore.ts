@@ -6,9 +6,9 @@ import {ApiError, getInitialApiErrorFromResponse, StickerApi} from "../../api";
 import {CreateStickerRequest, UpdateStickerPackRequest} from "../../api/types/request";
 import {createWithUndefinedValues, isDefined} from "../../utils/object-utils";
 import {FormErrors} from "../../utils/types";
-import {EntitiesStore} from "../../entities-store";
-import {SnackbarService} from "../../Snackbar";
-import {LocaleStore} from "../../localization";
+import type {EntitiesStore} from "../../entities-store";
+import type {SnackbarService} from "../../Snackbar/services";
+import type {LocaleStore} from "../../localization";
 
 const INITIAL_FORM_VALUES: StickerPackFormData = {
 	name: "",

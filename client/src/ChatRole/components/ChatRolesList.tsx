@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {CircularProgress, List} from "@mui/material";
 import {ChatRolesListItem} from "./ChatRolesListItem";
 import {CreateChatRoleButton} from "./CreateChatRoleButton";
-import {useStore, usePermissions} from "../../store";
+import {useStore, usePermissions} from "../../store/hooks";
 
 export const ChatRolesList: FunctionComponent = observer(() => {
     const {

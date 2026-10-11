@@ -1,6 +1,6 @@
 import {makeAutoObservable, reaction} from "mobx";
 import {computedFn} from "mobx-utils";
-import {ChatStore} from "../../Chat";
+import type {ChatStore} from "../../Chat/stores";
 
 export class MessagesListScrollPositionsStore {
     scrollPositionsMap: {[chatId: string]: number} = {};

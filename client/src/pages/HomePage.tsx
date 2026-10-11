@@ -1,11 +1,11 @@
 import React, {FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Card, CardContent, CardHeader, Grid, Typography} from "@mui/material";
-import {usePermissions} from "../store";
-import {Layout} from "../Layout";
-import {AppBar} from "../AppBar";
-import {HasRole} from "../Authorization";
-import {CreateChatDialog, CreateChatFloatingActionButton, PopularChatsList} from "../Chat";
+import {usePermissions} from "../store/hooks";
+import {Layout} from "../Layout/components";
+import {AppBar} from "../AppBar/components";
+import {HasRole} from "../Authorization/components";
+import {CreateChatDialog, CreateChatFloatingActionButton, PopularChatsList} from "../Chat/components";
 
 export const HomePage: FunctionComponent = observer(() => {
     const {

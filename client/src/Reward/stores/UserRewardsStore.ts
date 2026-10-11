@@ -7,10 +7,9 @@ export class UserRewardsStore extends AbstractEntityStore<"userRewards", UserRew
     createPatchForArray(denormalizedEntities: UserReward[], options: {} | undefined): EntitiesPatch {
         const patch = this.createEmptyEntitiesPatch("userRewards");
 
-        denormalizedEntities.forEach(reward => {
-            patch.ids.userRewards.push(reward.id);
-            patch.entities.userRewards[reward.id] = this.convertToNormalizedForm(reward);
-        });
+        denormalizedEntities.forEach(reward =>
+            patch.entities.userRewards.set(reward.id, this.convertToNormalizedForm(reward))
+        );
 
         return patch;
     }

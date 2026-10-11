@@ -1,6 +1,6 @@
 import {makeAutoObservable} from "mobx";
 import {createTransformer} from "mobx-utils";
-import {EntitiesAware, EntitiesStore} from "../../entities-store";
+import {EntitiesAware, type EntitiesStore} from "../../entities-store";
 
 interface GetRoleOfUserInChatOptions {
     chatId: string,

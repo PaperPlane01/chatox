@@ -3,6 +3,8 @@ package chatox.sticker.service.impl
 import chatox.platform.pagination.PaginationRequest
 import chatox.platform.security.jwt.JwtPayload
 import chatox.platform.security.reactive.ReactiveAuthenticationHolder
+import chatox.platform.text.api.reactive.TextParserApi
+import chatox.platform.text.api.request.GetEmojiInfoRequest
 import chatox.platform.upload.UploadType
 import chatox.platform.util.runAsync
 import chatox.sticker.api.request.CreateStickerPackRequest
@@ -14,7 +16,6 @@ import chatox.sticker.api.response.StickerResponse
 import chatox.sticker.exception.metadata.StickerNotFoundException
 import chatox.sticker.exception.metadata.StickerPackNotFoundException
 import chatox.sticker.exception.metadata.UploadsNotFoundException
-import chatox.sticker.external.TextParserApi
 import chatox.sticker.mapper.StickerMapper
 import chatox.sticker.mapper.StickerPackMapper
 import chatox.sticker.messaging.rabbitmq.event.StickerPackDeleted
@@ -143,7 +144,7 @@ class StickerPackServiceImpl(
 
             if (stickerUpdates.isNotEmpty()) {
                 val emojiIds = stickerUpdates.values.flatMap { update -> update.emojis }.toSet()
-                val emojiInfo = textParserApi.getEmojiInfo(emojiIds).awaitFirst()
+                val emojiInfo = textParserApi.getEmojiInfo(GetEmojiInfoRequest(emojiIds)).awaitFirst()
 
                 updatedStickers = stickerUpdates.values.map { update ->
                     existingStickers.getValue(update.id).copy(
@@ -270,7 +271,7 @@ class StickerPackServiceImpl(
             }
 
             val emojiIds = createStickerRequests.flatMap { request -> request.emojis }.toSet()
-            val emojisMap = textParserApi.getEmojiInfo(emojiIds).awaitFirst()
+            val emojisMap = textParserApi.getEmojiInfo(GetEmojiInfoRequest(emojiIds)).awaitFirst()
 
             val stickers = createStickerRequests.map { request ->
                 Sticker(
@@ -283,9 +284,7 @@ class StickerPackServiceImpl(
                 )
             }
 
-            stickerRepository.saveAll(stickers).collectList().awaitFirst()
-
-            return@mono Flux.fromIterable(stickers)
+            return@mono Flux.fromIterable(stickerRepository.saveAll(stickers).collectList().awaitFirst())
         }
             .flatMapMany { it }
     }

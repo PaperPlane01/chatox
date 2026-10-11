@@ -1,9 +1,9 @@
 import {makeAutoObservable, reaction} from "mobx";
+import type {PasswordChangeStepStore} from "./PasswordChangeStepStore";
 import {ChangePasswordFormData, ChangePasswordStep} from "../types";
 import {FormErrors} from "../../utils/types";
 import {ApiError, getInitialApiErrorFromResponse, UserApi} from "../../api";
 import {validatePassword, validateRepeatedPassword} from "../../Registration/validation";
-import {PasswordChangeStepStore} from "./PasswordChangeStepStore";
 
 export interface EmailConfirmationArguments {
     emailConfirmationId: string,

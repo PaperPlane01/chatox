@@ -1,5 +1,5 @@
 import {makeAutoObservable, runInAction} from "mobx";
-import {BlacklistedUsersStore} from "./BlacklistedUsersStore";
+import type {BlacklistedUsersStore} from "./BlacklistedUsersStore";
 import {ApiError, BlacklistApi, getInitialApiErrorFromResponse} from "../../api";
 
 export class AddUserToBlacklistStore {

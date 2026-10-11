@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 import {Button, Theme} from "@mui/material";
 import {makeStyles} from "tss-react/mui";
 import {stringify} from "query-string";
-import {useLocalization, useRouter, useStore} from "../../store";
+import {useLocalization, useRouter, useStore} from "../../store/hooks";
 
 const useStyles = makeStyles()((theme: Theme) => ({
     loginWithGoogleButton: {

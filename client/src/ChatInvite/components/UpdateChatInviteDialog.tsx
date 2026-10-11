@@ -5,7 +5,7 @@ import {HttpStatusCode} from "axios";
 import {ChatInviteForm} from "./ChatInviteForm";
 import {ChatInviteUpdateUserSelect} from "./ChatInviteUpdateUserSelect";
 import {getChatInviteLink} from "../utils";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 import {useEntityById} from "../../entities";
 import {useMobileDialog} from "../../utils/hooks";
 import {API_UNREACHABLE_STATUS, ApiError} from "../../api";

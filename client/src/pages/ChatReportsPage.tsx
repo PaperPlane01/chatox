@@ -1,11 +1,11 @@
 import React, {CSSProperties, FunctionComponent, useEffect, useRef, useState} from "react";
 import {observer} from "mobx-react";
 import {Grid, Typography} from "@mui/material";
-import {Layout} from "../Layout";
-import {AppBar} from "../AppBar";
-import {HasRole} from "../Authorization";
-import {BanChatsCreatorsDialog, ChatReportsActions, RejectReportsSnackbarManager, ReportedChatsTable} from "../Report";
-import {useLocalization, useStore} from "../store";
+import {Layout} from "../Layout/components";
+import {AppBar} from "../AppBar/components";
+import {HasRole} from "../Authorization/components";
+import {BanChatsCreatorsDialog, ChatReportsActions, RejectReportsSnackbarManager, ReportedChatsTable} from "../Report/components";
+import {useLocalization, useStore} from "../store/hooks";
 
 export const ChatReportsPage: FunctionComponent = observer(() => {
     const {l} = useLocalization();

@@ -1,9 +1,9 @@
 import {makeAutoObservable, observable, reaction, runInAction} from "mobx";
 import {computedFn} from "mobx-utils";
-import {EntitiesStore} from "../../entities-store";
+import type {EntitiesStore} from "../../entities-store";
 import {CurrentUser, ReportStatus, ReportType} from "../../api/types/response";
 import {ApiError, getInitialApiErrorFromResponse, ReportsApi} from "../../api";
-import {AuthorizationStore} from "../../Authorization/stores";
+import type {AuthorizationStore} from "../../Authorization/stores";
 
 export class ReportsListStore {
     pending: boolean = false;

@@ -3,7 +3,8 @@ import {observer} from "mobx-react";
 import {EmojiData} from "emoji-mart";
 import {LexicalEditor} from "lexical";
 import {ADD_EMOJI} from "../commands";
-import {EmojiAndStickerPicker, EmojiPicker, EmojiPickerVariant} from "../../EmojiPicker";
+import {EmojiAndStickerPicker, EmojiPicker} from "../../EmojiPicker/components";
+import {EmojiPickerVariant} from "../../EmojiPicker/types";
 import {isDefined} from "../../utils/object-utils";
 
 interface UncontainedEmojiPickerProps {

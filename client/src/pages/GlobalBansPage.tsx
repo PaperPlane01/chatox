@@ -1,9 +1,9 @@
 import React, {FunctionComponent} from "react";
 import {Grid, Typography} from "@mui/material";
-import {GlobalBansContainer, GlobalBanDetailsDialog, UpdateGlobalBanDialog} from "../GlobalBan";
-import {AppBar} from "../AppBar";
-import {HasRole} from "../Authorization";
-import {Layout} from "../Layout";
+import {GlobalBansContainer, GlobalBanDetailsDialog, UpdateGlobalBanDialog} from "../GlobalBan/components";
+import {AppBar} from "../AppBar/components";
+import {HasRole} from "../Authorization/components";
+import {Layout} from "../Layout/components";
 
 export const GlobalBansPage: FunctionComponent = () => (
     <Grid container>

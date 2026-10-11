@@ -1,6 +1,7 @@
 package chatox.chat.model
 
 import chatox.chat.api.request.CreateMessageRequest
+import chatox.platform.text.api.response.EmojiInfo
 import java.time.ZonedDateTime
 
 interface MessageInterface {
@@ -31,6 +32,12 @@ interface MessageInterface {
     val forwardedById: String?
     val chatParticipationIdInSourceChat: String?
     val mentionedUsers: List<String>
+    val reactionsCount: List<MessageReactionsCount>
+
+    /**
+     * Key: Emoji ID, value: List of last 3 reactions
+     */
+    val lastReactions: Map<String, List<MessageReaction>>
 
     fun equalsTo(createMessageRequest: CreateMessageRequest): Boolean {
         return createMessageRequest.text == text

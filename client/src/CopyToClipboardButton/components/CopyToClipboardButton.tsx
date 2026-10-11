@@ -5,7 +5,7 @@ import {ContentCopy} from "@mui/icons-material";
 import {useSnackbar} from "notistack";
 import copy from "copy-to-clipboard";
 import {Labels} from "../../localization";
-import {useLocalization} from "../../store";
+import {useLocalization} from "../../store/hooks";
 import {ensureEventWontPropagate} from "../../utils/event-utils";
 
 interface CopyToClipboardButtonProps {

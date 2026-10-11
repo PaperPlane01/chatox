@@ -2,7 +2,7 @@ import React, {Fragment, FunctionComponent} from "react";
 import {observer} from "mobx-react";
 import {Checkbox, FormControlLabel} from "@mui/material";
 import {DefaultChatFeatureForm} from "./DefaultChatFeatureForm";
-import {useLocalization, useStore} from "../../store";
+import {useLocalization, useStore} from "../../store/hooks";
 
 
 export const BlockUsersInChatFeatureForm: FunctionComponent = observer(() => {

@@ -20,10 +20,7 @@ export class StickerAnimationDataDexieRepository extends AbstractDexieRepository
 
 	async restoreEntityPatchForEntities(entities: StickerAnimationData[]): Promise<EntitiesPatch> {
 		const entitiesPatch = createEmptyEntitiesPatch("stickerAnimationData");
-		entities.forEach(entity => {
-			entitiesPatch.ids.stickerAnimationData.push(entity.id);
-			entitiesPatch.entities.stickerAnimationData[entity.id] = entity;
-		});
+		entities.forEach(entity => entitiesPatch.entities.stickerAnimationData.set(entity.id, entity));
 		return entitiesPatch;
 	}
 }
