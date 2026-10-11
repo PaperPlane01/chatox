@@ -20,7 +20,7 @@
     "@mui/x-date-pickers": "^8.27.2",
     "@react-hook/resize-observer": "^2.0.2",
     "@zip.js/zip.js": "^2.8.8",
-    "axios": "^1.13.6",
+    "axios": "^1.20.0",
     "comlink": "^4.4.2",
     "copy-to-clipboard": "^3.3.3",
     "date-fns": "^4.1.0",
