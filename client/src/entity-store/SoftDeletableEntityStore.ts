@@ -8,7 +8,8 @@ type SoftDeletableEntity<EntityName extends Entities> = GetEntityType<EntityName
 }
 
 export interface EntityDeletionOptions {
-    hardDelete?: boolean
+    hardDelete?: boolean,
+    skipRemovingFromDatabase?: boolean
 }
 
 export abstract class SoftDeletableEntityStore<
@@ -40,7 +41,7 @@ export abstract class SoftDeletableEntityStore<
         const hardDelete = options?.hardDelete ?? false;
 
         if (hardDelete) {
-            this.rawEntities.deleteEntity(this.entityName, id);
+            this.rawEntities.deleteEntity(this.entityName, id, options?.skipRemovingFromDatabase);
         } else {
             const entity = this.findById(id);
             entity.deleted = true;
